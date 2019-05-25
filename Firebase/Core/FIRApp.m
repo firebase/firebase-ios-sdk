@@ -15,11 +15,15 @@
 #include <sys/utsname.h>
 
 #import "FIRApp.h"
+
+#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+
 #import "Private/FIRAnalyticsConfiguration.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
 #import "Private/FIRConfigurationInternal.h"
+#import "Private/FIRDiagnosticsData.h"
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
@@ -54,10 +58,7 @@ NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
 NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
     @"FirebaseDataCollectionDefaultEnabled";
 
-NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
-
 NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"ConfigType";
-NSString *const kFIRAppDiagnosticsErrorKey = @"Error";
 NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRApp";
 NSString *const kFIRAppDiagnosticsSDKNameKey = @"SDKName";
 NSString *const kFIRAppDiagnosticsSDKVersionKey = @"SDKVersion";
@@ -107,15 +108,20 @@ static NSMutableDictionary *sLibraryVersions;
     // since the app isn't configured at all, so only rely on the Info.plist value.
     NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
     if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
-      [[NSNotificationCenter defaultCenter]
-          postNotificationName:kFIRAppDiagnosticsNotification
-                        object:nil
-                      userInfo:@{
-                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                        kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
-                      }];
+      if (NSClassFromString(@"FIRDiagnostics")) {
+        FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
+        [diagnosticsData insertValueIfNotNil:collectionEnabledPlistValue forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+        [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+        [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore)
+                                      forKey:kFIRCDConfigurationTypeKey];
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:kFIRDiagnosticsNotification
+                          object:nil
+                        userInfo:@{
+                          kFIRDiagnosticsDataNotifKey : diagnosticsData,
+                        }];
+      }
     }
-
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
@@ -293,26 +299,35 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
-    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled]) {
+    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled] &&
+        NSClassFromString(@"FIRDiagnostics")) {
+      FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
+      [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+      [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+      [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
       [[NSNotificationCenter defaultCenter]
-          postNotificationName:kFIRAppDiagnosticsNotification
+          postNotificationName:kFIRDiagnosticsNotification
                         object:nil
-                      userInfo:@{
-                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                        kFIRAppDiagnosticsErrorKey : [FIRApp errorForInvalidAppID],
-                      }];
+                      userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
     }
     return NO;
   }
 
-  if ([self isDataCollectionDefaultEnabled]) {
+  if ([self isDataCollectionDefaultEnabled] && NSClassFromString(@"FIRDiagnostics")) {
+    FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
+    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
+    [diagnosticsData insertValueIfNotNil:self.options.googleAppID forKey:kFIRCDGoogleAppIDKey];
+    [diagnosticsData insertValueIfNotNil:self.options.bundleID forKey:kFIRCDBundleIDKey];
+    [diagnosticsData insertValueIfNotNil:@(self.options.usingOptionsFromDefaultPlist)
+                                  forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
+    [diagnosticsData insertValueIfNotNil:self.options.libraryVersionID
+                                  forKey:kFIRCDLibraryVersionIDKey];
     [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
+        postNotificationName:kFIRDiagnosticsNotification
                       object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsFIRAppKey : self
-                    }];
+                    userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
   }
 
 #if TARGET_OS_IOS
@@ -817,18 +832,25 @@ static NSMutableDictionary *sLibraryVersions;
     return;
   }
 
-  NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{
-    kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeSDK),
-    kFIRAppDiagnosticsSDKNameKey : serviceName,
-    kFIRAppDiagnosticsSDKVersionKey : version,
-    kFIRAppDiagnosticsFIRAppKey : self
-  }];
-  if (error) {
-    userInfo[kFIRAppDiagnosticsErrorKey] = error;
+  if (NSClassFromString(@"FIRDiagnostics")) {
+    FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
+    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeSDK) forKey:kFIRCDConfigurationTypeKey];
+    [diagnosticsData insertValueIfNotNil:serviceName forKey:kFIRCDSdkNameKey];
+    [diagnosticsData insertValueIfNotNil:version forKey:kFIRCDSdkVersionKey];
+    [diagnosticsData insertValueIfNotNil:self.options.googleAppID forKey:kFIRCDGoogleAppIDKey];
+    [diagnosticsData insertValueIfNotNil:self.options.bundleID forKey:kFIRCDBundleIDKey];
+    [diagnosticsData insertValueIfNotNil:@(self.options.usingOptionsFromDefaultPlist)
+                                  forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
+    [diagnosticsData insertValueIfNotNil:self.options.libraryVersionID
+                                  forKey:kFIRCDLibraryVersionIDKey];
+
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRDiagnosticsNotification
+                      object:nil
+                    userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
   }
-  [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDiagnosticsNotification
-                                                      object:nil
-                                                    userInfo:userInfo];
 }
 
 @end
