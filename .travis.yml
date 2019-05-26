@@ -17,7 +17,7 @@ jobs:
         - brew install clang-format
         - brew install swiftformat
       script:
-        - ./scripts/check.sh --test-only $TRAVIS_COMMIT_RANGE
+        - ./scripts/check.sh --test-only
 
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
