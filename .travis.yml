@@ -16,10 +16,8 @@ jobs:
       before_install:
         - brew install clang-format
         - brew install swiftformat
-      env:
-        - if [[ -z $TRAVIS_COMMIT_RANGE ]] ; then echo PARAM=$TRAVIS_COMMIT; else PARAM=$TRAVIS_COMMIT_RANGE; fi
       script:
-        - ./scripts/check.sh --test-only $PARAM
+        - ./scripts/travis_check.sh --test-only
 
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
@@ -376,5 +374,5 @@ jobs:
 branches:
   only:
     - master
-    - pb-tmp6
+    - pb-tmp7
 

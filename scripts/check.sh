@@ -130,6 +130,11 @@ while [[ $# -gt 0 ]]; do
       # require a clean source tree.
       ALLOW_DIRTY=true
       TEST_ONLY=true
+      if ! [[ -z $TRAVIS_COMMIT_RANGE ]] ; then
+        START_REVISION="$TRAVIS_COMMIT_RANGE"
+      elif ! [[ -z $TRAVIS_COMMIT ]] ; then
+        START_REVISION="$TRAVIS_COMMIT"
+      fi
       ;;
 
     *)
