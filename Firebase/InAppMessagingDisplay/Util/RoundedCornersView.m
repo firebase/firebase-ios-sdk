@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "RoundedCornersView.h"
 
-typedef NS_ENUM(NSInteger, FIRIAMSDKRuntimeError) {
-  // Failed to crawl the image URL.
-  FIRIAMSDKRuntimeErrorImageNotFetchable = 0,
+@implementation RoundedCornersView
 
-  // Crawling the image URL sees non-image type data being returned.
-  FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL = 1,
+- (void)setCornerRadius:(CGFloat)cornerRadius {
+  self.layer.cornerRadius = cornerRadius;
+  self.layer.masksToBounds = cornerRadius > 0;
+}
 
-  // The response when fetching the image is non-HTTP.
-  FIRIAMSDKRuntimeErrorNonHTTPResponseForImage = 2,
-};
+@end

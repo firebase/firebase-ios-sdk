@@ -838,7 +838,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           FIRAuthDataResult *result = user ?
               [[FIRAuthDataResult alloc] initWithUser:user
                                    additionalUserInfo:additionalUserInfo] : nil;
-          callback(result, error);
+          if (callback) {
+            callback(result, error);
+          }
         }];
       }
     }];

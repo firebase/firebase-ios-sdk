@@ -130,11 +130,11 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-# TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
-# Travis.
+# TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
+# Right now, it makes the log overflow on Travis because many of our
+# dependencies don't build cleanly this way.
 cmake_options=(
   -Wdeprecated
-  --warn-uninitialized
 )
 
 xcode_version=$(xcodebuild -version | head -n 1)
@@ -199,8 +199,9 @@ case "$product-$method-$platform" in
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
 
-      # Run integration tests (not allowed on PRs)
-      if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      # Run integration tests (not allowed on forks)
+      if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+            "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Auth_ApiTests" \

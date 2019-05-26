@@ -194,7 +194,10 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 - (void)messageTapped:(UITapGestureRecognizer *)recognizer {
   [self.autoDismissTimer invalidate];
   [self dismissViewWithAnimation:^(void) {
-    [self followActionURL];
+    FIRInAppMessagingAction *action =
+        [[FIRInAppMessagingAction alloc] initWithActionText:nil
+                                                  actionURL:self.bannerDisplayMessage.actionURL];
+    [self followAction:action];
   }];
 }
 

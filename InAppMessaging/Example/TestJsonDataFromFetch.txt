@@ -163,6 +163,57 @@
           "fiamTrigger": "ON_FOREGROUND"
         }
       ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "5432869654332221",
+        "campaignStartTimeMillis": "1519934650000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Super Bowl LIV"
+      },
+      "content": {
+        "card": {
+          "title": {
+            "text": "Eagles are going to win",
+            "hexColor": "#004953"
+          },
+          "body": {
+            "text": "Start of a dynasty.",
+            "hexColor": "#004953"
+          },
+          "portraitImageUrl": "https://image.com/birds.png",
+          "landscapeImageUrl": "https://image.com/ls_birds.png",
+          "primaryActionButton": {
+            "text": {
+              "text": "Win Super Bowl LIV",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "secondaryActionButton": {
+            "text": {
+              "text": "Win Super Bowl LV",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "primaryAction": {
+            "actionUrl": "https://www.google.com"
+          },
+          "secondaryAction": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
     }
   ],
   "expirationEpochTimestampMillis": "1537896430193"

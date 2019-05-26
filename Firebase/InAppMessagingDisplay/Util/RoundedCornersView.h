@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+IB_DESIGNABLE
 
-typedef NS_ENUM(NSInteger, FIRIAMSDKRuntimeError) {
-  // Failed to crawl the image URL.
-  FIRIAMSDKRuntimeErrorImageNotFetchable = 0,
-
-  // Crawling the image URL sees non-image type data being returned.
-  FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL = 1,
-
-  // The response when fetching the image is non-HTTP.
-  FIRIAMSDKRuntimeErrorNonHTTPResponseForImage = 2,
-};
+// A UIView subclass that allows for tweaking corner radius via a storyboard.
+@interface RoundedCornersView : UIView
+@property(nonatomic) IBInspectable CGFloat cornerRadius;
+@end

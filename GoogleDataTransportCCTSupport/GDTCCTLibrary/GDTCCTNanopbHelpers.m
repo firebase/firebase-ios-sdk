@@ -20,7 +20,7 @@
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
