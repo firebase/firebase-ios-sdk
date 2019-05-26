@@ -93,6 +93,20 @@ if [[ ! -t 1 ]]; then
   VERBOSE=true
 fi
 
+# When travis clones a repo for building, it uses a shallow clone. After the
+# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
+# is not available and we need to compute the START_REVISION from the common
+# ancestor of $TRAVIS_COMMIT and origin/master.
+if ! [[ -z $TRAVIS_COMMIT_RANGE ]] ; then
+  START_REVISION="$TRAVIS_COMMIT_RANGE"
+elif ! [[ -z $TRAVIS_COMMIT ]] ; then
+  if ! git rev-parse origin/master >& /dev/null; then
+    git remote set-branches --add origin master
+    git fetch origin
+  fi
+  START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
+fi
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --)
@@ -148,22 +162,6 @@ fi
 if [[ "${ALLOW_DIRTY}" == true && "${COMMIT_METHOD}" == "message" ]]; then
   echo "--allow-dirty and --commit are mutually exclusive"
   exit 1
-fi
-
-# When travis clones a repo for building, it uses a shallow clone. After the
-# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
-# is not available and we need to compute the START_REVISION from the common
-# ancestor of $TRAVIS_COMMIT and origin/master.
-if [[ "${TEST_ONLY}" == true ]]; then
-  if ! [[ -z $TRAVIS_COMMIT_RANGE ]] ; then
-    START_REVISION="$TRAVIS_COMMIT_RANGE"
-  elif ! [[ -z $TRAVIS_COMMIT ]] ; then
-    if ! git rev-parse origin/master >& /dev/null; then
-      git remote set-branches --add origin master
-      git fetch origin
-    fi
-    START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
-  fi
 fi
 
 if ! git diff-index --quiet HEAD --; then
