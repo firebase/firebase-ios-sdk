@@ -66,6 +66,8 @@ using model::SetMutation;
 using model::SnapshotVersion;
 using model::TargetId;
 using model::UnknownDocument;
+using nanopb::ByteString;
+using nanopb::ByteStringWriter;
 using nanopb::Reader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
@@ -120,9 +122,8 @@ class LocalSerializerTest : public ::testing::Test {
     bool status =
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    firestore_client_MaybeDocument nanopb_proto =
-        firestore_client_MaybeDocument_init_zero;
+    Reader reader(bytes);
+    firestore_client_MaybeDocument nanopb_proto{};
     reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
     std::unique_ptr<MaybeDocument> actual_model =
@@ -136,14 +137,13 @@ class LocalSerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeMaybeDocument(local::LocalSerializer* serializer,
                                            const MaybeDocument& maybe_doc) {
-    std::vector<uint8_t> bytes;
-    Writer writer = Writer::Wrap(&bytes);
+    ByteStringWriter writer;
     firestore_client_MaybeDocument proto =
         serializer->EncodeMaybeDocument(maybe_doc);
     writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                                   &proto);
-    return bytes;
+    return writer.ToVector();
   }
 
   void ExpectSerializationRoundTrip(const QueryData& query_data,
@@ -162,9 +162,9 @@ class LocalSerializerTest : public ::testing::Test {
     bool status =
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    Reader reader(bytes);
 
-    firestore_client_Target nanopb_proto = firestore_client_Target_init_zero;
+    firestore_client_Target nanopb_proto{};
     reader.ReadNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
     QueryData actual_query_data =
         serializer.DecodeQueryData(&reader, nanopb_proto);
@@ -176,13 +176,12 @@ class LocalSerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeQueryData(local::LocalSerializer* serializer,
                                        const QueryData& query_data) {
-    std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
-    Writer writer = Writer::Wrap(&bytes);
+    ByteStringWriter writer;
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
-    return bytes;
+    return writer.ToVector();
   }
 
   void ExpectSerializationRoundTrip(
@@ -203,7 +202,7 @@ class LocalSerializerTest : public ::testing::Test {
     bool status =
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     ASSERT_TRUE(status);
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    Reader reader(bytes);
 
     firestore_client_WriteBatch nanopb_proto{};
     reader.ReadNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
@@ -217,13 +216,12 @@ class LocalSerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeMutationBatch(
       local::LocalSerializer* serializer, const MutationBatch& mutation_batch) {
-    std::vector<uint8_t> bytes;
-    Writer writer = Writer::Wrap(&bytes);
+    ByteStringWriter writer;
     firestore_client_WriteBatch proto =
         serializer->EncodeMutationBatch(mutation_batch);
     writer.WriteNanopbMessage(firestore_client_WriteBatch_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    return bytes;
+    return writer.ToVector();
   }
 
   std::string message_differences;
@@ -340,8 +338,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
                        std::vector<uint8_t>(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.
-  std::vector<uint8_t> query_target_bytes;
-  Writer writer = Writer::Wrap(&query_target_bytes);
+  ByteStringWriter writer;
   google_firestore_v1_Target_QueryTarget proto =
       remote_serializer.EncodeQueryTarget(query_data.query());
   writer.WriteNanopbMessage(google_firestore_v1_Target_QueryTarget_fields,
@@ -349,6 +346,8 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   remote_serializer.FreeNanopbMessage(
       google_firestore_v1_Target_QueryTarget_fields, &proto);
   v1::Target::QueryTarget queryTargetProto;
+
+  ByteString query_target_bytes = writer.ToByteString();
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));
   EXPECT_TRUE(ok);

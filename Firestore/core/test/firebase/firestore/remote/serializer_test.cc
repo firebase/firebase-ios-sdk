@@ -56,24 +56,22 @@ namespace firestore {
 namespace remote {
 
 namespace v1 = google::firestore::v1;
-using firebase::Timestamp;
-using firebase::TimestampInternal;
-using firebase::firestore::FirestoreErrorCode;
-using firebase::firestore::model::DatabaseId;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::MaybeDocument;
-using firebase::firestore::model::NoDocument;
-using firebase::firestore::model::ObjectValue;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::nanopb::Reader;
-using firebase::firestore::nanopb::Writer;
-using firebase::firestore::remote::Serializer;
-using firebase::firestore::testutil::Key;
-using firebase::firestore::util::Status;
-using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
+using model::DatabaseId;
+using model::Document;
+using model::DocumentKey;
+using model::FieldValue;
+using model::MaybeDocument;
+using model::NoDocument;
+using model::ObjectValue;
+using model::SnapshotVersion;
+using nanopb::ByteStringWriter;
+using nanopb::Reader;
+using nanopb::Writer;
+using remote::Serializer;
+using testutil::Key;
+using util::Status;
+using util::StatusOr;
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -119,10 +117,9 @@ class SerializerTest : public ::testing::Test {
    */
   void ExpectFailedStatusDuringFieldValueDecode(
       Status status, const std::vector<uint8_t>& bytes) {
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    Reader reader(bytes);
 
-    google_firestore_v1_Value nanopb_proto =
-        google_firestore_v1_Value_init_zero;
+    google_firestore_v1_Value nanopb_proto{};
     reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
     serializer.DecodeFieldValue(&reader, nanopb_proto);
     reader.FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
@@ -133,9 +130,8 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectFailedStatusDuringMaybeDocumentDecode(
       Status status, const std::vector<uint8_t>& bytes) {
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    google_firestore_v1_BatchGetDocumentsResponse nanopb_proto =
-        google_firestore_v1_BatchGetDocumentsResponse_init_zero;
+    Reader reader(bytes);
+    google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
     reader.ReadNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
     serializer.DecodeMaybeDocument(&reader, nanopb_proto);
@@ -157,23 +153,21 @@ class SerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeFieldValue(Serializer* serializer,
                                         const FieldValue& fv) {
-    std::vector<uint8_t> bytes;
-    Writer writer = Writer::Wrap(&bytes);
+    ByteStringWriter writer;
     google_firestore_v1_Value proto = serializer->EncodeFieldValue(fv);
     writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
     serializer->FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
-    return bytes;
+    return writer.ToVector();
   }
 
   std::vector<uint8_t> EncodeDocument(Serializer* serializer,
                                       const DocumentKey& key,
                                       const ObjectValue& value) {
-    std::vector<uint8_t> bytes;
-    Writer writer = Writer::Wrap(&bytes);
+    ByteStringWriter writer;
     google_firestore_v1_Document proto = serializer->EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
     serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
-    return bytes;
+    return writer.ToVector();
   }
 
   void Mutate(uint8_t* byte,
@@ -311,10 +305,9 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    Reader reader(bytes);
 
-    google_firestore_v1_Value nanopb_proto =
-        google_firestore_v1_Value_init_zero;
+    google_firestore_v1_Value nanopb_proto{};
     reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
     FieldValue actual_model =
         serializer.DecodeFieldValue(&reader, nanopb_proto);
@@ -368,9 +361,8 @@ class SerializerTest : public ::testing::Test {
     bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
 
-    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    google_firestore_v1_BatchGetDocumentsResponse nanopb_proto =
-        google_firestore_v1_BatchGetDocumentsResponse_init_zero;
+    Reader reader(bytes);
+    google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
     reader.ReadNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
@@ -667,8 +659,8 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   bytes.resize(stream.bytes_written);
 
   // Decode the bytes into the model
-  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-  google_firestore_v1_Value nanopb_proto = google_firestore_v1_Value_init_zero;
+  Reader reader(bytes);
+  google_firestore_v1_Value nanopb_proto{};
   reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
@@ -698,7 +690,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
 
-  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+  Reader reader(bytes);
   google_firestore_v1_Value nanopb_proto{};
   reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue model = serializer.DecodeFieldValue(&reader, nanopb_proto);
@@ -816,8 +808,8 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   bytes.resize(stream.bytes_written);
 
   // Decode the bytes into the model
-  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-  google_firestore_v1_Value nanopb_proto = google_firestore_v1_Value_init_zero;
+  Reader reader(bytes);
+  google_firestore_v1_Value nanopb_proto{};
   reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
@@ -864,7 +856,7 @@ TEST_F(SerializerTest, EncodesKey) {
 }
 
 TEST_F(SerializerTest, DecodesKey) {
-  Reader reader = Reader::Wrap(nullptr, 0);
+  Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
             serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
   EXPECT_EQ(
@@ -893,7 +885,7 @@ TEST_F(SerializerTest, BadKey) {
   };
 
   for (const std::string& bad_key : bad_cases) {
-    Reader reader = Reader::Wrap(nullptr, 0);
+    Reader reader(nullptr, 0);
     serializer.DecodeKey(&reader, bad_key);
     EXPECT_NOT_OK(reader.status());
   }

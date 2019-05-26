@@ -16,11 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
+
+using nanopb::ByteString;
 
 namespace {
 
@@ -61,19 +65,31 @@ pb_ostream_t WrapContainer(Container* out_container) {
 
 }  // namespace
 
-Writer Writer::Wrap(std::vector<std::uint8_t>* out_bytes) {
-  return Writer{WrapContainer(out_bytes)};
-}
-
-Writer Writer::Wrap(std::string* out_string) {
-  return Writer{WrapContainer(out_string)};
-}
-
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
   if (!pb_encode(&stream_, fields, src_struct)) {
     HARD_FAIL(PB_GET_ERROR(&stream_));
   }
+}
+
+ByteStringWriter::ByteStringWriter() : Writer({}) {
+  stream_ = WrapContainer(&buffer_);
+}
+
+ByteString ByteStringWriter::ToByteString() const {
+  return ByteString(buffer_);
+}
+
+std::vector<uint8_t> ByteStringWriter::ToVector() {
+  return std::move(buffer_);
+}
+
+StringWriter::StringWriter() : Writer({}) {
+  stream_ = WrapContainer(&buffer_);
+}
+
+std::string StringWriter::ToString() {
+  return std::move(buffer_);
 }
 
 }  // namespace nanopb
