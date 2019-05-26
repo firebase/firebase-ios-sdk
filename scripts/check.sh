@@ -76,7 +76,6 @@ EOF
 }
 
 set -euo pipefail
-set -x
 unset CDPATH
 
 # Change to the top-directory of the working tree
@@ -87,7 +86,7 @@ ALLOW_DIRTY=false
 COMMIT_METHOD="none"
 START_REVISION="origin/master"
 TEST_ONLY=false
-VERBOSE=true
+VERBOSE=false
 
 # Default to verbose operation if this isn't an interactive build.
 if [[ ! -t 1 ]]; then

@@ -374,5 +374,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-tmp9
-

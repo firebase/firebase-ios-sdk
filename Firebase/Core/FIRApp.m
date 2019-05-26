@@ -83,7 +83,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
  */
 static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 
-@interface  FIRApp ()
+@interface FIRApp ()
 
 #ifdef DEBUG
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
