@@ -18,9 +18,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace firebase {
+namespace firestore {
+class GeoPoint;
+}  // namespace firestore
+}  // namespace firebase
+
+namespace firestore = firebase::firestore;
+
 /** Internal FIRGeoPoint API we don't want exposed in our public header files. */
 @interface FIRGeoPoint (Internal)
+
 - (NSComparisonResult)compare:(FIRGeoPoint *)other;
+
+- (firestore::GeoPoint)toGeoPoint;
+
 @end
 
 NS_ASSUME_NONNULL_END

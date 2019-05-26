@@ -41,6 +41,7 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -61,6 +62,7 @@
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::core::Filter;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -127,8 +129,8 @@ NS_ASSUME_NONNULL_BEGIN
   return latLng;
 }
 
-- (FIRGeoPoint *)decodedGeoPoint:(GTPLatLng *)latLng {
-  return [[FIRGeoPoint alloc] initWithLatitude:latLng.latitude longitude:latLng.longitude];
+- (GeoPoint)decodedGeoPoint:(GTPLatLng *)latLng {
+  return GeoPoint(latLng.latitude, latLng.longitude);
 }
 
 #pragma mark - DocumentKey <=> Key proto
@@ -242,16 +244,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTFieldValue *)decodedFieldValue:(GCFSValue *)valueProto {
   switch (valueProto.valueTypeOneOfCase) {
     case GCFSValue_ValueType_OneOfCase_NullValue:
-      return [FSTNullValue nullValue];
+      return FieldValue::Null().Wrap();
 
     case GCFSValue_ValueType_OneOfCase_BooleanValue:
       return FieldValue::FromBoolean(valueProto.booleanValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_IntegerValue:
-      return [FSTIntegerValue integerValue:valueProto.integerValue];
+      return FieldValue::FromInteger(valueProto.integerValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_DoubleValue:
-      return [FSTDoubleValue doubleValue:valueProto.doubleValue];
+      return FieldValue::FromDouble(valueProto.doubleValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_StringValue:
       return FieldValue::FromString(util::MakeString(valueProto.stringValue)).Wrap();
@@ -264,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     case GCFSValue_ValueType_OneOfCase_GeoPointValue:
-      return [FSTGeoPointValue geoPointValue:[self decodedGeoPoint:valueProto.geoPointValue]];
+      return FieldValue::FromGeoPoint([self decodedGeoPoint:valueProto.geoPointValue]).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_BytesValue:
       return [FSTBlobValue blobValue:valueProto.bytesValue];
@@ -666,8 +668,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_Increment: {
-        FSTNumberValue *operand =
-            static_cast<FSTNumberValue *>([self decodedFieldValue:proto.increment]);
+        FSTFieldValue *operand = [self decodedFieldValue:proto.increment];
         fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
                                      absl::make_unique<NumericIncrementTransform>(operand));
         break;

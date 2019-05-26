@@ -29,6 +29,7 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
@@ -289,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTFieldValue *_Nullable parsedEntry = [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      parsedEntry = [FSTNullValue nullValue];
+      parsedEntry = FieldValue::Null().Wrap();
     }
     [result addObject:parsedEntry];
   }];
@@ -350,8 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     FSTNumericIncrementFieldValue *numericIncrementFieldValue =
         (FSTNumericIncrementFieldValue *)fieldValue;
-    FSTNumberValue *operand =
-        (FSTNumberValue *)[self parsedQueryValue:numericIncrementFieldValue.operand];
+    FSTFieldValue *operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
     auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
@@ -373,7 +373,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTFieldValue *)parseScalarValue:(nullable id)input context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
-    return [FSTNullValue nullValue];
+    return FieldValue::Null().Wrap();
 
   } else if ([input isKindOfClass:[NSNumber class]]) {
     // Recover the underlying type of the number, using the method described here:
@@ -385,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Articles/ocrtTypeEncodings.html
     switch (cType[0]) {
       case 'q':
-        return [FSTIntegerValue integerValue:[input longLongValue]];
+        return FieldValue::FromInteger([input longLongValue]).Wrap();
 
       case 'i':  // Falls through.
       case 's':  // Falls through.
@@ -394,7 +394,7 @@ NS_ASSUME_NONNULL_BEGIN
       case 'S':
         // Coerce integer values that aren't long long. Allow unsigned integer types that are
         // guaranteed small enough to skip a length check.
-        return [FSTIntegerValue integerValue:[input longLongValue]];
+        return FieldValue::FromInteger([input longLongValue]).Wrap();
 
       case 'L':  // Falls through.
       case 'Q':
@@ -408,19 +408,19 @@ NS_ASSUME_NONNULL_BEGIN
                                  context.FieldDescription());
 
           } else {
-            return [FSTIntegerValue integerValue:(int64_t)extended];
+            return FieldValue::FromInteger(static_cast<int64_t>(extended)).Wrap();
           }
         }
 
       case 'f':
-        return [FSTDoubleValue doubleValue:[input doubleValue]];
+        return FieldValue::FromDouble([input doubleValue]).Wrap();
 
       case 'd':
         // Double values are already the right type, so just reuse the existing boxed double.
         //
         // Note that NSNumber already performs NaN normalization to a single shared instance
         // so there's no need to treat NaN specially here.
-        return [FSTDoubleValue doubleValue:[input doubleValue]];
+        return FieldValue::FromDouble([input doubleValue]).Wrap();
 
       case 'B':  // Falls through.
       case 'c':  // Falls through.
@@ -453,7 +453,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTTimestampValue timestampValue:truncatedTimestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    return [FSTGeoPointValue geoPointValue:input];
+    FIRGeoPoint *geoPoint = input;
+    return FieldValue::FromGeoPoint([geoPoint toGeoPoint]).Wrap();
 
   } else if ([input isKindOfClass:[NSData class]]) {
     return [FSTBlobValue blobValue:input];

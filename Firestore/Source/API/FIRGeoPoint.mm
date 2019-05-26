@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -81,6 +82,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** Implements NSCopying without actually copying because geopoints are immutable. */
 - (id)copyWithZone:(NSZone *_Nullable)zone {
   return self;
+}
+
+@end
+
+@implementation FIRGeoPoint (Internal)
+
+- (firestore::GeoPoint)toGeoPoint {
+  return firestore::GeoPoint(self.latitude, self.longitude);
 }
 
 @end
