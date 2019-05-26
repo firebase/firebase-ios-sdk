@@ -25,11 +25,13 @@
 API_AVAILABLE(ios(10.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
+#if TARGET_OS_IOS
 static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =
     @"https://firebasestorage.googleapis.com/v0/b/fcm-ios-f7f9c.appspot.com/o/"
     @"chubbyBunny.jpg?alt=media&token=d6c56a57-c007-4b27-b20f-f267cc83e9e5";
+#endif
 
 @interface FIRMessagingExtensionHelper (ExposedForTest)
 #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
