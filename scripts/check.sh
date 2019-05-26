@@ -76,6 +76,7 @@ EOF
 }
 
 set -euo pipefail
+set -x
 unset CDPATH
 
 # Change to the top-directory of the working tree
@@ -86,7 +87,7 @@ ALLOW_DIRTY=false
 COMMIT_METHOD="none"
 START_REVISION="origin/master"
 TEST_ONLY=false
-VERBOSE=false
+VERBOSE=true
 
 # Default to verbose operation if this isn't an interactive build.
 if [[ ! -t 1 ]]; then
@@ -163,28 +164,8 @@ if [[ "${VERBOSE}" == true ]]; then
   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
 fi
 
-# When travis clones a repo for building, it uses a shallow clone. After the
-# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set and
-# START_REVISION is "origin/master" because a range wasn't passed in.
 if [[ "${START_REVISION}" == *..* ]]; then
-  RANGE_START="${START_REVISION/..*/}"
-  RANGE_END="${START_REVISION/*../}"
-
-  # Figure out if we have access to origin/master. If not add it to the repo.
-  if ! git rev-parse origin/master >& /dev/null; then
-    git remote set-branches --add origin master
-    git fetch origin
-  fi
-
-  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
-  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
-
   START_SHA="${START_REVISION}"
-
-elif ! git rev-parse origin/master >& /dev/null; then
-  git remote set-branches --add origin master
-  git fetch origin
-  START_SHA=$(git merge-base origin/master "${TRAVIS_COMMIT}")
 
 else
   START_SHA=$(git rev-parse "${START_REVISION}")
