@@ -75,7 +75,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --skip-tests --allow-warnings
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessagingpodspec --use-modular-headers --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers --skip-tests
 
     - stage: test
       env:
