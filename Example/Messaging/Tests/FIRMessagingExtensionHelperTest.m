@@ -59,6 +59,7 @@ static NSString *const kValidImageURL =
   [_mockExtensionHelper stopMocking];
 }
 
+#if TARGET_OS_IOS
 #ifdef COCOAPODS
 // This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
@@ -112,5 +113,6 @@ static NSString *const kValidImageURL =
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
   }
 }
+#endif // TARGET_OS_IOS
 
 @end

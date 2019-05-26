@@ -405,10 +405,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     id mockNotification = [self userNotificationWithMessage:message];
     OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
     return mockNotificationResponse;
-#else // TARGET_OS_IOS
-    return nil;
 #endif // TARGET_OS_IOS
   }
+  return nil;
 }
 
 - (UNNotification *)userNotificationWithMessage:(NSDictionary *)message  API_AVAILABLE(ios(10.0)){
