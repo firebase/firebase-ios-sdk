@@ -97,9 +97,9 @@ fi
 # first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
 # is not available and we need to compute the START_REVISION from the common
 # ancestor of $TRAVIS_COMMIT and origin/master.
-if [[ -n ${TRAVIS_COMMIT_RANGE:-} ]] ; then
+if [[ -n "${TRAVIS_COMMIT_RANGE:-}" ]] ; then
   START_REVISION="$TRAVIS_COMMIT_RANGE"
-elif [[ -n ${TRAVIS_COMMIT:-} ]] ; then
+elif [[ -n "${TRAVIS_COMMIT:-}" ]] ; then
   if ! git rev-parse origin/master >& /dev/null; then
     git remote set-branches --add origin master
     git fetch origin
