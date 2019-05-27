@@ -38,6 +38,7 @@ namespace model {
 using Type = FieldValue::Type;
 
 using absl::nullopt;
+using nanopb::ByteString;
 using testing::Not;
 using testutil::Array;
 using testutil::BlobValue;
@@ -54,10 +55,6 @@ using Sec = std::chrono::seconds;
 using Ms = std::chrono::milliseconds;
 
 namespace {
-
-const uint8_t* Bytes(const char* value) {
-  return reinterpret_cast<const uint8_t*>(value);
-}
 
 uint64_t ToBits(double value) {
   return absl::bit_cast<uint64_t>(value);
@@ -353,7 +350,7 @@ TEST(FieldValue, ToString) {
 
   // Bytes escaped as hex
   const char* hi = "HI";
-  auto blob = FieldValue::FromBlob(reinterpret_cast<const uint8_t*>(hi), 2);
+  auto blob = FieldValue::FromBlob(ByteString(hi));
   EXPECT_EQ("<4849>", blob.ToString());
 
   auto ref = FieldValue::FromReference(DatabaseId("p", "d"), Key("foo/bar"));
@@ -474,8 +471,8 @@ TEST(FieldValue, StringType) {
 }
 
 TEST(FieldValue, BlobType) {
-  const FieldValue a = FieldValue::FromBlob(Bytes("abc"), 4);
-  const FieldValue b = FieldValue::FromBlob(Bytes("def"), 4);
+  const FieldValue a = FieldValue::FromBlob(ByteString("abc"));
+  const FieldValue b = FieldValue::FromBlob(ByteString("def"));
   EXPECT_EQ(Type::Blob, a.type());
   EXPECT_EQ(Type::Blob, b.type());
   EXPECT_TRUE(a < b);
@@ -622,12 +619,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(ByteString("abc"));
   clone = blob_value;
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), blob_value);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), clone);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), blob_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -691,7 +688,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue number_value = FieldValue::Nan();
   const FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   const FieldValue string_value = FieldValue::FromString("abc");
-  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(ByteString("abc"));
   const DatabaseId database_id("project", "database");
   const FieldValue reference_value =
       FieldValue::FromReference(database_id, Key("root/abc"));

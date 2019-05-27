@@ -102,8 +102,8 @@ inline model::FieldValue Value(const GeoPoint& value) {
 
 template <typename... Ints>
 model::FieldValue BlobValue(Ints... octets) {
-  std::vector<uint8_t> contents{static_cast<uint8_t>(octets)...};
-  return model::FieldValue::FromBlob(contents.data(), contents.size());
+  nanopb::ByteString contents{static_cast<uint8_t>(octets)...};
+  return model::FieldValue::FromBlob(std::move(contents));
 }
 
 // This overload allows Object() to appear as a value (along with any explicitly

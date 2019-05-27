@@ -207,9 +207,9 @@ class SerializerTest : public ::testing::Test {
     return ProtobufParse<v1::Value>(bytes);
   }
 
-  v1::Value ValueProto(const std::vector<uint8_t>& blob) {
-    ByteString bytes = EncodeFieldValue(
-        &serializer, FieldValue::FromBlob(blob.data(), blob.size()));
+  v1::Value ValueProto(const ByteString& blob) {
+    ByteString bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromBlob(blob));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -454,15 +454,14 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 }
 
 TEST_F(SerializerTest, EncodesBlobs) {
-  std::vector<std::vector<uint8_t>> cases{
+  std::vector<ByteString> cases{
       {},
       {0, 1, 2, 3},
       {0xff, 0x00, 0xff, 0x00},
   };
 
-  for (const std::vector<uint8_t>& blob_value : cases) {
-    FieldValue model =
-        FieldValue::FromBlob(blob_value.data(), blob_value.size());
+  for (const ByteString& blob_value : cases) {
+    FieldValue model = FieldValue::FromBlob(blob_value);
     ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
   }
 }

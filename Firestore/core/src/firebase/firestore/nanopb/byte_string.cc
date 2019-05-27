@@ -21,6 +21,8 @@
 #include <ostream>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/range.h"
 #include "absl/strings/escaping.h"
 
 namespace firebase {
@@ -73,6 +75,10 @@ ByteString::ByteString(absl::string_view value)
     : bytes_{MakeBytesArray(value.data(), value.size())} {
 }
 
+ByteString::ByteString(std::initializer_list<uint8_t> value)
+    : bytes_{MakeBytesArray(value.begin(), value.size())} {
+}
+
 ByteString::ByteString(const char* value)
     : bytes_{MakeBytesArray(value, std::strlen(value))} {
 }
@@ -111,6 +117,10 @@ void swap(ByteString& lhs, ByteString& rhs) noexcept {
 
 util::ComparisonResult ByteString::CompareTo(const ByteString& rhs) const {
   return util::Compare(absl::string_view{*this}, absl::string_view{rhs});
+}
+
+size_t ByteString::Hash() const {
+  return util::Hash(util::make_range(begin(), end()));
 }
 
 std::string ByteString::ToString() const {

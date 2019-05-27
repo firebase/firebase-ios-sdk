@@ -20,6 +20,7 @@
 #include <pb.h>
 
 #include <cstdint>
+#include <initializer_list>
 #include <iosfwd>
 #include <string>
 #include <utility>
@@ -53,6 +54,8 @@ class ByteString : public util::Comparable<ByteString> {
    * given string_view.
    */
   explicit ByteString(absl::string_view value);
+
+  ByteString(std::initializer_list<uint8_t> value);
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the of the
@@ -92,6 +95,14 @@ class ByteString : public util::Comparable<ByteString> {
     return size() == 0;
   }
 
+  const uint8_t* begin() const {
+    return bytes_ ? bytes_->bytes : nullptr;
+  }
+
+  const uint8_t* end() const {
+    return bytes_ ? bytes_->bytes + bytes_->size : nullptr;
+  }
+
   /** Returns a const view of the underlying byte array. */
   const pb_bytes_array_t* get() const {
     return bytes_;
@@ -122,6 +133,8 @@ class ByteString : public util::Comparable<ByteString> {
   friend void swap(ByteString& lhs, ByteString& rhs) noexcept;
 
   util::ComparisonResult CompareTo(const ByteString& rhs) const;
+
+  size_t Hash() const;
 
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& out, const ByteString& str);

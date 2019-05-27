@@ -373,7 +373,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
 
     case google_firestore_v1_Value_bytes_value_tag: {
       ByteString bytes = DecodeBytes(msg.bytes_value);
-      return FieldValue::FromBlob(bytes.data(), bytes.size());
+      return FieldValue::FromBlob(std::move(bytes));
     }
 
     case google_firestore_v1_Value_reference_value_tag:
