@@ -70,6 +70,10 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   [super tearDown];
   NSError *error = nil;
   [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
+
+  // TODO: Real FIRInstanceIDKeychain should not be used for the tests, it should be mocked instead.
+  // Drain Keychain private queue before exiting.
+  [[FIRInstanceIDKeychain sharedInstance] itemWithQuery:@{}];
 }
 
 - (void)testMigrationDataIfLegacyKeyPairsNotExist {

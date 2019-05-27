@@ -136,19 +136,21 @@
       deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
                             handler:^(NSError *error) {
                               XCTAssertNil(error);
-                              [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
-                              XCTAssertNil(error);
-
-                              // regenerate instance-id
-                              FIRInstanceIDKeyPair *keyPair =
-                                  [self.keyPairStore loadKeyPairWithError:&error];
-                              XCTAssertNil(error);
-                              NSString *iid2 = FIRInstanceIDAppIdentity(keyPair);
-
-                              XCTAssertNotEqualObjects(iid1, iid2);
                               [identityResetExpectation fulfill];
                             }];
+
   [self waitForExpectationsWithTimeout:5 handler:nil];
+
+  [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
+  XCTAssertNil(error);
+
+  // regenerate instance-id
+  FIRInstanceIDKeyPair *keyPair2 =
+    [self.keyPairStore loadKeyPairWithError:&error];
+  XCTAssertNil(error);
+  NSString *iid2 = FIRInstanceIDAppIdentity(keyPair2);
+
+  XCTAssertNotEqualObjects(iid1, iid2);
 }
 
 /**
