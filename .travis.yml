@@ -71,11 +71,10 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        # pod lib lint cannot run tests, since they crash in swizzling tests on iOS 8
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --skip-tests --allow-warnings
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
 
     - stage: test
       env:
