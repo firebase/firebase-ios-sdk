@@ -169,7 +169,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   // Should be released once finished
   // The check below is flaky for build under DEBUG (petentially due to ARC specifics).
   // Comment it so far as not-so-important one.
-//  XCTAssertNil(weakKeyRef);
+  //  XCTAssertNil(weakKeyRef);
 }
 
 - (SecKeyRef)generateKeyRef {

@@ -182,7 +182,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectations:@[tokenExpectation] timeout:1];
+  [self waitForExpectations:@[ tokenExpectation ] timeout:1];
 }
 
 /**
@@ -232,7 +232,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectations:@[tokenExpectation] timeout:1];
+  [self waitForExpectations:@[ tokenExpectation ] timeout:1];
 }
 
 /**
@@ -279,7 +279,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectations:@[tokenExpectation] timeout:1];
+  [self waitForExpectations:@[ tokenExpectation ] timeout:1];
 }
 
 /**
@@ -321,7 +321,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                [deleteExpectation fulfill];
                                              }];
 
-  [self waitForExpectations:@[deleteExpectation] timeout:1];
+  [self waitForExpectations:@[ deleteExpectation ] timeout:1];
 }
 
 /**
@@ -364,7 +364,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                [deleteExpectation fulfill];
                                              }];
 
-  [self waitForExpectations:@[deleteExpectation] timeout:1];
+  [self waitForExpectations:@[ deleteExpectation ] timeout:1];
 }
 
 #pragma mark - Cached Token Invalidation

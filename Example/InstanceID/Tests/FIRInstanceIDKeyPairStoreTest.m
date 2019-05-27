@@ -132,12 +132,11 @@
   XCTAssertNil(error);
   NSString *iid1 = FIRInstanceIDAppIdentity(keyPair);
 
-  [self.keyPairStore
-      deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
-                            handler:^(NSError *error) {
-                              XCTAssertNil(error);
-                              [identityResetExpectation fulfill];
-                            }];
+  [self.keyPairStore deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
+                                           handler:^(NSError *error) {
+                                             XCTAssertNil(error);
+                                             [identityResetExpectation fulfill];
+                                           }];
 
   [self waitForExpectationsWithTimeout:5 handler:nil];
 
@@ -145,8 +144,7 @@
   XCTAssertNil(error);
 
   // regenerate instance-id
-  FIRInstanceIDKeyPair *keyPair2 =
-    [self.keyPairStore loadKeyPairWithError:&error];
+  FIRInstanceIDKeyPair *keyPair2 = [self.keyPairStore loadKeyPairWithError:&error];
   XCTAssertNil(error);
   NSString *iid2 = FIRInstanceIDAppIdentity(keyPair2);
 
