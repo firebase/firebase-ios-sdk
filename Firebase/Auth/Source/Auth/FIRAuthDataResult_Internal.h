@@ -16,17 +16,9 @@
 
 #import "FIRAuthDataResult.h"
 
-@class FIROAuthCredential;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthDataResult () <NSSecureCoding>
-
-/** @property credential
-    @brief The updated OAuth credential after the sign-in, link and reauthenticate action.
-    @detail This property is for OAuth sign in only.
- */
-@property(nonatomic, readonly, nullable) FIROAuthCredential *credential;
 
 /** @fn initWithUser:additionalUserInfo:
     @brief Designated initializer.
@@ -44,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithUser:(FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo
-                           credential:(nullable FIROAuthCredential *)credential
+                           credential:(nullable FIRAuthCredential *)credential
     NS_DESIGNATED_INITIALIZER;
 
 @end
