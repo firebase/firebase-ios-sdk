@@ -110,8 +110,10 @@ static NSMutableDictionary *sLibraryVersions;
     if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
       if (NSClassFromString(@"FIRDiagnostics")) {
         FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-        [diagnosticsData insertValueIfNotNil:collectionEnabledPlistValue forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-        [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+        [diagnosticsData insertValueIfNotNil:collectionEnabledPlistValue
+                                      forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+        [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
+                                      forKey:kFIRCDFirebaseUserAgentKey];
         [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore)
                                       forKey:kFIRCDConfigurationTypeKey];
         [[NSNotificationCenter defaultCenter]
@@ -302,8 +304,10 @@ static NSMutableDictionary *sLibraryVersions;
     if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled] &&
         NSClassFromString(@"FIRDiagnostics")) {
       FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-      [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-      [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+      [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
+                                    forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+      [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
+                                    forKey:kFIRCDFirebaseUserAgentKey];
       [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
       [[NSNotificationCenter defaultCenter]
           postNotificationName:kFIRDiagnosticsNotification
@@ -315,8 +319,10 @@ static NSMutableDictionary *sLibraryVersions;
 
   if ([self isDataCollectionDefaultEnabled] && NSClassFromString(@"FIRDiagnostics")) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
+                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
+                                  forKey:kFIRCDFirebaseUserAgentKey];
     [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
     [diagnosticsData insertValueIfNotNil:self.options.googleAppID forKey:kFIRCDGoogleAppIDKey];
     [diagnosticsData insertValueIfNotNil:self.options.bundleID forKey:kFIRCDBundleIDKey];
@@ -834,8 +840,10 @@ static NSMutableDictionary *sLibraryVersions;
 
   if (NSClassFromString(@"FIRDiagnostics")) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled]) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
+                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
+                                  forKey:kFIRCDFirebaseUserAgentKey];
     [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeSDK) forKey:kFIRCDConfigurationTypeKey];
     [diagnosticsData insertValueIfNotNil:serviceName forKey:kFIRCDSdkNameKey];
     [diagnosticsData insertValueIfNotNil:version forKey:kFIRCDSdkVersionKey];
