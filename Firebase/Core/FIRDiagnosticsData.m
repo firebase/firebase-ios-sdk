@@ -19,7 +19,6 @@
 #import <FirebaseCore/FIRApp.h>
 
 #import "Private/FIRAppInternal.h"
-#import "Private/FIRAppInternal.h"
 #import "Private/FIROptionsInternal.h"
 
 @implementation FIRDiagnosticsData {
@@ -48,7 +47,8 @@
     _diagnosticObjects[kFIRCDllAppsCountKey] = @([FIRApp allApps].count);
   }
   if (!_diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey]) {
-    _diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey] = @([[FIRApp defaultApp] isDataCollectionDefaultEnabled]);
+    _diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey] =
+        @([[FIRApp defaultApp] isDataCollectionDefaultEnabled]);
   }
   if (!_diagnosticObjects[kFIRCDFirebaseUserAgentKey]) {
     _diagnosticObjects[kFIRCDFirebaseUserAgentKey] = [FIRApp firebaseUserAgent];
