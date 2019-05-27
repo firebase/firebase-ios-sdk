@@ -11,6 +11,7 @@ use_frameworks!
 pod 'FirebaseAnalyticsInterop', :path => '../'
 pod 'FirebaseAuthInterop', :path => '../'
 pod 'FirebaseCore', :path => '../'
+pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
 pod 'GoogleUtilities', :path => '../'
 
 target 'Core_Example_iOS' do
