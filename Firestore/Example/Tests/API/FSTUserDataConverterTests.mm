@@ -131,7 +131,7 @@ union DoubleBits {
   NSArray *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTBlobValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Blob);
   }

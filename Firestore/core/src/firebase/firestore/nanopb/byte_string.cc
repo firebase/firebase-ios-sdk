@@ -35,7 +35,7 @@ namespace {
  * Creates a new, null-terminated byte array that's a copy of the given string
  * value.
  */
-pb_bytes_array_t* MakeBytesArray(const uint8_t* data, size_t size) {
+pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   pb_size_t pb_size = CheckedSize(size);
 
   // Allocate one extra byte for the null terminator that's not necessarily
@@ -53,38 +53,38 @@ pb_bytes_array_t* MakeBytesArray(const uint8_t* data, size_t size) {
   return result;
 }
 
-pb_bytes_array_t* MakeBytesArray(const char* data, size_t size) {
-  return MakeBytesArray(reinterpret_cast<const uint8_t*>(data), size);
-}
-
 }  // namespace
 
+ByteString::ByteString(const void* value, size_t size)
+    : bytes_(MakeBytesArray(value, size)) {
+}
+
 ByteString::ByteString(const std::vector<uint8_t>& value)
-    : bytes_(MakeBytesArray(value.data(), value.size())) {
+    : ByteString(value.data(), value.size()) {
 }
 
 ByteString::ByteString(const pb_bytes_array_t* bytes)
-    : bytes_{MakeBytesArray(bytes->bytes, bytes->size)} {
+    : ByteString(bytes->bytes, bytes->size) {
 }
 
 ByteString::ByteString(const std::string& value)
-    : bytes_{MakeBytesArray(value.data(), value.size())} {
+    : ByteString(value.data(), value.size()) {
 }
 
 ByteString::ByteString(absl::string_view value)
-    : bytes_{MakeBytesArray(value.data(), value.size())} {
+    : ByteString(value.data(), value.size()) {
 }
 
 ByteString::ByteString(std::initializer_list<uint8_t> value)
-    : bytes_{MakeBytesArray(value.begin(), value.size())} {
+    : ByteString(value.begin(), value.size()) {
 }
 
 ByteString::ByteString(const char* value)
-    : bytes_{MakeBytesArray(value, std::strlen(value))} {
+    : ByteString(value, std::strlen(value)) {
 }
 
 ByteString::ByteString(const ByteString& other)
-    : bytes_{MakeBytesArray(other.data(), other.size())} {
+    : ByteString(other.data(), other.size()) {
 }
 
 ByteString::ByteString(ByteString&& other) noexcept : ByteString{} {

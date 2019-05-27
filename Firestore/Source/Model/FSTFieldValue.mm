@@ -253,75 +253,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTBlobValue
-
-static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
-  NSUInteger minLength = MIN(left.length, right.length);
-  int result = memcmp(left.bytes, right.bytes, minLength);
-  if (result < 0) {
-    return NSOrderedAscending;
-  } else if (result > 0) {
-    return NSOrderedDescending;
-  } else if (left.length < right.length) {
-    return NSOrderedAscending;
-  } else if (left.length > right.length) {
-    return NSOrderedDescending;
-  } else {
-    return NSOrderedSame;
-  }
-}
-
-@interface FSTBlobValue ()
-@property(nonatomic, copy, readonly) NSData *internalValue;
-@end
-
-// TODO(b/37267885): Add truncation support
-@implementation FSTBlobValue
-
-+ (instancetype)blobValue:(NSData *)value {
-  return [[FSTBlobValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(NSData *)value {
-  self = [super init];
-  if (self) {
-    _internalValue = [value copy];
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Blob;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderBlob;
-}
-
-- (id)value {
-  return self.internalValue;
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Blob &&
-         [self.internalValue isEqual:((FSTBlobValue *)other).internalValue];
-}
-
-- (NSUInteger)hash {
-  return [self.internalValue hash];
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::Blob) {
-    return CompareBytes(self.internalValue, ((FSTBlobValue *)other).internalValue);
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTReferenceValue
 
 @interface FSTReferenceValue ()
@@ -748,7 +679,10 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::String:
       return util::WrapNSString(self.internalValue.string_value());
-    case FieldValue::Type::Blob:
+    case FieldValue::Type::Blob: {
+      auto &blob = self.internalValue.blob_value();
+      return blob.ToNSData();
+    }
     case FieldValue::Type::Reference:
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::GeoPoint: {

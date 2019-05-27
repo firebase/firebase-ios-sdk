@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_BYTE_STRING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_BYTE_STRING_H_
 
+#if __OBJC__
+#import <Foundation/Foundation.h>
+#endif
+
 #include <pb.h>
 
 #include <cstdint>
@@ -40,6 +44,7 @@ class ByteString : public util::Comparable<ByteString> {
  public:
   ByteString() = default;
 
+  ByteString(const void* value, size_t size);
   explicit ByteString(const std::vector<uint8_t>& value);
   explicit ByteString(const pb_bytes_array_t* bytes);
 
@@ -54,6 +59,12 @@ class ByteString : public util::Comparable<ByteString> {
    * given string_view.
    */
   explicit ByteString(absl::string_view value);
+
+#if __OBJC__
+  explicit ByteString(NSData* value)
+      : ByteString(value.bytes, static_cast<size_t>(value.length)) {
+  }
+#endif
 
   ByteString(std::initializer_list<uint8_t> value);
 
@@ -118,6 +129,12 @@ class ByteString : public util::Comparable<ByteString> {
    * Copies the backing byte array into a new vector of bytes.
    */
   std::vector<uint8_t> ToVector() const;
+
+#if __OBJC__
+  NSData* ToNSData() const {
+    return [[NSData alloc] initWithBytes:data() length:size()];
+  }
+#endif
 
   /**
    * Converts this ByteString to an absl::string_view (without changing
