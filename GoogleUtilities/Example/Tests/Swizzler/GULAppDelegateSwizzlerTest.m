@@ -648,7 +648,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   // Let's stop mocking the shared application for this particular test.
   [self.mockSharedApplication stopMocking];
   self.mockSharedApplication = nil;
-  
+
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
 
   [GULApplication sharedApplication].delegate = realAppDelegate;
@@ -677,11 +677,11 @@ static BOOL gRespondsToHandleBackgroundSession;
   if (@available(iOS 10, *)) {
     id interceptor = OCMProtocolMock(@protocol(GULApplicationDelegate));
     OCMExpect([interceptor application:OCMOCK_ANY openURL:OCMOCK_ANY options:OCMOCK_ANY])
-    .andReturn(NO);
+        .andReturn(NO);
 
     id interceptor2 = OCMProtocolMock(@protocol(GULApplicationDelegate));
     OCMExpect([interceptor2 application:OCMOCK_ANY openURL:OCMOCK_ANY options:OCMOCK_ANY])
-    .andReturn(NO);
+        .andReturn(NO);
 
     NSURL *testURL = [[NSURL alloc] initWithString:@"https://www.google.com"];
     NSDictionary *testOpenURLOptions = @{UIApplicationOpenURLOptionUniversalLinksOnly : @"test"};
@@ -710,34 +710,34 @@ static BOOL gRespondsToHandleBackgroundSession;
   if (@available(iOS 10, *)) {
     NSURL *testURL = [[NSURL alloc] initWithString:@"https://www.google.com"];
     NSDictionary *testOpenURLOptions = @{UIApplicationOpenURLOptionUniversalLinksOnly : @"test"};
-    
+
     GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
     OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
     [GULAppDelegateSwizzler proxyOriginalDelegate];
-    
+
     BOOL shouldOpen = [testAppDelegate application:[GULApplication sharedApplication]
                                            openURL:testURL
                                            options:testOpenURLOptions];
     // Verify that the original app delegate returns NO.
     XCTAssertFalse(shouldOpen);
-    
+
     id interceptor = OCMProtocolMock(@protocol(GULApplicationDelegate));
     OCMExpect([interceptor application:OCMOCK_ANY openURL:OCMOCK_ANY options:OCMOCK_ANY])
-    .andReturn(NO);
+        .andReturn(NO);
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
     shouldOpen = [testAppDelegate application:[GULApplication sharedApplication]
                                       openURL:testURL
                                       options:testOpenURLOptions];
     // Verify that if the only interceptor returns NO, the value is still NO.
     XCTAssertFalse(shouldOpen);
-    
+
     id interceptor2 = OCMProtocolMock(@protocol(GULApplicationDelegate));
     OCMExpect([interceptor2 application:OCMOCK_ANY openURL:OCMOCK_ANY options:OCMOCK_ANY])
-    .andReturn(YES);
+        .andReturn(YES);
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
-    
+
     OCMExpect([interceptor application:OCMOCK_ANY openURL:OCMOCK_ANY options:OCMOCK_ANY])
-    .andReturn(NO);
+        .andReturn(NO);
     shouldOpen = [testAppDelegate application:[GULApplication sharedApplication]
                                       openURL:testURL
                                       options:testOpenURLOptions];
