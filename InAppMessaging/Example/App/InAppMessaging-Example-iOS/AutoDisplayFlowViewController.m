@@ -79,8 +79,8 @@
 }
 
 - (IBAction)triggerProgrammaticallyTapped:(id)sender {
-  NSLog(@"Trigger message programmatically: %@", self.eventNameText.text);
-  
+  NSLog(@"Trigger event %@ programmatically", self.eventNameText.text);
+
   [[FIRInAppMessaging inAppMessaging] triggerEvent:self.programmaticTriggerNameText.text];
 }
 

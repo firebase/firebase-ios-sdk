@@ -775,31 +775,32 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 - (void)testOnProgrammaticTriggerDisplayMessages {
   // This setup allows next message to be displayed from display interval perspective.
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
-  .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
-  
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-                                             initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
   self.displayExecutor.messageDisplayComponent = display;
-  
+
   // m1 and m3 are messages triggered by 'test_event' analytics events
   [self.clientMessageCache setMessageData:@[ self.m1, self.m3 ]];
-  
-  [self.displayExecutor checkAndDisplayNextContextualMessageFromProgrammaticTrigger:@"different event"];
+
+  [self.displayExecutor
+      checkAndDisplayNextContextualMessageFromProgrammaticTrigger:@"different event"];
   NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
-  
+
   // No message matching event "different event", so no message is nil
   XCTAssertNil(display.message);
   // still got 2 in the queue
   XCTAssertEqual(2, remainingMsgCount);
-  
+
   // now trigger it with 'test_event' and we would expect one message to be displayed and removed
   // from cache
   [self.displayExecutor checkAndDisplayNextContextualMessageFromProgrammaticTrigger:@"test_event"];
   // Expecting the m1 being used for display
   XCTAssertEqualObjects(self.m1.renderData.messageID, display.message.campaignInfo.messageID);
-  
+
   remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
-  
+
   // Now only one message remaining in the queue
   XCTAssertEqual(1, remainingMsgCount);
 }
@@ -846,11 +847,11 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   self.displayExecutor.messageDisplayComponent = display;
 
   self.displayExecutor.suppressMessageDisplay = YES;
-  
+
   // Call both from analytics trigger and programmatic trigger.
   [self.displayExecutor checkAndDisplayNextContextualMessageForAnalyticsEvent:@"test_event"];
   [self.displayExecutor checkAndDisplayNextContextualMessageFromProgrammaticTrigger:@"test_event"];
-  
+
   // no message display has happened
   XCTAssertNil(display.message);
 
@@ -865,7 +866,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   NSInteger remainingMsgCount2 = [self.clientMessageCache allRegularMessages].count;
   // one message was rendered and removed from the cache
   XCTAssertEqual(1, remainingMsgCount2);
-  
+
   // Last message was rendered from programmatic trigger.
   [self.displayExecutor checkAndDisplayNextContextualMessageFromProgrammaticTrigger:@"test_event"];
   XCTAssertEqual(0, [self.clientMessageCache allRegularMessages].count);

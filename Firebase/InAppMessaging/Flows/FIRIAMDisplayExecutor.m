@@ -381,26 +381,30 @@
     if (self.suppressMessageDisplay) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400040",
                   @"Message display is being suppressed. No message rendering from "
-                  "programmatic trigger.");
+                   "programmatic trigger of event: %@.",
+                  triggerName);
       return;
     }
-    
+
     if (!self.messageDisplayComponent) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400041",
-                  @"Message display component is not present yet. No display should happen.");
+                  @"Message display component is not present yet. No display should happen for "
+                  @"triggered event %@.",
+                  triggerName);
       return;
     }
-    
+
     if (self.isMsgBeingDisplayed) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
-                  @"An in-app message display is in progress, do not render programmatically "
-                  "triggered message.");
+                  @"In-app message is already displayed. Will not attempt to programmatically "
+                  @"trigger event: %@.",
+                  triggerName);
       return;
     }
-    
+
     FIRIAMMessageDefinition *nextTriggerBasedMessage =
         [self.messageCache nextOnFirebaseAnalyticEventDisplayMsg:triggerName];
-    
+
     if (nextTriggerBasedMessage) {
       [self displayForMessage:nextTriggerBasedMessage
                   triggerType:FIRInAppMessagingDisplayTriggerTypeProgrammatic];
