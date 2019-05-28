@@ -53,8 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)checkAndDisplayNextAppForegroundMessage;
 // Check and display next in-app message eligible for analytics event trigger with given event name.
 - (void)checkAndDisplayNextContextualMessageForAnalyticsEvent:(NSString *)eventName;
-// Check and display next in-app message eligible to be triggered programmatically.
-- (void)checkAndDisplayNextContextualMessageFromProgrammaticTrigger:(NSString *)triggerName;
 
 // a boolean flag that can be used to suppress/resume displaying messages.
 @property(nonatomic) BOOL suppressMessageDisplay;

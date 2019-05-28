@@ -373,45 +373,6 @@
   }
 }
 
-- (void)checkAndDisplayNextContextualMessageFromProgrammaticTrigger:(NSString *)triggerName {
-  // synchronizing on self so that we won't potentially enter the render flow from two
-  // threads: example like showing analytics triggered message and a regular app open
-  // triggered message
-  @synchronized(self) {
-    if (self.suppressMessageDisplay) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400040",
-                  @"Message display is being suppressed. No message rendering from "
-                   "programmatic trigger of event: %@.",
-                  triggerName);
-      return;
-    }
-
-    if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400041",
-                  @"Message display component is not present yet. No display should happen for "
-                  @"triggered event %@.",
-                  triggerName);
-      return;
-    }
-
-    if (self.isMsgBeingDisplayed) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
-                  @"In-app message is already displayed. Will not attempt to programmatically "
-                  @"trigger event: %@.",
-                  triggerName);
-      return;
-    }
-
-    FIRIAMMessageDefinition *nextTriggerBasedMessage =
-        [self.messageCache nextOnFirebaseAnalyticEventDisplayMsg:triggerName];
-
-    if (nextTriggerBasedMessage) {
-      [self displayForMessage:nextTriggerBasedMessage
-                  triggerType:FIRInAppMessagingDisplayTriggerTypeProgrammatic];
-    }
-  }
-}
-
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                           portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
