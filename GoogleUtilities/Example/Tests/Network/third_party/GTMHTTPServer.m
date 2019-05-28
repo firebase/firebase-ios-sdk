@@ -127,13 +127,6 @@ static NSString *kResponse = @"Response";
   [super dealloc];
 }
 
-#if !TARGET_OS_IPHONE
-- (void)finalize {
-  [self stop];
-  [super finalize];
-}
-#endif
-
 - (id)delegate {
   return delegate_;
 }

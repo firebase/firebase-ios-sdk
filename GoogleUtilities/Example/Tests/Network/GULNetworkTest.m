@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "third_party/GTMHTTPServer.h"
+#import "GTMHTTPServer.h"
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
