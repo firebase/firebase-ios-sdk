@@ -20,7 +20,7 @@ integration test FirebaseFunctions:
 
 ### Prereqs
 
-- At least CocoaPods 1.6.0
+- At least CocoaPods 1.7.0
 
 ### To Develop
 
