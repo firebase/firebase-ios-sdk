@@ -65,11 +65,14 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   // DocumentIds are copied into every ReferenceValue we create so hide the
   // actual values behind a shared_ptr to make copying cheaper.
   struct Rep {
+    Rep(std::string&& project_id, std::string&& database_id)
+        : project_id{project_id}, database_id{database_id} {
+    }
     std::string project_id;
     std::string database_id;
   };
 
-  std::shared_ptr<Rep> rep_;
+  std::shared_ptr<const Rep> rep_;
 };
 
 }  // namespace model
