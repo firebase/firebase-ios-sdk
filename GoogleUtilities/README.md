@@ -15,15 +15,24 @@ Instructions on how to adopt the app delegate swizzler for use by your SDK are a
 
 ## Development
 
-Follow the subsequent instructions to develop, debug, and unit test
-GoogleUtilities:
+Follow the subsequent instructions to develop, debug, unit test, and
+integration test FirebaseFunctions:
 
-```
-$ git clone git@github.com:firebase/firebase-ios-sdk.git
-$ cd firebase-ios-sdk/GoogleUtilities/Example
-$ pod update
-$ open GoogleUtilities.xcworkspace
-```
+### Prereqs
+
+- At least CocoaPods 1.7.0
+
+### To Develop
+
+- Run `pod gen GoogleUtilities.podspec`
+- `open gen/GoogleUtilities/GoogleUtilities.xcworkspace`
+
+OR these two commands can be combined with
+
+- `pod gen GoogleUtilities.podspec --auto-open --gen-directory="gen" --clean`
+
+You're now in an Xcode workspace generate for building, debugging and
+testing the GoogleUtilities CocoaPod.
 
 ### Running Unit Tests
 

@@ -78,6 +78,10 @@ else
       check_changes '^(Firebase/Core|Functions|GoogleUtilities|FirebaseFunctions.podspec)'
       ;;
 
+    GoogleUtilities-*)
+      check_changes '^(GoogleUtilities|GoogleUtilities.podspec)'
+      ;;
+
     InAppMessaging-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'

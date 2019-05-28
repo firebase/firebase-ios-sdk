@@ -91,7 +91,9 @@ static NSString *const kGULGoogleAppDelegateProxyEnabledPlistKey =
 /** YES if GULTestAppDelegate responds to application:openURL:sourceApplication:annotation:, NO
  *  otherwise.
  */
+#if TARGET_OS_IOS || TARGET_OS_TV
 static BOOL gRespondsToOpenURLHandler_iOS8;
+#endif
 
 /** YES if GULTestAppDelegate responds to application:openURL:options:, NO otherwise. */
 static BOOL gRespondsToOpenURLHandler_iOS9;
@@ -109,10 +111,13 @@ static BOOL gRespondsToHandleBackgroundSession;
 + (void)load {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
   // Before being proxied, it should be only be able to respond to
   // application:openURL:sourceApplication:annotation:.
+#if TARGET_OS_IOS || TARGET_OS_TV
   gRespondsToOpenURLHandler_iOS8 = [self
       instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)];
+#endif
   gRespondsToOpenURLHandler_iOS9 =
       [self instancesRespondToSelector:@selector(application:openURL:options:)];
   gRespondsToHandleBackgroundSession =

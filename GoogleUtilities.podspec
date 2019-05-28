@@ -99,4 +99,12 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.dependency 'GoogleUtilities/Logger'
   end
+
+  s.test_spec 'unit' do |unit_tests|
+    # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
+    unit_tests.source_files = 'GoogleUtilities/Example/Tests/**/*.[mh]'
+    unit_tests.requires_arc = 'GoogleUtilities/Example/Tests/*/*.[mh]'
+    unit_tests.requires_app_host = true
+    unit_tests.dependency 'OCMock'
+  end
 end
