@@ -186,12 +186,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   [self waitForExpectations:@[ tokenExpectation, operationFinishExpectation ] timeout:1];
 
+  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
+  [mockOperation stopMocking];
+
   // Keep 'operation' alive, so it's not prematurely destroyed
   XCTAssertNotNil(operation);
   XCTAssertNotNil(mockOperation);
-
-  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
-  [mockOperation stopMocking];
 }
 
 /**
@@ -245,12 +245,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   [self waitForExpectations:@[ tokenExpectation, operationFinishExpectation ] timeout:1];
 
+  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
+  [mockOperation stopMocking];
+
   // Keep 'operation' alive, so it's not prematurely destroyed
   XCTAssertNotNil(operation);
   XCTAssertNotNil(mockOperation);
-
-  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
-  [mockOperation stopMocking];
 }
 
 /**
@@ -301,12 +301,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   [self waitForExpectations:@[ tokenExpectation, operationFinishExpectation ] timeout:1];
 
+  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
+  [mockOperation stopMocking];
+
   // Keep 'operation' alive, so it's not prematurely destroyed
   XCTAssertNotNil(operation);
   XCTAssertNotNil(mockOperation);
-
-  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
-  [mockOperation stopMocking];
 }
 
 /**
@@ -352,12 +352,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   [self waitForExpectations:@[ deleteExpectation, operationFinishExpectation ] timeout:1];
 
+  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
+  [mockOperation stopMocking];
+
   // Keep 'operation' alive, so it's not prematurely destroyed
   XCTAssertNotNil(operation);
   XCTAssertNotNil(mockOperation);
-
-  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
-  [mockOperation stopMocking];
 }
 
 /**
@@ -404,12 +404,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   [self waitForExpectations:@[ deleteExpectation, operationFinishExpectation ] timeout:1];
 
+  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
+  [mockOperation stopMocking];
+
   // Keep 'operation' alive, so it's not prematurely destroyed
   XCTAssertNotNil(operation);
   XCTAssertNotNil(mockOperation);
-
-  // Make sure the partial mock stops mocking before `operation` is deallocated to avoid crash.
-  [mockOperation stopMocking];
 }
 
 #pragma mark - Cached Token Invalidation
