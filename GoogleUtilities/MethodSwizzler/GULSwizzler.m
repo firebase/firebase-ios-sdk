@@ -20,7 +20,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "../Common/GULLoggerCodes.h"
 
-static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilites/MethodSwizzler]";
+static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/MethodSwizzler]";
 #endif
 
 dispatch_queue_t GetGULSwizzlingQueue(void) {
@@ -57,15 +57,17 @@ dispatch_queue_t GetGULSwizzlingQueue(void) {
     Class class = NSClassFromString(@"GULSwizzlingCache");
     if (class) {
       SEL cacheSelector = NSSelectorFromString(@"cacheCurrentIMP:forNewIMP:forClass:withSelector:");
-      NSInvocation *inv = [NSInvocation
-          invocationWithMethodSignature:[class methodSignatureForSelector:cacheSelector]];
-      [inv setSelector:cacheSelector];
-      [inv setTarget:class];
-      [inv setArgument:&(currentImp) atIndex:2];
-      [inv setArgument:&(newImp) atIndex:3];
-      [inv setArgument:&(resolvedClass) atIndex:4];
-      [inv setArgument:(void *_Nonnull) & (selector) atIndex:5];
-      [inv invoke];
+      NSMethodSignature *methodSignature = [class methodSignatureForSelector:cacheSelector];
+      if (methodSignature != nil) {
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:methodSignature];
+        [inv setSelector:cacheSelector];
+        [inv setTarget:class];
+        [inv setArgument:&(currentImp) atIndex:2];
+        [inv setArgument:&(newImp) atIndex:3];
+        [inv setArgument:&(resolvedClass) atIndex:4];
+        [inv setArgument:(void *_Nonnull) & (selector) atIndex:5];
+        [inv invoke];
+      }
     }
 #endif
 
@@ -77,20 +79,22 @@ dispatch_queue_t GetGULSwizzlingQueue(void) {
     // If !originalImpOfClass, then the IMP came from a superclass.
     if (originalImpOfClass) {
       SEL selector = NSSelectorFromString(@"originalIMPOfCurrentIMP:");
-      NSInvocation *inv =
-          [NSInvocation invocationWithMethodSignature:[class methodSignatureForSelector:selector]];
-      [inv setSelector:selector];
-      [inv setTarget:class];
-      [inv setArgument:&(currentImp) atIndex:2];
-      [inv invoke];
-      IMP testOriginal;
-      [inv getReturnValue:&testOriginal];
-      if (originalImpOfClass != testOriginal) {
-        GULLogWarning(kGULLoggerSwizzler, NO,
-                      [NSString stringWithFormat:@"I-SWZ%06ld",
-                                                 (long)kGULSwizzlerMessageCodeMethodSwizzling000],
-                      @"Swizzling class: %@ SEL:%@ after it has been previously been swizzled.",
-                      NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
+      NSMethodSignature *methodSignature = [class methodSignatureForSelector:selector];
+      if (methodSignature != nil) {
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:methodSignature];
+        [inv setSelector:selector];
+        [inv setTarget:class];
+        [inv setArgument:&(currentImp) atIndex:2];
+        [inv invoke];
+        IMP testOriginal;
+        [inv getReturnValue:&testOriginal];
+        if (originalImpOfClass != testOriginal) {
+          GULLogWarning(kGULLoggerSwizzler, NO,
+                        [NSString stringWithFormat:@"I-SWZ%06ld",
+                                                   (long)kGULSwizzlerMessageCodeMethodSwizzling000],
+                        @"Swizzling class: %@ SEL:%@ after it has been previously been swizzled.",
+                        NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
+        }
       }
     }
 #endif

@@ -33,10 +33,6 @@
 #import "FIRMessagingDefines.h"
 #import "NSError+FIRMessaging.h"
 
-static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
-
-static NSString *const kFIRMessagingAppIDToken = @"1234abcdef789";
-
 static NSString *const kMessagePersistentID = @"abcdef123";
 static NSString *const kMessageFrom = @"com.example.gcm";
 static NSString *const kMessageTo = @"123456789";
@@ -380,7 +376,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 - (void)testSendDelayedMessage_shouldNotSend {
   // should not send a delayed message even with an active connection
   // simulate active connection
-  [[[self.mockClient stub] andReturnValue:OCMOCK_VALUE(YES)] isConnectionActive];
+  [[[self.mockClient stub] andReturnValue:[NSNumber numberWithBool:YES]]
+    isConnectionActive];
   [[self.mockClient reject] sendMessage:[OCMArg any]];
 
   [[self.mockReceiver reject] didSendDataMessageWithID:[OCMArg any]];

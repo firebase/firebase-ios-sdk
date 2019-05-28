@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pN-pw-EY2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pN-pw-EY2">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -325,11 +325,134 @@
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="vjd-Pj-odJ"/>
                         <segue destination="ttC-lg-4V1" kind="relationship" relationship="viewControllers" id="KIt-l5-XTe"/>
                         <segue destination="3X5-S5-3oo" kind="relationship" relationship="viewControllers" id="c5a-QK-OKw"/>
+                        <segue destination="7qp-KF-emt" kind="relationship" relationship="viewControllers" id="5Za-CI-fkn"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kJN-c1-1dl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="139.4021739130435" y="95.652173913043484"/>
+        </scene>
+        <!--Card Messages-->
+        <scene sceneID="lTf-2W-Yrp">
+            <objects>
+                <viewController id="7qp-KF-emt" userLabel="Card Messages" customClass="CardMessageViewController" customModule="FiamDisplaySwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="A8k-VD-CtE"/>
+                        <viewControllerLayoutGuide type="bottom" id="X2N-2U-Eje"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="CBW-Xw-spg">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="hgf-QM-eOg">
+                                <rect key="frame" x="0.0" y="20" width="414" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ts8-L7-y9b">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="60.666666666666664"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="verification-label-modal"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ITc-lu-jBW">
+                                        <rect key="frame" x="0.0" y="60.666666666666671" width="414" height="60.666666666666671"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular one button with both images"/>
+                                        <connections>
+                                            <action selector="showRegularOneButtonWithBothImages:" destination="7qp-KF-emt" eventType="touchUpInside" id="m1b-WU-v3c"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uh3-CP-JX6">
+                                        <rect key="frame" x="0.0" y="121.33333333333336" width="414" height="60.666666666666671"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular one button with only portrait"/>
+                                        <connections>
+                                            <action selector="showRegularOneButtonWithOnlyPortrait:" destination="7qp-KF-emt" eventType="touchUpInside" id="7dE-hx-ore"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="53O-2p-NBb">
+                                        <rect key="frame" x="0.0" y="182" width="414" height="60.666666666666657"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular two button with both images"/>
+                                        <connections>
+                                            <action selector="showRegularTwoButtonWithBothImages:" destination="7qp-KF-emt" eventType="touchUpInside" id="krV-Vm-XIf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bCB-C4-2Bj">
+                                        <rect key="frame" x="0.0" y="242.66666666666666" width="414" height="60.666666666666657"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Long title, regular body"/>
+                                        <connections>
+                                            <action selector="showLongTitleRegularBody:" destination="7qp-KF-emt" eventType="touchUpInside" id="JO8-zm-m3G"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YrK-32-aYS">
+                                        <rect key="frame" x="0.0" y="303.33333333333331" width="414" height="60.333333333333314"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular title, long body"/>
+                                        <connections>
+                                            <action selector="showRegularTitleLongBody:" destination="7qp-KF-emt" eventType="touchUpInside" id="1lG-Xj-Hrw"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="laT-wO-h0Z" userLabel="Long title, no body">
+                                        <rect key="frame" x="0.0" y="363.66666666666669" width="414" height="60.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Long title, no body"/>
+                                        <connections>
+                                            <action selector="showLongTitleNoBody:" destination="7qp-KF-emt" eventType="touchUpInside" id="UqB-Q6-P8i"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v9U-qY-dzC" userLabel="Long primary button">
+                                        <rect key="frame" x="0.0" y="424.33333333333331" width="414" height="60.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Long primary button"/>
+                                        <connections>
+                                            <action selector="showLongPrimaryButton:" destination="7qp-KF-emt" eventType="touchUpInside" id="KW4-xc-ZrH"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HdA-GX-M5B" userLabel="Long secondary button">
+                                        <rect key="frame" x="0.0" y="485.00000000000006" width="414" height="60.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Long secondary button"/>
+                                        <connections>
+                                            <action selector="showLongSecondaryButton:" destination="7qp-KF-emt" eventType="touchUpInside" id="I5c-LV-kU6"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUX-UK-ok3" userLabel="Small image">
+                                        <rect key="frame" x="0.0" y="545.66666666666663" width="414" height="60.666666666666629"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Small image"/>
+                                        <connections>
+                                            <action selector="showSmallImage:" destination="7qp-KF-emt" eventType="touchUpInside" id="dKq-vz-yQB"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pNm-hO-edm" userLabel="Huge image">
+                                        <rect key="frame" x="0.0" y="606.33333333333337" width="414" height="60.666666666666629"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Huge image"/>
+                                        <connections>
+                                            <action selector="showHugeImage:" destination="7qp-KF-emt" eventType="touchUpInside" id="DHB-0d-A6H"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="X2N-2U-Eje" firstAttribute="top" secondItem="hgf-QM-eOg" secondAttribute="bottom" id="3Uf-aa-woV"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="centerX" secondItem="CBW-Xw-spg" secondAttribute="centerX" id="8Ti-Ml-l6D"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="top" secondItem="A8k-VD-CtE" secondAttribute="bottom" id="YT5-j4-b8g"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="width" secondItem="CBW-Xw-spg" secondAttribute="width" id="Zui-ty-Day"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Card Messages" id="ojf-YC-btZ"/>
+                    <connections>
+                        <outlet property="verifyLabel" destination="ts8-L7-y9b" id="6Dm-Fi-dhQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="W6A-nN-JfC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1733" y="95"/>
         </scene>
     </scenes>
 </document>

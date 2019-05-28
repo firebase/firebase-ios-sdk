@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRGeoPoint.h"
+#import "RoundedCornersView.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation RoundedCornersView
 
-namespace firebase {
-namespace firestore {
-class GeoPoint;
-}  // namespace firestore
-}  // namespace firebase
-
-namespace firestore = firebase::firestore;
-
-/** Internal FIRGeoPoint API we don't want exposed in our public header files. */
-@interface FIRGeoPoint (Internal)
-
-- (NSComparisonResult)compare:(FIRGeoPoint *)other;
-
-- (firestore::GeoPoint)toGeoPoint;
+- (void)setCornerRadius:(CGFloat)cornerRadius {
+  self.layer.cornerRadius = cornerRadius;
+  self.layer.masksToBounds = cornerRadius > 0;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

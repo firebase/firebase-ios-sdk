@@ -68,11 +68,11 @@
   double nextFetchEpochTimeInResponse =
       [responseDict[@"expirationEpochTimestampMillis"] doubleValue];
 
-  // fetch wait time should be (next fetch epoch time - curret moment)
+  // Fetch wait time should be (next fetch epoch time - current moment).
   XCTAssertEqualWithAccuracy([fetchWaitTime doubleValue],
                              nextFetchEpochTimeInResponse / 1000 - currentMoment, 0.1);
 
-  XCTAssertEqual(4, [results count]);
+  XCTAssertEqual(5, [results count]);
   XCTAssertEqual(0, discardCount);
 
   FIRIAMMessageDefinition *first = results[0];
@@ -104,12 +104,33 @@
   XCTAssertEqualObjects(second.renderData.renderingEffectSettings.displayBGColor,
                         [UIColor firiam_colorWithHexString:@"#ffffff"]);
 
-  // Third message is a banner view message based on a analytics event trigger.
+  // Third message is a banner view message based on an analytics event trigger.
   FIRIAMMessageDefinition *third = results[2];
   XCTAssertEqualObjects(@"14819094573862617088", third.renderData.messageID);
   XCTAssertEqual(FIRIAMRenderAsBannerView, third.renderData.renderingEffectSettings.viewMode);
   XCTAssertEqual(1, third.renderTriggers.count);
   XCTAssertEqualObjects(@"jackpot", third.renderTriggers[0].firebaseEventName);
+
+  // Fifth message is a card view message based on an analytics event trigger.
+  FIRIAMMessageDefinition *fifth = results[4];
+  XCTAssertEqualObjects(@"5432869654332221", fifth.renderData.messageID);
+  XCTAssertEqual(FIRIAMRenderAsCardView, fifth.renderData.renderingEffectSettings.viewMode);
+  XCTAssertEqual(1, fifth.renderTriggers.count);
+  XCTAssertEqual(FIRIAMRenderTriggerOnAppForeground, fifth.renderTriggers[0].triggerType);
+  XCTAssertEqualObjects(@"Super Bowl LIV", fifth.renderData.name);
+  XCTAssertEqualObjects(@"Eagles are going to win", fifth.renderData.contentData.titleText);
+  XCTAssertEqualObjects(@"Start of a dynasty.", fifth.renderData.contentData.bodyText);
+  XCTAssertEqualObjects(@"https://image.com/birds.png",
+                        fifth.renderData.contentData.imageURL.absoluteString);
+  XCTAssertEqualObjects(@"https://image.com/ls_birds.png",
+                        fifth.renderData.contentData.landscapeImageURL.absoluteString);
+  XCTAssertEqualObjects(@"https://www.google.com",
+                        fifth.renderData.contentData.actionURL.absoluteString);
+  XCTAssertEqualObjects(@"Win Super Bowl LIV", fifth.renderData.contentData.actionButtonText);
+  XCTAssertEqualObjects(@"https://www.google.com",
+                        fifth.renderData.contentData.secondaryActionURL.absoluteString);
+  XCTAssertEqualObjects(@"Win Super Bowl LV",
+                        fifth.renderData.contentData.secondaryActionButtonText);
 }
 
 - (void)testParsingTestMessage {

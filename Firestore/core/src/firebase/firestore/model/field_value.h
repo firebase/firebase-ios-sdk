@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <cmath>
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
@@ -31,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 
 #if __OBJC__
@@ -41,12 +43,14 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+class ObjectValue;
+
 /**
  * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
  * that can be stored in fields in a document.
  */
-class FieldValue : public util::Comparable<FieldValue> {
+class FieldValue {
  public:
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
@@ -76,6 +80,8 @@ class FieldValue : public util::Comparable<FieldValue> {
   };
 
   FieldValue();
+
+  FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
 #if __OBJC__
   FSTFieldValue* Wrap() &&;
@@ -121,6 +127,11 @@ class FieldValue : public util::Comparable<FieldValue> {
 
   const Map& object_value() const;
 
+  bool is_nan() const {
+    if (type() != Type::Double) return false;
+    return std::isnan(double_value());
+  }
+
   /** factory methods. */
   static FieldValue Null();
   static FieldValue True();
@@ -153,6 +164,27 @@ class FieldValue : public util::Comparable<FieldValue> {
     return rep_->CompareTo(*rhs.rep_);
   }
 
+  /**
+   * Checks if the two values are equal, returning false if the value is
+   * perceptibly different in any regard.
+   *
+   * Comparison for FieldValues is defined by whether or not values should
+   * match for the purposes of querying. Comparison therefore makes the broadest
+   * possible allowance, looking only for logical equality. This means that e.g.
+   * -0.0, +0.0 and 0 (floating point and integer zeros) are all considered the
+   * same value for comparison purposes.
+   *
+   * Equality for FieldValues is defined by whether or not a user could
+   * perceive a change to the value. That is, a change from integer zero to
+   * a double zero can be perceived and so these values are unequal despite
+   * comparing same.
+   *
+   * This makes FieldValue one of the special cases where equality is
+   * inconsistent with comparison. There are cases where CompareTo will return
+   * Same but operator== will return false.
+   */
+  friend bool operator==(const FieldValue& lhs, const FieldValue& rhs);
+
   std::string ToString() const {
     return rep_->ToString();
   }
@@ -167,6 +199,8 @@ class FieldValue : public util::Comparable<FieldValue> {
     virtual Type type() const = 0;
 
     virtual std::string ToString() const = 0;
+
+    virtual bool Equals(const BaseValue& other) const = 0;
 
     virtual util::ComparisonResult CompareTo(const BaseValue& other) const = 0;
 
@@ -253,6 +287,32 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   FieldValue fv_;
 };
+
+// Pretend you can automatically upcast from ObjectValue to FieldValue.
+inline FieldValue::FieldValue(ObjectValue object)
+    : FieldValue(object.AsFieldValue()) {
+}
+
+inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
+  // See operator== for why this isn't using util::Same().
+  return !(lhs == rhs);
+}
+
+inline bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
+  return util::Ascending(lhs.CompareTo(rhs));
+}
+inline bool operator>(const FieldValue& lhs, const FieldValue& rhs) {
+  return util::Descending(lhs.CompareTo(rhs));
+}
+inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(rhs < lhs);
+}
+inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs < rhs);
+}
+
+// A bit pattern for our canonical NaN value. Exposed here for testing.
+ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 }  // namespace model
 }  // namespace firestore

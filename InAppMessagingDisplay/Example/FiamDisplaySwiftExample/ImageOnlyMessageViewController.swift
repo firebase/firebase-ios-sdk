@@ -20,14 +20,15 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
 
   @IBOutlet var verifyLabel: UILabel!
 
-  override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage) {
-    super.messageClicked(inAppMessage)
+  override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage,
+                               with action: InAppMessagingAction) {
+    super.messageClicked(inAppMessage, with: action)
     verifyLabel.text = "message clicked!"
   }
 
   override func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
                                  dismissType: FIRInAppMessagingDismissType) {
-    super.messageClicked(inAppMessage)
+    super.messageDismissed(inAppMessage, dismissType: dismissType)
     verifyLabel.text = "message dismissed!"
   }
 

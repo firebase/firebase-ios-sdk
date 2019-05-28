@@ -41,7 +41,7 @@ using firebase::firestore::model::FieldValue;
   ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTIntegerValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], @([value longLongValue]));
     XCTAssertEqual(wrapped.type, FieldValue::Type::Integer);
   }
@@ -56,17 +56,17 @@ using firebase::firestore::model::FieldValue;
   ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDoubleValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Double);
   }
 }
 
 - (void)testConvertsNilAndNSNull {
-  FSTNullValue *nullValue = [FSTNullValue nullValue];
-  XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
-  XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
-  XCTAssertEqual([nullValue value], [NSNull null]);
+  FSTFieldValue *nullValue = FieldValue::Null().Wrap();
+  XCTAssertEqualObjects(FSTTestFieldValue(nil), nullValue);
+  XCTAssertEqualObjects(FSTTestFieldValue([NSNull null]), nullValue);
+  XCTAssertEqualObjects([nullValue value], [NSNull null]);
   XCTAssertEqual(nullValue.type, FieldValue::Type::Null);
 }
 
@@ -87,7 +87,7 @@ using firebase::firestore::model::FieldValue;
   // choose, and it's more useful to support shorts as Integers than it is to treat unsigned char as
   // Boolean.
   FSTFieldValue *wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
-  XCTAssertEqualObjects(wrapped, [FSTIntegerValue integerValue:1]);
+  XCTAssertEqualObjects(wrapped, FieldValue::FromInteger(1).Wrap());
 }
 
 union DoubleBits {
@@ -121,7 +121,7 @@ union DoubleBits {
 
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTGeoPointValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::GeoPoint);
   }
@@ -161,9 +161,9 @@ union DoubleBits {
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : FieldValue::FromString("foo").Wrap(),
-    @"b" : [FSTIntegerValue integerValue:1LL],
+    @"b" : FieldValue::FromInteger(1).Wrap(),
     @"c" : FieldValue::True().Wrap(),
-    @"d" : [FSTNullValue nullValue]
+    @"d" : FieldValue::Null().Wrap()
   }];
   XCTAssertEqualObjects(actual, expected);
   XCTAssertEqual(actual.type, FieldValue::Type::Object);

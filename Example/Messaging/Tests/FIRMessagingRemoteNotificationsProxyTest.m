@@ -39,14 +39,14 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo  {
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))
-completionHandler {
+completionHandler  API_AVAILABLE(ios(10.0)){
 }
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 #if TARGET_OS_IOS
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(void(^)(void))completionHandler {
+         withCompletionHandler:(void(^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
 }
 #endif // TARGET_OS_IOS
 
@@ -107,13 +107,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))
-    completionHandler {
+completionHandler  API_AVAILABLE(ios(10.0)){
   self.willPresentWasCalled = YES;
 }
 #if TARGET_OS_IOS
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(void (^)(void))completionHandler {
+         withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
   self.didReceiveResponseWasCalled = YES;
 }
 #endif // TARGET_OS_IOS
@@ -130,7 +130,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 @property(nonatomic, strong) FIRMessagingRemoteNotificationsProxy *proxy;
 @property(nonatomic, strong) id mockProxyClass;
-@property(nonatomic, strong) id mockSharedApplication;
 @property(nonatomic, strong) id mockMessaging;
 @property(nonatomic, strong) id mockUserNotificationCenter;
 
@@ -152,10 +151,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   _mockProxyClass = OCMClassMock([FIRMessagingRemoteNotificationsProxy class]);
   // Update +sharedProxy to always return our test instance
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-  _mockUserNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
-#endif
+  if (@available(iOS 10.0, *)) {
+    _mockUserNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
+  }
 }
 
 - (void)tearDown {
@@ -165,11 +163,10 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [_mockMessaging stopMocking];
   _mockMessaging = nil;
 
-  [_mockSharedApplication stopMocking];
-  _mockSharedApplication = nil;
-
-  [_mockUserNotificationCenter stopMocking];
-  _mockUserNotificationCenter = nil;
+  if (@available(iOS 10.0, *)) {
+    [_mockUserNotificationCenter stopMocking];
+    _mockUserNotificationCenter = nil;
+  }
 
   _proxy = nil;
   [super tearDown];
@@ -179,24 +176,25 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testSwizzlingNonAppDelegate {
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
-  [OCMStub([self.mockSharedApplication delegate]) andReturn:invalidAppDelegate];
+  [[GULAppDelegateSwizzler sharedApplication] setDelegate:(id<UIApplicationDelegate>)invalidAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
-  [invalidAppDelegate application:self.mockSharedApplication
-     didReceiveRemoteNotification:@{}];
+  [invalidAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
+     didReceiveRemoteNotification:@{}
+           fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 }
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-  [OCMStub([self.mockSharedApplication delegate]) andReturn:incompleteAppDelegate];
+  [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-  [incompleteAppDelegate application:self.mockSharedApplication
+  [incompleteAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
         didReceiveRemoteNotification:notification];
 
   [self.mockMessaging verify];
@@ -204,7 +202,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-  [OCMStub([self.mockSharedApplication delegate]) andReturn:incompleteAppDelegate];
+  [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -219,7 +217,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
   FakeAppDelegate *appDelegate = [[FakeAppDelegate alloc] init];
-  [OCMStub([self.mockSharedApplication delegate]) andReturn:appDelegate];
+  [[GULAppDelegateSwizzler sharedApplication] setDelegate:appDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
@@ -230,7 +228,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
   // Call the method
-  [appDelegate application:self.mockSharedApplication
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
         didReceiveRemoteNotification:notification];
 
   // Verify our original method was called
@@ -242,7 +240,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-  [appDelegate application:self.mockSharedApplication
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didReceiveRemoteNotification:notification
       fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 
@@ -257,7 +255,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   OCMExpect([self.mockMessaging setAPNSToken:deviceToken]);
 
-  [appDelegate application:self.mockSharedApplication
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
   XCTAssertEqual(appDelegate.deviceToken, deviceToken);
@@ -266,138 +264,144 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify application:didFailToRegisterForRemoteNotificationsWithError:
   NSError *error = [NSError errorWithDomain:@"tests" code:-1 userInfo:nil];
 
-  [appDelegate application:self.mockSharedApplication
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didFailToRegisterForRemoteNotificationsWithError:error];
 
   XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);
 
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
-  RandomObject *invalidNotificationCenter = [[RandomObject alloc] init];
-  OCMStub([self.mockUserNotificationCenter currentNotificationCenter]).andReturn(invalidNotificationCenter);
-  [self.proxy swizzleMethodsIfPossible];
+  if (@available(iOS 10.0, *)) {
+    RandomObject *invalidNotificationCenter = [[RandomObject alloc] init];
+    OCMStub([self.mockUserNotificationCenter currentNotificationCenter]).andReturn(invalidNotificationCenter);
+    [self.proxy swizzleMethodsIfPossible];
 
-  OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
+    OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
-  [(id<UNUserNotificationCenterDelegate>)invalidNotificationCenter.delegate
-   userNotificationCenter:self.mockUserNotificationCenter
-   willPresentNotification:OCMClassMock([UNNotification class])
-   withCompletionHandler:^(UNNotificationPresentationOptions options) {
-   }];
+    [(id<UNUserNotificationCenterDelegate>)invalidNotificationCenter.delegate
+     userNotificationCenter:self.mockUserNotificationCenter
+     willPresentNotification:OCMClassMock([UNNotification class])
+     withCompletionHandler:^(UNNotificationPresentationOptions options) {
+     }];
+  }
 }
 
 - (void)testSwizzlingInvalidUserNotificationCenterDelegate {
-  RandomObject *invalidDelegate = [[RandomObject alloc] init];
-  OCMStub([self.mockUserNotificationCenter delegate]).andReturn(invalidDelegate);
-  [self.proxy swizzleMethodsIfPossible];
+  if (@available(iOS 10.0, *)) {
+    RandomObject *invalidDelegate = [[RandomObject alloc] init];
+    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(invalidDelegate);
+    [self.proxy swizzleMethodsIfPossible];
 
-  OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
+    OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
-  [invalidDelegate
-   userNotificationCenter:self.mockUserNotificationCenter
-   willPresentNotification:OCMClassMock([UNNotification class])
-   withCompletionHandler:^(UNNotificationPresentationOptions options) {
-   }];
+    [invalidDelegate
+     userNotificationCenter:self.mockUserNotificationCenter
+     willPresentNotification:OCMClassMock([UNNotification class])
+     withCompletionHandler:^(UNNotificationPresentationOptions options) {
+     }];
+  }
 }
 
 - (void)testSwizzlingUserNotificationsCenterDelegate {
-  FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
-  OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
-  [self.proxy swizzleMethodsIfPossible];
+  if (@available(iOS 10.0, *)) {
+    FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
+    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
+    [self.proxy swizzleMethodsIfPossible];
 
-  NSDictionary *message = @{@"message": @""};
-  id notification = [self userNotificationWithMessage:message];
+    NSDictionary *message = @{@"message": @""};
+    id notification = [self userNotificationWithMessage:message];
 
-  OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
+    OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
 
-  [delegate
-   userNotificationCenter:self.mockUserNotificationCenter
-   willPresentNotification:notification
-   withCompletionHandler:^(UNNotificationPresentationOptions options) {
-   }];
+    [delegate
+     userNotificationCenter:self.mockUserNotificationCenter
+     willPresentNotification:notification
+     withCompletionHandler:^(UNNotificationPresentationOptions options) {
+     }];
 
-  [self.mockMessaging verify];
+    [self.mockMessaging verify];
+  }
 }
 
 // Use a fake delegate that doesn't actually implement the needed delegate method.
 // Our swizzled method should not be called.
 
 - (void)testIncompleteUserNotificationCenterDelegateMethod {
-  // Early exit if running on pre iOS 10
-  if (![UNNotification class]) {
-    return;
+  if (@available(iOS 10.0, *)) {
+    IncompleteUserNotificationCenterDelegate *delegate =
+        [[IncompleteUserNotificationCenterDelegate alloc] init];
+    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
+    [self.proxy swizzleMethodsIfPossible];
+    // Because the incomplete delete does not implement either of the optional delegate methods, we
+    // should swizzle nothing. If we had swizzled them, then respondsToSelector: would return YES
+    // even though the delegate does not implement the methods.
+    SEL willPresentSelector = @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:);
+    XCTAssertFalse([delegate respondsToSelector:willPresentSelector]);
+    SEL didReceiveResponseSelector =
+        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
+    XCTAssertFalse([delegate respondsToSelector:didReceiveResponseSelector]);
   }
-  IncompleteUserNotificationCenterDelegate *delegate =
-      [[IncompleteUserNotificationCenterDelegate alloc] init];
-  OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
-  [self.proxy swizzleMethodsIfPossible];
-  // Because the incomplete delete does not implement either of the optional delegate methods, we
-  // should swizzle nothing. If we had swizzled them, then respondsToSelector: would return YES
-  // even though the delegate does not implement the methods.
-  SEL willPresentSelector = @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:);
-  XCTAssertFalse([delegate respondsToSelector:willPresentSelector]);
-  SEL didReceiveResponseSelector =
-      @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
-  XCTAssertFalse([delegate respondsToSelector:didReceiveResponseSelector]);
 }
 
 // Use an object that does actually implement the optional methods. Both should be called.
 - (void)testSwizzledUserNotificationsCenterDelegate {
-  FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
-  OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
-  [self.proxy swizzleMethodsIfPossible];
+  if (@available(iOS 10.0, *)) {
+    FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
+    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
+    [self.proxy swizzleMethodsIfPossible];
 
-  NSDictionary *message = @{@"message": @""};
+    NSDictionary *message = @{@"message": @""};
 
-  // Verify userNotificationCenter:willPresentNotification:withCompletionHandler:
-  OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
+    // Verify userNotificationCenter:willPresentNotification:withCompletionHandler:
+    OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
 
-  // Invoking delegate method should also invoke our swizzled method
-  // The swizzled method uses the +sharedProxy, which should be
-  // returning our proxy.
-  // Use non-nil, proper classes, otherwise our SDK bails out.
-  [delegate userNotificationCenter:self.mockUserNotificationCenter
-           willPresentNotification:[self userNotificationWithMessage:message]
-             withCompletionHandler:^(NSUInteger options) {}];
+    // Invoking delegate method should also invoke our swizzled method
+    // The swizzled method uses the +sharedProxy, which should be
+    // returning our proxy.
+    // Use non-nil, proper classes, otherwise our SDK bails out.
+    [delegate userNotificationCenter:self.mockUserNotificationCenter
+             willPresentNotification:[self userNotificationWithMessage:message]
+               withCompletionHandler:^(NSUInteger options) {}];
 
-  // Verify our original method was called
-  XCTAssertTrue(delegate.willPresentWasCalled);
+    // Verify our original method was called
+    XCTAssertTrue(delegate.willPresentWasCalled);
 
-  // Verify our swizzled method was called
-  [self.mockMessaging verify];
+    // Verify our swizzled method was called
+    [self.mockMessaging verify];
 
 #if TARGET_OS_IOS
-  // Verify userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+    // Verify userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
 
-  OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
+    OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
 
-  [delegate userNotificationCenter:self.mockUserNotificationCenter
-    didReceiveNotificationResponse:[self userNotificationResponseWithMessage:message]
-             withCompletionHandler:^{}];
+    [delegate userNotificationCenter:self.mockUserNotificationCenter
+      didReceiveNotificationResponse:[self userNotificationResponseWithMessage:message]
+               withCompletionHandler:^{}];
 
-  // Verify our original method was called
-  XCTAssertTrue(delegate.didReceiveResponseWasCalled);
+    // Verify our original method was called
+    XCTAssertTrue(delegate.didReceiveResponseWasCalled);
 
-  // Verify our swizzled method was called
-  [self.mockMessaging verify];
+    // Verify our swizzled method was called
+    [self.mockMessaging verify];
 #endif // TARGET_OS_IOS
+  }
 }
 
 - (id)userNotificationResponseWithMessage:(NSDictionary *)message {
+  if (@available(iOS 10.0, *)) {
   // Stub out: response.[mock notification above]
 #if TARGET_OS_IOS
-  id mockNotificationResponse = OCMClassMock([UNNotificationResponse class]);
-  id mockNotification = [self userNotificationWithMessage:message];
-  OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
-  return mockNotificationResponse;
-#else // TARGET_OS_IOS
-  return nil;
+    id mockNotificationResponse = OCMClassMock([UNNotificationResponse class]);
+    id mockNotification = [self userNotificationWithMessage:message];
+    OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
+    return mockNotificationResponse;
 #endif // TARGET_OS_IOS
+  }
+  return nil;
 }
 
-- (UNNotification *)userNotificationWithMessage:(NSDictionary *)message {
+- (UNNotification *)userNotificationWithMessage:(NSDictionary *)message  API_AVAILABLE(ios(10.0)){
   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   content.userInfo = message;
   id notificationRequest = OCMClassMock([UNNotificationRequest class]);
@@ -407,7 +411,5 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   return notification;
 }
-
-#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 @end

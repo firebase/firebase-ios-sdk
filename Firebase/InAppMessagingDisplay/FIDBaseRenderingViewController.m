@@ -143,16 +143,16 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   return;
 }
 
-- (void)followActionURL {
+- (void)followAction:(FIRInAppMessagingAction *)action {
   [self.view.window setHidden:YES];
   // This is for the purpose of releasing the potential memory associated with the image view.
   self.view.window.rootViewController = nil;
 
   if (self.displayDelegate) {
-    [self.displayDelegate messageClicked:[self inAppMessage]];
+    [self.displayDelegate messageClicked:[self inAppMessage] withAction:action];
   } else {
     FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008",
-                  @"Display delegate is nil while trying to follow action URL.");
+                  @"Display delegate is nil while trying to follow action :%@.", action.actionText);
   }
   return;
 }

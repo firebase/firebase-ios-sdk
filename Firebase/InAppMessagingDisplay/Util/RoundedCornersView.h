@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRGeoPoint.h"
+#import <UIKit/UIKit.h>
+IB_DESIGNABLE
 
-NS_ASSUME_NONNULL_BEGIN
-
-namespace firebase {
-namespace firestore {
-class GeoPoint;
-}  // namespace firestore
-}  // namespace firebase
-
-namespace firestore = firebase::firestore;
-
-/** Internal FIRGeoPoint API we don't want exposed in our public header files. */
-@interface FIRGeoPoint (Internal)
-
-- (NSComparisonResult)compare:(FIRGeoPoint *)other;
-
-- (firestore::GeoPoint)toGeoPoint;
-
+// A UIView subclass that allows for tweaking corner radius via a storyboard.
+@interface RoundedCornersView : UIView
+@property(nonatomic) IBInspectable CGFloat cornerRadius;
 @end
-
-NS_ASSUME_NONNULL_END

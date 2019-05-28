@@ -78,6 +78,11 @@ NS_SWIFT_NAME(InAppMessaging)
 @property(nonatomic) id<FIRInAppMessagingDisplay> messageDisplayComponent;
 
 /**
+ * Directly requests an in-app message with the given trigger to be shown.
+ */
+- (void)triggerEvent:(NSString *)eventName;
+
+/**
  * This delegate should be set on the app side to receive message lifecycle events in app runtime.
  */
 @property(nonatomic, weak) id<FIRInAppMessagingDisplayDelegate> delegate;

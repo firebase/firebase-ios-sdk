@@ -118,7 +118,8 @@ static NSString *CellIdentifier = @"CellIdentifier";
     triggerLabel.text = [self triggerDisplayString:messageDefs[rowIndex].renderTriggers];
 
     [messageDefs[rowIndex].renderData.contentData
-        loadImageDataWithBlock:^(NSData *_Nullable imageData, NSError *error) {
+        loadImageDataWithBlock:^(NSData *_Nullable imageData, NSData *_Nullable landscapeImageData,
+                                 NSError *error) {
           if (error) {
             NSLog(@"error in loading image: %@", error.localizedDescription);
           } else {

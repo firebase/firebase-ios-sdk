@@ -42,6 +42,7 @@
 @property(weak, nonatomic) IBOutlet UITextField *autoDisplayIntervalText;
 @property(weak, nonatomic) IBOutlet UITextField *autoFetchIntervalText;
 @property(weak, nonatomic) IBOutlet UITextField *eventNameText;
+@property(weak, nonatomic) IBOutlet UITextField *programmaticTriggerNameText;
 @property(nonatomic) FIRIAMRuntimeManager *sdkRuntime;
 @property(weak, nonatomic) IBOutlet UIButton *disableEnableSDKBtn;
 @property(weak, nonatomic) IBOutlet UIButton *changeDataCollectionBtn;
@@ -75,6 +76,12 @@
   NSLog(@"triggering an analytics event: %@", self.eventNameText.text);
 
   [FIRAnalytics logEventWithName:self.eventNameText.text parameters:@{}];
+}
+
+- (IBAction)triggerProgrammaticallyTapped:(id)sender {
+  NSLog(@"Trigger event %@ programmatically", self.eventNameText.text);
+
+  [[FIRInAppMessaging inAppMessaging] triggerEvent:self.programmaticTriggerNameText.text];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {

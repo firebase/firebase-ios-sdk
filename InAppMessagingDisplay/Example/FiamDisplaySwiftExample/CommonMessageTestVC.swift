@@ -22,7 +22,8 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   var messageClosedDismiss = false
 
   // start of InAppMessagingDisplayDelegate functions
-  func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage) {
+  func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage,
+                      with action: InAppMessagingAction) {
     print("message clicked to follow action url")
     messageClosedWithClick = true
   }
@@ -54,6 +55,14 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   let defaultActionButton = InAppMessagingActionButton(buttonText: "Take action",
                                                        buttonTextColor: UIColor.black,
                                                        backgroundColor: UIColor.yellow)
+
+  let defaultSecondaryActionButton = InAppMessagingActionButton(buttonText: "Take another action",
+                                                                buttonTextColor: UIColor.black,
+                                                                backgroundColor: UIColor.yellow)
+
+  let longTextButton = InAppMessagingActionButton(buttonText: "Hakuna matata, it's a wonderful phrase",
+                                                  buttonTextColor: UIColor.black,
+                                                  backgroundColor: UIColor.white)
 
   func produceImageOfSize(size: CGSize) -> Data? {
     let color = UIColor.cyan

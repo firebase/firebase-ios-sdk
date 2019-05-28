@@ -78,6 +78,10 @@ else
       check_changes '^(Firebase/Core|Functions|GoogleUtilities|FirebaseFunctions.podspec)'
       ;;
 
+    GoogleUtilities-*)
+      check_changes '^(GoogleUtilities|GoogleUtilities.podspec)'
+      ;;
+
     InAppMessaging-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
@@ -109,6 +113,10 @@ else
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
+    Messaging-*)
+      check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
+      ;;
+
     Storage-*)
       check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;
@@ -125,7 +133,7 @@ fi
 # Always rebuild if Travis configuration and/or build scripts changed.
 check_changes '^.travis.yml'
 check_changes '^Gemfile.lock'
-check_changes '^scripts/(build|if_changed|install_prereqs).sh'
+check_changes '^scripts/(build|if_changed|install_prereqs|pod_lib_lint).(rb|sh)'
 
 if [[ "$run" == true ]]; then
   "$@"

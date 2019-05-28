@@ -45,13 +45,12 @@ static NSString *const kFakeToken =
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [[FIRInstanceID alloc] initPrivately];
-  [_instanceID start];
-  _mockInstanceID = OCMPartialMock(_instanceID);
+  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
 }
 
 - (void)tearDown {
   [_mockInstanceID stopMocking];
+  _mockInstanceID = nil;
   [super tearDown];
 }
 

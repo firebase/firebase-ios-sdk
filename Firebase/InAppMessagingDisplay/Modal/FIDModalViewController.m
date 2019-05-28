@@ -102,7 +102,10 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 }
 
 - (IBAction)actionButtonTapped:(id)sender {
-  [self followActionURL];
+  FIRInAppMessagingAction *action = [[FIRInAppMessagingAction alloc]
+      initWithActionText:self.modalDisplayMessage.actionButton.buttonText
+               actionURL:self.modalDisplayMessage.actionURL];
+  [self followAction:action];
 }
 
 - (void)viewDidLoad {
@@ -123,7 +126,6 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   }
 
   self.messageCardView.backgroundColor = self.modalDisplayMessage.displayBackgroundColor;
-  self.messageCardView.layer.cornerRadius = 4;
 
   self.titleLabel.textColor = self.modalDisplayMessage.textColor;
   self.bodyTextView.textColor = self.modalDisplayMessage.textColor;

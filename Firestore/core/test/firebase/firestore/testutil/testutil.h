@@ -99,6 +99,12 @@ inline model::FieldValue Value(const GeoPoint& value) {
   return model::FieldValue::FromGeoPoint(value);
 }
 
+template <typename... Ints>
+model::FieldValue BlobValue(Ints... octets) {
+  std::vector<uint8_t> contents{static_cast<uint8_t>(octets)...};
+  return model::FieldValue::FromBlob(contents.data(), contents.size());
+}
+
 // This overload allows Object() to appear as a value (along with any explicitly
 // constructed FieldValues).
 inline model::FieldValue Value(const model::FieldValue& value) {
@@ -158,6 +164,16 @@ model::FieldValue::Map MakeMap(Args... key_value_pairs) {
 
 }  // namespace details
 
+inline model::FieldValue Array(const model::FieldValue::Array& value) {
+  return model::FieldValue::FromArray(value);
+}
+
+template <typename... Args>
+inline model::FieldValue Array(Args... values) {
+  model::FieldValue::Array contents{Value(values)...};
+  return model::FieldValue::FromArray(std::move(contents));
+}
+
 /** Wraps an immutable sorted map into an ObjectValue. */
 inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
   return model::ObjectValue::FromMap(value);
@@ -191,6 +207,18 @@ inline model::DocumentKey Key(absl::string_view path) {
 
 inline model::FieldPath Field(absl::string_view field) {
   return model::FieldPath::FromServerFormat(field);
+}
+
+inline model::DatabaseId DbId(std::string project, std::string database) {
+  return model::DatabaseId(std::move(project), std::move(database));
+}
+
+inline model::DatabaseId DbId(std::string project) {
+  return model::DatabaseId(std::move(project), model::DatabaseId::kDefault);
+}
+
+inline model::DatabaseId DbId() {
+  return model::DatabaseId("project", model::DatabaseId::kDefault);
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {

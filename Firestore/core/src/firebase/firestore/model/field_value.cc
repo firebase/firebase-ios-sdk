@@ -29,6 +29,8 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "absl/algorithm/container.h"
+#include "absl/base/casts.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
 
@@ -42,6 +44,7 @@ using BaseValue = FieldValue::BaseValue;
 using Type = FieldValue::Type;
 
 using util::Compare;
+using util::CompareContainer;
 using util::ComparisonResult;
 
 template <typename T>
@@ -57,6 +60,13 @@ class NullValue : public FieldValue::BaseValue {
 
   std::string ToString() const override {
     return util::ToString(nullptr);
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    // NullValue is the only instance of itself
+    return true;
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -95,11 +105,19 @@ class SimpleFieldValue : public FieldValue::BaseValue {
     return util::ToString(value_);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<SimpleFieldValue>(other);
+    return value_ == other_value.value();
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
 
-    return Compare(value_, Cast<SimpleFieldValue>(other).value());
+    auto& other_value = Cast<SimpleFieldValue>(other);
+    return Compare(value_, other_value.value());
   }
 
   size_t Hash() const override {
@@ -139,10 +157,20 @@ int64_t Integer(const BaseValue& rep) {
 class DoubleValue : public NumberValue<Type::Double, double> {
  public:
   using NumberValue<Type::Double, double>::NumberValue;
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<DoubleValue>(other);
+    return util::DoubleBitwiseEquals(value(), other_value.value());
+  }
+
+  size_t Hash() const override {
+    return util::DoubleBitwiseHash(value());
+  }
 };
 
-double
-Double(const BaseValue& rep) {
+double Double(const BaseValue& rep) {
   return Cast<DoubleValue>(rep).value();
 }
 
@@ -174,6 +202,12 @@ ComparisonResult NumberValue<type_enum, ValueType>::CompareTo(
   }
 }
 
+// TODO(wilhuff): Use SimpleFieldValue as a base once we migrate to absl::Hash.
+//
+// This can't extend SimpleFieldValue because `util::Hash` is undefined for
+// Timestamp (and you can't override a compile-time error in a base class out
+// of existence). absl::Hash allows us to implement hashing in a way that
+// requires no public declaration of conformance.
 class TimestampValue : public BaseValue {
  public:
   explicit TimestampValue(Timestamp value) : value_(value) {
@@ -185,6 +219,13 @@ class TimestampValue : public BaseValue {
 
   std::string ToString() const override {
     return util::ToString(value_);
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<TimestampValue>(other);
+    return value_ == other_value.value_;
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -229,6 +270,13 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   std::string ToString() const override {
     std::string time = local_write_time_.ToString();
     return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ServerTimestampValue>(other);
+    return local_write_time_ == other_value.local_write_time_;
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -292,6 +340,13 @@ class ReferenceValue : public FieldValue::BaseValue {
     return Type::Reference;
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ReferenceValue>(other);
+    return database_id_ == other_value.database_id_ && key_ == other_value.key_;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -329,6 +384,13 @@ class GeoPointValue : public BaseValue {
     return util::ToString(value_);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<GeoPointValue>(other);
+    return value_ == other_value.value_;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -356,6 +418,13 @@ class ArrayContents : public FieldValue::BaseValue {
 
   Type type() const override {
     return Type::Array;
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ArrayContents>(other);
+    return absl::c_equal(value_, other_value.value_);
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -389,6 +458,13 @@ class MapContents : public FieldValue::BaseValue {
 
   Type type() const override {
     return Type::Object;
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<MapContents>(other);
+    return absl::c_equal(value_, other_value.value_);
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -577,7 +653,25 @@ FieldValue FieldValue::FromInteger(int64_t value) {
   return FieldValue(std::make_shared<IntegerValue>(value));
 }
 
+// We use a canonical NaN bit pattern that's common for both Objective-C and
+// Java. Specifically:
+//
+//   - sign: 0
+//   - exponent: 11 bits, all 1
+//   - significand: 52 bits, MSB=1, rest=0
+//
+// This matches the Firestore backend which uses Double.doubleToLongBits from
+// the JDK (which is defined to normalize all NaNs to this value). This also
+// happens to be a common value for NAN in C++, but C++ does not require this
+// specific NaN value to be used, so we normalize.
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
+
 FieldValue FieldValue::FromDouble(double value) {
+  static double canonical_nan = absl::bit_cast<double>(kCanonicalNanBits);
+  if (std::isnan(value)) {
+    value = canonical_nan;
+  }
+
   return FieldValue(std::make_shared<DoubleValue>(value));
 }
 
@@ -635,6 +729,10 @@ FieldValue FieldValue::FromMap(const Map& value) {
 
 FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return FieldValue(std::make_shared<MapContents>(std::move(value)));
+}
+
+bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+  return lhs.rep_->Equals(*rhs.rep_);
 }
 
 std::ostream& operator<<(std::ostream& os, const FieldValue& value) {

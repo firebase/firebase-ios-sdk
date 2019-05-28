@@ -64,12 +64,15 @@
 
   FIRIAMMessageContentDataWithImageURL *msgContentData =
       [[FIRIAMMessageContentDataWithImageURL alloc]
-          initWithMessageTitle:@"title"
-                   messageBody:@"message body"
-              actionButtonText:nil
-                     actionURL:[NSURL URLWithString:@"http://google.com"]
-                      imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
-               usingURLSession:nil];
+               initWithMessageTitle:@"title"
+                        messageBody:@"message body"
+                   actionButtonText:nil
+          secondaryActionButtonText:nil
+                          actionURL:[NSURL URLWithString:@"http://google.com"]
+                 secondaryActionURL:nil
+                           imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
+                  landscapeImageURL:nil
+                    usingURLSession:nil];
 
   FIRIAMRenderingEffectSetting *renderSetting =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -262,12 +265,15 @@
 
   FIRIAMMessageContentDataWithImageURL *msgContentData =
       [[FIRIAMMessageContentDataWithImageURL alloc]
-          initWithMessageTitle:@"title"
-                   messageBody:@"message body"
-              actionButtonText:nil
-                     actionURL:[NSURL URLWithString:@"http://google.com"]
-                      imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
-               usingURLSession:nil];
+               initWithMessageTitle:@"title"
+                        messageBody:@"message body"
+                   actionButtonText:nil
+          secondaryActionButtonText:nil
+                          actionURL:[NSURL URLWithString:@"http://google.com"]
+                 secondaryActionURL:nil
+                           imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
+                  landscapeImageURL:nil
+                    usingURLSession:nil];
 
   FIRIAMRenderingEffectSetting *renderSetting =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
