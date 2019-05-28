@@ -113,6 +113,10 @@ else
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
+    Messaging-*)
+      check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
+      ;;
+
     Storage-*)
       check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;

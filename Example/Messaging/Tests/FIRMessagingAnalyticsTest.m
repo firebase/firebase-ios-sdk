@@ -147,6 +147,8 @@ withNotification:(NSDictionary *)notification
 }
 
 - (void)tearDown {
+  _eventHandler = nil;
+  _userPropertyHandler = nil;
   [self.logClassMock stopMocking];
   [super tearDown];
 }

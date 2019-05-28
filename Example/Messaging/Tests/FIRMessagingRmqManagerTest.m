@@ -110,7 +110,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
   GtalkDataMessageStanza *message1 = [self dataMessageWithMessageID:@"message1"
                                                                from:from
                                                                data:nil];
-  NSError *error;
+  NSError *error = nil;
 
   // should successfully save the message to RMQ
   XCTAssertTrue([self.rmqManager saveRmqMessage:message1 error:&error]);
@@ -159,7 +159,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
   [message setTo:to];
   [message setTtl:ttl];
   [message setRegId:registrationToken];
-  NSError *error;
+  NSError *error = nil;
 
   // should successfully save the message to RMQ
   XCTAssertTrue([self.rmqManager saveRmqMessage:message error:&error]);
@@ -191,7 +191,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
   GtalkDataMessageStanza *stanza2 = [self dataMessageWithMessageID:ackedMessage
                                                               from:from
                                                               data:nil];
-  NSError *error;
+  NSError *error = nil;
   XCTAssertTrue([self.rmqManager saveRmqMessage:stanza1 error:&error]);
   XCTAssertNil(error);
   XCTAssertTrue([self.rmqManager saveRmqMessage:stanza2 error:&error]);
