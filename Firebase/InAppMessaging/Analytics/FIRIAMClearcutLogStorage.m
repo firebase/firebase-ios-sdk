@@ -82,8 +82,8 @@ static NSString *const kEventExtensionJson = @"extension_js";
 }
 
 - (instancetype)initWithExpireAfterInSeconds:(NSInteger)expireInSeconds
-                              withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                                 withCacheFile:(NSString *)cacheFile {
+                             withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
+                               withCacheFile:(NSString *)cacheFile {
   if (self = [super init]) {
     _records = [[NSMutableArray alloc] init];
     _timeFetcher = timeFetcher;
@@ -109,7 +109,6 @@ static NSString *const kEventExtensionJson = @"extension_js";
                             withTimeFetcher:timeFetcher
                               withCacheFile:nil];
 }
-
 
 - (void)appWillBecomeInactive {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
