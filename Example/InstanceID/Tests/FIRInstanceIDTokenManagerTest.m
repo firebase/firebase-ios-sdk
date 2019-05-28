@@ -105,15 +105,15 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                      keychain:fakeCheckinKeychain];
 
   // token store
-  _fakeKeyChain = [[FIRInstanceIDFakeKeychain alloc] init];
-  _tokenStore = [[FIRInstanceIDTokenStore alloc] initWithKeychain:_fakeKeyChain];
+  self.fakeKeyChain = [[FIRInstanceIDFakeKeychain alloc] init];
+  self.tokenStore = [[FIRInstanceIDTokenStore alloc] initWithKeychain:_fakeKeyChain];
 
-  _tokenManager = [[FIRInstanceIDTokenManager alloc] initWithCheckinStore:checkinStore
-                                                               tokenStore:self.tokenStore];
-  _mockTokenManager = OCMPartialMock(_tokenManager);
+  self.tokenManager = [[FIRInstanceIDTokenManager alloc] initWithCheckinStore:checkinStore
+                                                                   tokenStore:self.tokenStore];
+  self.mockTokenManager = OCMPartialMock(self.tokenManager);
 
-  _fakeCheckin = [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:@"fakeDeviceID"
-                                                               secretToken:@"fakeSecretToken"];
+  self.fakeCheckin = [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:@"fakeDeviceID"
+                                                                   secretToken:@"fakeSecretToken"];
 }
 
 - (void)tearDown {
