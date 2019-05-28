@@ -23,6 +23,7 @@
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -34,7 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::GeoPoint;
+using firebase::firestore::api::MakeFIRGeoPoint;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -751,10 +752,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
       HARD_FAIL("TODO(rsgowman): implement");
-    case FieldValue::Type::GeoPoint: {
-      GeoPoint value = self.internalValue.geo_point_value();
-      return [[FIRGeoPoint alloc] initWithLatitude:value.latitude() longitude:value.longitude()];
-    }
+    case FieldValue::Type::GeoPoint:
+      return MakeFIRGeoPoint(self.internalValue.geo_point_value());
     case FieldValue::Type::Array:
     case FieldValue::Type::Object:
       HARD_FAIL("TODO(rsgowman): implement");

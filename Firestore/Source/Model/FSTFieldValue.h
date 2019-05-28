@@ -26,7 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value_options.h"
 
 @class FIRTimestamp;
-@class FIRGeoPoint;
 
 namespace model = firebase::firestore::model;
 
