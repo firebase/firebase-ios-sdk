@@ -50,7 +50,8 @@ services.
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
       # Prevent linker warning for test category override of
       # store:didDeleteFCMScopedTokensForCheckin:
-      'OTHER_LDFLAGS' => '-Xlinker -no_objc_category_merging'
+      'OTHER_LDFLAGS' => '-Xlinker -no_objc_category_merging',
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
    }
   end
 end

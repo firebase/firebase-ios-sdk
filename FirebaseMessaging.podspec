@@ -54,7 +54,8 @@ device, and it is completely free.
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
       # Unit tests do library imports using Firebase/Messaging relative paths.
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging'
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging',
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
     unit_tests.dependency 'OCMock'
   end
