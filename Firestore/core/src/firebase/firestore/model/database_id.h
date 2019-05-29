@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -66,7 +67,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   // actual values behind a shared_ptr to make copying cheaper.
   struct Rep {
     Rep(std::string&& project_id, std::string&& database_id)
-        : project_id{project_id}, database_id{database_id} {
+        : project_id{std::move(project_id)},
+          database_id{std::move(database_id)} {
     }
     std::string project_id;
     std::string database_id;
