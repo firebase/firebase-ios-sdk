@@ -96,17 +96,17 @@ std::string DocumentReference::Path() const {
 //   return CollectionReference{firestore_, path};
 // }
 
-void DocumentReference::SetData(core::ParsedSetData&& setData,
+void DocumentReference::SetData(core::ParsedSetData&& set_data,
                                 util::StatusCallback callback) {
-  [firestore_->client()
-      writeMutations:std::move(setData).ToMutations(key(), Precondition::None())
-            callback:std::move(callback)];
+  [firestore_->client() writeMutations:std::move(set_data).ToMutations(
+                                           key(), Precondition::None())
+                              callback:std::move(callback)];
 }
 
-void DocumentReference::UpdateData(core::ParsedUpdateData&& updateData,
+void DocumentReference::UpdateData(core::ParsedUpdateData&& update_data,
                                    util::StatusCallback callback) {
-  return [firestore_->client()
-      writeMutations:std::move(updateData)
+  [firestore_->client()
+      writeMutations:std::move(update_data)
                          .ToMutations(key(), Precondition::Exists(true))
             callback:std::move(callback)];
 }
