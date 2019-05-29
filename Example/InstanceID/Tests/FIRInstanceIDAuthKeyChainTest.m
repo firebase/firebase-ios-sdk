@@ -62,6 +62,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 }
 
 - (void)testKeyChainNoCorruptionWithUniqueAccount {
+// macOS only support one service and one account.
+#if TARGET_OS_IOS || TARGET_OS_TV
   XCTestExpectation *noCurruptionExpectation =
       [self expectationWithDescription:@"No corruption between different accounts."];
   // Create a keychain with a service and a unique account
@@ -130,9 +132,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                         }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
+#endif
 }
 
 - (void)testKeyChainNoCorruptionWithUniqueService {
+#if TARGET_OS_IOS || TARGET_OS_TV
   XCTestExpectation *noCurruptionExpectation =
       [self expectationWithDescription:@"No corruption between different services."];
   // Create a keychain with a service and a unique account
@@ -206,6 +210,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                         }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
+#endif
 }
 
 - (void)testQueryCachedKeychainItems {
