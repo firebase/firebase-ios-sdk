@@ -1,3 +1,7 @@
+# 2019-06-04 -- v0.15.0
+- Added support for card in-app messages (#2947).
+- Added direct triggering (via FIAM SDK) of in-app messages (#3081).
+
 # 2019-05-21 -- v0.14.1
 - Fixed an issue with messages not showing up from custom analytics event trigger (#2981).
 - Fixed crash from sending analytics events with no instance ID (#2988).

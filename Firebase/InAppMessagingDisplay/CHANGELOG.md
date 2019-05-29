@@ -1,3 +1,7 @@
+# 2019-06-04 -- v0.15.0
+- Added support for card in-app messages (#2947).
+- Added direct triggering (via FIAM SDK) of in-app messages (#3081).
+
 # 2019-03-19 -- v0.13.1
 - Fixed a crash (#2498) that occurred when integrating In-App Messaging into NativeScript apps.
 
