@@ -1976,7 +1976,6 @@
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				6944F3440E0C9E9E16EBE37A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2054,13 +2053,6 @@
 				E2C2834C90DBAB56D568189F /* LICENSE */,
 			);
 			name = "Podspec Metadata";
-			sourceTree = "<group>";
-		};
-		6944F3440E0C9E9E16EBE37A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		9AB3705C226765A900ACD3AE /* NotificationService */ = {
@@ -3728,6 +3720,7 @@
 						ProvisioningStyle = Automatic;
 					};
 					D064E6AA1ED9B31C001956DF = {
+						DevelopmentTeam = EQHXZ8M8AV;
 						TestTargetID = D064E6951ED9B1BF001956DF;
 					};
 					D0EDB2BC1EDA04F800B6C31B = {
