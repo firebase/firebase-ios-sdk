@@ -1,5 +1,13 @@
 # Unreleased
 
+# 1.3.2
+- [fixed] Firestore should now recover its connection to the server more
+  quickly after being on a network suffering from total packet loss (#2987).
+- [fixed] Changed gRPC-C++ dependency to 0.0.9 which adds support for using it
+  concurrently with the Objective-C gRPC CocoaPod. This fixes certificate
+  errors you might encounter when trying to use Firestore and other Google
+  Cloud Objective-C APIs in the same project.
+
 # 1.3.1
 - [fixed] Disabling garbage collection now avoids even scheduling the
   collection process. This can be used to prevent crashes in the background when
