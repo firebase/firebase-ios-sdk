@@ -16,6 +16,8 @@
 
 #import "FIRAuthDataResult.h"
 
+@class FIROAuthCredential;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthDataResult () <NSSecureCoding>
@@ -36,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithUser:(FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo
-                           credential:(nullable FIRAuthCredential *)credential
+                           credential:(nullable FIROAuthCredential *)credential
     NS_DESIGNATED_INITIALIZER;
 
 @end
