@@ -83,7 +83,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
 
 - (instancetype)initWithExpireAfterInSeconds:(NSInteger)expireInSeconds
                              withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                               withCacheFile:(NSString *)cacheFile {
+                                   cachePath:(NSString *)cachePath {
   if (self = [super init]) {
     _records = [[NSMutableArray alloc] init];
     _timeFetcher = timeFetcher;
@@ -93,7 +93,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
     @try {
-      [self loadFromCachePath:cacheFile];
+      [self loadFromCachePath:cachePath];
     } @catch (NSException *exception) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM230004",
                     @"Non-fatal exception in loading persisted clearcut log records: %@.",
@@ -107,7 +107,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
                              withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
   return [self initWithExpireAfterInSeconds:expireInSeconds
                             withTimeFetcher:timeFetcher
-                              withCacheFile:nil];
+                                  cachePath:nil];
 }
 
 - (void)appWillBecomeInactive {

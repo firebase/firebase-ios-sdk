@@ -76,14 +76,14 @@
 }
 
 - (void)testUploadTriggeredWhenWaitTimeConditionSatisfied {
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
-
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -122,7 +122,7 @@
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -214,15 +214,15 @@
 }
 
 - (void)testRespectingWaitTimeFromRequestSender {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
-
-  // The next upload is now.
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -259,15 +259,15 @@
 }
 
 - (void)disable_testWaitTimeFromRequestSenderAdjustedByMinWaitTimeInStrategy {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
-
-  // The next upload is now.
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -305,15 +305,15 @@
 }
 
 - (void)testWaitTimeFromRequestSenderAdjustedByMaxWaitTimeInStrategy {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
-
-  // The next upload is now.
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -351,15 +351,15 @@
 }
 
 - (void)testRepushLogsIfRequestSenderSaysSo {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher
-                                                       withCacheFile:self.cachePath];
-
-  // The next upload is now.
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
