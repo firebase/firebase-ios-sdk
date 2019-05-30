@@ -104,6 +104,12 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
     // you can send now
     _nextValidSendTimeInMills = (int64_t)
         [_userDefaults doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
+    
+    NSArray<FIRIAMClearcutLogRecord *> *availableLogs =
+        [logStorage popStillValidRecordsForUpTo:strategy.batchSendSize];
+    if (availableLogs.count) {
+      [self scheduleNextSend];
+    }
 
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM260001",
                 @"FIRIAMClearcutUploader created with strategy as %@", self.strategy);
@@ -202,6 +208,12 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
 }
 
 - (void)scheduleNextSend {
+  @synchronized(self) {
+    if (_nextSendScheduled) {
+      return;
+    }
+  }
+  
   int64_t delayTimeInMills =
       self.nextValidSendTimeInMills - (int64_t)[self.timeFetcher currentTimestampInSeconds] * 1000;
 
