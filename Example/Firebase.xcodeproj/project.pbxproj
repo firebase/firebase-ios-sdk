@@ -453,6 +453,7 @@
 		DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D371E8EF202009EB6DF /* main.m */; };
 		DE7B8DD01E8EF246009EB6DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */; };
 		DE7B8DD11E8EF24F009EB6DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2E1E8EF202009EB6DF /* Main.storyboard */; };
+		DE800AE822A07E5B00AC9A23 /* DL-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE800AE122A04B6800AC9A23 /* DL-Info.plist */; };
 		DE8DB551221F5B480068BB0E /* FIRInstanceIDWithFCMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */; };
 		DE9037291FBA5F2400E239D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		DE90372A1FBA5F8F00E239D3 /* FArraySortedDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */; };
@@ -3604,6 +3605,7 @@
 			buildConfigurationList = DEDFF01F1FD6135D00F7D466 /* Build configuration list for PBXNativeTarget "DynamicLinks_Tests_iOS" */;
 			buildPhases = (
 				DE17A2D52142F195002A15ED /* Sources */,
+				DE800AE722A07E5000AC9A23 /* Resources */,
 				AEC1C964E4211C8E5B7CD8C6 /* Frameworks */,
 			);
 			buildRules = (
@@ -4222,6 +4224,14 @@
 				DE7B8DB61E8EF203009EB6DF /* InfoPlist.strings in Resources */,
 				DE7B8DC91E8EF203009EB6DF /* syncPointSpec.json in Resources */,
 				0672F2F31EBBA7D900818E87 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800AE722A07E5000AC9A23 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE800AE822A07E5B00AC9A23 /* DL-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6830,7 +6840,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6864,7 +6874,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
