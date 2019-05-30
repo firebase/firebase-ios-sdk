@@ -69,6 +69,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
+  DynamicLinks-*)
+    bundle exec pod repo update
+    ;;
+
   Functions-*)
     # Start server for Functions integration tests.
     bundle exec pod repo update
