@@ -33,6 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub"
                                        action:^{ [weakSelf signInWithGitHub]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with Twitter (headful-lite)"
+                                       action:^{ [weakSelf signInTwitterHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with Linkedin"
+                                       action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
+                                       action:^{ [weakSelf signInYahooHeadfulLite]; }],
     ]];
 }
 
@@ -120,6 +126,87 @@ NS_ASSUME_NONNULL_BEGIN
     }];
    }
  }];
+}
+
+- (void)signInTwitterHeadfulLite {
+  FIROAuthProvider *provider = self.twitterOAuthProvider;
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Twitter failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInWithCredential:credential
+                                   completion:^(FIRAuthDataResult *_Nullable
+                                                authResult,
+                                                NSError *_Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"sign-in with Twitter (headful-lite) failed" error:error];
+             return;
+           } else {
+             [self logSuccess:@"sign-in with Twitter (headful-lite) succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+         }];
+       }];
+    }];
+  }];
+}
+
+- (void)signInLinkedinHeadfulLite {
+  FIROAuthProvider *provider = self.linkedinOAuthProvider;
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Linkedin failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInWithCredential:credential
+                                   completion:^(FIRAuthDataResult *_Nullable
+                                                authResult,
+                                                NSError *_Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"sign-in with Linkedin (headful-lite) failed" error:error];
+             return;
+           } else {
+             [self logSuccess:@"sign-in with Linkedin (headful-lite) succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+         }];
+       }];
+    }];
+  }];
+}
+
+- (void)signInYahooHeadfulLite {
+  FIROAuthProvider *provider = self.yahooOAuthProvider;
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Yahoo failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInWithCredential:credential
+                                   completion:^(FIRAuthDataResult *_Nullable
+                                                authResult,
+                                                NSError *_Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"sign-in with Yahoo (headful-lite) failed" error:error];
+             return;
+           } else {
+             [self logSuccess:@"sign-in with Yahoo (headful-lite) succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+         }];
+       }];
+    }];
+  }];
 }
 
 @end
