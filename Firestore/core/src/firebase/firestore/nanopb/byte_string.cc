@@ -95,6 +95,10 @@ pb_bytes_array_t* ByteString::release() {
   return result;
 }
 
+std::vector<uint8_t> ByteString::CopyVector() const {
+  return std::vector<uint8_t>{bytes_->bytes, bytes_->bytes + bytes_->size};
+}
+
 void swap(ByteString& lhs, ByteString& rhs) noexcept {
   using std::swap;
   swap(lhs.bytes_, rhs.bytes_);

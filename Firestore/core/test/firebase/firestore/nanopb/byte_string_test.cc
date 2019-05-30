@@ -16,11 +16,22 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
+#include <cstdlib>
+
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
+
+namespace {
+
+std::vector<uint8_t> ToVector(const std::string& str) {
+  auto begin = reinterpret_cast<const uint8_t*>(str.data());
+  return {begin, begin + str.size()};
+}
+
+}  // namespace
 
 TEST(ByteStringTest, DefaultConstructor) {
   ByteString str;
@@ -30,19 +41,19 @@ TEST(ByteStringTest, DefaultConstructor) {
 TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
   ByteString copy{original};
-  EXPECT_EQ(copy, original);
+  EXPECT_EQ(copy.CopyVector(), ToVector(original));
 
   original = "bar";
-  EXPECT_EQ(copy, "foo");
+  EXPECT_EQ(copy.CopyVector(), ToVector("foo"));
 }
 
 TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
   ByteString copy{original};
-  EXPECT_EQ(copy, original);
+  EXPECT_EQ(copy.CopyVector(), ToVector(original));
 
   original[0] = 'b';
-  EXPECT_EQ(copy, "foo");
+  EXPECT_EQ(copy.CopyVector(), ToVector("foo"));
 }
 
 TEST(ByteStringTest, WrapByteNullTerminatedArray) {
@@ -52,10 +63,10 @@ TEST(ByteStringTest, WrapByteNullTerminatedArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_EQ(wrapper, absl::string_view{"foo"});
+  EXPECT_EQ(wrapper.CopyVector(), ToVector("foo"));
 
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper, absl::string_view{"boo"});
+  EXPECT_EQ(wrapper.CopyVector(), ToVector("boo"));
 }
 
 TEST(ByteStringTest, WrapByteUnterminatedArray) {
@@ -65,10 +76,12 @@ TEST(ByteStringTest, WrapByteUnterminatedArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_EQ(wrapper, absl::string_view{"foo"});
+  EXPECT_EQ(wrapper.CopyVector(), ToVector("foo"));
 
+  // This isn't expected usage normally, but it's a way to verify that the
+  // contents weren't copied.
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper, absl::string_view{"boo"});
+  EXPECT_EQ(wrapper.CopyVector(), ToVector("boo"));
 }
 
 TEST(ByteStringTest, Release) {
@@ -79,7 +92,7 @@ TEST(ByteStringTest, Release) {
   EXPECT_EQ(memcmp(released->bytes, "foo", 3), 0);
   EXPECT_EQ(value.get(), nullptr);
 
-  free(released);
+  std::free(released);
 }
 
 TEST(ByteStringTest, Comparison) {

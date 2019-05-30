@@ -103,6 +103,11 @@ class ByteString : public util::Comparable<ByteString> {
   pb_bytes_array_t* release();
 
   /**
+   * Copies the backing byte array into a new vector of bytes.
+   */
+  std::vector<uint8_t> CopyVector() const;
+
+  /**
    * Converts this ByteString to an absl::string_view (without changing
    * ownership).
    */
