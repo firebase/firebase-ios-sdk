@@ -78,6 +78,10 @@ else
       check_changes '^(Firebase/Core|Functions|GoogleUtilities|FirebaseFunctions.podspec)'
       ;;
 
+    GoogleUtilities-*)
+      check_changes '^(GoogleUtilities|GoogleUtilities.podspec)'
+      ;;
+
     InAppMessaging-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
@@ -107,6 +111,10 @@ else
 
     GoogleDataTransportCCTSupport-*)
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
+    Messaging-*)
+      check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
       ;;
 
     Storage-*)

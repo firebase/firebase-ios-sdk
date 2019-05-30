@@ -407,6 +407,23 @@ case "$product-$method-$platform" in
       fi
     ;;
 
+  Messaging-xcodebuild-*)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   Storage-xcodebuild-*)
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \

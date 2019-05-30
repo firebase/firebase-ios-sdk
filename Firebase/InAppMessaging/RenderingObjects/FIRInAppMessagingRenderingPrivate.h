@@ -18,10 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingCardDisplay (Private)
 
-@property(nonatomic, nullable, copy, readwrite) NSString *body;
-@property(nonatomic, nullable, copy, readwrite) FIRInAppMessagingImageData *landscapeImageData;
-@property(nonatomic, nullable, readwrite) FIRInAppMessagingActionButton *secondaryActionButton;
-@property(nonatomic, nullable, readwrite) NSURL *secondaryActionURL;
+- (void)setBody:(NSString *_Nullable)body;
+- (void)setLandscapeImageData:(FIRInAppMessagingImageData *_Nullable)landscapeImageData;
+- (void)setSecondaryActionButton:(FIRInAppMessagingActionButton *_Nullable)secondaryActionButton;
+- (void)setSecondaryActionURL:(NSURL *_Nullable)secondaryActionURL;
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName

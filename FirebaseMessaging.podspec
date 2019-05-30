@@ -42,9 +42,19 @@ device, and it is completely free.
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'FirebaseInstanceID', '~> 4.1'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 6.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.2'
+  s.dependency 'GoogleUtilities/Reachability', '~> 6.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.2'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
   s.dependency 'Protobuf', '~> 3.1'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Example/Messaging/Tests/*.[mh]'
+    unit_tests.requires_app_host = true
+    unit_tests.pod_target_xcconfig = {
+      # Unit tests do library imports using Firebase/Messaging relative paths.
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging'
+    }
+    unit_tests.dependency 'OCMock'
+  end
 end

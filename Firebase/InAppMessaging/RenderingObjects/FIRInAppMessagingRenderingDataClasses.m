@@ -38,6 +38,22 @@
 
 @implementation FIRInAppMessagingCardDisplay
 
+- (void)setBody:(NSString *_Nullable)body {
+  _body = body;
+}
+
+- (void)setLandscapeImageData:(FIRInAppMessagingImageData *_Nullable)landscapeImageData {
+  _landscapeImageData = landscapeImageData;
+}
+
+- (void)setSecondaryActionButton:(FIRInAppMessagingActionButton *_Nullable)secondaryActionButton {
+  _secondaryActionButton = secondaryActionButton;
+}
+
+- (void)setSecondaryActionURL:(NSURL *_Nullable)secondaryActionURL {
+  _secondaryActionURL = secondaryActionURL;
+}
+
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage

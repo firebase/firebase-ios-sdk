@@ -1,3 +1,6 @@
+# 6.2.0
+- Stop conditional compilation for GoogleUtilities testing (#3058)
+
 # 6.1.0
 - Added `GULAppDelegateSwizzler` macOS support. (#2911)
 
