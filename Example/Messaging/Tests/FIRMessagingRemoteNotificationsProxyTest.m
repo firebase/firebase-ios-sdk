@@ -45,7 +45,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo  {
 #if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(void(^)(void))completionHandler  API_AVAILABLE(macos(10.14), ios(10.0)){
+         withCompletionHandler:(void(^)(void))completionHandler API_AVAILABLE(macos(10.14), ios(10.0)){
 }
 #endif
 
@@ -65,10 +65,14 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 @property(nonatomic, strong) NSError *registerForRemoteNotificationsError;
 @end
 @implementation FakeAppDelegate
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)application:(GULApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
   self.remoteNotificationMethodWasCalled = YES;
 }
+#pragma clang diagnostic pop
+
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -193,8 +197,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   NSDictionary *notification = @{@"test" : @""};
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [incompleteAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
         didReceiveRemoteNotification:notification];
+#pragma clang diagnostic pop
 
   [self.mockMessaging verify];
 }
@@ -226,9 +233,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-  // Call the method
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
         didReceiveRemoteNotification:notification];
+#pragma clang diagnostic pop
 
   // Verify our original method was called
   XCTAssertTrue(appDelegate.remoteNotificationMethodWasCalled);
@@ -401,7 +410,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 }
 
 - (UNNotification *)userNotificationWithMessage:(NSDictionary *)message API_AVAILABLE(macos(10.14), ios(10.0)){
-
   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   content.userInfo = message;
   id notificationRequest = OCMClassMock([UNNotificationRequest class]);

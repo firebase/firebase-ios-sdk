@@ -392,10 +392,13 @@ id getNamedPropertyFromObject(id object, NSString *propertyName, Class klass) {
 }
 
 #pragma mark - GULApplicationDelegate
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)application:(GULApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
 }
+#pragma clang diagnostic pop
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application
