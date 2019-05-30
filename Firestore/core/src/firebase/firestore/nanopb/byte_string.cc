@@ -43,9 +43,9 @@ pb_bytes_array_t* MakeBytesArray(const uint8_t* data, size_t size) {
   // embedded nulls so we shouldn't be using this as a C string under normal
   // circumstances.
   auto result = static_cast<pb_bytes_array_t*>(
-      malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(pb_size) + 1));
+      std::malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(pb_size) + 1));
   result->size = pb_size;
-  memcpy(result->bytes, data, pb_size);
+  std::memcpy(result->bytes, data, pb_size);
   result->bytes[pb_size] = '\0';
 
   return result;
