@@ -605,7 +605,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self waitForExpectationsWithTimeout:10.0 handler:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
 
-
   XCTAssertEqualObjects(notificationToken, kToken);
 }
 
@@ -760,7 +759,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [self waitForExpectationsWithTimeout:15.0 handler:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
-
 
   XCTAssertEqualObjects(notificationToken, kToken);
   XCTAssertEqual(notificationPostCount, 1);
