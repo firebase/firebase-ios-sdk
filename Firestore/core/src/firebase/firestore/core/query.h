@@ -35,6 +35,8 @@ namespace core {
  */
 class Query {
  public:
+  static constexpr int32_t kNoLimit = -1;
+
   /**
    * Creates and returns a new Query.
    *
