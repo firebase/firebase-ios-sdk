@@ -26,6 +26,7 @@ Pod::Spec.new do |s|
 
     base_dir = "FirebaseInstallations/Source/"
     s.source_files = base_dir + '**/*.[mh]'
+    s.exclude_files = base_dir + 'Tests/*'
     s.requires_arc = base_dir + '*.m'
     s.public_header_files = base_dir + 'Public/*.h'
     s.pod_target_xcconfig = {
@@ -40,9 +41,5 @@ Pod::Spec.new do |s|
     s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = base_dir + 'Tests/*.[mh]'
       unit_tests.dependency 'OCMock'
-      unit_tests.pod_target_xcconfig = {
-        # Unit tests do library imports using repo-root relative paths.
-        'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-     }
     end
   end
