@@ -350,7 +350,7 @@ FIRQuery *Wrap(Query &&query) {
 
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit {
   int32_t internalLimit;
-  if (limit == NSNotFound || limit > std::numeric_limits<int32_t>::max()) {
+  if (limit == NSNotFound || limit >= core::Query::kNoLimit) {
     internalLimit = core::Query::kNoLimit;
   } else {
     internalLimit = static_cast<int32_t>(limit);

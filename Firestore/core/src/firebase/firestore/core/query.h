@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 
+#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -35,7 +36,7 @@ namespace core {
  */
 class Query {
  public:
-  static constexpr int32_t kNoLimit = -1;
+  static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   /**
    * Creates and returns a new Query.
