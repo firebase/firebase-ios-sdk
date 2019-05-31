@@ -6,8 +6,12 @@ cache:
   - cocoapods
 
 stages:
-  - checks
-  - test
+  - name: checks
+    if: branch = master
+  - name: test
+    if: branch = master
+  - name: test-fis
+    if: branch = fis-master
 
 jobs:
   include:
@@ -358,6 +362,15 @@ jobs:
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
+    # FIS
+    - stage: test-fis
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries
+
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
@@ -392,6 +405,7 @@ jobs:
   # before reporting the results.
   # fast_finish: true
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
+
