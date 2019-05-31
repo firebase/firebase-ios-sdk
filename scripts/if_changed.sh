@@ -74,6 +74,10 @@ else
       check_changes '^(Firebase/Core|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec)'
       ;;
 
+    DynamicLinks-*)
+      check_changes '^(Firebase/Core|Firebase/DynamicLinks|Example/DynamicLinks|GoogleUtilities|FirebaseDynamicLinks.podspec)'
+      ;;
+
     Functions-*)
       check_changes '^(Firebase/Core|Functions|GoogleUtilities|FirebaseFunctions.podspec)'
       ;;
