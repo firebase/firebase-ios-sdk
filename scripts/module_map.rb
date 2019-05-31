@@ -61,13 +61,13 @@ end
 # @return [String]
 #
 def generate(name, frameworks, libraries)
-  <<-MODULE_MAP.strip_heredoc
+  <<~MODULE_MAP
   framework module #{name} {
   umbrella header "#{name}.h"
   export *
   module * { export * }
-    #{frameworks.map {|framework| "link framework \"#{framework}\""}.join("\n    ")}
-    #{libraries.map {|library| "link \"#{library}\""}.join("\n    ")}
+    #{frameworks.map {|framework| "link framework \"#{framework}\""}.join("\n  ")}
+    #{libraries.map {|library| "link \"#{library}\""}.join("\n  ")}
   }
   MODULE_MAP
 end
