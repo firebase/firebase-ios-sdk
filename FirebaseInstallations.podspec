@@ -35,8 +35,7 @@ Pod::Spec.new do |s|
     }
     s.framework = 'Security'
     s.dependency 'FirebaseCore', '~> 6.0'
-    # s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
-    # s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+    s.dependency 'PromisesObjC', '~> 1.2'
 
     s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = base_dir + 'Tests/*.[mh]'
