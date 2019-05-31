@@ -756,6 +756,7 @@
 		2220F583583EFC28DE792ABE /* Pods_Firestore_IntegrationTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A0CF41BA5AED6049B0BEB2C /* objc_type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = objc_type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2DAA26538D1A93A39F8AC373 /* nanopb_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = nanopb_testing.h; path = nanopb/nanopb_testing.h; sourceTree = "<group>"; };
 		2E48431B0EDA400BEA91D4AB /* Pods-Firestore_Tests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		2F901F31BC62444A476B779F /* Pods-Firestore_IntegrationTests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
@@ -948,7 +949,7 @@
 		62E103B28B48A81D682A0DE9 /* Pods_Firestore_Example_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		6AE927CDFC7A72BF825BE4CB /* Pods-Firestore_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		6D0EE49C1D5AF75664D0EBE4 /* field_value_benchmark.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = field_value_benchmark.cc; sourceTree = "<group>"; };
+		6D0EE49C1D5AF75664D0EBE4 /* field_value_benchmark.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = field_value_benchmark.cc; sourceTree = "<group>"; };
 		6E8302DE210222ED003E1EA3 /* FSTFuzzTestFieldPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTFuzzTestFieldPath.h; sourceTree = "<group>"; };
 		6E8302DF21022309003E1EA3 /* FSTFuzzTestFieldPath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestFieldPath.mm; sourceTree = "<group>"; };
 		6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestSerializer.mm; sourceTree = "<group>"; };
@@ -1402,6 +1403,7 @@
 			isa = PBXGroup;
 			children = (
 				5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */,
+				2DAA26538D1A93A39F8AC373 /* nanopb_testing.h */,
 			);
 			name = nanopb;
 			sourceTree = "<group>";
