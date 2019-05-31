@@ -83,7 +83,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
 
 - (instancetype)initWithExpireAfterInSeconds:(NSInteger)expireInSeconds
                              withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                                   cachePath:(NSString *)cachePath {
+                                   cachePath:(nullable NSString *)cachePath {
   if (self = [super init]) {
     _records = [[NSMutableArray alloc] init];
     _timeFetcher = timeFetcher;
