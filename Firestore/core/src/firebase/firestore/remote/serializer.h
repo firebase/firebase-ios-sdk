@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -117,7 +118,7 @@ class Serializer {
    * Decodes the nanopb bytes to a std::vector. If the input pointer is null,
    * then this method will return an empty vector.
    */
-  static std::vector<uint8_t> DecodeBytes(const pb_bytes_array_t* bytes);
+  static nanopb::ByteString DecodeBytes(const pb_bytes_array_t* bytes);
 
   /**
    * Release memory allocated by the Encode* methods that return protos.

@@ -90,9 +90,8 @@ pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
   return ByteString(bytes).release();
 }
 
-std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
-  if (bytes == nullptr) return {};
-  return std::vector<uint8_t>(bytes->bytes, bytes->bytes + bytes->size);
+ByteString Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
+  return ByteString(bytes);
 }
 
 namespace {
@@ -313,7 +312,8 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
 
     case FieldValue::Type::Blob:
       result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-      result.bytes_value = EncodeBytes(field_value.blob_value());
+      // Copy the blob so that pb_release can do the right thing.
+      result.bytes_value = ByteString(field_value.blob_value()).release();
       return result;
 
     case FieldValue::Type::Reference:
@@ -372,7 +372,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
       return FieldValue::FromString(DecodeString(msg.string_value));
 
     case google_firestore_v1_Value_bytes_value_tag: {
-      std::vector<uint8_t> bytes = DecodeBytes(msg.bytes_value);
+      ByteString bytes = DecodeBytes(msg.bytes_value);
       return FieldValue::FromBlob(bytes.data(), bytes.size());
     }
 

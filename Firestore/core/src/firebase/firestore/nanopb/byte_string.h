@@ -40,6 +40,7 @@ class ByteString : public util::Comparable<ByteString> {
   ByteString() = default;
 
   explicit ByteString(const std::vector<uint8_t>& value);
+  explicit ByteString(const pb_bytes_array_t* bytes);
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the of the

@@ -316,11 +316,11 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);
-  std::vector<uint8_t> resume_token = testutil::ResumeToken(1039);
+  ByteString resume_token = testutil::ResumeToken(1039);
 
   QueryData query_data(core::Query(query), target_id, sequence_number,
                        QueryPurpose::kListen, SnapshotVersion(version),
-                       std::vector<uint8_t>(resume_token));
+                       ByteString(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.
   ByteStringWriter writer;

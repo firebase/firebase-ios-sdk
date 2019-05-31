@@ -38,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
@@ -331,7 +332,7 @@ inline model::MutationResult MutationResult(int64_t version) {
   return model::MutationResult(Version(version), nullptr);
 }
 
-inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
+inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {
   if (snapshot_version == 0) {
     // TODO(rsgowman): The other platforms return null here, though I'm not sure
     // if they ever rely on that. I suspect it'd be sufficient to return '{}'.
@@ -342,7 +343,7 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
 
   std::string snapshot_string =
       std::string("snapshot-") + std::to_string(snapshot_version);
-  return {snapshot_string.begin(), snapshot_string.end()};
+  return nanopb::ByteString(snapshot_string);
 }
 
 // Degenerate case to end recursion of `MoveIntoVector`.
