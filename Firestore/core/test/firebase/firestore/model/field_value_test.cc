@@ -27,6 +27,7 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/equals_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
 #include "absl/base/casts.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -45,11 +46,10 @@ using testutil::DbId;
 using testutil::Field;
 using testutil::Key;
 using testutil::Map;
+using testutil::time_point;
 using testutil::Value;
 using testutil::WrapObject;
 
-using Clock = std::chrono::system_clock;
-using TimePoint = std::chrono::time_point<Clock>;
 using Sec = std::chrono::seconds;
 using Ms = std::chrono::milliseconds;
 
@@ -200,29 +200,10 @@ TEST(FieldValueTest, DeletesNestedKeys) {
 extern time_t timegm(struct tm*);
 #endif
 
-/**
- * Makes a TimePoint from the given date components, given in UTC.
- */
-static TimePoint MakeTimePoint(
-    int year, int month, int day, int hour, int minute, int second) {
-  struct std::tm tm {};
-  tm.tm_year = year - 1900;  // counts from 1900
-  tm.tm_mon = month - 1;     // counts from 0
-  tm.tm_mday = day;          // counts from 1
-  tm.tm_hour = hour;
-  tm.tm_min = minute;
-  tm.tm_sec = second;
-
-  // std::mktime produces a time value in local time, and conversion to GMT is
-  // not defined. timegm is nonstandard but widespread enough for our purposes.
-  time_t t = timegm(&tm);
-  return Clock::from_time_t(t);
-}
-
-static TimePoint kDate1 = MakeTimePoint(2016, 5, 20, 10, 20, 0);
+static time_point kDate1 = testutil::MakeTimePoint(2016, 5, 20, 10, 20, 0);
 static Timestamp kTimestamp1{1463739600, 0};
 
-static TimePoint kDate2 = MakeTimePoint(2016, 10, 21, 15, 32, 0);
+static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
 TEST(FieldValueTest, Equality) {

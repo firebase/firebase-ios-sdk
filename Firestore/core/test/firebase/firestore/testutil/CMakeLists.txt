@@ -35,6 +35,8 @@ cc_library(
     equals_tester.h
     testutil.cc
     testutil.h
+    time_testing.cc
+    time_testing.h
   DEPENDS
     ${TESTUTIL_DEPENDS}
     firebase_firestore_model
