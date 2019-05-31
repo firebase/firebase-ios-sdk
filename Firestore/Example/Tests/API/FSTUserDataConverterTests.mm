@@ -109,7 +109,7 @@ union DoubleBits {
   NSArray *values = @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
     XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Timestamp);
