@@ -16,10 +16,17 @@
 
 # Generate a module map file from a podspec.
 
+# CocoaPods generated module maps are not appropriate because CocoaPods uses
+# xcconfig files to specify framework and library dependencies.
+
+# This script is currently intended for Zipfile building only for iOS.
+# If multi-platform support is required in the future, the consumer parameter
+# could be added to the command line.
+
 require 'cocoapods'
 
 # Enable ruby options after 'require' because cocoapods is noisy
-#$VERBOSE = true   # ruby -w
+$VERBOSE = true   # ruby -w
 #$DEBUG = true    # ruby --debug
 
 def usage()
@@ -42,18 +49,12 @@ def main(args)
 
   trace('loading', podspec_file)
   spec = Pod::Spec.from_file(podspec_file)
-
   consumer = spec.consumer("ios")
-  module_name = spec.module_name
-  frameworks = consumer.frameworks.map {|framework| "link framework \"#{framework}\""}
-  libraries = consumer.libraries.map {|library| "link \"#{library}\""}
 
-  trace('generating module map for ', module_name)
-  contents = generate(module_name, frameworks, libraries)
+  trace('generating module map for ', spec.module_name,)
+  contents = generate(spec.module_name, consumer.frameworks, consumer.libraries)
   File.open(args[1], 'w') { |file| file.write(contents) }
-
 end
-
 
 # Generates the contents of the module.modulemap file.
 #
@@ -61,13 +62,13 @@ end
 #
 def generate(name, frameworks, libraries)
   <<-MODULE_MAP.strip_heredoc
-framework module #{name} {
-umbrella header "#{name}.h"
-export *
-module * { export * }
-  #{frameworks.join("\n  ")}
-  #{libraries.join("\n  ")}
-}
+  framework module #{name} {
+  umbrella header "#{name}.h"
+  export *
+  module * { export * }
+    #{frameworks.map {|framework| "link framework \"#{framework}\""}.join("\n    ")}
+    #{libraries.map {|library| "link \"#{library}\""}.join("\n    ")}
+  }
   MODULE_MAP
 end
 
