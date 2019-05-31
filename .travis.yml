@@ -7,9 +7,9 @@ cache:
 
 stages:
   - name: checks
-    if: branch = master
-  - name: test
     if: branch IN (master, mm/fis-master)
+  - name: test
+    if: branch == master
   - name: test-fis
     if: branch IN (master, mm/fis-master)
 
