@@ -11,7 +11,7 @@ stages:
   - name: test
     if: branch = master
   - name: test-fis
-    if: branch = fis-master
+    if: branch = mm/fis-master
 
 jobs:
   include:
