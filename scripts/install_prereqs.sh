@@ -64,33 +64,29 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Database-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    bundle exec pod repo update
-    bundle exec pod gen FirebaseDatabase.podspec --local-sources=./
+    #bundle exec pod repo update
+    bundle exec pod gen FirebaseDatabase.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
     install_secrets
-    ;;
-
-  DynamicLinks-*)
-    bundle exec pod repo update
     ;;
 
   Functions-*)
     # Start server for Functions integration tests.
-    bundle exec pod repo update
+    #bundle exec pod repo update
     ./Functions/Backend/start.sh synchronous
     ;;
 
   Messaging-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    bundle exec pod repo update
-    bundle exec pod gen FirebaseMessaging.podspec --local-sources=./
+    #bundle exec pod repo update
+    bundle exec pod gen FirebaseMessaging.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
     ;;
 
   Storage-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    bundle exec pod repo update
-    bundle exec pod gen FirebaseStorage.podspec --local-sources=./
+    #bundle exec pod repo update
+    bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
     install_secrets
     ;;
 
@@ -106,7 +102,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   *-pod-lib-lint)
-    bundle exec pod repo update
+    #bundle exec pod repo update
     ;;
 
   Firestore-*-cmake)
