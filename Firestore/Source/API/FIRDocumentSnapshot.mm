@@ -193,8 +193,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   } else if (value.type == FieldValue::Type::Array) {
     return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if (value.type == FieldValue::Type::Reference) {
-    FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    const DatabaseId &refDatabase = ref.databaseID;
+    const auto &ref = ((FSTDelegateValue *)value).referenceValue;
+    const DatabaseId &refDatabase = ref.database_id();
     const DatabaseId &database = _snapshot.firestore()->database_id();
     if (refDatabase != database) {
       // TODO(b/32073923): Log this as a proper warning.
@@ -205,7 +205,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
             refDatabase.database_id().c_str(), database.project_id().c_str(),
             database.database_id().c_str());
     }
-    DocumentKey key = [[ref valueWithOptions:options] key];
+    const DocumentKey &key = ref.key();
     return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];
   } else {
     return [value valueWithOptions:options];

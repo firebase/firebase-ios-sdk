@@ -60,9 +60,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
-        wrappedValue =
-            [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                   databaseID:reference.databaseID];
+        wrappedValue = FieldValue::FromReference(reference.databaseID, reference.key).Wrap();
       } else {
         wrappedValue = FSTTestFieldValue(value);
       }
@@ -317,9 +315,7 @@ union DoubleBits {
     @[ FSTTestFieldValue(FSTTestGeoPoint(0, 1)), FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap() ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
-      [FSTReferenceValue
-          referenceValue:[FSTDocumentKey keyWithDocumentKey:FSTTestDocKey(@"coll/doc1")]
-              databaseID:database_id],
+      FieldValue::FromReference(database_id, FSTTestDocKey(@"coll/doc1")).Wrap(),
       FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],

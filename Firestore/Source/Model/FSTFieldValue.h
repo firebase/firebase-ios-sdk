@@ -104,17 +104,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * A reference value stored in Firestore.
- */
-@interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(model::DatabaseId)databaseID;
-
-@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
-
-@end
-
-/**
  * A structured object value stored in Firestore.
  */
 // clang-format off
@@ -190,6 +179,8 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @interface FSTDelegateValue : FSTFieldValue <id>
 + (instancetype)delegateWithValue:(model::FieldValue &&)value;
 - (const model::FieldValue &)internalValue;
+
+- (const model::FieldValue::Reference &)referenceValue;
 @end
 
 NS_ASSUME_NONNULL_END

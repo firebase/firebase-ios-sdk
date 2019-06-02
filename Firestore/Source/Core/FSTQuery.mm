@@ -187,11 +187,11 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 - (BOOL)matchesDocument:(FSTDocument *)document {
   if (_field.IsKeyFieldPath()) {
     HARD_ASSERT(self.value.type == FieldValue::Type::Reference,
-                "Comparing on key, but filter value not a FSTReferenceValue.");
+                "Comparing on key, but filter value not a Reference.");
     HARD_ASSERT(self.filterOperator != Filter::Operator::ArrayContains,
                 "arrayContains queries don't make sense on document keys.");
-    FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
-    NSComparisonResult comparison = util::WrapCompare(document.key, refValue.value.key);
+    const auto &ref = ((FSTDelegateValue *)self.value).referenceValue;
+    NSComparisonResult comparison = util::WrapCompare(document.key, ref.key());
     return [self matchesComparison:comparison];
   } else {
     return [self matchesValue:[document fieldForPath:self.field]];
@@ -477,8 +477,8 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
     if (sortOrderComponent.field == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(fieldValue.type == FieldValue::Type::Reference,
                   "FSTBound has a non-key value where the key path is being used %s", fieldValue);
-      FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
-      comparison = util::Compare(refValue.value.key, document.key);
+      const auto &ref = ((FSTDelegateValue *)fieldValue).referenceValue;
+      comparison = util::Compare(ref.key(), document.key);
     } else {
       FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       HARD_ASSERT(docValue != nil,
