@@ -130,10 +130,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   GoogleDataTransportCCTSupport-*-xcodebuild)
     gem install xcpretty
-    # TODO(mikehaney24): Remove the SpecsStaging repo once GDT is published.
-    bundle exec pod gen GoogleDataTransportCCTSupport.podspec \
---gen-directory=GoogleDataTransportCCTSupport/gen  \
---sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git
+    pod_gen GoogleDataTransportCCTSupport.podspec --gen-directory=GoogleDataTransportCCTSupport/gen
     ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2

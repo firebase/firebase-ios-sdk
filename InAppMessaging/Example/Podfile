@@ -1,8 +1,7 @@
 use_frameworks!
 
-# Uncomment the next two lines for pre-release testing on public repo
-source 'https://github.com/Firebase/SpecsStaging.git'
-source 'https://github.com/CocoaPods/Specs.git'
+# Comment the following line to use the CocoaPods master repo instead.
+source 'https://cdn.jsdelivr.net/cocoa/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
