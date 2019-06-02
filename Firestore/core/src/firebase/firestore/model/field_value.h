@@ -52,6 +52,7 @@ class ObjectValue;
  */
 class FieldValue {
  public:
+  class Reference;
   class ServerTimestamp;
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
@@ -122,6 +123,8 @@ class FieldValue {
   const std::string& string_value() const;
 
   const nanopb::ByteString& blob_value() const;
+
+  const Reference& reference_value() const;
 
   const GeoPoint& geo_point_value() const;
 
@@ -288,6 +291,25 @@ class ObjectValue : public util::Comparable<ObjectValue> {
                        const FieldValue& value) const;
 
   FieldValue fv_;
+};
+
+class FieldValue::Reference {
+ public:
+  Reference(DatabaseId database_id, DocumentKey key)
+      : database_id_(std::move(database_id)), key_(std::move(key)) {
+  }
+
+  const DatabaseId& database_id() const {
+    return database_id_;
+  }
+
+  const DocumentKey& key() const {
+    return key_;
+  }
+
+ private:
+  DatabaseId database_id_;
+  DocumentKey key_;
 };
 
 class FieldValue::ServerTimestamp {
