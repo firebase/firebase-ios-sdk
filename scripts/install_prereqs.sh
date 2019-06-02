@@ -19,6 +19,9 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
+set -euo pipefail
+set -x
+
 bundle install
 
 function install_secrets() {
