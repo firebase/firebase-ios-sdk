@@ -332,14 +332,14 @@ case "$product-$method-$platform" in
 
   GoogleDataTransport-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
@@ -348,7 +348,7 @@ case "$product-$method-$platform" in
 
   GoogleDataTransportIntegrationTest-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
@@ -357,14 +357,14 @@ case "$product-$method-$platform" in
 
   GoogleDataTransportCCTSupport-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
-        -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \

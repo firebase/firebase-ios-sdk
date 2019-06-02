@@ -120,17 +120,17 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   GoogleDataTransport-*-xcodebuild)
     gem install xcpretty
-    pod_gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    pod_gen GoogleDataTransport.podspec
     ;;
 
   GoogleDataTransportIntegrationTest-*-xcodebuild)
     gem install xcpretty
-    pod_gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    pod_gen GoogleDataTransport.podspec
     ;;
 
   GoogleDataTransportCCTSupport-*-xcodebuild)
     gem install xcpretty
-    pod_gen GoogleDataTransportCCTSupport.podspec --gen-directory=GoogleDataTransportCCTSupport/gen
+    pod_gen GoogleDataTransportCCTSupport.podspec
     ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
