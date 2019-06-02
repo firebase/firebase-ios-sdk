@@ -18,6 +18,12 @@
 
 #include <ostream>
 
+#if defined(__APPLE__)
+#import <CoreFoundation/CoreFoundation.h>
+#elif defined(_STLPORT_VERSION)
+#include <ctime>
+#endif
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_cat.h"
 
@@ -32,7 +38,23 @@ Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
 }
 
 Timestamp Timestamp::Now() {
-#if !defined(_STLPORT_VERSION)
+#if defined(__APPLE__)
+  // Originally, FIRTimestamp used NSDate to get current time. This method is
+  // preserves the accuracy of that method.
+  CFAbsoluteTime now =
+      CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970;
+  double seconds_double;
+  double fraction = modf(now, &seconds_double);
+  // GCP Timestamps always have non-negative nanos.
+  if (fraction < 0) {
+    fraction += 1.0;
+    seconds_double -= 1.0;
+  }
+  int64_t seconds = (int64_t)seconds_double;
+  int32_t nanos = (int32_t)(fraction * 1e9);
+  return Timestamp(seconds, nanos);
+
+#elif !defined(_STLPORT_VERSION)
   // Use the standard <chrono> library from C++11 if possible.
   return FromTimePoint(std::chrono::system_clock::now());
 #else
