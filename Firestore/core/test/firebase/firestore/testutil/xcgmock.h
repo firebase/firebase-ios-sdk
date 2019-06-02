@@ -187,7 +187,6 @@ OBJC_PRINT_TO(FSTReferenceValue);
 OBJC_PRINT_TO(FSTRelationFilter);
 OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);
-OBJC_PRINT_TO(FSTServerTimestampValue);
 OBJC_PRINT_TO(FSTSetMutation);
 OBJC_PRINT_TO(FSTSortOrder);
 OBJC_PRINT_TO(FSTStringValue);

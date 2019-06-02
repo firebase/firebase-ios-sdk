@@ -51,13 +51,12 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       // Server Timestamp values can't be parsed directly, so we have a couple predefined sentinel
       // strings that can be used instead.
       if ([value isEqual:@"server-timestamp-1"]) {
-        wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:testutil::MakeTimestamp(2016, 5, 20, 10, 20, 0)
-                                     previousValue:nil];
+        wrappedValue =
+            FieldValue::FromServerTimestamp(testutil::MakeTimestamp(2016, 5, 20, 10, 20, 0)).Wrap();
       } else if ([value isEqual:@"server-timestamp-2"]) {
-        wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:testutil::MakeTimestamp(2016, 10, 21, 15, 32, 0)
-                                     previousValue:nil];
+        wrappedValue =
+            FieldValue::FromServerTimestamp(testutil::MakeTimestamp(2016, 10, 21, 15, 32, 0))
+                .Wrap();
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
@@ -311,13 +310,10 @@ union DoubleBits {
     @[ FSTTestFieldValue(date2) ],
     @[
       // NOTE: ServerTimestampValues can't be parsed via FSTTestFieldValue().
-      [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date1)
-                                                        previousValue:nil],
-      [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date1)
-                                                        previousValue:nil]
+      FieldValue::FromServerTimestamp(MakeTimestamp(date1)).Wrap(),
+      FieldValue::FromServerTimestamp(MakeTimestamp(date1)).Wrap()
     ],
-    @[ [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date2)
-                                                         previousValue:nil] ],
+    @[ FieldValue::FromServerTimestamp(MakeTimestamp(date2)).Wrap() ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(0, 1)), FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap() ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[

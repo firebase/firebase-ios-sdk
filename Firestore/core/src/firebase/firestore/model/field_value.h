@@ -53,6 +53,7 @@ class ObjectValue;
  */
 class FieldValue {
  public:
+  class ServerTimestamp;
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
 
@@ -85,6 +86,7 @@ class FieldValue {
   FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
 #if __OBJC__
+  FSTFieldValue* Wrap() const&;
   FSTFieldValue* Wrap() &&;
 #endif  // __OBJC__
 
@@ -117,6 +119,8 @@ class FieldValue {
   double double_value() const;
 
   Timestamp timestamp_value() const;
+
+  const ServerTimestamp& server_timestamp_value() const;
 
   const std::string& string_value() const;
 
@@ -287,6 +291,31 @@ class ObjectValue : public util::Comparable<ObjectValue> {
                        const FieldValue& value) const;
 
   FieldValue fv_;
+};
+
+class FieldValue::ServerTimestamp {
+ public:
+  ServerTimestamp(Timestamp local_write_time,
+                  absl::optional<FieldValue> previous_value)
+      : local_write_time_(local_write_time),
+        previous_value_(std::move(previous_value)) {
+  }
+
+  explicit ServerTimestamp(Timestamp local_write_time)
+      : ServerTimestamp(local_write_time, absl::nullopt) {
+  }
+
+  const Timestamp& local_write_time() const {
+    return local_write_time_;
+  }
+
+  const absl::optional<FieldValue>& previous_value() const {
+    return previous_value_;
+  }
+
+ private:
+  Timestamp local_write_time_;
+  absl::optional<FieldValue> previous_value_;
 };
 
 // Pretend you can automatically upcast from ObjectValue to FieldValue.

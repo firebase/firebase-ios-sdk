@@ -22,6 +22,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+FSTFieldValue* FieldValue::Wrap() const& {
+  return [FSTDelegateValue delegateWithValue:FieldValue(*this)];
+}
+
 FSTFieldValue* FieldValue::Wrap() && {
   return [FSTDelegateValue delegateWithValue:std::move(*this)];
 }
