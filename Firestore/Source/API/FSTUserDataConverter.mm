@@ -43,12 +43,15 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::GeoPoint;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
@@ -95,6 +98,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+#pragma mark - Conversion helpers
 
 #pragma mark - FSTUserDataConverter
 
@@ -445,14 +450,13 @@ NS_ASSUME_NONNULL_BEGIN
     return FieldValue::FromString(util::MakeString(input)).Wrap();
 
   } else if ([input isKindOfClass:[NSDate class]]) {
-    return [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:input]];
+    NSDate *inputDate = input;
+    return [FSTTimestampValue timestampValue:api::MakeTimestamp(inputDate)];
 
   } else if ([input isKindOfClass:[FIRTimestamp class]]) {
-    FIRTimestamp *originalTimestamp = (FIRTimestamp *)input;
-    FIRTimestamp *truncatedTimestamp =
-        [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
-                               nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
-    return [FSTTimestampValue timestampValue:truncatedTimestamp];
+    FIRTimestamp *inputTimetamp = input;
+    Timestamp timestamp = TimestampInternal::Truncate(api::MakeTimestamp(inputTimetamp));
+    return [FSTTimestampValue timestampValue:std::move(timestamp)];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
     return FieldValue::FromGeoPoint(api::MakeGeoPoint(input)).Wrap();

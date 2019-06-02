@@ -27,15 +27,20 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::api::MakeFIRGeoPoint;
+using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -122,20 +127,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTTimestampValue
 
-@interface FSTTimestampValue ()
-@property(nonatomic, strong, readonly) FIRTimestamp *internalValue;
-@end
-
-@implementation FSTTimestampValue
-
-+ (instancetype)timestampValue:(FIRTimestamp *)value {
-  return [[FSTTimestampValue alloc] initWithValue:value];
+@implementation FSTTimestampValue {
+  Timestamp _internalValue;
 }
 
-- (id)initWithValue:(FIRTimestamp *)value {
++ (instancetype)timestampValue:(Timestamp)value {
+  return [[FSTTimestampValue alloc] initWithValue:std::move(value)];
+}
+
+- (id)initWithValue:(Timestamp)value {
   self = [super init];
   if (self) {
-    _internalValue = value;  // FIRTimestamp is immutable.
+    _internalValue = std::move(value);
   }
   return self;
 }
@@ -149,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
-  return self.internalValue;
+  return MakeFIRTimestamp(_internalValue);
 }
 
 - (id)valueWithOptions:(const FieldValueOptions &)options {
@@ -163,16 +166,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqual:(id)other {
   return [other isKindOfClass:[FSTFieldValue class]] &&
          ((FSTFieldValue *)other).type == FieldValue::Type::Timestamp &&
-         [self.internalValue isEqual:((FSTTimestampValue *)other).internalValue];
+         _internalValue == ((FSTTimestampValue *)other)->_internalValue;
 }
 
 - (NSUInteger)hash {
-  return [self.internalValue hash];
+  return TimestampInternal::Hash(_internalValue);
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if (other.type == FieldValue::Type::Timestamp) {
-    return [self.internalValue compare:((FSTTimestampValue *)other).internalValue];
+    return WrapCompare(_internalValue, ((FSTTimestampValue *)other)->_internalValue);
   } else if (other.type == FieldValue::Type::ServerTimestamp) {
     // Concrete timestamps come before server timestamps.
     return NSOrderedAscending;
@@ -184,15 +187,17 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 #pragma mark - FSTServerTimestampValue
 
-@implementation FSTServerTimestampValue
+@implementation FSTServerTimestampValue {
+  Timestamp _localWriteTime;
+}
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(Timestamp)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue {
   return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
                                                    previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(FIRTimestamp *)localWriteTime
+- (id)initWithLocalWriteTime:(Timestamp)localWriteTime
                previousValue:(nullable FSTFieldValue *)previousValue {
   self = [super init];
   if (self) {
@@ -230,20 +235,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqual:(id)other {
   return [other isKindOfClass:[FSTFieldValue class]] &&
          ((FSTFieldValue *)other).type == FieldValue::Type::ServerTimestamp &&
-         [self.localWriteTime isEqual:((FSTServerTimestampValue *)other).localWriteTime];
+         self.localWriteTime == ((FSTServerTimestampValue *)other).localWriteTime;
 }
 
 - (NSUInteger)hash {
-  return [self.localWriteTime hash];
+  return TimestampInternal::Hash(self.localWriteTime);
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<ServerTimestamp localTime=%@>", self.localWriteTime];
+  return [NSString
+      stringWithFormat:@"<ServerTimestamp localTime=%s>", self.localWriteTime.ToString().c_str()];
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if (other.type == FieldValue::Type::ServerTimestamp) {
-    return [self.localWriteTime compare:((FSTServerTimestampValue *)other).localWriteTime];
+    return WrapCompare(self.localWriteTime, ((FSTServerTimestampValue *)other).localWriteTime);
   } else if (other.type == FieldValue::Type::Timestamp) {
     // Server timestamps come after all concrete timestamps.
     return NSOrderedDescending;

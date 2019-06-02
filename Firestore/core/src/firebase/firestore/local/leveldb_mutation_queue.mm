@@ -156,7 +156,7 @@ void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
 }
 
 FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time,
+    const Timestamp& local_write_time,
     std::vector<FSTMutation*>&& base_mutations,
     std::vector<FSTMutation*>&& mutations) {
   BatchId batch_id = next_batch_id_;
