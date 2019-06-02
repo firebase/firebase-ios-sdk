@@ -46,6 +46,11 @@ function install_secrets() {
   fi
 }
 
+function pod_gen() {
+  # Call pod gen with a podspec and additonal optional arguments.
+  bundle exec pod gen "$1" "${2-}" --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
+}
+
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
@@ -64,29 +69,25 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Database-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    #bundle exec pod repo update
-    bundle exec pod gen FirebaseDatabase.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
+    pod_gen FirebaseDatabase.podspec
     install_secrets
     ;;
 
   Functions-*)
     # Start server for Functions integration tests.
-    #bundle exec pod repo update
     ./Functions/Backend/start.sh synchronous
     ;;
 
   Messaging-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    #bundle exec pod repo update
-    bundle exec pod gen FirebaseMessaging.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
+    pod_gen FirebaseMessaging.podspec
     ;;
 
   Storage-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
-    #bundle exec pod repo update
-    bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
+    pod_gen FirebaseStorage.podspec
     install_secrets
     ;;
 
@@ -102,7 +103,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   *-pod-lib-lint)
-    #bundle exec pod repo update
     ;;
 
   Firestore-*-cmake)
@@ -120,12 +120,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   GoogleDataTransport-*-xcodebuild)
     gem install xcpretty
-    bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    pod_gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
     ;;
 
   GoogleDataTransportIntegrationTest-*-xcodebuild)
     gem install xcpretty
-    bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    pod_gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
     ;;
 
   GoogleDataTransportCCTSupport-*-xcodebuild)

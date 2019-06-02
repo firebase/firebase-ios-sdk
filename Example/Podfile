@@ -6,7 +6,7 @@
 #source 'https://github.com/Firebase/SpecsStaging.git'
 #source 'https://github.com/CocoaPods/Specs.git'
 
-# Comment the follwoing line to use the CocoaPods master repo instead.
+# Comment the following line to use the CocoaPods master repo instead.
 source 'https://cdn.jsdelivr.net/cocoa/'
 
 use_frameworks!
