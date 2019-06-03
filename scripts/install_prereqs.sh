@@ -66,6 +66,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
+  Auth-*)
+    # Install the workspace for integration testing.
+    gem install xcpretty
+    bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
+    ;;
+
   Database-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.

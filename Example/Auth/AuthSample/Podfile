@@ -2,9 +2,8 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://github.com/CocoaPods/Specs.git'
 
-# Uncomment the next two lines for pre-release testing on public repo
-source 'https://github.com/Firebase/SpecsStaging.git'
-source 'https://github.com/CocoaPods/Specs.git'
+# Comment the following line to use the CocoaPods master repo instead.
+source 'https://cdn.jsdelivr.net/cocoa/'
 
 use_frameworks!
 
@@ -19,12 +18,12 @@ target 'AuthSample' do
   pod 'GoogleSignIn'
   pod 'GTMSessionFetcher/Core'
 
-  # target 'Auth_ApiTests' do
-  #   inherit! :search_paths
-  # end
+  target 'Auth_ApiTests' do
+    inherit! :search_paths
+  end
 
-  # target 'Auth_E2eTests' do
-  #   inherit! :search_paths
-  #   pod 'EarlGrey'
-  # end
+  target 'Auth_E2eTests' do
+    inherit! :search_paths
+    pod 'EarlGrey'
+  end
 end

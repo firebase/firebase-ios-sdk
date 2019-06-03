@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -38,7 +38,36 @@
 		DE800B6422A2F8AF00AC9A23 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B4522A2F8AF00AC9A23 /* AuthProviders.m */; };
 		DE800B6722A2FF7300AC9A23 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE800B6522A2FF7300AC9A23 /* GoogleService-Info_multi.plist */; };
 		DE800B6822A2FF7300AC9A23 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE800B6622A2FF7300AC9A23 /* GoogleService-Info.plist */; };
+		DE800B8722A592B100AC9A23 /* EmailPasswordAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B7C22A592B100AC9A23 /* EmailPasswordAuthTests.m */; };
+		DE800B8822A592B100AC9A23 /* AccountInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B7D22A592B100AC9A23 /* AccountInfoTests.m */; };
+		DE800B8922A592B100AC9A23 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B7F22A592B100AC9A23 /* FacebookAuthTests.m */; };
+		DE800B8A22A592B100AC9A23 /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8022A592B100AC9A23 /* CustomAuthTests.m */; };
+		DE800B8B22A592B100AC9A23 /* GoogleAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */; };
+		DE800B8C22A592B100AC9A23 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8322A592B100AC9A23 /* AnonymousAuthTests.m */; };
+		DE800B8E22A592B100AC9A23 /* FIRAuthApiTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */; };
+		DE800B8F22A592B100AC9A23 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8622A592B100AC9A23 /* GoogleAuthTests.m */; };
+		DE800BA522A5BD4200AC9A23 /* FIRAuthE2eTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B9F22A5BD4200AC9A23 /* FIRAuthE2eTestsBase.m */; };
+		DE800BA622A5BD4200AC9A23 /* VerifyIOSClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800BA022A5BD4200AC9A23 /* VerifyIOSClientTests.m */; };
+		DE800BA822A5BD4200AC9A23 /* BYOAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800BA222A5BD4200AC9A23 /* BYOAuthTests.m */; };
+		DE800BA922A5BD4200AC9A23 /* FIRAuthE2eTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800BA322A5BD4200AC9A23 /* FIRAuthE2eTests.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DE800B7622A5927C00AC9A23 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE800AEC22A2F87E00AC9A23 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE800AF322A2F87E00AC9A23;
+			remoteInfo = AuthSample;
+		};
+		DE800B9A22A5BD1800AC9A23 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE800AEC22A2F87E00AC9A23 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE800AF322A2F87E00AC9A23;
+			remoteInfo = AuthSample;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		DE800AF422A2F87E00AC9A23 /* AuthSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AuthSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,10 +133,45 @@
 		DE800B6922A2FF8700AC9A23 /* Application.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Application.plist; sourceTree = "<group>"; };
 		DE800B6A22A2FF8700AC9A23 /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
 		DE800B6C22A2FFFF00AC9A23 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
+		DE800B7122A5927C00AC9A23 /* Auth_ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE800B7B22A592B100AC9A23 /* AuthCredentialsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthCredentialsTemplate.h; path = ../../ApiTests/AuthCredentialsTemplate.h; sourceTree = "<group>"; };
+		DE800B7C22A592B100AC9A23 /* EmailPasswordAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EmailPasswordAuthTests.m; path = ../../ApiTests/EmailPasswordAuthTests.m; sourceTree = "<group>"; };
+		DE800B7D22A592B100AC9A23 /* AccountInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AccountInfoTests.m; path = ../../ApiTests/AccountInfoTests.m; sourceTree = "<group>"; };
+		DE800B7E22A592B100AC9A23 /* Auth_ApiTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Auth_ApiTests-Bridging-Header.h"; path = "../../ApiTests/Auth_ApiTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		DE800B7F22A592B100AC9A23 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FacebookAuthTests.m; path = ../../ApiTests/FacebookAuthTests.m; sourceTree = "<group>"; };
+		DE800B8022A592B100AC9A23 /* CustomAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CustomAuthTests.m; path = ../../ApiTests/CustomAuthTests.m; sourceTree = "<group>"; };
+		DE800B8122A592B100AC9A23 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthApiTestsBase.h; path = ../../ApiTests/FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
+		DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GoogleAuthTests.swift; path = ../../ApiTests/GoogleAuthTests.swift; sourceTree = "<group>"; };
+		DE800B8322A592B100AC9A23 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnonymousAuthTests.m; path = ../../ApiTests/AnonymousAuthTests.m; sourceTree = "<group>"; };
+		DE800B8422A592B100AC9A23 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../ApiTests/Info.plist; sourceTree = "<group>"; };
+		DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthApiTestsBase.m; path = ../../ApiTests/FIRAuthApiTestsBase.m; sourceTree = "<group>"; };
+		DE800B8622A592B100AC9A23 /* GoogleAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GoogleAuthTests.m; path = ../../ApiTests/GoogleAuthTests.m; sourceTree = "<group>"; };
+		DE800B9022A5968800AC9A23 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthCredentials.h; path = ../../ApiTests/AuthCredentials.h; sourceTree = "<group>"; };
+		DE800B9522A5BD1800AC9A23 /* Auth_E2eTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_E2eTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE800B9F22A5BD4200AC9A23 /* FIRAuthE2eTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthE2eTestsBase.m; path = ../../E2eTests/FIRAuthE2eTestsBase.m; sourceTree = "<group>"; };
+		DE800BA022A5BD4200AC9A23 /* VerifyIOSClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VerifyIOSClientTests.m; path = ../../E2eTests/VerifyIOSClientTests.m; sourceTree = "<group>"; };
+		DE800BA122A5BD4200AC9A23 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../E2eTests/Info.plist; sourceTree = "<group>"; };
+		DE800BA222A5BD4200AC9A23 /* BYOAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BYOAuthTests.m; path = ../../E2eTests/BYOAuthTests.m; sourceTree = "<group>"; };
+		DE800BA322A5BD4200AC9A23 /* FIRAuthE2eTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthE2eTests.m; path = ../../E2eTests/FIRAuthE2eTests.m; sourceTree = "<group>"; };
+		DE800BA422A5BD4200AC9A23 /* FIRAuthE2eTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthE2eTestsBase.h; path = ../../E2eTests/FIRAuthE2eTestsBase.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DE800AF122A2F87E00AC9A23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800B6E22A5927C00AC9A23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800B9222A5BD1800AC9A23 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -128,6 +192,8 @@
 			isa = PBXGroup;
 			children = (
 				DE800B0D22A2F8AF00AC9A23 /* Sample */,
+				DE800B7222A5927C00AC9A23 /* Auth_ApiTests */,
+				DE800B9622A5BD1800AC9A23 /* Auth_E2eTests */,
 				DE800AF522A2F87E00AC9A23 /* Products */,
 				A00A0EC6CCFF06F1AC46A4F9 /* Pods */,
 			);
@@ -137,6 +203,8 @@
 			isa = PBXGroup;
 			children = (
 				DE800AF422A2F87E00AC9A23 /* AuthSample.app */,
+				DE800B7122A5927C00AC9A23 /* Auth_ApiTests.xctest */,
+				DE800B9522A5BD1800AC9A23 /* Auth_E2eTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -211,6 +279,39 @@
 			path = ../Sample;
 			sourceTree = "<group>";
 		};
+		DE800B7222A5927C00AC9A23 /* Auth_ApiTests */ = {
+			isa = PBXGroup;
+			children = (
+				DE800B9022A5968800AC9A23 /* AuthCredentials.h */,
+				DE800B7D22A592B100AC9A23 /* AccountInfoTests.m */,
+				DE800B8322A592B100AC9A23 /* AnonymousAuthTests.m */,
+				DE800B7E22A592B100AC9A23 /* Auth_ApiTests-Bridging-Header.h */,
+				DE800B7B22A592B100AC9A23 /* AuthCredentialsTemplate.h */,
+				DE800B8022A592B100AC9A23 /* CustomAuthTests.m */,
+				DE800B7C22A592B100AC9A23 /* EmailPasswordAuthTests.m */,
+				DE800B7F22A592B100AC9A23 /* FacebookAuthTests.m */,
+				DE800B8122A592B100AC9A23 /* FIRAuthApiTestsBase.h */,
+				DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */,
+				DE800B8622A592B100AC9A23 /* GoogleAuthTests.m */,
+				DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */,
+				DE800B8422A592B100AC9A23 /* Info.plist */,
+			);
+			path = Auth_ApiTests;
+			sourceTree = "<group>";
+		};
+		DE800B9622A5BD1800AC9A23 /* Auth_E2eTests */ = {
+			isa = PBXGroup;
+			children = (
+				DE800BA222A5BD4200AC9A23 /* BYOAuthTests.m */,
+				DE800BA322A5BD4200AC9A23 /* FIRAuthE2eTests.m */,
+				DE800BA422A5BD4200AC9A23 /* FIRAuthE2eTestsBase.h */,
+				DE800B9F22A5BD4200AC9A23 /* FIRAuthE2eTestsBase.m */,
+				DE800BA122A5BD4200AC9A23 /* Info.plist */,
+				DE800BA022A5BD4200AC9A23 /* VerifyIOSClientTests.m */,
+			);
+			path = Auth_E2eTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -231,6 +332,42 @@
 			productReference = DE800AF422A2F87E00AC9A23 /* AuthSample.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DE800B7022A5927C00AC9A23 /* Auth_ApiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE800B7A22A5927C00AC9A23 /* Build configuration list for PBXNativeTarget "Auth_ApiTests" */;
+			buildPhases = (
+				DE800B6D22A5927C00AC9A23 /* Sources */,
+				DE800B6E22A5927C00AC9A23 /* Frameworks */,
+				DE800B6F22A5927C00AC9A23 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE800B7722A5927C00AC9A23 /* PBXTargetDependency */,
+			);
+			name = Auth_ApiTests;
+			productName = Auth_ApiTests;
+			productReference = DE800B7122A5927C00AC9A23 /* Auth_ApiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DE800B9422A5BD1800AC9A23 /* Auth_E2eTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE800B9C22A5BD1800AC9A23 /* Build configuration list for PBXNativeTarget "Auth_E2eTests" */;
+			buildPhases = (
+				DE800B9122A5BD1800AC9A23 /* Sources */,
+				DE800B9222A5BD1800AC9A23 /* Frameworks */,
+				DE800B9322A5BD1800AC9A23 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE800B9B22A5BD1800AC9A23 /* PBXTargetDependency */,
+			);
+			name = Auth_E2eTests;
+			productName = Auth_E2eTests;
+			productReference = DE800B9522A5BD1800AC9A23 /* Auth_E2eTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -242,6 +379,15 @@
 				TargetAttributes = {
 					DE800AF322A2F87E00AC9A23 = {
 						CreatedOnToolsVersion = 10.2;
+					};
+					DE800B7022A5927C00AC9A23 = {
+						CreatedOnToolsVersion = 10.2;
+						LastSwiftMigration = 1020;
+						TestTargetID = DE800AF322A2F87E00AC9A23;
+					};
+					DE800B9422A5BD1800AC9A23 = {
+						CreatedOnToolsVersion = 10.2;
+						TestTargetID = DE800AF322A2F87E00AC9A23;
 					};
 				};
 			};
@@ -259,6 +405,8 @@
 			projectRoot = "";
 			targets = (
 				DE800AF322A2F87E00AC9A23 /* AuthSample */,
+				DE800B7022A5927C00AC9A23 /* Auth_ApiTests */,
+				DE800B9422A5BD1800AC9A23 /* Auth_E2eTests */,
 			);
 		};
 /* End PBXProject section */
@@ -274,6 +422,20 @@
 				DE800B6722A2FF7300AC9A23 /* GoogleService-Info_multi.plist in Resources */,
 				DE800B6322A2F8AF00AC9A23 /* SettingsViewController.xib in Resources */,
 				DE800B6822A2FF7300AC9A23 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800B6F22A5927C00AC9A23 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800B9322A5BD1800AC9A23 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,7 +474,46 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE800B6D22A5927C00AC9A23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE800B8A22A592B100AC9A23 /* CustomAuthTests.m in Sources */,
+				DE800B8C22A592B100AC9A23 /* AnonymousAuthTests.m in Sources */,
+				DE800B8722A592B100AC9A23 /* EmailPasswordAuthTests.m in Sources */,
+				DE800B8E22A592B100AC9A23 /* FIRAuthApiTestsBase.m in Sources */,
+				DE800B8922A592B100AC9A23 /* FacebookAuthTests.m in Sources */,
+				DE800B8B22A592B100AC9A23 /* GoogleAuthTests.swift in Sources */,
+				DE800B8F22A592B100AC9A23 /* GoogleAuthTests.m in Sources */,
+				DE800B8822A592B100AC9A23 /* AccountInfoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE800B9122A5BD1800AC9A23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE800BA522A5BD4200AC9A23 /* FIRAuthE2eTestsBase.m in Sources */,
+				DE800BA822A5BD4200AC9A23 /* BYOAuthTests.m in Sources */,
+				DE800BA922A5BD4200AC9A23 /* FIRAuthE2eTests.m in Sources */,
+				DE800BA622A5BD4200AC9A23 /* VerifyIOSClientTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DE800B7722A5927C00AC9A23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE800AF322A2F87E00AC9A23 /* AuthSample */;
+			targetProxy = DE800B7622A5927C00AC9A23 /* PBXContainerItemProxy */;
+		};
+		DE800B9B22A5BD1800AC9A23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE800AF322A2F87E00AC9A23 /* AuthSample */;
+			targetProxy = DE800B9A22A5BD1800AC9A23 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DE800B0822A2F88000AC9A23 /* Debug */ = {
@@ -435,16 +636,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseAuth/FirebaseAuth.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore/FirebaseCore.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID/FirebaseInstanceID.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities/GoogleUtilities.framework/Headers\"",
-					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"${PODS_ROOT}/../../../../Firebase/Auth/Source/**",
 				);
 				INFOPLIST_FILE = ../Sample/Application.plist;
@@ -464,6 +655,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AuthSample/Dample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/../../../../Firebase/Auth/Source/**",
+				);
 				INFOPLIST_FILE = ../Sample/Application.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -472,6 +667,85 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DE800B7822A5927C00AC9A23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ../ApiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.auth.Auth-ApiTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "../ApiTests/Auth_ApiTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthSample.app/AuthSample";
+			};
+			name = Debug;
+		};
+		DE800B7922A5927C00AC9A23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ../ApiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.auth.Auth-ApiTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "../ApiTests/Auth_ApiTests-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthSample.app/AuthSample";
+			};
+			name = Release;
+		};
+		DE800B9D22A5BD1800AC9A23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ../E2eTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.auth.Auth-E2eTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthSample.app/AuthSample";
+			};
+			name = Debug;
+		};
+		DE800B9E22A5BD1800AC9A23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ../E2eTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.auth.Auth-E2eTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthSample.app/AuthSample";
 			};
 			name = Release;
 		};
@@ -492,6 +766,24 @@
 			buildConfigurations = (
 				DE800B0B22A2F88000AC9A23 /* Debug */,
 				DE800B0C22A2F88000AC9A23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE800B7A22A5927C00AC9A23 /* Build configuration list for PBXNativeTarget "Auth_ApiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE800B7822A5927C00AC9A23 /* Debug */,
+				DE800B7922A5927C00AC9A23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE800B9C22A5BD1800AC9A23 /* Build configuration list for PBXNativeTarget "Auth_E2eTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE800B9D22A5BD1800AC9A23 /* Debug */,
+				DE800B9E22A5BD1800AC9A23 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
