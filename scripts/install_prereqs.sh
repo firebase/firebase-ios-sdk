@@ -48,7 +48,7 @@ function install_secrets() {
 
 function pod_gen() {
   # Call pod gen with a podspec and additonal optional arguments.
-  bundle exec pod gen "$1" "${2-}" --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/
+  bundle exec pod gen --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/ "$@"
 }
 
 case "$PROJECT-$PLATFORM-$METHOD" in
