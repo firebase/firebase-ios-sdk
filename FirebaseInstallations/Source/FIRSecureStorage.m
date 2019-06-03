@@ -21,20 +21,18 @@
 
 #import "FIRInstallationsErrorUtil.h"
 
-@interface FIRSecureStorage()
-@property (nonatomic, strong) dispatch_queue_t keychainQueue;
-@property (nonatomic, readonly) NSString *service;
+@interface FIRSecureStorage ()
+@property(nonatomic, strong) dispatch_queue_t keychainQueue;
+@property(nonatomic, readonly) NSString *service;
 @end
 
 @implementation FIRSecureStorage
 
-- (instancetype)init
-{
+- (instancetype)init {
   return [self initWithService:@"com.firebase.FIRInstallations.installations"];
 }
 
-- (instancetype)initWithService:(NSString *)service
-{
+- (instancetype)initWithService:(NSString *)service {
   self = [super init];
   if (self) {
     _keychainQueue = dispatch_queue_create("com.firebase.FIRSecureStorage", DISPATCH_QUEUE_SERIAL);
@@ -46,64 +44,73 @@
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
                                         accessGroup:(nullable NSString *)accessGropup {
-  return [FBLPromise onQueue:self.keychainQueue do:^id {
-    NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGropup];
-    NSError *error;
-    NSData *encodedObject = [self getItemWithQuery:query error:&error];
+  return [FBLPromise onQueue:self.keychainQueue
+                          do:^id {
+                            NSDictionary *query = [self keychainQueryWithKey:key
+                                                                 accessGroup:accessGropup];
+                            NSError *error;
+                            NSData *encodedObject = [self getItemWithQuery:query error:&error];
 
-    if (error) {
-      return error;
-    }
+                            if (error) {
+                              return error;
+                            }
 
-    if (!encodedObject) {
-      return nil;
-    }
+                            if (!encodedObject) {
+                              return nil;
+                            }
 
-    id object = [self unarchivedObjectOfClass:objectClass fromData:encodedObject error:&error];
+                            id object = [self unarchivedObjectOfClass:objectClass
+                                                             fromData:encodedObject
+                                                                error:&error];
 
-    if (error) {
-      return error;
-    }
+                            if (error) {
+                              return error;
+                            }
 
-    return object;
-  }];
+                            return object;
+                          }];
 }
 
-- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object forKey:(NSString *)key
+- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
+                             forKey:(NSString *)key
                         accessGroup:(nullable NSString *)accessGropup {
-  return [FBLPromise onQueue:self.keychainQueue do:^id _Nullable {
-    NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGropup];
+  return [FBLPromise onQueue:self.keychainQueue
+                          do:^id _Nullable {
+                            NSDictionary *query = [self keychainQueryWithKey:key
+                                                                 accessGroup:accessGropup];
 
-    NSError *error;
-    NSData *encodedObject = [self archiveDataForObject:object error:&error];
-    if (!encodedObject) {
-      return error;
-    }
+                            NSError *error;
+                            NSData *encodedObject = [self archiveDataForObject:object error:&error];
+                            if (!encodedObject) {
+                              return error;
+                            }
 
-    if (![self setItem:encodedObject withQuery:query error:&error]) {
-      return error;
-    }
+                            if (![self setItem:encodedObject withQuery:query error:&error]) {
+                              return error;
+                            }
 
-    return [NSNull null];
-  }];
+                            return [NSNull null];
+                          }];
 }
 
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
                                  accessGroup:(nullable NSString *)accessGropup {
-  return [FBLPromise onQueue:self.keychainQueue do:^id _Nullable{
-    NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGropup];
+  return [FBLPromise onQueue:self.keychainQueue
+                          do:^id _Nullable {
+                            NSDictionary *query = [self keychainQueryWithKey:key
+                                                                 accessGroup:accessGropup];
 
-    NSError *error;
-    if(![self removeItemWithQuery:query error:&error]) {
-      return error;
-    }
+                            NSError *error;
+                            if (![self removeItemWithQuery:query error:&error]) {
+                              return error;
+                            }
 
-    return [NSNull null];
-  }];
+                            return [NSNull null];
+                          }];
 }
 
 - (NSMutableDictionary<NSString *, id> *)keychainQueryWithKey:(NSString *)key
-                                           accessGroup:(nullable NSString *)accessGropup {
+                                                  accessGroup:(nullable NSString *)accessGropup {
   NSMutableDictionary<NSString *, id> *query = [NSMutableDictionary dictionary];
 
   [query setObject:(__bridge NSString *)kSecClassGenericPassword
@@ -120,7 +127,6 @@
 }
 
 - (nullable NSData *)archiveDataForObject:(id<NSSecureCoding>)object error:(NSError **)outError {
-
   NSData *archiveData;
   if (@available(macOS 10.13, iOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
@@ -177,15 +183,15 @@
   mutableQuery[(__bridge id)kSecMatchLimit] = @2;
 
   CFArrayRef result = NULL;
-  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery,
-                                        (CFTypeRef *)&result);
+  OSStatus status =
+      SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, (CFTypeRef *)&result);
 
   if (status == noErr && result != NULL) {
     NSArray *items = (__bridge_transfer NSArray *)result;
     if (items.count != 1) {
       if (outError) {
         *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemCopyMatching"
-                                                          status:status];
+                                                                  status:status];
       }
       return nil;
     }
@@ -203,7 +209,8 @@
     }
   } else {
     if (outError) {
-      *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
+      *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemCopyMatching"
+                                                                status:status];
     }
   }
   return nil;
@@ -223,7 +230,7 @@
     [queryWithItem setObject:item forKey:(__bridge id)kSecValueData];
     status = SecItemAdd((__bridge CFDictionaryRef)queryWithItem, NULL);
   } else {
-    NSDictionary *attributes = @{(__bridge id)kSecValueData: item};
+    NSDictionary *attributes = @{(__bridge id)kSecValueData : item};
     status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributes);
   }
 
@@ -252,7 +259,8 @@
   }
 
   if (outError) {
-    *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete" status:status];
+    *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete"
+                                                              status:status];
   }
   return NO;
 }

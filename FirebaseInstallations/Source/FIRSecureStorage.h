@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
                                         objectClass:(Class)objectClass
                                         accessGroup:(nullable NSString *)accessGropup;
 
-- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object forKey:(NSString *)key
+- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
+                             forKey:(NSString *)key
                         accessGroup:(nullable NSString *)accessGropup;
 
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
