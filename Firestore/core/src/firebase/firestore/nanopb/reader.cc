@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 
-#include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
-
 namespace firebase {
 namespace firestore {
 namespace nanopb {

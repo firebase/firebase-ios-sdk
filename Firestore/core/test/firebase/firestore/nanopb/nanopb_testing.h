@@ -42,7 +42,7 @@ nanopb::ByteString ProtobufSerialize(const T& protobuf_message) {
 
   // SerializeToArray can only fail if the buffer wasn't large enough.
   HARD_ASSERT(ok);
-  return nanopb::ByteString(std::move(buffer));
+  return nanopb::ByteString(buffer);
 }
 
 /**

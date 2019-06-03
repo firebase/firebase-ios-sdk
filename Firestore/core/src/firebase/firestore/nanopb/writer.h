@@ -70,9 +70,10 @@ class ByteStringWriter : public Writer {
   nanopb::ByteString ToByteString() const;
 
   /**
-   * Returns the vector backing this ByteStringWriter.
+   * Returns the vector backing this ByteStringWriter, taking ownership of its
+   * contents.
    */
-  std::vector<uint8_t> ToVector();
+  std::vector<uint8_t> Release();
 
  private:
   std::vector<uint8_t> buffer_;
@@ -88,7 +89,11 @@ class StringWriter : public Writer {
  public:
   StringWriter();
 
-  std::string ToString();
+  /**
+   * Returns the string backing this StringWriter, taking ownership of its
+   * contents.
+   */
+  std::string Release();
 
  private:
   std::string buffer_;

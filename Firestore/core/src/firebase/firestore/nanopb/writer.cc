@@ -80,7 +80,7 @@ ByteString ByteStringWriter::ToByteString() const {
   return ByteString(buffer_);
 }
 
-std::vector<uint8_t> ByteStringWriter::ToVector() {
+std::vector<uint8_t> ByteStringWriter::Release() {
   return std::move(buffer_);
 }
 
@@ -88,7 +88,7 @@ StringWriter::StringWriter() : Writer({}) {
   stream_ = WrapContainer(&buffer_);
 }
 
-std::string StringWriter::ToString() {
+std::string StringWriter::Release() {
   return std::move(buffer_);
 }
 

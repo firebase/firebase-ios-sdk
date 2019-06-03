@@ -626,7 +626,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
 TEST_F(SerializerTest, BadNullValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::Null()).CopyVector();
+      EncodeFieldValue(&serializer, FieldValue::Null()).ToVector();
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -637,7 +637,7 @@ TEST_F(SerializerTest, BadNullValue) {
 
 TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true)).CopyVector();
+      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true)).ToVector();
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
@@ -656,7 +656,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
   auto max_int = FieldValue::FromInteger(std::numeric_limits<uint64_t>::max());
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, max_int).CopyVector();
+      EncodeFieldValue(&serializer, max_int).ToVector();
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
     ASSERT_EQ(0xff, bytes[i]);
@@ -673,7 +673,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
 
 TEST_F(SerializerTest, BadStringValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::FromString("a")).CopyVector();
+      EncodeFieldValue(&serializer, FieldValue::FromString("a")).ToVector();
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -686,7 +686,7 @@ TEST_F(SerializerTest, BadStringValue) {
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   auto max_ts = FieldValue::FromTimestamp(TimestampInternal::Max());
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, max_ts).CopyVector();
+      EncodeFieldValue(&serializer, max_ts).ToVector();
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -698,7 +698,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   auto min_ts = FieldValue::FromTimestamp(TimestampInternal::Min());
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, min_ts).CopyVector();
+      EncodeFieldValue(&serializer, min_ts).ToVector();
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
@@ -714,7 +714,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // the deserialization process in this case instead.
 
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::Null()).CopyVector();
+      EncodeFieldValue(&serializer, FieldValue::Null()).ToVector();
 
   // The v1::Value value_type oneof currently has tags up to 18. For this test,
   // we'll pick a tag that's unlikely to be added in the near term but still
@@ -777,7 +777,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::Null()).CopyVector();
+      EncodeFieldValue(&serializer, FieldValue::Null()).ToVector();
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload

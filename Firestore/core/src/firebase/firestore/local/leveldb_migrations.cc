@@ -115,7 +115,7 @@ void ClearQueryCache(leveldb::DB* db) {
   nanopb::StringWriter writer;
   writer.WriteNanopbMessage(firestore_client_TargetGlobal_fields,
                             &target_global);
-  transaction.Put(LevelDbTargetGlobalKey::Key(), writer.ToString());
+  transaction.Put(LevelDbTargetGlobalKey::Key(), writer.Release());
 
   SaveVersion(3, &transaction);
   transaction.Commit();
