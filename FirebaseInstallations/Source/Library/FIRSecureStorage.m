@@ -58,19 +58,15 @@
                             if (error) {
                               return error;
                             }
-
                             if (!encodedObject) {
                               return nil;
                             }
-
                             id object = [self unarchivedObjectOfClass:objectClass
                                                              fromData:encodedObject
                                                                 error:&error];
-
                             if (error) {
                               return error;
                             }
-
                             return object;
                           }];
 }
