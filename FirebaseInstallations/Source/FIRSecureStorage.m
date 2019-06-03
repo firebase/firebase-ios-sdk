@@ -128,7 +128,7 @@
 
 - (nullable NSData *)archiveDataForObject:(id<NSSecureCoding>)object error:(NSError **)outError {
   NSData *archiveData;
-  if (@available(macOS 10.13, iOS 11.0, *)) {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
                                         requiringSecureCoding:YES
                                                         error:outError];
@@ -156,11 +156,11 @@
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
   id object;
-  if (@available(macOS 10.13, iOS 11.0, *)) {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
   } else {
     @try {
-      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] init];
+      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
       unarchiver.requiresSecureCoding = YES;
 
       object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];
