@@ -26,14 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
-                                        accessGroup:(nullable NSString *)accessGropup;
+                                        accessGroup:(nullable NSString *)accessGroup;
 
 - (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
                              forKey:(NSString *)key
-                        accessGroup:(nullable NSString *)accessGropup;
+                        accessGroup:(nullable NSString *)accessGroup;
 
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
-                                 accessGroup:(nullable NSString *)accessGropup;
+                                 accessGroup:(nullable NSString *)accessGroup;
 
 // TODO: May be needed to read write legacy IID keychain items.
 //- (FBLPromise<NSString *> *)getStringForKey:(NSString *)key;

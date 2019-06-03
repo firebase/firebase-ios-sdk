@@ -17,7 +17,11 @@
 #import "FIRSecureStorage.h"
 #import <Security/Security.h>
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
 
 #import "FIRInstallationsErrorUtil.h"
 
@@ -43,11 +47,11 @@
 
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
-                                        accessGroup:(nullable NSString *)accessGropup {
+                                        accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
+                                                                 accessGroup:accessGroup];
                             NSError *error;
                             NSData *encodedObject = [self getItemWithQuery:query error:&error];
 
@@ -73,12 +77,11 @@
 
 - (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
                              forKey:(NSString *)key
-                        accessGroup:(nullable NSString *)accessGropup {
+                        accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id _Nullable {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
-
+                                                                 accessGroup:accessGroup];
                             NSError *error;
                             NSData *encodedObject = [self archiveDataForObject:object error:&error];
                             if (!encodedObject) {
@@ -94,11 +97,11 @@
 }
 
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
-                                 accessGroup:(nullable NSString *)accessGropup {
+                                 accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id _Nullable {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
+                                                                 accessGroup:accessGroup];
 
                             NSError *error;
                             if (![self removeItemWithQuery:query error:&error]) {
@@ -110,7 +113,7 @@
 }
 
 - (NSMutableDictionary<NSString *, id> *)keychainQueryWithKey:(NSString *)key
-                                                  accessGroup:(nullable NSString *)accessGropup {
+                                                  accessGroup:(nullable NSString *)accessGroup {
   NSMutableDictionary<NSString *, id> *query = [NSMutableDictionary dictionary];
 
   [query setObject:(__bridge NSString *)kSecClassGenericPassword
@@ -119,8 +122,8 @@
   [query setObject:self.service forKey:(__bridge NSString *)kSecAttrService];
   [query setObject:key forKey:(__bridge NSString *)kSecAttrAccount];
 
-  if (accessGropup) {
-    [query setObject:accessGropup forKey:(__bridge NSString *)kSecAttrAccessGroup];
+  if (accessGroup) {
+    [query setObject:accessGroup forKey:(__bridge NSString *)kSecAttrAccessGroup];
   }
 
   return query;
@@ -128,7 +131,7 @@
 
 - (nullable NSData *)archiveDataForObject:(id<NSSecureCoding>)object error:(NSError **)outError {
   NSData *archiveData;
-  if (@available(macOS 10.13, iOS 11.0, *)) {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
                                         requiringSecureCoding:YES
                                                         error:outError];
@@ -156,11 +159,11 @@
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
   id object;
-  if (@available(macOS 10.13, iOS 11.0, *)) {
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
   } else {
     @try {
-      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] init];
+      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
       unarchiver.requiresSecureCoding = YES;
 
       object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];
