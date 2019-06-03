@@ -685,8 +685,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   auto max_ts = FieldValue::FromTimestamp(TimestampInternal::Max());
-  std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, max_ts).ToVector();
+  std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, max_ts).ToVector();
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -697,8 +696,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   auto min_ts = FieldValue::FromTimestamp(TimestampInternal::Min());
-  std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, min_ts).ToVector();
+  std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, min_ts).ToVector();
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
