@@ -22,6 +22,4 @@
 
 @implementation FIRInstallationsTests
 
-
-
 @end

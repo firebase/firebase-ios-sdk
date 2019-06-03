@@ -19,7 +19,7 @@
 #import "FIRSecureStorage.h"
 
 @interface FIRSecureStorageTests : XCTestCase
-@property (nonatomic, strong) FIRSecureStorage *storage;
+@property(nonatomic, strong) FIRSecureStorage *storage;
 @end
 
 @implementation FIRSecureStorageTests
@@ -35,12 +35,12 @@
 - (void)testSetGetObjectForKey {
   [self assertSuccessWriteAndReadObject:@[ @1, @2 ] class:[NSArray class] key:@"test-key1"];
   // Check overriding an object by key.
-  [self assertSuccessWriteAndReadObject:@{ @"key": @"value" }
+  [self assertSuccessWriteAndReadObject:@{@"key" : @"value"}
                                   class:[NSDictionary class]
                                     key:@"test-key1"];
 
   // Check object by another key.
-  [self assertSuccessWriteAndReadObject:@{ @"key": @"value" }
+  [self assertSuccessWriteAndReadObject:@{@"key" : @"value"}
                                   class:[NSDictionary class]
                                     key:@"test-key2"];
 }
@@ -96,14 +96,12 @@
 - (void)assertSuccessWriteAndReadObject:(id<NSSecureCoding>)object
                                   class:(Class)class
                                     key:(NSString *)key {
-
   // Write.
   [self assertSuccessWriteObject:object forKey:key];
 
   // Read.
-  FBLPromise<id<NSSecureCoding>> *getPromise = [self.storage getObjectForKey:key
-                                                                 objectClass:class
-                                                                 accessGroup:nil];
+  FBLPromise<id<NSSecureCoding>> *getPromise =
+      [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertEqualObjects(getPromise.value, object);
@@ -111,9 +109,8 @@
 }
 
 - (void)assertNonExistingObjectForKey:(NSString *)key class:(Class)class {
-  FBLPromise<id<NSSecureCoding>> *promise = [self.storage getObjectForKey:key
-                                                              objectClass:class
-                                                              accessGroup:nil];
+  FBLPromise<id<NSSecureCoding>> *promise =
+      [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertNil(promise.error);

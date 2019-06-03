@@ -20,8 +20,7 @@
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception {
   // TODO: Form a proper error
-  return [NSError errorWithDomain:@"NSKeyedArchiver" code:-1
-                         userInfo:exception.userInfo];
+  return [NSError errorWithDomain:@"NSKeyedArchiver" code:-1 userInfo:exception.userInfo];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
@@ -30,9 +29,8 @@
   return [NSError errorWithDomain:@"FIRInstallationsError"
                              code:-1
                          userInfo:@{
-                                    NSLocalizedFailureReasonErrorKey : failureReason,
-                                    }];
+                           NSLocalizedFailureReasonErrorKey : failureReason,
+                         }];
 }
-
 
 @end
