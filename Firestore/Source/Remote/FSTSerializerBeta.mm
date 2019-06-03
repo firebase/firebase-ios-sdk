@@ -43,6 +43,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -64,6 +65,7 @@ using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::GeoPoint;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -801,7 +803,7 @@ NS_ASSUME_NONNULL_BEGIN
     [queryTarget.structuredQuery.orderByArray addObjectsFromArray:orders];
   }
 
-  if (query.limit != NSNotFound) {
+  if (query.limit != Query::kNoLimit) {
     queryTarget.structuredQuery.limit.value = (int32_t)query.limit;
   }
 
@@ -848,7 +850,7 @@ NS_ASSUME_NONNULL_BEGIN
     orderBy = @[];
   }
 
-  NSInteger limit = NSNotFound;
+  int32_t limit = Query::kNoLimit;
   if (query.hasLimit) {
     limit = query.limit.value;
   }

@@ -253,7 +253,7 @@ Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
   return Wrap([query() queryByAddingSortOrder:sortOrder]);
 }
 
-Query Query::Limit(int64_t limit) const {
+Query Query::Limit(int32_t limit) const {
   if (limit <= 0) {
     ThrowInvalidArgument(
         "Invalid Query. Query limit (%s) is invalid. Limit must be positive.",

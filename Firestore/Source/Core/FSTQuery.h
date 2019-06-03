@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
              collectionGroup:(nullable NSString *)collectionGroup
                     filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(NSInteger)limit
+                       limit:(int32_t)limit
                      startAt:(nullable FSTBound *)startAtBound
                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
 
@@ -230,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param limit The maximum number of results to return. If @a limit <= 0, behavior is unspecified.
  *     If @a limit == NSNotFound, then no limit is applied.
  */
-- (instancetype)queryBySettingLimit:(NSInteger)limit;
+- (instancetype)queryBySettingLimit:(int32_t)limit;
 
 /**
  * Creates a new FSTQuery starting at the provided bound.
@@ -287,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
-@property(nonatomic, assign, readonly) NSInteger limit;
+@property(nonatomic, assign, readonly) int32_t limit;
 
 /**
  * A canonical string identifying the query. Two different instances of equivalent queries will
