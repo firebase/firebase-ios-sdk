@@ -48,15 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (NSComparisonResult)compare:(FIRGeoPoint *)other {
-  NSComparisonResult result = WrapCompare<double>(self.latitude, other.latitude);
-  if (result != NSOrderedSame) {
-    return result;
-  } else {
-    return WrapCompare<double>(self.longitude, other.longitude);
-  }
-}
-
 #pragma mark - NSObject methods
 
 - (NSString *)description {
@@ -87,6 +78,15 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRGeoPoint (Internal)
+
+- (NSComparisonResult)compare:(FIRGeoPoint *)other {
+  NSComparisonResult result = WrapCompare<double>(self.latitude, other.latitude);
+  if (result != NSOrderedSame) {
+    return result;
+  } else {
+    return WrapCompare<double>(self.longitude, other.longitude);
+  }
+}
 
 - (firestore::GeoPoint)toGeoPoint {
   return firestore::GeoPoint(self.latitude, self.longitude);

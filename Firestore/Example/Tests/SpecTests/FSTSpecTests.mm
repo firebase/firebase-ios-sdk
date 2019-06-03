@@ -177,8 +177,9 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
                                       collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
-      NSNumber *limit = queryDict[@"limit"];
-      query = [query queryBySettingLimit:limit.integerValue];
+      NSNumber *limitNumber = queryDict[@"limit"];
+      auto limit = static_cast<int32_t>(limitNumber.integerValue);
+      query = [query queryBySettingLimit:limit];
     }
     if (queryDict[@"filters"]) {
       NSArray *filters = queryDict[@"filters"];

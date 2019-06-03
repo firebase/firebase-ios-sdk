@@ -26,18 +26,33 @@
 @property(nonatomic) id<FIRIAMTimeFetcher> mockTimeFetcher;
 @property(nonatomic) FIRIAMClearcutHttpRequestSender *mockRequestSender;
 @property(nonatomic) FIRIAMClearcutLogStorage *mockLogStorage;
-
 @property(nonatomic) FIRIAMClearcutStrategy *defaultStrategy;
-
 @property(nonatomic) NSUserDefaults *mockUserDefaults;
+@property(nonatomic) NSString *cachePath;
 @end
 
-// expose certain internal things to help with unit testing
+// Expose certain internal things to help with unit testing.
 @interface FIRIAMClearcutUploader (UnitTest)
 @property(nonatomic, assign) int64_t nextValidSendTimeInMills;
 @end
 
 @implementation FIRIAMClearcutUploaderTests
+
+// Helper function to avoid conflicts between tests with the singleton cache path.
+- (NSString *)generatedCachePath {
+  // Filter out any invalid filesystem characters.
+  NSCharacterSet *invalidCharacters = [[NSCharacterSet alphanumericCharacterSet] invertedSet];
+
+  // This will result in a string with the class name, a space, and the test name. We only care
+  // about the test name so split it into components and return the last item.
+  NSString *friendlyTestName = [self.name stringByTrimmingCharactersInSet:invalidCharacters];
+  NSArray<NSString *> *components = [friendlyTestName componentsSeparatedByString:@" "];
+  NSString *testName = [components lastObject];
+
+  NSString *cacheDirPath =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+  return [NSString stringWithFormat:@"%@/%@", cacheDirPath, testName];
+}
 
 - (void)setUp {
   [super setUp];
@@ -51,20 +66,24 @@
                                                                       batchSendSize:10];
 
   self.mockUserDefaults = OCMClassMock(NSUserDefaults.class);
+  self.cachePath = [self generatedCachePath];
   OCMStub([self.mockUserDefaults integerForKey:[OCMArg any]]).andReturn(0);
 }
 
 - (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
+  [[NSFileManager defaultManager] removeItemAtPath:self.cachePath error:NULL];
   [super tearDown];
 }
 
 - (void)testUploadTriggeredWhenWaitTimeConditionSatisfied {
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -73,10 +92,7 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that it's now ok to do upload right away
-  // nextValidSendTimeInMills < currnt time
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+  // Upload right away: nextValidSendTimeInMills < current time
   uploader.nextValidSendTimeInMills = (int64_t)(currentMoment - 1) * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -93,16 +109,20 @@
 
   [uploader addNewLogRecord:newRecord];
 
-  // we expect expectation to be fulfilled right away since the upload can be carried out without
-  // delay
+  // We expect expectation to be fulfilled right away since the upload can be carried out without
+  // delay.
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testUploadNotTriggeredWhenWaitTimeConditionNotSatisfied {
   // using a real storage in this case
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -111,10 +131,7 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that we need at least 5 seconds from now to attempt the
-  // the uploading
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+  // Forces uploading to be at least 5 seconds later.
   uploader.nextValidSendTimeInMills = (int64_t)(currentMoment + 5) * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -124,9 +141,9 @@
                                            eventTimestampInSeconds:currentMoment];
 
   __block BOOL sendingAttempted = NO;
-  // we don't expect sendClearcutHttpRequestForLogs:withCompletion: to be triggered
+  // We don't expect sendClearcutHttpRequestForLogs:withCompletion: to be triggered
   // after wait for 2.0 seconds below. We have a BOOL flag to be used for that kind verification
-  // checking
+  // checking.
   OCMStub([self.mockRequestSender sendClearcutHttpRequestForLogs:[OCMArg any]
                                                   withCompletion:[OCMArg any]])
       .andDo(^(NSInvocation *invocation) {
@@ -134,9 +151,9 @@
       });
   [uploader addNewLogRecord:newRecord];
 
-  // we wait for 2 seconds and we expect nothing should happen to self.mockRequestSender right after
+  // We wait for 2 seconds and we expect nothing should happen to self.mockRequestSender right after
   // 2 seconds: the upload will eventually be attempted in after 10 seconds based on the setup
-  // in this unit test
+  // in this unit test.
   double delayInSeconds = 2.0;
   dispatch_time_t popTime =
       dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
@@ -144,8 +161,8 @@
     [expectation fulfill];
   });
 
-  // we expect expectation to be fulfilled right away since the upload can be carried out without
-  // delay
+  // We expect expectation to be fulfilled right away since the upload can be carried out without
+  // delay.
   [self waitForExpectationsWithTimeout:10.0 handler:nil];
   XCTAssertFalse(sendingAttempted);
 }
@@ -160,6 +177,10 @@
                                        failureBackoffTimeInMills:1000
                                                    batchSendSize:batchSendSize];
 
+  // Next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
                                                 timeFetcher:self.mockTimeFetcher
@@ -167,9 +188,6 @@
                                               usingStrategy:strategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that next upload is going to be now
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
   uploader.nextValidSendTimeInMills = (int64_t)currentMoment * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -196,10 +214,15 @@
 }
 
 - (void)testRespectingWaitTimeFromRequestSender {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -208,9 +231,6 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that next upload is going to be now
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
   uploader.nextValidSendTimeInMills = (int64_t)currentMoment * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -239,10 +259,15 @@
 }
 
 - (void)disable_testWaitTimeFromRequestSenderAdjustedByMinWaitTimeInStrategy {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -251,9 +276,6 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that next upload is going to be now
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
   uploader.nextValidSendTimeInMills = (int64_t)currentMoment * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -283,10 +305,15 @@
 }
 
 - (void)testWaitTimeFromRequestSenderAdjustedByMaxWaitTimeInStrategy {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -295,9 +322,6 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that next upload is going to be now
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
   uploader.nextValidSendTimeInMills = (int64_t)currentMoment * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
@@ -327,10 +351,15 @@
 }
 
 - (void)testRepushLogsIfRequestSenderSaysSo {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
-                                                     withTimeFetcher:self.mockTimeFetcher];
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
 
   FIRIAMClearcutUploader *uploader =
       [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
@@ -339,9 +368,6 @@
                                               usingStrategy:self.defaultStrategy
                                           usingUserDefaults:self.mockUserDefaults];
 
-  // so the following setup is to say that next upload is going to be now
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
   uploader.nextValidSendTimeInMills = (int64_t)currentMoment * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
