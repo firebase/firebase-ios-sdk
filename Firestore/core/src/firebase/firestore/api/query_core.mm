@@ -52,6 +52,10 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+Query::Query(FSTQuery* query, std::shared_ptr<Firestore> firestore)
+    : firestore_{std::move(firestore)}, query_{query} {
+}
+
 bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.firestore() == rhs.firestore() &&
          objc::Equals(lhs.query(), rhs.query());

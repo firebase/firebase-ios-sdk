@@ -542,6 +542,10 @@ FIRQuery *Wrap(Query &&query) {
   return _query.query();
 }
 
+- (const api::Query &)apiQuery {
+  return _query;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
