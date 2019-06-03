@@ -16,13 +16,17 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
+#include <cstdint>
 #include <cstdlib>
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
+
+using testing::ContainerEq;
 
 namespace {
 
@@ -41,19 +45,19 @@ TEST(ByteStringTest, DefaultConstructor) {
 TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
   ByteString copy{original};
-  EXPECT_EQ(copy.CopyVector(), ToVector(original));
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
 
   original = "bar";
-  EXPECT_EQ(copy.CopyVector(), ToVector("foo"));
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
 }
 
 TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
   ByteString copy{original};
-  EXPECT_EQ(copy.CopyVector(), ToVector(original));
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
 
   original[0] = 'b';
-  EXPECT_EQ(copy.CopyVector(), ToVector("foo"));
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
 }
 
 TEST(ByteStringTest, WrapByteNullTerminatedArray) {
@@ -63,10 +67,10 @@ TEST(ByteStringTest, WrapByteNullTerminatedArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_EQ(wrapper.CopyVector(), ToVector("foo"));
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
 
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper.CopyVector(), ToVector("boo"));
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
 }
 
 TEST(ByteStringTest, WrapByteUnterminatedArray) {
@@ -76,12 +80,12 @@ TEST(ByteStringTest, WrapByteUnterminatedArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_EQ(wrapper.CopyVector(), ToVector("foo"));
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
 
   // This isn't expected usage normally, but it's a way to verify that the
   // contents weren't copied.
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper.CopyVector(), ToVector("boo"));
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
 }
 
 TEST(ByteStringTest, Release) {
