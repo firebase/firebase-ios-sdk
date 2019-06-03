@@ -40,6 +40,7 @@ Pod::Spec.new do |s|
 
     s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = base_dir + 'Tests/*.[mh]'
+      unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
     end
   end

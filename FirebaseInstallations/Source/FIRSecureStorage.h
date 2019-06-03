@@ -16,17 +16,25 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FBLPromises/FBLPromises.h>
+@class FBLPromise<ValueType>;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRSecureStorage : NSObject
 
-- (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
-                                        accessGroup:(nullable NSString *)accessGropup;
-- (FBLPromise<id> *)setObject:(id<NSSecureCoding>)object forKey:(NSString *)key
-                  accessGroup:(nullable NSString *)accessGropup;
+- (instancetype)initWithService:(NSString *)service;
 
+- (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
+                                        objectClass:(Class)objectClass
+                                        accessGroup:(nullable NSString *)accessGropup;
+
+- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object forKey:(NSString *)key
+                        accessGroup:(nullable NSString *)accessGropup;
+
+- (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
+                                 accessGroup:(nullable NSString *)accessGropup;
+
+// TODO: May be needed to read write legacy IID keychain items.
 //- (FBLPromise<NSString *> *)getStringForKey:(NSString *)key;
 //- (FBLPromise<id> *)setString:(NSString *)string forKey:(NSString *)key;
 
