@@ -17,5 +17,6 @@ cc_test(
   SOURCES
     byte_string_test.cc
   DEPENDS
+    GMock::GMock
     firebase_firestore_nanopb
 )
