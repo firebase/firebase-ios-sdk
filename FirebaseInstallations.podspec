@@ -25,10 +25,9 @@ Pod::Spec.new do |s|
     s.prefix_header_file = false
 
     base_dir = "FirebaseInstallations/Source/"
-    s.source_files = base_dir + '**/*.[mh]'
-    s.exclude_files = base_dir + 'Tests/*'
-    s.requires_arc = base_dir + '*.m'
-    s.public_header_files = base_dir + 'Public/*.h'
+    s.source_files = base_dir + 'Library/**/*.[mh]'
+    s.public_header_files = base_dir + 'Library/Public/*.h'
+    s.requires_arc = true
     s.pod_target_xcconfig = {
       'GCC_C_LANGUAGE_STANDARD' => 'c99',
       'GCC_PREPROCESSOR_DEFINITIONS' =>
