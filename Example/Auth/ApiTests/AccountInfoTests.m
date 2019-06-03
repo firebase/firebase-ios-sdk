@@ -30,7 +30,7 @@ static NSString *const kNewUserEmail = @"newuseremail@iosapitests.com";
 
 @implementation AccountInfoTests
 
-- (void)testUpdatingUsersEmail {
+- (void)DISABLED_testUpdatingUsersEmail {
   SKIP_IF_ON_MOBILE_HARNESS
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
