@@ -24,6 +24,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -35,6 +36,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncState;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
@@ -279,7 +281,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   // Note that this should never get used in a refill (when previousChanges is set), because there
   // will only be adds -- no deletes or updates.
   FSTDocument *_Nullable lastDocInLimit =
-      (self.query.limit != NSNotFound && oldDocumentSet.size() == self.query.limit)
+      (self.query.limit != Query::kNoLimit && oldDocumentSet.size() == self.query.limit)
           ? oldDocumentSet.GetLastDocument()
           : nil;
 
@@ -357,7 +359,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     }
   }
 
-  if (self.query.limit != NSNotFound && newDocumentSet.size() > self.query.limit) {
+  if (self.query.limit != Query::kNoLimit && newDocumentSet.size() > self.query.limit) {
     for (size_t i = newDocumentSet.size() - self.query.limit; i > 0; --i) {
       FSTDocument *oldDoc = newDocumentSet.GetLastDocument();
       newDocumentSet = newDocumentSet.erase(oldDoc.key);

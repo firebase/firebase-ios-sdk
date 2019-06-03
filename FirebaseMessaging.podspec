@@ -20,6 +20,7 @@ device, and it is completely free.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
@@ -53,7 +54,8 @@ device, and it is completely free.
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
       # Unit tests do library imports using Firebase/Messaging relative paths.
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging'
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging',
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
     unit_tests.dependency 'OCMock'
   end

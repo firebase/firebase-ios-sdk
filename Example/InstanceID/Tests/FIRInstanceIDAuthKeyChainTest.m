@@ -25,14 +25,17 @@ static NSString *const kFIRInstanceIDTestKeychainId = @"com.google.iid-tests";
 
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";
-static NSString *const kAuthID = @"test-auth-id";
-static NSString *const kSecret = @"test-secret";
+
 static NSString *const kToken1 =
     @"dOr37DpYQ9M:APA91bE5aQ2expDEmoSNDDrZqS6drAz2V-GHJHEsa-qVdlHXVSlWpUsK-Ta6Oe1QsVSLovL7_"
     @"rbm8GNnP7XPfwjtDQrjxYS1BdtxHdVVnQKuxlF3Z0QOwL380l1e1Fz91PX5b77XKj0FIyqzX1z0uJc0-pM6YcaPGg";
+#if TARGET_OS_IOS || TARGET_OS_TV
+static NSString *const kAuthID = @"test-auth-id";
+static NSString *const kSecret = @"test-secret";
 static NSString *const kToken2 = @"c8oEXUYIl3s:APA91bHtJMs_dZ2lXYXIcwsC47abYIuWhEJ_CshY2PJRjVuI_"
                                  @"H659iYUwfmNNghnZVkCmeUdKDSrK8xqVb0PVHxyAW391Ynp2NchMB87kJWb3BS0z"
                                  @"ud6Ej_xDES_oc353eFRvt0E6NXefDmrUCpBY8y89_1eVFFfiA";
+#endif
 static NSString *const kFirebaseAppID = @"abcdefg:ios:QrjxYS1BdtxHdVVnQKuxlF3Z0QO";
 
 static NSString *const kBundleID1 = @"com.google.fcm.dev";
@@ -62,6 +65,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 }
 
 - (void)testKeyChainNoCorruptionWithUniqueAccount {
+// macOS only support one service and one account.
+#if TARGET_OS_IOS || TARGET_OS_TV
   XCTestExpectation *noCurruptionExpectation =
       [self expectationWithDescription:@"No corruption between different accounts."];
   // Create a keychain with a service and a unique account
@@ -130,9 +135,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                         }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
+#endif
 }
 
 - (void)testKeyChainNoCorruptionWithUniqueService {
+#if TARGET_OS_IOS || TARGET_OS_TV
   XCTestExpectation *noCurruptionExpectation =
       [self expectationWithDescription:@"No corruption between different services."];
   // Create a keychain with a service and a unique account
@@ -206,6 +213,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                         }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
+#endif
 }
 
 - (void)testQueryCachedKeychainItems {

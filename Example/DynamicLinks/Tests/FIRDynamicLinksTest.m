@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
+#import <OCMock/OCMock.h>
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
 #import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
 #import "DynamicLinks/FIRDynamicLink+Private.h"
@@ -28,7 +29,6 @@
 #import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
 #import "DynamicLinks/FIRDynamicLinks+Private.h"
 #import "DynamicLinks/Utilities/FDLUtilities.h"
-#import "OCMock.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
 static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";
@@ -164,11 +164,23 @@ static void UnswizzleDynamicLinkNetworking() {
 
 #pragma mark - Test lifecycle
 
+static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustomDomains";
+
 - (void)setUp {
   [super setUp];
+
+  // Mock the mainBundle infoDictionary with version from DL-Info.plist for custom domain testing.
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSString *filePath = [bundle pathForResource:@"DL-Info" ofType:@"plist"];
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock infoDictionary])
+      .andReturn([NSDictionary dictionaryWithContentsOfFile:filePath]);
+
   if (!(FIRApp.defaultApp)) {
     [FIRApp configure];
   }
+  [bundleMock stopMocking];
+
   self.service = [[FIRDynamicLinks alloc] init];
   self.userDefaults = [[NSUserDefaults alloc] init];
   [self.userDefaults removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
