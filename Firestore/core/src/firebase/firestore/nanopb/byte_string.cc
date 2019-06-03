@@ -95,7 +95,8 @@ pb_bytes_array_t* ByteString::release() {
   return result;
 }
 
-std::vector<uint8_t> ByteString::CopyVector() const {
+std::vector<uint8_t> ByteString::ToVector() const {
+  HARD_ASSERT(bytes_ != nullptr);
   return std::vector<uint8_t>{bytes_->bytes, bytes_->bytes + bytes_->size};
 }
 

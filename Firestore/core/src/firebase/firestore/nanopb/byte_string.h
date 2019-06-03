@@ -105,7 +105,7 @@ class ByteString : public util::Comparable<ByteString> {
   /**
    * Copies the backing byte array into a new vector of bytes.
    */
-  std::vector<uint8_t> CopyVector() const;
+  std::vector<uint8_t> ToVector() const;
 
   /**
    * Converts this ByteString to an absl::string_view (without changing
