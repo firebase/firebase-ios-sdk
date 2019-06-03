@@ -639,41 +639,42 @@ static FIRInstanceID *gInstanceID;
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    // InstanceID only works with the default app.
+    if (!container.app.isDefaultApp) {
+      // Only configure for the default FIRApp.
+      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeFIRApp002,
+                               @"Firebase Instance ID only works with the default app.");
+      return nil;
+    }
+
     // Ensure it's cached so it returns the same instance every time instanceID is called.
     *isCacheable = YES;
     FIRInstanceID *instanceID = [[FIRInstanceID alloc] initPrivately];
     [instanceID start];
+    [instanceID configureInstanceIDWithOptions:container.app.options];
     return instanceID;
   };
   FIRComponent *instanceIDProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstanceIDInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[]
                             creationBlock:creationBlock];
   return @[ instanceIDProvider ];
 }
 
-+ (void)configureWithApp:(FIRApp *)app {
-  if (!app.isDefaultApp) {
-    // Only configure for the default FIRApp.
-    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeFIRApp002,
-                             @"Firebase Instance ID only works with the default app.");
-    return;
-  }
-  [[FIRInstanceID instanceID] configureInstanceIDWithOptions:app.options app:app];
-}
-
-- (void)configureInstanceIDWithOptions:(FIROptions *)options app:(FIRApp *)firApp {
+- (void)configureInstanceIDWithOptions:(FIROptions *)options {
   NSString *GCMSenderID = options.GCMSenderID;
   if (!GCMSenderID.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeFIRApp000,
                              @"Firebase not set up correctly, nil or empty senderID.");
-    [FIRInstanceID exitWithReason:@"GCM_SENDER_ID must not be nil or empty." forFirebaseApp:firApp];
-    return;
+    NSString *exceptionMessage =
+        @"Could not configure Firebase InstanceID. GCMSenderID must not be nil or empty.";
+    [NSException raise:kFIRIIDErrorDomain
+                format:exceptionMessage];
   }
 
   self.fcmSenderID = GCMSenderID;
-  self.firebaseAppID = firApp.options.googleAppID;
+  self.firebaseAppID = options.googleAppID;
 
   // FCM generates a FCM token during app start for sending push notification to device.
   // This is not needed for app extension.
@@ -695,11 +696,6 @@ static FIRInstanceID *gInstanceID;
   return [NSError errorWithDomain:kFIRIIDErrorDomain
                              code:kFIRIIDErrorCodeInstanceIDFailed
                          userInfo:userInfo];
-}
-
-+ (void)exitWithReason:(nonnull NSString *)reason forFirebaseApp:(FIRApp *)firebaseApp {
-  [NSException raise:kFIRIIDErrorDomain
-              format:@"Could not configure Firebase InstanceID. %@", reason];
 }
 
 // This is used to start any operations when we receive FirebaseSDK setup notification

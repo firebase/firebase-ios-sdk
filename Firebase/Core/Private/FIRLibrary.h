@@ -35,7 +35,9 @@ NS_SWIFT_NAME(Library)
 @optional
 /// Implement this method if the library needs notifications for lifecycle events. This method is
 /// called when the developer calls `FirebaseApp.configure()`.
-+ (void)configureWithApp:(FIRApp *)app;
++ (void)configureWithApp:(FIRApp *)app
+    DEPRECATED_MSG_ATTRIBUTE("If your library needs to be instantiated immediately, register with "
+                             "`FIRInstantiationAlwaysEager` or `FIRInstantationEagerInDefaultApp`");
 
 @end
 
