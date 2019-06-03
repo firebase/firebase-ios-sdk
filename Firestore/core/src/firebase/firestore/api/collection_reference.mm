@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
@@ -39,7 +41,9 @@ namespace {
 
 FSTQuery* MakeQuery(model::ResourcePath path) {
   if (path.size() % 2 != 1) {
-    ThrowInvalidArgument("Invalid collection reference. Collection references must have an odd number of segments, but %s has %s", path.CanonicalString(), path.size());
+    ThrowInvalidArgument("Invalid collection reference. Collection references "
+                         "must have an odd number of segments, but %s has %s",
+                         path.CanonicalString(), path.size());
   }
 
   return [FSTQuery queryWithPath:path];
@@ -47,12 +51,15 @@ FSTQuery* MakeQuery(model::ResourcePath path) {
 
 }  // namespace
 
-CollectionReference::CollectionReference(model::ResourcePath path, std::shared_ptr<Firestore> firestore)
+CollectionReference::CollectionReference(model::ResourcePath path,
+                                         std::shared_ptr<Firestore> firestore)
     : Query(MakeQuery(path), std::move(firestore)) {
 }
 
-bool operator==(const CollectionReference& lhs, const CollectionReference& rhs) {
-  return lhs.firestore() == rhs.firestore() && objc::Equals(lhs.query(), rhs.query());
+bool operator==(const CollectionReference& lhs,
+                const CollectionReference& rhs) {
+  return lhs.firestore() == rhs.firestore() &&
+         objc::Equals(lhs.query(), rhs.query());
 }
 
 size_t CollectionReference::Hash() const {
@@ -77,13 +84,15 @@ std::string CollectionReference::path() const {
   return query().path.CanonicalString();
 }
 
-DocumentReference CollectionReference::Document(absl::string_view document_path) const {
+DocumentReference CollectionReference::Document(
+    absl::string_view document_path) const {
   ResourcePath sub_path = ResourcePath::FromString(document_path);
   ResourcePath path = query().path.Append(sub_path);
   return DocumentReference(std::move(path), firestore());
 }
 
-DocumentReference CollectionReference::AddDocument(core::ParsedSetData&& data, util::StatusCallback callback) const {
+DocumentReference CollectionReference::AddDocument(
+    core::ParsedSetData&& data, util::StatusCallback callback) const {
   DocumentReference doc_ref = Document();
   doc_ref.SetData(std::move(data), callback);
   return doc_ref;

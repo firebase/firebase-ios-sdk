@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_COLLECTION_REFERENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_COLLECTION_REFERENCE_H_
 
+#include <memory>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "absl/strings/string_view.h"
@@ -42,7 +44,8 @@ class DocumentReference;
 class CollectionReference : public Query {
  public:
   CollectionReference() = default;
-  CollectionReference(model::ResourcePath path, std::shared_ptr<Firestore> firestore);
+  CollectionReference(model::ResourcePath path,
+                      std::shared_ptr<Firestore> firestore);
 
   /** ID of the referenced collection. */
   std::string collection_id() const;
@@ -88,7 +91,8 @@ class CollectionReference : public Query {
    *
    * @return A `DocumentReference` pointing to the newly created document.
    */
-  DocumentReference AddDocument(core::ParsedSetData&& data, util::StatusCallback callback) const;
+  DocumentReference AddDocument(core::ParsedSetData&& data,
+                                util::StatusCallback callback) const;
 
   size_t Hash() const;
 };
