@@ -43,11 +43,11 @@
 
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
-                                        accessGroup:(nullable NSString *)accessGropup {
+                                        accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
+                                                                 accessGroup:accessGroup];
                             NSError *error;
                             NSData *encodedObject = [self getItemWithQuery:query error:&error];
 
@@ -73,11 +73,11 @@
 
 - (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
                              forKey:(NSString *)key
-                        accessGroup:(nullable NSString *)accessGropup {
+                        accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id _Nullable {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
+                                                                 accessGroup:accessGroup];
 
                             NSError *error;
                             NSData *encodedObject = [self archiveDataForObject:object error:&error];
@@ -94,11 +94,11 @@
 }
 
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
-                                 accessGroup:(nullable NSString *)accessGropup {
+                                 accessGroup:(nullable NSString *)accessGroup {
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id _Nullable {
                             NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGropup];
+                                                                 accessGroup:accessGroup];
 
                             NSError *error;
                             if (![self removeItemWithQuery:query error:&error]) {
@@ -110,7 +110,7 @@
 }
 
 - (NSMutableDictionary<NSString *, id> *)keychainQueryWithKey:(NSString *)key
-                                                  accessGroup:(nullable NSString *)accessGropup {
+                                                  accessGroup:(nullable NSString *)accessGroup {
   NSMutableDictionary<NSString *, id> *query = [NSMutableDictionary dictionary];
 
   [query setObject:(__bridge NSString *)kSecClassGenericPassword
@@ -119,8 +119,8 @@
   [query setObject:self.service forKey:(__bridge NSString *)kSecAttrService];
   [query setObject:key forKey:(__bridge NSString *)kSecAttrAccount];
 
-  if (accessGropup) {
-    [query setObject:accessGropup forKey:(__bridge NSString *)kSecAttrAccessGroup];
+  if (accessGroup) {
+    [query setObject:accessGroup forKey:(__bridge NSString *)kSecAttrAccessGroup];
   }
 
   return query;
