@@ -4,6 +4,7 @@ source 'https://cdn.jsdelivr.net/cocoa/'
 use_frameworks!
 
 pod 'FirebaseCore', :path => '../..'
+pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
 
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'

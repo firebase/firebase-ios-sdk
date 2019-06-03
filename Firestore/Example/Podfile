@@ -47,6 +47,7 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
@@ -94,6 +95,7 @@ target 'Firestore_Example_macOS' do
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_macOS' do
@@ -122,6 +124,7 @@ target 'Firestore_Example_tvOS' do
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do

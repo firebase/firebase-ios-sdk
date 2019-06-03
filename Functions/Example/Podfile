@@ -5,6 +5,7 @@ target 'FirebaseFunctions_Example' do
 
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FirebaseFunctions', :path => '../../', :testspecs => ['unit']
   pod 'GoogleUtilities', :path => '../../'
 
