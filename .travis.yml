@@ -51,6 +51,7 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos
 
     - stage: test
       env:
@@ -63,6 +64,15 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests
+
+      env:
+        - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-modular-headers
 
     - stage: test
       env:
@@ -130,7 +140,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
@@ -155,13 +164,14 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=macos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=macos
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers

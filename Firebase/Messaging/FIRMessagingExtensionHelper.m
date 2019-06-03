@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
- #import "FIRMessagingExtensionHelper.h"
+#import "FIRMessagingExtensionHelper.h"
 
- #import "FIRMMessageCode.h"
+#import "FIRMMessageCode.h"
 #import "FIRMessagingLogger.h"
 
- static NSString *const kPayloadOptionsName = @"fcm_options";
+static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
- @interface FIRMessagingExtensionHelper ()
+@interface FIRMessagingExtensionHelper ()
 @property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
 @property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
 
- @end
+@end
 
- @implementation FIRMessagingExtensionHelper
+@implementation FIRMessagingExtensionHelper
 
- - (void)populateNotificationContent:(UNMutableNotificationContent *)content
+- (void)populateNotificationContent:(UNMutableNotificationContent *)content
                  withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler {
   self.contentHandler = [contentHandler copy];
   self.bestAttemptContent = content;
@@ -40,7 +40,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
     [self deliverNotification];
     return;
   }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
   NSURL *attachmentURL = [NSURL URLWithString:currentImageURL];
   if (attachmentURL) {
     [self loadAttachmentForURL:attachmentURL
@@ -58,7 +58,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 #endif
 }
 
- #if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
   __block UNNotificationAttachment *attachment = nil;
@@ -107,7 +107,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 }
 #endif
 
- - (void)deliverNotification {
+- (void)deliverNotification {
   if (self.contentHandler) {
     self.contentHandler(self.bestAttemptContent);
   }

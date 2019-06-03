@@ -94,8 +94,12 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 }
 
 - (void)testMigrationIfLegacyKeyPairsExist {
+// Legacy keypair should only exist in iOS/tvOS.
+#if TARGET_OS_IOS || TARGET_OS_TV
   XCTestExpectation *migrationCompleteExpectation =
       [self expectationWithDescription:@"migration should be done"];
+  XCTestExpectation *deletionCompleteExpectation =
+      [self expectationWithDescription:@"keychain should be cleared"];
   // create legacy key pairs
   NSString *legacyPublicKeyTag =
       FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
@@ -131,19 +135,28 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
     XCTAssertEqualObjects(keyPair.publicKeyData, keyPair2.publicKeyData);
     XCTAssertEqualObjects(keyPair.privateKeyData, keyPair2.privateKeyData);
 
-    // Clear the legacy data after tests
+    // Clear the keychain data after tests
     [FIRInstanceIDKeyPairStore deleteKeyPairWithPrivateTag:legacyPrivateKeyTag
                                                  publicTag:legacyPublicKeyTag
                                                    handler:^(NSError *error) {
                                                      XCTAssertNil(error);
                                                      [migrationCompleteExpectation fulfill];
                                                    }];
+    [FIRInstanceIDKeyPairStore deleteKeyPairWithPrivateTag:privateKeyTag
+                                                 publicTag:publicKeyTag
+                                                   handler:^(NSError *error) {
+                                                     XCTAssertNil(error);
+                                                     [deletionCompleteExpectation fulfill];
+                                                   }];
   }];
 
-  [self waitForExpectationsWithTimeout:1 handler:nil];
+  [self waitForExpectations:@[ migrationCompleteExpectation, deletionCompleteExpectation ]
+                    timeout:10.0];
+#endif
 }
 
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
+#if TARGET_OS_IOS || TARGET_OS_TV
   __weak id weakKeyRef;
 
   // Use a local autorelease pool to make sure any autorelease objects allocated will be released.
@@ -170,6 +183,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   // The check below is flaky for build under DEBUG (petentially due to ARC specifics).
   // Comment it so far as not-so-important one.
   //  XCTAssertNil(weakKeyRef);
+#endif
 }
 
 - (SecKeyRef)generateKeyRef {
