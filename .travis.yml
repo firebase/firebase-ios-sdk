@@ -49,7 +49,9 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
@@ -181,7 +183,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries - use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
