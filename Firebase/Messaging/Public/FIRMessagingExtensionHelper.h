@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 || \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
 
- NS_ASSUME_NONNULL_BEGIN
+NS_ASSUME_NONNULL_BEGIN
 
- __IOS_AVAILABLE(10.0)
+__IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14)
 @interface FIRMessagingExtensionHelper : NSObject
 
- /// Call this API to complete your notification content modification. If you like to
+/// Call this API to complete your notification content modification. If you like to
 /// overwrite some properties of the content instead of using the default payload,
 /// make sure to make your customized motification to the content before passing it to
 /// this call.
 - (void)populateNotificationContent:(UNMutableNotificationContent *)content
                  withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
 
- @end
+@end
 
- NS_ASSUME_NONNULL_END
+NS_ASSUME_NONNULL_END

@@ -174,19 +174,6 @@ uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
   }
 }
 
-UIApplication *FIRMessagingUIApplication(void) {
-  static Class applicationClass = nil;
-  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-  // responds to it.
-  if (![GULAppEnvironmentUtil isAppExtension]) {
-    Class cls = NSClassFromString(@"UIApplication");
-    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
-      applicationClass = cls;
-    }
-  }
-  return [applicationClass sharedApplication];
-}
-
 NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 #if TARGET_OS_TV
     return NSCachesDirectory;

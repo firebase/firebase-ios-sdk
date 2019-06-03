@@ -134,7 +134,7 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query Limit(int64_t limit) const;
+  Query Limit(int32_t limit) const;
 
   /**
    * Creates and returns a new `Query` that starts at the given bound.  The

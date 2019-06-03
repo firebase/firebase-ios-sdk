@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
-
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingExtensionHelper.h"
 
-API_AVAILABLE(ios(10.0))
+API_AVAILABLE(macos(10.14), ios(10.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
 static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =
     @"https://firebasestorage.googleapis.com/v0/b/fcm-ios-f7f9c.appspot.com/o/"
     @"chubbyBunny.jpg?alt=media&token=d6c56a57-c007-4b27-b20f-f267cc83e9e5";
-#endif
 
 @interface FIRMessagingExtensionHelper (ExposedForTest)
-#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler;
-#endif
 @end
 
 @interface FIRMessagingExtensionHelperTest : XCTestCase {
@@ -49,7 +45,7 @@ static NSString *const kValidImageURL =
 
 - (void)setUp {
   [super setUp];
-  if (@available(iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
     FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
     _mockExtensionHelper = OCMPartialMock(extensionHelper);
   } else {
@@ -61,11 +57,10 @@ static NSString *const kValidImageURL =
   [_mockExtensionHelper stopMocking];
 }
 
-#if TARGET_OS_IOS
 #ifdef COCOAPODS
 // This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
-  if (@available(iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
     [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -82,7 +77,7 @@ static NSString *const kValidImageURL =
 #endif
 
 - (void)testModifyNotificationWithInvalidPayloadData {
-  if (@available(iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
     [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -100,7 +95,7 @@ static NSString *const kValidImageURL =
 }
 
 - (void)testModifyNotificationWithEmptyPayloadData {
-  if (@available(iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
     XCTestExpectation *validPayloadExpectation =
     [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -115,6 +110,7 @@ static NSString *const kValidImageURL =
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
   }
 }
-#endif // TARGET_OS_IOS
 
 @end
+#endif
+

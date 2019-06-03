@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRIAMClearcutLogStorage : NSObject
 - (instancetype)initWithExpireAfterInSeconds:(NSInteger)expireInSeconds
+                             withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
+                                   cachePath:(nullable NSString *)cachePath;
+
+- (instancetype)initWithExpireAfterInSeconds:(NSInteger)expireInSeconds
                              withTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher;
 
 // add new records into the storage
