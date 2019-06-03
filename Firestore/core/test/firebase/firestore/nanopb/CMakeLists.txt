@@ -18,5 +18,6 @@ cc_test(
     byte_string_test.cc
     nanopb_testing.h
   DEPENDS
+    GMock::GMock
     firebase_firestore_nanopb
 )
