@@ -15,7 +15,26 @@
  */
 
 #import "FIRInstallations.h"
+#import <FirebaseCore/FirebaseCore.h>
 
 @implementation FIRInstallations
+
++ (FIRInstallations *)installationsWithApp:(FIRApp *)application {
+  return nil;
+}
+
+- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)handler {
+
+}
+
+- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)handler {
+
+}
+
+- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)handler {
+
+}
+
+#pragma mark -
 
 @end

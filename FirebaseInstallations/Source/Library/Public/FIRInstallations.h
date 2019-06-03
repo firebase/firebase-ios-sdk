@@ -34,9 +34,10 @@ typedef void (^FIRInstallationsTokenHandler)(FIRAuthTokenResult *__nullable toke
 typedef void (^FIRInstallationsDeleteHandler)(NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsDeleteHandler);
 
+NS_SWIFT_NAME(Installations)
 @interface FIRInstallations : NSObject
 
-+ (FIRInstallations *)installationsWithApp:(FIRApp *)application;
++ (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)handler;
 
