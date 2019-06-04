@@ -16,11 +16,68 @@
 
 #import "FIRInstallations.h"
 #import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIRLogger.h>
+
+#import "FIRInstallationsVersion.h"
+
+@protocol FIRInstallationsInstanceProvider
+@end
+
+@interface FIRInstallations () <FIRLibrary>
+@property (nonatomic, readwrite, strong) NSString *appID;
+@property (nonatomic, readwrite, strong) NSString *appName;
+@end
 
 @implementation FIRInstallations
 
-+ (FIRInstallations *)installationsWithApp:(FIRApp *)application {
-  return nil;
+#pragma mark - Firebase component
+
++ (void)load {
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                         withName:@"fire-install"
+                      withVersion:[NSString stringWithUTF8String:FIRInstallationsVersionStr]];
+}
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRComponentCreationBlock creationBlock =
+  ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    *isCacheable = YES;
+    FIRInstallations *installations = [[FIRInstallations alloc] initWithApp:container.app];
+    return installations;
+  };
+  
+  FIRComponent *installationsProvider =
+  [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
+                  instantiationTiming:FIRInstantiationTimingLazy
+                         dependencies:@[]
+                        creationBlock:creationBlock];
+  return @[ installationsProvider ];
+}
+
+- (void)appWillBeDeleted:(nonnull FIRApp *)app {
+  // TODO: Handle
+}
+
+- (instancetype)initWithApp:(FIRApp *)app
+{
+  self = [super init];
+  if (self) {
+    _appID = app.options.googleAppID;
+    _appName = app.name;
+  }
+  return self;
+}
+
+#pragma mark - Public
+
++ (FIRInstallations *)installationsWithApp:(FIRApp *)app {
+  id<FIRInstallationsInstanceProvider> auth =
+      FIR_COMPONENT(FIRInstallationsInstanceProvider, app.container);
+  return (FIRInstallations *)auth;
 }
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)handler {

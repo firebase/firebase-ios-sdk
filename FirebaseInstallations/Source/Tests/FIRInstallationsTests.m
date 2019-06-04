@@ -16,10 +16,46 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseCore/FirebaseCore.h>
+#import "FIRInstallations.h"
+
+#import <FirebaseCore/FIROptionsInternal.h>
+
+@interface FIRInstallations (Tests)
+@property (nonatomic, readwrite, strong) NSString *appID;
+@property (nonatomic, readwrite, strong) NSString *appName;
+@end
+
 @interface FIRInstallationsTests : XCTestCase
 
 @end
 
 @implementation FIRInstallationsTests
+
+- (void)testInstallationsWithApp {
+  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
+  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
+}
+
+#pragma mark - Common
+
+- (void)assertInstallationsWithAppNamed:(NSString *)appName {
+  FIRApp *app = [self createAndConfigureAppWithName:appName];
+
+  FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
+  XCTAssertEqualObjects(installations.appID, app.options.googleAppID);
+  XCTAssertEqualObjects(installations.appName, app.name);
+}
+
+#pragma mark - Helpers
+
+- (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+          @"GOOGLE_APP_ID" : @"1:1085102361755:ios:f790a919483d5bdf",
+        }];
+  [FIRApp configureWithName:name options:options];
+
+  return [FIRApp appNamed:name];
+}
 
 @end
