@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf signInGoogleHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
                                        action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub"
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (access token)"
                                        action:^{ [weakSelf signInWithGitHub]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with Twitter (headful-lite)"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
@@ -39,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
                                        action:^{ [weakSelf signInYahooHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (headful-lite)"
+                                       action:^{ [weakSelf signInGitHubHeadfulLite]; }],
     ]];
 }
 
@@ -201,6 +203,33 @@ NS_ASSUME_NONNULL_BEGIN
              return;
            } else {
              [self logSuccess:@"sign-in with Yahoo (headful-lite) succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+         }];
+       }];
+    }];
+  }];
+}
+
+- (void)signInGitHubHeadfulLite {
+  FIROAuthProvider *provider = self.gitHubOAuthProvider;
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with GitHub failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInWithCredential:credential
+                                   completion:^(FIRAuthDataResult *_Nullable
+                                                authResult,
+                                                NSError *_Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"sign-in with GitHub (headful-lite) failed" error:error];
+             return;
+           } else {
+             [self logSuccess:@"sign-in with GitHub (headful-lite) succeeded."];
            }
            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
          }];
