@@ -229,10 +229,10 @@ NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
 /** Wraps a plain value into an FSTFieldValue instance. */
-FSTFieldValue *FSTTestFieldValue(id _Nullable value);
+model::FieldValue FSTTestFieldValue(id _Nullable value);
 
 /** Wraps a NSDictionary value into an FSTObjectValue instance. */
-FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
+model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
 firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);

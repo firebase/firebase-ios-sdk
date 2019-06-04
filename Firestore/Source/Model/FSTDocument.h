@@ -18,7 +18,9 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "absl/types/optional.h"
 
 @class FSTFieldValue;
 @class GCFSDocument;
@@ -55,22 +57,22 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
 @end
 
 @interface FSTDocument : FSTMaybeDocument
-+ (instancetype)documentWithData:(FSTObjectValue *)data
++ (instancetype)documentWithData:(model::ObjectValue)data
                              key:(model::DocumentKey)key
                          version:(model::SnapshotVersion)version
                            state:(FSTDocumentState)state;
 
-+ (instancetype)documentWithData:(FSTObjectValue *)data
++ (instancetype)documentWithData:(model::ObjectValue)data
                              key:(model::DocumentKey)key
                          version:(model::SnapshotVersion)version
                            state:(FSTDocumentState)state
                            proto:(GCFSDocument *)proto;
 
-- (nullable FSTFieldValue *)fieldForPath:(const model::FieldPath &)path;
+- (absl::optional<model::FieldValue>)fieldForPath:(const model::FieldPath &)path;
 - (bool)hasLocalMutations;
 - (bool)hasCommittedMutations;
 
-@property(nonatomic, strong, readonly) FSTObjectValue *data;
+@property(nonatomic, assign, readonly) const model::ObjectValue &data;
 
 /**
  * Memoized serialized form of the document for optimization purposes (avoids repeated

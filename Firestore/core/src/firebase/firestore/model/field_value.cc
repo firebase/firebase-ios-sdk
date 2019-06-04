@@ -587,11 +587,15 @@ ObjectValue ObjectValue::Set(const FieldPath& field_path,
                              const FieldValue& value) const {
   HARD_ASSERT(!field_path.empty(),
               "Cannot set field for empty path on FieldValue");
+
   // Set the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
   if (field_path.size() == 1) {
+    // Recursive base case:
     return SetChild(child_name, value);
   } else {
+    // Nested path. Recursively generate a new sub-object and then wrap a new
+    // ObjectValue around the result.
     ObjectValue child = ObjectValue::Empty();
     const FieldValue::Map& entries = fv_.object_value();
     const auto iter = entries.find(child_name);
@@ -703,6 +707,13 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   return FieldValue(std::make_shared<TimestampValue>(value));
 }
 
+FieldValue FieldValue::FromServerTimestamp(
+    const Timestamp& local_write_time,
+    absl::optional<FieldValue> previous_value) {
+  return FieldValue(std::make_shared<ServerTimestampValue>(
+      ServerTimestamp(local_write_time, std::move(previous_value))));
+}
+
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
                                            const FieldValue& previous_value) {
   return FieldValue(std::make_shared<ServerTimestampValue>(
@@ -776,6 +787,12 @@ ComparisonResult FieldValue::BaseValue::CompareTypes(
 
   // Otherwise, the types themselves are defined in order.
   return Compare(this_type, other_type);
+}
+
+// Default construction is insufficient because FieldValue's default constructor
+// would make this have Type::Null, which then blows up when you try to Set
+// on it.
+ObjectValue::ObjectValue() : fv_(FieldValue::EmptyObject()) {
 }
 
 ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {

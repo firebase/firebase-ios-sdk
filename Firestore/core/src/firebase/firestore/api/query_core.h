@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
 OBJC_CLASS(FSTBound);
@@ -99,7 +100,7 @@ class Query {
    */
   Query Filter(model::FieldPath field_path,
                core::Filter::Operator op,
-               FSTFieldValue* field_value,
+               model::FieldValue field_value,
                const std::function<std::string()>& type_describer) const;
 
   /**

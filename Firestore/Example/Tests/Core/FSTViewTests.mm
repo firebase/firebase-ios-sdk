@@ -25,7 +25,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -174,7 +173,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
                                                   filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:FieldValue::FromDouble(2).Wrap()];
+                                                           value:FieldValue::FromDouble(2)];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -212,7 +211,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
                                                   filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:FieldValue::FromDouble(2).Wrap()];
+                                                           value:FieldValue::FromDouble(2)];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];

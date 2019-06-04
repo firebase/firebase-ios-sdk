@@ -51,6 +51,7 @@ using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -156,9 +157,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self.batches removeObjectAtIndex:0];
   XCTAssertEqual(batch.mutations.size(), 1, @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
-       initWithVersion:version
-      transformResults:transformResult != nil ? @[ FSTTestFieldValue(transformResult) ] : nil];
+
+  absl::optional<std::vector<FieldValue>> mutationTransformResult;
+  if (transformResult) {
+    mutationTransformResult = std::vector<FieldValue>{FSTTestFieldValue(transformResult)};
+  }
+
+  FSTMutationResult *mutationResult =
+      [[FSTMutationResult alloc] initWithVersion:version transformResults:mutationTransformResult];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
                                                              commitVersion:version
                                                            mutationResults:{mutationResult}

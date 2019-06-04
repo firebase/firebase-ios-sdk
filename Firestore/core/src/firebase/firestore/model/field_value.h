@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
@@ -38,7 +39,7 @@
 
 #if __OBJC__
 @class FSTFieldValue;
-#endif  // __OBJC__
+#endif
 
 namespace firebase {
 namespace firestore {
@@ -150,6 +151,9 @@ class FieldValue {
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
+  static FieldValue FromServerTimestamp(
+      const Timestamp& local_write_time,
+      absl::optional<FieldValue> previous_value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
                                         const FieldValue& previous_value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
@@ -228,6 +232,10 @@ class FieldValue {
 /** A structured object value stored in Firestore. */
 class ObjectValue : public util::Comparable<ObjectValue> {
  public:
+  // Default constructible to make using this easy, though prefer
+  // ObjectValue::Empty() to make intentions clear to readers.
+  ObjectValue();
+
   explicit ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
     HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
   }
@@ -288,6 +296,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
   friend std::ostream& operator<<(std::ostream& os, const ObjectValue& value);
 
   size_t Hash() const;
+
+  size_t size() const {
+    return fv_.object_value().size();
+  }
 
  private:
   ObjectValue SetChild(const std::string& child_name,

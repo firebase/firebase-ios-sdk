@@ -24,10 +24,9 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Model/FSTFieldValue.h"
-
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -56,19 +55,20 @@ class TransformOperation {
   virtual Type type() const = 0;
 
   /**
-   * Computes the local transform result against the provided `previousValue`,
+   * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  virtual FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* previousValue,
+  virtual model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
       const Timestamp& local_write_time) const = 0;
 
   /**
    * Computes a final transform result after the transform has been acknowledged
-   * by the server, potentially using the server-provided transformResult.
+   * by the server, potentially using the server-provided transform_result.
    */
-  virtual FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* previousValue, FSTFieldValue* transformResult) const = 0;
+  virtual model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>& previous_value,
+      model::FieldValue transform_result) const = 0;
 
   /** Returns whether this field transform is idempotent. */
   virtual bool idempotent() const = 0;
@@ -97,13 +97,13 @@ class ServerTimestampTransform : public TransformOperation {
     return true;
   }
 
-  FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* previousValue,
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& /* previous_value */,
       const Timestamp& local_write_time) const override;
 
-  FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* /* previousValue */,
-      FSTFieldValue* transformResult) const override;
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>& /* previous_value */,
+      model::FieldValue transform_result) const override;
 
   bool operator==(const TransformOperation& other) const override;
 
@@ -123,7 +123,7 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<FSTFieldValue*> elements)
+  ArrayTransform(Type type, std::vector<model::FieldValue> elements)
       : type_(type), elements_(std::move(elements)) {
   }
 
@@ -131,15 +131,15 @@ class ArrayTransform : public TransformOperation {
     return type_;
   }
 
-  FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* previousValue,
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
       const Timestamp& /* local_write_time */) const override;
 
-  FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* previousValue,
-      FSTFieldValue* /* transformResult */) const override;
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>& previous_value,
+      model::FieldValue /* transform_result */) const override;
 
-  const std::vector<FSTFieldValue*>& elements() const {
+  const std::vector<model::FieldValue>& elements() const {
     return elements_;
   }
 
@@ -151,7 +151,7 @@ class ArrayTransform : public TransformOperation {
 
   size_t Hash() const override;
 
-  static const std::vector<FSTFieldValue*>& Elements(
+  static const std::vector<model::FieldValue>& Elements(
       const TransformOperation& op);
 
  private:
@@ -160,13 +160,14 @@ class ArrayTransform : public TransformOperation {
    * if it's an FSTArrayValue and an empty mutable array if it's nil or any
    * other type of FSTFieldValue.
    */
-  static NSMutableArray<FSTFieldValue*>* CoercedFieldValuesArray(
-      FSTFieldValue* value);
+  static std::vector<model::FieldValue> CoercedFieldValuesArray(
+      const absl::optional<model::FieldValue>& value);
 
-  FSTFieldValue* Apply(FSTFieldValue* previousValue) const;
+  model::FieldValue Apply(
+      const absl::optional<model::FieldValue>& previous_value) const;
 
   Type type_;
-  std::vector<FSTFieldValue*> elements_;
+  std::vector<model::FieldValue> elements_;
 };
 
 /**
@@ -176,20 +177,21 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  explicit NumericIncrementTransform(FSTFieldValue* operand);
+  explicit NumericIncrementTransform(model::FieldValue operand);
 
   Type type() const override {
     return Type::Increment;
   }
 
-  FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* previousValue,
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
       const Timestamp& /* local_write_time */) const override;
 
-  FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue*, FSTFieldValue* transformResult) const override ;
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>& /* previous_value */,
+      model::FieldValue transform_result) const override;
 
-  FSTFieldValue* operand() const {
+  model::FieldValue operand() const {
     return operand_;
   }
 
@@ -204,7 +206,7 @@ class NumericIncrementTransform : public TransformOperation {
   size_t Hash() const override;
 
  private:
-  FSTFieldValue* operand_;
+  model::FieldValue operand_;
 };
 
 }  // namespace model

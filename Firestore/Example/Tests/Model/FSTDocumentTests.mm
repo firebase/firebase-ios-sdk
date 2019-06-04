@@ -18,8 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Model/FSTFieldValue.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -28,7 +26,9 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::testutil::Field;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConstructor {
   DocumentKey key = testutil::Key("messages/first");
   SnapshotVersion version = testutil::Version(1);
-  FSTObjectValue *data = FSTTestObjectValue(@{@"a" : @1});
+  ObjectValue data = FSTTestObjectValue(@{@"a" : @1});
   FSTDocument *doc = [FSTDocument documentWithData:data
                                                key:key
                                            version:version
@@ -48,14 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqual(doc.key, FSTTestDocKey(@"messages/first"));
   XCTAssertEqual(doc.version, version);
-  XCTAssertEqualObjects(doc.data, data);
+  XCTAssertEqual(doc.data, data);
   XCTAssertEqual(doc.hasLocalMutations, NO);
 }
 
 - (void)testExtractsFields {
   DocumentKey key = testutil::Key("rooms/eros");
   SnapshotVersion version = testutil::Version(1);
-  FSTObjectValue *data = FSTTestObjectValue(@{
+  ObjectValue data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",
     @"owner" : @{@"name" : @"Jonny", @"title" : @"scallywag"}
   });
@@ -64,10 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
                                            version:version
                                              state:FSTDocumentStateSynced];
 
-  XCTAssertEqualObjects([doc fieldForPath:testutil::Field("desc")],
-                        FieldValue::FromString("Discuss all the project related stuff").Wrap());
-  XCTAssertEqualObjects([doc fieldForPath:testutil::Field("owner.title")],
-                        FieldValue::FromString("scallywag").Wrap());
+  XCTAssertEqual(*[doc fieldForPath:Field("desc")],
+                 FieldValue::FromString("Discuss all the project related stuff"));
+  XCTAssertEqual(*[doc fieldForPath:Field("owner.title")], FieldValue::FromString("scallywag"));
 }
 
 - (void)testIsEqual {

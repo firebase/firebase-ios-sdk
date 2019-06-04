@@ -27,7 +27,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -56,6 +55,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
@@ -64,8 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLRUGarbageCollectorTests {
   TargetId _previousTargetID;
   int _previousDocNum;
-  FSTObjectValue *_testValue;
-  FSTObjectValue *_bigObjectValue;
+  ObjectValue _testValue;
+  ObjectValue _bigObjectValue;
   id<FSTPersistence> _persistence;
   QueryCache *_queryCache;
   RemoteDocumentCache *_documentCache;
@@ -236,7 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
   return testutil::Key("docs/doc_" + std::to_string(++_previousDocNum));
 }
 
-- (FSTDocument *)nextTestDocumentWithValue:(FSTObjectValue *)value {
+- (FSTDocument *)nextTestDocumentWithValue:(ObjectValue)value {
   DocumentKey key = [self nextTestDocKey];
   FSTTestSnapshotVersion version = 2;
   return [FSTDocument documentWithData:value

@@ -19,31 +19,30 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Model/FSTFieldValue.h"
-
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-FSTFieldValue* ServerTimestampTransform::ApplyToLocalView(
-    FSTFieldValue* previousValue,
+FieldValue ServerTimestampTransform::ApplyToLocalView(
+    const absl::optional<FieldValue>& previous_value,
     const Timestamp& local_write_time) const {
-  // TODO(wilhuff): DO NOT SUBMIT: handle previousValue
-  return FieldValue::FromServerTimestamp(local_write_time, FieldValue::Null())
-      .Wrap();
+  return FieldValue::FromServerTimestamp(local_write_time,
+                                         std::move(previous_value));
 }
 
-FSTFieldValue* ServerTimestampTransform::ApplyToRemoteDocument(
-    FSTFieldValue* /* previousValue */,
-    FSTFieldValue* transformResult) const {
-  return transformResult;
+FieldValue ServerTimestampTransform::ApplyToRemoteDocument(
+    const absl::optional<FieldValue>& /* previous_value */,
+    FieldValue transform_result) const {
+  return transform_result;
 }
 
-bool ServerTimestampTransform::operator==(const TransformOperation& other) const {
+bool ServerTimestampTransform::operator==(
+    const TransformOperation& other) const {
   // All ServerTimestampTransform objects are equal.
   return other.type() == Type::ServerTimestamp;
 }
@@ -59,19 +58,19 @@ size_t ServerTimestampTransform::Hash() const {
   return 37;
 }
 
-FSTFieldValue* ArrayTransform::ApplyToLocalView(
-    FSTFieldValue* previousValue,
+FieldValue ArrayTransform::ApplyToLocalView(
+    const absl::optional<FieldValue>& previous_value,
     const Timestamp& /* local_write_time */) const {
-  return Apply(previousValue);
+  return Apply(previous_value);
 }
 
-FSTFieldValue* ArrayTransform::ApplyToRemoteDocument(
-    FSTFieldValue* previousValue,
-    FSTFieldValue* /* transformResult */) const {
+FieldValue ArrayTransform::ApplyToRemoteDocument(
+    const absl::optional<FieldValue>& previous_value,
+    FieldValue /* transform_result */) const {
   // The server just sends null as the transform result for array operations,
   // so we have to calculate a result the same as we do for local
   // applications.
-  return Apply(previousValue);
+  return Apply(previous_value);
 }
 
 bool ArrayTransform::operator==(const TransformOperation& other) const {
@@ -83,7 +82,7 @@ bool ArrayTransform::operator==(const TransformOperation& other) const {
     return false;
   }
   for (size_t i = 0; i < elements_.size(); i++) {
-    if (![array_transform.elements_[i] isEqual:elements_[i]]) {
+    if (array_transform.elements_[i] != elements_[i]) {
       return false;
     }
   }
@@ -93,16 +92,15 @@ bool ArrayTransform::operator==(const TransformOperation& other) const {
 size_t ArrayTransform::Hash() const {
   size_t result = 37;
   result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
-  for (FSTFieldValue* element : elements_) {
-    result = 31 * result + [element hash];
+  for (FieldValue element : elements_) {
+    result = 31 * result + element.Hash();
   }
   return result;
 }
 
-const std::vector<FSTFieldValue*>& ArrayTransform::Elements(
+const std::vector<FieldValue>& ArrayTransform::Elements(
     const TransformOperation& op) {
-  HARD_ASSERT(op.type() == Type::ArrayUnion ||
-              op.type() == Type::ArrayRemove);
+  HARD_ASSERT(op.type() == Type::ArrayUnion || op.type() == Type::ArrayRemove);
   return static_cast<const ArrayTransform&>(op).elements();
 }
 
@@ -111,31 +109,34 @@ const std::vector<FSTFieldValue*>& ArrayTransform::Elements(
  * if it's an FSTArrayValue and an empty mutable array if it's nil or any
  * other type of FSTFieldValue.
  */
-NSMutableArray<FSTFieldValue*>* ArrayTransform::CoercedFieldValuesArray(
-    FSTFieldValue* value) {
-  if ([value isMemberOfClass:[FSTArrayValue class]]) {
-    return [NSMutableArray
-        arrayWithArray:reinterpret_cast<FSTArrayValue*>(value).internalValue];
+FieldValue::Array ArrayTransform::CoercedFieldValuesArray(
+    const absl::optional<model::FieldValue>& value) {
+  if (value && value->type() == FieldValue::Type::Array) {
+    return value->array_value();
   } else {
     // coerce to empty array.
-    return [NSMutableArray array];
+    return {};
   }
 }
 
-FSTFieldValue* ArrayTransform::Apply(FSTFieldValue* previousValue) const {
-  NSMutableArray<FSTFieldValue*>* result =
-      ArrayTransform::CoercedFieldValuesArray(previousValue);
-  for (FSTFieldValue* element : elements_) {
+FieldValue ArrayTransform::Apply(
+    const absl::optional<FieldValue>& previous_value) const {
+  FieldValue::Array result =
+      ArrayTransform::CoercedFieldValuesArray(previous_value);
+  for (FieldValue element : elements_) {
+    auto pos = absl::c_find(result, element);
     if (type_ == Type::ArrayUnion) {
-      if (![result containsObject:element]) {
-        [result addObject:element];
+      if (pos == result.end()) {
+        result.push_back(element);
       }
     } else {
       HARD_ASSERT(type_ == Type::ArrayRemove);
-      [result removeObject:element];
+      if (pos != result.end()) {
+        result.erase(pos);
+      }
     }
   }
-  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+  return FieldValue::FromArray(std::move(result));
 }
 
 namespace {
@@ -156,67 +157,64 @@ int64_t SafeIncrement(int64_t x, int64_t y) {
   return x + y;
 }
 
-double AsDouble(FSTFieldValue* value) {
-  if (value.type == FieldValue::Type::Double) {
-    return value.doubleValue;
-  } else if (value.type == FieldValue::Type::Integer) {
-    return value.integerValue;
+double AsDouble(const FieldValue& value) {
+  if (value.type() == FieldValue::Type::Double) {
+    return value.double_value();
+  } else if (value.type() == FieldValue::Type::Integer) {
+    return value.integer_value();
   } else {
     HARD_FAIL("Expected 'operand' to be of numeric type, but was %s",
-              NSStringFromClass([value class]));
+              value.ToString());
   }
 }
 
 }  // namespace
 
-NumericIncrementTransform::NumericIncrementTransform(FSTFieldValue* operand)
+NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
     : operand_(operand) {
-  HARD_ASSERT(FieldValue::IsNumber(operand.type));
+  HARD_ASSERT(FieldValue::IsNumber(operand.type()));
 }
 
-  FSTFieldValue* NumericIncrementTransform::ApplyToLocalView(
-      FSTFieldValue* previousValue,
-      const Timestamp& /* local_write_time */) const {
-    // Return an integer value only if the previous value and the operand is an
-    // integer.
-    if (previousValue.type == FieldValue::Type::Integer &&
-        operand_.type == FieldValue::Type::Integer) {
-      int64_t sum =
-          SafeIncrement(previousValue.integerValue, operand_.integerValue);
-      return FieldValue::FromInteger(sum).Wrap();
-    } else if (previousValue.type == FieldValue::Type::Integer) {
-      double sum = previousValue.integerValue + AsDouble(operand_);
-      return FieldValue::FromDouble(sum).Wrap();
-    } else if (previousValue.type == FieldValue::Type::Double) {
-      double sum = previousValue.doubleValue + AsDouble(operand_);
-      return FieldValue::FromDouble(sum).Wrap();
-    } else {
-      // If the existing value is not a number, use the value of the transform
-      // as the new base value.
-      return operand_;
+FieldValue NumericIncrementTransform::ApplyToLocalView(
+    const absl::optional<FieldValue>& previous_value,
+    const Timestamp& /* local_write_time */) const {
+  // Return an integer value only if the previous value and the operand is an
+  // integer.
+  if (previous_value) {
+    if (previous_value->type() == FieldValue::Type::Integer &&
+        operand_.type() == FieldValue::Type::Integer) {
+      int64_t sum = SafeIncrement(previous_value->integer_value(),
+                                  operand_.integer_value());
+      return FieldValue::FromInteger(sum);
+    } else if (FieldValue::IsNumber(previous_value->type())) {
+      double sum = AsDouble(*previous_value) + AsDouble(operand_);
+      return FieldValue::FromDouble(sum);
     }
   }
 
-  FSTFieldValue* NumericIncrementTransform::ApplyToRemoteDocument(
-      FSTFieldValue*, FSTFieldValue* transformResult) const {
-    return transformResult;
-  }
+  // Otherwise, if the previous value does not exist or if the previous value is
+  // not a number, use the value of the transform as the new base value.
+  return operand_;
+}
 
-  bool NumericIncrementTransform::operator==(const TransformOperation& other) const {
-    if (other.type() != type()) {
-      return false;
-    }
-    auto numeric_add = static_cast<const NumericIncrementTransform&>(other);
-    return [operand_ isEqual:numeric_add.operand_];
-  }
+FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
+    const absl::optional<FieldValue>&, FieldValue transform_result) const {
+  return transform_result;
+}
 
-  size_t NumericIncrementTransform::Hash() const {
-    size_t result = 37;
-    result = 31 * result + [operand_ hash];
-    return result;
+bool NumericIncrementTransform::operator==(
+    const TransformOperation& other) const {
+  if (other.type() != type()) {
+    return false;
   }
+  auto numeric_add = static_cast<const NumericIncrementTransform&>(other);
+  return operand_ == numeric_add.operand_;
+}
+
+size_t NumericIncrementTransform::Hash() const {
+  return operand_.Hash();
+}
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
