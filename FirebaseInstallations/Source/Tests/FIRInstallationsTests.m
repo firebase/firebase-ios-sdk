@@ -66,6 +66,8 @@
   [installations authTokenWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
     XCTAssertNotNil(tokenResult);
+    XCTAssertGreaterThan(tokenResult.authToken.length, 0);
+    XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
     XCTAssertNil(error);
 
     [tokenExpectation fulfill];
@@ -82,6 +84,8 @@
                               completion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
                                 XCTAssertNotNil(tokenResult);
+                                XCTAssertGreaterThan(tokenResult.authToken.length, 0);
+                                XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
                                 XCTAssertNil(error);
 
                                 [tokenExpectation fulfill];

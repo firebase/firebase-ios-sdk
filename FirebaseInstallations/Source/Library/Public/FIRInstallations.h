@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
+#import <FirebaseInstallations/FIRAuthTokenResult.h>
 #import <Foundation/Foundation.h>
-
-// TODO: Replace by import.
-@class FIRAuthTokenResult;
 
 @class FIRApp;
 
