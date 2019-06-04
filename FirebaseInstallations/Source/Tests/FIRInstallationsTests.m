@@ -71,31 +71,33 @@
 
 - (void)testAuthTokenSuccess {
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [self.installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                                           NSError *_Nullable error) {
-    XCTAssertNotNil(tokenResult);
-    XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-    XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
-    XCTAssertNil(error);
+  [self.installations
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        XCTAssertNotNil(tokenResult);
+        XCTAssertGreaterThan(tokenResult.authToken.length, 0);
+        XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+        XCTAssertNil(error);
 
-    [tokenExpectation fulfill];
-  }];
+        [tokenExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
 }
 
 - (void)testAuthTokenForcingRefreshSuccess {
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [self.installations authTokenForcingRefresh:YES
-                              completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                                           NSError *_Nullable error) {
-                                XCTAssertNotNil(tokenResult);
-                                XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-                                XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
-                                XCTAssertNil(error);
+  [self.installations
+      authTokenForcingRefresh:YES
+                   completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+                     XCTAssertNotNil(tokenResult);
+                     XCTAssertGreaterThan(tokenResult.authToken.length, 0);
+                     XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+                     XCTAssertNil(error);
 
-                                [tokenExpectation fulfill];
-                              }];
+                     [tokenExpectation fulfill];
+                   }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
 }
