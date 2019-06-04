@@ -31,20 +31,23 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::CollectionReference;
+using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRCollectionReference
 
-- (instancetype)initWithReference:(api::CollectionReference &&)reference {
+- (instancetype)initWithReference:(CollectionReference &&)reference {
   return [super initWithQuery:std::move(reference)];
 }
 
 - (instancetype)initWithPath:(ResourcePath)path
                    firestore:(std::shared_ptr<api::Firestore>)firestore {
-  api::CollectionReference ref(std::move(path), std::move(firestore));
+  CollectionReference ref(std::move(path), std::move(firestore));
   return [self initWithReference:std::move(ref)];
 }
 
@@ -71,8 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.reference.Hash();
 }
 
-- (const api::CollectionReference &)reference {
-  return static_cast<const api::CollectionReference &>(self.apiQuery);
+- (const CollectionReference &)reference {
+  return static_cast<const CollectionReference &>(self.apiQuery);
 }
 
 - (NSString *)collectionID {
@@ -80,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *_Nullable)parent {
-  absl::optional<api::DocumentReference> parent = self.reference.parent();
+  absl::optional<DocumentReference> parent = self.reference.parent();
   if (!parent) {
     return nil;
   }
@@ -95,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!documentPath) {
     ThrowInvalidArgument("Document path cannot be nil.");
   }
-  api::DocumentReference child = self.reference.Document(util::MakeString(documentPath));
+  DocumentReference child = self.reference.Document(util::MakeString(documentPath));
   return [[FIRDocumentReference alloc] initWithReference:std::move(child)];
 }
 
@@ -106,15 +109,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data
                                    completion:
                                        (nullable void (^)(NSError *_Nullable error))completion {
-  core::ParsedSetData parsed = [self.firestore.dataConverter parsedSetData:data];
-  api::DocumentReference docRef =
+  ParsedSetData parsed = [self.firestore.dataConverter parsedSetData:data];
+  DocumentReference docRef =
       self.reference.AddDocument(std::move(parsed), util::MakeCallback(completion));
   return [[FIRDocumentReference alloc] initWithReference:std::move(docRef)];
 }
 
 - (FIRDocumentReference *)documentWithAutoID {
-  api::DocumentReference docRef = self.reference.Document();
-  return [[FIRDocumentReference alloc] initWithReference:std::move(docRef)];
+  return [[FIRDocumentReference alloc] initWithReference:self.reference.Document()];
 }
 
 @end

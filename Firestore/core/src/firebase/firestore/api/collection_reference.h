@@ -52,18 +52,18 @@ class CollectionReference : public Query {
 
   /**
    * For subcollections, `parent` returns the containing `DocumentReference`.
-   * For root collections, nil is returned.
+   * For root collections, nullopt is returned.
    */
   absl::optional<DocumentReference> parent() const;
 
   /**
-   * A string containing the slash-separated path to this this
-   * `CollectionReference` (relative to the root of the database).
+   * A string containing the slash-separated path to this `CollectionReference`
+   * (relative to the root of the database).
    */
   std::string path() const;
 
   /**
-   * Returns a DocumentReference pointing to a new document with an
+   * Returns a `DocumentReference` pointing to a new document with an
    * auto-generated ID.
    */
   DocumentReference Document() const;
@@ -83,10 +83,10 @@ class CollectionReference : public Query {
    * Add a new document to this collection with the specified data, assigning it
    * a document ID automatically.
    *
-   * @param data An `ParsedSetData` containing the data for the new document.
-   * @param callback A block to execute once the document has been
-   *     successfully written to the server. This block will not be called while
-   *     the client is offline, though local changes will be visible
+   * @param data A `ParsedSetData` containing the data for the new document.
+   * @param callback A callback to execute once the document has been
+   *     successfully written to the server. This callback will not be called
+   *     while the client is offline, though local changes will be visible
    *     immediately.
    *
    * @return A `DocumentReference` pointing to the newly created document.

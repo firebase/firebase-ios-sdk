@@ -46,14 +46,14 @@ FSTQuery* MakeQuery(model::ResourcePath path) {
                          path.CanonicalString(), path.size());
   }
 
-  return [FSTQuery queryWithPath:path];
+  return [FSTQuery queryWithPath:std::move(path)];
 }
 
 }  // namespace
 
 CollectionReference::CollectionReference(model::ResourcePath path,
                                          std::shared_ptr<Firestore> firestore)
-    : Query(MakeQuery(path), std::move(firestore)) {
+    : Query(MakeQuery(std::move(path)), std::move(firestore)) {
 }
 
 bool operator==(const CollectionReference& lhs,
@@ -71,12 +71,11 @@ std::string CollectionReference::collection_id() const {
 }
 
 absl::optional<DocumentReference> CollectionReference::parent() const {
-  const ResourcePath parentPath = query().path.PopLast();
-  if (parentPath.empty()) {
+  ResourcePath parent_path = query().path.PopLast();
+  if (parent_path.empty()) {
     return absl::nullopt;
   } else {
-    DocumentKey key{parentPath};
-    return DocumentReference(std::move(key), firestore());
+    return DocumentReference(DocumentKey(std::move(parent_path)), firestore());
   }
 }
 
@@ -87,14 +86,14 @@ std::string CollectionReference::path() const {
 DocumentReference CollectionReference::Document(
     absl::string_view document_path) const {
   ResourcePath sub_path = ResourcePath::FromString(document_path);
-  ResourcePath path = query().path.Append(sub_path);
+  ResourcePath path = query().path.Append(std::move(sub_path));
   return DocumentReference(std::move(path), firestore());
 }
 
 DocumentReference CollectionReference::AddDocument(
     core::ParsedSetData&& data, util::StatusCallback callback) const {
   DocumentReference doc_ref = Document();
-  doc_ref.SetData(std::move(data), callback);
+  doc_ref.SetData(std::move(data), std::move(callback));
   return doc_ref;
 }
 
