@@ -17,6 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import "FIRInstallations.h"
 
 #import <FirebaseCore/FIROptionsInternal.h>
@@ -32,19 +33,67 @@
 
 @implementation FIRInstallationsTests
 
+- (void)tearDown {
+  [FIRApp resetApps];
+  [super tearDown];
+}
+
 - (void)testInstallationsWithApp {
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
 }
 
+- (void)testInstallationIDSuccess {
+  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
+
+  XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
+  [installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertNotNil(identifier);
+    XCTAssertGreaterThan(identifier.length, 0);
+
+    [idExpectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ idExpectation ] timeout:0.5];
+}
+
+- (void)testAuthTokenSuccess {
+  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
+
+  XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
+  [installations authTokenWithCompletion:^(FIRAuthTokenResult * _Nullable tokenResult, NSError * _Nullable error) {
+    XCTAssertNotNil(tokenResult);
+    XCTAssertNil(error);
+
+    [tokenExpectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+}
+
+- (void)testDeleteSuccess {
+  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
+
+  XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
+  [installations deleteWithCompletion:^(NSError * _Nullable error) {
+    XCTAssertNil(error);
+    [deleteExpectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ deleteExpectation ] timeout:0.5];
+}
+
 #pragma mark - Common
 
-- (void)assertInstallationsWithAppNamed:(NSString *)appName {
+- (FIRInstallations *)assertInstallationsWithAppNamed:(NSString *)appName {
   FIRApp *app = [self createAndConfigureAppWithName:appName];
-
   FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
+
   XCTAssertEqualObjects(installations.appID, app.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, app.name);
+
+  return installations;
 }
 
 #pragma mark - Helpers

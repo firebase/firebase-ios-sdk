@@ -80,16 +80,16 @@
   return (FIRInstallations *)auth;
 }
 
-- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)handler {
-
+- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
+  completion(@"123", nil);
 }
 
-- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)handler {
-
+- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
+  completion((FIRAuthTokenResult *)[[NSObject alloc] init], nil);
 }
 
-- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)handler {
-
+- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion {
+  completion(nil);
 }
 
 #pragma mark -

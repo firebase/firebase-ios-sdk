@@ -39,11 +39,11 @@ NS_SWIFT_NAME(Installations)
 
 + (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
-- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)handler;
+- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion;
 
-- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)handler;
+- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion;
 
-- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)handler;
+- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion;
 
 @end
 
