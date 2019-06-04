@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef FirebaseInstallationsVersion_h
-#define FirebaseInstallationsVersion_h
+#import <Foundation/Foundation.h>
 
-
-#endif /* FirebaseInstallationsVersion_h */
+FOUNDATION_EXPORT const char *const FIRInstallationsVersionStr;
