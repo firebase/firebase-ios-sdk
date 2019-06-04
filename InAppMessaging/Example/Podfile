@@ -5,7 +5,7 @@ source 'https://cdn.jsdelivr.net/cocoa/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
-pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
+pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
 
 target 'InAppMessaging_Example_iOS' do
   platform :ios, '8.0'
