@@ -100,7 +100,7 @@
   completion(result, nil);
 }
 
-- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion {
+- (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {
   completion(nil);
 }
 

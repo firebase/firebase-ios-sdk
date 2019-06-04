@@ -30,9 +30,6 @@ typedef void (^FIRInstallationsTokenHandler)(
     FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsTokenHandler);
 
-typedef void (^FIRInstallationsDeleteHandler)(NSError *__nullable error)
-    NS_SWIFT_NAME(InstallationsDeleteHandler);
-
 NS_SWIFT_NAME(Installations)
 @interface FIRInstallations : NSObject
 
@@ -45,7 +42,7 @@ NS_SWIFT_NAME(Installations)
 - (void)authTokenForcingRefresh:(BOOL)forceRefresh
                      completion:(FIRInstallationsTokenHandler)completion;
 
-- (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion;
+- (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion;
 
 @end
 
