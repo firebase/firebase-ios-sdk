@@ -56,8 +56,11 @@
   return _diagnosticObjects;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 - (void)setDiagnosticObjects:(NSDictionary<NSString *, id> *)diagnosticObjects {
   NSAssert(NO, @"Please use -insertValue:forKey:");
 }
+#pragma clang diagnostic pop
 
 @end

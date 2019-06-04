@@ -634,8 +634,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Ensure configure doesn't fire a notification.
   [FIRApp configure];
 
-  NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
-  [app sendLogsWithServiceName:@"Service" version:@"Version" error:error];
+  [app sendLogsWithServiceName:@"Service" version:@"Version"];
 
   // The observer mock is strict and will raise an exception when an unexpected notification is
   // received.

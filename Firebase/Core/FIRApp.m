@@ -831,8 +831,7 @@ static NSMutableDictionary *sLibraryVersions;
 #pragma mark - Sending Logs
 
 - (void)sendLogsWithServiceName:(NSString *)serviceName
-                        version:(NSString *)version
-                          error:(NSError *)error {
+                        version:(NSString *)version {
   // If the user has manually turned off data collection, return and don't send logs.
   if (![self isDataCollectionDefaultEnabled]) {
     return;
