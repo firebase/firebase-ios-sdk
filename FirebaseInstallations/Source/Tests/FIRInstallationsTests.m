@@ -122,7 +122,7 @@
 
 - (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
-    @"GOOGLE_APP_ID" : @"1:1085102361755:ios:f790a919483d5bdf",
+    @"GOOGLE_APP_ID" : @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
   }];
   [FIRApp configureWithName:name options:options];
 
