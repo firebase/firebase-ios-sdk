@@ -217,7 +217,7 @@ case "$product-$method-$platform" in
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
           "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
       RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSamplexcworkspace' \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
@@ -225,7 +225,7 @@ case "$product-$method-$platform" in
         test
 
       RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSamplexcworkspace' \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
         -scheme "Auth_E2eTests" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
