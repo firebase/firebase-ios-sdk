@@ -230,7 +230,7 @@ podspec_framework(
 
 if(APPLE)
   # FirebaseCoreDiagnosticsInterop has no source files but CMake can't build
-  # frameworks that don't have sources. Generate an inconsequential source 
+  # frameworks that don't have sources. Generate an inconsequential source
   # file so that the library can be linked.
   file(
     WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseCoreDiagnosticsInteropDummy.c
