@@ -20,15 +20,14 @@
 
 # Dependencies: git, protobuf, python-protobuf, pyinstaller
 
-# From https://stackoverflow.com/a/246128/361918
-readonly DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
 readonly NANOPB_VERSION="0.3.9.2"
-readonly NANOPB_TEMPDIR="${DIR}/nanopb_temp"
+readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransportCCTSupport/nanopb_temp"
 
-readonly LIBRARY_DIR="${DIR}/../GDTCCTLibrary/"
-readonly PROTO_DIR="${DIR}/Protos/"
+readonly LIBRARY_DIR="${DIR}/GoogleDataTransportCCTSupport/GDTCCTLibrary/"
+readonly PROTO_DIR="${DIR}/GoogleDataTransportCCTSupport/ProtoSupport/Protos/"
 readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
 
 rm -rf "${NANOPB_TEMPDIR}"
@@ -47,7 +46,7 @@ echo "Removing existing CCT protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating CCT protos..."
-python "${DIR}"/proto_generator.py \
+python "${DIR}/GoogleDataTransportCCTSupport/ProtoSupport/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
