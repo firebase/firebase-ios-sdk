@@ -29,18 +29,18 @@ NS_ASSUME_NONNULL_BEGIN
   return [StaticContentTableViewSection sectionWithTitle:@"OAuth" cells:@[
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
                                        action:^{ [weakSelf signInGoogleHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
-                                       action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (access token)"
-                                       action:^{ [weakSelf signInWithGitHub]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with Twitter (headful-lite)"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with Linkedin"
                                        action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
-                                       action:^{ [weakSelf signInYahooHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (access token)"
+                                       action:^{ [weakSelf signInWithGitHub]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (headful-lite)"
                                        action:^{ [weakSelf signInGitHubHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
+                                       action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
+                                       action:^{ [weakSelf signInYahooHeadfulLite]; }],
     ]];
 }
 
@@ -75,18 +75,13 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (void)signInMicrosoftHeadfulLite {
-  FIROAuthProvider *provider = self.microsoftOAuthProvider;
-  provider.customParameters = @{
-                                @"prompt" : @"consent",
-                                @"login_hint" : @"tu8731@gmail.com",
-                                };
-  provider.scopes = @[ @"user.readwrite,calendars.read" ];
+- (void)signInTwitterHeadfulLite {
+  FIROAuthProvider *provider = self.twitterOAuthProvider;
   [self showSpinner:^{
     [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
                                                            NSError *_Nullable error) {
       if (error) {
-        [self logFailure:@"sign-in with Microsoft failed" error:error];
+        [self logFailure:@"sign-in with Twitter failed" error:error];
         return;
       }
       [[AppManager auth] signInWithCredential:credential
@@ -95,10 +90,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                 NSError *_Nullable error) {
          [self hideSpinner:^{
            if (error) {
-             [self logFailure:@"sign-in with Microsoft failed" error:error];
+             [self logFailure:@"sign-in with Twitter (headful-lite) failed" error:error];
              return;
            } else {
-             [self logSuccess:@"sign-in with Microsoft (headful-lite) succeeded."];
+             [self logSuccess:@"sign-in with Twitter (headful-lite) succeeded."];
            }
            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
          }];
@@ -130,13 +125,13 @@ NS_ASSUME_NONNULL_BEGIN
  }];
 }
 
-- (void)signInTwitterHeadfulLite {
-  FIROAuthProvider *provider = self.twitterOAuthProvider;
+- (void)signInGitHubHeadfulLite {
+  FIROAuthProvider *provider = self.gitHubOAuthProvider;
   [self showSpinner:^{
     [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
                                                            NSError *_Nullable error) {
       if (error) {
-        [self logFailure:@"sign-in with Twitter failed" error:error];
+        [self logFailure:@"sign-in with GitHub failed" error:error];
         return;
       }
       [[AppManager auth] signInWithCredential:credential
@@ -145,10 +140,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                 NSError *_Nullable error) {
          [self hideSpinner:^{
            if (error) {
-             [self logFailure:@"sign-in with Twitter (headful-lite) failed" error:error];
+             [self logFailure:@"sign-in with GitHub (headful-lite) failed" error:error];
              return;
            } else {
-             [self logSuccess:@"sign-in with Twitter (headful-lite) succeeded."];
+             [self logSuccess:@"sign-in with GitHub (headful-lite) succeeded."];
            }
            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
          }];
@@ -184,6 +179,39 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
+
+- (void)signInMicrosoftHeadfulLite {
+  FIROAuthProvider *provider = self.microsoftOAuthProvider;
+  provider.customParameters = @{
+                                @"prompt" : @"consent",
+                                @"login_hint" : @"tu8731@gmail.com",
+                                };
+  provider.scopes = @[ @"user.readwrite,calendars.read" ];
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Microsoft failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInWithCredential:credential
+                                   completion:^(FIRAuthDataResult *_Nullable
+                                                authResult,
+                                                NSError *_Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"sign-in with Microsoft failed" error:error];
+             return;
+           } else {
+             [self logSuccess:@"sign-in with Microsoft (headful-lite) succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+         }];
+       }];
+    }];
+  }];
+}
+
 - (void)signInYahooHeadfulLite {
   FIROAuthProvider *provider = self.yahooOAuthProvider;
   [self showSpinner:^{
@@ -203,33 +231,6 @@ NS_ASSUME_NONNULL_BEGIN
              return;
            } else {
              [self logSuccess:@"sign-in with Yahoo (headful-lite) succeeded."];
-           }
-           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
-         }];
-       }];
-    }];
-  }];
-}
-
-- (void)signInGitHubHeadfulLite {
-  FIROAuthProvider *provider = self.gitHubOAuthProvider;
-  [self showSpinner:^{
-    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
-                                                           NSError *_Nullable error) {
-      if (error) {
-        [self logFailure:@"sign-in with GitHub failed" error:error];
-        return;
-      }
-      [[AppManager auth] signInWithCredential:credential
-                                   completion:^(FIRAuthDataResult *_Nullable
-                                                authResult,
-                                                NSError *_Nullable error) {
-         [self hideSpinner:^{
-           if (error) {
-             [self logFailure:@"sign-in with GitHub (headful-lite) failed" error:error];
-             return;
-           } else {
-             [self logSuccess:@"sign-in with GitHub (headful-lite) succeeded."];
            }
            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
          }];
