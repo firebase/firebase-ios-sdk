@@ -63,10 +63,14 @@
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
+  return [self initWithGoogleAppID:app.options.googleAppID appName:app.name];
+}
+
+- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
   self = [super init];
   if (self) {
-    _appID = app.options.googleAppID;
-    _appName = app.name;
+    _appID = appID;
+    _appName = appName;
   }
   return self;
 }

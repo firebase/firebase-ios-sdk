@@ -25,29 +25,39 @@
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) NSString *appID;
 @property(nonatomic, readwrite, strong) NSString *appName;
+
+- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName;
+
 @end
 
 @interface FIRInstallationsTests : XCTestCase
-
+@property(nonatomic) FIRInstallations *installations;
 @end
 
 @implementation FIRInstallationsTests
 
+- (void)setUp {
+  [super setUp];
+
+  self.installations = [[FIRInstallations alloc] initWithGoogleAppID:@"GoogleAppID"
+                                                             appName:@"appName"];
+}
+
 - (void)tearDown {
-  [FIRApp resetApps];
+  self.installations = nil;
   [super tearDown];
 }
 
 - (void)testInstallationsWithApp {
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
+
+  [FIRApp resetApps];
 }
 
 - (void)testInstallationIDSuccess {
-  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
-
   XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
-  [installations
+  [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         XCTAssertNil(error);
         XCTAssertNotNil(identifier);
@@ -60,10 +70,8 @@
 }
 
 - (void)testAuthTokenSuccess {
-  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
-
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+  [self.installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
     XCTAssertNotNil(tokenResult);
     XCTAssertGreaterThan(tokenResult.authToken.length, 0);
@@ -77,10 +85,8 @@
 }
 
 - (void)testAuthTokenForcingRefreshSuccess {
-  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
-
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [installations authTokenForcingRefresh:YES
+  [self.installations authTokenForcingRefresh:YES
                               completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
                                 XCTAssertNotNil(tokenResult);
@@ -95,10 +101,8 @@
 }
 
 - (void)testDeleteSuccess {
-  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
-
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
-  [installations deleteWithCompletion:^(NSError *_Nullable error) {
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [deleteExpectation fulfill];
   }];
