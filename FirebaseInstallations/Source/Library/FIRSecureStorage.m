@@ -67,6 +67,7 @@
                             if (error) {
                               return error;
                             }
+
                             return object;
                           }];
 }
@@ -112,14 +113,12 @@
                                                   accessGroup:(nullable NSString *)accessGroup {
   NSMutableDictionary<NSString *, id> *query = [NSMutableDictionary dictionary];
 
-  [query setObject:(__bridge NSString *)kSecClassGenericPassword
-            forKey:(__bridge NSString *)kSecClass];
-
-  [query setObject:self.service forKey:(__bridge NSString *)kSecAttrService];
-  [query setObject:key forKey:(__bridge NSString *)kSecAttrAccount];
+  query[(__bridge NSString *)kSecClass] = (__bridge NSString *)kSecClassGenericPassword;
+  query[(__bridge NSString *)kSecAttrService] = self.service;
+  query[(__bridge NSString *)kSecAttrAccount] = key;
 
   if (accessGroup) {
-    [query setObject:accessGroup forKey:(__bridge NSString *)kSecAttrAccessGroup];
+    query[(__bridge NSString *)kSecAttrAccessGroup] = accessGroup;
   }
 
   return query;
@@ -178,28 +177,18 @@
   NSMutableDictionary *mutableQuery = [query mutableCopy];
 
   mutableQuery[(__bridge id)kSecReturnData] = @YES;
-  mutableQuery[(__bridge id)kSecReturnAttributes] = @YES;
-  mutableQuery[(__bridge id)kSecMatchLimit] = @2;
+  mutableQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
 
   CFArrayRef result = NULL;
   OSStatus status =
       SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, (CFTypeRef *)&result);
 
   if (status == noErr && result != NULL) {
-    NSArray *items = (__bridge_transfer NSArray *)result;
-    if (items.count != 1) {
-      if (outError) {
-        *outError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemCopyMatching"
-                                                                  status:status];
-      }
-      return nil;
-    }
-
     if (outError) {
       *outError = nil;
     }
-    NSDictionary *item = items[0];
-    return item[(__bridge id)kSecValueData];
+
+    return (__bridge_transfer NSData *)result;
   }
 
   if (status == errSecItemNotFound) {
@@ -223,11 +212,14 @@
     return NO;
   }
 
+  NSMutableDictionary *mutableQuery = [query mutableCopy];
+  mutableQuery[(__bridge id)kSecAttrAccessible] =
+      (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly;
+
   OSStatus status;
   if (!existingItem) {
-    NSMutableDictionary *queryWithItem = [query mutableCopy];
-    [queryWithItem setObject:item forKey:(__bridge id)kSecValueData];
-    status = SecItemAdd((__bridge CFDictionaryRef)queryWithItem, NULL);
+    mutableQuery[(__bridge id)kSecValueData] = item;
+    status = SecItemAdd((__bridge CFDictionaryRef)mutableQuery, NULL);
   } else {
     NSDictionary *attributes = @{(__bridge id)kSecValueData : item};
     status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributes);
