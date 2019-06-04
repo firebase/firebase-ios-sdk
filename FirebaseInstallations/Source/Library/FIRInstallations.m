@@ -78,9 +78,9 @@
 #pragma mark - Public
 
 + (FIRInstallations *)installationsWithApp:(FIRApp *)app {
-  id<FIRInstallationsInstanceProvider> auth =
+  id<FIRInstallationsInstanceProvider> installations =
       FIR_COMPONENT(FIRInstallationsInstanceProvider, app.container);
-  return (FIRInstallations *)auth;
+  return (FIRInstallations *)installations;
 }
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
