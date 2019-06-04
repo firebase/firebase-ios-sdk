@@ -18,6 +18,7 @@
 
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthExceptionUtils.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
@@ -43,6 +44,12 @@ NS_ASSUME_NONNULL_BEGIN
                        accessToken:(nullable NSString *)accessToken
                             secret:(nullable NSString *)secret
                       pendingToken:(nullable NSString *)pendingToken {
+  if ([providerID isEqual:FIRFacebookAuthProviderID]) {
+    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
+        @"Sign in with Facebook is not supported via this method; the Facebook TOS "
+         "dictate that you must use the Facebook Android SDK for Facebook login."];
+    return nil;
+  }
   self = [super initWithProvider:providerID];
   if (self) {
     _IDToken = IDToken;
