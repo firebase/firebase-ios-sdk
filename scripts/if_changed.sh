@@ -49,8 +49,8 @@ else
       check_changes '^(Firebase/Auth|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
-'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseCoreDiagnosticsInterop.podspec|FirebaseDatabase.podspec|'\
+'FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
 'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
 'InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
@@ -61,8 +61,8 @@ else
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
-'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseCore.podspec|FirebaseCoreDiagnosticsInterop.podspec|FirebaseDatabase.podspec|'\
+'FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
 'FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
