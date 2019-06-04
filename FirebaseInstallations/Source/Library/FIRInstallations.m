@@ -52,7 +52,7 @@
 
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingAlwaysEager
                              dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
