@@ -466,6 +466,33 @@ TEST_F(SerializerTest, EncodesBlobs) {
   }
 }
 
+TEST_F(SerializerTest, EncodesNullBlobs) {
+  ByteString blob;
+  FieldValue model = FieldValue::FromBlob(blob);
+  ASSERT_EQ(blob.get(), nullptr);
+
+  // Avoid calling SerializerTest::EncodeFieldValue here because the Serializer
+  // could be allocating an empty byte array. These assertions show that the
+  // null blob really does materialize in the proto as null.
+  google_firestore_v1_Value proto = serializer.EncodeFieldValue(model);
+  ASSERT_EQ(proto.which_value_type, google_firestore_v1_Value_bytes_value_tag);
+  ASSERT_EQ(proto.bytes_value, nullptr);
+
+  // Encoding a Value message containing a blob_value of null bytes results
+  // in a non-empty message.
+  ByteStringWriter writer;
+  writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
+  serializer.FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
+  ByteString bytes = writer.ToByteString();
+  ASSERT_GT(bytes.size(), 0);
+
+  // When parsed by protobuf, this should be indistinguishable from having sent
+  // the empty string.
+  auto parsed_proto = ProtobufParse<v1::Value>(bytes);
+  std::string actual = parsed_proto.bytes_value();
+  EXPECT_EQ(actual, "");
+}
+
 TEST_F(SerializerTest, EncodesGeoPoint) {
   std::vector<GeoPoint> cases{
       {1.23, 4.56},

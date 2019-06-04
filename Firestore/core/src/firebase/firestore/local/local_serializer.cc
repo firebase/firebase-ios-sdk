@@ -201,8 +201,8 @@ firestore_client_Target LocalSerializer::EncodeQueryData(
   result.snapshot_version = rpc_serializer_.EncodeTimestamp(
       query_data.snapshot_version().timestamp());
 
-  ByteString copy(query_data.resume_token());
-  result.resume_token = copy.release();
+  // Force a copy because pb_release would otherwise double-free.
+  result.resume_token = ByteString(query_data.resume_token()).release();
 
   const Query& query = query_data.query();
   if (query.IsDocumentQuery()) {

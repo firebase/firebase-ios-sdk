@@ -679,10 +679,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::String:
       return util::WrapNSString(self.internalValue.string_value());
-    case FieldValue::Type::Blob: {
-      auto &blob = self.internalValue.blob_value();
-      return blob.ToNSData();
-    }
+    case FieldValue::Type::Blob:
+      return self.internalValue.blob_value().ToNSData();
     case FieldValue::Type::Reference:
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::GeoPoint: {

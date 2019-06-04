@@ -91,6 +91,8 @@ pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
 }
 
 ByteString Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
+  if (bytes == nullptr) return {};
+
   return ByteString(bytes);
 }
 

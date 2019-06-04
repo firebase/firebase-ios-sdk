@@ -36,6 +36,8 @@ namespace {
  * value.
  */
 pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
+  if (size == 0) return nullptr;
+
   pb_size_t pb_size = CheckedSize(size);
 
   // Allocate one extra byte for the null terminator that's not necessarily
@@ -63,8 +65,10 @@ ByteString::ByteString(const std::vector<uint8_t>& value)
     : ByteString(value.data(), value.size()) {
 }
 
-ByteString::ByteString(const pb_bytes_array_t* bytes)
-    : ByteString(bytes->bytes, bytes->size) {
+ByteString::ByteString(const pb_bytes_array_t* bytes) {
+  if (bytes) {
+    bytes_ = MakeBytesArray(bytes->bytes, bytes->size);
+  }
 }
 
 ByteString::ByteString(const std::string& value)
@@ -106,7 +110,8 @@ pb_bytes_array_t* ByteString::release() {
 }
 
 std::vector<uint8_t> ByteString::ToVector() const {
-  HARD_ASSERT(bytes_ != nullptr);
+  if (empty()) return {};
+
   return std::vector<uint8_t>{bytes_->bytes, bytes_->bytes + bytes_->size};
 }
 
@@ -134,6 +139,8 @@ std::ostream& operator<<(std::ostream& out, const ByteString& str) {
 
 /* static */ absl::string_view ByteString::ToStringView(
     pb_bytes_array_t* bytes) {
+  if (bytes == nullptr) return absl::string_view{"", 0};
+
   const char* str = reinterpret_cast<const char*>(bytes->bytes);
   return absl::string_view{str, bytes->size};
 }

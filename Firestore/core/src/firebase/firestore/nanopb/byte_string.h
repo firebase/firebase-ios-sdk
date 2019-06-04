@@ -44,6 +44,10 @@ class ByteString : public util::Comparable<ByteString> {
  public:
   ByteString() = default;
 
+  /**
+   * Creates a new ByteString whose backing byte array is a copy of the of the
+   * given bytes.
+   */
   ByteString(const void* value, size_t size);
   explicit ByteString(const std::vector<uint8_t>& value);
   explicit ByteString(const pb_bytes_array_t* bytes);
@@ -103,7 +107,7 @@ class ByteString : public util::Comparable<ByteString> {
   }
 
   bool empty() const {
-    return size() == 0;
+    return bytes_ == nullptr || bytes_->size == 0;
   }
 
   const uint8_t* begin() const {
