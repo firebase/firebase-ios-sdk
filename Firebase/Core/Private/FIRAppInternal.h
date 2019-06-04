@@ -156,8 +156,7 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 /**
  * Used by each SDK to send logs about SDK configuration status to Clearcut.
  */
-- (void)sendLogsWithServiceName:(NSString *)serviceName
-                        version:(NSString *)version;
+- (void)sendLogsWithServiceName:(NSString *)serviceName version:(NSString *)version;
 
 /**
  * Can be used by the unit tests in eack SDK to reset FIRApp. This method is thread unsafe.
