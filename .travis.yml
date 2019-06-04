@@ -376,7 +376,9 @@ jobs:
       before_install:
         - ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries --platforms=ios,tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios,tvos
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
