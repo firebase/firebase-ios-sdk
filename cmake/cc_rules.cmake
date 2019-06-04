@@ -235,6 +235,10 @@ endfunction()
 # Adds OBJC_FLAGS to the compile options of the given target if any of the
 # sources have filenames that indicate they are are Objective-C.
 function(add_objc_flags target)
+  if(NOT APPLE)
+    return()
+  endif()
+
   set(_has_objc OFF)
 
   foreach(source ${ARGN})
