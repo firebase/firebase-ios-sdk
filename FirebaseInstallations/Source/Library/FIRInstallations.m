@@ -84,15 +84,15 @@
 }
 
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
-  FIRAuthTokenResult *result = [[FIRAuthTokenResult alloc] initWithToken:@"token"
-                                                          expirationTime:[NSDate date]];
+  FIRInstallationsAuthTokenResult *result =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationTime:[NSDate date]];
   completion(result, nil);
 }
 
 - (void)authTokenForcingRefresh:(BOOL)forceRefresh
                      completion:(FIRInstallationsTokenHandler)completion {
-  FIRAuthTokenResult *result = [[FIRAuthTokenResult alloc] initWithToken:@"token"
-                                                          expirationTime:[NSDate date]];
+  FIRInstallationsAuthTokenResult *result =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationTime:[NSDate date]];
   completion(result, nil);
 }
 

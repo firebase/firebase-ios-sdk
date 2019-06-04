@@ -63,7 +63,7 @@
   FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [installations authTokenWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
+  [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
     XCTAssertNotNil(tokenResult);
     XCTAssertGreaterThan(tokenResult.authToken.length, 0);
@@ -81,7 +81,7 @@
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [installations authTokenForcingRefresh:YES
-                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                              completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
                                 XCTAssertNotNil(tokenResult);
                                 XCTAssertGreaterThan(tokenResult.authToken.length, 0);

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstallations/FIRAuthTokenResult.h>
 #import <Foundation/Foundation.h>
+
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
 @class FIRApp;
 
@@ -25,8 +26,8 @@ typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
                                           NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsIDHandler);
 
-typedef void (^FIRInstallationsTokenHandler)(FIRAuthTokenResult *__nullable tokenResult,
-                                             NSError *__nullable error)
+typedef void (^FIRInstallationsTokenHandler)(
+    FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsTokenHandler);
 
 typedef void (^FIRInstallationsDeleteHandler)(NSError *__nullable error)

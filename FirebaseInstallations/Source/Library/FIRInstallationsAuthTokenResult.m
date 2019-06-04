@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRInstallationsAuthTokenResult.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRInstallationsAuthTokenResult
 
-@interface FIRAuthTokenResult : NSObject
-
-@property(nonatomic, readonly) NSString *authToken;
-@property(nonatomic, readonly) NSDate *expirationTime;
-
-- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime;
+- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime {
+  self = [super init];
+  if (self) {
+    _authToken = [token copy];
+    _expirationTime = expirationTime;
+  }
+  return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
