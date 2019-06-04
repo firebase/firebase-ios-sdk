@@ -16,15 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseCore/FirebaseCore.h>
+
 #import "FIRInstallations.h"
 
-#import <FirebaseCore/FIROptionsInternal.h>
-
 @interface FIRInstallations (Tests)
-@property (nonatomic, readwrite, strong) NSString *appID;
-@property (nonatomic, readwrite, strong) NSString *appName;
+@property(nonatomic, readwrite, strong) NSString *appID;
+@property(nonatomic, readwrite, strong) NSString *appName;
 @end
 
 @interface FIRInstallationsTests : XCTestCase
@@ -47,13 +47,14 @@
   FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
 
   XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
-  [installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(identifier);
-    XCTAssertGreaterThan(identifier.length, 0);
+  [installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(identifier);
+        XCTAssertGreaterThan(identifier.length, 0);
 
-    [idExpectation fulfill];
-  }];
+        [idExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ idExpectation ] timeout:0.5];
 }
@@ -62,7 +63,8 @@
   FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
-  [installations authTokenWithCompletion:^(FIRAuthTokenResult * _Nullable tokenResult, NSError * _Nullable error) {
+  [installations authTokenWithCompletion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
     XCTAssertNotNil(tokenResult);
     XCTAssertNil(error);
 
@@ -76,7 +78,7 @@
   FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
 
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
-  [installations deleteWithCompletion:^(NSError * _Nullable error) {
+  [installations deleteWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [deleteExpectation fulfill];
   }];
@@ -100,8 +102,8 @@
 
 - (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
-          @"GOOGLE_APP_ID" : @"1:1085102361755:ios:f790a919483d5bdf",
-        }];
+    @"GOOGLE_APP_ID" : @"1:1085102361755:ios:f790a919483d5bdf",
+  }];
   [FIRApp configureWithName:name options:options];
 
   return [FIRApp appNamed:name];

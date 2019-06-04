@@ -15,12 +15,12 @@
  */
 
 #import "FIRInstallations.h"
-#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FirebaseCore.h>
 
 #import "FIRInstallationsVersion.h"
 
@@ -28,8 +28,8 @@
 @end
 
 @interface FIRInstallations () <FIRLibrary>
-@property (nonatomic, readwrite, strong) NSString *appID;
-@property (nonatomic, readwrite, strong) NSString *appName;
+@property(nonatomic, readwrite, strong) NSString *appID;
+@property(nonatomic, readwrite, strong) NSString *appName;
 @end
 
 @implementation FIRInstallations
@@ -44,17 +44,17 @@
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
-  ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     *isCacheable = YES;
     FIRInstallations *installations = [[FIRInstallations alloc] initWithApp:container.app];
     return installations;
   };
-  
+
   FIRComponent *installationsProvider =
-  [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
-                  instantiationTiming:FIRInstantiationTimingLazy
-                         dependencies:@[]
-                        creationBlock:creationBlock];
+      [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
+                      instantiationTiming:FIRInstantiationTimingLazy
+                             dependencies:@[]
+                            creationBlock:creationBlock];
   return @[ installationsProvider ];
 }
 
@@ -62,8 +62,7 @@
   // TODO: Handle
 }
 
-- (instancetype)initWithApp:(FIRApp *)app
-{
+- (instancetype)initWithApp:(FIRApp *)app {
   self = [super init];
   if (self) {
     _appID = app.options.googleAppID;
