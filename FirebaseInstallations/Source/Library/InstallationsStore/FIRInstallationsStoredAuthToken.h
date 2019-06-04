@@ -25,7 +25,6 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
   FIRInstallationsAuthTokenStatusTokenReceived
 };
 
-
 @interface FIRInstallationsStoredAuthToken : NSObject
 @property FIRInstallationsAuthTokenStatus status;
 

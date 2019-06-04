@@ -18,9 +18,18 @@
 
 @implementation FIRInstallationsItem
 
-- (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item {
-
+- (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName {
+  self = [super init];
+  if (self) {
+    _appID = [appID copy];
+    _firebaseAppName = [firebaseAppName copy];
+  }
+  return self;
 }
+
+- (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item {
+}
+
 - (FIRInstallationsStoredItem *)storedItem {
   return nil;
 }

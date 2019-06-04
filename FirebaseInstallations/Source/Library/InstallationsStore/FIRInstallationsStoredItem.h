@@ -21,7 +21,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, FIRInstallationsStatus) {
-  // Represents either an initial status when a FIRInstallationsItem instance was created but not stored to Keychain or an undefined status (e.g. when the status failed to deserialize).
+  // Represents either an initial status when a FIRInstallationsItem instance was created but not
+  // stored to Keychain or an undefined status (e.g. when the status failed to deserialize).
   FIRInstallationStatusUnknown,
   // The Firebase Installation has not yet been registered with FIS.
   FIRInstallationStatusUnregistered,
@@ -30,7 +31,6 @@ typedef NS_ENUM(NSInteger, FIRInstallationsStatus) {
   // The Firebase Installation has successfully been registered with FIS.
   FIRInstallationStatusRegistered,
 };
-
 
 @interface FIRInstallationsStoredItem : NSObject <NSSecureCoding>
 

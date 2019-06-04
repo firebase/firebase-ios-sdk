@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
 
-@class FBLPromise<ValueType>;
-@class FIRInstallationsItem;
-@class FIRSecureStorage;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRInstallationsStore : NSObject
-
-- (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
-                          accessGroup:(NSString *)accessGroup;
-
-- (FBLPromise<FIRInstallationsItem *> *)installationForID:(NSString *)identifier;
-- (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem;
-- (FBLPromise<NSNull *> *)removeInstallationForID:(NSString *)identifier;
+@interface FIRInstallationsItemTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation FIRInstallationsItemTests
+
+- (void)testInstallationsItemInit {
+  NSString *appID = @"appID";
+  NSString *name = @"name";
+  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
+                                                           firebaseAppName:name];
+
+  XCTAssertEqualObjects(item.appID, appID);
+  XCTAssertEqualObjects(item.firebaseAppName, name);
+}
+
+- (void)testItemUpdateWithStoredItem {
+}
+
+@end
