@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <cctype>
 #include <initializer_list>
-#include <iterator>
 #include <string>
 #include <utility>
 #include <vector>
@@ -110,13 +109,6 @@ class BasePath {
   T Append(const T& path) const {
     auto appended = segments_;
     appended.insert(appended.end(), path.begin(), path.end());
-    return T{std::move(appended)};
-  }
-
-  T Append(T&& path) const {
-    auto appended = segments_;
-    appended.insert(appended.end(), std::make_move_iterator(path.begin()),
-                    std::make_move_iterator(path.end()));
     return T{std::move(appended)};
   }
 
