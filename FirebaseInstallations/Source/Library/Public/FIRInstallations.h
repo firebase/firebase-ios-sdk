@@ -43,6 +43,9 @@ NS_SWIFT_NAME(Installations)
 
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion;
 
+- (void)authTokenForcingRefresh:(BOOL)forceRefresh
+                     completion:(FIRInstallationsTokenHandler)completion;
+
 - (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion;
 
 @end

@@ -74,6 +74,22 @@
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
 }
 
+- (void)testAuthTokenForcingRefreshSuccess {
+  FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
+
+  XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
+  [installations authTokenForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+                                XCTAssertNotNil(tokenResult);
+                                XCTAssertNil(error);
+
+                                [tokenExpectation fulfill];
+                              }];
+
+  [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+}
+
 - (void)testDeleteSuccess {
   FIRInstallations *installations = [self assertInstallationsWithAppNamed:@"app"];
 

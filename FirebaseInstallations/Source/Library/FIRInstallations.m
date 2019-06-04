@@ -87,6 +87,11 @@
   completion((FIRAuthTokenResult *)[[NSObject alloc] init], nil);
 }
 
+- (void)authTokenForcingRefresh:(BOOL)forceRefresh
+                     completion:(FIRInstallationsTokenHandler)completion {
+  completion((FIRAuthTokenResult *)[[NSObject alloc] init], nil);
+}
+
 - (void)deleteWithCompletion:(FIRInstallationsDeleteHandler)completion {
   completion(nil);
 }
