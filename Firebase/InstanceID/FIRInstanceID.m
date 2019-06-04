@@ -701,8 +701,7 @@ static FIRInstanceID *gInstanceID;
 // raising an exception.
 + (void)exitWithReason:(nonnull NSString *)reason forFirebaseApp:(FIRApp *)firebaseApp {
   [firebaseApp sendLogsWithServiceName:kFIRIIDServiceInstanceID
-                               version:FIRInstanceIDCurrentLibraryVersion()
-                                 error:[self configureErrorWithReason:reason]];
+                               version:FIRInstanceIDCurrentLibraryVersion()];
 
   [NSException raise:kFIRIIDErrorDomain
               format:@"Could not configure Firebase InstanceID. %@", reason];
