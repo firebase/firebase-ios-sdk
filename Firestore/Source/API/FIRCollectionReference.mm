@@ -75,6 +75,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (const CollectionReference &)reference {
+  // TODO(wilhuff): Use some alternate method for doing this.
+  //
+  // Casting from Query& to CollectionReference& when the value is actually a
+  // Query violates aliasing rules and is technically undefined behavior.
+  // Nevertheless this works on Clang so this is good enough for now.
   return static_cast<const CollectionReference &>(self.apiQuery);
 }
 
