@@ -70,6 +70,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace for integration testing.
     gem install xcpretty
     bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
+    install_secrets
     ;;
 
   Database-*)
