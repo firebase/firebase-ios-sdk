@@ -667,10 +667,9 @@ static FIRInstanceID *gInstanceID;
   if (!GCMSenderID.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeFIRApp000,
                              @"Firebase not set up correctly, nil or empty senderID.");
-    NSString *exceptionMessage =
-        @"Could not configure Firebase InstanceID. GCMSenderID must not be nil or empty.";
     [NSException raise:kFIRIIDErrorDomain
-                format:exceptionMessage];
+                format:@"Could not configure Firebase InstanceID. GCMSenderID must not be nil or "
+                       @"empty."];
   }
 
   self.fcmSenderID = GCMSenderID;
