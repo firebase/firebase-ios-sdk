@@ -37,7 +37,7 @@ int FuzzTestDeserialization(const uint8_t *data, size_t size) {
 
   @autoreleasepool {
     @try {
-      Reader reader = Reader::Wrap(data, size);
+      Reader reader(data, size);
       google_firestore_v1_Value nanopb_proto{};
       reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
       serializer.DecodeFieldValue(&reader, nanopb_proto);

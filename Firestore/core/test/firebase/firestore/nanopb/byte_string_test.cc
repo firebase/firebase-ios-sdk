@@ -14,79 +14,96 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
+#include <cstdint>
+#include <cstdlib>
+
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-TEST(String, DefaultConstructor) {
-  String str;
+using testing::ContainerEq;
+
+namespace {
+
+std::vector<uint8_t> ToVector(const std::string& str) {
+  auto begin = reinterpret_cast<const uint8_t*>(str.data());
+  return {begin, begin + str.size()};
+}
+
+}  // namespace
+
+TEST(ByteStringTest, DefaultConstructor) {
+  ByteString str;
   EXPECT_EQ(nullptr, str.data());
 }
 
-TEST(String, FromStdString) {
+TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
-  String copy{original};
-  EXPECT_EQ(copy, original);
+  ByteString copy{original};
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
 
   original = "bar";
-  EXPECT_EQ(copy, "foo");
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
 }
 
-TEST(String, FromCString) {
+TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
-  String copy{original};
-  EXPECT_EQ(copy, original);
+  ByteString copy{original};
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
 
   original[0] = 'b';
-  EXPECT_EQ(copy, "foo");
+  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
 }
 
-TEST(String, WrapByteNullTerminatedArray) {
+TEST(ByteStringTest, WrapByteNullTerminatedArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
-  String wrapper = String::Wrap(original);
-  EXPECT_EQ(wrapper, absl::string_view{"foo"});
+  ByteString wrapper = ByteString::Take(original);
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
 
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper, absl::string_view{"boo"});
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
 }
 
-TEST(String, WrapByteUnterminatedArray) {
+TEST(ByteStringTest, WrapByteUnterminatedArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(3)));
   memcpy(original->bytes, "foo", 3);  // no null terminator
   original->size = 3;
 
-  String wrapper = String::Wrap(original);
-  EXPECT_EQ(wrapper, absl::string_view{"foo"});
+  ByteString wrapper = ByteString::Take(original);
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
 
+  // This isn't expected usage normally, but it's a way to verify that the
+  // contents weren't copied.
   original->bytes[0] = 'b';
-  EXPECT_EQ(wrapper, absl::string_view{"boo"});
+  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
 }
 
-TEST(String, Release) {
-  String value{"foo"};
+TEST(ByteStringTest, Release) {
+  ByteString value{"foo"};
 
   pb_bytes_array_t* released = value.release();
   EXPECT_EQ(released->size, 3);
   EXPECT_EQ(memcmp(released->bytes, "foo", 3), 0);
   EXPECT_EQ(value.get(), nullptr);
 
-  free(released);
+  std::free(released);
 }
 
-TEST(String, Comparison) {
-  String abc{"abc"};
-  String def{"def"};
+TEST(ByteStringTest, Comparison) {
+  ByteString abc{"abc"};
+  ByteString def{"def"};
 
-  String abc2{"abc"};
+  ByteString abc2{"abc"};
 
   EXPECT_TRUE(abc == abc);
   EXPECT_TRUE(abc == abc2);

@@ -33,7 +33,8 @@ extern NSString *const FIREmailLinkAuthSignInMethod NS_SWIFT_NAME(EmailLinkAuthS
 /**
     @brief A string constant identifying the email & password sign-in method.
  */
-extern NSString *const FIREmailPasswordAuthSignInMethod NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
+extern NSString *const FIREmailPasswordAuthSignInMethod
+    NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
 
 /** @class FIREmailAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for Email & Password Sign In.
