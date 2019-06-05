@@ -20,8 +20,8 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FirebaseCore.h>
 
-#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallations.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) NSString *appID;
@@ -119,6 +119,7 @@
   FIRApp *app = [self createAndConfigureAppWithName:appName];
   FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
 
+  XCTAssertNotNil(installations);
   XCTAssertEqualObjects(installations.appID, app.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, app.name);
 
