@@ -15,9 +15,8 @@
 # limitations under the License.
 #
 
-# From https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+readonly DIR="$( git rev-parse --show-toplevel )"
 
-"$DIR/ProtoSupport/generate_cct_protos.sh" || echo "Something went wrong generating protos.";
+"$DIR/GoogleDataTransportCCTSupport/ProtoSupport/generate_cct_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "${DIR}/../GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}/../" --clean
+pod gen "${DIR}/GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --clean

@@ -105,7 +105,7 @@ class DatastoreTest : public testing::Test {
       : worker_queue{std::make_shared<AsyncQueue>(
             absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
                 "datastore_test", DISPATCH_QUEUE_SERIAL)))},
-        database_info{DatabaseId{"p", "d"}, "", "some.host", false},
+        database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         datastore{CreateDatastore(database_info, worker_queue, &credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
