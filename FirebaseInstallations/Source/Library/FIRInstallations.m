@@ -22,7 +22,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FirebaseCore.h>
 
-#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import "FIRInstallationsAuthTokenResultInternal.h"
 
 #import "FIRInstallationsVersion.h"
 
@@ -93,7 +93,7 @@
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
   // TODO: Implement
   FIRInstallationsAuthTokenResult *result =
-      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationTime:[NSDate date]];
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate date]];
   completion(result, nil);
 }
 
@@ -101,7 +101,7 @@
                      completion:(FIRInstallationsTokenHandler)completion {
   // TODO: Implement
   FIRInstallationsAuthTokenResult *result =
-      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationTime:[NSDate date]];
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate date]];
   completion(result, nil);
 }
 

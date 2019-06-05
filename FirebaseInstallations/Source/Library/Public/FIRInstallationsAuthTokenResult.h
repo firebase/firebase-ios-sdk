@@ -21,9 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRInstallationsAuthTokenResult : NSObject
 
 @property(nonatomic, readonly) NSString *authToken;
-@property(nonatomic, readonly) NSDate *expirationTime;
-
-- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime;
+@property(nonatomic, readonly) NSDate *expirationDate;
 
 @end
 

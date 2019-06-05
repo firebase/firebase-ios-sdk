@@ -77,7 +77,7 @@
                                 NSError *_Nullable error) {
         XCTAssertNotNil(tokenResult);
         XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-        XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+        XCTAssertTrue([tokenResult.expirationDate laterDate:[NSDate date]]);
         XCTAssertNil(error);
 
         [tokenExpectation fulfill];
@@ -94,7 +94,7 @@
                                 NSError *_Nullable error) {
                      XCTAssertNotNil(tokenResult);
                      XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-                     XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+                     XCTAssertTrue([tokenResult.expirationDate laterDate:[NSDate date]]);
                      XCTAssertNil(error);
 
                      [tokenExpectation fulfill];
