@@ -55,6 +55,15 @@ pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   return result;
 }
 
+absl::string_view ToStringView(pb_bytes_array_t* bytes) {
+  if (bytes == nullptr) {
+    return absl::string_view{"", 0};
+  }
+
+  const char* str = reinterpret_cast<const char*>(bytes->bytes);
+  return absl::string_view{str, bytes->size};
+}
+
 }  // namespace
 
 ByteString::ByteString(const void* value, size_t size)
@@ -63,12 +72,6 @@ ByteString::ByteString(const void* value, size_t size)
 
 ByteString::ByteString(const std::vector<uint8_t>& value)
     : ByteString(value.data(), value.size()) {
-}
-
-ByteString::ByteString(const pb_bytes_array_t* bytes) {
-  if (bytes) {
-    bytes_ = MakeBytesArray(bytes->bytes, bytes->size);
-  }
 }
 
 ByteString::ByteString(const std::string& value)
@@ -99,8 +102,21 @@ ByteString::~ByteString() {
   std::free(bytes_);
 }
 
+/* static */ ByteString ByteString::Copy(const pb_bytes_array_t* bytes) {
+  if (bytes == nullptr) {
+    return ByteString{};
+  } else {
+    return ByteString{MakeBytesArray(bytes->bytes, bytes->size)};
+  }
+}
+
 /* static */ ByteString ByteString::Take(pb_bytes_array_t* bytes) {
   return ByteString{bytes};
+}
+
+const uint8_t* ByteString::data() const {
+  static const uint8_t kEmpty[] = "";
+  return bytes_ ? bytes_->bytes : kEmpty;
 }
 
 pb_bytes_array_t* ByteString::release() {
@@ -110,9 +126,15 @@ pb_bytes_array_t* ByteString::release() {
 }
 
 std::vector<uint8_t> ByteString::ToVector() const {
-  if (empty()) return {};
+  return std::vector<uint8_t>{begin(), end()};
+}
 
-  return std::vector<uint8_t>{bytes_->bytes, bytes_->bytes + bytes_->size};
+/**
+ * Converts this ByteString to an absl::string_view (without changing
+ * ownership).
+ */
+ByteString::operator absl::string_view() const {
+  return ToStringView(bytes_);
 }
 
 void swap(ByteString& lhs, ByteString& rhs) noexcept {
@@ -135,14 +157,6 @@ std::string ByteString::ToString() const {
 
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {
   return out << str.ToString();
-}
-
-/* static */ absl::string_view ByteString::ToStringView(
-    pb_bytes_array_t* bytes) {
-  if (bytes == nullptr) return absl::string_view{"", 0};
-
-  const char* str = reinterpret_cast<const char*>(bytes->bytes);
-  return absl::string_view{str, bytes->size};
 }
 
 }  // namespace nanopb

@@ -50,7 +50,6 @@ class ByteString : public util::Comparable<ByteString> {
    */
   ByteString(const void* value, size_t size);
   explicit ByteString(const std::vector<uint8_t>& value);
-  explicit ByteString(const pb_bytes_array_t* bytes);
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the of the
@@ -65,6 +64,10 @@ class ByteString : public util::Comparable<ByteString> {
   explicit ByteString(absl::string_view value);
 
 #if __OBJC__
+  /**
+   * Creates a new ByteString whose backing byte array is a copy of the of the
+   * bytes in the given NSData buffer.
+   */
   explicit ByteString(NSData* value)
       : ByteString(value.bytes, static_cast<size_t>(value.length)) {
   }
@@ -74,7 +77,7 @@ class ByteString : public util::Comparable<ByteString> {
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the of the
-   * given C string.
+   * given C string. The length is computed with `strlen`.
    */
   explicit ByteString(const char* value);
 
@@ -90,17 +93,23 @@ class ByteString : public util::Comparable<ByteString> {
   }
 
   /**
-   * Creates a new ByteString that takes ownership of the given byte array.
+   * Creates a new ByteString that copies the contents of the given byte array.
+   */
+  static ByteString Copy(const pb_bytes_array_t* bytes);
+
+  /**
+   * Creates a new ByteString that takes ownership of the given byte array. If
+   * taking from a nanopb-created message struct, the caller should null out
+   * the pointer there so that pb_release won't free the buffer that the
+   * returned ByteString now owns.
    */
   static ByteString Take(pb_bytes_array_t* bytes);
 
   /**
-   * Returns a pointer to the character data backing this ByteString. The return
-   * value is `nullptr` if the backing bytes are themselves null.
+   * Returns a pointer to the character data backing this ByteString. The
+   * returned buffer is always non-null, even if the nanopb byte array is null.
    */
-  const uint8_t* data() const {
-    return bytes_ ? bytes_->bytes : nullptr;
-  }
+  const uint8_t* data() const;
 
   size_t size() const {
     return bytes_ ? bytes_->size : 0;
@@ -111,21 +120,33 @@ class ByteString : public util::Comparable<ByteString> {
   }
 
   const uint8_t* begin() const {
-    return bytes_ ? bytes_->bytes : nullptr;
+    return data();
   }
 
   const uint8_t* end() const {
-    return bytes_ ? bytes_->bytes + bytes_->size : nullptr;
+    return data() + size();
   }
 
-  /** Returns a const view of the underlying byte array. */
+  /**
+   * Returns a const view of the raw underlying byte array pointer.
+   *
+   * This value may be null because nanopb (and protobuf generally) treat null
+   * and empty byte arrays as equivalent.
+   *
+   * For actually reading the data in the buffer, prefer `data()` and `size()`
+   * or `begin()` and `end()`, which handle this nullability for you.
+   */
   const pb_bytes_array_t* get() const {
     return bytes_;
   }
 
   /**
-   * Returns the current byte array and assigns the backing byte array to
-   * nullptr, releasing the ownership of the array contents to the caller.
+   * Releases ownership of the backing byte array, and returns it to the caller.
+   * The backing byte array is set to null.
+   *
+   * This value may be null because nanopb (and protobuf generally) treat null
+   * and empty byte arrays as equivalent. Assigning a null value to a nanopb
+   * message field will be treated as empty.
    */
   pb_bytes_array_t* release();
 
@@ -141,12 +162,10 @@ class ByteString : public util::Comparable<ByteString> {
 #endif
 
   /**
-   * Converts this ByteString to an absl::string_view (without changing
+   * Returns an absl::string_view view of this ByteString (without changing
    * ownership).
    */
-  explicit operator absl::string_view() const {
-    return ToStringView(bytes_);
-  }
+  explicit operator absl::string_view() const;
 
   /**
    * Swaps the contents of the given Strings.
@@ -163,8 +182,6 @@ class ByteString : public util::Comparable<ByteString> {
  private:
   explicit ByteString(pb_bytes_array_t* bytes) : bytes_{bytes} {
   }
-
-  static absl::string_view ToStringView(pb_bytes_array_t* bytes);
 
   pb_bytes_array_t* bytes_ = nullptr;
 };
