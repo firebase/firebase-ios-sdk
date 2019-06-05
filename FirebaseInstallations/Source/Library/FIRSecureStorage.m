@@ -58,15 +58,12 @@
                             if (error) {
                               return error;
                             }
-
                             if (!encodedObject) {
                               return nil;
                             }
-
                             id object = [self unarchivedObjectOfClass:objectClass
                                                              fromData:encodedObject
                                                                 error:&error];
-
                             if (error) {
                               return error;
                             }
@@ -82,7 +79,6 @@
                           do:^id _Nullable {
                             NSDictionary *query = [self keychainQueryWithKey:key
                                                                  accessGroup:accessGroup];
-
                             NSError *error;
                             NSData *encodedObject = [self archiveDataForObject:object error:&error];
                             if (!encodedObject) {

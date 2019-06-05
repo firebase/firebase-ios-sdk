@@ -372,7 +372,7 @@ jobs:
     # FIS
     - stage: test-fis
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/install_prereqs.sh
       script:

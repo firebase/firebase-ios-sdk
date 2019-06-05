@@ -13,3 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRInstallationsAuthTokenResult : NSObject
+
+@property(nonatomic, readonly) NSString *authToken;
+@property(nonatomic, readonly) NSDate *expirationDate;
+
+@end
+
+NS_ASSUME_NONNULL_END
