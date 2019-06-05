@@ -61,7 +61,7 @@
 
   // Check with empty keychain.
   OCMReject([self.mockSecureStorage getObjectForKey:[OCMArg any]
-                                      objectClass:[OCMArg any]
+                                        objectClass:[OCMArg any]
                                         accessGroup:[OCMArg any]]);
 
   [self assertInstallationIDNotFoundForAppID:appID appName:appName caller:@"Empty keychain"];
@@ -78,9 +78,9 @@
   FIRInstallationsStoredItem *storedItem = [self createValidStoredItem];
 
   OCMExpect([self.mockSecureStorage getObjectForKey:itemID
-                                      objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:self.accessGroup])
-  .andReturn([FBLPromise resolvedWith:storedItem]);
+                                        objectClass:[FIRInstallationsStoredItem class]
+                                        accessGroup:self.accessGroup])
+      .andReturn([FBLPromise resolvedWith:storedItem]);
 
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
@@ -106,16 +106,18 @@
   [self.userDefaults setObject:@(YES) forKey:itemID];
 
   OCMExpect([self.mockSecureStorage getObjectForKey:itemID
-                                      objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:self.accessGroup])
-  .andReturn([FBLPromise resolvedWith:nil]);
+                                        objectClass:[FIRInstallationsStoredItem class]
+                                        accessGroup:self.accessGroup])
+      .andReturn([FBLPromise resolvedWith:nil]);
 
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNotNil(itemPromise.error);
-  XCTAssertEqualObjects(itemPromise.error, [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID appName:appName]);
+  XCTAssertEqualObjects(itemPromise.error,
+                        [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID
+                                                                            appName:appName]);
   XCTAssertNil(itemPromise.value);
 
   OCMVerifyAll(self.mockSecureStorage);
@@ -132,11 +134,10 @@
     [self assertStoredItem:obj correspondsToItem:item];
     return YES;
   }];
-  OCMExpect([self.mockSecureStorage
-             setObject:storedItemArg
-             forKey:itemID
-             accessGroup:self.accessGroup])
-  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  OCMExpect([self.mockSecureStorage setObject:storedItemArg
+                                       forKey:itemID
+                                  accessGroup:self.accessGroup])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -165,11 +166,10 @@
     [self assertStoredItem:obj correspondsToItem:item];
     return YES;
   }];
-  OCMExpect([self.mockSecureStorage
-             setObject:storedItemArg
-             forKey:itemID
-             accessGroup:self.accessGroup])
-  .andReturn(rejectedPromise);
+  OCMExpect([self.mockSecureStorage setObject:storedItemArg
+                                       forKey:itemID
+                                  accessGroup:self.accessGroup])
+      .andReturn(rejectedPromise);
 
   FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -191,7 +191,7 @@
   [self.userDefaults setObject:@(YES) forKey:itemID];
 
   OCMExpect([self.mockSecureStorage removeObjectForKey:itemID accessGroup:self.accessGroup])
-  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   FBLPromise<NSNull *> *promise = [self.store removeInstallationForAppID:appID appName:appName];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));

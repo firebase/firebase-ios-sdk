@@ -53,7 +53,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 - (FBLPromise<FIRInstallationsItem *> *)installationForAppID:(NSString *)appID
                                                      appName:(NSString *)appName {
   NSString *itemID = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
-  return [self existsInstallationItemForAppID:appID appName:appName]
+  return [self installationExistsForAppID:appID appName:appName]
       .then(^id(id result) {
         return [self.secureStorage getObjectForKey:itemID
                                        objectClass:[FIRInstallationsStoredItem class]
@@ -76,24 +76,23 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
   NSString *identifier = [installationItem identifier];
 
   return
-      [self.secureStorage setObject:storedItem forKey:identifier accessGroup:self.accessGroup]
-    .then(^id(id result) {
-      return [self setExists:YES installationItemWithIdentifier:identifier];
-    });
+      [self.secureStorage setObject:storedItem forKey:identifier accessGroup:self.accessGroup].then(
+          ^id(id result) {
+            return [self setInstallationExists:YES forItemWithIdentifier:identifier];
+          });
 }
 
 - (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName {
   NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
-  return [self.secureStorage removeObjectForKey:identifier accessGroup:self.accessGroup]
-    .then(^id (id result) {
-      return [self setExists:NO installationItemWithIdentifier:identifier];
-    });
+  return [self.secureStorage removeObjectForKey:identifier accessGroup:self.accessGroup].then(
+      ^id(id result) {
+        return [self setInstallationExists:NO forItemWithIdentifier:identifier];
+      });
 }
 
 #pragma mark - User defaults
 
-- (FBLPromise<NSNull *> *)existsInstallationItemForAppID:(NSString *)appID
-                                                 appName:(NSString *)appName {
+- (FBLPromise<NSNull *> *)installationExistsForAppID:(NSString *)appID appName:(NSString *)appName {
   NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {
@@ -105,8 +104,8 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
                           }];
 }
 
-- (FBLPromise<NSNull *> *)setExists:(BOOL)exists
-     installationItemWithIdentifier:(NSString *)identifier {
+- (FBLPromise<NSNull *> *)setInstallationExists:(BOOL)exists
+                          forItemWithIdentifier:(NSString *)identifier {
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {
                             if (exists) {
