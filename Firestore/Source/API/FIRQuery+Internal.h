@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTQuery *)query;
 
+- (const api::Query &)apiQuery;
+
 @end
 
 NS_ASSUME_NONNULL_END

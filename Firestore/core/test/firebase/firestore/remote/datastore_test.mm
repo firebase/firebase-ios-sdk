@@ -91,7 +91,7 @@ class FakeDatastore : public Datastore {
 
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
-    AsyncQueue* worker_queue,
+    const std::shared_ptr<AsyncQueue>& worker_queue,
     CredentialsProvider* credentials) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
                                          credentials);
@@ -102,10 +102,11 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : worker_queue{absl::make_unique<ExecutorLibdispatch>(
-            dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
-        database_info{DatabaseId{"p", "d"}, "", "some.host", false},
-        datastore{CreateDatastore(database_info, &worker_queue, &credentials)},
+      : worker_queue{std::make_shared<AsyncQueue>(
+            absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
+                "datastore_test", DISPATCH_QUEUE_SERIAL)))},
+        database_info{DatabaseId{"p", "d"}, "", "localhost", false},
+        datastore{CreateDatastore(database_info, worker_queue, &credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -125,7 +126,7 @@ class DatastoreTest : public testing::Test {
   void ForceFinish(std::initializer_list<CompletionEndState> end_states) {
     datastore->CancelLastCall();
     fake_grpc_queue.ExtractCompletions(end_states);
-    worker_queue.EnqueueBlocking([] {});
+    worker_queue->EnqueueBlocking([] {});
   }
 
   void ForceFinishAnyTypeOrder(
@@ -133,14 +134,14 @@ class DatastoreTest : public testing::Test {
     datastore->CancelLastCall();
     fake_grpc_queue.ExtractCompletions(
         GrpcStreamTester::CreateAnyTypeOrderCallback(end_states));
-    worker_queue.EnqueueBlocking([] {});
+    worker_queue->EnqueueBlocking([] {});
   }
 
   bool is_shut_down = false;
   DatabaseInfo database_info;
   FakeCredentialsProvider credentials;
 
-  AsyncQueue worker_queue;
+  std::shared_ptr<AsyncQueue> worker_queue;
   std::shared_ptr<FakeDatastore> datastore;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
@@ -180,7 +181,7 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
     resulting_status = status;
   });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
@@ -200,7 +201,7 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
         resulting_status = status;
       });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinishAnyTypeOrder({{Type::Read, MakeFakeDocument("foo/1")},
                            {Type::Write, Ok},
@@ -225,7 +226,7 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
         resulting_status = status;
       });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinishAnyTypeOrder({{Type::Write, Ok},
                            {Type::Read, MakeFakeDocument("foo/1")},
@@ -250,7 +251,7 @@ TEST_F(DatastoreTest, CommitMutationsError) {
     resulting_status = status;
   });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
@@ -269,7 +270,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
         resulting_status = status;
       });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinishAnyTypeOrder({{Type::Read, Error}, {Type::Write, Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
@@ -290,7 +291,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
         resulting_status = status;
       });
   // Make sure Auth has a chance to run.
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   ForceFinishAnyTypeOrder({{Type::Write, Ok},
                            {Type::Read, MakeFakeDocument("foo/1")},
@@ -311,7 +312,7 @@ TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   Status resulting_status;
   datastore->CommitMutations(
       {}, [&](const Status& status) { resulting_status = status; });
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());
 }
 
@@ -323,14 +324,14 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
       {}, [&](const std::vector<FSTMaybeDocument*>&, const Status& status) {
         resulting_status = status;
       });
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   credentials.DelayGetToken();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });
@@ -343,7 +344,7 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
 TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });

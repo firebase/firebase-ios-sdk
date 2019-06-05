@@ -29,7 +29,7 @@
 
 @implementation FTestHelpers
 
-+ (NSTimeInterval)waitUntil:(BOOL (^)())predicate timeout:(NSTimeInterval)seconds {
++ (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate timeout:(NSTimeInterval)seconds {
   NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
   NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
   NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
@@ -77,9 +77,8 @@
   id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
 
   while (num > refs.count) {
-    NSString *sessionIdentifier =
-        [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-",
-                                   refs.count];
+    NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu",
+       (persistence) ? @"" : @"no-", (unsigned long)refs.count];
     FIRDatabaseConfig *config =
         [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier
                                            authTokenProvider:authTokenProvider];

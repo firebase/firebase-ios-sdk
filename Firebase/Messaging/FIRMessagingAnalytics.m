@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingLogger.h"
 
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 static NSString *const kLogTag = @"FIRMessagingAnalytics";
 
@@ -183,11 +182,13 @@ withNotification:(NSDictionary *)notification
 
 + (void)logMessage:(NSDictionary *)notification
        toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
+    // iOS onlly because Analytics doesn't support tvOS.
+#if TARGET_OS_IOS
   if (![self canLogNotification:notification]) {
     return;
   }
 
-  UIApplication *application = [self currentUIApplication];
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
@@ -209,17 +210,7 @@ withNotification:(NSDictionary *)notification
       // is in the background. These messages aren't loggable anyway.
       break;
   }
-}
-
-+ (UIApplication *)currentUIApplication {
-  Class applicationClass = nil;
-  if (![GULAppEnvironmentUtil isAppExtension]) {
-    Class cls = NSClassFromString(@"UIApplication");
-    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
-      applicationClass = cls;
-    }
-  }
-  return [applicationClass sharedApplication];
+#endif
 }
 
 @end

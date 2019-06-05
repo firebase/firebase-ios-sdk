@@ -89,6 +89,13 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 + (NSString *)stringByUnescapingFromURLArgument:(NSString *)argument;
 
+/** @fn parseURL:
+    @brief Parses an incoming URL into all available query items.
+    @param urlString The url to be parsed.
+    @return A dictionary of available query items in the target URL.
+ */
++ (NSDictionary<NSString *, NSString *> *)parseURL:(NSString *)urlString;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -22,21 +22,21 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-TEST(DatabaseId, Constructor) {
+TEST(DatabaseIdTest, Constructor) {
   DatabaseId id("p", "d");
   EXPECT_EQ("p", id.project_id());
   EXPECT_EQ("d", id.database_id());
   EXPECT_FALSE(id.IsDefaultDatabase());
 }
 
-TEST(DatabaseId, DefaultDb) {
+TEST(DatabaseIdTest, DefaultDb) {
   DatabaseId id("p", DatabaseId::kDefault);
   EXPECT_EQ("p", id.project_id());
   EXPECT_EQ("(default)", id.database_id());
   EXPECT_TRUE(id.IsDefaultDatabase());
 }
 
-TEST(DatabaseId, Comparison) {
+TEST(DatabaseIdTest, Comparison) {
   EXPECT_LT(DatabaseId("a", "b"), DatabaseId("b", "a"));
   EXPECT_LT(DatabaseId("a", "b"), DatabaseId("a", "c"));
   EXPECT_EQ(DatabaseId("a", "b"), DatabaseId("a", "b"));

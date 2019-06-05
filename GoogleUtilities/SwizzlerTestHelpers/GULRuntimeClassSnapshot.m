@@ -132,10 +132,9 @@
     IMP imp = method_getImplementation(method);
     NSString *impString =
         [NSString stringWithFormat:@"%p -[%@ %@]", imp, NSStringFromClass(_aClass), methodString];
-    NSAssert(![_imps containsObject:impString],
-             @"This IMP/method combination has already been captured: %@:%@",
-             NSStringFromClass(_aClass), impString);
-    [_imps addObject:impString];
+    if (![_imps containsObject:impString]) {
+      [_imps addObject:impString];
+    }
     _runningHash ^= [impString hash];
   }
   free(instanceMethods);

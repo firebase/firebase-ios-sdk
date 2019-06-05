@@ -118,8 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
                 resultCallback:(core::TransactionResultCallback)resultCallback;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-// Ownes a DatabaseInfo instance, which contains the id here.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the

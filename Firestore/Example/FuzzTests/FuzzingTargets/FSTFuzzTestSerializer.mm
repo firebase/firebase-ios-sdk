@@ -33,11 +33,11 @@ using firebase::firestore::nanopb::Reader;
 using firebase::firestore::remote::Serializer;
 
 int FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
+  Serializer serializer{DatabaseId{"project"}};
 
   @autoreleasepool {
     @try {
-      Reader reader = Reader::Wrap(data, size);
+      Reader reader(data, size);
       google_firestore_v1_Value nanopb_proto{};
       reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
       serializer.DecodeFieldValue(&reader, nanopb_proto);

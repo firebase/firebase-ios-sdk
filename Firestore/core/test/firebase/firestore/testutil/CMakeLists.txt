@@ -32,6 +32,7 @@ endif()
 cc_library(
   firebase_firestore_testutil
   SOURCES
+    equals_tester.h
     testutil.cc
     testutil.h
   DEPENDS

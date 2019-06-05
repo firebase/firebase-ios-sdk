@@ -40,7 +40,6 @@ static FIRInstanceIDTokenInfo *sTokenInfo;
 // Faking checkin calls
 static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";
-static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
 // FIRApp configuration.
 static NSString *const kGCMSenderID = @"correct_gcm_sender_id";
@@ -204,7 +203,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)testTokenIsFetchedDuringIIDGeneration {
   XCTestExpectation *tokenExpectation = [self
       expectationWithDescription:@"Token is refreshed when getID is called to avoid IID conflict."];
-  NSError *error;
+  NSError *error = nil;
   [[[self.mockKeyPairStore stub] andReturn:kFakeIID] appIdentityWithError:[OCMArg setTo:error]];
 
   [self.mockInstanceID getIDWithHandler:^(NSString *identity, NSError *error) {
@@ -533,8 +532,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                     scope:@"*"];
 
   OCMExpect([self.mockInstanceID defaultTokenWithHandler:nil]);
-  NSString *token = [self.mockInstanceID token];
-  XCTAssertNil(token);
+  XCTAssertNil([self.mockInstanceID token]);
   [self.mockInstanceID stopMocking];
   OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
 }
@@ -548,8 +546,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
   [[self.mockInstanceID reject] defaultTokenWithHandler:nil];
-  NSString *token = [self.mockInstanceID token];
-  XCTAssertEqualObjects(token, kToken);
+  XCTAssertEqualObjects([self.mockInstanceID token], kToken);
 }
 
 /**
@@ -604,12 +601,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
-
-  NSString *token = [self.mockInstanceID token];
+  XCTAssertNil([self.mockInstanceID token]);
   [self waitForExpectationsWithTimeout:10.0 handler:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
 
-  XCTAssertNil(token);
   XCTAssertEqualObjects(notificationToken, kToken);
 }
 
@@ -681,12 +676,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
+  XCTAssertNil([self.mockInstanceID token]);
 
-  NSString *token = [self.mockInstanceID token];
   [self waitForExpectationsWithTimeout:20.0 handler:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
 
-  XCTAssertNil(token);
   XCTAssertEqualObjects(notificationToken, kToken);
   XCTAssertEqual(notificationPostCount, 1);
   XCTAssertEqual(newTokenFetchCount, trialsBeforeSuccess);
@@ -750,7 +744,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 [defaultTokenExpectation fulfill];
               }];
 
-  NSString *token = [self.mockInstanceID token];
+  XCTAssertNil([self.mockInstanceID token]);
   // Invoke get token again with some delay. Our initial request to getToken hasn't yet
   // returned from the server.
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
@@ -766,7 +760,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self waitForExpectationsWithTimeout:15.0 handler:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
 
-  XCTAssertNil(token);
   XCTAssertEqualObjects(notificationToken, kToken);
   XCTAssertEqual(notificationPostCount, 1);
   XCTAssertEqual(newTokenFetchCount, 1);
@@ -806,10 +799,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[[self.mockInstanceID stub] andReturnValue:@(0)] retryIntervalToFetchDefaultToken];
 
   // Try to fetch token once. It should set off retries since we mock failure.
-  NSString *token = [self.mockInstanceID token];
+  XCTAssertNil([self.mockInstanceID token]);
 
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
-  XCTAssertNil(token);
+
   XCTAssertEqual(newTokenFetchCount, [FIRInstanceID maxRetryCountForDefaultToken]);
 }
 

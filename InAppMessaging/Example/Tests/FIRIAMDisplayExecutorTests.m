@@ -28,15 +28,21 @@
 @property(nonatomic, readwrite, nonnull) NSString *titleText;
 @property(nonatomic, readwrite, nonnull) NSString *bodyText;
 @property(nonatomic, nullable) NSString *actionButtonText;
+@property(nonatomic, nullable) NSString *secondaryActionButtonText;
 @property(nonatomic, nullable) NSURL *actionURL;
+@property(nonatomic, nullable) NSURL *secondaryActionURL;
 @property(nonatomic, nullable) NSURL *imageURL;
+@property(nonatomic, nullable) NSURL *landscapeImageURL;
 @property BOOL errorEncountered;
 
 - (instancetype)initWithMessageTitle:(NSString *)title
                          messageBody:(NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
+           secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
                            actionURL:(nullable NSURL *)actionURL
+                  secondaryActionURL:(nullable NSURL *)secondaryActionURL
                             imageURL:(nullable NSURL *)imageURL
+                   landscapeImageURL:(nullable NSURL *)landscapeImageURL
                        hasImageError:(BOOL)hasImageError;
 @end
 
@@ -44,60 +50,76 @@
 - (instancetype)initWithMessageTitle:(NSString *)title
                          messageBody:(NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
+           secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
                            actionURL:(nullable NSURL *)actionURL
+                  secondaryActionURL:(nullable NSURL *)secondaryActionURL
                             imageURL:(nullable NSURL *)imageURL
+                   landscapeImageURL:(nullable NSURL *)landscapeImageURL
                        hasImageError:(BOOL)hasImageError {
   if (self = [super init]) {
     _titleText = title;
     _bodyText = body;
     _imageURL = imageURL;
+    _landscapeImageURL = landscapeImageURL;
     _actionButtonText = actionButtonText;
+    _secondaryActionButtonText = secondaryActionButtonText;
     _actionURL = actionURL;
+    _secondaryActionURL = secondaryActionURL;
     _errorEncountered = hasImageError;
   }
   return self;
 }
 
 - (void)loadImageDataWithBlock:(void (^)(NSData *_Nullable imageData,
+                                         NSData *_Nullable landscapeImageData,
                                          NSError *_Nullable error))block {
   if (self.errorEncountered) {
-    block(nil, [NSError errorWithDomain:@"image error" code:0 userInfo:nil]);
+    block(nil, nil, [NSError errorWithDomain:@"image error" code:0 userInfo:nil]);
   } else {
-    NSString *str = @"image data";
-    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
-    block(data, nil);
+    NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
+
+    block(imageData, landscapeImageData, nil);
   }
 }
 @end
 
-// Defines how the message display component triggers the delegate in unit testing
+// Defines how the message display component triggers the delegate in unit testing.
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
-  FIRInAppMessagingDelegateInteractionDismiss,  // message display component triggers
-  // messageDismissedWithType:
-  FIRInAppMessagingDelegateInteractionClick,  // message display component triggers
-  // messageClicked:
-  FIRInAppMessagingDelegateInteractionError,  // message display component triggers
-  // displayErrorEncountered:
-  FIRInAppMessagingDelegateInteractionImpressionDetected,  // message has finished a valid
-                                                           // impression, but it's not getting
-                                                           // closed by the user.
+  // Message display component triggers messageDismissedWithType:.
+  FIRInAppMessagingDelegateInteractionDismiss,
+  // Message display component triggers messageClicked:.
+  FIRInAppMessagingDelegateInteractionClick,
+  // Message display component triggers displayErrorEncountered:.
+  FIRInAppMessagingDelegateInteractionError,
+  // Message has finished a valid impression, but it's not getting closed by the user.
+  FIRInAppMessagingDelegateInteractionImpressionDetected,
 };
 
 // A class implementing protocol FIRInAppMessagingDisplay to be used for unit testing
 @interface FIRIAMMessageDisplayForTesting : NSObject <FIRInAppMessagingDisplay>
 @property FIRInAppMessagingDelegateInteraction delegateInteraction;
+@property(nonatomic, nullable, copy) FIRInAppMessagingAction *action;
 
 // used for interaction verificatio
 @property FIRInAppMessagingDisplayMessage *message;
+- (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction
+                                     action:(nullable FIRInAppMessagingAction *)actionURL;
 - (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction;
 @end
 
 @implementation FIRIAMMessageDisplayForTesting
-- (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction {
+- (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction
+                                     action:(nullable FIRInAppMessagingAction *)action {
   if (self = [super init]) {
     _delegateInteraction = interaction;
+    _action = action;
   }
   return self;
+}
+
+- (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction {
+  return [self initWithDelegateInteraction:interaction action:nil];
 }
 
 - (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
@@ -106,7 +128,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 
   switch (self.delegateInteraction) {
     case FIRInAppMessagingDelegateInteractionClick:
-      [displayDelegate messageClicked:messageForDisplay];
+      [displayDelegate messageClicked:messageForDisplay withAction:self.action];
       break;
     case FIRInAppMessagingDelegateInteractionDismiss:
       [displayDelegate messageDismissed:messageForDisplay
@@ -145,7 +167,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   self.receivedMessageImpressionCallback = YES;
 }
 
-- (void)messageClicked:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage {
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
+            withAction:(FIRInAppMessagingAction *)action {
   self.receivedMessageClickedCallback = YES;
 }
 
@@ -193,12 +216,15 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
       [[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger];
 
   FIRIAMMessageContentDataForTesting *m1ContentData = [[FIRIAMMessageContentDataForTesting alloc]
-      initWithMessageTitle:@"m1 title"
-               messageBody:@"message body"
-          actionButtonText:nil
-                 actionURL:[NSURL URLWithString:@"http://google.com"]
-                  imageURL:[NSURL URLWithString:@"https://google.com/image"]
-             hasImageError:NO];
+           initWithMessageTitle:@"m1 title"
+                    messageBody:@"message body"
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:[NSURL URLWithString:@"http://google.com"]
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting1 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -216,12 +242,15 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                               triggerDefinition:@[ contextualTriggerDefinition ]];
 
   FIRIAMMessageContentDataForTesting *m2ContentData = [[FIRIAMMessageContentDataForTesting alloc]
-      initWithMessageTitle:@"m2 title"
-               messageBody:@"message body"
-          actionButtonText:nil
-                 actionURL:[NSURL URLWithString:@"http://google.com"]
-                  imageURL:[NSURL URLWithString:@"https://unsplash.it/300/400"]
-             hasImageError:NO];
+           initWithMessageTitle:@"m2 title"
+                    messageBody:@"message body"
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:[NSURL URLWithString:@"http://google.com"]
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://unsplash.it/300/400"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting2 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -239,12 +268,15 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                               triggerDefinition:@[ appOpentriggerDefinition ]];
 
   FIRIAMMessageContentDataForTesting *m3ContentData = [[FIRIAMMessageContentDataForTesting alloc]
-      initWithMessageTitle:@"m3 title"
-               messageBody:@"message body"
-          actionButtonText:nil
-                 actionURL:[NSURL URLWithString:@"http://google.com"]
-                  imageURL:[NSURL URLWithString:@"https://google.com/image"]
-             hasImageError:NO];
+           initWithMessageTitle:@"m3 title"
+                    messageBody:@"message body"
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:[NSURL URLWithString:@"http://google.com"]
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting3 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -262,12 +294,15 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                               triggerDefinition:@[ contextualTriggerDefinition ]];
 
   FIRIAMMessageContentDataForTesting *m4ContentData = [[FIRIAMMessageContentDataForTesting alloc]
-      initWithMessageTitle:@"m4 title"
-               messageBody:@"message body"
-          actionButtonText:nil
-                 actionURL:[NSURL URLWithString:@"http://google.com"]
-                  imageURL:[NSURL URLWithString:@"https://google.com/image"]
-             hasImageError:NO];
+           initWithMessageTitle:@"m4 title"
+                    messageBody:@"message body"
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:[NSURL URLWithString:@"http://google.com"]
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting4 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -342,8 +377,12 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
 
+  FIRInAppMessagingAction *testAction =
+      [[FIRInAppMessagingAction alloc] initWithActionText:@"test"
+                                                actionURL:self.m2.renderData.contentData.actionURL];
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:testAction];
   self.displayExecutor.messageDisplayComponent = display;
   [self.clientMessageCache setMessageData:@[ self.m2 ]];
 
@@ -364,8 +403,12 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData];
 
+  FIRInAppMessagingAction *testAction = [[FIRInAppMessagingAction alloc]
+      initWithActionText:@"test"
+               actionURL:testMessage.renderData.contentData.actionURL];
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:testAction];
   self.displayExecutor.messageDisplayComponent = display;
   [self.clientMessageCache setMessageData:@[ testMessage ]];
 

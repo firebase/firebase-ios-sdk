@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
   FIRInAppMessagingDisplayMessageTypeModal,
   FIRInAppMessagingDisplayMessageTypeBanner,
-  FIRInAppMessagingDisplayMessageTypeImageOnly
+  FIRInAppMessagingDisplayMessageTypeImageOnly,
+  FIRInAppMessagingDisplayMessageTypeCard
 };
 
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
@@ -86,6 +87,25 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 @end
 
+/** Defines the metadata for a FIAM action.
+ */
+NS_SWIFT_NAME(InAppMessagingAction)
+@interface FIRInAppMessagingAction : NSObject
+
+/*
+ * The text of the action button, if applicable.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *actionText;
+/*
+ * The URL to follow if the action is clicked.
+ */
+@property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
+
+@end
+
 /**
  * Base class representing a FIAM message to be displayed. Don't create instance
  * of this class directly. Instantiate one of its subclasses instead.
@@ -102,6 +122,63 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+@end
+
+NS_SWIFT_NAME(InAppMessagingCardDisplay)
+@interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
+
+/*
+ * Gets the title text for a card FIAM message.
+ */
+@property(nonatomic, nonnull, copy, readonly) NSString *title;
+
+/*
+ * Gets the body text for a card FIAM message.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *body;
+
+/**
+ * Gets the color for text in card FIAM message. It applies to both title and body text.
+ */
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
+
+/*
+ * Image data for the supplied portrait image for a card FIAM messasge.
+ */
+@property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *portraitImageData;
+
+/**
+ * Image data for the supplied landscape image for a card FIAM message.
+ */
+@property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
+
+/**
+ * The background color for a card FIAM message.
+ */
+@property(nonatomic, copy, nonnull, readonly) UIColor *displayBackgroundColor;
+
+/**
+ * Metadata for a card FIAM message's primary action button.
+ */
+@property(nonatomic, nonnull, readonly) FIRInAppMessagingActionButton *primaryActionButton;
+
+/**
+ * The action URL for a card FIAM message's primary action button.
+ */
+@property(nonatomic, nonnull, readonly) NSURL *primaryActionURL;
+
+/**
+ * Metadata for a card FIAM message's secondary action button.
+ */
+@property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *secondaryActionButton;
+
+/**
+ * The action URL for a card FIAM message's secondary action button.
+ */
+@property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
+
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
 
 /** Class for defining a modal message for display.
@@ -243,6 +320,9 @@ typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
  */
 NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 @protocol FIRInAppMessagingDisplayDelegate <NSObject>
+
+@optional
+
 /**
  * Called when the message is dismissed. Should be called from main thread.
  * @param inAppMessage the message that was dismissed.
@@ -255,7 +335,15 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  * Called when the message's action button is followed by the user.
  * @param inAppMessage the message that was clicked.
  */
-- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage;
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage __deprecated;
+
+/**
+ * Called when the message's action button is followed by the user.
+ * @param inAppMessage the message that was clicked.
+ * @param action contains the text and URL for the action that was clicked.
+ */
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
+            withAction:(FIRInAppMessagingAction *)action;
 
 /**
  * Use this to mark a message as having gone through enough impression so that

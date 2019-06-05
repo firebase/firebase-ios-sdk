@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -41,6 +42,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TransformOperation;
 
@@ -420,7 +422,7 @@ using firebase::firestore::model::TransformOperation;
 
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:testutil::Version(1)
-                                transformResults:@[ [FSTIntegerValue integerValue:3] ]];
+                                transformResults:@[ FieldValue::FromInteger(3).Wrap() ]];
 
   FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
                                                        mutationResult:mutationResult];
@@ -461,7 +463,7 @@ using firebase::firestore::model::TransformOperation;
   // Server just sends null transform results for array operations.
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
        initWithVersion:testutil::Version(1)
-      transformResults:@[ [FSTNullValue nullValue], [FSTNullValue nullValue] ]];
+      transformResults:@[ FieldValue::Null().Wrap(), FieldValue::Null().Wrap() ]];
 
   FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
                                                        mutationResult:mutationResult];

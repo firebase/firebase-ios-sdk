@@ -156,7 +156,7 @@ cc_test(
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
-    status_test_util.h
+    status_testing.h
     statusor_test.cc
     strerror_test.cc
     string_format_apple_test.mm
@@ -196,21 +196,21 @@ cc_library(
 cc_binary(
   firebase_firestore_util_ordered_code_benchmark
   SOURCES
-  ordered_code_benchmark.mm
+    ordered_code_benchmark.cc
   DEPENDS
-  benchmark
-  benchmark_main
-  firebase_firestore_util
+    benchmark
+    benchmark_main
+    firebase_firestore_util
 )
 
 if(APPLE)
   cc_binary(
     firebase_firestore_util_string_apple_benchmark
     SOURCES
-    string_apple_benchmark.mm
+      string_apple_benchmark.mm
     DEPENDS
-    benchmark
-    benchmark_main
-    firebase_firestore_util_base_apple
+      benchmark
+      benchmark_main
+      firebase_firestore_util_base_apple
   )
 endif()

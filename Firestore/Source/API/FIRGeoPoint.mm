@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -47,15 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (NSComparisonResult)compare:(FIRGeoPoint *)other {
-  NSComparisonResult result = WrapCompare<double>(self.latitude, other.latitude);
-  if (result != NSOrderedSame) {
-    return result;
-  } else {
-    return WrapCompare<double>(self.longitude, other.longitude);
-  }
-}
-
 #pragma mark - NSObject methods
 
 - (NSString *)description {
@@ -81,6 +73,23 @@ NS_ASSUME_NONNULL_BEGIN
 /** Implements NSCopying without actually copying because geopoints are immutable. */
 - (id)copyWithZone:(NSZone *_Nullable)zone {
   return self;
+}
+
+@end
+
+@implementation FIRGeoPoint (Internal)
+
+- (NSComparisonResult)compare:(FIRGeoPoint *)other {
+  NSComparisonResult result = WrapCompare<double>(self.latitude, other.latitude);
+  if (result != NSOrderedSame) {
+    return result;
+  } else {
+    return WrapCompare<double>(self.longitude, other.longitude);
+  }
+}
+
+- (firestore::GeoPoint)toGeoPoint {
+  return firestore::GeoPoint(self.latitude, self.longitude);
 }
 
 @end

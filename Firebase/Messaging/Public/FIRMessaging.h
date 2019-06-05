@@ -303,7 +303,8 @@ NS_SWIFT_NAME(Messaging)
  *
  * @return An instance of FIRMessagingExtensionHelper that handles the extensions API.
  */
-+ (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension()) NS_AVAILABLE_IOS(10.0);
++ (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension())
+    NS_AVAILABLE(10.14, 10.0);
 
 /**
  *  Unavailable. Use +messaging instead.

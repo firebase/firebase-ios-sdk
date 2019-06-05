@@ -72,7 +72,11 @@ class HostConfigMap {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
-  const HostConfig* _Nullable find(const std::string& host) const {
+  /**
+   * Returns a pointer to the HostConfig entry for the given host or `nullptr`
+   * if there's no entry.
+   */
+  const HostConfig* find(const std::string& host) const {
     Guard guard{mutex_};
     auto iter = map_.find(host);
     if (iter == map_.end()) {
@@ -116,10 +120,11 @@ HostConfigMap& Config() {
 
 }  // namespace
 
-GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
-                               util::AsyncQueue* worker_queue,
-                               grpc::CompletionQueue* grpc_queue,
-                               ConnectivityMonitor* connectivity_monitor)
+GrpcConnection::GrpcConnection(
+    const DatabaseInfo& database_info,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    grpc::CompletionQueue* grpc_queue,
+    ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},
@@ -181,19 +186,26 @@ void GrpcConnection::EnsureActiveStub() {
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
+  grpc::ChannelArguments args;
+  // Ensure gRPC recovers from a dead connection. (Not typically necessary, as
+  // the OS will usually notify gRPC when a connection dies. But not always.
+  // This acts as a failsafe.)
+  args.SetInt(GRPC_ARG_KEEPALIVE_TIME_MS, 30 * 1000);
+
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
+    return grpc::CreateCustomChannel(
+        host, CreateSslCredentials(root_certificate), args);
   }
 
   // For the case when `Settings.sslEnabled == false`.
   if (host_config->use_insecure_channel) {
-    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
+    return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
+                                     args);
   }
 
   // For tests only
-  grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config->target_name);
   Path path = host_config->certificate_path;
   StatusOr<std::string> test_certificate = ReadFile(path);

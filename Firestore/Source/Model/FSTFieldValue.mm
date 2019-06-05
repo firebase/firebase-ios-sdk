@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -103,190 +104,18 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-@end
-
-#pragma mark - FSTNullValue
-
-@implementation FSTNullValue
-
-+ (instancetype)nullValue {
-  static FSTNullValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTNullValue alloc] init];
-  });
-  return sharedInstance;
+- (int64_t)integerValue {
+  return static_cast<FSTDelegateValue *>(self).internalValue.integer_value();
 }
 
-- (FieldValue::Type)type {
-  return FieldValue::Type::Null;
+- (bool)isNAN {
+  if (self.type != FieldValue::Type::Double) return false;
+  return static_cast<FSTDelegateValue *>(self).internalValue.is_nan();
 }
 
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderNull;
+- (double)doubleValue {
+  return static_cast<FSTDelegateValue *>(self).internalValue.double_value();
 }
-
-- (id)value {
-  return [NSNull null];
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[self class]];
-}
-
-- (NSUInteger)hash {
-  return 47;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[self class]]) {
-    return NSOrderedSame;
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
-#pragma mark - FSTNumberValue
-
-@implementation FSTNumberValue
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderNumber;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (!FieldValue::IsNumber(other.type)) {
-    return [self defaultCompare:other];
-  } else {
-    if (self.type == FieldValue::Type::Double) {
-      double thisDouble = ((FSTDoubleValue *)self).internalValue;
-      if (other.type == FieldValue::Type::Double) {
-        return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
-      } else {
-        HARD_ASSERT(other.type == FieldValue::Type::Integer, "Unknown number value: %s", other);
-        auto result = CompareMixedNumber(thisDouble, ((FSTIntegerValue *)other).internalValue);
-        return static_cast<NSComparisonResult>(result);
-      }
-    } else {
-      int64_t thisInt = ((FSTIntegerValue *)self).internalValue;
-      if (other.type == FieldValue::Type::Integer) {
-        return WrapCompare(thisInt, ((FSTIntegerValue *)other).internalValue);
-      } else {
-        HARD_ASSERT(other.type == FieldValue::Type::Double, "Unknown number value: %s", other);
-        double otherDouble = ((FSTDoubleValue *)other).internalValue;
-        auto result = ReverseOrder(CompareMixedNumber(otherDouble, thisInt));
-        return static_cast<NSComparisonResult>(result);
-      }
-    }
-  }
-}
-
-@end
-
-#pragma mark - FSTIntegerValue
-
-@interface FSTIntegerValue ()
-@property(nonatomic, assign, readonly) int64_t internalValue;
-@end
-
-@implementation FSTIntegerValue
-
-+ (instancetype)integerValue:(int64_t)value {
-  return [[FSTIntegerValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(int64_t)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (id)value {
-  return @(self.internalValue);
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Integer;
-}
-
-- (BOOL)isEqual:(id)other {
-  // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
-  // equal via isEqual:
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Integer &&
-         self.internalValue == ((FSTIntegerValue *)other).internalValue;
-}
-
-- (NSUInteger)hash {
-  return (((NSUInteger)self.internalValue) ^ (NSUInteger)(self.internalValue >> 32));
-}
-
-// NOTE: compare: is implemented in NumberValue.
-
-@end
-
-#pragma mark - FSTDoubleValue
-
-@interface FSTDoubleValue ()
-@property(nonatomic, assign, readonly) double internalValue;
-@end
-
-@implementation FSTDoubleValue
-
-+ (instancetype)doubleValue:(double)value {
-  // Normalize NaNs to match the behavior on the backend (which uses Double.doubletoLongBits()).
-  if (isnan(value)) {
-    return [FSTDoubleValue nanValue];
-  }
-  return [[FSTDoubleValue alloc] initWithValue:value];
-}
-
-+ (instancetype)nanValue {
-  static FSTDoubleValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTDoubleValue alloc] initWithValue:NAN];
-  });
-  return sharedInstance;
-}
-
-- (id)initWithValue:(double)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (id)value {
-  return @(self.internalValue);
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Double;
-}
-
-- (BOOL)isEqual:(id)other {
-  // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
-  // equal via isEqual:
-
-  // NOTE: isEqual: should compare NaN equal to itself and -0.0 not equal to 0.0.
-
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Double &&
-         DoubleBitwiseEquals(self.internalValue, ((FSTDoubleValue *)other).internalValue);
-}
-
-- (NSUInteger)hash {
-  return DoubleBitwiseHash(self.internalValue);
-}
-
-// NOTE: compare: is implemented in NumberValue.
 
 @end
 
@@ -424,57 +253,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTGeoPointValue
-
-@interface FSTGeoPointValue ()
-@property(nonatomic, strong, readonly) FIRGeoPoint *internalValue;
-@end
-
-@implementation FSTGeoPointValue
-
-+ (instancetype)geoPointValue:(FIRGeoPoint *)value {
-  return [[FSTGeoPointValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(FIRGeoPoint *)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;  // FIRGeoPoint is immutable.
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::GeoPoint;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderGeoPoint;
-}
-
-- (id)value {
-  return self.internalValue;
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::GeoPoint &&
-         [self.internalValue isEqual:((FSTGeoPointValue *)other).internalValue];
-}
-
-- (NSUInteger)hash {
-  return [self.internalValue hash];
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::GeoPoint) {
-    return [self.internalValue compare:((FSTGeoPointValue *)other).internalValue];
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
 #pragma mark - FSTBlobValue
 
 static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
@@ -550,17 +328,19 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
-@implementation FSTReferenceValue
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
-  return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
+@implementation FSTReferenceValue {
+  DatabaseId _databaseID;
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
+  return [[FSTReferenceValue alloc] initWithValue:value databaseID:std::move(databaseID)];
+}
+
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = value;
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
@@ -587,11 +367,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key.key == otherRef.key.key && *self.databaseID == *otherRef.databaseID;
+  return self.key.key == otherRef.key.key && self.databaseID == otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.databaseID->Hash();
+  NSUInteger result = self.databaseID.Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -599,12 +379,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if (other.type == FieldValue::Type::Reference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp =
-        WrapCompare(self.databaseID->project_id(), ref.databaseID->project_id());
+    NSComparisonResult cmp = WrapCompare(self.databaseID.project_id(), ref.databaseID.project_id());
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
+    cmp = WrapCompare(self.databaseID.database_id(), ref.databaseID.database_id());
     return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
   } else {
     return [self defaultCompare:other];
@@ -957,11 +736,13 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 - (id)value {
   switch (self.internalValue.type()) {
     case FieldValue::Type::Null:
-      HARD_FAIL("TODO(rsgowman): implement");
+      return [NSNull null];
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
     case FieldValue::Type::Integer:
+      return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
+      return @(self.internalValue.double_value());
     case FieldValue::Type::Timestamp:
     case FieldValue::Type::ServerTimestamp:
       HARD_FAIL("TODO(rsgowman): implement");
@@ -969,7 +750,11 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
-    case FieldValue::Type::GeoPoint:
+      HARD_FAIL("TODO(rsgowman): implement");
+    case FieldValue::Type::GeoPoint: {
+      GeoPoint value = self.internalValue.geo_point_value();
+      return [[FIRGeoPoint alloc] initWithLatitude:value.latitude() longitude:value.longitude()];
+    }
     case FieldValue::Type::Array:
     case FieldValue::Type::Object:
       HARD_FAIL("TODO(rsgowman): implement");

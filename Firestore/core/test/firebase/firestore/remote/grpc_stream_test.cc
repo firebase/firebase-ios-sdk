@@ -109,9 +109,10 @@ class DestroyingObserver : public GrpcStreamObserver {
 class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest()
-      : worker_queue{absl::make_unique<ExecutorStd>()},
+      : worker_queue{std::make_shared<AsyncQueue>(
+            absl::make_unique<ExecutorStd>())},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
-        tester{&worker_queue, connectivity_monitor.get()},
+        tester{worker_queue, connectivity_monitor.get()},
         observer{absl::make_unique<Observer>()},
         stream{tester.CreateStream(observer.get())} {
   }
@@ -120,7 +121,7 @@ class GrpcStreamTest : public testing::Test {
     // It's okay to call `FinishImmediately` more than once.
     if (stream) {
       KeepPollingGrpcQueue();
-      worker_queue.EnqueueBlocking([&] { stream->FinishImmediately(); });
+      worker_queue->EnqueueBlocking([&] { stream->FinishImmediately(); });
     }
     tester.Shutdown();
   }
@@ -153,7 +154,7 @@ class GrpcStreamTest : public testing::Test {
                   << static_cast<int>(completion->type());
   }
 
-  AsyncQueue worker_queue;
+  std::shared_ptr<AsyncQueue> worker_queue;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
@@ -165,13 +166,13 @@ class GrpcStreamTest : public testing::Test {
 // API usage
 
 TEST_F(GrpcStreamTest, FinishIsIdempotent) {
-  worker_queue.EnqueueBlocking(
+  worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
 
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream->FinishImmediately());
     EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK()));
     EXPECT_NO_THROW(stream->FinishImmediately());
@@ -180,17 +181,17 @@ TEST_F(GrpcStreamTest, FinishIsIdempotent) {
 }
 
 TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterStarting) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->Start();
     EXPECT_NO_THROW(stream->GetResponseHeaders());
   });
 }
 
 TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterFinishing) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->FinishImmediately();
     EXPECT_NO_THROW(stream->GetResponseHeaders());
   });
@@ -199,7 +200,7 @@ TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterFinishing) {
 // Read and write
 
 TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   ForceFinish({{Type::Read, MakeByteBuffer("foo")}});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead(foo)"}));
@@ -210,9 +211,9 @@ TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
 }
 
 TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->Write({});
     stream->Write({});
     stream->Write({});
@@ -247,7 +248,7 @@ TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
 // Observer
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   // `Start` is a synchronous operation.
   EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
 }
@@ -255,7 +256,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
 // `ObserverReceivesOnRead` is tested in `ReadIsAutomaticallyReadded`
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
@@ -266,18 +267,18 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
 
 TEST_F(GrpcStreamTest,
        ObserverDoesNotReceiveNotificationFromFinishImmediately) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] { stream->FinishImmediately(); });
+  worker_queue->EnqueueBlocking([&] { stream->FinishImmediately(); });
   EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesNotificationFromFinishAndNotify) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->FinishAndNotify(Status(FirestoreErrorCode::Unavailable, ""));
   });
   EXPECT_EQ(observed_states(),
@@ -287,10 +288,10 @@ TEST_F(GrpcStreamTest, ObserverReceivesNotificationFromFinishAndNotify) {
 // Finishing
 
 TEST_F(GrpcStreamTest, WriteAndFinish) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     // Ignore the returned result; last write may or may not finish fast enough
     EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
   });
@@ -301,7 +302,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
 // Error on read is tested in `ObserverReceivesOnError`
 
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->Start();
     stream->Write({});
   });
@@ -331,13 +332,13 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
     }
   });
   future.wait();
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish(Aborted)");
 }
 
 TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->Start();
     stream->Write({});
     stream->Write({});
@@ -365,7 +366,7 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
     }
   });
   future.wait();
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish(Unavailable)");
 }
@@ -382,7 +383,7 @@ TEST_F(GrpcStreamTest, ObserverCanFinishAndDestroyStreamOnStart) {
     stream.reset();
   };
 
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream->Start());
     EXPECT_EQ(stream, nullptr);
   });
@@ -398,7 +399,7 @@ TEST_F(GrpcStreamTest, ObserverCanFinishAndDestroyStreamOnRead) {
     stream.reset();
   };
 
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   EXPECT_NE(stream, nullptr);
   EXPECT_NO_THROW(ForceFinish({{Type::Read, MakeByteBuffer("foo")}}));
@@ -411,7 +412,7 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnError) {
   stream = tester.CreateStream(&destroying_observer);
   destroying_observer.shutdown = [&] { stream.reset(); };
 
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   ForceFinish({{Type::Read, CompletionResult::Error}});
   EXPECT_NE(stream, nullptr);
@@ -425,11 +426,11 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnFinishAndNotify) {
   stream = tester.CreateStream(&destroying_observer);
   destroying_observer.shutdown = [&] { stream.reset(); };
 
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
   EXPECT_NE(stream, nullptr);
 
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream->FinishAndNotify(util::Status::OK()));
     EXPECT_EQ(stream, nullptr);
   });
@@ -438,25 +439,25 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnFinishAndNotify) {
 // Double finish
 
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   ForceFinish({{Type::Read, CompletionResult::Error}});
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking(
+  worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+  worker_queue->EnqueueBlocking([&] { stream->Start(); });
 
   ForceFinish({{Type::Read, CompletionResult::Error}});
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking(
+  worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
 }
 
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     stream->Start();
     stream->Write({});
   });
@@ -475,7 +476,7 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
     }
   });
   future.wait();
-  worker_queue.EnqueueBlocking([] {});
+  worker_queue->EnqueueBlocking([] {});
 
   // Normally, "Finish" never fails, but for the test it's easier to abuse the
   // finish operation that has already been enqueued by `OnOperationFailed`

@@ -133,9 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 @end
 
-@interface FSTSerializerBetaTests : XCTestCase {
-  DatabaseId _databaseId;
-}
+@interface FSTSerializerBetaTests : XCTestCase
 
 @property(nonatomic, strong) FSTSerializerBeta *serializer;
 @end
@@ -143,12 +141,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSerializerBetaTests
 
 - (void)setUp {
-  _databaseId = DatabaseId("p", "d");
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&_databaseId];
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
 }
 
 - (void)testEncodesNull {
-  FSTFieldValue *model = [FSTNullValue nullValue];
+  FSTFieldValue *model = FieldValue::Null().Wrap();
 
   GCFSValue *proto = [GCFSValue message];
   proto.nullValue = GPBNullValue_NullValue;
@@ -288,8 +285,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("project")];
+
   FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
-  _databaseId = DatabaseId("project", DatabaseId::kDefault);
+
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 

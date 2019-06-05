@@ -404,7 +404,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
 
-    @param provider An isntance of an auth provider used to initiate the sign-in flow.
+    @param provider An instance of an auth provider used to initiate the sign-in flow.
     @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
         protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
         will be used.
@@ -431,8 +431,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for 
         <li>@c FIRAuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
             present a new web context while one was already being presented.
         </li>
-        <li>@c FIRAuthErrorCodeWebContextCancelled - Indicates that the URL presentation was cancelled prematurely
-            by the user.
+        <li>@c FIRAuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
+            cancelled prematurely by the user.
         </li>
         <li>@c FIRAuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
             by the credential (e.g. the email in a Facebook access token) is already in use by an

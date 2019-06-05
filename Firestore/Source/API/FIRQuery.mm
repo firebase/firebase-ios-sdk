@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -348,7 +349,13 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 - (FIRQuery *)queryLimitedTo:(NSInteger)limit {
-  return Wrap(_query.Limit(static_cast<int64_t>(limit)));
+  int32_t internalLimit;
+  if (limit == NSNotFound || limit >= core::Query::kNoLimit) {
+    internalLimit = core::Query::kNoLimit;
+  } else {
+    internalLimit = static_cast<int32_t>(limit);
+  }
+  return Wrap(_query.Limit(internalLimit));
 }
 
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {
@@ -533,6 +540,10 @@ FIRQuery *Wrap(Query &&query) {
 
 - (FSTQuery *)query {
   return _query.query();
+}
+
+- (const api::Query &)apiQuery {
+  return _query;
 }
 
 @end

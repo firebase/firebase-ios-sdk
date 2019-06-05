@@ -35,7 +35,6 @@ namespace remote {
 using auth::Token;
 using auth::User;
 using core::DatabaseInfo;
-using model::DatabaseId;
 using util::AsyncQueue;
 using util::ExecutorStd;
 using util::GrpcStreamTester;
@@ -47,7 +46,8 @@ namespace {
 
 class FakeConnectivityMonitor : public ConnectivityMonitor {
  public:
-  explicit FakeConnectivityMonitor(AsyncQueue* worker_queue)
+  explicit FakeConnectivityMonitor(
+      const std::shared_ptr<AsyncQueue>& worker_queue)
       : ConnectivityMonitor{worker_queue} {
     SetInitialStatus(NetworkStatus::Available);
   }
@@ -84,20 +84,21 @@ class ConnectivityObserver : public GrpcStreamObserver {
 class GrpcConnectionTest : public testing::Test {
  public:
   GrpcConnectionTest()
-      : worker_queue{absl::make_unique<ExecutorStd>()},
+      : worker_queue{std::make_shared<AsyncQueue>(
+            absl::make_unique<ExecutorStd>())},
         connectivity_monitor{
-            absl::make_unique<FakeConnectivityMonitor>(&worker_queue)},
-        tester{&worker_queue, connectivity_monitor.get()} {
+            absl::make_unique<FakeConnectivityMonitor>(worker_queue)},
+        tester{worker_queue, connectivity_monitor.get()} {
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {
-    worker_queue.EnqueueBlocking(
+    worker_queue->EnqueueBlocking(
         [&] { connectivity_monitor->set_status(new_status); });
     // Make sure the callback executes.
-    worker_queue.EnqueueBlocking([] {});
+    worker_queue->EnqueueBlocking([] {});
   }
 
-  AsyncQueue worker_queue;
+  std::shared_ptr<AsyncQueue> worker_queue;
   std::unique_ptr<FakeConnectivityMonitor> connectivity_monitor = nullptr;
   GrpcStreamTester tester;
 };
@@ -211,7 +212,7 @@ TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
   });
 
   tester.KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] { tester.grpc_connection()->Shutdown(); });
+  worker_queue->EnqueueBlocking([&] { tester.grpc_connection()->Shutdown(); });
 
   // Destroying a call will throw if it hasn't been properly shut down.
   EXPECT_NO_THROW(foo.reset());

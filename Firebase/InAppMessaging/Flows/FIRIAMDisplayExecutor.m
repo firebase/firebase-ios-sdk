@@ -23,6 +23,7 @@
 #import "FIRIAMMessageDefinition.h"
 #import "FIRIAMSDKRuntimeErrorCodes.h"
 #import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingRenderingPrivate.h"
 
 @implementation FIRIAMDisplaySetting
 @end
@@ -47,11 +48,18 @@
 }
 
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
-- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage {
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
+            withAction:(FIRInAppMessagingAction *)action {
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
-  if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
+  if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
+    [appSideDelegate messageClicked:inAppMessage withAction:action];
+  } else if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
+    // Deprecated method is called only as a fall-back.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appSideDelegate messageClicked:inAppMessage];
+#pragma clang diagnostic pop
   }
 
   self.isMsgBeingDisplayed = NO;
@@ -104,7 +112,7 @@
                       }];
   }
 
-  NSURL *actionURL = _currentMsgBeingDisplayed.renderData.contentData.actionURL;
+  NSURL *actionURL = action.actionURL;
 
   if (!actionURL) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400033",
@@ -368,10 +376,58 @@
   }
 }
 
+- (FIRInAppMessagingCardDisplay *)
+    cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                         landscapeImageData:
+                             (nullable FIRInAppMessagingImageData *)landscapeImageData
+                                triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+  // For easier reference in this method.
+  FIRIAMMessageRenderData *renderData = definition.renderData;
+
+  NSString *title = renderData.contentData.titleText;
+  NSString *body = renderData.contentData.bodyText;
+
+  FIRInAppMessagingActionButton *primaryActionButton = nil;
+  if (definition.renderData.contentData.actionButtonText) {
+    primaryActionButton = [[FIRInAppMessagingActionButton alloc]
+        initWithButtonText:renderData.contentData.actionButtonText
+           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  }
+
+  FIRInAppMessagingActionButton *secondaryActionButton = nil;
+  if (definition.renderData.contentData.secondaryActionButtonText) {
+    secondaryActionButton = [[FIRInAppMessagingActionButton alloc]
+        initWithButtonText:renderData.contentData.secondaryActionButtonText
+           buttonTextColor:renderData.renderingEffectSettings.secondaryActionBtnTextColor
+           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  }
+
+  FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
+        initWithMessageID:renderData.messageID
+             campaignName:renderData.name
+      renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
+                titleText:title
+                textColor:renderData.renderingEffectSettings.textColor
+        portraitImageData:portraitImageData
+          backgroundColor:renderData.renderingEffectSettings.displayBGColor
+      primaryActionButton:primaryActionButton
+         primaryActionURL:definition.renderData.contentData.actionURL];
+
+  cardMessage.body = body;
+  cardMessage.landscapeImageData = landscapeImageData;
+  cardMessage.secondaryActionButton = secondaryActionButton;
+  cardMessage.secondaryActionURL = definition.renderData.contentData.secondaryActionURL;
+
+  return cardMessage;
+}
+
 - (FIRInAppMessagingBannerDisplay *)
-    bannerMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                             imageData:(FIRInAppMessagingImageData *)imageData
-                           triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    bannerDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                    imageData:(FIRInAppMessagingImageData *)imageData
+                                  triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   NSString *title = definition.renderData.contentData.titleText;
   NSString *body = definition.renderData.contentData.bodyText;
 
@@ -391,9 +447,9 @@
 }
 
 - (FIRInAppMessagingImageOnlyDisplay *)
-    imageOnlyMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData
-                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    imageOnlyDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                       imageData:(FIRInAppMessagingImageData *)imageData
+                                     triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
@@ -406,9 +462,9 @@
 }
 
 - (FIRInAppMessagingModalDisplay *)
-    modalViewMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData
-                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    modalDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                   imageData:(FIRInAppMessagingImageData *)imageData
+                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   // For easier reference in this method.
   FIRIAMMessageRenderData *renderData = definition.renderData;
 
@@ -443,20 +499,26 @@
 - (FIRInAppMessagingDisplayMessage *)
     displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                               imageData:(FIRInAppMessagingImageData *)imageData
+                     landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
+    case FIRIAMRenderAsCardView:
+      return [self cardDisplayMessageWithMessageDefinition:definition
+                                         portraitImageData:imageData
+                                        landscapeImageData:landscapeImageData
+                                               triggerType:triggerType];
     case FIRIAMRenderAsBannerView:
-      return [self bannerMessageWithMessageDefinition:definition
-                                            imageData:imageData
-                                          triggerType:triggerType];
+      return [self bannerDisplayMessageWithMessageDefinition:definition
+                                                   imageData:imageData
+                                                 triggerType:triggerType];
     case FIRIAMRenderAsModalView:
-      return [self modalViewMessageWithMessageDefinition:definition
-                                               imageData:imageData
-                                             triggerType:triggerType];
+      return [self modalDisplayMessageWithMessageDefinition:definition
+                                                  imageData:imageData
+                                                triggerType:triggerType];
     case FIRIAMRenderAsImageOnlyView:
-      return [self imageOnlyMessageWithMessageDefinition:definition
-                                               imageData:imageData
-                                             triggerType:triggerType];
+      return [self imageOnlyDisplayMessageWithMessageDefinition:definition
+                                                      imageData:imageData
+                                                    triggerType:triggerType];
     default:
       return nil;
   }
@@ -466,8 +528,10 @@
               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   _currentMsgBeingDisplayed = message;
   [message.renderData.contentData
-      loadImageDataWithBlock:^(NSData *_Nullable imageNSData, NSError *error) {
+      loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
+                               NSData *_Nullable landscapeImageRawData, NSError *_Nullable error) {
         FIRInAppMessagingImageData *imageData = nil;
+        FIRInAppMessagingImageData *landscapeImageData = nil;
 
         if (error) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400019",
@@ -476,14 +540,22 @@
           FIRInAppMessagingDisplayMessage *erroredMessage =
               [self displayMessageWithMessageDefinition:message
                                               imageData:imageData
+                                     landscapeImageData:landscapeImageData
                                             triggerType:triggerType];
           // short-circuit to display error handling
           [self displayErrorForMessage:erroredMessage error:error];
           return;
-        } else if (imageNSData != nil) {
-          imageData = [[FIRInAppMessagingImageData alloc]
-              initWithImageURL:message.renderData.contentData.imageURL.absoluteString
-                     imageData:imageNSData];
+        } else {
+          if (standardImageRawData) {
+            imageData = [[FIRInAppMessagingImageData alloc]
+                initWithImageURL:message.renderData.contentData.imageURL.absoluteString
+                       imageData:standardImageRawData];
+          }
+          if (landscapeImageRawData) {
+            landscapeImageData = [[FIRInAppMessagingImageData alloc]
+                initWithImageURL:message.renderData.contentData.landscapeImageURL.absoluteString
+                       imageData:landscapeImageRawData];
+          }
         }
 
         self.impressionRecorded = NO;
@@ -492,6 +564,7 @@
         FIRInAppMessagingDisplayMessage *displayMessage =
             [self displayMessageWithMessageDefinition:message
                                             imageData:imageData
+                                   landscapeImageData:landscapeImageData
                                           triggerType:triggerType];
         [self.messageDisplayComponent displayMessage:displayMessage displayDelegate:self];
       }];

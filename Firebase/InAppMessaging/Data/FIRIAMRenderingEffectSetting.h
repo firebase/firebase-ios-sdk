@@ -22,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRIAMRenderingMode) {
   FIRIAMRenderAsBannerView,
   FIRIAMRenderAsModalView,
-  FIRIAMRenderAsImageOnlyView
+  FIRIAMRenderAsImageOnlyView,
+  FIRIAMRenderAsCardView
 };
 
 /**
@@ -41,6 +42,9 @@ typedef NS_ENUM(NSInteger, FIRIAMRenderingMode) {
 
 // text color for action button
 @property(nonatomic, copy) UIColor *btnTextColor;
+
+// text color for secondary action button
+@property(nonatomic, copy) UIColor *secondaryActionBtnTextColor;
 
 // background color for action button
 @property(nonatomic, copy) UIColor *btnBGColor;

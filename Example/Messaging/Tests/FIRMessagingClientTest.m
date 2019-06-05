@@ -32,16 +32,8 @@
 
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
-
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";
-static NSString *const kDigest = @"com.google.digest";
-static NSString *const kVersionInfo = @"1.0";
-static NSString *const kSubscriptionID = @"abcdef-subscription-id";
-static NSString *const kDeletedSubscriptionID = @"deleted-abcdef-subscription-id";
-static NSString *const kFIRMessagingAppIDToken = @"1234xyzdef56789";
-static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 
 @interface FIRInstanceID (exposedForTests)
 

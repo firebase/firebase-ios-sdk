@@ -50,8 +50,11 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 @property(nonatomic) NSURL *actionCodeContinueURL;
 
 @property(nonatomic) FIROAuthProvider *googleOAuthProvider;
-
 @property(nonatomic) FIROAuthProvider *microsoftOAuthProvider;
+@property(nonatomic) FIROAuthProvider *twitterOAuthProvider;
+@property(nonatomic) FIROAuthProvider *linkedinOAuthProvider;
+@property(nonatomic) FIROAuthProvider *yahooOAuthProvider;
+@property(nonatomic) FIROAuthProvider *gitHubOAuthProvider;
 
 @property(nonatomic) NSMutableArray<FIRAuthStateDidChangeListenerHandle> *authStateDidChangeListeners;
 

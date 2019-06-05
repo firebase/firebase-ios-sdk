@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -68,6 +69,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::CheckedSize;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Writer;
@@ -75,12 +77,7 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 
 pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
-  pb_size_t size = CheckedSize(str.size());
-  auto result =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
-  result->size = size;
-  memcpy(result->bytes, str.c_str(), size);
-  return result;
+  return ByteString(str).release();
 }
 
 std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
@@ -90,12 +87,7 @@ std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
 }
 
 pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
-  pb_size_t size = CheckedSize(bytes.size());
-  auto result =
-      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
-  result->size = size;
-  memcpy(result->bytes, bytes.data(), size);
-  return result;
+  return ByteString(bytes).release();
 }
 
 std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
@@ -269,10 +261,9 @@ StructuredQuery DecodeStructuredQuery(
 
 }  // namespace
 
-Serializer::Serializer(
-    const firebase::firestore::model::DatabaseId& database_id)
-    : database_id_(database_id),
-      database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
+Serializer::Serializer(model::DatabaseId database_id)
+    : database_id_(std::move(database_id)),
+      database_name_(EncodeDatabaseId(database_id_).CanonicalString()) {
 }
 
 void Serializer::FreeNanopbMessage(const pb_field_t fields[],

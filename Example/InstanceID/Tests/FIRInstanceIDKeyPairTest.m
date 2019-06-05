@@ -65,8 +65,13 @@ static NSString *kKeyPairPublicTag = @"iid-keypair-test-public";
   XCTAssertNotNil(keypair.privateKeyData);
   XCTAssertNotNil(FIRInstanceIDAppIdentity(keypair));
 
+  XCTestExpectation *keyPairDeleted = [self expectationWithDescription:@"keyPairDeleted"];
   [FIRInstanceIDKeyPairStore deleteKeyPairWithPrivateTag:kKeyPairPrivateTag
                                                publicTag:kKeyPairPublicTag
-                                                 handler:nil];
+                                                 handler:^(NSError *error) {
+                                                   [keyPairDeleted fulfill];
+                                                 }];
+
+  [self waitForExpectations:@[ keyPairDeleted ] timeout:1.0];
 }
 @end

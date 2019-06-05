@@ -24,16 +24,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, nonnull) NSString *titleText;
 @property(nonatomic, readonly, nonnull) NSString *bodyText;
 @property(nonatomic, readonly, nullable) NSString *actionButtonText;
+@property(nonatomic, readonly, nullable) NSString *secondaryActionButtonText;
 @property(nonatomic, readonly, nullable) NSURL *actionURL;
+@property(nonatomic, readonly, nullable) NSURL *secondaryActionURL;
 @property(nonatomic, readonly, nullable) NSURL *imageURL;
+@property(nonatomic, readonly, nullable) NSURL *landscapeImageURL;
 
-// Load image data and report the result in the callback block.
-// Expect these cases in the callback block
-// If error happens, error parameter will be non-nil.
-// If no error happens and imageData parameter is nil, it indicates the case that there
-// is no image assoicated with the message.
-// If error is nil and imageData is not nil, then the image data is loaded successfully
+// Load image data, which can potentially have two images (one for landscape display). If only
+// one image URL exists, that image is loaded and its data is passed in the callback block.
+//
+// If both standard and landscape URLs exist, then both images are fetched asynchronously. If the
+// standard image fails to load, an error will be returned in the callback block and both image data
+// slots will be empty.
+// If only the landscape image fails to load, the standard image will be returned in the callback
+// block and the error will be nil.
+// If no error happens and the imageData parameter is nil, it indicates the case that there is no
+// image associated with the message.
 - (void)loadImageDataWithBlock:(void (^)(NSData *_Nullable imageData,
+                                         NSData *_Nullable landscapeImageData,
                                          NSError *_Nullable error))block;
 
 // convert to a description string of the content

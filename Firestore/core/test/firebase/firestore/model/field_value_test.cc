@@ -16,10 +16,19 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#if __APPLE__
+#import <CoreFoundation/CoreFoundation.h>
+#endif  // __APPLE__
+
+#include <chrono>  // NOLINT(build/c++11)
 #include <climits>
+#include <cmath>
 #include <vector>
 
+#include "Firestore/core/test/firebase/firestore/testutil/equals_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/base/casts.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -28,7 +37,21 @@ namespace model {
 
 using Type = FieldValue::Type;
 
+using absl::nullopt;
+using testing::Not;
+using testutil::Array;
+using testutil::BlobValue;
+using testutil::DbId;
+using testutil::Field;
 using testutil::Key;
+using testutil::Map;
+using testutil::Value;
+using testutil::WrapObject;
+
+using Clock = std::chrono::system_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+using Sec = std::chrono::seconds;
+using Ms = std::chrono::milliseconds;
 
 namespace {
 
@@ -36,7 +59,272 @@ const uint8_t* Bytes(const char* value) {
   return reinterpret_cast<const uint8_t*>(value);
 }
 
+uint64_t ToBits(double value) {
+  return absl::bit_cast<uint64_t>(value);
+}
+
+double ToDouble(uint64_t value) {
+  return absl::bit_cast<double>(value);
+}
+
+// All permutations of the 51 other non-MSB significand bits are also NaNs.
+const uint64_t kAlternateNanBits = 0x7fff000000000000ULL;
+
+MATCHER(IsNan, "a NaN") {
+  return std::isnan(arg);
+}
+
 }  // namespace
+
+TEST(FieldValueTest, ExtractsFields) {
+  ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
+
+  ASSERT_EQ(Type::Object, value.Get(Field("foo"))->type());
+
+  EXPECT_EQ(Value(1), value.Get(Field("foo.a")));
+  EXPECT_EQ(Value(true), value.Get(Field("foo.b")));
+  EXPECT_EQ(Value("string"), value.Get(Field("foo.c")));
+
+  EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
+}
+
+TEST(FieldValueTest, OverwritesExistingFields) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("a"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+}
+
+TEST(FieldValueTest, AddsNewFields) {
+  ObjectValue empty = ObjectValue::Empty();
+  ObjectValue mod = empty.Set(Field("a"), Value("mod"));
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+
+  ObjectValue old = mod;
+  mod = old.Set(Field("b"), Value(1));
+  EXPECT_EQ(WrapObject("a", "mod"), old);
+  EXPECT_EQ(WrapObject("a", "mod", "b", 1), mod);
+}
+
+TEST(FieldValueTest, ImplicitlyCreatesObjects) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("b.c.d"), Value("mod"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "old", "b", Map("c", Map("d", "mod"))), mod);
+}
+
+TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
+  ObjectValue old = WrapObject("a", Map("b", "old"));
+  ObjectValue mod = old.Set(Field("a"), WrapObject("b", "mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "mod")), mod);
+}
+
+TEST(FieldValueTest, AddsToNestedObjects) {
+  ObjectValue old = WrapObject("a", Map("b", "old"));
+  ObjectValue mod = old.Set(Field("a.c"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "old", "c", "mod")), mod);
+}
+
+TEST(FieldValueTest, DeletesKey) {
+  ObjectValue old = WrapObject("a", 1, "b", 2);
+  ObjectValue mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", 1, "b", 2), old);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+
+  ObjectValue empty = mod.Delete(Field("b"));
+  EXPECT_NE(mod, empty);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+}
+
+TEST(FieldValueTest, DeletesHandleMissingKeys) {
+  ObjectValue old = WrapObject("a", Map("b", 1, "c", 2));
+  ObjectValue mod = old.Delete(Field("b"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.d"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.b.c"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+}
+
+TEST(FieldValueTest, DeletesNestedKeys) {
+  FieldValue::Map orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
+  ObjectValue old = WrapObject(orig);
+  ObjectValue mod = old.Delete(Field("a.c.d"));
+
+  EXPECT_NE(mod, old);
+
+  FieldValue::Map second = Map("a", Map("b", 1, "c", Map("e", 3)));
+  EXPECT_EQ(WrapObject(second), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a.c"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(second), old);
+
+  FieldValue::Map third = Map("a", Map("b", 1));
+  EXPECT_EQ(WrapObject(third), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(third), old);
+  EXPECT_EQ(ObjectValue::Empty(), mod);
+}
+
+#if defined(_WIN32)
+#define timegm _mkgmtime
+
+#elif defined(__ANDROID__)
+// time.h doesn't necessarily define this properly, even though it's present
+// from API 12 and up.
+extern time_t timegm(struct tm*);
+#endif
+
+/**
+ * Makes a TimePoint from the given date components, given in UTC.
+ */
+static TimePoint MakeTimePoint(
+    int year, int month, int day, int hour, int minute, int second) {
+  struct std::tm tm {};
+  tm.tm_year = year - 1900;  // counts from 1900
+  tm.tm_mon = month - 1;     // counts from 0
+  tm.tm_mday = day;          // counts from 1
+  tm.tm_hour = hour;
+  tm.tm_min = minute;
+  tm.tm_sec = second;
+
+  // std::mktime produces a time value in local time, and conversion to GMT is
+  // not defined. timegm is nonstandard but widespread enough for our purposes.
+  time_t t = timegm(&tm);
+  return Clock::from_time_t(t);
+}
+
+static TimePoint kDate1 = MakeTimePoint(2016, 5, 20, 10, 20, 0);
+static Timestamp kTimestamp1{1463739600, 0};
+
+static TimePoint kDate2 = MakeTimePoint(2016, 10, 21, 15, 32, 0);
+static Timestamp kTimestamp2{1477063920, 0};
+
+TEST(FieldValueTest, Equality) {
+  testutil::EqualsTester<FieldValue>()
+      .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
+      .AddEqualityGroup(FieldValue::False(), Value(false))
+      .AddEqualityGroup(FieldValue::True(), Value(true))
+      .AddEqualityGroup(Value(0.0 / 0.0), Value(ToDouble(kCanonicalNanBits)),
+                        Value(ToDouble(kAlternateNanBits)),
+                        Value(std::nan("1")), Value(std::nan("2")))
+      // -0.0 and 0.0 compareTo the same but are not equal.
+      .AddEqualityGroup(Value(-0.0))
+      .AddEqualityGroup(Value(0.0))
+      .AddEqualityGroup(Value(1), FieldValue::FromInteger(1LL))
+      // Doubles and Longs aren't equal (even though they compare same).
+      .AddEqualityGroup(Value(1.0), FieldValue::FromDouble(1.0))
+      .AddEqualityGroup(Value(1.1), FieldValue::FromDouble(1.1))
+      .AddEqualityGroup(BlobValue(0, 1, 1))
+      .AddEqualityGroup(BlobValue(0, 1))
+      .AddEqualityGroup(Value("string"), FieldValue::FromString("string"))
+      .AddEqualityGroup(Value("strin"))
+      // latin small letter e + combining acute accent
+      .AddEqualityGroup(Value("e\u0301b"))
+      // latin small letter e with acute accent
+      .AddEqualityGroup(Value("\u00e9a"))
+      .AddEqualityGroup(Value(Timestamp::FromTimePoint(kDate1)),
+                        Value(kTimestamp1))
+      .AddEqualityGroup(Value(Timestamp::FromTimePoint(kDate2)),
+                        Value(kTimestamp2))
+      // NOTE: ServerTimestampValues can't be parsed via Value().
+      .AddEqualityGroup(FieldValue::FromServerTimestamp(kTimestamp1),
+                        FieldValue::FromServerTimestamp(kTimestamp1))
+      .AddEqualityGroup(FieldValue::FromServerTimestamp(kTimestamp2))
+      .AddEqualityGroup(Value(GeoPoint(0, 1)),
+                        FieldValue::FromGeoPoint(GeoPoint(0, 1)))
+      .AddEqualityGroup(Value(GeoPoint(1, 0)))
+      .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
+                        FieldValue::FromReference(DbId(), Key("coll/doc1")))
+      .AddEqualityGroup(
+          FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
+      .AddEqualityGroup(
+          FieldValue::FromReference(DbId("project", "baz"), Key("coll/doc2")))
+      .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
+      .AddEqualityGroup(Array("foo", "bar", "baz"))
+      .AddEqualityGroup(Array("foo"))
+      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2),
+                        WrapObject("foo", 2, "bar", 1))
+      .AddEqualityGroup(WrapObject("bar", 2, "foo", 1))
+      .AddEqualityGroup(WrapObject("bar", 1))
+      .AddEqualityGroup(WrapObject("foo", 1))
+      .TestEquals();
+}
+
+#if __APPLE__
+// Validates that NSNumber/CFNumber normalize NaNs to the same values that
+// Firestore does. This uses CoreFoundation's CFNumber instead of NSNumber just
+// to keep the test in a single file.
+TEST(FieldValueTest, CanonicalBitsAreCanonical) {
+  double input = ToDouble(kAlternateNanBits);
+  CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
+
+  double actual = 0.0;
+  CFNumberGetValue(number, kCFNumberDoubleType, &actual);
+  CFRelease(number);
+
+  ASSERT_EQ(kCanonicalNanBits, ToBits(actual));
+}
+#endif  // __APPLE__
+
+TEST(FieldValueTest, NormalizesNaNs) {
+  // NOTE: With v1 query semantics, it's no longer as important that our NaN
+  // representation matches the backend, since all NaNs are defined to sort as
+  // equal, but we preserve the normalization and this test regardless for now.
+
+  // Bedrock assumption: our canonical NaN bits are actually a NaN.
+  double canonical = ToDouble(kCanonicalNanBits);
+  double alternate = ToDouble(kAlternateNanBits);
+  ASSERT_THAT(canonical, IsNan());
+  ASSERT_THAT(alternate, IsNan());
+  ASSERT_THAT(0.0, Not(IsNan()));
+
+  // Round trip otherwise preserves NaNs
+  EXPECT_EQ(kAlternateNanBits, ToBits(alternate));
+  EXPECT_NE(kCanonicalNanBits, ToBits(alternate));
+
+  // Creating a FieldValue from a double should normalize NaNs.
+  auto Normalize = [](uint64_t bits) -> uint64_t {
+    double value = ToDouble(bits);
+    double normalized = FieldValue::FromDouble(value).double_value();
+    return ToBits(normalized);
+  };
+
+  EXPECT_EQ(kCanonicalNanBits, Normalize(kAlternateNanBits));
+
+  // A NaN that's canonical except it has the sign bit set (would be negative if
+  // signs mattered)
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff8000000000000ULL));
+
+  // A signaling NaN with significand where MSB is 0, and some non-MSB bit is
+  // one.
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff4000000000000ULL));
+}
 
 TEST(FieldValue, ToString) {
   EXPECT_EQ("null", FieldValue::Null().ToString());
@@ -56,7 +344,8 @@ TEST(FieldValue, ToString) {
             FieldValue::FromTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ(
-      "ServerTimestamp(local_write_time=Timestamp(seconds=12, nanoseconds=42))",
+      "ServerTimestamp(local_write_time=Timestamp(seconds=12, "
+      "nanoseconds=42))",
       FieldValue::FromServerTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ("", FieldValue::FromString("").ToString());
@@ -67,8 +356,7 @@ TEST(FieldValue, ToString) {
   auto blob = FieldValue::FromBlob(reinterpret_cast<const uint8_t*>(hi), 2);
   EXPECT_EQ("<4849>", blob.ToString());
 
-  DatabaseId database_id("p", "d");
-  auto ref = FieldValue::FromReference(Key("foo/bar"), &database_id);
+  auto ref = FieldValue::FromReference(DatabaseId("p", "d"), Key("foo/bar"));
   EXPECT_EQ("Reference(key=foo/bar)", ref.ToString());
 
   auto geo_point = FieldValue::FromGeoPoint(GeoPoint(41.8781, -87.6298));
@@ -195,12 +483,11 @@ TEST(FieldValue, BlobType) {
 }
 
 TEST(FieldValue, ReferenceType) {
-  const DatabaseId id("project", "database");
-  const FieldValue a =
-      FieldValue::FromReference(DocumentKey::FromPathString("root/abc"), &id);
-  DocumentKey key = DocumentKey::FromPathString("root/def");
-  const FieldValue b = FieldValue::FromReference(key, &id);
-  const FieldValue c = FieldValue::FromReference(std::move(key), &id);
+  DatabaseId id("project", "database");
+  FieldValue a = FieldValue::FromReference(id, Key("root/abc"));
+  DocumentKey key = Key("root/def");
+  FieldValue b = FieldValue::FromReference(id, key);
+  FieldValue c = FieldValue::FromReference(id, std::move(key));
   EXPECT_EQ(Type::Reference, a.type());
   EXPECT_EQ(Type::Reference, b.type());
   EXPECT_EQ(Type::Reference, c.type());
@@ -344,20 +631,15 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
+  DatabaseId database_id("project", "database");
+  FieldValue reference_value =
+      FieldValue::FromReference(database_id, Key("root/abc"));
   clone = reference_value;
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")), clone);
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")),
             reference_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -403,90 +685,6 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 }
 
-TEST(FieldValue, Move) {
-  FieldValue clone = FieldValue::True();
-
-  FieldValue null_value = FieldValue::Null();
-  clone = std::move(null_value);
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue true_value = FieldValue::True();
-  clone = std::move(true_value);
-  EXPECT_EQ(FieldValue::True(), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue nan_value = FieldValue::Nan();
-  clone = std::move(nan_value);
-  EXPECT_EQ(FieldValue::Nan(), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue integer_value = FieldValue::FromInteger(1L);
-  clone = std::move(integer_value);
-  EXPECT_EQ(FieldValue::FromInteger(1L), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue double_value = FieldValue::FromDouble(1.0);
-  clone = std::move(double_value);
-  EXPECT_EQ(FieldValue::FromDouble(1.0), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
-  clone = std::move(timestamp_value);
-  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue string_value = FieldValue::FromString("abc");
-  clone = std::move(string_value);
-  EXPECT_EQ(FieldValue::FromString("abc"), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
-  clone = std::move(blob_value);
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  const DatabaseId database_id("project", "database");
-  FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
-  clone = std::move(reference_value);
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
-  clone = null_value;  // NOLINT: use after move intended
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
-  clone = std::move(geo_point_value);
-  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), clone);
-  clone = null_value;
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue array_value = FieldValue::FromArray(
-      std::vector<FieldValue>{FieldValue::True(), FieldValue::False()});
-  clone = std::move(array_value);
-  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{FieldValue::True(),
-                                                          FieldValue::False()}),
-            clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue object_value = FieldValue::FromMap(
-      {{"true", FieldValue::True()}, {"false", FieldValue::False()}});
-  clone = std::move(object_value);
-  EXPECT_EQ(FieldValue::FromMap(
-                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
-            clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-}
-
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::True();
@@ -495,8 +693,8 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue string_value = FieldValue::FromString("abc");
   const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
+  const FieldValue reference_value =
+      FieldValue::FromReference(database_id, Key("root/abc"));
   const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
       FieldValue::FromArray(std::vector<FieldValue>());
@@ -539,93 +737,6 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_FALSE(small == large);
 }
 
-TEST(FieldValue, Set) {
-  // Set a field in an object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, SetRecursive) {
-  // Set a field in a new object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, Delete) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, DeleteNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
-}
-
-TEST(FieldValue, Get) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(FieldValue::FromString("A"), value.Get(testutil::Field("a")));
-  EXPECT_EQ(FieldValue::FromString("BA"), value.Get(testutil::Field("b.ba")));
-  EXPECT_EQ(FieldValue::FromString("BB"), value.Get(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, GetNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
-}
-
 TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
@@ -633,6 +744,6 @@ TEST(FieldValue, IsSmallish) {
   EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
-}  //  namespace model
-}  //  namespace firestore
-}  //  namespace firebase
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase

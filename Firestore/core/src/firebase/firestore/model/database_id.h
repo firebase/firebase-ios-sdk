@@ -17,11 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 
-#include <cstdint>
+#include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -33,11 +33,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   /** The default name for "unset" database ID in resource names. */
   static constexpr const char* kDefault = "(default)";
 
-#if defined(__OBJC__)
-  // For objective-c++ initialization; to be removed after migration.
-  // Do NOT use in C++ code.
+  // TODO(wilhuff): Remove this after FieldValue rewrite.
   DatabaseId() = default;
-#endif  // defined(__OBJC__)
 
   /**
    * Creates and returns a new DatabaseId.
@@ -45,19 +42,20 @@ class DatabaseId : public util::Comparable<DatabaseId> {
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
    */
-  DatabaseId(std::string project_id, std::string database_id);
+  explicit DatabaseId(std::string project_id,
+                      std::string database_id = kDefault);
 
   const std::string& project_id() const {
-    return project_id_;
+    return rep_->project_id;
   }
 
   const std::string& database_id() const {
-    return database_id_;
+    return rep_->database_id;
   }
 
   /** Whether this is the default database of the project. */
   bool IsDefaultDatabase() const {
-    return database_id_ == kDefault;
+    return rep_->database_id == kDefault;
   }
 
   util::ComparisonResult CompareTo(const DatabaseId& rhs) const;
@@ -65,8 +63,18 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   size_t Hash() const;
 
  private:
-  std::string project_id_;
-  std::string database_id_;
+  // DocumentIds are copied into every ReferenceValue we create so hide the
+  // actual values behind a shared_ptr to make copying cheaper.
+  struct Rep {
+    Rep(std::string&& project_id, std::string&& database_id)
+        : project_id{std::move(project_id)},
+          database_id{std::move(database_id)} {
+    }
+    std::string project_id;
+    std::string database_id;
+  };
+
+  std::shared_ptr<const Rep> rep_;
 };
 
 }  // namespace model

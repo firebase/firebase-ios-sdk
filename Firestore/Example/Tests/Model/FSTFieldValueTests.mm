@@ -26,6 +26,7 @@
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -33,6 +34,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 
@@ -84,57 +86,6 @@ NSArray *FSTWrapGroups(NSArray *groups) {
   date2 = FSTTestDate(2016, 10, 21, 15, 32, 0);
 }
 
-- (void)testWrapIntegers {
-  NSArray *values = @[
-    @(INT_MIN), @(-1), @0, @1, @2, @(UCHAR_MAX), @(INT_MAX),  // Standard integers
-    @(LONG_MIN), @(LONG_MAX), @(LLONG_MIN), @(LLONG_MAX)      // Larger values
-  ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTIntegerValue class]);
-    XCTAssertEqualObjects([wrapped value], @([value longLongValue]));
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Integer);
-  }
-}
-
-- (void)testWrapsDoubles {
-  // Note that 0x1.0p-1074 is a hex floating point literal representing the minimum subnormal
-  // number: <https://en.wikipedia.org/wiki/Denormal_number>.
-  NSArray *values = @[
-    @(-INFINITY), @(-DBL_MAX), @(LLONG_MIN * -1.0), @(-1.1), @(-0x1.0p-1074), @(-0.0), @(0.0),
-    @(0x1.0p-1074), @(DBL_MIN), @(1.1), @(LLONG_MAX * 1.0), @(DBL_MAX), @(INFINITY)
-  ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDoubleValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Double);
-  }
-}
-
-- (void)testWrapsNilAndNSNull {
-  FSTNullValue *nullValue = [FSTNullValue nullValue];
-  XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
-  XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
-  XCTAssertEqual([nullValue value], [NSNull null]);
-  XCTAssertEqual(nullValue.type, FieldValue::Type::Null);
-}
-
-- (void)testWrapsBooleans {
-  NSArray *values = @[ @YES, @NO ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Boolean);
-  }
-
-  // Unsigned chars could conceivably be handled consistently with signed chars but on arm64 these
-  // end up being stored as signed shorts.
-  FSTFieldValue *wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
-  XCTAssertEqualObjects(wrapped, [FSTIntegerValue integerValue:1]);
-}
-
 union DoubleBits {
   double d;
   uint64_t bits;
@@ -174,22 +125,22 @@ union DoubleBits {
   // Ensure we get the same normalization behavior (currently implemented explicitly by checking
   // for isnan() and then explicitly assigning NAN).
   union DoubleBits result;
-  result.d = [[FSTDoubleValue doubleValue:canonical.d] internalValue];
+  result.d = FieldValue::FromDouble(canonical.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 
-  result.d = [[FSTDoubleValue doubleValue:alternate.d] internalValue];
+  result.d = FieldValue::FromDouble(alternate.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 
   // A NaN that's canonical except it has the sign bit set (would be negative if signs mattered)
   union DoubleBits negative = {.bits = 0xfff8000000000000ULL};
-  result.d = [[FSTDoubleValue doubleValue:negative.d] internalValue];
+  result.d = FieldValue::FromDouble(negative.d).double_value();
   XCTAssertTrue(isnan(negative.d));
   XCTAssertEqual(result.bits, canonical.bits);
 
   // A signaling NaN with significand where MSB is 0, and some non-MSB bit is one.
   union DoubleBits signaling = {.bits = 0xfff4000000000000ULL};
   XCTAssertTrue(isnan(signaling.d));
-  result.d = [[FSTDoubleValue doubleValue:signaling.d] internalValue];
+  result.d = FieldValue::FromDouble(signaling.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 }
 
@@ -208,103 +159,15 @@ union DoubleBits {
   XCTAssertEqual(normalized.bits, negativeZero.bits);
   XCTAssertEqualObjects([NSNumber numberWithDouble:0.0], [NSNumber numberWithDouble:-0.0]);
 
-  // FSTDoubleValue preserves positive/negative zero
+  // FieldValue::FromDouble preserves positive/negative zero
   union DoubleBits result;
-  result.d = [[[FSTDoubleValue doubleValue:zero.d] value] doubleValue];
+  result.d = FieldValue::FromDouble(zero.d).double_value();
   XCTAssertEqual(result.bits, zero.bits);
-  result.d = [[[FSTDoubleValue doubleValue:negativeZero.d] value] doubleValue];
+  result.d = FieldValue::FromDouble(negativeZero.d).double_value();
   XCTAssertEqual(result.bits, negativeZero.bits);
 
   // ... but compares positive/negative zero as unequal, compatibly with Firestore.
-  XCTAssertNotEqualObjects([FSTDoubleValue doubleValue:0.0], [FSTDoubleValue doubleValue:-0.0]);
-}
-
-- (void)testWrapStrings {
-  NSArray *values = @[ @"", @"abc" ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::String);
-  }
-}
-
-- (void)testWrapDates {
-  NSArray *values = @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
-    XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
-    XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Timestamp);
-  }
-}
-
-- (void)testWrapGeoPoints {
-  NSArray *values = @[ FSTTestGeoPoint(1.24, 4.56), FSTTestGeoPoint(-20, 100) ];
-
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTGeoPointValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::GeoPoint);
-  }
-}
-
-- (void)testWrapBlobs {
-  NSArray *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTBlobValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Blob);
-  }
-}
-
-- (void)testWrapResourceNames {
-  NSArray *values = @[
-    FSTTestRef("project", DatabaseId::kDefault, @"foo/bar"),
-    FSTTestRef("project", DatabaseId::kDefault, @"foo/baz")
-  ];
-  for (FSTDocumentKeyReference *value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
-    XCTAssertEqualObjects([wrapped value], [FSTDocumentKey keyWithDocumentKey:value.key]);
-    XCTAssertTrue(*((FSTReferenceValue *)wrapped).databaseID ==
-                  *(const DatabaseId *)(value.databaseID));
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Reference);
-  }
-}
-
-- (void)testWrapsEmptyObjects {
-  XCTAssertEqualObjects(FSTTestFieldValue(@{}), [FSTObjectValue objectValue]);
-  XCTAssertEqual(FSTTestFieldValue(@{}).type, FieldValue::Type::Object);
-}
-
-- (void)testWrapsSimpleObjects {
-  FSTObjectValue *actual =
-      FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
-  FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
-    @"a" : FieldValue::FromString("foo").Wrap(),
-    @"b" : [FSTIntegerValue integerValue:1LL],
-    @"c" : FieldValue::True().Wrap(),
-    @"d" : [FSTNullValue nullValue]
-  }];
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Object);
-}
-
-- (void)testWrapsNestedObjects {
-  FSTObjectValue *actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
-  FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
-    @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
-      @"b" : [[FSTObjectValue alloc]
-          initWithDictionary:@{@"c" : FieldValue::FromString("foo").Wrap()}],
-      @"d" : FieldValue::True().Wrap()
-    }]
-  }];
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Object);
+  XCTAssertNotEqual(FieldValue::FromDouble(0.0), FieldValue::FromDouble(-0.0));
 }
 
 - (void)testExtractsFields {
@@ -422,28 +285,19 @@ union DoubleBits {
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{}));
 }
 
-- (void)testArrays {
-  FSTArrayValue *expected = [[FSTArrayValue alloc]
-      initWithValueNoCopy:@[ FieldValue::FromString("value").Wrap(), FieldValue::True().Wrap() ]];
-
-  FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Array);
-}
-
 - (void)testValueEquality {
-  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
+  DatabaseId database_id("project");
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), FieldValue::True().Wrap() ],
     @[ FSTTestFieldValue(@NO), FieldValue::False().Wrap() ],
-    @[ FSTTestFieldValue([NSNull null]), [FSTNullValue nullValue] ],
-    @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), [FSTDoubleValue nanValue] ],
+    @[ FSTTestFieldValue([NSNull null]), FieldValue::Null().Wrap() ],
+    @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), FieldValue::Nan().Wrap() ],
     // -0.0 and 0.0 compare: the same (but are not isEqual:)
     @[ FSTTestFieldValue(@(-0.0)) ], @[ FSTTestFieldValue(@0.0) ],
-    @[ FSTTestFieldValue(@1), FSTTestFieldValue(@1LL), [FSTIntegerValue integerValue:1LL] ],
+    @[ FSTTestFieldValue(@1), FSTTestFieldValue(@1LL), FieldValue::FromInteger(1LL).Wrap() ],
     // double and unit64_t values can compare: the same (but won't be isEqual:)
-    @[ FSTTestFieldValue(@1.0), [FSTDoubleValue doubleValue:1.0] ],
-    @[ FSTTestFieldValue(@1.1), [FSTDoubleValue doubleValue:1.1] ],
+    @[ FSTTestFieldValue(@1.0), FieldValue::FromDouble(1.0).Wrap() ],
+    @[ FSTTestFieldValue(@1.1), FieldValue::FromDouble(1.1).Wrap() ],
     @[
       FSTTestFieldValue(FSTTestData(0, 1, 2, -1)), [FSTBlobValue blobValue:FSTTestData(0, 1, 2, -1)]
     ],
@@ -471,13 +325,13 @@ union DoubleBits {
                                  previousValue:nil] ],
     @[
       FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
-      [FSTGeoPointValue geoPointValue:FSTTestGeoPoint(0, 1)]
+      FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap()
     ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
       [FSTReferenceValue
           referenceValue:[FSTDocumentKey keyWithDocumentKey:FSTTestDocKey(@"coll/doc1")]
-              databaseID:&database_id],
+              databaseID:database_id],
       FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],
@@ -551,23 +405,6 @@ union DoubleBits {
 
   NSArray *wrapped = FSTWrapGroups(groups);
   FSTAssertComparisons(wrapped);
-}
-
-- (void)testValue {
-  NSDate *date = [NSDate date];
-  id input = @{@"array" : @[ @1, date ], @"obj" : @{@"date" : date, @"string" : @"hi"}};
-  FSTObjectValue *value = FSTTestObjectValue(input);
-  id output = [value value];
-  {
-    XCTAssertTrue([output[@"array"][1] isKindOfClass:[FIRTimestamp class]]);
-    FIRTimestamp *actual = output[@"array"][1];
-    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
-  }
-  {
-    XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[FIRTimestamp class]]);
-    FIRTimestamp *actual = output[@"array"][1];
-    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
-  }
 }
 
 @end

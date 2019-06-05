@@ -43,6 +43,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
@@ -56,12 +57,11 @@ FIRFirestore *FSTTestFirestore() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[FIRFirestore alloc] initWithProjectID:"abc"
-                                                    database:"abc"
-                                              persistenceKey:"db123"
-                                         credentialsProvider:nullptr
-                                                 workerQueue:nullptr
-                                                 firebaseApp:nil];
+    sharedInstance = [[FIRFirestore alloc] initWithDatabaseID:DatabaseId("abc", "abc")
+                                               persistenceKey:"db123"
+                                          credentialsProvider:nullptr
+                                                  workerQueue:nullptr
+                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop
   return sharedInstance;
@@ -84,8 +84,8 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
-  return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
-                                         firestore:FSTTestFirestore()];
+  return [[FIRCollectionReference alloc] initWithPath:testutil::Resource(path)
+                                            firestore:FSTTestFirestore().wrapped];
 }
 
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {

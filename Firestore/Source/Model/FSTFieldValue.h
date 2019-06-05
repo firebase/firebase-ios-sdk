@@ -94,37 +94,14 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
 
-@end
+/** Accesses this FSTFieldValue as an integer. */
+- (int64_t)integerValue;
 
-/**
- * A null value stored in Firestore. The |value| of a FSTNullValue is [NSNull null].
- */
-@interface FSTNullValue : FSTFieldValue <NSNull *>
-+ (instancetype)nullValue;
-@end
+- (bool)isNAN;
 
-/**
- * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
- * comparisons between the two types.
- */
-@interface FSTNumberValue : FSTFieldValue <NSNumber *>
-@end
+/** Accesses this FSTFieldValue as an double. */
+- (double)doubleValue;
 
-/**
- * An integer value stored in Firestore.
- */
-@interface FSTIntegerValue : FSTNumberValue
-+ (instancetype)integerValue:(int64_t)value;
-- (int64_t)internalValue;
-@end
-
-/**
- * A double-precision floating point number stored in Firestore.
- */
-@interface FSTDoubleValue : FSTNumberValue
-+ (instancetype)doubleValue:(double)value;
-+ (instancetype)nanValue;
-- (double)internalValue;
 @end
 
 /**
@@ -156,13 +133,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * A geo point value stored in Firestore.
- */
-@interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
-+ (instancetype)geoPointValue:(FIRGeoPoint *)value;
-@end
-
-/**
  * A blob value stored in Firestore.
  */
 @interface FSTBlobValue : FSTFieldValue <NSData *>
@@ -173,10 +143,11 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value
-                    databaseID:(const model::DatabaseId *)databaseID;
-// Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(model::DatabaseId)databaseID;
+
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
+
 @end
 
 /**

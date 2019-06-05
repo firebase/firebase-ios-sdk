@@ -46,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::CollectionReference;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
@@ -118,8 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)parent {
-  return [FIRCollectionReference referenceWithPath:_documentReference.key().path().PopLast()
-                                         firestore:self.firestore];
+  return [[FIRCollectionReference alloc] initWithReference:_documentReference.Parent()];
 }
 
 - (NSString *)path {
@@ -131,9 +131,9 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Collection path cannot be nil.");
   }
 
-  ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));
-  ResourcePath path = _documentReference.key().path().Append(subPath);
-  return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
+  CollectionReference child =
+      _documentReference.GetCollectionReference(util::MakeString(collectionPath));
+  return [[FIRCollectionReference alloc] initWithReference:std::move(child)];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {

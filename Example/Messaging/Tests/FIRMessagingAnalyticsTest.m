@@ -21,6 +21,8 @@
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 
+// Analytics tracking is iOS only feature.
+#if TARGET_OS_IOS
 static NSString *const kFIRParameterLabel = @"label";
 static NSString *const kReengagementSource = @"Firebase";
 static NSString *const kReengagementMedium = @"notification";
@@ -147,6 +149,8 @@ withNotification:(NSDictionary *)notification
 }
 
 - (void)tearDown {
+  _eventHandler = nil;
+  _userPropertyHandler = nil;
   [self.logClassMock stopMocking];
   [super tearDown];
 }
@@ -407,6 +411,7 @@ withNotification:(NSDictionary *)notification
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
 }
 
+
 - (void)testLogMessage {
   NSDictionary *notification = @{
                                  @"google.c.a.e" : @"1",
@@ -414,6 +419,7 @@ withNotification:(NSDictionary *)notification
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
 }
+
 
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{
@@ -428,3 +434,5 @@ withNotification:(NSDictionary *)notification
 }
 
 @end
+
+#endif

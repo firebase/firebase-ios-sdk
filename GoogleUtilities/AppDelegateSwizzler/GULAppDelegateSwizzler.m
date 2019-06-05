@@ -413,7 +413,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                 toClass:appDelegateSubClass
                               realClass:realClass
        storeDestinationImplementationTo:realImplementationsBySelector];
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #if TARGET_OS_IOS
   // For application:openURL:sourceApplication:annotation:
@@ -1018,8 +1018,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 #pragma mark - Private Methods for Testing
 
-#ifdef GUL_APP_DELEGATE_TESTING
-
 + (void)clearInterceptors {
   [[self interceptors] removeAllObjects];
 }
@@ -1033,8 +1031,4 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   return gOriginalAppDelegate;
 }
 
-#endif  // GUL_APP_DELEGATE_TESTING
-
 @end
-
-//#endif  // TARGET_OS_IOS || TARGET_OS_TV

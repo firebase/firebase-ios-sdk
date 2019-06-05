@@ -16,6 +16,10 @@
 
 #import <objc/runtime.h>
 
+@interface GULSwizzlingCache ()
+- (IMP)originalIMPOfCurrentIMP:(IMP)currentIMP;
+@end
+
 @implementation GULSwizzlingCache {
   /** A mapping from the new IMP to the original IMP. */
   CFMutableDictionaryRef _newToOriginalImps;
@@ -69,6 +73,16 @@
   CFRelease(classSELPair);
 }
 
++ (void)cacheCurrentIMP:(IMP)currentIMP
+              forNewIMP:(IMP)newIMP
+               forClass:(Class)aClass
+           withSelector:(SEL)selector {
+  [[GULSwizzlingCache sharedInstance] cacheCurrentIMP:currentIMP
+                                            forNewIMP:newIMP
+                                             forClass:aClass
+                                         withSelector:selector];
+}
+
 - (IMP)cachedIMPForClass:(Class)aClass withSelector:(SEL)selector {
   const void *classSELCArray[2] = {(__bridge void *)(aClass), selector};
   CFArrayRef classSELPair = CFArrayCreate(kCFAllocatorDefault, classSELCArray,
@@ -96,6 +110,10 @@
   } else {
     return currentIMP;
   }
+}
+
++ (IMP)originalIMPOfCurrentIMP:(IMP)currentIMP {
+  return [[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:currentIMP];
 }
 
 #pragma mark - Helper methods for testing

@@ -23,8 +23,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential);
-
 @interface MainViewController (Email)
 
 - (StaticContentTableViewSection *)emailAuthSection;
