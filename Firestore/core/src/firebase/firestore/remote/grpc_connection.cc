@@ -72,7 +72,11 @@ class HostConfigMap {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
-  const HostConfig* _Nullable find(const std::string& host) const {
+  /**
+   * Returns a pointer to the HostConfig entry for the given host or `nullptr`
+   * if there's no entry.
+   */
+  const HostConfig* find(const std::string& host) const {
     Guard guard{mutex_};
     auto iter = map_.find(host);
     if (iter == map_.end()) {
