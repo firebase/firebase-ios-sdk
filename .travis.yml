@@ -166,8 +166,7 @@ jobs:
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
-      # Restore before merge
-      #if: type = cron
+      if: type = cron
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
@@ -187,6 +186,15 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
+
+    # Split from previous stage to avoid overflowing 45 minute sub-job limit.
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/install_prereqs.sh
+      script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=macos
