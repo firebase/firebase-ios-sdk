@@ -16,16 +16,26 @@
 
 #import "FIRCollectionReference.h"
 
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
+namespace api = firebase::firestore::api;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Internal FIRCollectionReference API we don't want exposed in our public header files. */
-@interface FIRCollectionReference (Internal)
-+ (instancetype)referenceWithPath:(const model::ResourcePath &)path
-                        firestore:(FIRFirestore *)firestore;
+@interface FIRCollectionReference (/* Init */)
+
+- (instancetype)initWithReference:(api::CollectionReference &&)reference NS_DESIGNATED_INITIALIZER;
+
+// Mark the super class designated initializer unavailable.
+- (instancetype)initWithQuery:(api::Query &&)query NS_UNAVAILABLE;
+
+- (instancetype)initWithPath:(model::ResourcePath)path
+                   firestore:(std::shared_ptr<api::Firestore>)firestore;
 @end
 
 NS_ASSUME_NONNULL_END

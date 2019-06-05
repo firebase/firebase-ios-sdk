@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+
 namespace firebase {
 namespace firestore {
 namespace nanopb {
@@ -35,28 +37,6 @@ namespace nanopb {
 class Writer {
  public:
   /**
-   * Creates an output stream that writes to the specified vector. Note that
-   * this vector pointer must remain valid for the lifetime of this Writer.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_ostream_from_buffer())
-   *
-   * @param out_bytes where the output should be serialized to.
-   */
-  static Writer Wrap(std::vector<std::uint8_t>* out_bytes);
-
-  /**
-   * Creates an output stream that writes to the specified string. Note that
-   * this string pointer must remain valid for the lifetime of this Writer.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_ostream_from_buffer())
-   *
-   * @param out_string where the output should be serialized to.
-   */
-  static Writer Wrap(std::string* out_string);
-
-  /**
    * Writes a nanopb message to the output stream.
    *
    * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
@@ -65,7 +45,7 @@ class Writer {
    */
   void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
 
- private:
+ protected:
   /**
    * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
    * a shallow copy will be taken. (Non-null pointers within this struct must
@@ -74,7 +54,49 @@ class Writer {
   explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
   }
 
-  pb_ostream_t stream_;
+  pb_ostream_t stream_{};
+};
+
+/**
+ * Creates a Writer that writes into a vector of bytes.
+ *
+ * This is roughly equivalent to the nanopb function pb_ostream_from_buffer(),
+ * except that ByteStringWriter manages the buffer.
+ */
+class ByteStringWriter : public Writer {
+ public:
+  ByteStringWriter();
+
+  nanopb::ByteString ToByteString() const;
+
+  /**
+   * Returns the vector backing this ByteStringWriter, taking ownership of its
+   * contents.
+   */
+  std::vector<uint8_t> Release();
+
+ private:
+  std::vector<uint8_t> buffer_;
+};
+
+/**
+ * Creates an Writer that writes into a std::string.
+ *
+ * This is roughly equivalent to the nanopb function pb_ostream_from_buffer(),
+ * except that StringWriter manages the string.
+ */
+class StringWriter : public Writer {
+ public:
+  StringWriter();
+
+  /**
+   * Returns the string backing this StringWriter, taking ownership of its
+   * contents.
+   */
+  std::string Release();
+
+ private:
+  std::string buffer_;
 };
 
 }  // namespace nanopb

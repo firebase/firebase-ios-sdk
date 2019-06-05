@@ -137,6 +137,9 @@ s%^./%%
 \%^Debug/% d
 \%^Release/% d
 
+# pod gen output
+\%^gen/% d
+
 # Sources controlled outside this tree
 \%/third_party/% d
 \%/Firestore/Port/% d

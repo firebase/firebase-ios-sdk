@@ -20,16 +20,23 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+using nanopb::ByteString;
+
 using firebase::firestore::util::Status;
 
-Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
-  return Reader{pb_istream_from_buffer(bytes, length)};
+Reader::Reader(const ByteString& bytes) : Reader(bytes.data(), bytes.size()) {
 }
 
-Reader Reader::Wrap(absl::string_view string_view) {
-  return Reader{pb_istream_from_buffer(
-      reinterpret_cast<const uint8_t*>(string_view.data()),
-      string_view.size())};
+Reader::Reader(const std::vector<uint8_t>& bytes)
+    : Reader(bytes.data(), bytes.size()) {
+}
+
+Reader::Reader(const uint8_t* bytes, size_t size)
+    : stream_(pb_istream_from_buffer(bytes, size)) {
+}
+
+Reader::Reader(absl::string_view str)
+    : Reader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
 }
 
 void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
