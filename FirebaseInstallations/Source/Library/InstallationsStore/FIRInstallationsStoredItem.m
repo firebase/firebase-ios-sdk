@@ -18,4 +18,17 @@
 
 @implementation FIRInstallationsStoredItem
 
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+  // TODO: Implement
+}
+
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  // TODO: Implement
+  return [[FIRInstallationsStoredItem alloc] init];
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
 @end
