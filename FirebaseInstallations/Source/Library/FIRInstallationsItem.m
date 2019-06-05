@@ -15,6 +15,7 @@
  */
 
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
 
 @implementation FIRInstallationsItem
 
@@ -28,13 +29,21 @@
 }
 
 - (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item {
+  self.firebaseInstallationID = item.firebaseInstallationID;
+  self.refreshToken = item.refreshToken;
+  self.authToken = item.authToken;
+  self.registrationStatus = item.registrationStatus;
 }
 
 - (FIRInstallationsStoredItem *)storedItem {
-  return nil;
+  FIRInstallationsStoredItem *storedItem = [[FIRInstallationsStoredItem alloc] init];
+  storedItem.firebaseInstallationID = self.firebaseInstallationID;
+  storedItem.refreshToken = self.refreshToken;
+  storedItem.authToken = self.authToken;
+  storedItem.registrationStatus = self.registrationStatus;
+  return storedItem;
 }
 
-// [NSString stringWithFormat:@"%@+%@", appID, firebaseAppName]
 - (nonnull NSString *)identifier {
   return [[self class] identifierWithAppID:self.appID appName:self.firebaseAppName];
 }

@@ -76,14 +76,18 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
   NSString *identifier = [installationItem identifier];
 
   return
-      [self.secureStorage setObject:storedItem forKey:identifier accessGroup:self.accessGroup].then(
-          ^id(id result) {
-            return [self setExists:YES installationItemWithIdentifier:identifier];
-          });
+      [self.secureStorage setObject:storedItem forKey:identifier accessGroup:self.accessGroup]
+    .then(^id(id result) {
+      return [self setExists:YES installationItemWithIdentifier:identifier];
+    });
 }
 
 - (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName {
-  return [FBLPromise resolvedWith:nil];
+  NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
+  return [self.secureStorage removeObjectForKey:identifier accessGroup:self.accessGroup]
+    .then(^id (id result) {
+      return [self setExists:NO installationItemWithIdentifier:identifier];
+    });
 }
 
 #pragma mark - User defaults

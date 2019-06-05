@@ -27,6 +27,7 @@
 #import "FIRSecureStorage.h"
 
 @interface FIRInstallationsStoreTests : XCTestCase
+@property(nonatomic) NSString *accessGroup;
 @property(nonatomic) FIRInstallationsStore *store;
 @property(nonatomic) id mockSecureStorage;
 @property(nonatomic) GULUserDefaults *userDefaults;
@@ -35,14 +36,18 @@
 @implementation FIRInstallationsStoreTests
 
 - (void)setUp {
-  self.mockSecureStorage = OCMStrictClassMock([FIRSecureStorage class]);
+  self.accessGroup = @"accessGroup";
+  self.mockSecureStorage = OCMClassMock([FIRSecureStorage class]);
   self.store = [[FIRInstallationsStore alloc] initWithSecureStorage:self.mockSecureStorage
-                                                        accessGroup:nil];
+                                                        accessGroup:self.accessGroup];
+
+  // TODO: Replace real user defaults by an injected mock.
   self.userDefaults =
       [[GULUserDefaults alloc] initWithSuiteName:kFIRInstallationsStoreUserDefaultsID];
 }
 
 - (void)tearDown {
+  self.userDefaults = nil;
   self.store = nil;
   self.mockSecureStorage = nil;
 }
@@ -55,20 +60,12 @@
   [self.userDefaults removeObjectForKey:itemID];
 
   // Check with empty keychain.
-  OCMStub([self.mockSecureStorage getObjectForKey:itemID
-                                      objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:nil])
-      .andReturn([FBLPromise resolvedWith:nil]);
+  OCMReject([self.mockSecureStorage getObjectForKey:[OCMArg any]
+                                      objectClass:[OCMArg any]
+                                        accessGroup:[OCMArg any]]);
 
   [self assertInstallationIDNotFoundForAppID:appID appName:appName caller:@"Empty keychain"];
-
-  // Check when there is a keychain item.
-  OCMStub([self.mockSecureStorage getObjectForKey:itemID
-                                      objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:nil])
-      .andReturn([FBLPromise resolvedWith:[[FIRInstallationsStoredItem alloc] init]]);
-
-  [self assertInstallationIDNotFoundForAppID:appID appName:appName caller:@"Non-empty keychain"];
+  OCMVerifyAll(self.mockSecureStorage);
 }
 
 - (void)testInstallationID_WhenThereIsUserDefaultsAndKeychain_ThenReturnsItem {
@@ -80,10 +77,9 @@
 
   FIRInstallationsStoredItem *storedItem = [self createValidStoredItem];
 
-  // Check when there is a keychain item.
-  OCMStub([self.mockSecureStorage getObjectForKey:itemID
+  OCMExpect([self.mockSecureStorage getObjectForKey:itemID
                                       objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:nil])
+                                      accessGroup:self.accessGroup])
   .andReturn([FBLPromise resolvedWith:storedItem]);
 
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
@@ -93,11 +89,119 @@
   XCTAssertTrue(itemPromise.isFulfilled);
   XCTAssertNil(itemPromise.error);
   XCTAssertNotNil(itemPromise.value);
+
   FIRInstallationsItem *item = itemPromise.value;
   XCTAssertEqualObjects(item.appID, appID);
   XCTAssertEqualObjects(item.firebaseAppName, appName);
-  XCTAssertEqualObjects(item.refreshToken, storedItem.refreshToken);
-  XCTAssertEqualObjects(item.firebaseInstallationID, storedItem.firebaseInstallationID);
+  [self assertStoredItem:storedItem correspondsToItem:item];
+
+  OCMVerifyAll(self.mockSecureStorage);
+}
+
+- (void)testInstallationID_WhenThereIsUserDefaultsAndNoKeychain_ThenNotFound {
+  NSString *appID = @"123";
+  NSString *appName = @"name";
+  NSString *itemID = [self itemIDWithAppID:appID appName:appName];
+
+  [self.userDefaults setObject:@(YES) forKey:itemID];
+
+  OCMExpect([self.mockSecureStorage getObjectForKey:itemID
+                                      objectClass:[FIRInstallationsStoredItem class]
+                                      accessGroup:self.accessGroup])
+  .andReturn([FBLPromise resolvedWith:nil]);
+
+  FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
+                                                                             appName:appName];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNotNil(itemPromise.error);
+  XCTAssertEqualObjects(itemPromise.error, [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID appName:appName]);
+  XCTAssertNil(itemPromise.value);
+
+  OCMVerifyAll(self.mockSecureStorage);
+}
+
+- (void)testSaveInstallationWhenKeychainSucceds {
+  FIRInstallationsItem *item = [self createValidInstallationItem];
+  NSString *itemID = [item identifier];
+  // Reset user defaults key.
+  [self.userDefaults removeObjectForKey:itemID];
+
+  id storedItemArg = [OCMArg checkWithBlock:^BOOL(FIRInstallationsStoredItem *obj) {
+    XCTAssertEqualObjects([obj class], [FIRInstallationsStoredItem class]);
+    [self assertStoredItem:obj correspondsToItem:item];
+    return YES;
+  }];
+  OCMExpect([self.mockSecureStorage
+             setObject:storedItemArg
+             forKey:itemID
+             accessGroup:self.accessGroup])
+  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
+
+  OCMVerifyAll(self.mockSecureStorage);
+
+  // Check the user defaults key updated.
+  XCTAssertNotNil([self.userDefaults objectForKey:itemID]);
+}
+
+- (void)testSaveInstallationWhenKeychainFails {
+  FIRInstallationsItem *item = [self createValidInstallationItem];
+  NSString *itemID = [item identifier];
+  // Reset user defaults key.
+  [self.userDefaults removeObjectForKey:itemID];
+
+  NSError *keychainError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"Get" status:-1];
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:keychainError];
+
+  id storedItemArg = [OCMArg checkWithBlock:^BOOL(FIRInstallationsStoredItem *obj) {
+    XCTAssertEqualObjects([obj class], [FIRInstallationsStoredItem class]);
+    [self assertStoredItem:obj correspondsToItem:item];
+    return YES;
+  }];
+  OCMExpect([self.mockSecureStorage
+             setObject:storedItemArg
+             forKey:itemID
+             accessGroup:self.accessGroup])
+  .andReturn(rejectedPromise);
+
+  FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertEqualObjects(promise.error, keychainError);
+
+  OCMVerifyAll(self.mockSecureStorage);
+
+  // Check the user defaults key wasn't updated.
+  XCTAssertNil([self.userDefaults objectForKey:itemID]);
+}
+
+- (void)testRemoveInstallation {
+  NSString *appID = @"123";
+  NSString *appName = @"name";
+  NSString *itemID = [self itemIDWithAppID:appID appName:appName];
+
+  [self.userDefaults setObject:@(YES) forKey:itemID];
+
+  OCMExpect([self.mockSecureStorage removeObjectForKey:itemID accessGroup:self.accessGroup])
+  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  FBLPromise<NSNull *> *promise = [self.store removeInstallationForAppID:appID appName:appName];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue(promise.isFulfilled);
+  XCTAssertNil(promise.error);
+
+  OCMVerifyAll(self.mockSecureStorage);
+
+  XCTAssertNil([self.userDefaults objectForKey:itemID]);
 }
 
 #pragma mark - Common
@@ -120,7 +224,7 @@
 #pragma mark - Helpers
 
 - (NSString *)itemIDWithAppID:(NSString *)appID appName:(NSString *)appName {
-  return [[[FIRInstallationsItem alloc] initWithAppID:appID firebaseAppName:appName] identifier];
+  return [FIRInstallationsItem identifierWithAppID:appID appName:appName];
 }
 
 - (FIRInstallationsStoredItem *)createValidStoredItem {
@@ -130,6 +234,22 @@
   storedItem.refreshToken = @"refreshToken";
 
   return storedItem;
+}
+
+- (FIRInstallationsItem *)createValidInstallationItem {
+  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
+                                                           firebaseAppName:@"appName"];
+  item.firebaseInstallationID = @"firebaseInstallationID";
+  item.refreshToken = @"refreshToken";
+
+  return item;
+}
+
+- (void)assertStoredItem:(FIRInstallationsStoredItem *)storedItem
+       correspondsToItem:(FIRInstallationsItem *)item {
+  XCTAssertEqualObjects(item.refreshToken, storedItem.refreshToken);
+  XCTAssertEqualObjects(item.firebaseInstallationID, storedItem.firebaseInstallationID);
+  XCTAssertEqual(item.registrationStatus, storedItem.registrationStatus);
 }
 
 @end
