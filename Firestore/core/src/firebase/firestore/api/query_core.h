@@ -51,9 +51,7 @@ class Query {
  public:
   Query() = default;
 
-  Query(FSTQuery* query, std::shared_ptr<Firestore> firestore)
-      : firestore_{std::move(firestore)}, query_{query} {
-  }
+  Query(FSTQuery* query, std::shared_ptr<Firestore> firestore);
 
   size_t Hash() const;
 
