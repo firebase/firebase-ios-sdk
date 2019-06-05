@@ -71,6 +71,35 @@
   [self assertInstallationIDNotFoundForAppID:appID appName:appName caller:@"Non-empty keychain"];
 }
 
+- (void)testInstallationID_WhenThereIsUserDefaultsAndKeychain_ThenReturnsItem {
+  NSString *appID = @"123";
+  NSString *appName = @"name";
+  NSString *itemID = [self itemIDWithAppID:appID appName:appName];
+
+  [self.userDefaults setObject:@(YES) forKey:itemID];
+
+  FIRInstallationsStoredItem *storedItem = [self createValidStoredItem];
+
+  // Check when there is a keychain item.
+  OCMStub([self.mockSecureStorage getObjectForKey:itemID
+                                      objectClass:[FIRInstallationsStoredItem class]
+                                      accessGroup:nil])
+  .andReturn([FBLPromise resolvedWith:storedItem]);
+
+  FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
+                                                                             appName:appName];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue(itemPromise.isFulfilled);
+  XCTAssertNil(itemPromise.error);
+  XCTAssertNotNil(itemPromise.value);
+  FIRInstallationsItem *item = itemPromise.value;
+  XCTAssertEqualObjects(item.appID, appID);
+  XCTAssertEqualObjects(item.firebaseAppName, appName);
+  XCTAssertEqualObjects(item.refreshToken, storedItem.refreshToken);
+  XCTAssertEqualObjects(item.firebaseInstallationID, storedItem.firebaseInstallationID);
+}
+
 #pragma mark - Common
 
 - (void)assertInstallationIDNotFoundForAppID:(NSString *)appID
@@ -89,8 +118,18 @@
 }
 
 #pragma mark - Helpers
+
 - (NSString *)itemIDWithAppID:(NSString *)appID appName:(NSString *)appName {
   return [[[FIRInstallationsItem alloc] initWithAppID:appID firebaseAppName:appName] identifier];
+}
+
+- (FIRInstallationsStoredItem *)createValidStoredItem {
+  FIRInstallationsStoredItem *storedItem = [[FIRInstallationsStoredItem alloc] init];
+
+  storedItem.firebaseInstallationID = @"firebaseInstallationID";
+  storedItem.refreshToken = @"refreshToken";
+
+  return storedItem;
 }
 
 @end

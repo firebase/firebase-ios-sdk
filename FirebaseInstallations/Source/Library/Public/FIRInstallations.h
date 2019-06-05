@@ -18,6 +18,7 @@
 
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
+@class FIRInstallationsAuthTokenResult;
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
