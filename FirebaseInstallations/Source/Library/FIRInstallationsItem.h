@@ -41,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 // [NSString stringWithFormat:@"%@+%@", appID, firebaseAppName]
 - (nonnull NSString *)identifier;
 
++ (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName;
+
 @end
 
 NS_ASSUME_NONNULL_END

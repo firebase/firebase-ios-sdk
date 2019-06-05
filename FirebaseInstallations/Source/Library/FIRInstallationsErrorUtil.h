@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
 
++ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
+
 @end
 
 NS_ASSUME_NONNULL_END

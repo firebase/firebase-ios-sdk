@@ -22,14 +22,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const kFIRInstallationsStoreUserDefaultsID;
+
 @interface FIRInstallationsStore : NSObject
 
 - (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
-                          accessGroup:(NSString *)accessGroup;
+                          accessGroup:(nullable NSString *)accessGroup;
 
-- (FBLPromise<FIRInstallationsItem *> *)installationForID:(NSString *)identifier;
+// TODO: Consider combining appID and appName to something like FIRInstallationsAppID
+- (FBLPromise<FIRInstallationsItem *> *)installationForAppID:(NSString *)appID
+                                                     appName:(NSString *)appName;
 - (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem;
-- (FBLPromise<NSNull *> *)removeInstallationForID:(NSString *)identifier;
+- (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName;
 
 @end
 

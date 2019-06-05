@@ -36,7 +36,11 @@
 
 // [NSString stringWithFormat:@"%@+%@", appID, firebaseAppName]
 - (nonnull NSString *)identifier {
-  return @"";
+  return [[self class] identifierWithAppID:self.appID appName:self.firebaseAppName];
+}
+
++ (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName {
+  return [appID stringByAppendingString:appName];
 }
 
 @end

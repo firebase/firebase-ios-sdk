@@ -24,11 +24,12 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStoredItem.h"
 #import "FIRSecureStorage.h"
 
-static NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
+NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
 
 @interface FIRInstallationsStore ()
 @property(nonatomic, readonly) FIRSecureStorage *secureStorage;
@@ -49,8 +50,25 @@ static NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIR
   return self;
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)installationForID:(NSString *)identifier {
-  return [FBLPromise resolvedWith:nil];
+- (FBLPromise<FIRInstallationsItem *> *)installationForAppID:(NSString *)appID
+                                                     appName:(NSString *)appName {
+  NSString *itemID = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
+  return [self existsInstallationItemForAppID:appID appName:appName]
+      .then(^id(id result) {
+        return [self.secureStorage getObjectForKey:itemID
+                                       objectClass:[FIRInstallationsStoredItem class]
+                                       accessGroup:self.accessGroup];
+      })
+      .then(^id(FIRInstallationsStoredItem *_Nullable storedItem) {
+        if (storedItem == nil) {
+          return [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID appName:appName];
+        }
+
+        FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
+                                                                 firebaseAppName:appName];
+        [item updateWithStoredItem:storedItem];
+        return item;
+      });
 }
 
 - (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem {
@@ -64,16 +82,22 @@ static NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIR
           });
 }
 
-- (FBLPromise<NSNull *> *)removeInstallationForID:(NSString *)identifier {
+- (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName {
   return [FBLPromise resolvedWith:nil];
 }
 
 #pragma mark - User defaults
 
-- (FBLPromise<NSNumber *> *)existsInstallationItemWithIdentifier:(NSString *)identifier {
+- (FBLPromise<NSNull *> *)existsInstallationItemForAppID:(NSString *)appID
+                                                 appName:(NSString *)appName {
+  NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {
-                            return [[self userDefaults] objectForKey:identifier];
+                            return [[self userDefaults] objectForKey:identifier] != nil
+                                       ? [NSNull null]
+                                       : [FIRInstallationsErrorUtil
+                                             installationItemNotFoundForAppID:appID
+                                                                      appName:appName];
                           }];
 }
 
