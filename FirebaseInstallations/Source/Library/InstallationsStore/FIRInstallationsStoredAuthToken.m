@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRInstallationsStoredAuthToken.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRInstallationsErrorUtil : NSObject
-
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
-
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
+@implementation FIRInstallationsStoredAuthToken
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRInstallationsErrorUtil : NSObject
-
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
-
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
+@interface FIRInstallationsItemTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation FIRInstallationsItemTests
+
+- (void)testInstallationsItemInit {
+  NSString *appID = @"appID";
+  NSString *name = @"name";
+  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
+                                                           firebaseAppName:name];
+
+  XCTAssertEqualObjects(item.appID, appID);
+  XCTAssertEqualObjects(item.firebaseAppName, name);
+}
+
+- (void)testItemUpdateWithStoredItem {
+}
+
+@end

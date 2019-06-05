@@ -33,4 +33,15 @@
                          }];
 }
 
++ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName {
+  // TODO: Form a proper error
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Installation for appID %@ appName %@ not found", appID, appName];
+  return [NSError errorWithDomain:@"FIRInstallationsError"
+                             code:-1
+                         userInfo:@{
+                           NSLocalizedFailureReasonErrorKey : failureReason,
+                         }];
+}
+
 @end

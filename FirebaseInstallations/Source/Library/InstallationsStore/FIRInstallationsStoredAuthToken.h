@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
+// TODO: Add short docs to the API
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInstallationsErrorUtil : NSObject
+typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
+  // An initial status or an undefined value.
+  FIRInstallationsAuthTokenStatusUnknown,
+  FIRInstallationsAuthTokenRequestInProgress,
+  FIRInstallationsAuthTokenStatusTokenReceived
+};
 
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
+@interface FIRInstallationsStoredAuthToken : NSObject
+@property FIRInstallationsAuthTokenStatus status;
 
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
+@property(nullable) NSString *token;
+@property(nullable) NSDate *expirationTime;
+
+// The version of local storage.
+@property NSInteger storageVersion;
 
 @end
 
