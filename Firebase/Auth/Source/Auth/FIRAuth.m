@@ -1885,7 +1885,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     return [[FIRAuth alloc] initWithApp:container.app];
   };
 
-  // Always eager
+  // Always eager since Auth may need to swizzle delegate methods if appropriate.
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
                                               instantiationTiming:FIRInstantiationTimingAlwaysEager
                                                      dependencies:@[]
