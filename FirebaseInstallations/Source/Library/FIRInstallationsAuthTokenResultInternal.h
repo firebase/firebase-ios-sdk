@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsAuthTokenResultInternal.h"
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
-@implementation FIRInstallationsAuthTokenResult
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime {
-  self = [super init];
-  if (self) {
-    _authToken = [token copy];
-    _expirationTime = expirationTime;
-  }
-  return self;
-}
+@interface FIRInstallationsAuthTokenResult (Internal)
+
+- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime;
 
 @end
+
+NS_ASSUME_NONNULL_END

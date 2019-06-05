@@ -22,6 +22,8 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FirebaseCore.h>
 
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+
 #import "FIRInstallationsVersion.h"
 
 @protocol FIRInstallationsInstanceProvider

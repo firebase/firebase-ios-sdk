@@ -20,6 +20,7 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FirebaseCore.h>
 
+#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallations.h"
 
 @interface FIRInstallations (Tests)
