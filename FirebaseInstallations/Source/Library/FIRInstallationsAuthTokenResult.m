@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsAuthTokenResult.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 
 @implementation FIRInstallationsAuthTokenResult
 
-- (instancetype)initWithToken:(NSString *)token expirationTime:(NSDate *)expirationTime {
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
   self = [super init];
   if (self) {
     _authToken = [token copy];
-    _expirationTime = expirationTime;
+    _expirationDate = expirationDate;
   }
   return self;
 }

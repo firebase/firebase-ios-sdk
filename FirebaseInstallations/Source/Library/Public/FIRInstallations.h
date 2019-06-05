@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
-
 @class FIRInstallationsAuthTokenResult;
 @class FIRApp;
 

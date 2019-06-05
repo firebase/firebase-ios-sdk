@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInstallationsAuthTokenResult : NSObject
+@interface FIRInstallationsAuthTokenResult (Internal)
 
-@property(nonatomic, readonly) NSString *authToken;
-@property(nonatomic, readonly) NSDate *expirationDate;
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationTime;
 
 @end
 

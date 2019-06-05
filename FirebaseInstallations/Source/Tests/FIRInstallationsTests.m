@@ -21,6 +21,7 @@
 #import <FirebaseCore/FirebaseCore.h>
 
 #import "FIRInstallations.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) NSString *appID;
@@ -76,7 +77,7 @@
                                 NSError *_Nullable error) {
         XCTAssertNotNil(tokenResult);
         XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-        XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+        XCTAssertTrue([tokenResult.expirationDate laterDate:[NSDate date]]);
         XCTAssertNil(error);
 
         [tokenExpectation fulfill];
@@ -93,7 +94,7 @@
                                 NSError *_Nullable error) {
                      XCTAssertNotNil(tokenResult);
                      XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-                     XCTAssertTrue([tokenResult.expirationTime laterDate:[NSDate date]]);
+                     XCTAssertTrue([tokenResult.expirationDate laterDate:[NSDate date]]);
                      XCTAssertNil(error);
 
                      [tokenExpectation fulfill];
@@ -118,6 +119,7 @@
   FIRApp *app = [self createAndConfigureAppWithName:appName];
   FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
 
+  XCTAssertNotNil(installations);
   XCTAssertEqualObjects(installations.appID, app.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, app.name);
 
