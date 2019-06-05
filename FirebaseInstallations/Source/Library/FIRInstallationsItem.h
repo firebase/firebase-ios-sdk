@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// TODO: Add short docs to the API
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, FIRInstallationsStatus);
