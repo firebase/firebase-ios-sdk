@@ -31,7 +31,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
 
 /**
  *  @param storage The secure storage to save installations data.
- *  @param accessGroup The iOS Keychain Access Group to store and request the installstions data.
+ *  @param accessGroup The Keychain Access Group to store and request the installstions data.
  */
 - (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
                           accessGroup:(nullable NSString *)accessGroup;
@@ -41,9 +41,10 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
  *  @param appID The Firebase(Google) Application ID.
  *  @param appName The Firebase Application Name.
  *
- *  @return Returns a `FBLPromise` instance. The promise resolved with a FIRInstallationsItem instance
- *  if there is a valid installation stored for `appID` and `appName`. The promise is rejected with a
- *  specific error when the installation has not been found or with another possible error.
+ *  @return Returns a `FBLPromise` instance. The promise resolved with a FIRInstallationsItem
+ * instance if there is a valid installation stored for `appID` and `appName`. The promise is
+ * rejected with a specific error when the installation has not been found or with another possible
+ * error.
  */
 - (FBLPromise<FIRInstallationsItem *> *)installationForAppID:(NSString *)appID
                                                      appName:(NSString *)appName;
