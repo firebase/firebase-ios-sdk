@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item;
 - (FIRInstallationsStoredItem *)storedItem;
 
-// [NSString stringWithFormat:@"%@+%@", appID, firebaseAppName]
 - (nonnull NSString *)identifier;
 
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName;

@@ -23,17 +23,43 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// The user default suite name used to store data.
 extern NSString *const kFIRInstallationsStoreUserDefaultsID;
 
+/// The class is responsible for storing and accessing the installstions data.
 @interface FIRInstallationsStore : NSObject
 
+/**
+ *  @param storage The secure storage to save installations data.
+ *  @param accessGroup The iOS Keychain Access Group to store and request the installstions data.
+ */
 - (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
                           accessGroup:(nullable NSString *)accessGroup;
 
 // TODO: Consider combining appID and appName to something like FIRInstallationsAppID
+/**
+ *  @param appID The Firebase(Google) Application ID.
+ *  @param appName The Firebase Application Name.
+ *
+ *  @return Returns a `FBLPromise` instance. The promise resolved with a FIRInstallationsItem instance
+ *  if there is a valid installation stored for `appID` and `appName`. The promise is rejected with a
+ *  specific error when the installation has not been found or with another possible error.
+ */
 - (FBLPromise<FIRInstallationsItem *> *)installationForAppID:(NSString *)appID
                                                      appName:(NSString *)appName;
+
+/** Saves the given instalation.
+ *  @param installationItem The installation data.
+ *  @return Returns a promise that is resolved with [NSNull null] on success.
+ */
 - (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem;
+
+/** Removes installation data for the given app parameters.
+ *  @param appID The Firebase(Google) Application ID.
+ *  @param appName The Firebase Application Name.
+ *
+ *  @return Returns a promise that is resolved with [NSNull null] on success.
+ */
 - (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName;
 
 @end
