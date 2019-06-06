@@ -179,6 +179,9 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+# Clean the Derived Data between builds to help reduce flakiness.
+rm -rf ~/Library/Developer/Xcode/DerivedData
+
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
     RunXcodebuild \
