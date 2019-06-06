@@ -20,7 +20,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The enum represent possible states of the installation auth token.
+ * The enum represent possible states of the installation auth token.
  *
  * WARNING: The enum is stored to Keychain as a part of `FIRInstallationsStoredAuthToken`.
  * Modification of it can lead to incompatibility with previous version. Any modification must be

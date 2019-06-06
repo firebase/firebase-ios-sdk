@@ -22,7 +22,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The enum represent possible states of the installation ID.
+ * The enum represent possible states of the installation ID.
  *
  * WARNING: The enum is stored to Keychain as a part of `FIRInstallationsStoredItem`. Modification
  * of it can lead to incompatibility with previous version. Any modification must be evaluated and,
