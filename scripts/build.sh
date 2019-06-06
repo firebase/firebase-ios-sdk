@@ -213,6 +213,25 @@ case "$product-$method-$platform" in
     fi
     ;;
 
+  Auth-xcodebuild-*)
+    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      RunXcodebuild \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -scheme "Auth_ApiTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -scheme "Auth_E2eTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    fi
+    ;;
+
   InAppMessaging-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
