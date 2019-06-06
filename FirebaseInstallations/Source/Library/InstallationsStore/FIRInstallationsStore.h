@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The user default suite name used to store data.
+/// The user defaults suite name used to store data.
 extern NSString *const kFIRInstallationsStoreUserDefaultsID;
 
 /// The class is responsible for storing and accessing the installations data.

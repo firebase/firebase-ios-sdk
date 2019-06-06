@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Get an object by key.
  * @param key The key.
- * @param objectClass The expected object class required by `NSSecureCoding`
+ * @param objectClass The expected object class required by `NSSecureCoding`.
  * @param accessGroup The Keychain Access Group.
  *
  * @return Returns a promise. It is resolved with an object stored by key if exists. It is resolved

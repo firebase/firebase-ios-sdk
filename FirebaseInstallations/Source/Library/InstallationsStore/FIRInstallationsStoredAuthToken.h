@@ -37,9 +37,9 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 };
 
 /**
- * The class is be used by `FIRInstallationsStore`. It is required to
- * serealize/deserialize the installation data into/from `NSData` to be stored in Keychain.
- * It is also used on the logic level as a data object (see `FIRInstallationsItem.authToken`).
+ * This class serializes and deserializes the installation data into/from `NSData` to be stored in
+ * Keychain. This class is primarily used by `FIRInstallationsStore`. It is also used on the logic
+ * level as a data object (see `FIRInstallationsItem.authToken`).
  *
  * WARNING: Modification of the class properties can lead to incompatibility with the stored data
  * encoded by the previous class versions. Any modification must be evaluated and, if it is really
