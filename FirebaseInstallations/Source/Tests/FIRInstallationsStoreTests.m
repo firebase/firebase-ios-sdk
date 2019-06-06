@@ -41,7 +41,8 @@
   self.store = [[FIRInstallationsStore alloc] initWithSecureStorage:self.mockSecureStorage
                                                         accessGroup:self.accessGroup];
 
-  // TODO: Replace real user defaults by an injected mock.
+  // TODO: Replace real user defaults by an injected mock or a test specific user defaults instance
+  // with a specific suite name.
   self.userDefaults =
       [[GULUserDefaults alloc] initWithSuiteName:kFIRInstallationsStoreUserDefaultsID];
 }
