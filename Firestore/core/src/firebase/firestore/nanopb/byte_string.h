@@ -38,35 +38,46 @@ namespace firestore {
 namespace nanopb {
 
 /**
- * A string-like object backed by a nanopb byte array.
+ * An immutable string-like object backed by a nanopb byte array. `ByteString`
+ * owns its memory, has deep copy semantics, and creates a copy of any input
+ * given to its constructors.
+ *
+ * `ByteString` is similar in spirit to com.google.protobuf.ByteString. It
+ * serves mostly the same purpose: it's a holder of a byte array that's
+ * compatible with the proto marshaling layer.
+ *
+ * Unlike protobuf's ByteString, nanopb doesn't supply this class so this class
+ * additionally makes it possible to cheaply translate to and from raw
+ * `pb_bytes_array_t*` values. ByteString allows taking values directly from
+ * nanopb messages and avoids copying while doing so.
  */
 class ByteString : public util::Comparable<ByteString> {
  public:
   ByteString() = default;
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the of the
-   * given bytes.
+   * Creates a new ByteString whose backing byte array is a copy of the given
+   * bytes.
    */
   ByteString(const void* value, size_t size);
   explicit ByteString(const std::vector<uint8_t>& value);
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the of the
-   * given string.
+   * Creates a new ByteString whose backing byte array is a copy of the given
+   * string.
    */
   explicit ByteString(const std::string& value);
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the of the
-   * given string_view.
+   * Creates a new ByteString whose backing byte array is a copy of the given
+   * string_view.
    */
   explicit ByteString(absl::string_view value);
 
 #if __OBJC__
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the of the
-   * bytes in the given NSData buffer.
+   * Creates a new ByteString whose backing byte array is a copy of the bytes
+   * in the given NSData buffer.
    */
   explicit ByteString(NSData* value)
       : ByteString(value.bytes, static_cast<size_t>(value.length)) {
@@ -76,8 +87,8 @@ class ByteString : public util::Comparable<ByteString> {
   ByteString(std::initializer_list<uint8_t> value);
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the of the
-   * given C string. The length is computed with `strlen`.
+   * Creates a new ByteString whose backing byte array is a copy of the given
+   * C string. The length is computed with `strlen`.
    */
   explicit ByteString(const char* value);
 
