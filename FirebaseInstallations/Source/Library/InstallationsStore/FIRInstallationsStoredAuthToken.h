@@ -41,9 +41,9 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
  * serealize/deserialize the installation data into/from `NSData` to be stored in Keychain.
  * It is also used on the logic level as a data object (see `FIRInstallationsItem.authToken`).
  *
- * WARNING: Modification of the properties of the class can lead to incompatibility with previous
- * version. Any modification must be evaluated and, if it is really needed, the `storageVersion`
- * must be bumped and proper migration code added.
+ * WARNING: Modification of the class properties can lead to incompatibility with the stored data
+ * encoded by the previous class versions. Any modification must be evaluated and, if it is really
+ * needed, the `storageVersion` must be bumped and proper migration code added.
  */
 @interface FIRInstallationsStoredAuthToken : NSObject
 @property FIRInstallationsAuthTokenStatus status;
