@@ -71,8 +71,8 @@
   - (void)setIOSBundleID:(NSString *)iOSBundleID;
 
  /** @fn setAndroidPackageName:installIfNotAvailable:minimumVersion:
-     @brief Sets the Android package name, the flag to indicate whether or not to install the app and
-         the minimum Android version supported.
+     @brief Sets the Android package name, the flag to indicate whether or not to install the app
+         and the minimum Android version supported.
      @param androidPackageName The Android package name.
      @param installIfNotAvailable Indicates whether or not the app should be installed if not
          available.

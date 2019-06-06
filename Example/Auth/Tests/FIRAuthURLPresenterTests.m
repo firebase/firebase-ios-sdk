@@ -98,7 +98,7 @@ static NSTimeInterval kExpectationTimeout = 2;
     [invocation getArgument:&unretainedArgument atIndex:2];
 
     id presentViewController = unretainedArgument;
-    if ([SFSafariViewController class]) {
+    if (@available(iOS 9.0, *)) { // SFSafariViewController is available
       SFSafariViewController *viewController = presentViewController;
       XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
       XCTAssertEqual(viewController.delegate, presenter);
@@ -121,7 +121,7 @@ static NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(mockUIDelegate);
 
   // Pretend dismissing view controller.
-  OCMExpect([mockUIDelegate dismissViewControllerAnimated:OCMOCK_ANY
+  OCMExpect([mockUIDelegate dismissViewControllerAnimated:YES
                                                completion:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
     XCTAssertTrue([NSThread isMainThread]);
@@ -129,7 +129,7 @@ static NSTimeInterval kExpectationTimeout = 2;
     // Indices 0 and 1 indicate the hidden arguments self and _cmd.
     // `completion` is at index 3.
     [invocation getArgument:&unretainedArgument atIndex:3];
-    void (^completion)() = unretainedArgument;
+    void (^completion)(void) = unretainedArgument;
     dispatch_async(dispatch_get_main_queue(), completion);
   });
   completionBlockExpectation = [self expectationWithDescription:@"completion callback"];
