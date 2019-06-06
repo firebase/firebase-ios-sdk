@@ -115,12 +115,6 @@ class Serializer {
   static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
 
   /**
-   * Decodes the nanopb bytes to a std::vector. If the input pointer is null,
-   * then this method will return an empty vector.
-   */
-  static nanopb::ByteString DecodeBytes(const pb_bytes_array_t* bytes);
-
-  /**
    * Release memory allocated by the Encode* methods that return protos.
    *
    * This essentially wraps calls to nanopb's pb_release() method.

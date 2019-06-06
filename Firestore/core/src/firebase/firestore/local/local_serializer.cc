@@ -232,7 +232,7 @@ QueryData LocalSerializer::DecodeQueryData(
           proto.last_listen_sequence_number);
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
-  ByteString resume_token = rpc_serializer_.DecodeBytes(proto.resume_token);
+  ByteString resume_token(proto.resume_token);
   Query query = Query::Invalid();
 
   switch (proto.which_target_type) {

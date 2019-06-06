@@ -86,14 +86,6 @@ std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
   return std::string{reinterpret_cast<const char*>(str->bytes), size};
 }
 
-pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
-  return ByteString(bytes).release();
-}
-
-ByteString Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
-  return ByteString::Copy(bytes);
-}
-
 namespace {
 
 FieldValue::Map DecodeMapValue(Reader* reader,
@@ -371,10 +363,8 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     case google_firestore_v1_Value_string_value_tag:
       return FieldValue::FromString(DecodeString(msg.string_value));
 
-    case google_firestore_v1_Value_bytes_value_tag: {
-      ByteString bytes = DecodeBytes(msg.bytes_value);
-      return FieldValue::FromBlob(std::move(bytes));
-    }
+    case google_firestore_v1_Value_bytes_value_tag:
+      return FieldValue::FromBlob(ByteString(msg.bytes_value));
 
     case google_firestore_v1_Value_reference_value_tag:
       // TODO(b/74243929): Implement remaining types.
