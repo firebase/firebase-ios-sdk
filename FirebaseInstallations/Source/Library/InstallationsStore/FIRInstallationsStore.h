@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the API
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<ValueType>;

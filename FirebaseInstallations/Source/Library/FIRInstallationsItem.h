@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the API
+// TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, FIRInstallationsStatus);
@@ -24,6 +24,12 @@ typedef NS_ENUM(NSInteger, FIRInstallationsStatus);
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ *  The class represents the required installation ID and auth token data including possible states.
+ *  The data is stored to Keychain via `FIRInstallationsStoredItem` which has only the storage
+ *  relevant data and does not contain any logic. `FIRInstallationsItem` must be used on the logic
+ * level (not `FIRInstallationsStoredItem`).
+ */
 @interface FIRInstallationsItem : NSObject
 
 @property(nonatomic, readonly) NSString *appID;

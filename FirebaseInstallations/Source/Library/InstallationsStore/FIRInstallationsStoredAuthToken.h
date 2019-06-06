@@ -14,25 +14,44 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the API
+// TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ *  The enum represent possible states of the installation auth token.
+ *
+ * WARNING: The enum is stored to Keychain as a part of `FIRInstallationsStoredAuthToken`.
+ * Modification of it can lead to incompatibility with previous version. Any modification must be
+ * evaluated and, if it is really needed, the `storageVersion` must be bumped and proper migration
+ * code added.
+ */
 typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
-  // An initial status or an undefined value.
+  /// An initial status or an undefined value.
   FIRInstallationsAuthTokenStatusUnknown,
+  /// The auth token has been requested from the server but the response has not been received yet.
   FIRInstallationsAuthTokenRequestInProgress,
+  /// The auth token has been received from the server.
   FIRInstallationsAuthTokenStatusTokenReceived
 };
 
+/**
+ * The class is be used by `FIRInstallationsStore`. It is required to
+ * serealize/deserialize the installation data into/from `NSData` to be stored in Keychain.
+ * It is also used on the logic level as a data object (see `FIRInstallationsItem.authToken`).
+ *
+ * WARNING: Modification of the properties of the class can lead to incompatibility with previous
+ * version. Any modification must be evaluated and, if it is really needed, the `storageVersion`
+ * must be bumped and proper migration code added.
+ */
 @interface FIRInstallationsStoredAuthToken : NSObject
 @property FIRInstallationsAuthTokenStatus status;
 
 @property(nullable, copy) NSString *token;
 @property(nullable, copy) NSDate *expirationTime;
 
-// The version of local storage.
+/// The version of local storage.
 @property(nonatomic) NSInteger storageVersion;
 
 @end

@@ -207,8 +207,7 @@
 
 #pragma mark - Common
 
-- (void)assertInstallationIDNotFoundForAppID:(NSString *)appID
-                                     appName:(NSString *)appName {
+- (void)assertInstallationIDNotFoundForAppID:(NSString *)appID appName:(NSString *)appName {
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
 
