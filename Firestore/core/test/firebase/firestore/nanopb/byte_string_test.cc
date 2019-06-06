@@ -48,8 +48,7 @@ TEST(ByteStringTest, DefaultConstructor) {
   ByteString str;
   EXPECT_EQ(str.get(), nullptr);
 
-  // Even though the backing bytes array is null, data()/size() should be
-  // non-null.
+  // Even though the backing bytes array is null, data() should be non-null.
   EXPECT_NE(str.data(), nullptr);
   EXPECT_EQ(str.size(), 0);
 

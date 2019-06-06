@@ -46,13 +46,9 @@ pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   return result;
 }
 
-absl::string_view MakeStringView(pb_bytes_array_t* bytes) {
-  if (bytes == nullptr) {
-    return absl::string_view{"", 0};
-  }
-
-  const char* str = reinterpret_cast<const char*>(bytes->bytes);
-  return absl::string_view{str, bytes->size};
+absl::string_view MakeStringView(const ByteString& bytes) {
+  const char* str = reinterpret_cast<const char*>(bytes.data());
+  return absl::string_view{str, bytes.size()};
 }
 
 }  // namespace nanopb

@@ -74,21 +74,12 @@ pb_bytes_array_t* ByteString::release() {
   return result;
 }
 
-/**
- * Converts this ByteString to an absl::string_view (without changing
- * ownership).
- */
-ByteString::operator absl::string_view() const {
-  return MakeStringView(bytes_);
-}
-
 void swap(ByteString& lhs, ByteString& rhs) noexcept {
-  using std::swap;
-  swap(lhs.bytes_, rhs.bytes_);
+  std::swap(lhs.bytes_, rhs.bytes_);
 }
 
 util::ComparisonResult ByteString::CompareTo(const ByteString& rhs) const {
-  return util::Compare(absl::string_view{*this}, absl::string_view{rhs});
+  return util::Compare(MakeStringView(*this), MakeStringView(rhs));
 }
 
 size_t ByteString::Hash() const {
@@ -96,7 +87,7 @@ size_t ByteString::Hash() const {
 }
 
 std::string ByteString::ToString() const {
-  std::string hex = absl::BytesToHexString(MakeStringView(bytes_));
+  std::string hex = absl::BytesToHexString(MakeStringView(*this));
   return absl::StrCat("<", hex, ">");
 }
 

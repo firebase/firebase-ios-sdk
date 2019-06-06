@@ -141,12 +141,6 @@ class ByteString : public util::Comparable<ByteString> {
   pb_bytes_array_t* release();
 
   /**
-   * Returns an absl::string_view view of this ByteString (without changing
-   * ownership).
-   */
-  explicit operator absl::string_view() const;
-
-  /**
    * Performs a lexicographical comparison between this and the other bytes.
    */
   util::ComparisonResult CompareTo(const ByteString& rhs) const;
