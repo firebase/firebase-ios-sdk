@@ -51,6 +51,10 @@ ByteStringWriter::ByteStringWriter() : Writer() {
   stream_.max_size = SIZE_MAX;
 }
 
+ByteStringWriter::~ByteStringWriter() {
+  std::free(buffer_);
+}
+
 void ByteStringWriter::Append(const uint8_t* data, size_t size) {
   if (size == 0) return;
 
@@ -73,6 +77,11 @@ void ByteStringWriter::Reserve(size_t size) {
 
   buffer_ = static_cast<pb_bytes_array_t*>(
       std::realloc(buffer_, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
+
+  if (capacity_ == 0) {
+    // initialize on the first allocation.
+    buffer_->size = 0;
+  }
   capacity_ = desired;
 }
 

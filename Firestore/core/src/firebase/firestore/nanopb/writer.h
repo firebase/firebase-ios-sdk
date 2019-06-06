@@ -63,6 +63,13 @@ class Writer {
 class ByteStringWriter : public Writer {
  public:
   ByteStringWriter();
+  ~ByteStringWriter();
+
+  ByteStringWriter(const ByteStringWriter&) = delete;
+  ByteStringWriter(ByteStringWriter&&) = delete;
+
+  ByteStringWriter& operator=(const ByteStringWriter&) = delete;
+  ByteStringWriter& operator=(ByteStringWriter&&) noexcept = delete;
 
   void Append(const uint8_t* data, size_t size);
   void Reserve(size_t size);
@@ -91,7 +98,7 @@ class ByteStringWriter : public Writer {
   }
 
  private:
-  pb_bytes_array_t* buffer_{};
+  pb_bytes_array_t* buffer_ = nullptr;
   size_t capacity_ = 0;
 };
 
