@@ -15,6 +15,13 @@
  */
 
 #import "FIRInstallations.h"
+
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -25,6 +32,8 @@
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
 #import "FIRInstallationsVersion.h"
+#import "FIRInstallationsStore.h"
+#import "FIRInstallationsItem.h"
 
 @protocol FIRInstallationsInstanceProvider
 @end
@@ -32,6 +41,9 @@
 @interface FIRInstallations () <FIRLibrary>
 @property(nonatomic, readwrite, strong) NSString *appID;
 @property(nonatomic, readwrite, strong) NSString *appName;
+
+@property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
+
 @end
 
 @implementation FIRInstallations
@@ -69,13 +81,24 @@
 }
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
+  FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
+  FIRInstallationsStore *installationsStore = [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
+  return [self initWithGoogleAppID:appID appName:appName installationsStore:installationsStore];
+}
+
+/// The initializer is supposed to be used by tests to inject `installationsStore`.
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+                 installationsStore:(FIRInstallationsStore *)installationsStore {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
+    _installationsStore = installationsStore;
   }
   return self;
 }
+
 
 #pragma mark - Public
 
@@ -110,6 +133,11 @@
   completion(nil);
 }
 
-#pragma mark -
+#pragma mark - FID
+
+- (FBLPromise<NSString *> *)getStoredFID {
+  return [self.installationsStore installationForAppID:self.appID appName:self.appName]
+  .then(...);
+}
 
 @end
