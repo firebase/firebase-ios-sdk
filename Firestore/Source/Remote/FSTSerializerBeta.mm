@@ -205,7 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
   return util::WrapNSString([self encodedResourcePathForDatabaseID:_databaseID].CanonicalString());
 }
 
-#pragma mark - FSTFieldValue <=> Value proto
+#pragma mark - FieldValue <=> Value proto
 
 - (GCFSValue *)encodedFieldValue:(const FieldValue &)fieldValue {
   switch (fieldValue.type()) {

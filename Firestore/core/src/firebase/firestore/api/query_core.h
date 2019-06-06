@@ -32,7 +32,6 @@
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
 OBJC_CLASS(FSTBound);
-OBJC_CLASS(FSTFieldValue);
 OBJC_CLASS(FSTQuery);
 OBJC_CLASS(FSTRelationFilter);
 

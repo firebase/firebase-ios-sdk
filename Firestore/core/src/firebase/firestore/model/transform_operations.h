@@ -157,8 +157,8 @@ class ArrayTransform : public TransformOperation {
  private:
   /**
    * Inspects the provided value, returning a mutable copy of the internal array
-   * if it's an FSTArrayValue and an empty mutable array if it's nil or any
-   * other type of FSTFieldValue.
+   * if it's of type Array and an empty mutable array if it's nil or any other
+   * type of FieldValue.
    */
   static std::vector<model::FieldValue> CoercedFieldValuesArray(
       const absl::optional<model::FieldValue>& value);

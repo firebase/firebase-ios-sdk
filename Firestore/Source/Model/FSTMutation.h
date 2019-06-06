@@ -30,7 +30,6 @@
 #include "absl/types/optional.h"
 
 @class FSTDocument;
-@class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FIRTimestamp;

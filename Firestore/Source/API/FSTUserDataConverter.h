@@ -29,7 +29,6 @@
 
 @class FIRTimestamp;
 @class FSTObjectValue;
-@class FSTFieldValue;
 @class FSTMutation;
 
 namespace core = firebase::firestore::core;

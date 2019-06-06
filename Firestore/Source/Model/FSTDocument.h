@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "absl/types/optional.h"
 
-@class FSTFieldValue;
 @class GCFSDocument;
 @class FSTObjectValue;
 

@@ -38,7 +38,6 @@
 @class FSTDeletedDocument;
 @class FSTDocument;
 @class FSTDocumentKeyReference;
-@class FSTFieldValue;
 @class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
@@ -228,7 +227,7 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
-/** Wraps a plain value into an FSTFieldValue instance. */
+/** Wraps a plain value into an FieldValue instance. */
 model::FieldValue FSTTestFieldValue(id _Nullable value);
 
 /** Wraps a NSDictionary value into an FSTObjectValue instance. */

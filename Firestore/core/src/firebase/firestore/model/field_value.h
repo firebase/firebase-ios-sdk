@@ -37,10 +37,6 @@
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 
-#if __OBJC__
-@class FSTFieldValue;
-#endif
-
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -86,11 +82,6 @@ class FieldValue {
   FieldValue();
 
   FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
-
-#if __OBJC__
-  FSTFieldValue* Wrap() const&;
-  FSTFieldValue* Wrap() &&;
-#endif  // __OBJC__
 
   /** Returns the true type for this value. */
   Type type() const {

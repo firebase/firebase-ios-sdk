@@ -205,7 +205,6 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 - (NSString *)canonicalID {
   // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
-  // TODO(FSTFieldValue): validate no change to output.
   return [NSString stringWithFormat:@"%s%@%s", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
                                     self.value.ToString().c_str()];

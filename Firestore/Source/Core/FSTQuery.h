@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 @class FSTDocument;
-@class FSTFieldValue;
 
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
