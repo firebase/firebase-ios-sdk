@@ -50,6 +50,7 @@
   self.userDefaults = nil;
   self.store = nil;
   self.mockSecureStorage = nil;
+  [self.mockSecureStorage stopMocking];
 }
 
 - (void)testInstallationID_WhenNoUserDefaultsItem_ThenNotFound {
@@ -64,7 +65,7 @@
                                         objectClass:[OCMArg any]
                                         accessGroup:[OCMArg any]]);
 
-  [self assertInstallationIDNotFoundForAppID:appID appName:appName caller:@"Empty keychain"];
+  [self assertInstallationIDNotFoundForAppID:appID appName:appName];
   OCMVerifyAll(self.mockSecureStorage);
 }
 
@@ -207,18 +208,17 @@
 #pragma mark - Common
 
 - (void)assertInstallationIDNotFoundForAppID:(NSString *)appID
-                                     appName:(NSString *)appName
-                                      caller:(NSString *)caller {
+                                     appName:(NSString *)appName {
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
-  XCTAssertTrue(itemPromise.isRejected, @"%@", caller);
+  XCTAssertTrue(itemPromise.isRejected, @"%@", self.name);
   XCTAssertEqualObjects(itemPromise.error,
                         [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID
                                                                             appName:appName],
-                        @"%@", caller);
+                        @"%@", self.name);
 }
 
 #pragma mark - Helpers
