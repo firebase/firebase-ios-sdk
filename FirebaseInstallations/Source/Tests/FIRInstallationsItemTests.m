@@ -22,6 +22,7 @@
 
 @end
 
+// TODO: Add more tests.
 @implementation FIRInstallationsItemTests
 
 - (void)testInstallationsItemInit {
@@ -35,6 +36,7 @@
 }
 
 - (void)testItemUpdateWithStoredItem {
+  // TODO: Implement.
 }
 
 @end
