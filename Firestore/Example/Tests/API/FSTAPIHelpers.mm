@@ -84,8 +84,8 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
-  return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
-                                         firestore:FSTTestFirestore()];
+  return [[FIRCollectionReference alloc] initWithPath:testutil::Resource(path)
+                                            firestore:FSTTestFirestore().wrapped];
 }
 
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {

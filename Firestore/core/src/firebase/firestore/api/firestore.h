@@ -37,7 +37,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-OBJC_CLASS(FIRCollectionReference);
 OBJC_CLASS(FIRQuery);
 OBJC_CLASS(FIRTransaction);
 OBJC_CLASS(FSTFirestoreClient);
@@ -47,6 +46,7 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+class CollectionReference;
 class DocumentReference;
 class WriteBatch;
 
@@ -81,7 +81,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   void set_user_executor(std::unique_ptr<util::Executor> user_executor);
 
-  FIRCollectionReference* GetCollection(absl::string_view collection_path);
+  CollectionReference GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
   WriteBatch GetBatch();
   FIRQuery* GetCollectionGroup(NSString* collection_id);

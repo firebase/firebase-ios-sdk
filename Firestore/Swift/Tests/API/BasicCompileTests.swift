@@ -52,6 +52,8 @@ func main() {
 
   enableDisableNetwork(database: db)
 
+  clearPersistence(database: db)
+
   types()
 }
 
@@ -167,6 +169,15 @@ func enableDisableNetwork(database db: Firestore) {
   })
   // trailing block syntax
   db.enableNetwork { error in
+    if let e = error {
+      print("Uh oh! \(e)")
+      return
+    }
+  }
+}
+
+func clearPersistence(database db: Firestore) {
+  db.clearPersistence { error in
     if let e = error {
       print("Uh oh! \(e)")
       return

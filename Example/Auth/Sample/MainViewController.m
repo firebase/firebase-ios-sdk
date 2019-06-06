@@ -94,6 +94,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     _twitterOAuthProvider = [FIROAuthProvider providerWithProviderID:@"twitter.com"];
     _linkedinOAuthProvider = [FIROAuthProvider providerWithProviderID:@"linkedin.com"];
     _yahooOAuthProvider = [FIROAuthProvider providerWithProviderID:@"yahoo.com"];
+    _gitHubOAuthProvider = [FIROAuthProvider providerWithProviderID:@"github.com"];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(authStateChangedForAuth:)
                                                  name:FIRAuthStateDidChangeNotification

@@ -196,7 +196,7 @@ cc_library(
 cc_binary(
   firebase_firestore_util_ordered_code_benchmark
   SOURCES
-    ordered_code_benchmark.mm
+    ordered_code_benchmark.cc
   DEPENDS
     benchmark
     benchmark_main

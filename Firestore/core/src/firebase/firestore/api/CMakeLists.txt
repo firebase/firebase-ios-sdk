@@ -39,6 +39,8 @@ cc_select(
 cc_library(
   firebase_firestore_api
   SOURCES
+    collection_reference.h
+    collection_reference.mm
     query_core.h
     query_core.mm
     settings.cc

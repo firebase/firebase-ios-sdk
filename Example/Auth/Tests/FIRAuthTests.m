@@ -291,8 +291,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 @property(nonatomic, strong) id mockNotificationManager;
 /// A partial mock of `[FIRAuth auth].authURLPresenter`
 @property(nonatomic, strong) id mockAuthURLPresenter;
-/// A partial mock of `[UIApplication sharedApplication]`
-@property(nonatomic, strong) id mockApplication;
 /// An application delegate instance returned by `self.mockApplication.delegate`
 @property(nonatomic, strong) FIRAuthAppDelegate *fakeApplicationDelegate;
 #endif // TARGET_OS_IOS
@@ -336,8 +334,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
 
   self.fakeApplicationDelegate = [[FIRAuthAppDelegate alloc] init];
-  self.mockApplication = OCMPartialMock([UIApplication sharedApplication]);
-  OCMStub([self.mockApplication delegate]).andReturn(self.fakeApplicationDelegate);
+  [[GULAppDelegateSwizzler sharedApplication]
+      setDelegate:(id<UIApplicationDelegate>)self.fakeApplicationDelegate];
 #endif // TARGET_OS_IOS
 
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
@@ -353,7 +351,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     XCTAssertNotNil(task);
     XCTAssert(delay > 0);
     XCTAssertEqualObjects(FIRAuthGlobalWorkQueue(), queue);
-    _FIRAuthDispatcherCallback = task;
+        self->_FIRAuthDispatcherCallback = task;
   }];
 
 #if TARGET_OS_IOS
@@ -376,8 +374,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   self.mockNotificationManager = nil;
   [self.mockTokenManager stopMocking];
   self.mockTokenManager = nil;
-  [self.mockApplication stopMocking];
-  self.mockApplication = nil;
   self.fakeApplicationDelegate = nil;
 #endif // TARGET_OS_IOS
 
@@ -406,9 +402,12 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     });
   });
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchProvidersForEmail:kEmail
                               completion:^(NSArray<NSString *> *_Nullable providers,
                                            NSError *_Nullable error) {
+  #pragma clang diagnostic pop
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqualObjects(providers, allProviders);
     XCTAssertNil(error);
@@ -458,9 +457,13 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchProvidersForEmail:kEmail
                               completion:^(NSArray<NSString *> *_Nullable providers,
                                            NSError *_Nullable error) {
+
+#pragma clang pop
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(providers);
     XCTAssertEqual(error.code, FIRAuthErrorCodeTooManyRequests);
@@ -2171,8 +2174,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   XCTestExpectation *dispatchAfterExpectation =
       [self expectationWithDescription:@"dispatchAfterExpectation"];
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    XCTAssertNotNil(_FIRAuthDispatcherCallback);
-    _FIRAuthDispatcherCallback();
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
     [dispatchAfterExpectation fulfill];
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2205,8 +2208,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   XCTestExpectation *dispatchAfterExpectation =
       [self expectationWithDescription:@"dispatchAfterExpectation"];
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    XCTAssertNotNil(_FIRAuthDispatcherCallback);
-    _FIRAuthDispatcherCallback();
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
     [dispatchAfterExpectation fulfill];
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2235,9 +2238,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   // Execute saved token refresh task.
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    XCTAssertNotNil(_FIRAuthDispatcherCallback);
-    _FIRAuthDispatcherCallback();
-    _FIRAuthDispatcherCallback = nil;
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
+    self->_FIRAuthDispatcherCallback = nil;
     [expectation fulfill];
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2253,8 +2256,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   XCTestExpectation *dispatchAfterExpectation =
       [self expectationWithDescription:@"dispatchAfterExpectation"];
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    XCTAssertNotNil(_FIRAuthDispatcherCallback);
-    _FIRAuthDispatcherCallback();
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
     [dispatchAfterExpectation fulfill];
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2292,8 +2295,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   XCTestExpectation *dispatchAfterExpectation =
       [self expectationWithDescription:@"dispatchAfterExpectation"];
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    XCTAssertNotNil(_FIRAuthDispatcherCallback);
-    _FIRAuthDispatcherCallback();
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
     [dispatchAfterExpectation fulfill];
   });
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2314,7 +2317,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     return YES;
   }]]);
 
-  [self.fakeApplicationDelegate application:self.mockApplication
+  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
 didRegisterForRemoteNotificationsWithDeviceToken:apnsToken];
 
   [self.mockTokenManager verify];
@@ -2325,7 +2328,7 @@ didRegisterForRemoteNotificationsWithDeviceToken:apnsToken];
 
   OCMExpect([self.mockTokenManager cancelWithError:error]);
 
-  [self.fakeApplicationDelegate application:self.mockApplication
+  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
 didFailToRegisterForRemoteNotificationsWithError:error];
 
   [self.mockTokenManager verify];
@@ -2338,7 +2341,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self.fakeApplicationDelegate application:self.mockApplication
+  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
                didReceiveRemoteNotification:notification];
 #pragma clang diagnostic pop
 
@@ -2350,7 +2353,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
   OCMExpect([self.mockNotificationManager canHandleNotification:notification]);
 
-  [self.fakeApplicationDelegate application:self.mockApplication
+  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
                didReceiveRemoteNotification:notification
                      fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 
@@ -2358,15 +2361,18 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
 - (void)testAppOpenURL_AuthPresenterCanHandleURL {
-  NSURL *url = [NSURL URLWithString:@"https://localhost"];
+  if (@available(iOS 9.0, *)) {
+    // 'application:openURL:options:' is only available on iOS 9.0 or newer.
+    NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
-  [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
+    [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
 
-  XCTAssertTrue([self.fakeApplicationDelegate application:self.mockApplication
-                                                  openURL:url
-                                                  options:@{}]);
+    XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+                                                    openURL:url
+                                                    options:@{}]);
 
-  [self.mockAuthURLPresenter verify];
+    [self.mockAuthURLPresenter verify];
+  }
 }
 
 - (void)testAppOpenURLWithSourceApplication_AuthPresenterCanHandleURL {
@@ -2376,7 +2382,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertTrue([self.fakeApplicationDelegate application:self.mockApplication
+  XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
                                                   openURL:url
                                                   sourceApplication:@""
                                                annotation:[[NSObject alloc] init]]);
