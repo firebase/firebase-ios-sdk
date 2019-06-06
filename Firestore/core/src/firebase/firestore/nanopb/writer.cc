@@ -52,6 +52,8 @@ ByteStringWriter::ByteStringWriter() : Writer() {
 }
 
 void ByteStringWriter::Append(const uint8_t* data, size_t size) {
+  if (size == 0) return;
+
   Reserve(size);
   uint8_t* pos = buffer_->bytes + buffer_->size;
   std::memcpy(pos, data, size);
