@@ -52,4 +52,26 @@
   return [appID stringByAppendingString:appName];
 }
 
++ (NSString *)generateFID {
+  NSUUID *uuid = [NSUUID UUID];
+  uuid_t uuidBytes;
+  [uuid getUUIDBytes:uuidBytes];
+
+  NSData *uuidData = [NSData dataWithBytes:uuidBytes length:16];
+
+  uint8_t prefix = 0b01110000;
+  NSMutableData *fidData = [NSMutableData dataWithBytes:&prefix length:1];
+
+  [fidData appendData:uuidData];
+  NSString *fidString = [fidData base64EncodedStringWithOptions:0];
+
+  // A valid FID has exactly 22 base64 characters, which is 132 bits, or 16.5
+  // Our generated ID has 16 bytes UUID + 1 byte prefix which is 23 base64 characters
+  // plus 1 character for "=" padding.
+
+  // Remove the 23rd character that was added because of the extra 4 bits at the
+  // end of our 17 byte data, and the '=' padding.
+  return [fidString substringWithRange:NSMakeRange(0, 22)];
+}
+
 @end
