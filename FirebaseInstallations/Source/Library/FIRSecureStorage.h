@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  * overriden.
  *  @param accessGroup The Keychain Access Group.
  *
- *  @return Returns which is resolved with [NSNull null] on success.
+ *  @return Returns which is resolved with `[NSNull null]` on success.
  */
 - (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
                              forKey:(NSString *)key
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  * overriden.
  *  @param accessGroup The Keychain Access Group.
  *
- *  @return Returns which is resolved with [NSNull null] on success.
+ *  @return Returns which is resolved with `[NSNull null]` on success.
  */
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
                                  accessGroup:(nullable NSString *)accessGroup;

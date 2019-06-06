@@ -26,11 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsItem : NSObject
 
-@property(nonatomic, readonly, nonnull) NSString *appID;
-@property(nonatomic, readonly, nonnull) NSString *firebaseAppName;
-@property(nonatomic, nullable) NSString *firebaseInstallationID;
-// The `refershToken` is used to authorize the auth token requests.
-@property(nonatomic, nullable) NSString *refreshToken;
+@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *firebaseAppName;
+@property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
+/// The `refershToken` is used to authorize the auth token requests.
+@property(nonatomic, copy, nullable) NSString *refreshToken;
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item;
 - (FIRInstallationsStoredItem *)storedItem;
 
-- (nonnull NSString *)identifier;
+- (NSString *)identifier;
 
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName;
 

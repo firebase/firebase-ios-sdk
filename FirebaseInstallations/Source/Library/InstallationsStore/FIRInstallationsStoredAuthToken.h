@@ -29,11 +29,11 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 @interface FIRInstallationsStoredAuthToken : NSObject
 @property FIRInstallationsAuthTokenStatus status;
 
-@property(nullable) NSString *token;
-@property(nullable) NSDate *expirationTime;
+@property(nullable, copy) NSString *token;
+@property(nullable, copy) NSDate *expirationTime;
 
 // The version of local storage.
-@property NSInteger storageVersion;
+@property(nonatomic) NSInteger storageVersion;
 
 @end
 

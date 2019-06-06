@@ -21,27 +21,28 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, FIRInstallationsStatus) {
-  // Represents either an initial status when a FIRInstallationsItem instance was created but not
-  // stored to Keychain or an undefined status (e.g. when the status failed to deserialize).
+  /** Represents either an initial status when a FIRInstallationsItem instance was created but not
+   * stored to Keychain or an undefined status (e.g. when the status failed to deserialize).
+   */
   FIRInstallationStatusUnknown,
-  // The Firebase Installation has not yet been registered with FIS.
+  /// The Firebase Installation has not yet been registered with FIS.
   FIRInstallationStatusUnregistered,
-  // #CreateInstallation request to FIS server-API is in progress.
+  /// #CreateInstallation request to FIS server-API is in progress.
   FIRInstallationStatusRegistrationInProgress,
-  // The Firebase Installation has successfully been registered with FIS.
+  /// The Firebase Installation has successfully been registered with FIS.
   FIRInstallationStatusRegistered,
 };
 
 @interface FIRInstallationsStoredItem : NSObject <NSSecureCoding>
 
-@property(nonnull) NSString *firebaseInstallationID;
-// The `refershToken` is used to authorize the auth token requests.
-@property(nullable) NSString *refreshToken;
-@property(nullable) FIRInstallationsStoredAuthToken *authToken;
-@property FIRInstallationsStatus registrationStatus;
+@property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
+/// The `refershToken` is used to authorize the auth token requests.
+@property(nonatomic, copy, nullable) NSString *refreshToken;
+@property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
+@property(nonatomic) FIRInstallationsStatus registrationStatus;
 
-// The version of local storage.
-@property NSInteger storageVersion;
+/// The version of local storage.
+@property(nonatomic) NSInteger storageVersion;
 @end
 
 NS_ASSUME_NONNULL_END
