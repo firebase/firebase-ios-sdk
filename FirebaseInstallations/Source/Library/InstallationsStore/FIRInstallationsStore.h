@@ -54,7 +54,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
  * Saves the given instalation.
  *
  * @param installationItem The installation data.
- * @return Returns a promise that is resolved with [NSNull null] on success.
+ * @return Returns a promise that is resolved with `[NSNull null]` on success.
  */
 - (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem;
 
@@ -63,7 +63,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
  * @param appID The Firebase(Google) Application ID.
  * @param appName The Firebase Application Name.
  *
- * @return Returns a promise that is resolved with [NSNull null] on success.
+ * @return Returns a promise that is resolved with `[NSNull null]` on success.
  */
 - (FBLPromise<NSNull *> *)removeInstallationForAppID:(NSString *)appID appName:(NSString *)appName;
 
