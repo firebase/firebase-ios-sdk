@@ -2362,6 +2362,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
 - (void)testAppOpenURL_AuthPresenterCanHandleURL {
   if (@available(iOS 9.0, *)) {
+    // 'application:openURL:options:' is only available on iOS 9.0 or newer.
     NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
     [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
