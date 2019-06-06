@@ -47,12 +47,9 @@ class Writer {
 
  protected:
   /**
-   * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
-   * a shallow copy will be taken. (Non-null pointers within this struct must
-   * remain valid for the lifetime of this Writer.)
+   * Creates a new Writer, with a default-initialized pb_ostream_t.
    */
-  explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
-  }
+  Writer() = default;
 
   pb_ostream_t stream_{};
 };
@@ -67,16 +64,35 @@ class ByteStringWriter : public Writer {
  public:
   ByteStringWriter();
 
-  nanopb::ByteString ToByteString() const;
+  void Append(const uint8_t* data, size_t size);
+  void Reserve(size_t size);
+  void SetSize(size_t size);
 
   /**
-   * Returns the vector backing this ByteStringWriter, taking ownership of its
-   * contents.
+   * Returns a ByteString that takes ownership of the bytes backing this
+   * writer.
    */
-  std::vector<uint8_t> Release();
+  ByteString Release();
+
+  size_t size() const {
+    return buffer_ ? buffer_->size : 0;
+  }
+
+  size_t remain() const {
+    return capacity_ - size();
+  }
+
+  size_t capacity() const {
+    return capacity_;
+  }
+
+  uint8_t* pos() {
+    return buffer_->bytes + buffer_->size;
+  }
 
  private:
-  std::vector<uint8_t> buffer_;
+  pb_bytes_array_t* buffer_{};
+  size_t capacity_ = 0;
 };
 
 /**

@@ -65,23 +65,12 @@ class ByteString : public util::Comparable<ByteString> {
    * bytes.
    */
   ByteString(const void* value, size_t size);
-  explicit ByteString(const std::vector<uint8_t>& value);
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the given
    * string_view.
    */
   explicit ByteString(absl::string_view value);
-
-#if __OBJC__
-  /**
-   * Creates a new ByteString whose backing byte array is a copy of the bytes
-   * in the given NSData buffer.
-   */
-  explicit ByteString(NSData* value)
-      : ByteString(value.bytes, static_cast<size_t>(value.length)) {
-  }
-#endif
 
   ByteString(std::initializer_list<uint8_t> value);
 
@@ -96,10 +85,7 @@ class ByteString : public util::Comparable<ByteString> {
     return *this;
   }
 
-  /**
-   * Creates a new ByteString that copies the contents of the given byte array.
-   */
-  static ByteString Copy(const pb_bytes_array_t* bytes);
+  friend void swap(ByteString& lhs, ByteString& rhs) noexcept;
 
   /**
    * Creates a new ByteString that takes ownership of the given byte array. If
@@ -155,27 +141,14 @@ class ByteString : public util::Comparable<ByteString> {
   pb_bytes_array_t* release();
 
   /**
-   * Copies the backing byte array into a new vector of bytes.
-   */
-  std::vector<uint8_t> ToVector() const;
-
-#if __OBJC__
-  NSData* ToNSData() const {
-    return [[NSData alloc] initWithBytes:data() length:size()];
-  }
-#endif
-
-  /**
    * Returns an absl::string_view view of this ByteString (without changing
    * ownership).
    */
   explicit operator absl::string_view() const;
 
   /**
-   * Swaps the contents of the given Strings.
+   * Performs a lexicographical comparison between this and the other bytes.
    */
-  friend void swap(ByteString& lhs, ByteString& rhs) noexcept;
-
   util::ComparisonResult CompareTo(const ByteString& rhs) const;
 
   size_t Hash() const;

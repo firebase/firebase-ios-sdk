@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -41,6 +42,7 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldValueOptions;
 using firebase::firestore::model::ServerTimestampBehavior;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -680,7 +682,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::String:
       return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
-      return self.internalValue.blob_value().ToNSData();
+      return MakeNSData(self.internalValue.blob_value());
     case FieldValue::Type::Reference:
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::GeoPoint: {

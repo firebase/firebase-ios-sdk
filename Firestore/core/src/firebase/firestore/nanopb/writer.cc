@@ -16,8 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
+#include <algorithm>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -26,44 +28,7 @@ namespace nanopb {
 
 using nanopb::ByteString;
 
-namespace {
-
-// TODO(rsgowman): find a better home for this constant.
-// A document is defined to have a max size of 1MiB - 4 bytes.
-const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
-
-/**
- * Creates a pb_ostream_t to the specified STL container. Note that this pointer
- * must remain valid for the lifetime of the stream.
- *
- * (This is roughly equivalent to the nanopb function pb_ostream_from_buffer().)
- *
- * @tparm Container an STL container whose value_type is a char type.
- * @param out_container where the output should be serialized to.
- */
-template <typename Container>
-pb_ostream_t WrapContainer(Container* out_container) {
-  // Construct a nanopb output stream.
-  //
-  // Set the max_size to be the max document size (as an upper bound; one would
-  // expect individual FieldValue's to be smaller than this).
-  //
-  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
-  // care about the underlying output vector, so where we are in the vector
-  // itself is irrelevant. i.e. don't use out_bytes->size())
-  return {/*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
-                          size_t count) -> bool {
-            auto* output = static_cast<Container*>(stream->state);
-            output->insert(output->end(), buf, buf + count);
-            return true;
-          },
-          /*state=*/out_container,
-          /*max_size=*/kMaxDocumentSize,
-          /*bytes_written=*/0,
-          /*errmsg=*/nullptr};
-}
-
-}  // namespace
+constexpr size_t kMinBufferSize = 4;
 
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
@@ -72,20 +37,66 @@ void Writer::WriteNanopbMessage(const pb_field_t fields[],
   }
 }
 
-ByteStringWriter::ByteStringWriter() : Writer({}) {
-  stream_ = WrapContainer(&buffer_);
+static bool AppendToBytesArray(pb_ostream_t* stream,
+                               const pb_byte_t* buf,
+                               size_t count) {
+  auto writer = static_cast<ByteStringWriter*>(stream->state);
+  writer->Append(buf, count);
+  return true;
 }
 
-ByteString ByteStringWriter::ToByteString() const {
-  return ByteString(buffer_);
+ByteStringWriter::ByteStringWriter() : Writer() {
+  stream_.callback = AppendToBytesArray;
+  stream_.state = this;
+  stream_.max_size = SIZE_MAX;
 }
 
-std::vector<uint8_t> ByteStringWriter::Release() {
-  return std::move(buffer_);
+void ByteStringWriter::Append(const uint8_t* data, size_t size) {
+  Reserve(size);
+  uint8_t* pos = buffer_->bytes + buffer_->size;
+  std::memcpy(pos, data, size);
+  buffer_->size += size;
 }
 
-StringWriter::StringWriter() : Writer({}) {
-  stream_ = WrapContainer(&buffer_);
+void ByteStringWriter::Reserve(size_t size) {
+  size_t current_size = buffer_ ? buffer_->size : 0;
+
+  size_t required = std::max(current_size + size, kMinBufferSize);
+  HARD_ASSERT(required >= current_size);  // Avoid overflow
+
+  if (required <= capacity_) return;
+
+  // If capacity * 2 overflows, required will be larger.
+  size_t desired = std::max(capacity_ * 2, required);
+
+  buffer_ = static_cast<pb_bytes_array_t*>(
+      std::realloc(buffer_, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
+  capacity_ = desired;
+}
+
+void ByteStringWriter::SetSize(size_t size) {
+  HARD_ASSERT(size <= capacity_);  // Should have reserved.
+  buffer_->size = CheckedSize(size);
+}
+
+ByteString ByteStringWriter::Release() {
+  pb_bytes_array_t* pending = buffer_;
+  buffer_ = nullptr;
+  return ByteString::Take(pending);
+}
+
+static bool AppendToString(pb_ostream_t* stream,
+                           const pb_byte_t* buf,
+                           size_t count) {
+  auto str = static_cast<std::string*>(stream->state);
+  str->insert(str->end(), buf, buf + count);
+  return true;
+}
+
+StringWriter::StringWriter() : Writer() {
+  stream_.callback = AppendToString;
+  stream_.state = &buffer_;
+  stream_.max_size = SIZE_MAX;
 }
 
 std::string StringWriter::Release() {

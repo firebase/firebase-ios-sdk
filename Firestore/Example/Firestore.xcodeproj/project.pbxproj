@@ -271,6 +271,9 @@
 		5493A425225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		5493A426225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */; };
+		54968B0C22A8F54700AC02FF /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54968B0B22A8F54700AC02FF /* writer_test.cc */; };
+		54968B0D22A8F54700AC02FF /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54968B0B22A8F54700AC02FF /* writer_test.cc */; };
+		54968B0E22A8F54700AC02FF /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54968B0B22A8F54700AC02FF /* writer_test.cc */; };
 		54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
 		549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */; };
 		549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
@@ -771,7 +774,7 @@
 		4425A513895DEC60325A139E /* xcgmock_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = xcgmock_test.mm; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		4C73C0CC6F62A90D8573F383 /* string_apple_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_benchmark.mm; sourceTree = "<group>"; };
-		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
+		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
 		535B1420A19BEAA7FA4D77C8 /* ordered_code_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = ordered_code_benchmark.mm; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		544129D021C2DDC800EFB9CC /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
@@ -862,6 +865,7 @@
 		5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteEventTests.mm; sourceTree = "<group>"; };
 		5493A423225F9990006DE7BA /* status_apple_test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = status_apple_test.mm; sourceTree = "<group>"; };
 		5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
+		54968B0B22A8F54700AC02FF /* writer_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = writer_test.cc; sourceTree = "<group>"; };
 		54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_key_test.cc; sourceTree = "<group>"; };
 		549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sorted_set_test.cc; sourceTree = "<group>"; };
 		549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tree_sorted_map_test.cc; sourceTree = "<group>"; };
@@ -1404,6 +1408,7 @@
 			children = (
 				5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */,
 				2DAA26538D1A93A39F8AC373 /* nanopb_testing.h */,
+				54968B0B22A8F54700AC02FF /* writer_test.cc */,
 			);
 			name = nanopb;
 			sourceTree = "<group>";
@@ -3134,6 +3139,7 @@
 				16F52ECC6FA8A0587CD779EB /* user_test.cc in Sources */,
 				E3C0E5F834A82EEE9F8C4519 /* watch_change_test.mm in Sources */,
 				53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */,
+				54968B0D22A8F54700AC02FF /* writer_test.cc in Sources */,
 				2E6E6164F44B9E3C6BB88313 /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3309,6 +3315,7 @@
 				596C782EFB68131380F8EEF8 /* user_test.cc in Sources */,
 				178FE1E277C63B3E7120BE56 /* watch_change_test.mm in Sources */,
 				A5AB1815C45FFC762981E481 /* write.pb.cc in Sources */,
+				54968B0E22A8F54700AC02FF /* writer_test.cc in Sources */,
 				6EB896CD1B64A60E6C82D8CC /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3559,6 +3566,7 @@
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
 				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
+				54968B0C22A8F54700AC02FF /* writer_test.cc in Sources */,
 				9794E074439ABE5457E60F35 /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

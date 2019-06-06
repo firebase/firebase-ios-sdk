@@ -19,6 +19,9 @@
 
 #include <pb.h>
 
+#include <vector>
+
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -34,6 +37,41 @@ inline pb_size_t CheckedSize(size_t size) {
               "Size exceeds nanopb limits. Too many entries.");
   return static_cast<pb_size_t>(size);
 }
+
+/**
+ * Creates a new, null-terminated byte array that's a copy of the given bytes.
+ */
+pb_bytes_array_t* MakeBytesArray(const void* data, size_t size);
+
+/**
+ * Creates a new, null-terminated byte array that's a copy of the given bytes.
+ */
+inline pb_bytes_array_t* MakeBytesArray(const std::vector<uint8_t>& bytes) {
+  return MakeBytesArray(bytes.data(), bytes.size());
+}
+
+/**
+ * Creates a string_view of the given nanopb bytes.
+ */
+absl::string_view MakeStringView(pb_bytes_array_t* bytes);
+
+/**
+ * Copies the backing byte array into a new vector of bytes.
+ */
+inline std::vector<uint8_t> MakeVector(const ByteString& str) {
+  return {str.begin(), str.end()};
+}
+
+#if __OBJC__
+inline ByteString MakeByteString(NSData* value) {
+  auto size = static_cast<size_t>(value.length);
+  return ByteString::Take(MakeBytesArray(value.bytes, size));
+}
+
+inline NSData* MakeNSData(const ByteString& str) {
+  return [[NSData alloc] initWithBytes:str.data() length:str.size()];
+}
+#endif
 
 }  // namespace nanopb
 }  // namespace firestore

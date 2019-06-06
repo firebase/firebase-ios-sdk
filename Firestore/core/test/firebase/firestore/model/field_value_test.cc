@@ -349,8 +349,7 @@ TEST(FieldValue, ToString) {
   EXPECT_EQ("foo", FieldValue::FromString("foo").ToString());
 
   // Bytes escaped as hex
-  const char* hi = "HI";
-  auto blob = FieldValue::FromBlob(ByteString(hi));
+  auto blob = FieldValue::FromBlob(ByteString("HI"));
   EXPECT_EQ("<4849>", blob.ToString());
 
   auto ref = FieldValue::FromReference(DatabaseId("p", "d"), Key("foo/bar"));

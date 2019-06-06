@@ -140,7 +140,7 @@ class LocalSerializerTest : public ::testing::Test {
     writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                                   &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   void ExpectSerializationRoundTrip(const QueryData& query_data,
@@ -172,7 +172,7 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   void ExpectSerializationRoundTrip(
@@ -206,7 +206,7 @@ class LocalSerializerTest : public ::testing::Test {
         serializer->EncodeMutationBatch(mutation_batch);
     writer.WriteNanopbMessage(firestore_client_WriteBatch_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   std::string message_differences;
@@ -331,7 +331,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   remote_serializer.FreeNanopbMessage(
       google_firestore_v1_Target_QueryTarget_fields, &proto);
 
-  ByteString query_target_bytes = writer.ToByteString();
+  ByteString query_target_bytes = writer.Release();
   auto query_target_proto =
       ProtobufParse<v1::Target::QueryTarget>(query_target_bytes);
 

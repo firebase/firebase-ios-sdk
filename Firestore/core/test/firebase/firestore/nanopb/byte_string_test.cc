@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -30,9 +31,15 @@ using testing::ContainerEq;
 
 namespace {
 
-std::vector<uint8_t> ToVector(const std::string& str) {
+std::vector<uint8_t> MakeVector(const std::string& str) {
   auto begin = reinterpret_cast<const uint8_t*>(str.data());
   return {begin, begin + str.size()};
+}
+
+MATCHER_P(BytesEq, n, "") {
+  auto lhs = MakeVector(arg);
+  auto rhs = MakeVector(n);
+  return testing::ExplainMatchResult(ContainerEq(rhs), lhs, result_listener);
 }
 
 }  // namespace
@@ -57,26 +64,26 @@ TEST(ByteStringTest, Copy) {
   original->size = 3;
 
   ByteString copy{original};
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(copy, BytesEq("foo"));
   EXPECT_NE(copy.get(), original);
 }
 
 TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
   ByteString copy{original};
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
+  EXPECT_THAT(copy, BytesEq(original));
 
   original = "bar";
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(copy, BytesEq("foo"));
 }
 
 TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
   ByteString copy{original};
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
+  EXPECT_THAT(copy, BytesEq(original));
 
   original[0] = 'b';
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(copy, BytesEq("foo"));
 }
 
 TEST(ByteStringTest, TakesNullTerminatedByteArray) {
@@ -86,10 +93,10 @@ TEST(ByteStringTest, TakesNullTerminatedByteArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(wrapper, BytesEq("foo"));
 
   original->bytes[0] = 'b';
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
+  EXPECT_THAT(wrapper, BytesEq("boo"));
 }
 
 TEST(ByteStringTest, TakesUnterminatedByteArray) {
@@ -99,7 +106,7 @@ TEST(ByteStringTest, TakesUnterminatedByteArray) {
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(wrapper, BytesEq("foo"));
 
   // Verify that Take did not copy.
   EXPECT_EQ(wrapper.get(), original);
@@ -111,7 +118,7 @@ TEST(ByteStringTest, TakesEmptyByteArray) {
   original->size = 0;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("")));
+  EXPECT_THAT(wrapper, BytesEq(""));
 
   // Verify that Take did not copy. This also ensures that the original pointer
   // ends up managed by this instance. If Take chose to make bytes null when

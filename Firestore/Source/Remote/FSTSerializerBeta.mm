@@ -52,7 +52,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -81,7 +81,7 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
-using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
       return FieldValue::FromGeoPoint([self decodedGeoPoint:valueProto.geoPointValue]).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_BytesValue:
-      return FieldValue::FromBlob(ByteString(valueProto.bytesValue)).Wrap();
+      return FieldValue::FromBlob(MakeByteString(valueProto.bytesValue)).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_ReferenceValue:
       return [self decodedReferenceValue:valueProto.referenceValue];
