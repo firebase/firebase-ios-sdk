@@ -56,7 +56,7 @@ TEST(ByteStringTest, Copy) {
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
-  ByteString copy = ByteString::Copy(original);
+  ByteString copy{original};
   EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
   EXPECT_NE(copy.get(), original);
 }

@@ -66,6 +66,12 @@ absl::string_view ToStringView(pb_bytes_array_t* bytes) {
 
 }  // namespace
 
+ByteString::ByteString(const pb_bytes_array_t* bytes) {
+  if (bytes != nullptr) {
+    bytes_ = MakeBytesArray(bytes->bytes, bytes->size);
+  }
+}
+
 ByteString::ByteString(const void* value, size_t size)
     : bytes_(MakeBytesArray(value, size)) {
 }
@@ -94,16 +100,8 @@ ByteString::~ByteString() {
   std::free(bytes_);
 }
 
-/* static */ ByteString ByteString::Copy(const pb_bytes_array_t* bytes) {
-  if (bytes == nullptr) {
-    return ByteString{};
-  } else {
-    return ByteString{MakeBytesArray(bytes->bytes, bytes->size)};
-  }
-}
-
 /* static */ ByteString ByteString::Take(pb_bytes_array_t* bytes) {
-  return ByteString{bytes};
+  return ByteString{bytes, 0};
 }
 
 const uint8_t* ByteString::data() const {

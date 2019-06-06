@@ -56,6 +56,11 @@ class ByteString : public util::Comparable<ByteString> {
   ByteString() = default;
 
   /**
+   * Creates a new ByteString that copies the given bytes.
+   */
+  explicit ByteString(const pb_bytes_array_t* bytes);
+
+  /**
    * Creates a new ByteString whose backing byte array is a copy of the given
    * bytes.
    */
@@ -179,7 +184,12 @@ class ByteString : public util::Comparable<ByteString> {
   friend std::ostream& operator<<(std::ostream& out, const ByteString& str);
 
  private:
-  explicit ByteString(pb_bytes_array_t* bytes) : bytes_{bytes} {
+  /**
+   * Private constructor directly assigns to bytes_. The extra integer tag
+   * helps disambiguate this constructor from the public constructor that takes
+   * `const pb_bytes_array_t*`.
+   */
+  explicit ByteString(pb_bytes_array_t* bytes, int) : bytes_{bytes} {
   }
 
   pb_bytes_array_t* bytes_ = nullptr;
