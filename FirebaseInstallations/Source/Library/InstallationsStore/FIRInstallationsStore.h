@@ -25,13 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// The user default suite name used to store data.
 extern NSString *const kFIRInstallationsStoreUserDefaultsID;
 
-/// The class is responsible for storing and accessing the installstions data.
+/// The class is responsible for storing and accessing the installations data.
 @interface FIRInstallationsStore : NSObject
 
 /**
  * The default initializer.
  * @param storage The secure storage to save installations data.
- * @param accessGroup The Keychain Access Group to store and request the installstions data.
+ * @param accessGroup The Keychain Access Group to store and request the installations data.
  */
 - (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
                           accessGroup:(nullable NSString *)accessGroup;
