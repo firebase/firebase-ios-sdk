@@ -64,12 +64,6 @@ class ByteString : public util::Comparable<ByteString> {
 
   /**
    * Creates a new ByteString whose backing byte array is a copy of the given
-   * string.
-   */
-  explicit ByteString(const std::string& value);
-
-  /**
-   * Creates a new ByteString whose backing byte array is a copy of the given
    * string_view.
    */
   explicit ByteString(absl::string_view value);
@@ -85,12 +79,6 @@ class ByteString : public util::Comparable<ByteString> {
 #endif
 
   ByteString(std::initializer_list<uint8_t> value);
-
-  /**
-   * Creates a new ByteString whose backing byte array is a copy of the given
-   * C string. The length is computed with `strlen`.
-   */
-  explicit ByteString(const char* value);
 
   ByteString(const ByteString& other);
 

@@ -74,20 +74,12 @@ ByteString::ByteString(const std::vector<uint8_t>& value)
     : ByteString(value.data(), value.size()) {
 }
 
-ByteString::ByteString(const std::string& value)
-    : ByteString(value.data(), value.size()) {
-}
-
 ByteString::ByteString(absl::string_view value)
     : ByteString(value.data(), value.size()) {
 }
 
 ByteString::ByteString(std::initializer_list<uint8_t> value)
     : ByteString(value.begin(), value.size()) {
-}
-
-ByteString::ByteString(const char* value)
-    : ByteString(value, std::strlen(value)) {
 }
 
 ByteString::ByteString(const ByteString& other)
