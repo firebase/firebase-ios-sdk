@@ -36,7 +36,7 @@ typedef NS_ENUM(NSInteger, FIRInstallationsStatus) {
 @interface FIRInstallationsStoredItem : NSObject <NSSecureCoding>
 
 @property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
-/// The `refershToken` is used to authorize the auth token requests.
+/// The `refreshToken` is used to authorize the auth token requests.
 @property(nonatomic, copy, nullable) NSString *refreshToken;
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic) FIRInstallationsStatus registrationStatus;

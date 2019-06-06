@@ -41,7 +41,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
  *  @param appID The Firebase(Google) Application ID.
  *  @param appName The Firebase Application Name.
  *
- *  @return Returns a `FBLPromise` instance. The promise resolved with a FIRInstallationsItem
+ *  @return Returns a `FBLPromise` instance. The promise is resolved with a FIRInstallationsItem
  * instance if there is a valid installation stored for `appID` and `appName`. The promise is
  * rejected with a specific error when the installation has not been found or with another possible
  * error.

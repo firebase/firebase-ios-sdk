@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *firebaseAppName;
 @property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
-/// The `refershToken` is used to authorize the auth token requests.
+/// The `refreshToken` is used to authorize the auth token requests.
 @property(nonatomic, copy, nullable) NSString *refreshToken;
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
