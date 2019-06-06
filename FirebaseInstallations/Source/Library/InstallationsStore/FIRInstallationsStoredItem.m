@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRInstallationsStoredItem.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRInstallationsStoredItem
 
-@interface FIRInstallationsErrorUtil : NSObject
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+  // TODO: Implement
+}
 
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  // TODO: Implement
+  return [[FIRInstallationsStoredItem alloc] init];
+}
 
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
