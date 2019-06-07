@@ -16,6 +16,45 @@
 
 #import "FIRInstallationsAPIService.h"
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
+@interface FIRInstallationsAPIService ()
+@property(nonatomic, readonly) NSURLSession *urlSession;
+@end
+
 @implementation FIRInstallationsAPIService
+
+- (instancetype)init
+{
+  NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+  return [self initWithURLSession:urlSession];
+}
+
+/// The initializer for tests.
+- (instancetype)initWithURLSession:(NSURLSession *)urlSession
+{
+  self = [super init];
+  if (self) {
+    _urlSession = urlSession;
+  }
+  return self;
+}
+
+#pragma mark - Public
+
+- (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
+  // TODO: Implement.
+  return [FBLPromise resolvedWith:installation];
+}
+
+#pragma mark - Register Installation
+
+- (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
+  return nil;
+}
 
 @end

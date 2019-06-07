@@ -16,9 +16,23 @@
 
 #import <Foundation/Foundation.h>
 
+@class FBLPromise<ValueType>;
+@class FIRInstallationsItem;
+
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The class is responsible for interacting with HTTP REST API for Installations.
+ */
 @interface FIRInstallationsAPIService : NSObject
+
+/**
+ * Sends an request to register a new FID to get auth and refresh tokens.
+ * @param installation The `FIRInstallationsItem` instance with the FID to register.
+ * @return A promise that is resolved with a new `FIRInstallationsItem` instance with valid tokens.
+ * It is rejected with an error in case of a failure.
+ */
+- (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation;
 
 @end
 
