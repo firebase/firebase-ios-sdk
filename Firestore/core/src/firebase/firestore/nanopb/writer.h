@@ -104,7 +104,7 @@ class ByteStringWriter : public Writer {
   }
 
   /**
-   * Returns the number of remaining byte: the difference between capacity and
+   * Returns the number of remaining bytes: the difference between capacity and
    * size.
    */
   size_t remaining() const {
