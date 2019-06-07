@@ -36,6 +36,9 @@ cc_library(
     testutil.cc
     testutil.h
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    firebase_firestore_nanopb
+
     ${TESTUTIL_DEPENDS}
     firebase_firestore_model
 )

@@ -133,13 +133,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * A blob value stored in Firestore.
- */
-@interface FSTBlobValue : FSTFieldValue <NSData *>
-+ (instancetype)blobValue:(NSData *)value;
-@end
-
-/**
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>

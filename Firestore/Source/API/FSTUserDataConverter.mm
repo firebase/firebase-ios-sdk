@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -65,6 +66,7 @@ using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::nanopb::MakeByteString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -457,7 +459,8 @@ NS_ASSUME_NONNULL_BEGIN
     return FieldValue::FromGeoPoint([geoPoint toGeoPoint]).Wrap();
 
   } else if ([input isKindOfClass:[NSData class]]) {
-    return [FSTBlobValue blobValue:input];
+    NSData *inputData = input;
+    return FieldValue::FromBlob(MakeByteString(inputData)).Wrap();
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;

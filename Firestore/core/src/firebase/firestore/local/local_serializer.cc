@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -45,6 +46,7 @@ using model::MutationBatch;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::UnknownDocument;
+using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::Reader;
 using nanopb::Writer;
@@ -198,7 +200,9 @@ firestore_client_Target LocalSerializer::EncodeQueryData(
   result.last_listen_sequence_number = query_data.sequence_number();
   result.snapshot_version = rpc_serializer_.EncodeTimestamp(
       query_data.snapshot_version().timestamp());
-  result.resume_token = rpc_serializer_.EncodeBytes(query_data.resume_token());
+
+  // Force a copy because pb_release would otherwise double-free.
+  result.resume_token = nanopb::CopyBytesArray(query_data.resume_token().get());
 
   const Query& query = query_data.query();
   if (query.IsDocumentQuery()) {
@@ -228,8 +232,7 @@ QueryData LocalSerializer::DecodeQueryData(
           proto.last_listen_sequence_number);
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
-  std::vector<uint8_t> resume_token =
-      rpc_serializer_.DecodeBytes(proto.resume_token);
+  ByteString resume_token(proto.resume_token);
   Query query = Query::Invalid();
 
   switch (proto.which_target_type) {
