@@ -69,10 +69,24 @@ class ByteStringWriter : public Writer {
   ByteStringWriter(ByteStringWriter&&) = delete;
 
   ByteStringWriter& operator=(const ByteStringWriter&) = delete;
-  ByteStringWriter& operator=(ByteStringWriter&&) noexcept = delete;
+  ByteStringWriter& operator=(ByteStringWriter&&) = delete;
 
-  void Append(const uint8_t* data, size_t size);
-  void Reserve(size_t size);
+  /**
+   * Appends the given data to the internal buffer, growing the capacity of the
+   * buffer to fit.
+   */
+  void Append(const void* data, size_t size);
+
+  /**
+   * Reserves the given number of bytes of total capacity. To reserve `n` more
+   * bytes in a writer `w`, call `w.Reserve(w.size() + n)`.
+   */
+  void Reserve(size_t capacity);
+
+  /**
+   * Sets the size of the buffer to some value less than the current capacity,
+   * presumably after writing into the buffer with `pos()`.
+   */
   void SetSize(size_t size);
 
   /**
@@ -85,14 +99,22 @@ class ByteStringWriter : public Writer {
     return buffer_ ? buffer_->size : 0;
   }
 
-  size_t remain() const {
-    return capacity_ - size();
-  }
-
   size_t capacity() const {
     return capacity_;
   }
 
+  /**
+   * Returns the number of remaining byte: the difference between capacity and
+   * size.
+   */
+  size_t remaining() const {
+    return capacity_ - size();
+  }
+
+  /**
+   * Returns the current writing position within this writer's internal buffer.
+   * This can only be used after calling `Reserve()`.
+   */
   uint8_t* pos() {
     return buffer_->bytes + buffer_->size;
   }

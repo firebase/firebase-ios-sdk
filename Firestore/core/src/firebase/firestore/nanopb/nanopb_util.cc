@@ -22,10 +22,11 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-/**
- * Creates a new, null-terminated byte array that's a copy of the given string
- * value.
- */
+pb_bytes_array_t* CopyBytesArray(const pb_bytes_array_t* buffer) {
+  if (buffer == nullptr) return nullptr;
+  return MakeBytesArray(buffer->bytes, buffer->size);
+}
+
 pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   if (size == 0) return nullptr;
 
@@ -44,6 +45,14 @@ pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   result->bytes[pb_size] = '\0';
 
   return result;
+}
+
+std::string MakeString(const pb_bytes_array_t* str) {
+  if (str == nullptr) return "";
+
+  auto bytes = reinterpret_cast<const char*>(str->bytes);
+  auto size = static_cast<size_t>(str->size);
+  return std::string{bytes, size};
 }
 
 absl::string_view MakeStringView(const ByteString& bytes) {

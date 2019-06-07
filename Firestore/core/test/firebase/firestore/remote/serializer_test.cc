@@ -476,8 +476,8 @@ TEST_F(SerializerTest, EncodesBlobs) {
 
 TEST_F(SerializerTest, EncodesNullBlobs) {
   ByteString blob;
+  ASSERT_EQ(blob.get(), nullptr);  // Empty blobs are backed by a null buffer.
   FieldValue model = FieldValue::FromBlob(blob);
-  ASSERT_EQ(blob.get(), nullptr);
 
   // Avoid calling SerializerTest::EncodeFieldValue here because the Serializer
   // could be allocating an empty byte array. These assertions show that the

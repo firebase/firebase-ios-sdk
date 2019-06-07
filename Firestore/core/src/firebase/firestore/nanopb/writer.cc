@@ -28,8 +28,6 @@ namespace nanopb {
 
 using nanopb::ByteString;
 
-constexpr size_t kMinBufferSize = 4;
-
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
   if (!pb_encode(&stream_, fields, src_struct)) {
@@ -37,15 +35,21 @@ void Writer::WriteNanopbMessage(const pb_field_t fields[],
   }
 }
 
-static bool AppendToBytesArray(pb_ostream_t* stream,
-                               const pb_byte_t* buf,
-                               size_t count) {
+namespace {
+
+constexpr size_t kMinBufferSize = 4;
+
+bool AppendToBytesArray(pb_ostream_t* stream,
+                        const pb_byte_t* buf,
+                        size_t count) {
   auto writer = static_cast<ByteStringWriter*>(stream->state);
   writer->Append(buf, count);
   return true;
 }
 
-ByteStringWriter::ByteStringWriter() : Writer() {
+}  // namespace
+
+ByteStringWriter::ByteStringWriter() {
   stream_.callback = AppendToBytesArray;
   stream_.state = this;
   stream_.max_size = SIZE_MAX;
@@ -55,25 +59,27 @@ ByteStringWriter::~ByteStringWriter() {
   std::free(buffer_);
 }
 
-void ByteStringWriter::Append(const uint8_t* data, size_t size) {
+void ByteStringWriter::Append(const void* data, size_t size) {
   if (size == 0) return;
 
-  Reserve(size);
-  uint8_t* pos = buffer_->bytes + buffer_->size;
+  size_t current_size = this->size();
+  size_t min_capacity = current_size + size;
+  HARD_ASSERT(min_capacity >= current_size);  // Avoid overflow
+
+  Reserve(min_capacity);
+  uint8_t* pos = this->pos();
   std::memcpy(pos, data, size);
   buffer_->size += size;
 }
 
-void ByteStringWriter::Reserve(size_t size) {
-  size_t current_size = buffer_ ? buffer_->size : 0;
+void ByteStringWriter::Reserve(size_t min_capacity) {
+  // Bump the min_capacity up so that an explicit Reserve will trigger an
+  // allocation, making pos() guaranteed to be valid.
+  min_capacity = std::max(min_capacity, kMinBufferSize);
+  if (min_capacity <= capacity_) return;
 
-  size_t required = std::max(current_size + size, kMinBufferSize);
-  HARD_ASSERT(required >= current_size);  // Avoid overflow
-
-  if (required <= capacity_) return;
-
-  // If capacity * 2 overflows, required will be larger.
-  size_t desired = std::max(capacity_ * 2, required);
+  // If capacity * 2 overflows, min_capacity will be larger.
+  size_t desired = std::max(capacity_ * 2, min_capacity);
 
   buffer_ = static_cast<pb_bytes_array_t*>(
       std::realloc(buffer_, PB_BYTES_ARRAY_T_ALLOCSIZE(desired)));
@@ -86,25 +92,29 @@ void ByteStringWriter::Reserve(size_t size) {
 }
 
 void ByteStringWriter::SetSize(size_t size) {
-  HARD_ASSERT(size <= capacity_);  // Should have reserved.
+  HARD_ASSERT(buffer_ != nullptr &&
+              size <= capacity_);  // Should have reserved.
   buffer_->size = CheckedSize(size);
 }
 
 ByteString ByteStringWriter::Release() {
   pb_bytes_array_t* pending = buffer_;
   buffer_ = nullptr;
+  capacity_ = 0;
   return ByteString::Take(pending);
 }
 
-static bool AppendToString(pb_ostream_t* stream,
-                           const pb_byte_t* buf,
-                           size_t count) {
+namespace {
+
+bool AppendToString(pb_ostream_t* stream, const pb_byte_t* buf, size_t count) {
   auto str = static_cast<std::string*>(stream->state);
   str->insert(str->end(), buf, buf + count);
   return true;
 }
 
-StringWriter::StringWriter() : Writer() {
+}  // namespace
+
+StringWriter::StringWriter() {
   stream_.callback = AppendToString;
   stream_.state = &buffer_;
   stream_.max_size = SIZE_MAX;

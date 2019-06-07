@@ -77,13 +77,11 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 
 pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
-  return ByteString(str).release();
+  return nanopb::MakeBytesArray(str);
 }
 
 std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
-  if (str == nullptr) return "";
-  size_t size = static_cast<size_t>(str->size);
-  return std::string{reinterpret_cast<const char*>(str->bytes), size};
+  return nanopb::MakeString(str);
 }
 
 namespace {
@@ -305,7 +303,8 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
     case FieldValue::Type::Blob:
       result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
       // Copy the blob so that pb_release can do the right thing.
-      result.bytes_value = ByteString(field_value.blob_value()).release();
+      result.bytes_value =
+          nanopb::CopyBytesArray(field_value.blob_value().get());
       return result;
 
     case FieldValue::Type::Reference:

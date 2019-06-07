@@ -42,13 +42,13 @@ namespace nanopb {
  * owns its memory, has deep copy semantics, and creates a copy of any input
  * given to its constructors.
  *
- * `ByteString` is similar in spirit to com.google.protobuf.ByteString. It
+ * `ByteString` is similar in spirit to `com.google.protobuf.ByteString`. It
  * serves mostly the same purpose: it's a holder of a byte array that's
  * compatible with the proto marshaling layer.
  *
- * Unlike protobuf's ByteString, nanopb doesn't supply this class so this class
- * additionally makes it possible to cheaply translate to and from raw
- * `pb_bytes_array_t*` values. ByteString allows taking values directly from
+ * Unlike protobuf's `ByteString`, nanopb doesn't supply this class so this
+ * class additionally makes it possible to cheaply translate to and from raw
+ * `pb_bytes_array_t*` values. `ByteString` allows taking values directly from
  * nanopb messages and avoids copying while doing so.
  */
 class ByteString : public util::Comparable<ByteString> {
@@ -56,18 +56,18 @@ class ByteString : public util::Comparable<ByteString> {
   ByteString() = default;
 
   /**
-   * Creates a new ByteString that copies the given bytes.
+   * Creates a new `ByteString` that copies the given bytes.
    */
   explicit ByteString(const pb_bytes_array_t* bytes);
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the given
+   * Creates a new `ByteString` whose backing byte array is a copy of the given
    * bytes.
    */
   ByteString(const void* value, size_t size);
 
   /**
-   * Creates a new ByteString whose backing byte array is a copy of the given
+   * Creates a new `ByteString` whose backing byte array is a copy of the given
    * string_view.
    */
   explicit ByteString(absl::string_view value);
@@ -88,15 +88,15 @@ class ByteString : public util::Comparable<ByteString> {
   friend void swap(ByteString& lhs, ByteString& rhs) noexcept;
 
   /**
-   * Creates a new ByteString that takes ownership of the given byte array. If
+   * Creates a new `ByteString` that takes ownership of the given byte array. If
    * taking from a nanopb-created message struct, the caller should null out
    * the pointer there so that pb_release won't free the buffer that the
-   * returned ByteString now owns.
+   * returned `ByteString` now owns.
    */
   static ByteString Take(pb_bytes_array_t* bytes);
 
   /**
-   * Returns a pointer to the character data backing this ByteString. The
+   * Returns a pointer to the character data backing this `ByteString`. The
    * returned buffer is always non-null, even if the nanopb byte array is null.
    */
   const uint8_t* data() const;

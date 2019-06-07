@@ -29,9 +29,7 @@ TEST(ByteStringWriterTest, Reserves) {
   ByteStringWriter writer;
   ASSERT_EQ(writer.capacity(), 0);
 
-  auto append = [&](const char* str) {
-    writer.Append(reinterpret_cast<const uint8_t*>(str), strlen(str));
-  };
+  auto append = [&](const char* str) { writer.Append(str, strlen(str)); };
 
   // Initially, just copy whatever's given into an exactly sized buffer
   append("food");
@@ -50,6 +48,23 @@ TEST(ByteStringWriterTest, Reserves) {
   writer.Append(large.data(), large.size());
   ASSERT_EQ(writer.size(), 28);
   ASSERT_EQ(writer.capacity(), 28);
+}
+
+TEST(BasicStringWriterTest, Releases) {
+  ByteStringWriter writer;
+
+  writer.Append("foo", 3);
+
+  ByteString contents = writer.Release();
+  EXPECT_EQ(writer.capacity(), 0);
+  EXPECT_NE(contents.get(), nullptr);
+
+  EXPECT_EQ(contents, ByteString("foo"));
+
+  // The first Release gives away the buffer and resets the writer. The second
+  // release shows that there's nothing to return after resetting.
+  ByteString second = writer.Release();
+  EXPECT_EQ(second.get(), nullptr);
 }
 
 }  //  namespace nanopb
