@@ -16,23 +16,32 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FirebaseCore.h>
+#import "FIRInstallationsItem+Tests.h"
+#import "FBLPromise+Testing.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
+#import "FIRInstallationsIDController.h"
+#import "FIRInstallationsErrorUtil.h"
 
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) NSString *appID;
 @property(nonatomic, readwrite, strong) NSString *appName;
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName;
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+          installationsIDController:(FIRInstallationsIDController *)installationsIDController;
 
 @end
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
+@property(nonatomic) id mockIDController;
 @end
 
 @implementation FIRInstallationsTests
@@ -40,12 +49,15 @@
 - (void)setUp {
   [super setUp];
 
+  self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
   self.installations = [[FIRInstallations alloc] initWithGoogleAppID:@"GoogleAppID"
-                                                             appName:@"appName"];
+                                                             appName:@"appName"
+                                           installationsIDController:self.mockIDController];
 }
 
 - (void)tearDown {
   self.installations = nil;
+  self.mockIDController = nil;
   [super tearDown];
 }
 
@@ -57,17 +69,49 @@
 }
 
 - (void)testInstallationIDSuccess {
+  // Stub get installation.
+  FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
+  OCMExpect([self.mockIDController getInstallationItem])
+  .andReturn([FBLPromise resolvedWith:installation]);
+
   XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         XCTAssertNil(error);
         XCTAssertNotNil(identifier);
-        XCTAssertGreaterThan(identifier.length, 0);
+        XCTAssertEqualObjects(identifier, installation.firebaseInstallationID);
 
         [idExpectation fulfill];
       }];
 
   [self waitForExpectations:@[ idExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
+}
+
+- (void)testInstallationIDError {
+  // Stub get installation.
+  FBLPromise *errorPromise = [FBLPromise pendingPromise];
+  [errorPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"test" status:-1]];
+
+  OCMExpect([self.mockIDController getInstallationItem])
+  .andReturn(errorPromise);
+
+  XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
+  [self.installations
+   installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+     XCTAssertNil(identifier);
+     XCTAssertNotNil(error);
+
+     // TODO: the error must be in the public domain.
+     XCTAssertEqualObjects(error, errorPromise.error);
+
+     [idExpectation fulfill];
+   }];
+
+  [self waitForExpectations:@[ idExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
 }
 
 - (void)testAuthTokenSuccess {
