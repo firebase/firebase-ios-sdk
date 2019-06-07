@@ -33,6 +33,8 @@ typedef void (^FIRInstallationsTokenHandler)(
 NS_SWIFT_NAME(Installations)
 @interface FIRInstallations : NSObject
 
+// TODO: Add `+ (FIRInstallations *)installations;`
+
 + (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion;

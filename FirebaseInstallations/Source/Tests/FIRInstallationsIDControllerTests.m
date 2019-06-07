@@ -27,6 +27,7 @@
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
+                             APIKey:(NSString *)APIKey
                  installationsStore:(FIRInstallationsStore *)installationsStore;
 @end
 
@@ -46,6 +47,7 @@
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
                                                         appName:self.appName
+                                                         APIKey:@""
                                              installationsStore:self.mockInstallationsStore];
 }
 

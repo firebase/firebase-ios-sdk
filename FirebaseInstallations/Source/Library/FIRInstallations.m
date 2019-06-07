@@ -39,8 +39,8 @@
 @end
 
 @interface FIRInstallations () <FIRLibrary>
-@property(nonatomic, readwrite, strong) NSString *appID;
-@property(nonatomic, readwrite, strong) NSString *appName;
+@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsIDController *installationsIDController;
 
@@ -77,12 +77,16 @@
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWithGoogleAppID:app.options.googleAppID appName:app.name];
+  return [self initWithGoogleAppID:app.options.googleAppID
+                           appName:app.name
+                            APIKey:app.options.APIKey];
 }
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+                             APIKey:(NSString *)APIKey {
   FIRInstallationsIDController *idController =
-      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID appName:appName];
+  [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID appName:appName APIKey:APIKey];
   return [self initWithGoogleAppID:appID appName:appName installationsIDController:idController];
 }
 

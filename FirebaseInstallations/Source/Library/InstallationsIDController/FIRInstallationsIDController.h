@@ -26,7 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsIDController : NSObject
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName;
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+                             APIKey:(NSString *)APIKey;
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
 
