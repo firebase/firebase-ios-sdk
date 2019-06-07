@@ -31,9 +31,9 @@
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
-#import "FIRInstallationsVersion.h"
-#import "FIRInstallationsStore.h"
+#import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsVersion.h"
 
 @protocol FIRInstallationsInstanceProvider
 @end
@@ -42,7 +42,7 @@
 @property(nonatomic, readwrite, strong) NSString *appID;
 @property(nonatomic, readwrite, strong) NSString *appName;
 
-@property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
+@property(nonatomic, readonly) FIRInstallationsIDController *installationsIDController;
 
 @end
 
@@ -81,24 +81,23 @@
 }
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
-  FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
-  FIRInstallationsStore *installationsStore = [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
-  return [self initWithGoogleAppID:appID appName:appName installationsStore:installationsStore];
+  FIRInstallationsIDController *idController =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID appName:appName];
+  return [self initWithGoogleAppID:appID appName:appName installationsIDController:idController];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                 installationsStore:(FIRInstallationsStore *)installationsStore {
+          installationsIDController:(FIRInstallationsIDController *)installationsIDController {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
-    _installationsStore = installationsStore;
+    _installationsIDController = installationsIDController;
   }
   return self;
 }
-
 
 #pragma mark - Public
 
@@ -109,8 +108,15 @@
 }
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
-  // TODO: Implement
-  completion(@"123", nil);
+  [self.installationsIDController getInstallationItem]
+      .then(^id(FIRInstallationsItem *installation) {
+        completion(installation.firebaseInstallationID, nil);
+        return nil;
+      })
+      .catch(^(NSError *error) {
+        // TODO: Make sure the error is in the public domain and wrap if needed.
+        completion(nil, error);
+      });
 }
 
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
@@ -131,13 +137,6 @@
 - (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {
   // TODO: Implement
   completion(nil);
-}
-
-#pragma mark - FID
-
-- (FBLPromise<NSString *> *)getStoredFID {
-  return [self.installationsStore installationForAppID:self.appID appName:self.appName]
-  .then(...);
 }
 
 @end

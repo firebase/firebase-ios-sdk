@@ -17,7 +17,7 @@
 // TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, FIRInstallationsStatus);
+#import "FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredItem;
 @class FIRInstallationsStoredAuthToken;
