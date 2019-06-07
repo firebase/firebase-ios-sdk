@@ -22,6 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+//NSString *const kFIRInstallationsAPI
+
 @interface FIRInstallationsAPIService ()
 @property(nonatomic, readonly) NSURLSession *urlSession;
 @end
@@ -53,6 +55,12 @@
 
 #pragma mark - Register Installation
 
+/*
+ export function getInstallationsEndpoint({ projectId }: AppConfig): string {
+ return `${INSTALLATIONS_API_URL}/projects/${projectId}/installations`;
+ }
+
+ */
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
   return nil;
 }
