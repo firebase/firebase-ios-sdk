@@ -21,6 +21,7 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredItem.h"
@@ -126,7 +127,7 @@
 }
 
 - (void)testSaveInstallationWhenKeychainSucceds {
-  FIRInstallationsItem *item = [self createValidInstallationItem];
+  FIRInstallationsItem *item = [FIRInstallationsItem createValidInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
   [self.userDefaults removeObjectForKey:itemID];
@@ -154,7 +155,7 @@
 }
 
 - (void)testSaveInstallationWhenKeychainFails {
-  FIRInstallationsItem *item = [self createValidInstallationItem];
+  FIRInstallationsItem *item = [FIRInstallationsItem createValidInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
   [self.userDefaults removeObjectForKey:itemID];
@@ -234,15 +235,6 @@
   storedItem.refreshToken = @"refreshToken";
 
   return storedItem;
-}
-
-- (FIRInstallationsItem *)createValidInstallationItem {
-  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
-                                                           firebaseAppName:@"appName"];
-  item.firebaseInstallationID = @"firebaseInstallationID";
-  item.refreshToken = @"refreshToken";
-
-  return item;
 }
 
 - (void)assertStoredItem:(FIRInstallationsStoredItem *)storedItem

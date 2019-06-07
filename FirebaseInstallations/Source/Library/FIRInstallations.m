@@ -15,6 +15,13 @@
  */
 
 #import "FIRInstallations.h"
+
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -24,6 +31,8 @@
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
+#import "FIRInstallationsIDController.h"
+#import "FIRInstallationsItem.h"
 #import "FIRInstallationsVersion.h"
 
 @protocol FIRInstallationsInstanceProvider
@@ -32,6 +41,9 @@
 @interface FIRInstallations () <FIRLibrary>
 @property(nonatomic, readwrite, strong) NSString *appID;
 @property(nonatomic, readwrite, strong) NSString *appName;
+
+@property(nonatomic, readonly) FIRInstallationsIDController *installationsIDController;
+
 @end
 
 @implementation FIRInstallations
@@ -69,10 +81,20 @@
 }
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
+  FIRInstallationsIDController *idController =
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID appName:appName];
+  return [self initWithGoogleAppID:appID appName:appName installationsIDController:idController];
+}
+
+/// The initializer is supposed to be used by tests to inject `installationsStore`.
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+          installationsIDController:(FIRInstallationsIDController *)installationsIDController {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
+    _installationsIDController = installationsIDController;
   }
   return self;
 }
@@ -86,8 +108,15 @@
 }
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
-  // TODO: Implement
-  completion(@"123", nil);
+  [self.installationsIDController getInstallationItem]
+      .then(^id(FIRInstallationsItem *installation) {
+        completion(installation.firebaseInstallationID, nil);
+        return nil;
+      })
+      .catch(^(NSError *error) {
+        // TODO: Make sure the error is in the public domain and wrap if needed.
+        completion(nil, error);
+      });
 }
 
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
@@ -109,7 +138,5 @@
   // TODO: Implement
   completion(nil);
 }
-
-#pragma mark -
 
 @end

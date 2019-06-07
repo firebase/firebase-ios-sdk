@@ -39,4 +39,14 @@
   // TODO: Implement.
 }
 
+- (void)testGenerateFID {
+  NSString *fid1 = [FIRInstallationsItem generateFID];
+  XCTAssertEqual(fid1.length, 22);
+
+  NSString *fid2 = [FIRInstallationsItem generateFID];
+  XCTAssertEqual(fid2.length, 22);
+
+  XCTAssertNotEqualObjects(fid1, fid2);
+}
+
 @end
