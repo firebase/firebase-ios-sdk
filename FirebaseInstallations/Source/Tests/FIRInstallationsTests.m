@@ -21,13 +21,13 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FirebaseCore.h>
-#import "FIRInstallationsItem+Tests.h"
 #import "FBLPromise+Testing.h"
+#import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
-#import "FIRInstallationsIDController.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsIDController.h"
 
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) NSString *appID;
@@ -72,7 +72,7 @@
   // Stub get installation.
   FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
   OCMExpect([self.mockIDController getInstallationItem])
-  .andReturn([FBLPromise resolvedWith:installation]);
+      .andReturn([FBLPromise resolvedWith:installation]);
 
   XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
   [self.installations
@@ -94,20 +94,19 @@
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   [errorPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"test" status:-1]];
 
-  OCMExpect([self.mockIDController getInstallationItem])
-  .andReturn(errorPromise);
+  OCMExpect([self.mockIDController getInstallationItem]).andReturn(errorPromise);
 
   XCTestExpectation *idExpectation = [self expectationWithDescription:@"InstallationIDSuccess"];
   [self.installations
-   installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-     XCTAssertNil(identifier);
-     XCTAssertNotNil(error);
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNil(identifier);
+        XCTAssertNotNil(error);
 
-     // TODO: the error must be in the public domain.
-     XCTAssertEqualObjects(error, errorPromise.error);
+        // TODO: the error must be in the public domain.
+        XCTAssertEqualObjects(error, errorPromise.error);
 
-     [idExpectation fulfill];
-   }];
+        [idExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ idExpectation ] timeout:0.5];
 

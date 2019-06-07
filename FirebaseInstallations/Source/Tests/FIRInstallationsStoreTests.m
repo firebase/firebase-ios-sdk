@@ -20,8 +20,8 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FBLPromise+Testing.h"
-#import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredItem.h"
