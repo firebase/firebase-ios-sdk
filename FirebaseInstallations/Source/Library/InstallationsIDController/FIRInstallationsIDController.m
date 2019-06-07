@@ -99,7 +99,9 @@
 
 - (FBLPromise<FIRInstallationsItem *> *)migrateIID {
   // TODO: Implement.
-  return [self createAndSaveFID];
+  FBLPromise *promise = [FBLPromise pendingPromise];
+  [promise reject:[NSError errorWithDomain:@"FIRInstallationsIDController" code:-1 userInfo:nil]];
+  return promise;
 }
 
 @end
