@@ -46,7 +46,7 @@ class TimestampInternal {
   static size_t Hash(const Timestamp& timestamp);
 
   /**
-   * Truncates the input timestamp to millisecond precision to match backend
+   * Truncates the input timestamp to microsecond precision to match backend
    * behavior.
    */
   static Timestamp Truncate(const Timestamp& timestamp);
