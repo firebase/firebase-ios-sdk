@@ -45,6 +45,9 @@ NSString *const FIRYahooAuthProviderID = @"yahoo.com";
 // Declared 'extern' in FIROAuthProvider.h
 NSString *const FIRMicrosoftAuthProviderID = @"hotmail.com";
 
+// Declared 'extern' in FIROAuthProvider.h
+NSString *const FIRAppleAuthProviderID = @"apple.com";
+
 #pragma mark - sign-in methods constants
 
 // Declared 'extern' in FIRGoogleAuthProvider.h
