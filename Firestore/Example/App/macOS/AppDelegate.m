@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import "AppDelegate.h"
+#import "Firestore/Example/App/macOS/AppDelegate.h"
+
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 

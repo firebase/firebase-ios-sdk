@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "AppDelegate.h"
+#import "Firestore/Example/App/tvOS/AppDelegate.h"
 
 @interface AppDelegate ()
 

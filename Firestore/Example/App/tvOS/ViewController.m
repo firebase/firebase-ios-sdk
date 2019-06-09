@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "ViewController.h"
+#import "Firestore/Example/App/tvOS/ViewController.h"
 
 @interface ViewController ()
 

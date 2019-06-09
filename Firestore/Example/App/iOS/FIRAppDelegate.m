@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppDelegate.h"
+#import "Firestore/Example/App/iOS/FIRAppDelegate.h"
 
 @implementation FIRAppDelegate
 
