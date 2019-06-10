@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsAPIService : NSObject
 
+- (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID;
+
 /**
  * Sends an request to register a new FID to get auth and refresh tokens.
  * @param installation The `FIRInstallationsItem` instance with the FID to register.
