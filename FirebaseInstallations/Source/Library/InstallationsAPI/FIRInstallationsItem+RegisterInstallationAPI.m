@@ -45,13 +45,17 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
 
   NSString *refreshToken = [self validStringOrNilForKey:@"refreshToken" fromDict:responseJSON];
   if (refreshToken == nil) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"refreshToken"], outError);
+    FIRSetErrorToPointer(
+        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"refreshToken"],
+        outError);
     return nil;
   }
 
   NSDictionary *authTokenDict = responseJSON[@"authToken"];
   if (![authTokenDict isKindOfClass:[NSDictionary class]]) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken"], outError);
+    FIRSetErrorToPointer(
+        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken"],
+        outError);
     return nil;
   }
 
@@ -62,7 +66,8 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
     return nil;
   }
 
-  FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID firebaseAppName:self.firebaseAppName];
+  FIRInstallationsItem *installation =
+      [[FIRInstallationsItem alloc] initWithAppID:self.appID firebaseAppName:self.firebaseAppName];
   installation.firebaseInstallationID = self.firebaseInstallationID;
   installation.refreshToken = refreshToken;
   installation.authToken = authToken;
@@ -80,17 +85,21 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
 }
 
 - (nullable FIRInstallationsStoredAuthToken *)authTokenWithJSONDict:(NSDictionary *)dict
-                                                      date:(NSDate *)date
-                                                     error:(NSError **)outError {
+                                                               date:(NSDate *)date
+                                                              error:(NSError **)outError {
   NSString *token = [self validStringOrNilForKey:@"token" fromDict:dict];
   if (token == nil) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken.token"], outError);
+    FIRSetErrorToPointer(
+        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken.token"],
+        outError);
     return nil;
   }
 
   NSString *expiresInString = [self validStringOrNilForKey:@"expiresIn" fromDict:dict];
   if (expiresInString == nil) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken.expiresIn"], outError);
+    FIRSetErrorToPointer([FIRInstallationsErrorUtil
+                             FIDRegestrationErrorWithResponseMissingField:@"authToken.expiresIn"],
+                         outError);
     return nil;
   }
 

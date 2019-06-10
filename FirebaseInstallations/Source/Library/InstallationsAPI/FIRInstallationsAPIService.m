@@ -73,12 +73,6 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - Register Installation
 
-/*
- export function getInstallationsEndpoint({ projectId }: AppConfig): string {
- return `${INSTALLATIONS_API_URL}/projects/${projectId}/installations`;
- }
-
- */
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
   NSString *urlString = [NSString stringWithFormat:@"%@//projects/%@/installations",
                                                    kFIRInstallationsAPIBaseURL, self.projectID];
@@ -110,10 +104,10 @@ NS_ASSUME_NONNULL_END
 
            return nil;
          }]
-      .then(^id(id result){
+      .then(^id(id result) {
         NSError *error;
-        FIRInstallationsItem *registeredInstallation = [installation registeredInstallationWithJSONData:data
-                                                                                                   date:[NSDate date] error:&error];
+        FIRInstallationsItem *registeredInstallation =
+            [installation registeredInstallationWithJSONData:data date:[NSDate date] error:&error];
         if (registeredInstallation == nil) {
           return error;
         }

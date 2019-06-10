@@ -63,12 +63,12 @@
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName {
   // TODO: Form a proper error.
   NSString *failureReason = [NSString
-                             stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
+      stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
   return [NSError errorWithDomain:@"FIRInstallationsError"
                              code:-1
                          userInfo:@{
-                                    NSLocalizedFailureReasonErrorKey : failureReason,
-                                    }];
+                           NSLocalizedFailureReasonErrorKey : failureReason,
+                         }];
 }
 
 @end
