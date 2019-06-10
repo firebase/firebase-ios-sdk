@@ -86,7 +86,9 @@
                             appName:(NSString *)appName
                              APIKey:(NSString *)APIKey {
   FIRInstallationsIDController *idController =
-  [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID appName:appName APIKey:APIKey];
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID
+                                                        appName:appName
+                                                         APIKey:APIKey];
   return [self initWithGoogleAppID:appID appName:appName installationsIDController:idController];
 }
 

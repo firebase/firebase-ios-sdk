@@ -22,26 +22,39 @@
 #import "FBLPromises.h"
 #endif
 
-//NSString *const kFIRInstallationsAPI
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem+RegisterInstallationAPI.h"
+
+NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
+NSString *const kFIRInstallationsAPIKey = @"x-goog-api-key";
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsAPIService ()
 @property(nonatomic, readonly) NSURLSession *urlSession;
+@property(nonatomic, readonly) NSString *APIKey;
+@property(nonatomic, readonly) NSString *projectID;
 @end
+
+NS_ASSUME_NONNULL_END
 
 @implementation FIRInstallationsAPIService
 
-- (instancetype)init
-{
-  NSURLSession *urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-  return [self initWithURLSession:urlSession];
+- (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID {
+  NSURLSession *urlSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+  return [self initWithURLSession:urlSession APIKey:APIKey projectID:projectID];
 }
 
 /// The initializer for tests.
 - (instancetype)initWithURLSession:(NSURLSession *)urlSession
-{
+                            APIKey:(NSString *)APIKey
+                         projectID:(NSString *)projectID {
   self = [super init];
   if (self) {
     _urlSession = urlSession;
+    _APIKey = [APIKey copy];
+    _projectID = projectID;
   }
   return self;
 }
@@ -50,7 +63,12 @@
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
   // TODO: Implement.
-  return [FBLPromise resolvedWith:installation];
+  NSURLRequest *request = [self registerRequestWithInstallation:installation];
+  return [self sendURLRequest:request].then(^id _Nullable(NSArray *_Nullable value) {
+    return [self registerredInstalationWithInstallation:installation
+                                         serverResponse:value.lastObject
+                                           responseData:value.firstObject];
+  });
 }
 
 #pragma mark - Register Installation
@@ -62,7 +80,72 @@
 
  */
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
-  return nil;
+  NSString *urlString = [NSString stringWithFormat:@"%@//projects/%@/installations",
+                                                   kFIRInstallationsAPIBaseURL, self.projectID];
+  NSURL *url = [NSURL URLWithString:urlString];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+
+  request.HTTPMethod = @"POST";
+  [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
+
+  NSDictionary *bodyDict = @{
+    @"fid" : installation.firebaseInstallationID,
+    @"authVersion" : @"FIS_v2",
+    @"appId" : installation.appID,
+    @"sdkVersion" : @"a1.0"
+  };
+  [self setJSONHTTPBody:bodyDict forRequest:request];
+
+  return [request copy];
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)
+    registerredInstalationWithInstallation:(FIRInstallationsItem *)installation
+                            serverResponse:(NSHTTPURLResponse *)response
+                              responseData:(NSData *)data {
+  return [FBLPromise do:^id _Nullable {
+           if (response.statusCode < 200 || response.statusCode >= 300) {
+             return [FIRInstallationsErrorUtil apiErrorWithHTTPCode:response.statusCode];
+           }
+
+           return nil;
+         }]
+      .then(^id(id result){
+        NSError *error;
+        FIRInstallationsItem *registeredInstallation = [installation registeredInstallationWithJSONData:data
+                                                                                                   date:[NSDate date] error:&error];
+        if (registeredInstallation == nil) {
+          return error;
+        }
+
+        return registeredInstallation;
+      });
+}
+
+#pragma mark - URL Request
+
+/**
+ * @return FBLPromise<[NSData, NSURLResponse]>
+ */
+- (FBLPromise<NSArray *> *)sendURLRequest:(NSURLRequest *)request {
+  // TODO: Consider supporting cancellation.
+  return [FBLPromise wrap2ObjectsOrErrorCompletion:^(FBLPromise2ObjectsOrErrorCompletion handler) {
+    [[self.urlSession dataTaskWithRequest:request completionHandler:handler] resume];
+  }];
+}
+
+#pragma mark - JSON
+
+- (void)setJSONHTTPBody:(NSDictionary<NSString *, id> *)body
+             forRequest:(NSMutableURLRequest *)request {
+  [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+
+  NSError *error;
+  NSData *JSONData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&error];
+  if (JSONData == nil) {
+    // TODO: Log or return an error.
+  }
+  request.HTTPBody = JSONData;
 }
 
 @end

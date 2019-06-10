@@ -41,7 +41,10 @@
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
-  return [self initWithGoogleAppID:appID appName:appName APIKey:APIKey installationsStore:installationsStore];
+  return [self initWithGoogleAppID:appID
+                           appName:appName
+                            APIKey:APIKey
+                installationsStore:installationsStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.

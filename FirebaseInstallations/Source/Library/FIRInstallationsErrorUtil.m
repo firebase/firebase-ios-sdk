@@ -44,4 +44,31 @@
                          }];
 }
 
++ (NSError *)apiErrorWithHTTPCode:(NSUInteger)HTTPCode {
+  // TODO: Form a proper error.
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Unexpected server response HTTP code: %lu", (unsigned long)HTTPCode];
+  return [NSError errorWithDomain:@"FIRInstallationsError"
+                             code:-1
+                         userInfo:@{
+                           NSLocalizedFailureReasonErrorKey : failureReason,
+                         }];
+}
+
++ (NSError *)JSONSerializationError:(NSError *)error {
+  // TODO: Form a proper error.
+  return error;
+}
+
++ (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName {
+  // TODO: Form a proper error.
+  NSString *failureReason = [NSString
+                             stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
+  return [NSError errorWithDomain:@"FIRInstallationsError"
+                             code:-1
+                         userInfo:@{
+                                    NSLocalizedFailureReasonErrorKey : failureReason,
+                                    }];
+}
+
 @end

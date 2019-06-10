@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRInstallationsItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInstallationsErrorUtil : NSObject
+@interface FIRInstallationsItem (RegisterInstallationAPI)
 
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
-
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
-
-+ (NSError *)apiErrorWithHTTPCode:(NSUInteger)HTTPCode;
-
-+ (NSError *)JSONSerializationError:(NSError *)error;
-
-+ (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName;
+- (nullable FIRInstallationsItem *)registeredInstallationWithJSONData:(NSData *)JSONData
+                                                                 date:(NSDate *)date
+                                                                error:(NSError **)outError;
 
 @end
 
