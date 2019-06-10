@@ -52,7 +52,7 @@
 
 #define SUPPRESS_END() __pragma(warning(pop))
 
-#else:
+#else
 #define SUPPRESS_BEGIN_UNIMPLEMENTED_()
 #define SUPPRESS_END()
 #endif
