@@ -50,7 +50,8 @@
 - (void)setUp {
   [super setUp];
 
-  self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID" GCMSenderID:@"GCMSenderID"];
+  self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
+                                                GCMSenderID:@"GCMSenderID"];
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
   self.installations = [[FIRInstallations alloc] initWithAppOptions:self.appOptions
                                                             appName:@"appName"

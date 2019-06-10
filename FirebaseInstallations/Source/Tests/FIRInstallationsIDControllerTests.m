@@ -20,10 +20,10 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
 
+#import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallationsAPIService.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
@@ -63,7 +63,8 @@
 }
 
 - (void)testGetInstallationItem_WhenFIDExists_ThenItIsReturned {
-  FIRInstallationsItem *storedInstallations = [FIRInstallationsItem createValidInstallationItem];
+  FIRInstallationsItem *storedInstallations =
+      [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallations]);
 
@@ -77,7 +78,7 @@
 }
 
 - (void)testGetInstallationItem_WhenNoFIDAndNoIID_ThenFIDIsCreated {
-  // Stub get installation.
+  // Stub store get installation.
   NSError *notFoundError =
       [FIRInstallationsErrorUtil installationItemNotFoundForAppID:self.appID appName:self.appName];
   FBLPromise *installationNotFoundPromise = [FBLPromise pendingPromise];
@@ -86,7 +87,7 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(installationNotFoundPromise);
 
-  // Stub save installation.
+  // Stub store save installation.
   __block FIRInstallationsItem *installationToSave;
 
   OCMExpect([self.mockInstallationsStore
@@ -100,6 +101,10 @@
                   installationToSave = obj;
                   return YES;
                 }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // Stub API register installation.
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // Call get installation and check.
