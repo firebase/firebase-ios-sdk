@@ -42,8 +42,8 @@ constexpr int32_t kNanosPerSecond = 1E9;
  *
  * Timestamp protos require `Timestamp` to always has a positive number of
  * nanoseconds that is counting forward. For negative time, we need to adjust
- * representations with negative nanoseconds. That is make (negative seconds s1
- * + negative nanoseconds ns1) to (negative seconds s2 + positive nanoseconds
+ * representations with negative nanoseconds. That is, make (negative seconds s1
+ * + negative nanoseconds ns1) into (negative seconds s2 + positive nanoseconds
  * ns2). Since nanosecond part is always less than 1 second in our
  * representation, instead of starting at s1 and going back ns1 nanoseconds,
  * start at (s1 minus one second) and go *forward* ns2 = (1 second + ns1, ns1 <
@@ -72,7 +72,7 @@ Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
 Timestamp Timestamp::Now() {
 #if defined(__APPLE__)
   // Originally, FIRTimestamp used NSDate to get current time. This method
-  // preserves the accuracy of that method.
+  // preserves the lower accuracy of that method.
   CFAbsoluteTime now =
       CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970;
   double seconds_double;

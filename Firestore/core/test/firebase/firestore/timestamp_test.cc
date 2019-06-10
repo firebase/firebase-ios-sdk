@@ -95,7 +95,7 @@ TEST(Timestamp, Now) {
 
   // Assert that time produced by Timestamp and Abseil are within 10ms of each
   // other. In practice these are only a few microseconds apart, but the
-  // larger goal here is to verify that the seconds value is being propertly
+  // larger goal here is to verify that the seconds value is being properly
   // adjusted to be relative to the UNIX epoch.
   ASSERT_LT(nanos_diff, 10E6);
 }
