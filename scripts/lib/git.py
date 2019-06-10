@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from lib import source
-import trace
+import command_trace
 import os
 import subprocess
 
@@ -52,7 +52,7 @@ def is_revision(word):
   """Returns true if the given word is a revision name according to git."""
   command = ['git', 'rev-parse', word, '--']
   with open(os.devnull, 'w') as dev_null:
-    trace.command(command)
+    command_trace.log(command)
     rc = subprocess.call(command, stdout=dev_null, stderr=dev_null)
     return rc == 0
 
@@ -90,7 +90,7 @@ def find_lines_matching(pattern, sources=None):
     command.extend(sources)
   command.extend(standard_exclusions())
 
-  trace.command(command)
+  command_trace.log(command)
 
   bufsize = 4096
   proc = subprocess.Popen(command, bufsize=bufsize, stdout=subprocess.PIPE)
@@ -122,6 +122,6 @@ def standard_exclusions():
 
 def _null_split_output(command):
   """Runs the given command and splits its output on the null byte."""
-  trace.command(command)
+  command_trace.log(command)
   result = subprocess.check_output(command)
   return [name for name in result.rstrip().split('\0') if name]

@@ -17,7 +17,7 @@ import logging
 import os
 import re
 
-from lib import trace
+from lib import command_trace
 
 
 # Paths under which all files should be ignored
@@ -172,6 +172,11 @@ def _related_file_ext(header):
   For example: executor.h has related files executor_std.cc and
   executor_libdispatch.mm.
 
+  If there are multiple related files, the implementation chooses one based
+  on which language is most restrictive. That is, if a header serves both C++
+  and Objective-C++ implementations, lint the header as C++ to prevent issues
+  that might arise in that mode.
+
   Returns:
     The file extension (e.g. '.cc')
   """
@@ -203,7 +208,7 @@ def _list_files(parent):
   """Lists files contained directly in the parent directory."""
   result = _list_files.cache.get(parent)
   if result is None:
-    trace.command(['ls', parent])
+    command_trace.log(['ls', parent])
     result = os.listdir(parent)
     _list_files.cache[parent] = result
   return result
@@ -213,7 +218,9 @@ _list_files.cache = {}
 
 
 def _in_directories(filename, dirs):
+  """Tests whether `filename` is anywhere in any of the given dirs."""
   for dirname in dirs:
-    if filename.startswith(dirname):
+    if (filename.startswith(dirname)
+        and (len(filename) == len(dirname) or filename[len(dirname)] == '/')):
       return True
   return False

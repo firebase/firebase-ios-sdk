@@ -26,30 +26,34 @@ except ImportError:
   import Queue as queue
 
 
-TASKS = multiprocessing.cpu_count()
+_TASKS = multiprocessing.cpu_count()
 
 
 _output_lock = threading.Lock()
 
 
-def chunks(items, n):
+def shard(items):
+  """Breaks down the given items into roughly equal sized lists.
+
+  The number of lists will be equal to the number of available processor cores.
+  """
+  if not items:
+    return []
+
+  n = int(math.ceil(len(items) / _TASKS))
+  return _chunks(items, n)
+
+
+def _chunks(items, n):
   """Yield successive n-sized chunks from items."""
   for i in range(0, len(items), n):
     yield items[i:i + n]
 
 
-def shard(items):
-  if not items:
-    return []
-
-  n = int(math.ceil(len(items) / TASKS))
-  return chunks(items, n)
-
-
 class Result(object):
 
-  def __init__(self, errors, output):
-    self.errors = errors
+  def __init__(self, num_errors, output):
+    self.errors = num_errors
     self.output = output
 
   @staticmethod
@@ -60,38 +64,57 @@ class Result(object):
 class Pool(object):
 
   def __init__(self):
-    self.pending = queue.Queue()
-    self.results = queue.Queue()
+    # Checkers submit tasks to be run and these are dropped in the _pending
+    # queue. Workers process that queue and results are put in the _results
+    # queue. _results is drained by the thread that calls join().
+    self._pending = queue.Queue()
+    self._results = queue.Queue()
 
     def worker():
       while True:
-        task, args = self.pending.get()
+        task, args = self._pending.get()
         result = task(*args)
         if result is not None:
-          self.results.put(result)
-        self.pending.task_done()
+          self._results.put(result)
+        self._pending.task_done()
 
-    for i in range(TASKS):
+    for i in range(_TASKS):
       t = threading.Thread(target=worker)
       t.daemon = True
       t.start()
 
   def submit(self, task, *args):
-    self.pending.put((task, args))
+    """Submits a task for execution by the pool.
+
+    Args:
+      task: A callable routine that will perform the work.
+      *args: A list of arguments to pass that routine.
+    """
+    self._pending.put((task, args))
 
   def join(self):
-    self.pending.join()
+    """Waits for the completion of all submitted tasks.
 
-    errors = 0
-    while not self.results.empty():
-      result = self.results.get()
-      errors += result.errors
+    Returns:
+      The number of errors encountered.
+    """
+    self._pending.join()
+
+    num_errors = 0
+    while not self._results.empty():
+      result = self._results.get()
+      num_errors += result.errors
       sys.stdout.write(result.output)
-      self.results.task_done()
+      self._results.task_done()
 
-    self.results.join()
-    return errors
+    self._results.join()
+    return num_errors
 
   def exit(self):
+    """Waits for the completion of the submitted tasks and exits.
+
+    This calls join() and then exits with a 0 status code if there were no
+    errors, or 1 if there were.
+    """
     errors = self.join()
     sys.exit(errors > 0)

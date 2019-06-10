@@ -13,51 +13,30 @@
 # limitations under the License.
 
 import logging
-import os
-import pprint
-import subprocess
-import threading
+
+from lib import terminal
 
 _commands = logging.getLogger('commands')
-_columns = None
-_output_lock = threading.Lock()
 
 
-def _find_terminal_columns():
-  try:
-    with open(os.devnull, 'wb') as dev_null:
-      result = subprocess.check_output(['tput', 'cols'], stderr=dev_null)
-      return int(result.rstrip())
-  except subprocess.CalledProcessError:
-    return 80
-
-
-def pp(message):
-  with _output_lock:
-    pprint.pprint(message)
-
-
-def command(command_args):
-  """Traces that a command has run.
+def log(command_args):
+  """Logs that a command has run.
 
   Args:
     command_args: A list of the command and its arguments.
   """
   if _commands.isEnabledFor(logging.DEBUG):
-    global _columns
-    if _columns is None:
-      _columns = _find_terminal_columns()
+    columns = terminal.columns()
 
     text = ' '.join(command_args)
 
     # When just passing --trace, shorten output to the width of the current
     # window. When running extra verbose don't shorten.
     if not logging.root.isEnabledFor(logging.INFO):
-      if len(text) >= _columns:
-        text = text[0:_columns - 5] + ' ...'
+      if len(text) >= columns:
+        text = text[0:columns - 5] + ' ...'
 
-    with _output_lock:
-      _commands.debug('%s', text)
+    _commands.debug('%s', text)
 
 
 def add_arguments(parser):
@@ -68,10 +47,9 @@ def add_arguments(parser):
                       help='run verbosely')
 
 
-def trace_commands():
+def enable_tracing():
   """Enables tracing of command execution."""
-  with _output_lock:
-    _commands.setLevel(logging.DEBUG)
+  _commands.setLevel(logging.DEBUG)
 
 
 def setup(args):
@@ -79,7 +57,7 @@ def setup(args):
   level = logging.WARN
 
   if args.trace:
-    trace_commands()
+    enable_tracing()
 
   if args.verbose >= 2:
     level = logging.DEBUG
@@ -90,7 +68,7 @@ def setup(args):
 
 
 def parse_args(parser):
-  """Shortcut that adds argumets, parses, and runs setup.
+  """Shortcut that adds arguments, parses, and runs setup.
 
   Returns:
     The args result from parser.parse_args().

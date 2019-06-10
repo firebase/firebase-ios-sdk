@@ -28,7 +28,7 @@ import sys
 import textwrap
 
 from lib import checker
-from lib import trace
+from lib import command_trace
 from lib import git
 from lib import source
 
@@ -38,7 +38,7 @@ _logger = logging.getLogger('lint')
 _dry_run = False
 
 
-_cpplint_objc_filters = [
+_CPPLINT_OBJC_FILTERS = [
     # Objective-C uses #import and does not use header guards
     '-build/header_guard',
 
@@ -61,14 +61,14 @@ _cpplint_objc_filters = [
     '-whitespace',
 ]
 
-_cpplint_objc_options = [
+_CPPLINT_OBJC_OPTIONS = [
     # cpplint normally excludes Objective-C++
     '--extensions=h,m,mm',
 
     # Objective-C style allows longer lines
     '--linelength=100',
 
-    '--filter=' + ','.join(_cpplint_objc_filters),
+    '--filter=' + ','.join(_CPPLINT_OBJC_FILTERS),
 ]
 
 
@@ -85,11 +85,11 @@ def main():
                            'from which to look for changes. Defaults to '
                            'origin/master. Alternatively, a list of specific '
                            'files or git pathspecs to lint.')
-  args = trace.parse_args(parser)
+  args = command_trace.parse_args(parser)
 
   if args.dry_run:
     _dry_run = True
-    trace.trace_commands()
+    command_trace.enable_tracing()
 
   pool = checker.Pool()
 
@@ -119,7 +119,7 @@ def lint_cc(files):
 
 
 def lint_objc(files):
-  return _run_cpplint(_cpplint_objc_options, files)
+  return _run_cpplint(_CPPLINT_OBJC_OPTIONS, files)
 
 
 def _run_cpplint(options, files):
@@ -158,7 +158,7 @@ def lint_py(files):
 
 
 def _read_output(command):
-  trace.command(command)
+  command_trace.log(command)
 
   if _dry_run:
     return 0
@@ -179,25 +179,30 @@ _linters = {
 
 
 def _unique(items):
-  seen = set()
-  result = []
-  for item in items:
-    if item not in seen:
-      seen.add(item)
-      result.append(item)
-  return result
+  return list(set(items))
 
 
 def make_path():
+  """Makes a list of paths to search for binaries.
+
+  Returns:
+    A list of directories that can be sources of binaries to run. This includes
+    both the PATH environment variable and any bin directories associated with
+    python install locations.
+  """
+  # Start with the system-supplied PATH.
   path = os.environ['PATH'].split(os.pathsep)
 
+  # In addition, add any bin directories near the lib directories in the python
+  # path. This makes it possible to find flake8 in ~/Library/Python/2.7/bin
+  # after pip install --user flake8.
   lib_pattern = re.compile(r'(.*)/lib/')
   for entry in sys.path:
     m = lib_pattern.match(entry)
     if m:
-      bindir = os.path.join(m.group(1), 'bin')
-      if bindir not in path and os.path.exists(bindir):
-        path.append(bindir)
+      bin_dir = os.path.join(m.group(1), 'bin')
+      if bin_dir not in path and os.path.exists(bin_dir):
+        path.append(bin_dir)
 
   return path
 
@@ -206,12 +211,18 @@ _PATH = make_path()
 
 
 def which(executable):
+  """Finds the executable with the given name.
+
+  Returns:
+    The fully qualified path to the executable or None if the executable isn't
+    found.
+  """
   if executable.startswith('/'):
     return executable
 
   for entry in _PATH:
     joined = os.path.join(entry, executable)
-    if os.path.isfile(joined):
+    if os.path.isfile(joined) and os.access(joined, os.X_OK):
       return joined
 
   return None
