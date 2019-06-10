@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey;
+                             APIKey:(NSString *)APIKey
+                          projectID:(NSString *)projectID;
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
 

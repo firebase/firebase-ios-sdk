@@ -33,34 +33,36 @@
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
 
-// TODO: Use FIRInstallationsAPIService to register installation.
-//@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
+@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 @end
 
 @implementation FIRInstallationsIDController
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey {
+                             APIKey:(NSString *)APIKey
+                          projectID:(NSString *)projectID {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
+  FIRInstallationsAPIService *apiService = [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   return [self initWithGoogleAppID:appID
                            appName:appName
-                            APIKey:APIKey
-                installationsStore:installationsStore];
+                installationsStore:installationsStore
+                        APIService:apiService];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                 installationsStore:(FIRInstallationsStore *)installationsStore {
+                 installationsStore:(FIRInstallationsStore *)installationsStore
+                         APIService:(FIRInstallationsAPIService *)APIService {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
     _installationsStore = installationsStore;
+    _APIService = APIService;
   }
   return self;
 }

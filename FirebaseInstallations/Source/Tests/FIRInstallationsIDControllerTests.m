@@ -23,12 +23,13 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStore.h"
+#import "FIRInstallationsAPIService.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                 installationsStore:(FIRInstallationsStore *)installationsStore;
+                 installationsStore:(FIRInstallationsStore *)installationsStore
+                         APIService:(FIRInstallationsAPIService *)APIService;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase

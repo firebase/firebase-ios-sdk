@@ -39,7 +39,7 @@
 @end
 
 @interface FIRInstallations () <FIRLibrary>
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) FIROptions *appOptions;
 @property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsIDController *installationsIDController;
@@ -82,9 +82,8 @@
                             APIKey:app.options.APIKey];
 }
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey {
+- (instancetype)initWitAppOptions:(FIROptions *)appOptions
+                            appName:(NSString *)appName {
   FIRInstallationsIDController *idController =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID
                                                         appName:appName
@@ -93,12 +92,12 @@
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
-- (instancetype)initWithGoogleAppID:(NSString *)appID
+- (instancetype)initWithAppOptions:(FIROptions *)appOptions
                             appName:(NSString *)appName
           installationsIDController:(FIRInstallationsIDController *)installationsIDController {
   self = [super init];
   if (self) {
-    _appID = appID;
+    _appOptions = appOptions;
     _appName = appName;
     _installationsIDController = installationsIDController;
   }
