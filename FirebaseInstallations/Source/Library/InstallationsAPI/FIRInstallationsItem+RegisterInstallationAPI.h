@@ -20,9 +20,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsItem (RegisterInstallationAPI)
 
+/**
+ * Parses and validates the Register Installation API response and returns a corresponding
+ * `FIRInstallationsItem` instance on success.
+ * @param JSONData The data with JSON encoded API response.
+ * @param date The Auth Token expiration date will be calculated as `date` +
+ * `response.authToken.expiresIn`. For most of the cases `[NSDate date]` should be passed there. A
+ * different value may be passed e.g. for unit tests.
+ * @param outError A pointer to assign a specific `NSError` instance in case of failure. No error is
+ * assigned in case of success.
+ * @return Returns a new `FIRInstallationsItem` instance in the success case or `nil` otherwise.
+ */
 - (nullable FIRInstallationsItem *)registeredInstallationWithJSONData:(NSData *)JSONData
                                                                  date:(NSDate *)date
-                                                                error:(NSError **)outError;
+                                                                error:
+                                                                    (NSError *_Nullable *)outError;
 
 @end
 
