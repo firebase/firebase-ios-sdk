@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Register Installation
 
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
-  NSString *urlString = [NSString stringWithFormat:@"%@//projects/%@/installations",
+  NSString *urlString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/",
                                                    kFIRInstallationsAPIBaseURL, self.projectID];
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];

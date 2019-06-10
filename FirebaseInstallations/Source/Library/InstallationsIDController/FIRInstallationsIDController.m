@@ -22,10 +22,10 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRSecureStorage.h"
-#import "FIRInstallationsAPIService.h"
 
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;

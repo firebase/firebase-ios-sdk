@@ -63,7 +63,26 @@
   // 1.1. Create mock data task.
 
   // 1.2. URL request validation.
-  id urlRequestValidation = [OCMArg checkWithBlock:^BOOL(id obj) {
+  id urlRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(
+        request.URL.absoluteString,
+        @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-api-key"], self.APIKey);
+
+    NSError *error;
+    NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
+                                                         options:0
+                                                           error:&error];
+    XCTAssertNotNil(body, @"Error: %@", error);
+
+    XCTAssertEqualObjects(body[@"fid"], installation.firebaseInstallationID);
+    XCTAssertEqualObjects(body[@"authVersion"], @"FIS_v2");
+    XCTAssertEqualObjects(body[@"appId"], installation.appID);
+
+    // TODO: Find out what the version should we pass and test.
+    //    XCTAssertEqualObjects(body[@"sdkVersion"], @"a1.0");
+
     return YES;
   }];
 
@@ -113,6 +132,10 @@
   [self assertDate:promise.value.authToken.expirationDate
       isApproximatelyEqualCurrentPlusTimeInterval:604800];
 }
+
+// TODO: More tests for Register Installation API
+
+#pragma mark - Helpers
 
 - (NSData *)loadFixtureNamed:(NSString *)fileName {
   NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:fileName
