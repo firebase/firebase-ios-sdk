@@ -44,6 +44,7 @@ namespace {
 using BaseValue = FieldValue::BaseValue;
 using Type = FieldValue::Type;
 
+using nanopb::ByteString;
 using util::Compare;
 using util::CompareContainer;
 using util::ComparisonResult;
@@ -310,23 +311,9 @@ class StringValue : public SimpleFieldValue<Type::String, std::string> {
   using SimpleFieldValue::SimpleFieldValue;
 };
 
-using BlobContents = std::vector<uint8_t>;
-
-class BlobValue : public SimpleFieldValue<Type::Blob, BlobContents> {
+class BlobValue : public SimpleFieldValue<Type::Blob, ByteString> {
  public:
   using SimpleFieldValue::SimpleFieldValue;
-
-  std::string ToString() const override {
-    return absl::StrCat("<", absl::BytesToHexString(AsStringView()), ">");
-  }
-
- private:
-  absl::string_view AsStringView() const {
-    // string_view accepts const char*, but treats it internally as unsigned.
-    const BlobContents& contents = value();
-    auto data = reinterpret_cast<const char*>(contents.data());
-    return {data, contents.size()};
-  }
 };
 
 class ReferenceValue : public FieldValue::BaseValue {
@@ -537,7 +524,7 @@ const std::string& FieldValue::string_value() const {
   return Cast<StringValue>(*rep_).value();
 }
 
-const std::vector<uint8_t>& FieldValue::blob_value() const {
+const ByteString& FieldValue::blob_value() const {
   HARD_ASSERT(type() == Type::Blob);
   return Cast<BlobValue>(*rep_).value();
 }
@@ -700,9 +687,8 @@ FieldValue FieldValue::FromString(std::string&& value) {
   return FieldValue(std::make_shared<StringValue>(std::move(value)));
 }
 
-FieldValue FieldValue::FromBlob(const uint8_t* source, size_t size) {
-  std::vector<uint8_t> copy(source, source + size);
-  return FieldValue(std::make_shared<BlobValue>(std::move(copy)));
+FieldValue FieldValue::FromBlob(ByteString blob) {
+  return FieldValue(std::make_shared<BlobValue>(std::move(blob)));
 }
 
 FieldValue FieldValue::FromReference(DatabaseId database_id, DocumentKey key) {

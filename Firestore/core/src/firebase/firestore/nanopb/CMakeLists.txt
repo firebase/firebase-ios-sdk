@@ -17,10 +17,12 @@ cc_library(
   SOURCES
     byte_string.cc
     byte_string.h
-    reader.h
+    nanopb_util.cc
+    nanopb_util.h
     reader.cc
-    writer.h
+    reader.h
     writer.cc
+    writer.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static

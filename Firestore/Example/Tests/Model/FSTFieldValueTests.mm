@@ -298,9 +298,7 @@ union DoubleBits {
     // double and unit64_t values can compare: the same (but won't be isEqual:)
     @[ FSTTestFieldValue(@1.0), FieldValue::FromDouble(1.0).Wrap() ],
     @[ FSTTestFieldValue(@1.1), FieldValue::FromDouble(1.1).Wrap() ],
-    @[
-      FSTTestFieldValue(FSTTestData(0, 1, 2, -1)), [FSTBlobValue blobValue:FSTTestData(0, 1, 2, -1)]
-    ],
+    @[ FSTTestFieldValue(FSTTestData(0, 1, 2, -1)), testutil::BlobValue(0, 1, 2).Wrap() ],
     @[ FSTTestFieldValue(FSTTestData(0, 1, -1)) ],
     @[ FSTTestFieldValue(@"string"), FieldValue::FromString("string").Wrap() ],
     @[ FSTTestFieldValue(@"strin") ],
@@ -323,10 +321,7 @@ union DoubleBits {
     @[ [FSTServerTimestampValue
         serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date2]
                                  previousValue:nil] ],
-    @[
-      FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
-      FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap()
-    ],
+    @[ FSTTestFieldValue(FSTTestGeoPoint(0, 1)), FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap() ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
       [FSTReferenceValue
