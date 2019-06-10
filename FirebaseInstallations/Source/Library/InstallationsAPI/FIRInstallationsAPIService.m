@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_END
   if (self) {
     _urlSession = urlSession;
     _APIKey = [APIKey copy];
-    _projectID = projectID;
+    _projectID = [projectID copy];
   }
   return self;
 }
@@ -62,7 +62,6 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Public
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
-  // TODO: Implement.
   NSURLRequest *request = [self registerRequestWithInstallation:installation];
   return [self sendURLRequest:request].then(^id _Nullable(NSArray *_Nullable value) {
     return [self registerredInstalationWithInstallation:installation
@@ -86,6 +85,7 @@ NS_ASSUME_NONNULL_END
     @"fid" : installation.firebaseInstallationID,
     @"authVersion" : @"FIS_v2",
     @"appId" : installation.appID,
+    // TODO: Set proper sdkVersion.
     @"sdkVersion" : @"a1.0"
   };
   [self setJSONHTTPBody:bodyDict forRequest:request];
@@ -101,7 +101,6 @@ NS_ASSUME_NONNULL_END
            if (response.statusCode < 200 || response.statusCode >= 300) {
              return [FIRInstallationsErrorUtil apiErrorWithHTTPCode:response.statusCode];
            }
-
            return nil;
          }]
       .then(^id(id result) {
