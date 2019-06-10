@@ -25,12 +25,16 @@
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRSecureStorage.h"
+#import "FIRInstallationsAPIService.h"
 
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
+
+// TODO: Use FIRInstallationsAPIService to register installation.
+//@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 @end
 
 @implementation FIRInstallationsIDController
