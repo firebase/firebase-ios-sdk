@@ -27,14 +27,10 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
 
 @implementation FIRInstallationsItem (RegisterInstallationAPI)
 
-- (nullable FIRInstallationsItem *)registeredInstallationWithJSONData:(NSData *)data
-                                                                 date:(NSDate *)date
-                                                                error:(NSError **)outError {
-  // Let's require `outError` other
-  if (outError == NULL) {
-    return nil;
-  }
-
+- (nullable FIRInstallationsItem *)
+    registeredInstallationWithJSONData:(NSData *)data
+                                  date:(NSDate *)date
+                                 error:(NSError *__autoreleasing _Nullable *_Nullable)outError {
   NSError *error;
   NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
