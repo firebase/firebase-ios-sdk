@@ -30,6 +30,7 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
@@ -49,6 +50,7 @@
 #include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
@@ -455,8 +457,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTTimestampValue timestampValue:truncatedTimestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    FIRGeoPoint *geoPoint = input;
-    return FieldValue::FromGeoPoint([geoPoint toGeoPoint]).Wrap();
+    return FieldValue::FromGeoPoint(api::MakeGeoPoint(input)).Wrap();
 
   } else if ([input isKindOfClass:[NSData class]]) {
     NSData *inputData = input;

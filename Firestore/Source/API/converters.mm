@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
+#include "Firestore/Source/API/converters.h"
+
 #import "FIRGeoPoint.h"
+
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Internal FIRGeoPoint API we don't want exposed in our public header files. */
-@interface FIRGeoPoint (Internal)
+namespace firebase {
+namespace firestore {
+namespace api {
 
-- (NSComparisonResult)compare:(FIRGeoPoint *)other;
+GeoPoint MakeGeoPoint(FIRGeoPoint* geo_point) {
+  return GeoPoint(geo_point.latitude, geo_point.longitude);
+}
 
-@end
+FIRGeoPoint* MakeFIRGeoPoint(const GeoPoint& geo_point) {
+  return [[FIRGeoPoint alloc] initWithLatitude:geo_point.latitude()
+                                     longitude:geo_point.longitude()];
+}
+
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_END
