@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/App/iOS/FIRViewController.h"
+#import "FIRViewController.h"
 
 @interface FIRViewController ()
 
