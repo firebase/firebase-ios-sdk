@@ -1,5 +1,6 @@
 # Comment the following line to use the CocoaPods master repo instead.
-source 'https://cdn.jsdelivr.net/cocoa/'
+# Disabled. See https://github.com/firebase/firebase-ios-sdk/issues/3165
+# source 'https://cdn.jsdelivr.net/cocoa/'
 
 use_frameworks!
 

@@ -38,7 +38,9 @@ def main(args)
     exit(1)
   end
 
-  command = %w(bundle exec pod lib lint --sources=https://cdn.jsdelivr.net/cocoa/)
+  # Disabled CDN. See https://github.com/firebase/firebase-ios-sdk/issues/3165
+  # command = %w(bundle exec pod lib lint --sources=https://cdn.jsdelivr.net/cocoa/)
+  command = %w(bundle exec pod lib lint)
 
   # Figure out which dependencies are local
   podspec_file = args[0]
@@ -48,6 +50,7 @@ def main(args)
 
   command.push(*args)
   puts command.join(' ')
+  exec('bundle exec pod repo update')
   exec(*command)
 end
 
