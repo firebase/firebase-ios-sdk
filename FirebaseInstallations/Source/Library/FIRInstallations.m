@@ -77,18 +77,17 @@
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWithGoogleAppID:app.options.googleAppID
-                           appName:app.name
-                            APIKey:app.options.APIKey];
+  return [self initWitAppOptions:app.options appName:app.name];
 }
 
 - (instancetype)initWitAppOptions:(FIROptions *)appOptions
                             appName:(NSString *)appName {
   FIRInstallationsIDController *idController =
-      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appID
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appOptions.googleAppID
                                                         appName:appName
-                                                         APIKey:APIKey];
-  return [self initWithGoogleAppID:appID appName:appName installationsIDController:idController];
+                                                         APIKey:appOptions.APIKey
+                                                      projectID:appOptions.projectID];
+  return [self initWithAppOptions:appOptions appName:appName installationsIDController:idController];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -97,8 +96,8 @@
           installationsIDController:(FIRInstallationsIDController *)installationsIDController {
   self = [super init];
   if (self) {
-    _appOptions = appOptions;
-    _appName = appName;
+    _appOptions = [appOptions copy];
+    _appName = [appName copy];
     _installationsIDController = installationsIDController;
   }
   return self;

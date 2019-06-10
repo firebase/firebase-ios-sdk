@@ -35,6 +35,7 @@
 @interface FIRInstallationsIDControllerTests : XCTestCase
 @property(nonatomic) FIRInstallationsIDController *controller;
 @property(nonatomic) id mockInstallationsStore;
+@property(nonatomic) id mockAPIService;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 @end
@@ -45,15 +46,17 @@
   self.appID = @"appID";
   self.appName = @"appName";
   self.mockInstallationsStore = OCMClassMock([FIRInstallationsStore class]);
+  self.mockAPIService = OCMClassMock([FIRInstallationsAPIService class]);
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
                                                         appName:self.appName
-                                                         APIKey:@""
-                                             installationsStore:self.mockInstallationsStore];
+                                             installationsStore:self.mockInstallationsStore
+                                                     APIService:self.mockAPIService];
 }
 
 - (void)tearDown {
   self.controller = nil;
+  self.mockAPIService = nil;
   self.mockInstallationsStore = nil;
   self.appID = nil;
   self.appName = nil;
