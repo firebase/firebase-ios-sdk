@@ -107,7 +107,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
-+ (instancetype)timestampValue:(firebase::Timestamp)value;
++ (instancetype)timestampValue:(const firebase::Timestamp &)value;
 @end
 
 /**
@@ -123,7 +123,7 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(firebase::Timestamp)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(const firebase::Timestamp &)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
 @property(nonatomic, assign, readonly) const firebase::Timestamp &localWriteTime;

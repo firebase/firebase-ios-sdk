@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithBatchID:(BatchId)batchID
-                 localWriteTime:(Timestamp)localWriteTime
+                 localWriteTime:(const Timestamp &)localWriteTime
                   baseMutations:(std::vector<FSTMutation *> &&)baseMutations
                       mutations:(std::vector<FSTMutation *> &&)mutations {
   HARD_ASSERT(!mutations.empty(), "Cannot create an empty mutation batch");

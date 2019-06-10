@@ -456,9 +456,9 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTTimestampValue timestampValue:api::MakeTimestamp(inputDate)];
 
   } else if ([input isKindOfClass:[FIRTimestamp class]]) {
-    FIRTimestamp *inputTimetamp = input;
-    Timestamp timestamp = TimestampInternal::Truncate(api::MakeTimestamp(inputTimetamp));
-    return [FSTTimestampValue timestampValue:std::move(timestamp)];
+    FIRTimestamp *inputTimestamp = input;
+    Timestamp timestamp = TimestampInternal::Truncate(api::MakeTimestamp(inputTimestamp));
+    return [FSTTimestampValue timestampValue:timestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
     return FieldValue::FromGeoPoint(api::MakeGeoPoint(input)).Wrap();

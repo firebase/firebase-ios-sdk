@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  * mutations.
  */
 - (instancetype)initWithBatchID:(model::BatchId)batchID
-                 localWriteTime:(firebase::Timestamp)localWriteTime
+                 localWriteTime:(const firebase::Timestamp &)localWriteTime
                   baseMutations:(std::vector<FSTMutation *> &&)baseMutations
                       mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
 

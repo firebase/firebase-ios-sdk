@@ -133,14 +133,14 @@ NS_ASSUME_NONNULL_BEGIN
   Timestamp _internalValue;
 }
 
-+ (instancetype)timestampValue:(Timestamp)value {
-  return [[FSTTimestampValue alloc] initWithValue:std::move(value)];
++ (instancetype)timestampValue:(const Timestamp &)value {
+  return [[FSTTimestampValue alloc] initWithValue:value];
 }
 
-- (id)initWithValue:(Timestamp)value {
+- (id)initWithValue:(const Timestamp &)value {
   self = [super init];
   if (self) {
-    _internalValue = std::move(value);
+    _internalValue = value;
   }
   return self;
 }
@@ -193,13 +193,13 @@ NS_ASSUME_NONNULL_BEGIN
   Timestamp _localWriteTime;
 }
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(Timestamp)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(const Timestamp &)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue {
   return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
                                                    previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(Timestamp)localWriteTime
+- (id)initWithLocalWriteTime:(const Timestamp &)localWriteTime
                previousValue:(nullable FSTFieldValue *)previousValue {
   self = [super init];
   if (self) {

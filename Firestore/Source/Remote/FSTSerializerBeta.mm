@@ -264,7 +264,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     case GCFSValue_ValueType_OneOfCase_TimestampValue: {
       Timestamp value = [self decodedTimestamp:valueProto.timestampValue];
-      return [FSTTimestampValue timestampValue:std::move(value)];
+      return [FSTTimestampValue timestampValue:value];
     }
 
     case GCFSValue_ValueType_OneOfCase_GeoPointValue:
