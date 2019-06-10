@@ -19,7 +19,7 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
-void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
+void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   if (pointer != NULL) {
     *pointer = error;
   }
@@ -39,13 +39,14 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
   NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
   if (responseJSON == nil) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil JSONSerializationError:error], outError);
+    FIRInstallationsItemSetErrorToPointer([FIRInstallationsErrorUtil JSONSerializationError:error],
+                                          outError);
     return nil;
   }
 
   NSString *refreshToken = [self validStringOrNilForKey:@"refreshToken" fromDict:responseJSON];
   if (refreshToken == nil) {
-    FIRSetErrorToPointer(
+    FIRInstallationsItemSetErrorToPointer(
         [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"refreshToken"],
         outError);
     return nil;
@@ -53,7 +54,7 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
 
   NSDictionary *authTokenDict = responseJSON[@"authToken"];
   if (![authTokenDict isKindOfClass:[NSDictionary class]]) {
-    FIRSetErrorToPointer(
+    FIRInstallationsItemSetErrorToPointer(
         [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken"],
         outError);
     return nil;
@@ -89,7 +90,7 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
                                                               error:(NSError **)outError {
   NSString *token = [self validStringOrNilForKey:@"token" fromDict:dict];
   if (token == nil) {
-    FIRSetErrorToPointer(
+    FIRInstallationsItemSetErrorToPointer(
         [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken.token"],
         outError);
     return nil;
@@ -97,9 +98,10 @@ void FIRSetErrorToPointer(NSError *error, NSError **pointer) {
 
   NSString *expiresInString = [self validStringOrNilForKey:@"expiresIn" fromDict:dict];
   if (expiresInString == nil) {
-    FIRSetErrorToPointer([FIRInstallationsErrorUtil
-                             FIDRegestrationErrorWithResponseMissingField:@"authToken.expiresIn"],
-                         outError);
+    FIRInstallationsItemSetErrorToPointer(
+        [FIRInstallationsErrorUtil
+            FIDRegestrationErrorWithResponseMissingField:@"authToken.expiresIn"],
+        outError);
     return nil;
   }
 
