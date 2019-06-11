@@ -589,7 +589,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
           return
               [FieldValue::FromTimestamp(sts.local_write_time()).Wrap() valueWithOptions:options];
         case ServerTimestampBehavior::kPrevious:
-          return sts.previous_value() ? [sts.previous_value()->Wrap() valueWithOptions:options]
+          return sts.previous_value() ? [sts.previous_value() valueWithOptions:options]
                                       : [NSNull null];
         default:
           HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());

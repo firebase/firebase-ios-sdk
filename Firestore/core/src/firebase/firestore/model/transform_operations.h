@@ -97,8 +97,7 @@ class ServerTimestampTransform : public TransformOperation {
   FSTFieldValue* ApplyToLocalView(
       FSTFieldValue* previousValue,
       const Timestamp& local_write_time) const override {
-    // TODO(wilhuff): DO NOT SUBMIT: handle previousValue
-    return FieldValue::FromServerTimestamp(local_write_time, FieldValue::Null())
+    return FieldValue::FromServerTimestamp(local_write_time, previousValue)
         .Wrap();
   }
 
