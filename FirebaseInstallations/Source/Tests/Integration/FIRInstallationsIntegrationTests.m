@@ -52,7 +52,7 @@
     [expectation1 fulfill];
   }];
 
-  [self waitForExpectations:@[ expectation1 ] timeout:2000];
+  [self waitForExpectations:@[ expectation1 ] timeout:2];
 
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"FID"];
 
@@ -66,7 +66,7 @@
     [expectation2 fulfill];
   }];
 
-  [self waitForExpectations:@[ expectation2 ] timeout:2000];
+  [self waitForExpectations:@[ expectation2 ] timeout:2];
 }
 
 
