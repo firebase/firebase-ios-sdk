@@ -16,6 +16,45 @@
 
 #import "FIRInstallationsStoredAuthToken.h"
 
+NSString *const kFIRInstallationsStoredAuthTokenStatusKey = @"status";
+NSString *const kFIRInstallationsStoredAuthTokenTokenKey = @"token";
+NSString *const kFIRInstallationsStoredAuthTokenExpirationDateKey = @"expirationDate";
+NSString *const kFIRInstallationsStoredAuthTokenStorageVersionKey = @"storageVersion";
+
+NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
+
 @implementation FIRInstallationsStoredAuthToken
+
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+  [aCoder encodeInteger:self.status forKey:kFIRInstallationsStoredAuthTokenStatusKey];
+  [aCoder encodeObject:self.token forKey:kFIRInstallationsStoredAuthTokenTokenKey];
+  [aCoder encodeObject:self.expirationDate
+                forKey:kFIRInstallationsStoredAuthTokenExpirationDateKey];
+  [aCoder encodeInteger:kFIRInstallationsStoredAuthTokenStorageVersion
+                 forKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
+}
+
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  NSInteger storageVersion =
+      [aDecoder decodeIntegerForKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
+  if (storageVersion != kFIRInstallationsStoredAuthTokenStorageVersion) {
+    // TODO: Log a warning about the future version of the storage to a console.
+    // This is the first version, so we cannot do any migration yet.
+  }
+
+  FIRInstallationsStoredAuthToken *object = [[FIRInstallationsStoredAuthToken alloc] init];
+  object.status = [aDecoder decodeIntegerForKey:kFIRInstallationsStoredAuthTokenStatusKey];
+  object.token = [aDecoder decodeObjectOfClass:[NSString class]
+                                        forKey:kFIRInstallationsStoredAuthTokenTokenKey];
+  object.expirationDate =
+      [aDecoder decodeObjectOfClass:[NSDate class]
+                             forKey:kFIRInstallationsStoredAuthTokenExpirationDateKey];
+
+  return object;
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
 
 @end
