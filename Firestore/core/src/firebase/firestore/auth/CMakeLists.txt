@@ -32,6 +32,7 @@ cc_library(
     firebase_credentials_provider_apple.h
     firebase_credentials_provider_apple.mm
   DEPENDS
+    FirebaseAuthInterop
     FirebaseCore
     GoogleUtilities
     firebase_firestore_auth_base

@@ -46,7 +46,7 @@ class Timestamp {
    * Creates a new timestamp representing the epoch (with seconds and
    * nanoseconds set to 0).
    */
-  Timestamp();
+  Timestamp() = default;
 
   /**
    * Creates a new timestamp.

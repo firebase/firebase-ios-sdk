@@ -27,8 +27,7 @@
 #include <string>
 #include <vector>
 
-#import "Firestore/Source/Public/FIRTimestamp.h"
-
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
@@ -71,7 +70,7 @@ class LevelDbMutationQueue : public MutationQueue {
                         NSData* _Nullable stream_token) override;
 
   FSTMutationBatch* AddMutationBatch(
-      FIRTimestamp* local_write_time,
+      const Timestamp& local_write_time,
       std::vector<FSTMutation*>&& base_mutations,
       std::vector<FSTMutation*>&& mutations) override;
 

@@ -32,7 +32,7 @@ class DummyOperation : public TransformOperation {
   }
 
   FSTFieldValue* ApplyToLocalView(FSTFieldValue* /* previousValue */,
-                                  FIRTimestamp* /* localWriteTime */) const override {
+                                  const Timestamp& /* localWriteTime */) const override {
     return nil;
   }
 

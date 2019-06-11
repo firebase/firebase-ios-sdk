@@ -42,48 +42,50 @@
 
 #define SUPPRESS_BEGIN_(name) _Pragma("GCC diagnostic push") _Pragma(name)
 
+#define SUPPRESS_END() _Pragma("GCC diagnostic pop")
+
 #elif defined(_MSC_VER)
 #define SUPPRESS_BEGIN_UNIMPLEMENTED_() __pragma(warning(push))
 
 #define SUPPRESS_BEGIN_(name) \
   __pragma(warning(push)) __pragma(warning(disable : name))
 
+#define SUPPRESS_END() __pragma(warning(pop))
+
+#else
+#define SUPPRESS_BEGIN_UNIMPLEMENTED_()
+#define SUPPRESS_END()
 #endif
 
 // 'Public' macros.
 
+// Ignore -Wcomma warnings in Clang
+#if defined(__clang__)
+#define SUPPRESS_COMMA_WARNINGS_BEGIN() \
+  SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wcomma\"")
+#else
+#define SUPPRESS_COMMA_WARNINGS_BEGIN() SUPPRESS_BEGIN_UNIMPLEMENTED_()
+#endif
+
+// Ignore -Wdocumentation warnings in Clang
 #if defined(__clang__)
 #define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() \
   SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdocumentation\"")
-
-#define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() \
-  SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
-
-#define SUPPRESS_END() _Pragma("GCC diagnostic pop")
-
-#elif defined(__GNUC__)
+#else
 #define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() SUPPRESS_BEGIN_UNIMPLEMENTED_()
+#endif
 
+// Ignore the use of deprecated declarations.
+#if defined(__clang__) || defined(__GNUC__)
 #define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() \
   SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
-
-#define SUPPRESS_END() _Pragma("GCC diagnostic pop")
-
 #elif defined(_MSC_VER)
 // MSVC compiler warnings can be found here: (Look at the navbar on the left
 // and select the appropriate range):
 // https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warnings-by-compiler-version?view=vs-2017
-#define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() SUPPRESS_BEGIN_UNIMPLEMENTED_()
-
 #define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() SUPPRESS_BEGIN_(4995)
-
-#define SUPPRESS_END() __pragma(warning(pop))
-
 #else
-#define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
-#define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
-#define SUPPRESS_END()
-
+#define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() SUPPRESS_BEGIN_UNIMPLEMENTED_()
 #endif
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_WARNINGS_H_

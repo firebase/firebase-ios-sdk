@@ -58,10 +58,11 @@ class TransformOperation {
 
   /**
    * Computes the local transform result against the provided `previousValue`,
-   * optionally using the provided localWriteTime.
+   * optionally using the provided local_write_time.
    */
   virtual FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* previousValue, FIRTimestamp* localWriteTime) const = 0;
+      FSTFieldValue* previousValue,
+      const Timestamp& local_write_time) const = 0;
 
   /**
    * Computes a final transform result after the transform has been acknowledged
@@ -93,10 +94,11 @@ class ServerTimestampTransform : public TransformOperation {
     return Type::ServerTimestamp;
   }
 
-  FSTFieldValue* ApplyToLocalView(FSTFieldValue* previousValue,
-                                  FIRTimestamp* localWriteTime) const override {
+  FSTFieldValue* ApplyToLocalView(
+      FSTFieldValue* previousValue,
+      const Timestamp& local_write_time) const override {
     return [FSTServerTimestampValue
-        serverTimestampValueWithLocalWriteTime:localWriteTime
+        serverTimestampValueWithLocalWriteTime:local_write_time
                                  previousValue:previousValue];
   }
 
@@ -149,7 +151,7 @@ class ArrayTransform : public TransformOperation {
 
   FSTFieldValue* ApplyToLocalView(
       FSTFieldValue* previousValue,
-      FIRTimestamp* /* localWriteTime */) const override {
+      const Timestamp& /* local_write_time */) const override {
     return Apply(previousValue);
   }
 
@@ -259,7 +261,7 @@ class NumericIncrementTransform : public TransformOperation {
 
   FSTFieldValue* ApplyToLocalView(
       FSTFieldValue* previousValue,
-      FIRTimestamp* /* localWriteTime */) const override {
+      const Timestamp& /* local_write_time */) const override {
     // Return an integer value only if the previous value and the operand is an
     // integer.
     if (previousValue.type == FieldValue::Type::Integer &&
