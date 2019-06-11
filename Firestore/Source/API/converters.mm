@@ -17,8 +17,10 @@
 #include "Firestore/Source/API/converters.h"
 
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +35,20 @@ GeoPoint MakeGeoPoint(FIRGeoPoint* geo_point) {
 FIRGeoPoint* MakeFIRGeoPoint(const GeoPoint& geo_point) {
   return [[FIRGeoPoint alloc] initWithLatitude:geo_point.latitude()
                                      longitude:geo_point.longitude()];
+}
+
+Timestamp MakeTimestamp(FIRTimestamp* timestamp) {
+  return Timestamp(timestamp.seconds, timestamp.nanoseconds);
+}
+
+Timestamp MakeTimestamp(NSDate* date) {
+  FIRTimestamp* timestamp = [FIRTimestamp timestampWithDate:date];
+  return MakeTimestamp(timestamp);
+}
+
+FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp) {
+  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
+                                   nanoseconds:timestamp.nanoseconds()];
 }
 
 }  // namespace api

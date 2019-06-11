@@ -25,11 +25,11 @@
 
 #include <vector>
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FIRTimestamp;
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTQuery;
@@ -69,7 +69,7 @@ class MutationQueue {
    * @param mutations The user-provided mutations in this mutation batch.
    */
   virtual FSTMutationBatch* AddMutationBatch(
-      FIRTimestamp* local_write_time,
+      const Timestamp& local_write_time,
       std::vector<FSTMutation*>&& base_mutations,
       std::vector<FSTMutation*>&& mutations) = 0;
 

@@ -24,10 +24,14 @@
 #import <Foundation/Foundation.h>
 
 @class FIRGeoPoint;
+@class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
+
+class Timestamp;
+
 namespace firestore {
 
 class GeoPoint;
@@ -39,6 +43,12 @@ GeoPoint MakeGeoPoint(FIRGeoPoint* geo_point);
 
 /** Converts a C++ GeoPoint to the equivalent Objective-C FIRGeoPoint. */
 FIRGeoPoint* MakeFIRGeoPoint(const GeoPoint& geo_point);
+
+/** Converts a user-supplied FIRTimestamp to the equivalent C++ Timestamp. */
+Timestamp MakeTimestamp(FIRTimestamp* timestamp);
+Timestamp MakeTimestamp(NSDate* date);
+
+FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp);
 
 }  // namespace api
 }  // namespace firestore

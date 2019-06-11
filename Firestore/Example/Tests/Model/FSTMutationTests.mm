@@ -23,11 +23,13 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
@@ -36,7 +38,9 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace api = firebase::firestore::api;
 namespace testutil = firebase::firestore::testutil;
+using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -50,11 +54,11 @@ using firebase::firestore::model::TransformOperation;
 @end
 
 @implementation FSTMutationTests {
-  FIRTimestamp *_timestamp;
+  Timestamp _timestamp;
 }
 
 - (void)setUp {
-  _timestamp = [FIRTimestamp timestamp];
+  _timestamp = Timestamp::Now();
 }
 
 - (void)testAppliesSetsToDocuments {
@@ -443,12 +447,15 @@ using firebase::firestore::model::TransformOperation;
        initWithVersion:testutil::Version(1)
       transformResults:@[ [FSTTimestampValue timestampValue:_timestamp] ]];
 
+  FIRTimestamp *publicTimestamp = api::MakeFIRTimestamp(_timestamp);
   FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
                                                        mutationResult:mutationResult];
 
-  NSDictionary *expectedData = @{@"foo" : @{@"bar" : _timestamp.dateValue}, @"baz" : @"baz-value"};
-  XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 1, expectedData,
-                                                   FSTDocumentStateCommittedMutations));
+  NSDictionary *expectedData =
+      @{@"foo" : @{@"bar" : publicTimestamp.dateValue}, @"baz" : @"baz-value"};
+  FSTDocument *expectedDoc =
+      FSTTestDoc("collection/key", 1, expectedData, FSTDocumentStateCommittedMutations);
+  XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
 
 - (void)testAppliesServerAckedArrayTransformsToDocuments {

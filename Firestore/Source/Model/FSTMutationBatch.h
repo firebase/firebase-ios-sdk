@@ -19,13 +19,13 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FIRTimestamp;
 @class FSTMaybeDocument;
 @class FSTMutation;
 @class FSTMutationResult;
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  * mutations.
  */
 - (instancetype)initWithBatchID:(model::BatchId)batchID
-                 localWriteTime:(FIRTimestamp *)localWriteTime
+                 localWriteTime:(const firebase::Timestamp &)localWriteTime
                   baseMutations:(std::vector<FSTMutation *> &&)baseMutations
                       mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
 
@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) model::BatchId batchID;
 
 /** The original write time of this mutation. */
-@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
+@property(nonatomic, assign, readonly) const firebase::Timestamp &localWriteTime;
 
 /**
  * Mutations that are used to populate the base values when this mutation is applied locally. This

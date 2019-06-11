@@ -22,6 +22,7 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/converters.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -31,10 +32,12 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::GeoPoint;
+using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 
@@ -49,11 +52,11 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       // strings that can be used instead.
       if ([value isEqual:@"server-timestamp-1"]) {
         wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 5, 20, 10, 20, 0)
+            serverTimestampValueWithLocalWriteTime:testutil::MakeTimestamp(2016, 5, 20, 10, 20, 0)
                                      previousValue:nil];
       } else if ([value isEqual:@"server-timestamp-2"]) {
         wrappedValue = [FSTServerTimestampValue
-            serverTimestampValueWithLocalWriteTime:FSTTestTimestamp(2016, 10, 21, 15, 32, 0)
+            serverTimestampValueWithLocalWriteTime:testutil::MakeTimestamp(2016, 10, 21, 15, 32, 0)
                                      previousValue:nil];
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
@@ -304,23 +307,17 @@ union DoubleBits {
     @[ FSTTestFieldValue(@"strin") ],
     @[ FSTTestFieldValue(@"e\u0301b") ],  // latin small letter e + combining acute accent
     @[ FSTTestFieldValue(@"\u00e9a") ],   // latin small letter e with acute accent
-    @[
-      FSTTestFieldValue(date1),
-      [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:date1]]
-    ],
+    @[ FSTTestFieldValue(date1), [FSTTimestampValue timestampValue:MakeTimestamp(date1)] ],
     @[ FSTTestFieldValue(date2) ],
     @[
       // NOTE: ServerTimestampValues can't be parsed via FSTTestFieldValue().
-      [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date1]
-                                   previousValue:nil],
-      [FSTServerTimestampValue
-          serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date1]
-                                   previousValue:nil]
+      [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date1)
+                                                        previousValue:nil],
+      [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date1)
+                                                        previousValue:nil]
     ],
-    @[ [FSTServerTimestampValue
-        serverTimestampValueWithLocalWriteTime:[FIRTimestamp timestampWithDate:date2]
-                                 previousValue:nil] ],
+    @[ [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:MakeTimestamp(date2)
+                                                         previousValue:nil] ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(0, 1)), FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap() ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
