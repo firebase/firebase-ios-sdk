@@ -47,6 +47,7 @@ Pod::Spec.new do |s|
 
     s.test_spec 'integration' do |int_tests|
       int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
+      int_tests.resources = base_dir + 'Tests/Resources/**/*'
       int_tests.requires_app_host = true
       int_tests.dependency 'OCMock'
     end

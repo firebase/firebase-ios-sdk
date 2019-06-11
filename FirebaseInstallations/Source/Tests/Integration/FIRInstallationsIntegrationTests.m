@@ -16,18 +16,23 @@
 
 #import <XCTest/XCTest.h>
 
-@interface FIRInstallationsIntegrationTests : XCTestCase
+#import <FirebaseCore/FIRAppInternal.h>
 
+#import <FirebaseInstallations/FIRInstallations.h>
+
+@interface FIRInstallationsIntegrationTests : XCTestCase
+@property(nonatomic) FIRInstallations *installations;
 @end
 
 @implementation FIRInstallationsIntegrationTests
 
 - (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+  FIROptions *defaultOptions = [FIROptions defaultOptions];
+  self.installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+  [FIRApp resetApps];
 }
 
 - (void)testExample {
@@ -35,11 +40,5 @@
     // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
 
 @end
