@@ -77,22 +77,11 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 
 pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
-  return ByteString(str).release();
+  return nanopb::MakeBytesArray(str);
 }
 
 std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
-  if (str == nullptr) return "";
-  size_t size = static_cast<size_t>(str->size);
-  return std::string{reinterpret_cast<const char*>(str->bytes), size};
-}
-
-pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
-  return ByteString(bytes).release();
-}
-
-std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
-  if (bytes == nullptr) return {};
-  return std::vector<uint8_t>(bytes->bytes, bytes->bytes + bytes->size);
+  return nanopb::MakeString(str);
 }
 
 namespace {
@@ -313,7 +302,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
 
     case FieldValue::Type::Blob:
       result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-      result.bytes_value = EncodeBytes(field_value.blob_value());
+      // Copy the blob so that pb_release can do the right thing.
+      result.bytes_value =
+          nanopb::CopyBytesArray(field_value.blob_value().get());
       return result;
 
     case FieldValue::Type::Reference:
@@ -371,10 +362,8 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     case google_firestore_v1_Value_string_value_tag:
       return FieldValue::FromString(DecodeString(msg.string_value));
 
-    case google_firestore_v1_Value_bytes_value_tag: {
-      std::vector<uint8_t> bytes = DecodeBytes(msg.bytes_value);
-      return FieldValue::FromBlob(bytes.data(), bytes.size());
-    }
+    case google_firestore_v1_Value_bytes_value_tag:
+      return FieldValue::FromBlob(ByteString(msg.bytes_value));
 
     case google_firestore_v1_Value_reference_value_tag:
       // TODO(b/74243929): Implement remaining types.

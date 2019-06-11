@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -30,71 +31,108 @@ using testing::ContainerEq;
 
 namespace {
 
-std::vector<uint8_t> ToVector(const std::string& str) {
+std::vector<uint8_t> MakeVector(const std::string& str) {
   auto begin = reinterpret_cast<const uint8_t*>(str.data());
   return {begin, begin + str.size()};
+}
+
+MATCHER_P(BytesEq, n, "") {
+  auto lhs = MakeVector(arg);
+  auto rhs = MakeVector(n);
+  return testing::ExplainMatchResult(ContainerEq(rhs), lhs, result_listener);
 }
 
 }  // namespace
 
 TEST(ByteStringTest, DefaultConstructor) {
   ByteString str;
-  EXPECT_EQ(nullptr, str.data());
+  EXPECT_EQ(str.get(), nullptr);
+
+  // Even though the backing bytes array is null, data() should be non-null.
+  EXPECT_NE(str.data(), nullptr);
+  EXPECT_EQ(str.size(), 0);
+
+  EXPECT_EQ(str.begin(), str.data());
+  EXPECT_EQ(str.end(), str.begin());
+}
+
+TEST(ByteStringTest, Copy) {
+  auto original =
+      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
+  memcpy(original->bytes, "foo", 4);  // null terminator
+  original->size = 3;
+
+  ByteString copy{original};
+  EXPECT_THAT(copy, BytesEq("foo"));
+  EXPECT_NE(copy.get(), original);
 }
 
 TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
   ByteString copy{original};
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
+  EXPECT_THAT(copy, BytesEq(original));
 
   original = "bar";
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(copy, BytesEq("foo"));
 }
 
 TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
   ByteString copy{original};
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector(original)));
+  EXPECT_THAT(copy, BytesEq(original));
 
   original[0] = 'b';
-  EXPECT_THAT(copy.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(copy, BytesEq("foo"));
 }
 
-TEST(ByteStringTest, WrapByteNullTerminatedArray) {
+TEST(ByteStringTest, TakesNullTerminatedByteArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(wrapper, BytesEq("foo"));
 
   original->bytes[0] = 'b';
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
+  EXPECT_THAT(wrapper, BytesEq("boo"));
 }
 
-TEST(ByteStringTest, WrapByteUnterminatedArray) {
+TEST(ByteStringTest, TakesUnterminatedByteArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(3)));
   memcpy(original->bytes, "foo", 3);  // no null terminator
   original->size = 3;
 
   ByteString wrapper = ByteString::Take(original);
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("foo")));
+  EXPECT_THAT(wrapper, BytesEq("foo"));
 
-  // This isn't expected usage normally, but it's a way to verify that the
-  // contents weren't copied.
-  original->bytes[0] = 'b';
-  EXPECT_THAT(wrapper.ToVector(), ContainerEq(ToVector("boo")));
+  // Verify that Take did not copy.
+  EXPECT_EQ(wrapper.get(), original);
+}
+
+TEST(ByteStringTest, TakesEmptyByteArray) {
+  auto original =
+      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(0)));
+  original->size = 0;
+
+  ByteString wrapper = ByteString::Take(original);
+  EXPECT_THAT(wrapper, BytesEq(""));
+
+  // Verify that Take did not copy. This also ensures that the original pointer
+  // ends up managed by this instance. If Take chose to make bytes null when
+  // the input is empty, it would have to free the input.
+  EXPECT_EQ(wrapper.get(), original);
 }
 
 TEST(ByteStringTest, Release) {
   ByteString value{"foo"};
 
   pb_bytes_array_t* released = value.release();
+  EXPECT_EQ(value.get(), nullptr);
+
   EXPECT_EQ(released->size, 3);
   EXPECT_EQ(memcmp(released->bytes, "foo", 3), 0);
-  EXPECT_EQ(value.get(), nullptr);
 
   std::free(released);
 }

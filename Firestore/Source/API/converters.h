@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_OBJC_CONVERTERS_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_OBJC_CONVERTERS_H_
+#ifndef FIRESTORE_SOURCE_API_CONVERTERS_H_
+#define FIRESTORE_SOURCE_API_CONVERTERS_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++"
@@ -56,4 +56,4 @@ FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp);
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_OBJC_CONVERTERS_H_
+#endif  // FIRESTORE_SOURCE_API_CONVERTERS_H_

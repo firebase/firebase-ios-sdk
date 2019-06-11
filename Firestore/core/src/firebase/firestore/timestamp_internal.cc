@@ -26,13 +26,8 @@ size_t TimestampInternal::Hash(const Timestamp& timestamp) {
   return util::Hash(timestamp.seconds(), timestamp.nanoseconds());
 }
 
-/**
- * Truncates the input timestamp to millisecond precision to match backend
- * behavior.
- */
 Timestamp TimestampInternal::Truncate(const Timestamp& timestamp) {
-  int32_t truncated_nanos = timestamp.nanoseconds();
-  truncated_nanos = truncated_nanos / 1000 * 1000;
+  int32_t truncated_nanos = timestamp.nanoseconds() / 1000 * 1000;
   return Timestamp(timestamp.seconds(), truncated_nanos);
 }
 

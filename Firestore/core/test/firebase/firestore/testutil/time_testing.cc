@@ -50,7 +50,7 @@ time_point MakeTimePoint(
 Timestamp MakeTimestamp(
     int year, int month, int day, int hour, int minute, int second) {
   time_point point = MakeTimePoint(year, month, day, hour, minute, second);
-  return Timestamp::FromTimePoint(std::move(point));
+  return Timestamp::FromTimePoint(point);
 }
 
 }  // namespace testutil
