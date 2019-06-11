@@ -27,17 +27,46 @@
 @implementation FIRInstallationsIntegrationTests
 
 - (void)setUp {
-  FIROptions *defaultOptions = [FIROptions defaultOptions];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [FIRApp configure];
+  });
+
   self.installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
 }
 
 - (void)tearDown {
-  [FIRApp resetApps];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testGetFID {
+  XCTestExpectation *expectation1 = [self expectationWithDescription:@"FID"];
+
+  __block NSString *retreivedID;
+  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+    XCTAssertNotNil(identifier);
+    XCTAssertNil(error);
+    XCTAssertEqual(identifier.length, 22);
+
+    retreivedID = identifier;
+
+    [expectation1 fulfill];
+  }];
+
+  [self waitForExpectations:@[ expectation1 ] timeout:2000];
+
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"FID"];
+
+  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+    XCTAssertNotNil(identifier);
+    XCTAssertNil(error);
+    XCTAssertEqual(identifier.length, 22);
+
+    XCTAssertEqualObjects(identifier, retreivedID);
+
+    [expectation2 fulfill];
+  }];
+
+  [self waitForExpectations:@[ expectation2 ] timeout:2000];
 }
 
 
