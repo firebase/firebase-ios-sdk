@@ -40,7 +40,6 @@ NS_SWIFT_NAME(AppleAuthProvider)
 
 /** @fn credentialWithAppleIDCredential:
  @brief Creates an `FIRAuthCredential` for a Apple sign in.
- 
  @param credential The Apple OAuth access token.
  @return A FIRAuthCredential containing the Apple credential.
  */
@@ -48,7 +47,6 @@ NS_SWIFT_NAME(AppleAuthProvider)
 
 /** @fn credentialWithPasswordCredential:
  @brief Creates an `FIRAuthCredential` for a Apple sign in with password.
- 
  @param credential The Apple OAuth access token.
  @return A FIRAuthCredential containing the Apple credential.
  */
