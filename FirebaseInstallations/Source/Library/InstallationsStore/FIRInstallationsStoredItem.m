@@ -28,26 +28,33 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
 @implementation FIRInstallationsStoredItem
 
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
-  [aCoder encodeObject:self.firebaseInstallationID forKey:kFIRInstallationsStoredItemFirebaseInstallationIDKey];
+  [aCoder encodeObject:self.firebaseInstallationID
+                forKey:kFIRInstallationsStoredItemFirebaseInstallationIDKey];
   [aCoder encodeObject:self.refreshToken forKey:kFIRInstallationsStoredItemRefreshTokenKey];
   [aCoder encodeObject:self.authToken forKey:kFIRInstallationsStoredItemAuthTokenKey];
-  [aCoder encodeInteger:self.registrationStatus forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
+  [aCoder encodeInteger:self.registrationStatus
+                 forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
-  [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
+      [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
   if (storageVersion != kFIRInstallationsStoredItemStorageVersion) {
     // TODO: Log a warning about the future version of the storage to a console.
     // This is the first version, so we cannot do any migration yet.
   }
 
   FIRInstallationsStoredItem *item = [[FIRInstallationsStoredItem alloc] init];
-  item.firebaseInstallationID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kFIRInstallationsStoredItemFirebaseInstallationIDKey];
-  item.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kFIRInstallationsStoredItemRefreshTokenKey];
-  item.authToken = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredAuthToken class] forKey:kFIRInstallationsStoredItemAuthTokenKey];
-  item.registrationStatus = [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
+  item.firebaseInstallationID =
+      [aDecoder decodeObjectOfClass:[NSString class]
+                             forKey:kFIRInstallationsStoredItemFirebaseInstallationIDKey];
+  item.refreshToken = [aDecoder decodeObjectOfClass:[NSString class]
+                                             forKey:kFIRInstallationsStoredItemRefreshTokenKey];
+  item.authToken = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredAuthToken class]
+                                          forKey:kFIRInstallationsStoredItemAuthTokenKey];
+  item.registrationStatus =
+      [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
   item.storageVersion = [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
 
   return item;

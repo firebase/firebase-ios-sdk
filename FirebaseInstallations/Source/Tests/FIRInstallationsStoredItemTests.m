@@ -18,8 +18,8 @@
 
 #import "FIRKeydArchivingUtils.h"
 
-#import "FIRInstallationsStoredItem.h"
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredItem.h"
 
 @interface FIRInstallationsStoredItemTests : XCTestCase
 
@@ -44,9 +44,9 @@
   XCTAssertNotNil(archivedItem, @"Error: %@", error);
 
   FIRInstallationsStoredItem *unarchivedItem =
-  [FIRKeydArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredItem class]
-                                        fromData:archivedItem
-                                           error:&error];
+      [FIRKeydArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredItem class]
+                                            fromData:archivedItem
+                                               error:&error];
   XCTAssertNotNil(unarchivedItem, @"Error: %@", error);
 
   XCTAssertEqualObjects(unarchivedItem.firebaseInstallationID, item.firebaseInstallationID);
