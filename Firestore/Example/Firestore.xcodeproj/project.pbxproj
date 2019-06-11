@@ -107,6 +107,7 @@
 		29FF9029315C3A9FB0E0D79E /* FSTQueryTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E061202154B900B64F25 /* FSTQueryTests.mm */; };
 		2AAEABFD550255271E3BAC91 /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
 		2B1E95FAFD350C191B525F3B /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93620239689000A432D /* empty_credentials_provider_test.cc */; };
+		2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
 		2E0BBA7E627EB240BA11B0D0 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		2E169CF1E9E499F054BB873A /* FSTEventAccumulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */; };
 		2E6E6164F44B9E3C6BB88313 /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
@@ -273,6 +274,9 @@
 		5493A425225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		5493A426225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */; };
+		5497CB77229DECDE000FB92F /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
+		5497CB78229DECDE000FB92F /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
+		5497CB79229DECDE000FB92F /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
 		54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
 		549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */; };
 		549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
@@ -371,6 +375,7 @@
 		61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 61F72C5520BC48FD001A68CB /* serializer_test.cc */; };
 		627253FDEC6BB5549FE77F4E /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
 		62DA31B79FE97A90EEF28B0B /* delayed_constructor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */; };
+		6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
 		63BB61B6366E7F80C348419D /* FSTLevelDBTransactionTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */; };
 		660E99DEDA0A6FC1CCB200F9 /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
 		6672B445E006A7708B8531ED /* FSTImmutableSortedDictionary+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0801F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m */; };
@@ -468,6 +473,7 @@
 		9D71628E38D9F64C965DF29E /* FSTAPIHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */; };
 		A17DBC8F24127DA8A381F865 /* testutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352820A3B3BD003E0143 /* testutil.cc */; };
 		A1F57CC739211F64F2E9232D /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
+		A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
 		A21819C437C3C80450D7EEEE /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = BC3C788D290A935C353CEAA1 /* writer_test.cc */; };
 		A38F4AE525A87FDEA41DED47 /* FSTLevelDBQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0982021552C00B64F25 /* FSTLevelDBQueryCacheTests.mm */; };
 		A4ECA8335000CBDF94586C94 /* FSTDatastoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E07E202154EC00B64F25 /* FSTDatastoreTests.mm */; };
@@ -775,7 +781,8 @@
 		4425A513895DEC60325A139E /* xcgmock_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = xcgmock_test.mm; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		4C73C0CC6F62A90D8573F383 /* string_apple_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_benchmark.mm; sourceTree = "<group>"; };
-		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
+		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
+		535B1420A19BEAA7FA4D77C8 /* ordered_code_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = ordered_code_benchmark.mm; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		544129D021C2DDC800EFB9CC /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
 		544129D121C2DDC800EFB9CC /* common.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.pb.h; sourceTree = "<group>"; };
@@ -865,6 +872,8 @@
 		5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteEventTests.mm; sourceTree = "<group>"; };
 		5493A423225F9990006DE7BA /* status_apple_test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = status_apple_test.mm; sourceTree = "<group>"; };
 		5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
+		5497CB75229DECDE000FB92F /* time_testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = time_testing.h; sourceTree = "<group>"; };
+		5497CB76229DECDE000FB92F /* time_testing.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = time_testing.cc; sourceTree = "<group>"; };
 		54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_key_test.cc; sourceTree = "<group>"; };
 		549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sorted_set_test.cc; sourceTree = "<group>"; };
 		549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tree_sorted_map_test.cc; sourceTree = "<group>"; };
@@ -1237,6 +1246,8 @@
 				CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */,
 				54A0352820A3B3BD003E0143 /* testutil.cc */,
 				54A0352920A3B3BD003E0143 /* testutil.h */,
+				5497CB76229DECDE000FB92F /* time_testing.cc */,
+				5497CB75229DECDE000FB92F /* time_testing.h */,
 				BA6E5B9D53CCF301F58A62D7 /* xcgmock.h */,
 				4425A513895DEC60325A139E /* xcgmock_test.mm */,
 			);
@@ -3130,6 +3141,7 @@
 				4A3FF3B16A39A5DC6B7EBA51 /* target.pb.cc in Sources */,
 				E764F0F389E7119220EB212C /* target_id_generator_test.cc in Sources */,
 				32A95242C56A1A230231DB6A /* testutil.cc in Sources */,
+				5497CB78229DECDE000FB92F /* time_testing.cc in Sources */,
 				ACC9369843F5ED3BD2284078 /* timestamp_test.cc in Sources */,
 				2AAEABFD550255271E3BAC91 /* to_string_apple_test.mm in Sources */,
 				1E2AE064CF32A604DC7BFD4D /* to_string_test.cc in Sources */,
@@ -3306,6 +3318,7 @@
 				81B23D2D4E061074958AF12F /* target.pb.cc in Sources */,
 				DA4303684707606318E1914D /* target_id_generator_test.cc in Sources */,
 				8388418F43042605FB9BFB92 /* testutil.cc in Sources */,
+				5497CB79229DECDE000FB92F /* time_testing.cc in Sources */,
 				26CB3D7C871BC56456C6021E /* timestamp_test.cc in Sources */,
 				5BE49546D57C43DDFCDB6FBD /* to_string_apple_test.mm in Sources */,
 				E500AB82DF2E7F3AFDB1AB3F /* to_string_test.cc in Sources */,
@@ -3345,6 +3358,7 @@
 				4D42E5C756229C08560DD731 /* XCTestCase+Await.mm in Sources */,
 				7B8D7BAC1A075DB773230505 /* app_testing.mm in Sources */,
 				409C0F2BFC2E1BECFFAC4D32 /* testutil.cc in Sources */,
+				6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */,
 				1EF47EF3D03B0847007C2318 /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3374,6 +3388,7 @@
 				736C4E82689F1CA1859C4A3F /* XCTestCase+Await.mm in Sources */,
 				8F4F40E9BC7ED588F67734D5 /* app_testing.mm in Sources */,
 				A17DBC8F24127DA8A381F865 /* testutil.cc in Sources */,
+				A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */,
 				A94884460990CD48CC0AD070 /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3557,6 +3572,7 @@
 				618BBEA620B89AAC00B5BCE7 /* target.pb.cc in Sources */,
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,
+				5497CB77229DECDE000FB92F /* time_testing.cc in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
 				B68B1E012213A765008977EF /* to_string_apple_test.mm in Sources */,
 				B696858E2214B53900271095 /* to_string_test.cc in Sources */,
@@ -3615,6 +3631,7 @@
 				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 				EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */,
 				CA989C0E6020C372A62B7062 /* testutil.cc in Sources */,
+				2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */,
 				4D1F46B2DD91198C8867C04C /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

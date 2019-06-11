@@ -35,6 +35,8 @@ cc_library(
     equals_tester.h
     testutil.cc
     testutil.h
+    time_testing.cc
+    time_testing.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     firebase_firestore_nanopb

@@ -60,6 +60,7 @@ function(cc_library name)
     ${FIREBASE_SOURCE_DIR}
   )
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
@@ -129,6 +130,7 @@ function(cc_binary name)
   add_executable(${name} ${sources})
   add_objc_flags(${name} ${sources})
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE ${ccb_DEPENDS})
 
@@ -159,6 +161,7 @@ function(cc_test name)
   add_objc_flags(${name} ${sources})
   add_test(${name} ${name})
 
+  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE ${cct_DEPENDS})
 endfunction()

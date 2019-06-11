@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -241,7 +242,7 @@ class TimestampValue : public BaseValue {
   }
 
   size_t Hash() const override {
-    return util::Hash(value().seconds(), value().nanoseconds());
+    return TimestampInternal::Hash(value());
   }
 
   const Timestamp& value() const {
@@ -293,9 +294,7 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   }
 
   size_t Hash() const override {
-    size_t result = util::Hash(local_write_time_.seconds(),
-                               local_write_time_.nanoseconds());
-
+    size_t result = TimestampInternal::Hash(local_write_time_);
     if (previous_value_) {
       result = util::Hash(result, *previous_value_);
     }

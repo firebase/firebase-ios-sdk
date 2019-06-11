@@ -18,13 +18,51 @@
 
 #include <ostream>
 
+#if defined(__APPLE__)
+#import <CoreFoundation/CoreFoundation.h>
+#elif defined(_STLPORT_VERSION)
+#include <ctime>
+#endif
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
 
-Timestamp::Timestamp() {
+namespace {
+
+// We pass it by value without std::move.
+static_assert(std::is_trivially_copyable<Timestamp>::value,
+              "Timestamp must be trivially copyable");
+
+constexpr int32_t kNanosPerSecond = 1E9;
+
+/**
+ * Creates a `Timestamp` from the given non-normalized inputs.
+ *
+ * Timestamp protos require `Timestamp` to always has a positive number of
+ * nanoseconds that is counting forward. For negative time, we need to adjust
+ * representations with negative nanoseconds. That is, make (negative seconds s1
+ * + negative nanoseconds ns1) into (negative seconds s2 + positive nanoseconds
+ * ns2). Since nanosecond part is always less than 1 second in our
+ * representation, instead of starting at s1 and going back ns1 nanoseconds,
+ * start at (s1 minus one second) and go *forward* ns2 = (1 second + ns1, ns1 <
+ * 0) nanoseconds.
+ */
+Timestamp MakeNormalizedTimestamp(int64_t seconds, int64_t nanos) {
+  if (nanos < 0) {
+    // Note: if nanoseconds are negative, it must mean that seconds are
+    // non-positive, but the formula would still be valid, so no need to check.
+    seconds = seconds - 1;
+    nanos = kNanosPerSecond + nanos;
+  }
+
+  HARD_ASSERT(nanos < kNanosPerSecond);
+
+  return {seconds, static_cast<int32_t>(nanos)};
 }
+
+}  // namespace
 
 Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
     : seconds_(seconds), nanoseconds_(nanoseconds) {
@@ -32,13 +70,24 @@ Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
 }
 
 Timestamp Timestamp::Now() {
-#if !defined(_STLPORT_VERSION)
+#if defined(__APPLE__)
+  // Originally, FIRTimestamp used NSDate to get current time. This method
+  // preserves the lower accuracy of that method.
+  CFAbsoluteTime now =
+      CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970;
+  double seconds_double;
+  double fraction = modf(now, &seconds_double);
+  auto seconds = static_cast<int64_t>(seconds_double);
+  auto nanos = static_cast<int32_t>(fraction * kNanosPerSecond);
+  return MakeNormalizedTimestamp(seconds, nanos);
+
+#elif !defined(_STLPORT_VERSION)
   // Use the standard <chrono> library from C++11 if possible.
   return FromTimePoint(std::chrono::system_clock::now());
 #else
-  // If <chrono> is unavailable, use clock_gettime from POSIX, which supports up
-  // to nanosecond resolution. Note that it's a non-standard function contained
-  // in <time.h>.
+  // If <chrono> is unavailable, use clock_gettime from POSIX, which supports
+  // up to nanosecond resolution. Note that it's a non-standard function
+  // contained in <time.h>.
   //
   // Note: it's possible to check for availability of POSIX clock_gettime using
   // macros (see "Availability" at https://linux.die.net/man/3/clock_gettime).
@@ -46,7 +95,7 @@ Timestamp Timestamp::Now() {
   // STLPort standard library, where clock_gettime is known to be available.
   timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
-  return Timestamp(now.tv_sec, now.tv_nsec);
+  return MakeNormalizedTimestamp(now.tv_sec, now.tv_nsec);
 #endif  // !defined(_STLPORT_VERSION)
 }
 
@@ -60,26 +109,9 @@ Timestamp Timestamp::FromTimePoint(
   namespace chr = std::chrono;
   const auto epoch_time = time_point.time_since_epoch();
   auto seconds = chr::duration_cast<chr::duration<int64_t>>(epoch_time);
-  auto nanoseconds = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
-  HARD_ASSERT(nanoseconds.count() < 1 * 1000 * 1000 * 1000);
+  auto nanos = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
 
-  if (nanoseconds.count() < 0) {
-    // Timestamp format always has a positive number of nanoseconds that is
-    // counting forward. For negative time, we need to transform chrono
-    // representation of (negative seconds s1 + negative nanoseconds ns1) to
-    // (negative seconds s2 + positive nanoseconds ns2). Since nanosecond part
-    // is always less than 1 second in our representation, instead of starting
-    // at s1 and going back ns1 nanoseconds, start at (s1 minus one second) and
-    // go *forward* ns2 = (1 second + ns1, ns1 < 0) nanoseconds.
-    //
-    // Note: if nanoseconds are negative, it must mean that seconds are
-    // non-positive, but the formula would still be valid, so no need to check.
-    seconds = seconds - chr::seconds(1);
-    nanoseconds = chr::seconds(1) + nanoseconds;
-  }
-
-  const Timestamp result{seconds.count(),
-                         static_cast<int32_t>(nanoseconds.count())};
+  Timestamp result = MakeNormalizedTimestamp(seconds.count(), nanos.count());
   result.ValidateBounds();
   return result;
 }
@@ -98,8 +130,8 @@ std::ostream& operator<<(std::ostream& out, const Timestamp& timestamp) {
 void Timestamp::ValidateBounds() const {
   HARD_ASSERT(nanoseconds_ >= 0, "Timestamp nanoseconds out of range: %s",
               nanoseconds_);
-  HARD_ASSERT(nanoseconds_ < 1e9, "Timestamp nanoseconds out of range: %s",
-              nanoseconds_);
+  HARD_ASSERT(nanoseconds_ < kNanosPerSecond,
+              "Timestamp nanoseconds out of range: %s", nanoseconds_);
   // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore
   // supports.
   HARD_ASSERT(seconds_ >= -62135596800L, "Timestamp seconds out of range: %s",
