@@ -120,7 +120,8 @@
       .andReturn(registerPromise);
 
   // 4. Call get installation and check.
-  FBLPromise<FIRInstallationsItem *> *getInstallationPromise = [self.controller getInstallationItem];
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
+      [self.controller getInstallationItem];
 
   // 4.1. Wait for the stored item to be read and saved.
   OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
@@ -128,15 +129,17 @@
   // 4.2. Wait for `registerInstallation` to be called.
   OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
 
-  // 4.3. Expect for the registered installation to be stored.
-  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem createRegisteredInstallationItemWithAppID:createdInstallation.appID appName:createdInstallation.firebaseAppName];
+  // 4.3. Expect for the registered installation to be saved.
+  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem
+      createRegisteredInstallationItemWithAppID:createdInstallation.appID
+                                        appName:createdInstallation.firebaseAppName];
 
   OCMExpect([self.mockInstallationsStore
-             saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
-    XCTAssertEqual(registeredInstallation, obj);
-    return YES;
-  }]])
-  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  XCTAssertEqual(registeredInstallation, obj);
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4.5. Resolve `registerPromise` to simulate finished registration.
   [registerPromise fulfill:registeredInstallation];
@@ -145,7 +148,8 @@
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(getInstallationPromise.error);
-  // We expect the initially created installation to be returned - must not wait for registration to complete here.
+  // We expect the initially created installation to be returned - must not wait for registration to
+  // complete here.
   XCTAssertEqual(getInstallationPromise.value, createdInstallation);
 
   // 4.5. Verify registered installation was saved.
