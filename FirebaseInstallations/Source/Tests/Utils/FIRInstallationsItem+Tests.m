@@ -15,6 +15,7 @@
  */
 
 #import "FIRInstallationsItem+Tests.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
 @implementation FIRInstallationsItem (Tests)
 
@@ -34,6 +35,22 @@
   item.firebaseInstallationID = @"firebaseInstallationID";
   item.refreshToken = @"refreshToken";
   item.registrationStatus = FIRInstallationStatusRegistered;
+
+  return item;
+}
+
++ (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
+                                                            appName:(NSString *)appName {
+  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
+                                                           firebaseAppName:appName];
+  item.firebaseInstallationID = [FIRInstallationsItem generateFID];
+  item.refreshToken = @"refreshToken";
+  item.registrationStatus = FIRInstallationStatusRegistered;
+
+  FIRInstallationsStoredAuthToken *authToken = [[FIRInstallationsStoredAuthToken alloc] init];
+  authToken.token = @"auth-token";
+  authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+  item.authToken = authToken;
 
   return item;
 }

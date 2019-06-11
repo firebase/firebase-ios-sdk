@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRInstallationsItem *)createValidInstallationItem;
 + (FIRInstallationsItem *)createRegisteredInstallationItem;
 
++ (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
+                                                            appName:(NSString *)appName;
+
 @end
 
 NS_ASSUME_NONNULL_END
