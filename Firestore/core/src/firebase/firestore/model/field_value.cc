@@ -309,7 +309,7 @@ class ServerTimestampValue : public FieldValue::BaseValue {
     size_t result =
         TimestampInternal::Hash(server_timestamp_.local_write_time());
     if (server_timestamp_.previous_value()) {
-      result = util::Hash(result, server_timestamp_.previous_value());
+      result = util::Hash(result, *server_timestamp_.previous_value());
     }
     return result;
   }
@@ -704,7 +704,7 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
-                                           FSTFieldValue* previous_value) {
+                                           const FieldValue& previous_value) {
   return FieldValue(std::make_shared<ServerTimestampValue>(
       ServerTimestamp(local_write_time, previous_value)));
 }
