@@ -109,6 +109,17 @@ target 'Messaging_Sample_iOS' do
   pod 'FirebaseMessaging' , :path => '../'
 end
 
+target 'Segmentation_Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseSegmentation' , :path => '../'
+
+  target 'Segmentation_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Storage_Example_iOS' do
   platform :ios, '8.0'
 
