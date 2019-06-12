@@ -19,10 +19,10 @@
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 
 #import "FIRAppInternal.h"
+#import "FIRComponentContainer.h"
 #import "FIRDiagnosticsData.h"
 #import "FIROptions.h"
 #import "FIROptionsInternal.h"
-#import "FIRComponentContainer.h"
 
 @implementation FIRCoreDiagnosticsConnector
 
@@ -31,8 +31,7 @@
       FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
   if (coreDiagnostics) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@(YES)
-                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
     [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
                                   forKey:kFIRCDFirebaseUserAgentKey];
     [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
@@ -42,11 +41,10 @@
 
 + (void)logConfigureCoreWithOptions:(FIROptions *)options {
   id<FIRCoreDiagnosticsInterop> coreDiagnostics =
-  FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
+      FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
   if (coreDiagnostics) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@(YES)
-                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValueIfNotNil:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
     [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
                                   forKey:kFIRCDFirebaseUserAgentKey];
     [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
@@ -54,8 +52,7 @@
     [diagnosticsData insertValueIfNotNil:options.bundleID forKey:kFIRCDBundleIDKey];
     [diagnosticsData insertValueIfNotNil:@(options.usingOptionsFromDefaultPlist)
                                   forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
-    [diagnosticsData insertValueIfNotNil:options.libraryVersionID
-                                  forKey:kFIRCDLibraryVersionIDKey];
+    [diagnosticsData insertValueIfNotNil:options.libraryVersionID forKey:kFIRCDLibraryVersionIDKey];
     [coreDiagnostics sendDiagnosticsData:diagnosticsData];
   }
 }
