@@ -634,8 +634,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Ensure configure doesn't fire a notification.
   [FIRApp configure];
 
-  [app sendLogsWithServiceName:@"Service" version:@"Version"];
-
   // The observer mock is strict and will raise an exception when an unexpected notification is
   // received.
   OCMVerifyAll(self.observerMock);

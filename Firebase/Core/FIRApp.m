@@ -23,7 +23,7 @@
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
 #import "Private/FIRConfigurationInternal.h"
-#import "Private/FIRDiagnosticsData.h"
+#import "Private/FIRCoreDiagnosticsConnector.h"
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
@@ -104,26 +104,6 @@ static NSMutableDictionary *sLibraryVersions;
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
-    // Read the Info.plist to see if the flag is set. At this point we can't check any user defaults
-    // since the app isn't configured at all, so only rely on the Info.plist value.
-    NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
-    if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
-      if (NSClassFromString(@"FIRDiagnostics")) {
-        FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-        [diagnosticsData insertValueIfNotNil:collectionEnabledPlistValue
-                                      forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-        [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                      forKey:kFIRCDFirebaseUserAgentKey];
-        [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore)
-                                      forKey:kFIRCDConfigurationTypeKey];
-        [[NSNotificationCenter defaultCenter]
-            postNotificationName:kFIRDiagnosticsNotification
-                          object:nil
-                        userInfo:@{
-                          kFIRDiagnosticsDataNotifKey : diagnosticsData,
-                        }];
-      }
-    }
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
@@ -301,39 +281,14 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
-    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled] &&
-        NSClassFromString(@"FIRDiagnostics")) {
-      FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-      [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
-                                    forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-      [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                    forKey:kFIRCDFirebaseUserAgentKey];
-      [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
-      [[NSNotificationCenter defaultCenter]
-          postNotificationName:kFIRDiagnosticsNotification
-                        object:nil
-                      userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
+    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled]) {
+      [FIRCoreDiagnosticsConnector logConfigureCoreWithDefaultPlist];
     }
     return NO;
   }
 
-  if ([self isDataCollectionDefaultEnabled] && NSClassFromString(@"FIRDiagnostics")) {
-    FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
-                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                  forKey:kFIRCDFirebaseUserAgentKey];
-    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
-    [diagnosticsData insertValueIfNotNil:self.options.googleAppID forKey:kFIRCDGoogleAppIDKey];
-    [diagnosticsData insertValueIfNotNil:self.options.bundleID forKey:kFIRCDBundleIDKey];
-    [diagnosticsData insertValueIfNotNil:@(self.options.usingOptionsFromDefaultPlist)
-                                  forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
-    [diagnosticsData insertValueIfNotNil:self.options.libraryVersionID
-                                  forKey:kFIRCDLibraryVersionIDKey];
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRDiagnosticsNotification
-                      object:nil
-                    userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
+  if ([self isDataCollectionDefaultEnabled]) {
+    [FIRCoreDiagnosticsConnector logConfigureCoreWithOptions:_options];
   }
 
 #if TARGET_OS_IOS
@@ -826,37 +781,6 @@ static NSMutableDictionary *sLibraryVersions;
   });
 
   return collectionEnabledPlistObject;
-}
-
-#pragma mark - Sending Logs
-
-- (void)sendLogsWithServiceName:(NSString *)serviceName version:(NSString *)version {
-  // If the user has manually turned off data collection, return and don't send logs.
-  if (![self isDataCollectionDefaultEnabled]) {
-    return;
-  }
-
-  if (NSClassFromString(@"FIRDiagnostics")) {
-    FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@([self isDataCollectionDefaultEnabled])
-                                  forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                  forKey:kFIRCDFirebaseUserAgentKey];
-    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeSDK) forKey:kFIRCDConfigurationTypeKey];
-    [diagnosticsData insertValueIfNotNil:serviceName forKey:kFIRCDSdkNameKey];
-    [diagnosticsData insertValueIfNotNil:version forKey:kFIRCDSdkVersionKey];
-    [diagnosticsData insertValueIfNotNil:self.options.googleAppID forKey:kFIRCDGoogleAppIDKey];
-    [diagnosticsData insertValueIfNotNil:self.options.bundleID forKey:kFIRCDBundleIDKey];
-    [diagnosticsData insertValueIfNotNil:@(self.options.usingOptionsFromDefaultPlist)
-                                  forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
-    [diagnosticsData insertValueIfNotNil:self.options.libraryVersionID
-                                  forKey:kFIRCDLibraryVersionIDKey];
-
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRDiagnosticsNotification
-                      object:nil
-                    userInfo:@{kFIRDiagnosticsDataNotifKey : diagnosticsData}];
-  }
 }
 
 @end

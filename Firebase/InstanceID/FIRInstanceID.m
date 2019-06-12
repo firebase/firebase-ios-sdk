@@ -700,9 +700,6 @@ static FIRInstanceID *gInstanceID;
 // If the firebaseApp is available we should send logs for the error through it before
 // raising an exception.
 + (void)exitWithReason:(nonnull NSString *)reason forFirebaseApp:(FIRApp *)firebaseApp {
-  [firebaseApp sendLogsWithServiceName:kFIRIIDServiceInstanceID
-                               version:FIRInstanceIDCurrentLibraryVersion()];
-
   [NSException raise:kFIRIIDErrorDomain
               format:@"Could not configure Firebase InstanceID. %@", reason];
 }

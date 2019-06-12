@@ -2567,10 +2567,6 @@
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
             },
-            {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
-              "coverage": 0.2631578947368421
-            }
           ]
         },
         {
@@ -4680,10 +4676,6 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
-            },
-            {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
-              "coverage": 0.2631578947368421
             }
           ]
         },
@@ -10503,10 +10495,6 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
-            },
-            {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
-              "coverage": 0.2631578947368421
             }
           ]
         },
@@ -15236,10 +15224,6 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
-            },
-            {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
-              "coverage": 0.2631578947368421
             }
           ]
         },
