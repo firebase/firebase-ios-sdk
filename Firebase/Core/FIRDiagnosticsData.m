@@ -34,8 +34,8 @@
   return self;
 }
 
-- (void)insertValueIfNotNil:(nullable id)value forKey:(NSString *)key {
-  if (value && key) {
+- (void)insertValue:(nullable id)value forKey:(NSString *)key {
+  if (key) {
     _diagnosticObjects[key] = value;
   }
 }

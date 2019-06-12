@@ -31,10 +31,9 @@
       FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
   if (coreDiagnostics) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                  forKey:kFIRCDFirebaseUserAgentKey];
-    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
+    [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValue:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValue:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
     [coreDiagnostics sendDiagnosticsData:diagnosticsData];
   }
 }
@@ -44,15 +43,14 @@
       FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
   if (coreDiagnostics) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValueIfNotNil:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValueIfNotNil:[FIRApp firebaseUserAgent]
-                                  forKey:kFIRCDFirebaseUserAgentKey];
-    [diagnosticsData insertValueIfNotNil:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
-    [diagnosticsData insertValueIfNotNil:options.googleAppID forKey:kFIRCDGoogleAppIDKey];
-    [diagnosticsData insertValueIfNotNil:options.bundleID forKey:kFIRCDBundleIDKey];
-    [diagnosticsData insertValueIfNotNil:@(options.usingOptionsFromDefaultPlist)
-                                  forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
-    [diagnosticsData insertValueIfNotNil:options.libraryVersionID forKey:kFIRCDLibraryVersionIDKey];
+    [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
+    [diagnosticsData insertValue:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
+    [diagnosticsData insertValue:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
+    [diagnosticsData insertValue:options.googleAppID forKey:kFIRCDGoogleAppIDKey];
+    [diagnosticsData insertValue:options.bundleID forKey:kFIRCDBundleIDKey];
+    [diagnosticsData insertValue:@(options.usingOptionsFromDefaultPlist)
+                          forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
+    [diagnosticsData insertValue:options.libraryVersionID forKey:kFIRCDLibraryVersionIDKey];
     [coreDiagnostics sendDiagnosticsData:diagnosticsData];
   }
 }

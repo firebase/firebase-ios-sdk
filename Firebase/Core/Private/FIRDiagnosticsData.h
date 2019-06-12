@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param value The value to insert if it's not nil.
  * @param key The key to associate it with.
  */
-- (void)insertValueIfNotNil:(nullable id)value forKey:(NSString *)key;
+- (void)insertValue:(nullable id)value forKey:(NSString *)key;
 
 @end
 
