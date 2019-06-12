@@ -130,8 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTNumericIncrementFieldValue
-- (instancetype)initWithOperand:(NSNumber *)operand;
-{
+- (instancetype)initWithOperand:(NSNumber *)operand {
   if (self = [super initPrivate]) {
     _operand = operand;
   }
