@@ -60,6 +60,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSURLRequest *)defaultRequestForPath:(FIRStoragePath *)path;
 
 /**
+ * Returns a base NSURLRequest with custom query parameters.
+ * @param path The FIRStoragePath to create a request for.
+ * @param queryParams A key/value dictionary with query parameters.
+ * @return Returns a formatted NSURLRequest
+ */
++ (NSURLRequest *)defaultRequestForPath:(FIRStoragePath *)path
+                            queryParams:(NSDictionary<NSString *, NSString *> *)queryParams;
+
+/**
  * Creates the appropriate GCS percent escaped path for a given FIRStoragePath.
  * @param path The FIRStoragePath to encode.
  * @return Returns the GCS encoded URL for a given FIRStoragePath.

@@ -29,6 +29,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  *
  * A sample configuration may look like:
  *
+ * rules_version = '2';
  * service firebase.storage {
  *   match /b/{bucket}/o {
  *     ...
@@ -66,9 +67,11 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
   static dispatch_once_t once;
   dispatch_once(&once, ^{
-    XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
+    XCTestExpectation *largeFileExpectation = [self expectationWithDescription:@"largeFile"];
+    XCTestExpectation *emptyFileExpectation = [self expectationWithDescription:@"smallFile"];
+    XCTestExpectation *nestedFileExpectation = [self expectationWithDescription:@"nestedFile"];
 
-    FIRStorageReference *ref = [[FIRStorage storage].reference child:@"ios/public/1mb"];
+    FIRStorageReference *largeFile = [[FIRStorage storage].reference child:@"ios/public/1mb"];
 
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"1mb" ofType:@"dat"];
     if (filePath == nil) {
@@ -79,13 +82,29 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
     NSData *data = [NSData dataWithContentsOfFile:filePath];
 
     XCTAssertNotNil(data, "Could not load bundled file");
-    [ref putData:data
-          metadata:nil
-        completion:^(FIRStorageMetadata *metadata, NSError *error) {
-          XCTAssertNil(error);
-          [expectation fulfill];
-        }];
+    [largeFile putData:data
+              metadata:nil
+            completion:^(FIRStorageMetadata *metadata, NSError *error) {
+              XCTAssertNil(error);
+              [largeFileExpectation fulfill];
+            }];
 
+    FIRStorageReference *smallFile = [[FIRStorage storage].reference child:@"ios/public/empty"];
+    [smallFile putData:[NSData data]
+              metadata:nil
+            completion:^(FIRStorageMetadata *metadata, NSError *error) {
+              XCTAssertNil(error);
+              [emptyFileExpectation fulfill];
+            }];
+
+    FIRStorageReference *nestedFile =
+        [[FIRStorage storage].reference child:@"ios/public/prefix/empty"];
+    [nestedFile putData:[NSData data]
+               metadata:nil
+             completion:^(FIRStorageMetadata *metadata, NSError *error) {
+               XCTAssertNil(error);
+               [nestedFileExpectation fulfill];
+             }];
     [self waitForExpectations];
   });
 }
@@ -726,6 +745,60 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
   [self waitForExpectations];
   XCTAssertEqual(INT_MAX, resumeAtBytes);
+}
+
+- (void)testPagedListFiles {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPagedListFiles"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public"];
+
+  [ref listWithMaxResults:2
+               completion:^(FIRStorageListResult *_Nullable listResult, NSError *_Nullable error) {
+                 XCTAssertNotNil(listResult);
+                 XCTAssertNil(error);
+
+                 XCTAssertEqualObjects(listResult.items,
+                                       (@[ [ref child:@"1mb"], [ref child:@"empty"] ]));
+                 XCTAssertEqualObjects(listResult.prefixes, @[]);
+                 XCTAssertNotNil(listResult.pageToken);
+
+                 [ref listWithMaxResults:2
+                               pageToken:listResult.pageToken
+                              completion:^(FIRStorageListResult *_Nullable listResult,
+                                           NSError *_Nullable error) {
+                                XCTAssertNotNil(listResult);
+                                XCTAssertNil(error);
+
+                                XCTAssertEqualObjects(listResult.items, @[]);
+                                XCTAssertEqualObjects(listResult.prefixes,
+                                                      @[ [ref child:@"prefix"] ]);
+                                XCTAssertNil(listResult.pageToken);
+
+                                [expectation fulfill];
+                              }];
+               }];
+
+  [self waitForExpectations];
+}
+
+- (void)testListAllFiles {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPagedListFiles"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public"];
+
+  [ref listAllWithCompletion:^(FIRStorageListResult *_Nullable listResult,
+                               NSError *_Nullable error) {
+    XCTAssertNotNil(listResult);
+    XCTAssertNil(error);
+
+    XCTAssertEqualObjects(listResult.items, (@[ [ref child:@"1mb"], [ref child:@"empty"] ]));
+    XCTAssertEqualObjects(listResult.prefixes, @[ [ref child:@"prefix"] ]);
+    XCTAssertNil(listResult.pageToken);
+
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations];
 }
 
 - (void)waitForExpectations {
