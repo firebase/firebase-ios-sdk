@@ -788,10 +788,13 @@ static NSMutableDictionary *sLibraryVersions;
 
 #pragma mark - Sending Logs
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 - (void)sendLogsWithServiceName:(NSString *)serviceName
                         version:(NSString *)version
                           error:(NSError *)error {
   // Do nothing. Please remove calls to this method.
 }
+#pragma clang diagnostic pop
 
 @end
