@@ -31,14 +31,14 @@ NS_SWIFT_NAME(StorageListResult)
  *
  * @return A list of prefixes (folders).
  */
-@property(copy, nonatomic, readonly) NSArray<FIRStorageReference *> *prefixes;
+@property(nonatomic, readonly) NSArray<FIRStorageReference *> *prefixes;
 
 /**
  * The items (files) returned by the `list()` operation.
  *
  * @return A list of items (files).
  */
-@property(copy, nonatomic, readonly) NSArray<FIRStorageReference *> *items;
+@property(nonatomic, readonly) NSArray<FIRStorageReference *> *items;
 
 /**
  * Returns a token that can be used to resume a previous `list()` operation. `nil`
@@ -46,7 +46,7 @@ NS_SWIFT_NAME(StorageListResult)
  *
  * @return A page token if more results are available.
  */
-@property(copy, nonatomic, readonly, nullable) NSString *pageToken;
+@property(nonatomic, readonly, nullable) NSString *pageToken;
 
 @end
 

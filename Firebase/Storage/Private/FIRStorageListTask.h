@@ -32,6 +32,19 @@ typedef void (^FIRStorageVoidListError)(FIRStorageListResult *_Nullable listResu
 /** A Task that lists the entries under a {@link StorageReference} */
 @interface FIRStorageListTask : FIRStorageTask <FIRStorageTaskManagement>
 
+/**
+ * Initializes a new List Task.
+ *
+ * To schedule the task, invoke `[FIRStorageListTask enqueue]`.
+ *
+ * @param reference The location to invoke List on.
+ * @param service GTMSessionFetcherService to use for the RPC.
+ * @param queue The queue to schedule the List operation on.
+ * @param pageSize An optional pageSize, denoting the maximum size of the result set. If
+ * set to `nil`, the backend will use the default page size.
+ * @param previousPageToken An optional pageToken, used to resume a previous invocation.
+ * @param completion The completion handler to be called with the FIRStorageListResult.
+ */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue

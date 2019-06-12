@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an instance of FIRStorageListResult with the contents of a dictionary.
  *
  * @param dictionary A dictionary containing the parsed JSON response from the backend.
- * @param location The FIRStorageReference that `list()` was called on.
+ * @param reference The FIRStorageReference that `list()` was called on.
  * @return An instance of FIRStorageListResult that represents the contents of the dictionary.
  */
 + (nullable FIRStorageListResult *)fromDictionary:(NSDictionary<NSString *, id> *)dictionary

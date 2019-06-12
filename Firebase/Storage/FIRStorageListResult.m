@@ -55,9 +55,9 @@
                                 pageToken:(nullable NSString *)pageToken {
   self = [super init];
   if (self) {
-    _prefixes = prefixes;
-    _items = items;
-    _pageToken = pageToken;
+    _prefixes = [prefixes copy];
+    _items = [items copy];
+    _pageToken = [pageToken copy];
   }
   return self;
 }

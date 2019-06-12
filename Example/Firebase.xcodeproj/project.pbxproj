@@ -350,6 +350,8 @@
 		D0FE8A941ED9CAAE003F6722 /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1A1ED9C6D2003F6722 /* FIRAppDelegate.m */; };
 		D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1C1ED9C6D2003F6722 /* FIRViewController.m */; };
 		D0FE8A961ED9CAAE003F6722 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FE8A1D1ED9C6D2003F6722 /* main.m */; };
+		D5B2514347161203F929FA47 /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
+		D5B251C16CD531364AA90C58 /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
 		D5B253A8C57176FF8C368F4E /* FIRStorageListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B2545FC99E33265C65CAA4 /* FIRStorageListTests.m */; };
 		D9B0D41E1F578F6D00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
 		D9B0D41F1F578F6E00A567C2 /* FIRGetProjectConfigRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */; };
@@ -4606,6 +4608,7 @@
 				D0EDB2EA1EDA06CB00B6C31B /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				D0EDB2EB1EDA06CB00B6C31B /* FIRStorageReferenceTests.m in Sources */,
 				D0EDB2EC1EDA06CB00B6C31B /* FIRStoragePathTests.m in Sources */,
+				D5B251C16CD531364AA90C58 /* FIRStorageListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5198,6 +5201,7 @@
 				DEB13A2E1E73518B00AC236D /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEB13A2B1E73518B00AC236D /* FIRStorageReferenceTests.m in Sources */,
 				DEB13A2A1E73518B00AC236D /* FIRStoragePathTests.m in Sources */,
+				D5B2514347161203F929FA47 /* FIRStorageListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -75,10 +75,7 @@
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
         XCTAssertEqualObjects(fetcher.request.URL, expectedURL);
-#pragma clang diagnostic pop
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
         NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
                                                                       statusCode:200
@@ -112,10 +109,7 @@
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
         XCTAssertEqualObjects(fetcher.request.URL, expectedURL);
-#pragma clang diagnostic pop
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
         NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
                                                                       statusCode:200
@@ -145,7 +139,8 @@
 
   NSString *jsonString = @"{\n"
                           "  \"prefixes\": [\n"
-                          "    \"object/prefix/\"\n"
+                          "    \"object/prefixWithoutSlash\",\n"
+                          "    \"object/prefixWithSlash/\"\n"
                           "  ],\n"
                           "  \"items\": [\n"
                           "    {\n"
@@ -185,7 +180,11 @@
 
                XCTAssertEqualObjects(result.items,
                                      (@[ [ref child:@"data1.dat"], [ref child:@"data2.dat"] ]));
-               XCTAssertEqualObjects(result.prefixes, (@[ [ref child:@"prefix"] ]));
+               XCTAssertEqualObjects(
+                   result.prefixes, (@[
+                     [ref child:@"prefixWithoutSlash"],
+                     [ref child:@"prefixWithSlash"]  // The slash has been trimmed.
+                   ]));
                XCTAssertEqualObjects(result.pageToken, @"foo");
 
                [expectation fulfill];
