@@ -786,4 +786,10 @@ static NSMutableDictionary *sLibraryVersions;
   return collectionEnabledPlistObject;
 }
 
+#pragma mark - Sending Logs
+
+- (void)sendLogsWithServiceName:(NSString *)serviceName version:(NSString *)version {
+  // Do nothing. Please remove calls to this method.
+}
+
 @end
