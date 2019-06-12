@@ -43,7 +43,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '6.2.0'
+  pod 'Firebase/CoreOnly', '6.3.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
