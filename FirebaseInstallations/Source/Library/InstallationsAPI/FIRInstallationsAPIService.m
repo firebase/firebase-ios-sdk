@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_END
                               responseData:(NSData *)data {
   return [FBLPromise do:^id _Nullable {
            if (response.statusCode < 200 || response.statusCode >= 300) {
-             return [FIRInstallationsErrorUtil apiErrorWithHTTPCode:response.statusCode];
+             return [FIRInstallationsErrorUtil APIErrorWithHTTPCode:response.statusCode];
            }
            return nil;
          }]

@@ -44,7 +44,7 @@
                          }];
 }
 
-+ (NSError *)apiErrorWithHTTPCode:(NSUInteger)HTTPCode {
++ (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode {
   // TODO: Form a proper error.
   NSString *failureReason = [NSString
       stringWithFormat:@"Unexpected server response HTTP code: %lu", (unsigned long)HTTPCode];

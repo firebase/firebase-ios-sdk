@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
 
-+ (NSError *)apiErrorWithHTTPCode:(NSUInteger)HTTPCode;
++ (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode;
 
 + (NSError *)JSONSerializationError:(NSError *)error;
 
