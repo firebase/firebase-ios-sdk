@@ -58,7 +58,10 @@ NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
 NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
     @"FirebaseDataCollectionDefaultEnabled";
 
+NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
+
 NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"ConfigType";
+NSString *const kFIRAppDiagnosticsErrorKey = @"Error";
 NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRApp";
 NSString *const kFIRAppDiagnosticsSDKNameKey = @"SDKName";
 NSString *const kFIRAppDiagnosticsSDKVersionKey = @"SDKVersion";
