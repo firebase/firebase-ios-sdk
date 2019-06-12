@@ -1,5 +1,5 @@
 # 2019-06-18 -- v4.1.0
-- Adding macOS support for Messaging. (#2880)
+- Adding macOS support for Messaging. You can now send push notification to your mac app with Firebase Messaging.(#2880)
 
 # 2019-06-04 -- v4.0.2
 - Disable data protection when opening the Rmq2PeristentStore. (#2963)
