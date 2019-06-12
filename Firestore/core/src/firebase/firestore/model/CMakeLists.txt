@@ -29,6 +29,7 @@ cc_library(
     field_transform.h
     field_value.cc
     field_value.h
+    field_value.mm
     field_value_options.h
     maybe_document.cc
     maybe_document.h
@@ -56,6 +57,15 @@ cc_library(
     absl_strings
     firebase_firestore_api_input_validation
     firebase_firestore_immutable
+    firebase_firestore_objc
     firebase_firestore_util
     firebase_firestore_types
 )
+
+if(APPLE)
+  target_link_libraries(
+    firebase_firestore_model
+    PRIVATE
+    firebase_firestore_objc_model
+  )
+endif()
