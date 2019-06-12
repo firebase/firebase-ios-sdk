@@ -18,28 +18,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 /**
- *  The Firebase Segmentation SDK is used to associate a custom, non-Firebase custom installation identifier to Firebase. Once this custom installation identifier is set, developers can use the current app installation for segmentation purposes.
- * If the custom installation identifier is explicitely set to nil, any existing custom installation identifier data will be removed.
+ *  The Firebase Segmentation SDK is used to associate a custom, non-Firebase custom installation
+ * identifier to Firebase. Once this custom installation identifier is set, developers can use the
+ * current app installation for segmentation purposes. If the custom installation identifier is
+ * explicitely set to nil, any existing custom installation identifier data will be removed.
  */
 NS_SWIFT_NAME(Segmentation)
 @interface FIRSegmentation : NSObject
 
 /**
  * Singleton instance (scoped to the default FIRApp)
- * Returns the FIRSegmentation instance for the default Firebase application. Please make sure you call [FIRApp configure] beforehand for a default Firebase app to already be initialized and available. This singleton class instance lets you set your own custom identifier to be used for user segmentation purposes within Firebase.
+ * Returns the FIRSegmentation instance for the default Firebase application. Please make sure you
+ * call [FIRApp configure] beforehand for a default Firebase app to already be initialized and
+ * available. This singleton class instance lets you set your own custom identifier to be used for
+ * user segmentation purposes within Firebase.
  *
  *  @return A shared instance of FIRSegmentation.
  */
-+(nonnull FIRSegmentation*)segmentation NS_SWIFT_NAME(segmentation());
-
++ (nonnull FIRSegmentation *)segmentation NS_SWIFT_NAME(segmentation());
 
 /// Singleton instance (scoped to FIRApp)
-/// Returns the FIRSegmentation instance for your Firebase application. This singleton class instance lets you set your own custom identifier to be used for targeting purposes within Firebase.
-+(nonnull FIRSegmentation*)segmentationWithApp:
-(nonnull FIRApp *)app NS_SWIFT_NAME(segmentation(app:));
-
+/// Returns the FIRSegmentation instance for your Firebase application. This singleton class
+/// instance lets you set your own custom identifier to be used for targeting purposes within
+/// Firebase.
++ (nonnull FIRSegmentation *)segmentationWithApp:(nonnull FIRApp *)app
+    NS_SWIFT_NAME(segmentation(app:));
 
 /**
  *  Unavailable. Use +segmentation instead.
@@ -47,11 +51,12 @@ NS_SWIFT_NAME(Segmentation)
 - (instancetype)init __attribute__((unavailable("Use +segmentation instead.")));
 
 /// Set your own custom installation ID to be used for segmentation purposes.
-/// This method needs to be called every time (and immediately) upon any changes to the custom installation ID.
+/// This method needs to be called every time (and immediately) upon any changes to the custom
+/// installation ID.
 /// @param completionHandler Set custom installation ID completion.
 /// @param setCustomInstallationIDError nil if initialization succeeded.
-- (void)setCustomInstallationId:(NSString *)customInstallationId withCompletion:
-(void (^)(NSError *setCustomInstallationIDError))completionHandler;
+- (void)setCustomInstallationId:(NSString *)customInstallationId
+                 withCompletion:(void (^)(NSError *setCustomInstallationIDError))completionHandler;
 
 @end
 
