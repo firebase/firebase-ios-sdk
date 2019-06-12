@@ -115,6 +115,8 @@
       if (callback) {
         callback(listResult, self.error);
       }
+
+      // Remove retain cycle set up by `strongSelf->_fetcherCompletion`
       self->_fetcherCompletion = nil;
     };
 #pragma clang diagnostic pop

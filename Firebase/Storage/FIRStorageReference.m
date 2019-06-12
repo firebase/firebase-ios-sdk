@@ -402,6 +402,7 @@
           FIRStorageListResult *result = [[FIRStorageListResult alloc] initWithPrefixes:prefixes
                                                                                   items:items
                                                                               pageToken:nil];
+          // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
           paginatedCompletion = nil;
           completion(result, nil);
         }
