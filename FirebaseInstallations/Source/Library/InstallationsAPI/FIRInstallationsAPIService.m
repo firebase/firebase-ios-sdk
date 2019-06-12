@@ -31,7 +31,7 @@ NSString *const kFIRInstallationsAPIKey = @"x-goog-api-key";
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsAPIService ()
-@property(nonatomic, readonly) NSURLSession *urlSession;
+@property(nonatomic, readonly) NSURLSession *URLSession;
 @property(nonatomic, readonly) NSString *APIKey;
 @property(nonatomic, readonly) NSString *projectID;
 @end
@@ -41,18 +41,18 @@ NS_ASSUME_NONNULL_END
 @implementation FIRInstallationsAPIService
 
 - (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID {
-  NSURLSession *urlSession = [NSURLSession
+  NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-  return [self initWithURLSession:urlSession APIKey:APIKey projectID:projectID];
+  return [self initWithURLSession:URLSession APIKey:APIKey projectID:projectID];
 }
 
 /// The initializer for tests.
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession
+- (instancetype)initWithURLSession:(NSURLSession *)URLSession
                             APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID {
   self = [super init];
   if (self) {
-    _urlSession = urlSession;
+    _URLSession = URLSession;
     _APIKey = [APIKey copy];
     _projectID = [projectID copy];
   }
@@ -73,10 +73,10 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Register Installation
 
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
-  NSString *urlString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/",
+  NSString *URLString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/",
                                                    kFIRInstallationsAPIBaseURL, self.projectID];
-  NSURL *url = [NSURL URLWithString:urlString];
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+  NSURL *URL = [NSURL URLWithString:URLString];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
 
   request.HTTPMethod = @"POST";
   [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_END
 - (FBLPromise<NSArray *> *)sendURLRequest:(NSURLRequest *)request {
   // TODO: Consider supporting cancellation.
   return [FBLPromise wrap2ObjectsOrErrorCompletion:^(FBLPromise2ObjectsOrErrorCompletion handler) {
-    [[self.urlSession dataTaskWithRequest:request completionHandler:handler] resume];
+    [[self.URLSession dataTaskWithRequest:request completionHandler:handler] resume];
   }];
 }
 
