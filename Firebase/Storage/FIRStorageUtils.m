@@ -119,6 +119,12 @@ NSString *const kGCSObjectAllowedCharacterSet =
   return [@"/" stringByAppendingString:[kFIRStorageVersionPath stringByAppendingString:urlPath]];
 }
 
++ (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code {
+  return [NSError errorWithDomain:FIRStorageErrorDomain
+                             code:code
+                         userInfo:@{NSLocalizedDescriptionKey : description}];
+}
+
 @end
 
 @implementation NSDictionary (FIRStorageNSDictionaryJSONHelpers)

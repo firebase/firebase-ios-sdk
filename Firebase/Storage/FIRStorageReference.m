@@ -337,36 +337,40 @@
 
 - (void)listWithMaxResults:(int64_t)maxResults completion:(FIRStorageVoidListError)completion {
   if (maxResults <= 0 || maxResults > 1000) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"'maxResults' must be between 1 and 1000 inclusive."];
+    completion(nil,
+               [FIRStorageUtils storageErrorWithDescription:
+                                    @"Argument 'maxResults' must be between 1 and 1000 inclusive."
+                                                       code:FIRStorageErrorCodeInvalidArgument]);
+  } else {
+    FIRStorageListTask *task =
+        [[FIRStorageListTask alloc] initWithReference:self
+                                       fetcherService:_storage.fetcherServiceForApp
+                                        dispatchQueue:_storage.dispatchQueue
+                                             pageSize:@(maxResults)
+                                    previousPageToken:nil
+                                           completion:completion];
+    [task enqueue];
   }
-
-  FIRStorageListTask *task =
-      [[FIRStorageListTask alloc] initWithReference:self
-                                     fetcherService:_storage.fetcherServiceForApp
-                                      dispatchQueue:_storage.dispatchQueue
-                                           pageSize:@(maxResults)
-                                  previousPageToken:nil
-                                         completion:completion];
-  [task enqueue];
 }
 
 - (void)listWithMaxResults:(int64_t)maxResults
                  pageToken:(NSString *)pageToken
                 completion:(FIRStorageVoidListError)completion {
   if (maxResults <= 0 || maxResults > 1000) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"'maxResults' must be between 1 and 1000 inclusive."];
+    completion(nil,
+               [FIRStorageUtils storageErrorWithDescription:
+                                    @"Argument 'maxResults' must be between 1 and 1000 inclusive."
+                                                       code:FIRStorageErrorCodeInvalidArgument]);
+  } else {
+    FIRStorageListTask *task =
+        [[FIRStorageListTask alloc] initWithReference:self
+                                       fetcherService:_storage.fetcherServiceForApp
+                                        dispatchQueue:_storage.dispatchQueue
+                                             pageSize:@(maxResults)
+                                    previousPageToken:pageToken
+                                           completion:completion];
+    [task enqueue];
   }
-
-  FIRStorageListTask *task =
-      [[FIRStorageListTask alloc] initWithReference:self
-                                     fetcherService:_storage.fetcherServiceForApp
-                                      dispatchQueue:_storage.dispatchQueue
-                                           pageSize:@(maxResults)
-                                  previousPageToken:pageToken
-                                         completion:completion];
-  [task enqueue];
 }
 
 - (void)listAllWithCompletion:(FIRStorageVoidListError)completion {

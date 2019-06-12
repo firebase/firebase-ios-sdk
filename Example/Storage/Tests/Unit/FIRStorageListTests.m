@@ -55,16 +55,32 @@
 }
 
 - (void)testValidatesInput {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testValidatesInput"];
+
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
 
-  FIRStorageVoidListError emptyBlock = ^(FIRStorageListResult *result, NSError *error) {
+  __block int errorCount = 0;
+
+  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+
+    XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+    XCTAssertEqual(error.code, FIRStorageErrorCodeInvalidArgument);
+
+    ++errorCount;
+    if (errorCount == 4) {
+      [expectation fulfill];
+    }
   };
 
-  XCTAssertThrows([ref listWithMaxResults:0 completion:emptyBlock]);
-  XCTAssertThrows([ref listWithMaxResults:1001 completion:emptyBlock]);
-  XCTAssertThrows([ref listWithMaxResults:0 pageToken:@"foo" completion:emptyBlock]);
-  XCTAssertThrows([ref listWithMaxResults:1001 pageToken:@"foo" completion:emptyBlock]);
+  [ref listWithMaxResults:0 completion:errorBlock];
+  [ref listWithMaxResults:1001 completion:errorBlock];
+  [ref listWithMaxResults:0 pageToken:@"foo" completion:errorBlock];
+  [ref listWithMaxResults:1001 pageToken:@"foo" completion:errorBlock];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
 }
 
 - (void)testDefaultList {

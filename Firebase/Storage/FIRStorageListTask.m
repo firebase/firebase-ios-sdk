@@ -98,10 +98,7 @@
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       FIRStorageListResult *listResult;
       if (error) {
-        if (!self.error) {
-          // In case _fetcherCompletion gets called multiple times, don't override a previous error.
-          self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-        }
+        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
       } else {
         NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
         if (responseDictionary != nil) {
