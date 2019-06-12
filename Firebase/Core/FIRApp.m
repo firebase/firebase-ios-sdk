@@ -788,7 +788,9 @@ static NSMutableDictionary *sLibraryVersions;
 
 #pragma mark - Sending Logs
 
-- (void)sendLogsWithServiceName:(NSString *)serviceName version:(NSString *)version {
+- (void)sendLogsWithServiceName:(NSString *)serviceName
+                        version:(NSString *)version
+                          error:(NSError *)error {
   // Do nothing. Please remove calls to this method.
 }
 

@@ -2567,6 +2567,10 @@
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
             },
+            {
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
+              "coverage": 0.2631578947368421
+            }
           ]
         },
         {
@@ -4676,6 +4680,10 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
+            },
+            {
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
+              "coverage": 0.2631578947368421
             }
           ]
         },
@@ -10495,6 +10503,10 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
+            },
+            {
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
+              "coverage": 0.2631578947368421
             }
           ]
         },
@@ -15224,6 +15236,10 @@
             {
               "name": "__43+[FIRApp readDataCollectionSwitchFromPlist]_block_invoke",
               "coverage": 0.75
+            },
+            {
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
+              "coverage": 0.2631578947368421
             }
           ]
         },
@@ -20942,7 +20958,7 @@
               "coverage": 0.75
             },
             {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
               "coverage": 0.2631578947368421
             }
           ]
@@ -25366,7 +25382,7 @@
               "coverage": 0.75
             },
             {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
               "coverage": 0.2631578947368421
             }
           ]
@@ -37061,7 +37077,7 @@
               "coverage": 0.75
             },
             {
-              "name": "-[FIRApp sendLogsWithServiceName:version:]",
+              "name": "-[FIRApp sendLogsWithServiceName:version:error:]",
               "coverage": 0.2631578947368421
             }
           ]
