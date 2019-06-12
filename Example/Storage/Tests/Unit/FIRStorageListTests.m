@@ -56,11 +56,10 @@
 
 - (void)testValidatesInput {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testValidatesInput"];
+  expectation.expectedFulfillmentCount = 4;
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
-
-  __block int errorCount = 0;
 
   FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
     XCTAssertNil(result);
@@ -69,10 +68,7 @@
     XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
     XCTAssertEqual(error.code, FIRStorageErrorCodeInvalidArgument);
 
-    ++errorCount;
-    if (errorCount == 4) {
-      [expectation fulfill];
-    }
+    [expectation fulfill];
   };
 
   [ref listWithMaxResults:0 completion:errorBlock];
