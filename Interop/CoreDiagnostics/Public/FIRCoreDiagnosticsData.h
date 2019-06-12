@@ -18,12 +18,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** The diagnostics logging notification name. */
-static NSString *const kFIRDiagnosticsNotification = @"FIRAppDiagnosticsNotificationKey";
-
-/** The key mapping to the id<FIRCoreDiagnosticsData> object in an NSNotification. */
-static NSString *const kFIRDiagnosticsDataNotifKey = @"kFIRDiagnosticsDataNotifKey";
-
 /** If present, is a BOOL wrapped in an NSNumber. */
 static NSString *const kFIRCDIsDataCollectionDefaultEnabledKey =
     @"FIRCDIsDataCollectionDefaultEnabledKey";
