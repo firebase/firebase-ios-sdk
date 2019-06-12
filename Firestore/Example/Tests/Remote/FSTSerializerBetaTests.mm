@@ -105,10 +105,6 @@ bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTSerializerBeta (Test)
-
-@end
-
 @interface GCFSStructuredQuery_Order (Test)
 + (instancetype)messageWithProperty:(NSString *)property ascending:(BOOL)ascending;
 @end
