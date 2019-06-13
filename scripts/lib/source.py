@@ -218,6 +218,10 @@ def _related_files(root):
   """Returns a list of files related to the given root.
   """
   parent = os.path.dirname(root)
+  if not parent:
+    # dirname returns empty for filenames that are already a basename.
+    parent = '.'
+
   pattern = os.path.basename(root) + '*'
   return fnmatch.filter(_list_files(parent), pattern)
 
