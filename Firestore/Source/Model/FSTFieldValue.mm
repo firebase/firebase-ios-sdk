@@ -549,11 +549,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
       return @(self.internalValue.double_value());
-    case FieldValue::Type::Timestamp: {
-      auto timestamp = self.internalValue.timestamp_value();
-      return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
-                                       nanoseconds:timestamp.nanoseconds()];
-    }
+    case FieldValue::Type::Timestamp:
+      return MakeFIRTimestamp(self.internalValue.timestamp_value());
     case FieldValue::Type::ServerTimestamp:
       return [NSNull null];
     case FieldValue::Type::String:
