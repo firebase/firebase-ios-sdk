@@ -119,6 +119,10 @@ def categorize_files(files):
 
     if ext == '.h':
       if _in_directories(filename, CC_DIRS):
+        # If a header exists in the C++ core, ignore related files. Some classes
+        # may transiently have an implementation in a .mm file, but hold the
+        # header to the higher standard: the implementation should eventually
+        # be in a .cc, otherwise the file doesn't belong in the core.
         result.classify('cc', 'directory', filename)
         continue
 
