@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Public types to be used both internally and externally.
 if(APPLE)
   cc_library(
     firebase_firestore_objc_model
