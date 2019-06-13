@@ -19,28 +19,19 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
-void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
-  if (pointer != NULL) {
-    *pointer = error;
-  }
-}
-
 @implementation FIRInstallationsItem (RegisterInstallationAPI)
 
 - (nullable FIRInstallationsItem *)
     registeredInstallationWithJSONData:(NSData *)data
                                   date:(NSDate *)date
                                  error:(NSError *__autoreleasing _Nullable *_Nullable)outError {
-  NSError *error;
-  NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-
-  if (responseJSON == nil) {
-    FIRInstallationsItemSetErrorToPointer([FIRInstallationsErrorUtil JSONSerializationError:error],
-                                          outError);
+  NSDictionary *responseJSON = [FIRInstallationsItem dictionaryFromJSONData:data error:outError];
+  if (!responseJSON) {
     return nil;
   }
 
-  NSString *refreshToken = [self validStringOrNilForKey:@"refreshToken" fromDict:responseJSON];
+  NSString *refreshToken = [FIRInstallationsItem validStringOrNilForKey:@"refreshToken"
+                                                               fromDict:responseJSON];
   if (refreshToken == nil) {
     FIRInstallationsItemSetErrorToPointer(
         [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"refreshToken"],
@@ -56,9 +47,8 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
     return nil;
   }
 
-  FIRInstallationsStoredAuthToken *authToken = [self authTokenWithJSONDict:authTokenDict
-                                                                      date:date
-                                                                     error:outError];
+  FIRInstallationsStoredAuthToken *authToken =
+      [FIRInstallationsItem authTokenWithJSONDict:authTokenDict date:date error:outError];
   if (authToken == nil) {
     return nil;
   }
@@ -73,15 +63,22 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   return installation;
 }
 
-- (NSString *)validStringOrNilForKey:(NSString *)key fromDict:(NSDictionary *)dict {
-  NSString *string = dict[key];
-  if ([string isKindOfClass:[NSString class]] && string.length > 0) {
-    return string;
+#pragma mark - Auth token
+
++ (nullable FIRInstallationsStoredAuthToken *)authTokenWithGenerateTokenAPIJSONData:(NSData *)data
+                                                                               date:(NSDate *)date
+                                                                              error:(NSError **)
+                                                                                        outError {
+  NSDictionary *dict = [self dictionaryFromJSONData:data error:outError];
+  if (!dict) {
+    return nil;
   }
-  return nil;
+
+  return [self authTokenWithJSONDict:dict date:date error:outError];
 }
 
-- (nullable FIRInstallationsStoredAuthToken *)authTokenWithJSONDict:(NSDictionary *)dict
++ (nullable FIRInstallationsStoredAuthToken *)authTokenWithJSONDict:
+                                                  (NSDictionary<NSString *, id> *)dict
                                                                date:(NSDate *)date
                                                               error:(NSError **)outError {
   NSString *token = [self validStringOrNilForKey:@"token" fromDict:dict];
@@ -114,6 +111,29 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   authToken.expirationDate = experationDate;
 
   return authToken;
+}
+
+#pragma mark - JSON
+
++ (NSDictionary<NSString *, id> *)dictionaryFromJSONData:(NSData *)data error:(NSError **)outError {
+  NSError *error;
+  NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+
+  if (![responseJSON isKindOfClass:[NSDictionary class]]) {
+    FIRInstallationsItemSetErrorToPointer([FIRInstallationsErrorUtil JSONSerializationError:error],
+                                          outError);
+    return nil;
+  }
+
+  return responseJSON;
+}
+
++ (NSString *)validStringOrNilForKey:(NSString *)key fromDict:(NSDictionary *)dict {
+  NSString *string = dict[key];
+  if ([string isKindOfClass:[NSString class]] && string.length > 0) {
+    return string;
+  }
+  return nil;
 }
 
 @end

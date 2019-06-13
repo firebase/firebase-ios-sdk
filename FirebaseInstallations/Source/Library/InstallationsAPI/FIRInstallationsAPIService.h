@@ -41,6 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation;
 
+- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
+    (FIRInstallationsItem *)installation;
+
 @end
 
 NS_ASSUME_NONNULL_END

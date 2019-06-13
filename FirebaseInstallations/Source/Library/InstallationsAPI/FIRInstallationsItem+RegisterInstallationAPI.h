@@ -16,6 +16,8 @@
 
 #import "FIRInstallationsItem.h"
 
+@class FIRInstallationsStoredAuthToken;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsItem (RegisterInstallationAPI)
@@ -35,6 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                                  date:(NSDate *)date
                                                                 error:
                                                                     (NSError *_Nullable *)outError;
+
++ (nullable FIRInstallationsStoredAuthToken *)authTokenWithGenerateTokenAPIJSONData:(NSData *)data
+                                                                               date:(NSDate *)date
+                                                                              error:(NSError **)
+                                                                                        outError;
+
++ (nullable FIRInstallationsStoredAuthToken *)authTokenWithJSONDict:
+                                                  (NSDictionary<NSString *, id> *)dict
+                                                               date:(NSDate *)date
+                                                              error:(NSError **)outError;
 
 @end
 

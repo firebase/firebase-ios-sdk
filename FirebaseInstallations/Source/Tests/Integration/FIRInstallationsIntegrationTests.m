@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBLPromise+Testing.h"
 #import <FirebaseCore/FIRAppInternal.h>
+#import "FBLPromise+Testing.h"
 
 #import <FirebaseInstallations/FIRInstallations.h>
 
@@ -48,32 +48,33 @@
   XCTestExpectation *expectation1 = [self expectationWithDescription:@"FID"];
 
   __block NSString *retreivedID;
-  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    XCTAssertNotNil(identifier);
-    XCTAssertNil(error);
-    XCTAssertEqual(identifier.length, 22);
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNotNil(identifier);
+        XCTAssertNil(error);
+        XCTAssertEqual(identifier.length, 22);
 
-    retreivedID = identifier;
+        retreivedID = identifier;
 
-    [expectation1 fulfill];
-  }];
+        [expectation1 fulfill];
+      }];
 
   [self waitForExpectations:@[ expectation1 ] timeout:2];
 
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"FID"];
 
-  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    XCTAssertNotNil(identifier);
-    XCTAssertNil(error);
-    XCTAssertEqual(identifier.length, 22);
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNotNil(identifier);
+        XCTAssertNil(error);
+        XCTAssertEqual(identifier.length, 22);
 
-    XCTAssertEqualObjects(identifier, retreivedID);
+        XCTAssertEqualObjects(identifier, retreivedID);
 
-    [expectation2 fulfill];
-  }];
+        [expectation2 fulfill];
+      }];
 
   [self waitForExpectations:@[ expectation2 ] timeout:2];
 }
-
 
 @end

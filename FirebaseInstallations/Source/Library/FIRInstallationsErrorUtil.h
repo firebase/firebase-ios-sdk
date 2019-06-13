@@ -18,6 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
+
 @interface FIRInstallationsErrorUtil : NSObject
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception;

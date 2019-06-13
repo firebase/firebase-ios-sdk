@@ -16,6 +16,12 @@
 
 #import "FIRInstallationsErrorUtil.h"
 
+void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
+  if (pointer != NULL) {
+    *pointer = error;
+  }
+}
+
 @implementation FIRInstallationsErrorUtil
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception {

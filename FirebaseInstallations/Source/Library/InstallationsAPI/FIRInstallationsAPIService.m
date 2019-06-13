@@ -70,52 +70,86 @@ NS_ASSUME_NONNULL_END
   });
 }
 
+- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
+    (FIRInstallationsItem *)installation {
+  NSURLRequest *request = [self authTokenRequestWithInstallation:installation];
+  return [self sendURLRequest:request].then(^id _Nullable(NSArray *_Nullable value) {
+    return [self authTokenWithServerResponse:value.lastObject responseData:value.firstObject];
+  });
+}
+
 #pragma mark - Register Installation
 
 - (NSURLRequest *)registerRequestWithInstallation:(FIRInstallationsItem *)installation {
   NSString *URLString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/",
                                                    kFIRInstallationsAPIBaseURL, self.projectID];
   NSURL *URL = [NSURL URLWithString:URLString];
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-
-  request.HTTPMethod = @"POST";
-  [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
 
   NSDictionary *bodyDict = @{
     @"fid" : installation.firebaseInstallationID,
     @"authVersion" : @"FIS_v2",
     @"appId" : installation.appID,
-    // TODO: Set proper sdkVersion.
-    @"sdkVersion" : @"a1.0"
+    @"sdkVersion" : [self SDKVersion]
   };
-  [self setJSONHTTPBody:bodyDict forRequest:request];
 
-  return [request copy];
+  return [self requestWithURL:URL bodyDict:bodyDict];
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)
     registerredInstalationWithInstallation:(FIRInstallationsItem *)installation
                             serverResponse:(NSHTTPURLResponse *)response
                               responseData:(NSData *)data {
-  return [FBLPromise do:^id _Nullable {
-           if (response.statusCode < 200 || response.statusCode >= 300) {
-             return [FIRInstallationsErrorUtil APIErrorWithHTTPCode:response.statusCode];
-           }
-           return nil;
-         }]
-      .then(^id(id result) {
-        NSError *error;
-        FIRInstallationsItem *registeredInstallation =
-            [installation registeredInstallationWithJSONData:data date:[NSDate date] error:&error];
-        if (registeredInstallation == nil) {
-          return error;
-        }
+  return [self validateHTTPResponseSatatusCode:response].then(^id(id result) {
+    NSError *error;
+    FIRInstallationsItem *registeredInstallation =
+        [installation registeredInstallationWithJSONData:data date:[NSDate date] error:&error];
+    if (registeredInstallation == nil) {
+      return error;
+    }
 
-        return registeredInstallation;
-      });
+    return registeredInstallation;
+  });
+}
+
+#pragma mark - Auth token
+
+- (NSURLRequest *)authTokenRequestWithInstallation:(FIRInstallationsItem *)installation {
+  NSString *URLString =
+      [NSString stringWithFormat:@"%@/v1/projects/%@/installations/%@/authTokens:generate",
+                                 kFIRInstallationsAPIBaseURL, self.projectID,
+                                 installation.firebaseInstallationID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  NSDictionary *bodyDict = @{@"installation" : @{@"sdkVersion" : [self SDKVersion]}};
+  return [self requestWithURL:URL bodyDict:bodyDict];
+}
+
+- (FBLPromise<FIRInstallationsStoredAuthToken *> *)
+    authTokenWithServerResponse:(NSHTTPURLResponse *)response
+                   responseData:(nullable NSData *)data {
+  return [self validateHTTPResponseSatatusCode:response].then(^id(id result) {
+    NSError *error;
+    FIRInstallationsStoredAuthToken *token =
+        [FIRInstallationsItem authTokenWithGenerateTokenAPIJSONData:data
+                                                               date:[NSDate date]
+                                                              error:&error];
+    if (token == nil) {
+      return error;
+    }
+
+    return token;
+  });
 }
 
 #pragma mark - URL Request
+
+- (NSURLRequest *)requestWithURL:(NSURL *)requestURL bodyDict:(NSDictionary *)bodyDict {
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
+  request.HTTPMethod = @"POST";
+  [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
+  [self setJSONHTTPBody:bodyDict forRequest:request];
+  return [request copy];
+}
 
 /**
  * @return FBLPromise<[NSData, NSURLResponse]>
@@ -125,6 +159,20 @@ NS_ASSUME_NONNULL_END
   return [FBLPromise wrap2ObjectsOrErrorCompletion:^(FBLPromise2ObjectsOrErrorCompletion handler) {
     [[self.URLSession dataTaskWithRequest:request completionHandler:handler] resume];
   }];
+}
+
+- (FBLPromise<NSNull *> *)validateHTTPResponseSatatusCode:(NSHTTPURLResponse *)response {
+  return [FBLPromise do:^id _Nullable {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      return [FIRInstallationsErrorUtil APIErrorWithHTTPCode:response.statusCode];
+    }
+    return [NSNull null];
+  }];
+}
+
+// TODO: Set proper sdkVersion.
+- (NSString *)SDKVersion {
+  return @"a1.0";
 }
 
 #pragma mark - JSON
