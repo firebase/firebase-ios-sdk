@@ -23,6 +23,7 @@
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTClasses.h"
@@ -127,66 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTTimestampValue
-
-@implementation FSTTimestampValue {
-  Timestamp _internalValue;
-}
-
-+ (instancetype)timestampValue:(const Timestamp &)value {
-  return [[FSTTimestampValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(const Timestamp &)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Timestamp;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderTimestamp;
-}
-
-- (id)value {
-  return MakeFIRTimestamp(_internalValue);
-}
-
-- (id)valueWithOptions:(const FieldValueOptions &)options {
-  if (options.timestamps_in_snapshots_enabled()) {
-    return self.value;
-  } else {
-    return [self.value dateValue];
-  }
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Timestamp &&
-         _internalValue == ((FSTTimestampValue *)other)->_internalValue;
-}
-
-- (NSUInteger)hash {
-  return TimestampInternal::Hash(_internalValue);
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::Timestamp) {
-    return WrapCompare(_internalValue, ((FSTTimestampValue *)other)->_internalValue);
-  } else if (other.type == FieldValue::Type::ServerTimestamp) {
-    // Concrete timestamps come before server timestamps.
-    return NSOrderedAscending;
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
 #pragma mark - FSTServerTimestampValue
 
 @implementation FSTServerTimestampValue {
@@ -226,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
     case ServerTimestampBehavior::kNone:
       return [NSNull null];
     case ServerTimestampBehavior::kEstimate:
-      return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
+      return [FieldValue::FromTimestamp(self.localWriteTime).Wrap() valueWithOptions:options];
     case ServerTimestampBehavior::kPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
@@ -683,7 +624,11 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
       return @(self.internalValue.double_value());
-    case FieldValue::Type::Timestamp:
+    case FieldValue::Type::Timestamp: {
+      auto timestamp = self.internalValue.timestamp_value();
+      return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
+                                       nanoseconds:timestamp.nanoseconds()];
+    }
     case FieldValue::Type::ServerTimestamp:
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::String:
@@ -701,6 +646,20 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   UNREACHABLE();
 }
 
+- (id)valueWithOptions:(const model::FieldValueOptions &)options {
+  switch (self.internalValue.type()) {
+    case FieldValue::Type::Timestamp:
+      if (options.timestamps_in_snapshots_enabled()) {
+        return [self value];
+      } else {
+        return [[self value] dateValue];
+      }
+
+    default:
+      return [self value];
+  }
+}
+
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   // TODO(rsgowman): Port the other FST*Value's, and then remove this comment:
   //
@@ -710,8 +669,14 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   // FSTDelegateValue handles (eg) booleans to ensure this case never occurs.
 
   if (FieldValue::Comparable(self.type, other.type)) {
-    HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
-    return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
+    if ([other isKindOfClass:[FSTServerTimestampValue class]]) {
+      HARD_ASSERT(self.type == FieldValue::Type::Timestamp);
+      // Server timestamps come after all concrete timestamps.
+      return NSOrderedAscending;
+    } else {
+      HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
+      return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
+    }
   } else {
     return [self defaultCompare:other];
   }

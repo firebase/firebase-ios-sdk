@@ -443,9 +443,9 @@ using firebase::firestore::model::TransformOperation;
   FSTMutation *transform = FSTTestTransformMutation(
       @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
 
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
-       initWithVersion:testutil::Version(1)
-      transformResults:@[ [FSTTimestampValue timestampValue:_timestamp] ]];
+  FSTMutationResult *mutationResult =
+      [[FSTMutationResult alloc] initWithVersion:testutil::Version(1)
+                                transformResults:@[ FieldValue::FromTimestamp(_timestamp).Wrap() ]];
 
   FIRTimestamp *publicTimestamp = api::MakeFIRTimestamp(_timestamp);
   FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc

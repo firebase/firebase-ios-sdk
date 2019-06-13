@@ -307,7 +307,7 @@ union DoubleBits {
     @[ FSTTestFieldValue(@"strin") ],
     @[ FSTTestFieldValue(@"e\u0301b") ],  // latin small letter e + combining acute accent
     @[ FSTTestFieldValue(@"\u00e9a") ],   // latin small letter e with acute accent
-    @[ FSTTestFieldValue(date1), [FSTTimestampValue timestampValue:MakeTimestamp(date1)] ],
+    @[ FSTTestFieldValue(date1), FieldValue::FromTimestamp(MakeTimestamp(date1)).Wrap() ],
     @[ FSTTestFieldValue(date2) ],
     @[
       // NOTE: ServerTimestampValues can't be parsed via FSTTestFieldValue().
