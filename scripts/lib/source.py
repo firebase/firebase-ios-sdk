@@ -16,6 +16,7 @@ import fnmatch
 import logging
 import os
 import re
+import textwrap
 
 from lib import command_trace
 
@@ -134,6 +135,19 @@ def categorize_files(files):
       if related_ext in ('.m', '.mm'):
         result.classify('objc', 'related file', filename)
         continue
+
+      if _in_directories(filename, OBJC_DIRS):
+        result.classify('objc', 'directory', filename)
+        continue
+
+      raise Exception(textwrap.dedent(
+          """
+          Don't know how to handle the header %s.
+
+          If C++ add a parent directory to CC_DIRS in lib/source.py.
+
+          If Objective-C add to OBJC_DIRS or consider changing the default here
+          and removing this exception.""" % filename))
 
     result.ignore(filename)
 
