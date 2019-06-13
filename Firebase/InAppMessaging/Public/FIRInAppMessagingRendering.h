@@ -53,7 +53,7 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithButtonText:(NSString *)btnText
                    buttonTextColor:(UIColor *)textColor
-                   backgroundColor:(UIColor *)bkgColor NS_DESIGNATED_INITIALIZER;
+                   backgroundColor:(UIColor *)bkgColor __deprecated;
 @end
 
 /** Contain display data for an image for a fiam message.
@@ -69,7 +69,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithImageURL:(NSString *)imageURL
-                       imageData:(NSData *)imageData NS_DESIGNATED_INITIALIZER;
+                       imageData:(NSData *)imageData __deprecated;
 @end
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.
@@ -83,7 +83,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage;
+              renderAsTestMessage:(BOOL)renderAsTestMessage __deprecated;
 
 @end
 
@@ -102,7 +102,8 @@ NS_SWIFT_NAME(InAppMessagingAction)
 @property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
+- (instancetype)initWithActionText:(nullable NSString *)actionText
+                         actionURL:(NSURL *)actionURL __deprecated;
 
 @end
 
@@ -121,7 +122,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType __deprecated;
 @end
 
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
@@ -232,7 +233,7 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                      actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
 /** Class for defining a banner message for display.
@@ -271,7 +272,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
 /** Class for defining a image-only message for display.
@@ -295,7 +296,7 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
