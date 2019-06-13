@@ -68,8 +68,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 @property(nonatomic, readonly, nullable) NSData *imageRawData;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithImageURL:(NSString *)imageURL
-                       imageData:(NSData *)imageData __deprecated;
+- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData __deprecated;
 @end
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.

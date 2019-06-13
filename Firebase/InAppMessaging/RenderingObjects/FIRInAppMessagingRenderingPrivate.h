@@ -46,8 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingImageData (Private)
 
-- (instancetype)initWithImageURL:(NSString *)imageURL
-                       imageData:(NSData *)imageData;
+- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData;
 
 @end
 
@@ -61,8 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInAppMessagingAction (Private)
 
-- (instancetype)initWithActionText:(nullable NSString *)actionText
-                         actionURL:(NSURL *)actionURL;
+- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
 
 @end
 
