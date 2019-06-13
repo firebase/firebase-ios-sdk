@@ -542,6 +542,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 - (id)value {
   switch (self.internalValue.type()) {
     case FieldValue::Type::Null:
+      // NSDictionary disallows storing `nil` values. Use NSNull as an
+      // explicitly existing null value.
       return [NSNull null];
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
