@@ -195,12 +195,19 @@ def make_path():
 
   # In addition, add any bin directories near the lib directories in the python
   # path. This makes it possible to find flake8 in ~/Library/Python/2.7/bin
-  # after pip install --user flake8.
-  lib_pattern = re.compile(r'(.*)/lib/')
+  # after pip install --user flake8. Also handle installations on Windows which
+  # go in %APPDATA%/Python/Scripts.
+  lib_pattern = re.compile(r'(.*)/[^/]*/site-packages')
   for entry in sys.path:
+    entry = entry.replace(os.sep, '/')
     m = lib_pattern.match(entry)
-    if m:
-      bin_dir = os.path.join(m.group(1), 'bin')
+    if not m:
+      continue
+
+    python_root = m.group(1).replace('/', os.sep)
+
+    for bin_basename in ('bin', 'Scripts'):
+      bin_dir = os.path.join(python_root, bin_basename)
       if bin_dir not in path and os.path.exists(bin_dir):
         path.append(bin_dir)
 
@@ -220,12 +227,25 @@ def which(executable):
   if executable.startswith('/'):
     return executable
 
-  for entry in _PATH:
-    joined = os.path.join(entry, executable)
-    if os.path.isfile(joined) and os.access(joined, os.X_OK):
-      return joined
+  for executable_with_ext in _executable_names(executable):
+    for entry in _PATH:
+      joined = os.path.join(entry, executable_with_ext)
+      if os.path.isfile(joined) and os.access(joined, os.X_OK):
+        return joined
 
   return None
+
+
+def _executable_names(executable):
+  """Yields a sequence of all possible executable names."""
+
+  if os.name == 'nt':
+    pathext = os.environ.get('PATHEXT', '').split(os.pathsep)
+    for ext in pathext:
+      yield executable + ext
+
+  else:
+    yield executable
 
 
 if __name__ == '__main__':
