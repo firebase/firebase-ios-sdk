@@ -33,47 +33,62 @@
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
 
-// TODO: Use FIRInstallationsAPIService to register installation.
-//@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
+@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
+
+@property(atomic, strong, nullable) FBLPromise<FIRInstallationsItem *> *registrationPromise;
 @end
 
 @implementation FIRInstallationsIDController
 
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey {
+                             APIKey:(NSString *)APIKey
+                          projectID:(NSString *)projectID {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
+  FIRInstallationsAPIService *apiService =
+      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   return [self initWithGoogleAppID:appID
                            appName:appName
-                            APIKey:APIKey
-                installationsStore:installationsStore];
+                installationsStore:installationsStore
+                        APIService:apiService];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                 installationsStore:(FIRInstallationsStore *)installationsStore {
+                 installationsStore:(FIRInstallationsStore *)installationsStore
+                         APIService:(FIRInstallationsAPIService *)APIService {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
     _installationsStore = installationsStore;
+    _APIService = APIService;
   }
   return self;
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem {
-  return [self getStoredFID]
-      .recover(^id(NSError *error) {
-        return [self migrateIID];
-      })
-      .recover(^id(NSError *error) {
-        // TODO: Are the cases when we should not create a new FID?
-        return [self createAndSaveFID];
-      });
+  FBLPromise<FIRInstallationsItem *> *installationItemPromise =
+      [self getStoredFID]
+          .recover(^id(NSError *error) {
+            return [self migrateIID];
+          })
+          .recover(^id(NSError *error) {
+            // TODO: Are the cases when we should not create a new FID?
+            return [self createAndSaveFID];
+          });
+
+  // Initiate registration process on success if needed, but return the instalation without waiting
+  // for it.
+  installationItemPromise.then(^id(FIRInstallationsItem *installation) {
+    [self registerInstallationIfNeeded:installation];
+    return nil;
+  });
+
+  return installationItemPromise;
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)getStoredFID {
@@ -112,6 +127,45 @@
   FBLPromise *promise = [FBLPromise pendingPromise];
   [promise reject:[NSError errorWithDomain:@"FIRInstallationsIDController" code:-1 userInfo:nil]];
   return promise;
+}
+
+#pragma mark - FID registration
+
+- (FBLPromise<FIRInstallationsItem *> *)registerInstallationIfNeeded:
+    (FIRInstallationsItem *)installation {
+  switch (installation.registrationStatus) {
+    case FIRInstallationStatusRegistered:
+      // Already registered. Do nothing.
+      return [FBLPromise resolvedWith:installation];
+
+    case FIRInstallationStatusUnknown:
+    case FIRInstallationStatusUnregistered:
+    case FIRInstallationStatusRegistrationInProgress:
+      // Registration required. Proceed.
+      break;
+  }
+
+  // TODO: Check if installations match.
+  if (self.registrationPromise) {
+    return self.registrationPromise;
+  }
+
+  self.registrationPromise = [self.APIService registerInstallation:installation].then(
+      ^id(FIRInstallationsItem *registredInstallation) {
+        return [self.installationsStore saveInstallation:registredInstallation];
+      });
+
+  // Clean self.registrationPromise on finish.
+  self.registrationPromise
+      .then(^id _Nullable(FIRInstallationsItem *_Nullable value) {
+        self.registrationPromise = nil;
+        return nil;
+      })
+      .catch(^(NSError *_Nonnull error) {
+        self.registrationPromise = nil;
+      });
+
+  return self.registrationPromise;
 }
 
 @end

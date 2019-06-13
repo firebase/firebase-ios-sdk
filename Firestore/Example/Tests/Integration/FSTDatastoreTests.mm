@@ -49,6 +49,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::BatchId;
@@ -221,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
-                                                       localWriteTime:[FIRTimestamp timestamp]
+                                                       localWriteTime:Timestamp::Now()
                                                         baseMutations:{}
                                                             mutations:{mutation}];
   _testWorkerQueue->Enqueue([=] {

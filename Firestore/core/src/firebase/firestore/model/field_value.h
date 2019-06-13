@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
@@ -119,7 +120,7 @@ class FieldValue {
 
   const std::string& string_value() const;
 
-  const std::vector<uint8_t>& blob_value() const;
+  const nanopb::ByteString& blob_value() const;
 
   const GeoPoint& geo_point_value() const;
 
@@ -148,7 +149,7 @@ class FieldValue {
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
-  static FieldValue FromBlob(const uint8_t* source, size_t size);
+  static FieldValue FromBlob(nanopb::ByteString blob);
   static FieldValue FromReference(DatabaseId database_id, DocumentKey value);
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const Array& value);

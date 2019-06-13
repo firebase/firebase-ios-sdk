@@ -147,8 +147,6 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanMergeDataWithAnExistingDocumentUsingSet {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
-
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
@@ -1039,8 +1037,6 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testUpdateFieldsWithDots {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
-
   FIRDocumentReference *doc = [self documentRef];
 
   [self writeDocumentRef:doc data:@{@"a.b" : @"old", @"c.d" : @"old"}];

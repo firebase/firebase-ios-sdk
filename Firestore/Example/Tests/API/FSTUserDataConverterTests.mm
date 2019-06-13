@@ -109,7 +109,7 @@ union DoubleBits {
   NSArray *values = @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
     XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Timestamp);
@@ -131,7 +131,7 @@ union DoubleBits {
   NSArray *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTBlobValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Blob);
   }

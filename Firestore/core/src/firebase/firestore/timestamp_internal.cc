@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-@class FBLPromise<ValueType>;
-@class FIRInstallationsItem;
+namespace util = firebase::firestore::util;
 
-/**
- * The class is responsible for managing FID for a given `FIRApp`.
- */
-@interface FIRInstallationsIDController : NSObject
+namespace firebase {
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID;
+size_t TimestampInternal::Hash(const Timestamp& timestamp) {
+  return util::Hash(timestamp.seconds(), timestamp.nanoseconds());
+}
 
-- (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
+Timestamp TimestampInternal::Truncate(const Timestamp& timestamp) {
+  int32_t truncated_nanos = timestamp.nanoseconds() / 1000 * 1000;
+  return Timestamp(timestamp.seconds(), truncated_nanos);
+}
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace firebase

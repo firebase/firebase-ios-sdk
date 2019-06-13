@@ -30,18 +30,19 @@
 #import "FIRInstallationsIDController.h"
 
 @interface FIRInstallations (Tests)
-@property(nonatomic, readwrite, strong) NSString *appID;
+@property(nonatomic, readwrite, strong) FIROptions *appOptions;
 @property(nonatomic, readwrite, strong) NSString *appName;
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-          installationsIDController:(FIRInstallationsIDController *)installationsIDController;
+- (instancetype)initWithAppOptions:(FIROptions *)appOptions
+                           appName:(NSString *)appName
+         installationsIDController:(FIRInstallationsIDController *)installationsIDController;
 
 @end
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
 @property(nonatomic) id mockIDController;
+@property(nonatomic) FIROptions *appOptions;
 @end
 
 @implementation FIRInstallationsTests
@@ -49,10 +50,12 @@
 - (void)setUp {
   [super setUp];
 
+  self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
+                                                GCMSenderID:@"GCMSenderID"];
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
-  self.installations = [[FIRInstallations alloc] initWithGoogleAppID:@"GoogleAppID"
-                                                             appName:@"appName"
-                                           installationsIDController:self.mockIDController];
+  self.installations = [[FIRInstallations alloc] initWithAppOptions:self.appOptions
+                                                            appName:@"appName"
+                                          installationsIDController:self.mockIDController];
 }
 
 - (void)tearDown {
@@ -163,7 +166,7 @@
   FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
 
   XCTAssertNotNil(installations);
-  XCTAssertEqualObjects(installations.appID, app.options.googleAppID);
+  XCTAssertEqualObjects(installations.appOptions.googleAppID, app.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, app.name);
 
   return installations;

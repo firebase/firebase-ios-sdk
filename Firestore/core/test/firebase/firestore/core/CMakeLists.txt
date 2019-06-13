@@ -20,4 +20,5 @@ cc_test(
     query_test.cc
   DEPENDS
     firebase_firestore_core
+    firebase_firestore_testutil
 )

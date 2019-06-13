@@ -37,6 +37,7 @@
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -46,6 +47,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -134,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
   XCTAssertNotNil(result);
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
-                                                     localWriteTime:[FIRTimestamp timestamp]
+                                                     localWriteTime:Timestamp::Now()
                                                       baseMutations:{}
                                                           mutations:std::move(mutations)]];
   _lastChanges = result.changes;
@@ -237,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutation *set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
   FSTMutation *set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
-                                                       localWriteTime:[FIRTimestamp timestamp]
+                                                       localWriteTime:Timestamp::Now()
                                                         baseMutations:{base}
                                                             mutations:{set1, set2}];
   DocumentKeySet keys = [batch keys];

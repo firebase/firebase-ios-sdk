@@ -1,4 +1,6 @@
 # Unreleased
+
+# 1.4.0
 - [feature] Added `clearPersistence()`, which clears the persistent storage
   including pending writes and cached documents. This is intended to help
   write reliable tests (https://github.com/firebase/firebase-js-sdk/issues/449).

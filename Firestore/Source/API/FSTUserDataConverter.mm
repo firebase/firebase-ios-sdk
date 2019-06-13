@@ -30,6 +30,7 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
@@ -42,12 +43,17 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
+using firebase::TimestampInternal;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
@@ -65,6 +71,7 @@ using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::nanopb::MakeByteString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -93,6 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+#pragma mark - Conversion helpers
 
 #pragma mark - FSTUserDataConverter
 
@@ -443,21 +452,20 @@ NS_ASSUME_NONNULL_BEGIN
     return FieldValue::FromString(util::MakeString(input)).Wrap();
 
   } else if ([input isKindOfClass:[NSDate class]]) {
-    return [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:input]];
+    NSDate *inputDate = input;
+    return FieldValue::FromTimestamp(api::MakeTimestamp(inputDate)).Wrap();
 
   } else if ([input isKindOfClass:[FIRTimestamp class]]) {
-    FIRTimestamp *originalTimestamp = (FIRTimestamp *)input;
-    FIRTimestamp *truncatedTimestamp =
-        [FIRTimestamp timestampWithSeconds:originalTimestamp.seconds
-                               nanoseconds:originalTimestamp.nanoseconds / 1000 * 1000];
-    return [FSTTimestampValue timestampValue:truncatedTimestamp];
+    FIRTimestamp *inputTimestamp = input;
+    Timestamp timestamp = TimestampInternal::Truncate(api::MakeTimestamp(inputTimestamp));
+    return FieldValue::FromTimestamp(timestamp).Wrap();
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    FIRGeoPoint *geoPoint = input;
-    return FieldValue::FromGeoPoint([geoPoint toGeoPoint]).Wrap();
+    return FieldValue::FromGeoPoint(api::MakeGeoPoint(input)).Wrap();
 
   } else if ([input isKindOfClass:[NSData class]]) {
-    return [FSTBlobValue blobValue:input];
+    NSData *inputData = input;
+    return FieldValue::FromBlob(MakeByteString(inputData)).Wrap();
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
