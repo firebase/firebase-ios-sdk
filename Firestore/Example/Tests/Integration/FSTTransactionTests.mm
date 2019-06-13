@@ -480,8 +480,6 @@
 }
 
 - (void)testUpdateFieldsWithDotsTransactionally {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
-
   FIRDocumentReference *doc = [self documentRef];
 
   XCTestExpectation *expectation =

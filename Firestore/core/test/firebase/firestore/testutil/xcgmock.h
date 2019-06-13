@@ -192,7 +192,6 @@ OBJC_PRINT_TO(FSTSetMutation);
 OBJC_PRINT_TO(FSTSortOrder);
 OBJC_PRINT_TO(FSTStringValue);
 OBJC_PRINT_TO(FSTSyncEngine);
-OBJC_PRINT_TO(FSTTimestampValue);
 OBJC_PRINT_TO(FSTTransformMutation);
 OBJC_PRINT_TO(FSTUnknownDocument);
 OBJC_PRINT_TO(FSTUserDataConverter);

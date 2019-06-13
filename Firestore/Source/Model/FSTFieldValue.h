@@ -104,13 +104,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * A timestamp value stored in Firestore.
- */
-@interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
-+ (instancetype)timestampValue:(const firebase::Timestamp &)value;
-@end
-
-/**
  * Represents a locally-applied Server Timestamp.
  *
  * Notes:

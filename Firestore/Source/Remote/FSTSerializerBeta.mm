@@ -264,7 +264,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     case GCFSValue_ValueType_OneOfCase_TimestampValue: {
       Timestamp value = [self decodedTimestamp:valueProto.timestampValue];
-      return [FSTTimestampValue timestampValue:value];
+      return FieldValue::FromTimestamp(value).Wrap();
     }
 
     case GCFSValue_ValueType_OneOfCase_GeoPointValue:
