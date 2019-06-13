@@ -13,29 +13,31 @@
 # limitations under the License.
 
 # Public types to be used both internally and externally.
-cc_library(
-  firebase_firestore_objc_immutable
-  SOURCES
-    FSTArraySortedDictionary.h
-    FSTArraySortedDictionary.m
-    FSTArraySortedDictionaryEnumerator.h
-    FSTArraySortedDictionaryEnumerator.m
-    FSTImmutableSortedDictionary.h
-    FSTImmutableSortedDictionary.m
-    FSTImmutableSortedSet.h
-    FSTImmutableSortedSet.m
-    FSTLLRBEmptyNode.h
-    FSTLLRBEmptyNode.m
-    FSTLLRBNode.h
-    FSTLLRBValueNode.h
-    FSTLLRBValueNode.m
-    FSTTreeSortedDictionary.h
-    FSTTreeSortedDictionary.m
-    FSTTreeSortedDictionaryEnumerator.h
-    FSTTreeSortedDictionaryEnumerator.m
-)
+if(APPLE)
+  cc_library(
+    firebase_firestore_objc_immutable
+    SOURCES
+      FSTArraySortedDictionary.h
+      FSTArraySortedDictionary.m
+      FSTArraySortedDictionaryEnumerator.h
+      FSTArraySortedDictionaryEnumerator.m
+      FSTImmutableSortedDictionary.h
+      FSTImmutableSortedDictionary.m
+      FSTImmutableSortedSet.h
+      FSTImmutableSortedSet.m
+      FSTLLRBEmptyNode.h
+      FSTLLRBEmptyNode.m
+      FSTLLRBNode.h
+      FSTLLRBValueNode.h
+      FSTLLRBValueNode.m
+      FSTTreeSortedDictionary.h
+      FSTTreeSortedDictionary.m
+      FSTTreeSortedDictionaryEnumerator.h
+      FSTTreeSortedDictionaryEnumerator.m
+  )
 
-target_compile_options(
-  firebase_firestore_objc_immutable PRIVATE
-  -Wno-unused-parameter
-)
+  target_compile_options(
+    firebase_firestore_objc_immutable PRIVATE
+    -Wno-unused-parameter
+  )
+endif()

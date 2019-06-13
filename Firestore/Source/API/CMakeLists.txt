@@ -13,26 +13,28 @@
 # limitations under the License.
 
 # Public types to be used both internally and externally.
-cc_library(
-  firebase_firestore_objc_api
-  SOURCES
-    FIRGeoPoint+Internal.h
-    FIRGeoPoint.mm
-    FIRTimestamp.m
-    FIRTimestamp+Internal.h
-    converters.h
-    converters.mm
-  DEPENDS
-    firebase_firestore_api
-    firebase_firestore_util
-)
+if(APPLE)
+  cc_library(
+    firebase_firestore_objc_api
+    SOURCES
+      FIRGeoPoint+Internal.h
+      FIRGeoPoint.mm
+      FIRTimestamp.m
+      FIRTimestamp+Internal.h
+      converters.h
+      converters.mm
+    DEPENDS
+      firebase_firestore_api
+      firebase_firestore_util
+  )
 
-target_include_directories(
-  firebase_firestore_objc_api
-  PUBLIC ${PROJECT_SOURCE_DIR}/Firestore/Source/Public
-)
+  target_include_directories(
+    firebase_firestore_objc_api
+    PUBLIC ${PROJECT_SOURCE_DIR}/Firestore/Source/Public
+  )
 
-target_compile_options(
-  firebase_firestore_objc_api PRIVATE
-  -Wno-unused-parameter
-)
+  target_compile_options(
+    firebase_firestore_objc_api PRIVATE
+    -Wno-unused-parameter
+  )
+endif()

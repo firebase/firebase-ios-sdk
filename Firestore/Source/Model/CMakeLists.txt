@@ -13,27 +13,29 @@
 # limitations under the License.
 
 # Public types to be used both internally and externally.
-cc_library(
-  firebase_firestore_objc_model
-  SOURCES
-    FSTDocument.h
-    FSTDocument.mm
-    FSTDocumentKey.h
-    FSTDocumentKey.mm
-    FSTFieldValue.h
-    FSTFieldValue.mm
-    FSTMutation.h
-    FSTMutation.mm
-    FSTMutationBatch.h
-    FSTMutationBatch.mm
-  DEPENDS
-    firebase_firestore_model
-    firebase_firestore_objc_api
-    firebase_firestore_objc_immutable
-    firebase_firestore_util
-)
+if(APPLE)
+  cc_library(
+    firebase_firestore_objc_model
+    SOURCES
+      FSTDocument.h
+      FSTDocument.mm
+      FSTDocumentKey.h
+      FSTDocumentKey.mm
+      FSTFieldValue.h
+      FSTFieldValue.mm
+      FSTMutation.h
+      FSTMutation.mm
+      FSTMutationBatch.h
+      FSTMutationBatch.mm
+    DEPENDS
+      firebase_firestore_model
+      firebase_firestore_objc_api
+      firebase_firestore_objc_immutable
+      firebase_firestore_util
+  )
 
-target_compile_options(
-  firebase_firestore_objc_model PRIVATE
-  -Wno-unused-parameter
-)
+  target_compile_options(
+    firebase_firestore_objc_model PRIVATE
+    -Wno-unused-parameter
+  )
+endif()
