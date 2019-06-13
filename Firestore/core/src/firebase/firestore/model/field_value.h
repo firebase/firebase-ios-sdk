@@ -314,9 +314,8 @@ class FieldValue::Reference {
 
 class FieldValue::ServerTimestamp {
  public:
-  ServerTimestamp(Timestamp local_write_time, FSTFieldValue* previous_value);
-
-  explicit ServerTimestamp(Timestamp local_write_time);
+  explicit ServerTimestamp(Timestamp local_write_time,
+                           FSTFieldValue* previous_value = nil);
 
   const Timestamp& local_write_time() const {
     return local_write_time_;

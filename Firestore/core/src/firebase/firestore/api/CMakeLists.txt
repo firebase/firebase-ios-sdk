@@ -51,5 +51,6 @@ cc_library(
     absl_meta
     firebase_firestore_api_input_validation
     firebase_firestore_core
+    firebase_firestore_model
     firebase_firestore_util
 )

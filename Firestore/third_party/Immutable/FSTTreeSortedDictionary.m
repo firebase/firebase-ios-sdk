@@ -205,7 +205,7 @@ BOOL Base12ListNext(Base12List *list) {
 }
 
 static inline unsigned BitMask(int x) {
-  return (x >= sizeof(unsigned) * CHAR_BIT) ? (unsigned)-1 : (1U << x) - 1;
+  return ((size_t)x >= sizeof(unsigned) * CHAR_BIT) ? (unsigned)-1 : (1U << x) - 1;
 }
 
 /**

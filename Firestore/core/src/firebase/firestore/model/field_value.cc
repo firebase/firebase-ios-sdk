@@ -281,7 +281,7 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   }
 
   std::string ToString() const override {
-    std::string time = server_timestamp_.local_write_time().ToString();
+    std::string time = value().local_write_time().ToString();
     return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
   }
 
@@ -306,10 +306,9 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   }
 
   size_t Hash() const override {
-    size_t result =
-        TimestampInternal::Hash(server_timestamp_.local_write_time());
-    if (server_timestamp_.previous_value()) {
-      result = util::Hash(result, server_timestamp_.previous_value());
+    size_t result = TimestampInternal::Hash(value().local_write_time());
+    if (value().previous_value()) {
+      result = util::Hash(result, value().previous_value());
     }
     return result;
   }

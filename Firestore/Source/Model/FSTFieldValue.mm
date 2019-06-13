@@ -476,6 +476,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 - (id)value {
   switch (self.internalValue.type()) {
     case FieldValue::Type::Null:
+      // NSDictionary disallows storing `nil` values. Use NSNull as an
+      // explicitly existing null value.
       return [NSNull null];
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
@@ -483,11 +485,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
       return @(self.internalValue.double_value());
-    case FieldValue::Type::Timestamp: {
-      auto timestamp = self.internalValue.timestamp_value();
-      return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
-                                       nanoseconds:timestamp.nanoseconds()];
-    }
+    case FieldValue::Type::Timestamp:
+      return MakeFIRTimestamp(self.internalValue.timestamp_value());
     case FieldValue::Type::ServerTimestamp:
       return [NSNull null];
     case FieldValue::Type::String:

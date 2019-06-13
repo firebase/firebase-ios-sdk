@@ -35,10 +35,6 @@ FieldValue::ServerTimestamp::ServerTimestamp(Timestamp local_write_time,
     : local_write_time_(local_write_time), previous_value_(previous_value) {
 }
 
-FieldValue::ServerTimestamp::ServerTimestamp(Timestamp local_write_time)
-    : ServerTimestamp(local_write_time, nil) {
-}
-
 FSTFieldValue* FieldValue::ServerTimestamp::previous_value() const {
   return previous_value_;
 }

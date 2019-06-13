@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable id)nextObject {
-  if (self.pos < 0 || self.pos >= self.keys.count) {
+  if (self.pos < 0 || self.pos >= (int)self.keys.count) {
     return nil;
   }
   if (self.reverse) {
