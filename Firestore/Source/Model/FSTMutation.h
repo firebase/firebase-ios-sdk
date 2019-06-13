@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime;
+                                     localWriteTime:(const firebase::Timestamp &)localWriteTime;
 
 - (const model::DocumentKey &)key;
 

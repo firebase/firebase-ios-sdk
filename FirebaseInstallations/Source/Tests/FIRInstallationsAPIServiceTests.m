@@ -24,7 +24,7 @@
 #import "FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsAPIService (Tests)
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession
+- (instancetype)initWithURLSession:(NSURLSession *)URLSession
                             APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID;
 @end
@@ -63,7 +63,7 @@
   // 1.1. Create mock data task.
 
   // 1.2. URL request validation.
-  id urlRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+  id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
     XCTAssertEqualObjects(
         request.URL.absoluteString,
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
@@ -98,7 +98,7 @@
   OCMExpect([mockDataTask resume]);
 
   // 1.5. Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:urlRequestValidation
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
                                    completionHandler:completionArg])
       .andReturn(mockDataTask);
 

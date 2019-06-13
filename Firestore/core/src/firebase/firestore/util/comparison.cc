@@ -50,20 +50,6 @@ ComparisonResult Comparator<std::string>::Compare(
   return ComparisonResultFromInt(left.compare(right));
 }
 
-ComparisonResult Comparator<std::vector<uint8_t>>::Compare(
-    const std::vector<uint8_t>& left, const std::vector<uint8_t>& right) const {
-  // This is essentially CompareContainer with `memcmp` for the main check
-  size_t min_length = std::min(left.size(), right.size());
-  if (min_length > 0) {
-    int r = memcmp(left.data(), right.data(), min_length);
-    if (r < 0) return ComparisonResult::Ascending;
-    if (r > 0) return ComparisonResult::Descending;
-  }
-  if (left.size() < right.size()) return ComparisonResult::Ascending;
-  if (left.size() > right.size()) return ComparisonResult::Descending;
-  return ComparisonResult::Same;
-}
-
 ComparisonResult Comparator<double>::Compare(double left, double right) const {
   // NaN sorts equal to itself and before any other number.
   if (left < right) {

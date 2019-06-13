@@ -41,6 +41,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -48,6 +49,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::Precondition;
@@ -90,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
                                precondition:Precondition::Exists(true)];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
-  FIRTimestamp *writeTime = [FIRTimestamp timestamp];
+  Timestamp writeTime = Timestamp::Now();
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
                                                         baseMutations:{base}
@@ -124,8 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
   delProto.delete_p = @"projects/p/databases/d/documents/baz/quux";
 
   GPBTimestamp *writeTimeProto = [GPBTimestamp message];
-  writeTimeProto.seconds = writeTime.seconds;
-  writeTimeProto.nanos = writeTime.nanoseconds;
+  writeTimeProto.seconds = writeTime.seconds();
+  writeTimeProto.nanos = writeTime.nanoseconds();
 
   FSTPBWriteBatch *batchProto = [FSTPBWriteBatch message];
   batchProto.batchId = 42;
@@ -136,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects([self.serializer encodedMutationBatch:model], batchProto);
   FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
   XCTAssertEqual(decoded.batchID, model.batchID);
-  XCTAssertEqualObjects(decoded.localWriteTime, model.localWriteTime);
+  XCTAssertEqual(decoded.localWriteTime, model.localWriteTime);
   FSTAssertEqualVectors(decoded.baseMutations, model.baseMutations);
   FSTAssertEqualVectors(decoded.mutations, model.mutations);
   XCTAssertEqual([decoded keys], [model keys]);

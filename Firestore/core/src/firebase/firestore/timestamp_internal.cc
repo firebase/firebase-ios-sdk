@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-@interface FIRInstallationsErrorUtil : NSObject
+namespace util = firebase::firestore::util;
 
-+ (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
-+ (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
+namespace firebase {
 
-+ (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
+size_t TimestampInternal::Hash(const Timestamp& timestamp) {
+  return util::Hash(timestamp.seconds(), timestamp.nanoseconds());
+}
 
-+ (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode;
+Timestamp TimestampInternal::Truncate(const Timestamp& timestamp) {
+  int32_t truncated_nanos = timestamp.nanoseconds() / 1000 * 1000;
+  return Timestamp(timestamp.seconds(), truncated_nanos);
+}
 
-+ (NSError *)JSONSerializationError:(NSError *)error;
-
-+ (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName;
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace firebase
