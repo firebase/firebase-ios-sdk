@@ -151,7 +151,7 @@ def lint_py(files):
           """))
     return
 
-  command = [sys.executable, flake8]
+  command = [flake8]
   command.extend(files)
 
   return _read_output(command)
