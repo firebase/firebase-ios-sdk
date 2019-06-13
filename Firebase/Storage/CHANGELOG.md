@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added `StorageReference.list()` and `StorageReference.listAll()`, which allows developers to list the files and folders under the given StorageReference.
+
 # 3.2.1
 - [fixed] Fixed crash when URL passed to `StorageReference.putFile()` is `nil` (#2852).
 
