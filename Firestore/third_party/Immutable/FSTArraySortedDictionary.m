@@ -194,14 +194,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSEnumerator *)keyEnumeratorFrom:(id)startKey to:(nullable id)endKey {
-  int start = [self findInsertPositionForKey:startKey];
-  int end = (int)self.count;
+  NSUInteger start = [self findInsertPositionForKey:startKey];
+  NSUInteger end = self.count;
   if (endKey) {
     end = [self findInsertPositionForKey:endKey];
   }
   return [[FSTArraySortedDictionaryEnumerator alloc] initWithKeys:self.keys
-                                                         startPos:start
-                                                           endPos:end
+                                                         startPos:(int)start
+                                                           endPos:(int)end
                                                         isReverse:NO];
 }
 
@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
     startPos -= 1;
   }
   return [[FSTArraySortedDictionaryEnumerator alloc] initWithKeys:self.keys
-                                                         startPos:startPos
+                                                         startPos:(int)startPos
                                                            endPos:-1
                                                         isReverse:YES];
 }
