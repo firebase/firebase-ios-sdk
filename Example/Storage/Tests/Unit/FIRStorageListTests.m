@@ -87,8 +87,11 @@
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);  // Implicitly retains self
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
+#pragma clang diagnostic pop
         NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
                                                                       statusCode:200
                                                                      HTTPVersion:kHTTPVersion
@@ -121,8 +124,11 @@
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);  // Implicitly retains self
         XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
+#pragma clang diagnostic pop
         NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
                                                                       statusCode:200
                                                                      HTTPVersion:kHTTPVersion
