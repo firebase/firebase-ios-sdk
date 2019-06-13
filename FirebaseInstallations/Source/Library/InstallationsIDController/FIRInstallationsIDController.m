@@ -22,6 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRSecureStorage.h"
@@ -31,20 +32,29 @@
 @property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
+
+// TODO: Use FIRInstallationsAPIService to register installation.
+//@property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 @end
 
 @implementation FIRInstallationsIDController
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID appName:(NSString *)appName {
+- (instancetype)initWithGoogleAppID:(NSString *)appID
+                            appName:(NSString *)appName
+                             APIKey:(NSString *)APIKey {
   FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
-  return [self initWithGoogleAppID:appID appName:appName installationsStore:installationsStore];
+  return [self initWithGoogleAppID:appID
+                           appName:appName
+                            APIKey:APIKey
+                installationsStore:installationsStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
+                             APIKey:(NSString *)APIKey
                  installationsStore:(FIRInstallationsStore *)installationsStore {
   self = [super init];
   if (self) {
