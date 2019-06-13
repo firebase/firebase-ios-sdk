@@ -161,7 +161,7 @@ def _read_output(command):
   command_trace.log(command)
 
   if _dry_run:
-    return 0
+    return checker.Result(0, '')
 
   proc = subprocess.Popen(
       command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
