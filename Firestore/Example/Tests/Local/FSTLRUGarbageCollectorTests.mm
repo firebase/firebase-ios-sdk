@@ -23,7 +23,6 @@
 #include <utility>
 #include <vector>
 
-#import "FIRTimestamp.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -31,6 +30,8 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
+
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
@@ -43,6 +44,7 @@
 #include "absl/strings/str_cat.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
@@ -449,7 +451,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Insert the mutations. These operations don't have a sequence number, they just
   // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
   _persistence.run("actually register the mutations", [&]() {
-    FIRTimestamp *writeTime = [FIRTimestamp timestamp];
+    Timestamp writeTime = Timestamp::Now();
     _mutationQueue->AddMutationBatch(writeTime, {}, std::move(mutations));
   });
 

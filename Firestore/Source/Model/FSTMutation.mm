@@ -28,6 +28,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -36,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -92,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime {
+                                     localWriteTime:(const Timestamp &)localWriteTime {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -166,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime {
+                                     localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -267,7 +269,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime {
+                                     localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -387,7 +389,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime {
+                                     localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -482,9 +484,9 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTServerTimestampValues).
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
-                                  (nullable FSTMaybeDocument *)baseDocument
-                                                          writeTime:(FIRTimestamp *)localWriteTime {
+- (NSArray<FSTFieldValue *> *)
+    localTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
+                                writeTime:(const Timestamp &)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
     const TransformOperation &transform = fieldTransform.transformation();
@@ -554,7 +556,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(FIRTimestamp *)localWriteTime {
+                                     localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {

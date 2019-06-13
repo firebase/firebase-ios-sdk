@@ -48,7 +48,9 @@ function install_secrets() {
 
 function pod_gen() {
   # Call pod gen with a podspec and additonal optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/ "$@"
+  # Disabled CDN. See https://github.com/firebase/firebase-ios-sdk/issues/3165
+  # bundle exec pod gen --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/ "$@"
+  bundle exec pod gen --local-sources=./ "$@"
 }
 
 case "$PROJECT-$PLATFORM-$METHOD" in

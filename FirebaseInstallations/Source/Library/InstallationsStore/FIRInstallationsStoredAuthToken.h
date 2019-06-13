@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
  * encoded by the previous class versions. Any modification must be evaluated and, if it is really
  * needed, the `storageVersion` must be bumped and proper migration code added.
  */
-@interface FIRInstallationsStoredAuthToken : NSObject
+@interface FIRInstallationsStoredAuthToken : NSObject <NSSecureCoding>
 @property FIRInstallationsAuthTokenStatus status;
 
 @property(nullable, copy) NSString *token;

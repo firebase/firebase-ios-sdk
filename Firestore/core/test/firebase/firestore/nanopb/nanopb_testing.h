@@ -21,6 +21,8 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "google/protobuf/message.h"
@@ -35,21 +37,27 @@ namespace nanopb {
  * in a blob.
  */
 template <typename T>
-nanopb::ByteString ProtobufSerialize(const T& protobuf_message) {
-  std::vector<uint8_t> buffer(protobuf_message.ByteSizeLong());
-  bool ok = protobuf_message.SerializeToArray(buffer.data(),
-                                              static_cast<int>(buffer.size()));
+ByteString ProtobufSerialize(const T& protobuf_message) {
+  ByteStringWriter writer;
+
+  size_t size = protobuf_message.ByteSizeLong();
+  writer.Reserve(size);
+
+  bool ok =
+      protobuf_message.SerializeToArray(writer.pos(), static_cast<int>(size));
 
   // SerializeToArray can only fail if the buffer wasn't large enough.
   HARD_ASSERT(ok);
-  return nanopb::ByteString(buffer);
+
+  writer.SetSize(size);
+  return writer.Release();
 }
 
 /**
  * Decodes the given bytes into a libprotobuf message object.
  */
 template <typename T>
-T ProtobufParse(const nanopb::ByteString& bytes) {
+T ProtobufParse(const ByteString& bytes) {
   T message;
   bool ok =
       message.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));

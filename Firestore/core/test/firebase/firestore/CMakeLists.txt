@@ -18,5 +18,6 @@ cc_test(
     geo_point_test.cc
     timestamp_test.cc
   DEPENDS
+    absl_time
     firebase_firestore_types
 )

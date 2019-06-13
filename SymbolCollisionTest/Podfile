@@ -2,7 +2,8 @@
 # platform :ios, '9.0'
 
 # Comment the following line to use the CocoaPods master repo instead.
-source 'https://cdn.jsdelivr.net/cocoa/'
+# Disabled. See https://github.com/firebase/firebase-ios-sdk/issues/3165
+# source 'https://cdn.jsdelivr.net/cocoa/'
 
 target 'SymbolCollisionTest' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks

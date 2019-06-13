@@ -88,10 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (firestore::GeoPoint)toGeoPoint {
-  return firestore::GeoPoint(self.latitude, self.longitude);
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
