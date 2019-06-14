@@ -144,10 +144,7 @@ class FieldValue {
   static FieldValue FromTimestamp(const Timestamp& value);
   static FieldValue FromServerTimestamp(
       const Timestamp& local_write_time,
-      absl::optional<FieldValue> previous_value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
-                                        const FieldValue& previous_value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
+      absl::optional<FieldValue> previous_value = absl::nullopt);
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
@@ -324,10 +321,6 @@ class FieldValue::ServerTimestamp {
                   absl::optional<FieldValue> previous_value)
       : local_write_time_(local_write_time),
         previous_value_(std::move(previous_value)) {
-  }
-
-  explicit ServerTimestamp(Timestamp local_write_time)
-      : ServerTimestamp(local_write_time, absl::nullopt) {
   }
 
   const Timestamp& local_write_time() const {

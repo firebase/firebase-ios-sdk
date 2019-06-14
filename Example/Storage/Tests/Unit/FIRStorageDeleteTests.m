@@ -19,7 +19,6 @@
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
-@property(strong, nonatomic) FIRStorageMetadata *metadata;
 @property(strong, nonatomic) FIRStorage *storage;
 @property(strong, nonatomic) id mockApp;
 
@@ -29,9 +28,6 @@
 
 - (void)setUp {
   [super setUp];
-
-  NSDictionary *metadataDict = @{@"bucket" : @"bucket", @"name" : @"path/to/object"};
-  self.metadata = [[FIRStorageMetadata alloc] initWithDictionary:metadataDict];
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket.appspot.com");
@@ -59,7 +55,7 @@
 }
 
 - (void)testFetcherConfiguration {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testSuccessfulFetch"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testFetcherConfiguration"];
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {

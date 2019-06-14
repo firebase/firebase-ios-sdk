@@ -98,7 +98,7 @@ class ServerTimestampTransform : public TransformOperation {
   }
 
   model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& /* previous_value */,
+      const absl::optional<model::FieldValue>& previous_value,
       const Timestamp& local_write_time) const override;
 
   model::FieldValue ApplyToRemoteDocument(

@@ -24,6 +24,7 @@ cc_library(
     document_key.h
     document_map.h
     field_mask.h
+    field_mask.cc
     field_path.cc
     field_path.h
     field_transform.h
@@ -44,8 +45,8 @@ cc_library(
     resource_path.h
     snapshot_version.cc
     snapshot_version.h
-    transform_operations.cc
     transform_operations.h
+    transform_operations.mm
     types.h
     unknown_document.cc
     unknown_document.h
@@ -57,6 +58,15 @@ cc_library(
     absl_strings
     firebase_firestore_api_input_validation
     firebase_firestore_immutable
+    firebase_firestore_objc
     firebase_firestore_util
     firebase_firestore_types
 )
+
+if(APPLE)
+  target_link_libraries(
+    firebase_firestore_model
+    PRIVATE
+    firebase_firestore_objc_model
+  )
+endif()

@@ -165,7 +165,10 @@ typedef NS_ENUM(NSInteger, FIRStorageErrorCode) {
   FIRStorageErrorCodeDownloadSizeExceeded = -13032,
 
   /** User cancelled the operation. */
-  FIRStorageErrorCodeCancelled = -13040
+  FIRStorageErrorCodeCancelled = -13040,
+
+  /** An invalid argument was provided. */
+  FIRStorageErrorCodeInvalidArgument = -13050
 } NS_SWIFT_NAME(StorageErrorCode);
 
 NS_ASSUME_NONNULL_END

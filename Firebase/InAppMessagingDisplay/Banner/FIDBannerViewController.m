@@ -194,9 +194,12 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 - (void)messageTapped:(UITapGestureRecognizer *)recognizer {
   [self.autoDismissTimer invalidate];
   [self dismissViewWithAnimation:^(void) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRInAppMessagingAction *action =
         [[FIRInAppMessagingAction alloc] initWithActionText:nil
                                                   actionURL:self.bannerDisplayMessage.actionURL];
+#pragma clang diagnostic pop
     [self followAction:action];
   }];
 }

@@ -31,8 +31,7 @@ namespace model {
 FieldValue ServerTimestampTransform::ApplyToLocalView(
     const absl::optional<FieldValue>& previous_value,
     const Timestamp& local_write_time) const {
-  return FieldValue::FromServerTimestamp(local_write_time,
-                                         std::move(previous_value));
+  return FieldValue::FromServerTimestamp(local_write_time, previous_value);
 }
 
 FieldValue ServerTimestampTransform::ApplyToRemoteDocument(

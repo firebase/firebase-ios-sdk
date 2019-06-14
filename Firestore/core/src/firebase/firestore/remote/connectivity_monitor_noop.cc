@@ -29,7 +29,7 @@ using util::AsyncQueue;
 // build doesn't break on platforms which don't yet implement
 // `ConnectivityMonitor`.
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
-      const std::shared_ptr<AsyncQueue>& worker_queue) {
+    const std::shared_ptr<AsyncQueue>& worker_queue) {
   return absl::make_unique<ConnectivityMonitor>(worker_queue);
 }
 

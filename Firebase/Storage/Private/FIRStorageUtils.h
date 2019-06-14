@@ -60,11 +60,29 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSURLRequest *)defaultRequestForPath:(FIRStoragePath *)path;
 
 /**
+ * Returns a base NSURLRequest with custom query parameters.
+ * @param path The FIRStoragePath to create a request for.
+ * @param queryParams A key/value dictionary with query parameters.
+ * @return Returns a formatted NSURLRequest
+ */
++ (NSURLRequest *)defaultRequestForPath:(FIRStoragePath *)path
+                            queryParams:(NSDictionary<NSString *, NSString *> *)queryParams;
+
+/**
  * Creates the appropriate GCS percent escaped path for a given FIRStoragePath.
  * @param path The FIRStoragePath to encode.
  * @return Returns the GCS encoded URL for a given FIRStoragePath.
  */
 + (NSString *)encodedURLForPath:(FIRStoragePath *)path;
+
+/**
+ * Creates a NSError in the Firebase Storage domain with given code and description.
+ * Useful for argument validation.
+ * @param description The error description to surface to the user.
+ * @param code The error code.
+ * @return An NSError in the Firebase Storage error domain.
+ */
++ (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code;
 
 @end
 
