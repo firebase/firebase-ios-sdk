@@ -178,6 +178,27 @@
   OCMVerifyAll(self.mockIDController);
 }
 
+- (void)testAuthTokenForcingRefreshError {
+  FBLPromise *errorPromise = [FBLPromise pendingPromise];
+  [errorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES]).andReturn(errorPromise);
+
+  XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
+  [self.installations
+   authTokenForcingRefresh:YES
+   completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                             NSError *_Nullable error) {
+     XCTAssertNil(tokenResult);
+     XCTAssertEqualObjects(error, errorPromise.error);
+
+     [tokenExpectation fulfill];
+   }];
+
+  [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
+}
+
 - (void)testDeleteSuccess {
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
   [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
