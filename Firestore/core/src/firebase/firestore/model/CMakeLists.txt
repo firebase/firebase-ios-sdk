@@ -62,11 +62,3 @@ cc_library(
     firebase_firestore_util
     firebase_firestore_types
 )
-
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_model
-    PRIVATE
-    firebase_firestore_objc_model
-  )
-endif()
