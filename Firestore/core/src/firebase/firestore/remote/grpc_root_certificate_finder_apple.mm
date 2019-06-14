@@ -37,16 +37,16 @@ using util::StringFormat;
 
 namespace {
 
-std::string DebugBundleIdentifier(NSBundle* bundle) {
+std::string DebugBundleIdentifier(NSBundle* _Nullable bundle) {
   if (!bundle) return "(nil bundle)";
 
   NSString* identifier = [bundle bundleIdentifier];
   if (!identifier) {
     identifier = [bundle bundlePath];
-    if (!identifier) return "(bundle with no identifier)";
   }
 
-  return util::MakeString(identifier);
+  return identifier ? util::MakeString(identifier)
+                    : "(bundle with no identifier)";
 }
 
 /**
