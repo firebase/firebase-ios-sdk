@@ -481,7 +481,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param baseDocument The document prior to applying this mutation batch.
  * @param localWriteTime The local time of the transform mutation (used to generate
- * FSTServerTimestampValues).
+ *     ServerTimestampValues).
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)

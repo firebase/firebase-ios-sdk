@@ -144,9 +144,7 @@ using firebase::firestore::model::TransformOperation;
   FSTObjectValue *expectedData =
       FSTTestObjectValue(@{@"foo" : @{@"bar" : @"<server-timestamp>"}, @"baz" : @"baz-value"});
   expectedData =
-      [expectedData objectBySettingValue:[FSTServerTimestampValue
-                                             serverTimestampValueWithLocalWriteTime:_timestamp
-                                                                      previousValue:nil]
+      [expectedData objectBySettingValue:FieldValue::FromServerTimestamp(_timestamp).Wrap()
                                  forPath:testutil::Field("foo.bar")];
 
   FSTDocument *expectedDoc = [FSTDocument documentWithData:expectedData

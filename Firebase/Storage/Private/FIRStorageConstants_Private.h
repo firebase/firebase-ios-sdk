@@ -47,6 +47,11 @@ FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusProgressNotification;
 FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusCompleteNotification;
 FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusFailureNotification;
 
+FOUNDATION_EXPORT NSString *const kFIRStorageListPrefixes;
+FOUNDATION_EXPORT NSString *const kFIRStorageListItems;
+FOUNDATION_EXPORT NSString *const kFIRStorageListItemName;
+FOUNDATION_EXPORT NSString *const kFIRStorageListPageToken;
+
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataBucket;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataCacheControl;
 FOUNDATION_EXPORT NSString *const kFIRStorageMetadataContentDisposition;

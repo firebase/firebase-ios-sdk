@@ -60,9 +60,12 @@
 
 - (IBAction)primaryActionButtonTapped:(id)sender {
   if (self.cardDisplayMessage.primaryActionURL) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRInAppMessagingAction *primaryAction = [[FIRInAppMessagingAction alloc]
         initWithActionText:self.cardDisplayMessage.primaryActionButton.buttonText
                  actionURL:self.cardDisplayMessage.primaryActionURL];
+#pragma clang diagnostic pop
     [self followAction:primaryAction];
   } else {
     [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
@@ -71,9 +74,12 @@
 
 - (IBAction)secondaryActionButtonTapped:(id)sender {
   if (self.cardDisplayMessage.secondaryActionURL) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRInAppMessagingAction *secondaryAction = [[FIRInAppMessagingAction alloc]
         initWithActionText:self.cardDisplayMessage.secondaryActionButton.buttonText
                  actionURL:self.cardDisplayMessage.secondaryActionURL];
+#pragma clang diagnostic pop
     [self followAction:secondaryAction];
   } else {
     [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];

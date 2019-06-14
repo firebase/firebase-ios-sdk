@@ -128,151 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTServerTimestampValue
-
-@implementation FSTServerTimestampValue {
-  Timestamp _localWriteTime;
-}
-
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(const Timestamp &)localWriteTime
-                                         previousValue:(nullable FSTFieldValue *)previousValue {
-  return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
-                                                   previousValue:previousValue];
-}
-
-- (id)initWithLocalWriteTime:(const Timestamp &)localWriteTime
-               previousValue:(nullable FSTFieldValue *)previousValue {
-  self = [super init];
-  if (self) {
-    _localWriteTime = localWriteTime;
-    _previousValue = previousValue;
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::ServerTimestamp;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderTimestamp;
-}
-
-- (id)value {
-  return [NSNull null];
-}
-
-- (id)valueWithOptions:(const FieldValueOptions &)options {
-  switch (options.server_timestamp_behavior()) {
-    case ServerTimestampBehavior::kNone:
-      return [NSNull null];
-    case ServerTimestampBehavior::kEstimate:
-      return [FieldValue::FromTimestamp(self.localWriteTime).Wrap() valueWithOptions:options];
-    case ServerTimestampBehavior::kPrevious:
-      return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
-    default:
-      HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
-  }
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::ServerTimestamp &&
-         self.localWriteTime == ((FSTServerTimestampValue *)other).localWriteTime;
-}
-
-- (NSUInteger)hash {
-  return TimestampInternal::Hash(self.localWriteTime);
-}
-
-- (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<ServerTimestamp localTime=%s>", self.localWriteTime.ToString().c_str()];
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::ServerTimestamp) {
-    return WrapCompare(self.localWriteTime, ((FSTServerTimestampValue *)other).localWriteTime);
-  } else if (other.type == FieldValue::Type::Timestamp) {
-    // Server timestamps come after all concrete timestamps.
-    return NSOrderedDescending;
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
-#pragma mark - FSTReferenceValue
-
-@interface FSTReferenceValue ()
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
-@end
-
-@implementation FSTReferenceValue {
-  DatabaseId _databaseID;
-}
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
-  return [[FSTReferenceValue alloc] initWithValue:value databaseID:std::move(databaseID)];
-}
-
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
-  self = [super init];
-  if (self) {
-    _key = value;
-    _databaseID = std::move(databaseID);
-  }
-  return self;
-}
-
-- (id)value {
-  return self.key;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Reference;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderReference;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (!([other isKindOfClass:[FSTFieldValue class]] &&
-        ((FSTFieldValue *)other).type == FieldValue::Type::Reference)) {
-    return NO;
-  }
-
-  FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key.key == otherRef.key.key && self.databaseID == otherRef.databaseID;
-}
-
-- (NSUInteger)hash {
-  NSUInteger result = self.databaseID.Hash();
-  result = 31 * result + [self.key hash];
-  return result;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::Reference) {
-    FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = WrapCompare(self.databaseID.project_id(), ref.databaseID.project_id());
-    if (cmp != NSOrderedSame) {
-      return cmp;
-    }
-    cmp = WrapCompare(self.databaseID.database_id(), ref.databaseID.database_id());
-    return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTObjectValue
 
 /**
@@ -555,6 +410,10 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return _internalValue;
 }
 
+- (const FieldValue::Reference &)referenceValue {
+  return _internalValue.reference_value();
+}
+
 - (id)initWithValue:(FieldValue &&)value {
   self = [super init];
   if (self) {
@@ -617,6 +476,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 - (id)value {
   switch (self.internalValue.type()) {
     case FieldValue::Type::Null:
+      // NSDictionary disallows storing `nil` values. Use NSNull as an
+      // explicitly existing null value.
       return [NSNull null];
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
@@ -624,19 +485,16 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
       return @(self.internalValue.double_value());
-    case FieldValue::Type::Timestamp: {
-      auto timestamp = self.internalValue.timestamp_value();
-      return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
-                                       nanoseconds:timestamp.nanoseconds()];
-    }
+    case FieldValue::Type::Timestamp:
+      return MakeFIRTimestamp(self.internalValue.timestamp_value());
     case FieldValue::Type::ServerTimestamp:
-      HARD_FAIL("TODO(rsgowman): implement");
+      return [NSNull null];
     case FieldValue::Type::String:
       return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
       return MakeNSData(self.internalValue.blob_value());
     case FieldValue::Type::Reference:
-      HARD_FAIL("TODO(rsgowman): implement");
+      return [FSTDocumentKey keyWithDocumentKey:self.referenceValue.key()];
     case FieldValue::Type::GeoPoint:
       return MakeFIRGeoPoint(self.internalValue.geo_point_value());
     case FieldValue::Type::Array:
@@ -655,6 +513,22 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
         return [[self value] dateValue];
       }
 
+    case FieldValue::Type::ServerTimestamp: {
+      const auto &sts = self.internalValue.server_timestamp_value();
+      switch (options.server_timestamp_behavior()) {
+        case ServerTimestampBehavior::kNone:
+          return [NSNull null];
+        case ServerTimestampBehavior::kEstimate:
+          return
+              [FieldValue::FromTimestamp(sts.local_write_time()).Wrap() valueWithOptions:options];
+        case ServerTimestampBehavior::kPrevious:
+          return sts.previous_value() ? [sts.previous_value() valueWithOptions:options]
+                                      : [NSNull null];
+        default:
+          HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
+      }
+    }
+
     default:
       return [self value];
   }
@@ -669,14 +543,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   // FSTDelegateValue handles (eg) booleans to ensure this case never occurs.
 
   if (FieldValue::Comparable(self.type, other.type)) {
-    if ([other isKindOfClass:[FSTServerTimestampValue class]]) {
-      HARD_ASSERT(self.type == FieldValue::Type::Timestamp);
-      // Server timestamps come after all concrete timestamps.
-      return NSOrderedAscending;
-    } else {
-      HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
-      return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
-    }
+    HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
+    return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
   }

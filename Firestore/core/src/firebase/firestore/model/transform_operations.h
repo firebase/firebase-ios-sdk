@@ -97,9 +97,8 @@ class ServerTimestampTransform : public TransformOperation {
   FSTFieldValue* ApplyToLocalView(
       FSTFieldValue* previousValue,
       const Timestamp& local_write_time) const override {
-    return [FSTServerTimestampValue
-        serverTimestampValueWithLocalWriteTime:local_write_time
-                                 previousValue:previousValue];
+    return FieldValue::FromServerTimestamp(local_write_time, previousValue)
+        .Wrap();
   }
 
   FSTFieldValue* ApplyToRemoteDocument(

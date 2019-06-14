@@ -64,11 +64,14 @@
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
                  primaryActionURL:(NSURL *)primaryActionURL {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (self = [super initWithMessageID:messageID
                          campaignName:campaignName
                   renderAsTestMessage:renderAsTestMessage
                           messageType:FIRInAppMessagingDisplayMessageTypeCard
                           triggerType:triggerType]) {
+#pragma clang diagnostic pop
     _title = title;
     _textColor = textColor;
     _portraitImageData = portraitImageData;
