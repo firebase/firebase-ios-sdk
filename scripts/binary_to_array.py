@@ -50,19 +50,22 @@ import os
 
 arg_parser = argparse.ArgumentParser()
 
-arg_parser.add_argument("input", help="Input file containing binary data to embed")
+arg_parser.add_argument("input",
+                        help="Input file containing binary data to embed")
 arg_parser.add_argument("--output_source",
-                    help="Output source file, defining the array data.")
+                        help="Output source file, defining the array data.")
 arg_parser.add_argument("--output_header",
-                    help="Output header file, declaring the array data.")
+                        help="Output header file, declaring the array data.")
 arg_parser.add_argument("--array", help="Identifier for the array.")
 arg_parser.add_argument("--array_size", help="Identifier for the array size.")
 arg_parser.add_argument("--filename", help="Override file name in code.")
-arg_parser.add_argument("--filename_identifier", help="Where to put the filename.")
+arg_parser.add_argument("--filename_identifier",
+                        help="Where to put the filename.")
 arg_parser.add_argument("--header_guard",
-                    help="Header guard to #define in the output header.")
+                        help="Header guard to #define in the output header.")
 arg_parser.add_argument("--cpp_namespace",
-                    help="C++ namespace to use. If blank, will generate a C array.")
+                        help="C++ namespace to use. "
+                             "If blank, will generate a C array.")
 
 # How many hex bytes to display in a line. Each "0x00, " takes 6 characters, so
 # a width of 12 lets us fit within 80 characters.
@@ -277,6 +280,7 @@ def main():
   with open(output_source, "w") as src:
     src.write(source_text)
     logging.debug("Wrote source file %s", output_source)
+
 
 if __name__ == "__main__":
   main()
