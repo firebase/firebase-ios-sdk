@@ -175,8 +175,8 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 #pragma mark - Auth Token
 
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthToken {
-  return [self installationWithValidAuthToken].then(
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
+  return [self installationWithValidAuthTokenForcingRefresh:forceRefresh].then(
       ^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
         FIRInstallationsAuthTokenResult *result = [[FIRInstallationsAuthTokenResult alloc]
              initWithToken:installation.authToken.token
@@ -185,7 +185,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       });
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthToken {
+- (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:(BOOL)forceRefresh {
   return [self getInstallationItem]
       .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installstion) {
         return [self registerInstallationIfNeeded:installstion];
@@ -194,7 +194,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         BOOL isTokenExpiredOrExpiresSoon =
             [registeredInstallstion.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
-        if (isTokenExpiredOrExpiresSoon) {
+        if (forceRefresh || isTokenExpiredOrExpiresSoon) {
           return [self.APIService refreshAuthTokenForInstallation:registeredInstallstion];
         } else {
           return registeredInstallstion;

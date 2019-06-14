@@ -156,4 +156,6 @@
   OCMVerifyAll(self.mockInstallationsStore);
 }
 
+//- (void)testGetAuthToken_WhenValidInstallationExists_Then
+
 @end

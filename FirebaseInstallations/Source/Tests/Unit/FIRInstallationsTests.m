@@ -117,6 +117,9 @@
 }
 
 - (void)testAuthTokenSuccess {
+  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO]).andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
       authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
@@ -130,23 +133,49 @@
       }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
+}
+
+- (void)testAuthTokenError {
+  FBLPromise *errorPromise = [FBLPromise pendingPromise];
+  [errorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO]).andReturn(errorPromise);
+
+  XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
+  [self.installations
+   authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                             NSError *_Nullable error) {
+     XCTAssertNil(tokenResult);
+     XCTAssertEqualObjects(error, errorPromise.error);
+
+     [tokenExpectation fulfill];
+   }];
+
+  [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
 }
 
 - (void)testAuthTokenForcingRefreshSuccess {
+  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES]).andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
       authTokenForcingRefresh:YES
                    completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                 NSError *_Nullable error) {
-                     XCTAssertNotNil(tokenResult);
-                     XCTAssertGreaterThan(tokenResult.authToken.length, 0);
-                     XCTAssertTrue([tokenResult.expirationDate laterDate:[NSDate date]]);
                      XCTAssertNil(error);
-
+                     XCTAssertNotNil(tokenResult);
+                     XCTAssertEqualObjects(tokenResult.authToken, expectedTokenResult.authToken);
+                     XCTAssertEqualObjects(tokenResult.expirationDate, expectedTokenResult.expirationDate);
                      [tokenExpectation fulfill];
                    }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockIDController);
 }
 
 - (void)testDeleteSuccess {
