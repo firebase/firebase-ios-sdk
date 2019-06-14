@@ -117,8 +117,11 @@
 }
 
 - (void)testAuthTokenSuccess {
-  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
-  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO]).andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc]
+       initWithToken:@"token"
+      expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO])
+      .andReturn([FBLPromise resolvedWith:expectedTokenResult]);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
@@ -144,13 +147,13 @@
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
-   authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                             NSError *_Nullable error) {
-     XCTAssertNil(tokenResult);
-     XCTAssertEqualObjects(error, errorPromise.error);
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        XCTAssertNil(tokenResult);
+        XCTAssertEqualObjects(error, errorPromise.error);
 
-     [tokenExpectation fulfill];
-   }];
+        [tokenExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
 
@@ -158,8 +161,11 @@
 }
 
 - (void)testAuthTokenForcingRefreshSuccess {
-  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"token" expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
-  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES]).andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc]
+       initWithToken:@"token"
+      expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES])
+      .andReturn([FBLPromise resolvedWith:expectedTokenResult]);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
@@ -169,7 +175,8 @@
                      XCTAssertNil(error);
                      XCTAssertNotNil(tokenResult);
                      XCTAssertEqualObjects(tokenResult.authToken, expectedTokenResult.authToken);
-                     XCTAssertEqualObjects(tokenResult.expirationDate, expectedTokenResult.expirationDate);
+                     XCTAssertEqualObjects(tokenResult.expirationDate,
+                                           expectedTokenResult.expirationDate);
                      [tokenExpectation fulfill];
                    }];
 
@@ -185,14 +192,14 @@
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
-   authTokenForcingRefresh:YES
-   completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                             NSError *_Nullable error) {
-     XCTAssertNil(tokenResult);
-     XCTAssertEqualObjects(error, errorPromise.error);
+      authTokenForcingRefresh:YES
+                   completion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+                     XCTAssertNil(tokenResult);
+                     XCTAssertEqualObjects(error, errorPromise.error);
 
-     [tokenExpectation fulfill];
-   }];
+                     [tokenExpectation fulfill];
+                   }];
 
   [self waitForExpectations:@[ tokenExpectation ] timeout:0.5];
 

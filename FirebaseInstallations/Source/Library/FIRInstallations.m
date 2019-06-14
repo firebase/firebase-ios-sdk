@@ -131,14 +131,14 @@
 - (void)authTokenForcingRefresh:(BOOL)forceRefresh
                      completion:(FIRInstallationsTokenHandler)completion {
   [self.installationsIDController getAuthTokenForcingRefresh:forceRefresh]
-  .then(^id(FIRInstallationsAuthTokenResult *token) {
-    completion(token, nil);
-    return nil;
-  })
-  .catch(^void(NSError *error) {
-    // TODO: Make sure the error is in the public domain and wrap if needed.
-    completion(nil, error);
-  });
+      .then(^id(FIRInstallationsAuthTokenResult *token) {
+        completion(token, nil);
+        return nil;
+      })
+      .catch(^void(NSError *error) {
+        // TODO: Make sure the error is in the public domain and wrap if needed.
+        completion(nil, error);
+      });
 }
 
 - (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {

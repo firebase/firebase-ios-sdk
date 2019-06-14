@@ -49,7 +49,7 @@
 
   FIRInstallationsStoredAuthToken *authToken = [[FIRInstallationsStoredAuthToken alloc] init];
   authToken.token = @"auth-token";
-  authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+  authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:2 * 60 * 60];
   item.authToken = authToken;
 
   return item;

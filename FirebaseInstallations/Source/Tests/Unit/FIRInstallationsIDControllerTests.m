@@ -21,9 +21,11 @@
 #import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallationsAPIService.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStore.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
@@ -156,6 +158,99 @@
   OCMVerifyAll(self.mockInstallationsStore);
 }
 
-//- (void)testGetAuthToken_WhenValidInstallationExists_Then
+- (void)testGetAuthToken_WhenValidInstallationExists_ThenItIsReturned {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
+      [self.controller getAuthTokenForcingRefresh:NO];
+
+  // 3. Wait for the promise to resolve.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 4. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertEqualObjects(promise.value.authToken, storedInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.expirationDate, storedInstallation.authToken.expirationDate);
+}
+
+- (void)testGetAuthToken_WhenValidInstallationWithExpiredTokenExists_ThenTokenRequested {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  storedInstallation.authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:60 * 60 - 1];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect API request.
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
+      [self.controller getAuthTokenForcingRefresh:NO];
+
+  // 3. Wait for the promise to resolve.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 4. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertEqualObjects(promise.value.authToken, responseInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.expirationDate,
+                        responseInstallation.authToken.expirationDate);
+}
+
+- (void)testGetAuthTokenForcingRefresh_WhenValidInstallationExists_ThenTokenRequested {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect API request.
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
+      [self.controller getAuthTokenForcingRefresh:YES];
+
+  // 3. Wait for the promise to resolve.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 4. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertEqualObjects(promise.value.authToken, responseInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.expirationDate,
+                        responseInstallation.authToken.expirationDate);
+}
+
+// TODO: Add error tests.
+
+// TODO: Tests on "Guarantee a single request at the time".
 
 @end

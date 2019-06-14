@@ -174,7 +174,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 #pragma mark - Auth Token
-
+// TODO: Guarantee a single request at the time.
 - (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
   return [self installationWithValidAuthTokenForcingRefresh:forceRefresh].then(
       ^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
@@ -185,7 +185,8 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       });
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:(BOOL)forceRefresh {
+- (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:
+    (BOOL)forceRefresh {
   return [self getInstallationItem]
       .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installstion) {
         return [self registerInstallationIfNeeded:installstion];
