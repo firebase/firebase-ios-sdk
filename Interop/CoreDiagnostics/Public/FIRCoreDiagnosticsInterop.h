@@ -27,8 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param diagnosticsData The diagnostics data object to send.
  */
-- (void)sendDiagnosticsData:(id<FIRCoreDiagnosticsData>)diagnosticsData;
++ (void)sendDiagnosticsData:(id<FIRCoreDiagnosticsData>)diagnosticsData;
 
 @end
+
+/** The class that implements this interop protocol. Unforunately, the components framework can't
+ * be used because of a cyclical dependency issue.
+ */
+extern Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
 
 NS_ASSUME_NONNULL_END

@@ -32,6 +32,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.dependency 'GoogleUtilities/Logger', '~> 6.0'
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
 
+  # This dependency can be omitted by setting the environment variable DISABLE_FIREBASE_DIAGNOSTICS=1
+  unless ENV['DISABLE_FIREBASE_DIAGNOSTICS'] && ENV['DISABLE_FIREBASE_DIAGNOSTICS'] == '1' then
+    s.dependency 'FirebaseCoreDiagnostics', '~> 0.1'
+  end
+  
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>

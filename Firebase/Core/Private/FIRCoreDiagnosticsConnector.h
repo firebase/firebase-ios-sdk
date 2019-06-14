@@ -24,9 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Connects FIRCore with the CoreDiagnostics library. */
 @interface FIRCoreDiagnosticsConnector : NSObject
 
-/** Logs data related to a -configureCore call utilizing default plist configuration values. */
-+ (void)logConfigureCoreWithDefaultPlist;
-
 /** Logs data related to a -configureCore call.
  *
  * @param options The options object containing data to log.

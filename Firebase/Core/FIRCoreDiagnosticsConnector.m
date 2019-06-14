@@ -19,29 +19,17 @@
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 
 #import "FIRAppInternal.h"
-#import "FIRComponentContainer.h"
 #import "FIRDiagnosticsData.h"
 #import "FIROptions.h"
 #import "FIROptionsInternal.h"
 
+// Define the interop class symbol declared as an extern in FIRCoreDiagnosticsInterop.
+Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
+
 @implementation FIRCoreDiagnosticsConnector
 
-+ (void)logConfigureCoreWithDefaultPlist {
-  id<FIRCoreDiagnosticsInterop> coreDiagnostics =
-      FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
-  if (coreDiagnostics) {
-    FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
-    [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
-    [diagnosticsData insertValue:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
-    [diagnosticsData insertValue:@(FIRConfigTypeCore) forKey:kFIRCDConfigurationTypeKey];
-    [coreDiagnostics sendDiagnosticsData:diagnosticsData];
-  }
-}
-
 + (void)logConfigureCoreWithOptions:(FIROptions *)options {
-  id<FIRCoreDiagnosticsInterop> coreDiagnostics =
-      FIR_COMPONENT(FIRCoreDiagnosticsInterop, [FIRApp defaultApp].container);
-  if (coreDiagnostics) {
+  if (FIRCoreDiagnosticsImplementation) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
     [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
     [diagnosticsData insertValue:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
@@ -51,7 +39,7 @@
     [diagnosticsData insertValue:@(options.usingOptionsFromDefaultPlist)
                           forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
     [diagnosticsData insertValue:options.libraryVersionID forKey:kFIRCDLibraryVersionIDKey];
-    [coreDiagnostics sendDiagnosticsData:diagnosticsData];
+    [FIRCoreDiagnosticsImplementation sendDiagnosticsData:diagnosticsData];
   }
 }
 

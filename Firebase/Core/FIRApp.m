@@ -284,9 +284,6 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
-    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled]) {
-      [FIRCoreDiagnosticsConnector logConfigureCoreWithDefaultPlist];
-    }
     return NO;
   }
 
