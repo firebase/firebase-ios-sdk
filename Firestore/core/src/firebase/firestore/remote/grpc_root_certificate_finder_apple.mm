@@ -37,6 +37,18 @@ using util::StringFormat;
 
 namespace {
 
+std::string DebugBundleIdentifier(NSBundle* bundle) {
+  if (!bundle) return "(nil bundle)";
+
+  NSString* identifier = [bundle bundleIdentifier];
+  if (!identifier) {
+    identifier = [bundle bundlePath];
+    if (!identifier) return "(bundle with no identifier)";
+  }
+
+  return util::MakeString(identifier);
+}
+
 /**
  * Finds the roots.pem certificate file in the given resource bundle and logs
  * the outcome.
@@ -53,10 +65,10 @@ NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
   if (util::LogIsDebugEnabled()) {
     std::string message =
         absl::StrCat("roots.pem ", path ? "found " : "not found ", "in bundle ",
-                     util::MakeString([bundle bundleIdentifier]));
+                     DebugBundleIdentifier(bundle));
     if (parent) {
-      absl::StrAppend(&message, " (in parent ",
-                      util::MakeString([parent bundleIdentifier]), ")");
+      absl::StrAppend(&message, " (in parent ", DebugBundleIdentifier(parent),
+                      ")");
     }
     LOG_DEBUG("%s", message);
   }
