@@ -150,7 +150,6 @@ OBJC_PRINT_TO(FSTDeleteFieldValue);
 OBJC_PRINT_TO(FSTDeleteMutation);
 OBJC_PRINT_TO(FSTDeletedDocument);
 OBJC_PRINT_TO(FSTDocument);
-OBJC_PRINT_TO(FSTDocumentKey);
 OBJC_PRINT_TO(FSTDocumentKeyReference);
 OBJC_PRINT_TO(FSTDocumentSet);
 OBJC_PRINT_TO(FSTEventManager);
