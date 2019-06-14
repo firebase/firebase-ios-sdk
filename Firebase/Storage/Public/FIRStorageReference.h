@@ -19,6 +19,7 @@
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
 #import "FIRStorageDownloadTask.h"
+#import "FIRStorageListResult.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStorageTask.h"
 #import "FIRStorageUploadTask.h"
@@ -218,6 +219,62 @@ NS_SWIFT_NAME(putData(_:metadata:));
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
                              completion:(nullable void (^)(NSURL *_Nullable URL,
                                                            NSError *_Nullable error))completion;
+#pragma mark - List Support
+
+/**
+ * List all items (files) and prefixes (folders) under this StorageReference.
+ *
+ * This is a helper method for calling list() repeatedly until there are no more results.
+ * Consistency of the result is not guaranteed if objects are inserted or removed while this
+ * operation is executing. All results are buffered in memory.
+ *
+ * `listAll(completion:)` is only available for projects using Firebase Rules Version 2.
+ *
+ * @param completion A completion handler that will be invoked with all items and prefixes under
+ * the current StorageReference.
+ */
+- (void)listAllWithCompletion:(void (^)(FIRStorageListResult *result,
+                                        NSError *_Nullable error))completion;
+
+/**
+ * List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
+ *
+ * "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+ * paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+ * filtered.
+ *
+ * `list(maxResults:completion:)` is only available for projects using Firebase Rules Version 2.
+ *
+ * @param maxResults The maximum number of results to return in a single page. Must be greater
+ * than 0 and at most 1000.
+ * @param completion A completion handler that will be invoked with up to maxResults items and
+ * prefixes under the current StorageReference.
+ */
+- (void)listWithMaxResults:(int64_t)maxResults
+                completion:
+                    (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion;
+
+/**
+ * Resumes a previous call to list(maxResults:completion:)`, starting after a pagination token.
+ * Returns the next set of items (files) and prefixes (folders) under this StorageReference.
+ *
+ * "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+ * paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+ * filtered.
+ *
+ * `list(maxResults:pageToken:completion:)`is only available for projects using Firebase Rules
+ * Version 2.
+ *
+ * @param maxResults The maximum number of results to return in a single page. Must be greater
+ * than 0 and at most 1000.
+ * @param pageToken A page token from a previous call to list.
+ * @param completion A completion handler that will be invoked with the next items and prefixes
+ * under the current StorageReference.
+ */
+- (void)listWithMaxResults:(int64_t)maxResults
+                 pageToken:(NSString *)pageToken
+                completion:
+                    (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion;
 
 #pragma mark - Metadata Operations
 

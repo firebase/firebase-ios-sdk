@@ -86,6 +86,25 @@ NSString *const kGCSObjectAllowedCharacterSet =
   return request;
 }
 
++ (NSURLRequest *)defaultRequestForPath:(FIRStoragePath *)path
+                            queryParams:(NSDictionary<NSString *, NSString *> *)queryParams {
+  NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  [components setScheme:kFIRStorageScheme];
+  [components setHost:kFIRStorageHost];
+
+  NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
+  for (NSString *key in queryParams) {
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:queryParams[key]]];
+  }
+  [components setQueryItems:queryItems];
+
+  NSString *encodedPath = [self encodedURLForPath:path];
+  [components setPercentEncodedPath:encodedPath];
+  [request setURL:components.URL];
+  return request;
+}
+
 + (NSString *)encodedURLForPath:(FIRStoragePath *)path {
   NSString *bucketName = [FIRStorageUtils GCSEscapedString:path.bucket];
   NSString *objectName = [FIRStorageUtils GCSEscapedString:path.object];
@@ -98,6 +117,12 @@ NSString *const kGCSObjectAllowedCharacterSet =
     urlPath = [urlPath stringByAppendingString:@"/o"];
   }
   return [@"/" stringByAppendingString:[kFIRStorageVersionPath stringByAppendingString:urlPath]];
+}
+
++ (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code {
+  return [NSError errorWithDomain:FIRStorageErrorDomain
+                             code:code
+                         userInfo:@{NSLocalizedDescriptionKey : description}];
 }
 
 @end
