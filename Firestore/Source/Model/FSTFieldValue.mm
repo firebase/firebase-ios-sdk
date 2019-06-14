@@ -128,76 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTReferenceValue
-
-@interface FSTReferenceValue ()
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
-@end
-
-@implementation FSTReferenceValue {
-  DatabaseId _databaseID;
-}
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
-  return [[FSTReferenceValue alloc] initWithValue:value databaseID:std::move(databaseID)];
-}
-
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
-  self = [super init];
-  if (self) {
-    _key = value;
-    _databaseID = std::move(databaseID);
-  }
-  return self;
-}
-
-- (id)value {
-  return self.key;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Reference;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderReference;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (!([other isKindOfClass:[FSTFieldValue class]] &&
-        ((FSTFieldValue *)other).type == FieldValue::Type::Reference)) {
-    return NO;
-  }
-
-  FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key.key == otherRef.key.key && self.databaseID == otherRef.databaseID;
-}
-
-- (NSUInteger)hash {
-  NSUInteger result = self.databaseID.Hash();
-  result = 31 * result + [self.key hash];
-  return result;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::Reference) {
-    FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = WrapCompare(self.databaseID.project_id(), ref.databaseID.project_id());
-    if (cmp != NSOrderedSame) {
-      return cmp;
-    }
-    cmp = WrapCompare(self.databaseID.database_id(), ref.databaseID.database_id());
-    return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTObjectValue
 
 /**
@@ -480,6 +410,10 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return _internalValue;
 }
 
+- (const FieldValue::Reference &)referenceValue {
+  return _internalValue.reference_value();
+}
+
 - (id)initWithValue:(FieldValue &&)value {
   self = [super init];
   if (self) {
@@ -560,7 +494,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::Blob:
       return MakeNSData(self.internalValue.blob_value());
     case FieldValue::Type::Reference:
-      HARD_FAIL("TODO(rsgowman): implement");
+      return [FSTDocumentKey keyWithDocumentKey:self.referenceValue.key()];
     case FieldValue::Type::GeoPoint:
       return MakeFIRGeoPoint(self.internalValue.geo_point_value());
     case FieldValue::Type::Array:

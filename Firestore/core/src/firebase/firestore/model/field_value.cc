@@ -42,6 +42,7 @@ namespace model {
 namespace {
 
 using BaseValue = FieldValue::BaseValue;
+using Reference = FieldValue::Reference;
 using ServerTimestamp = FieldValue::ServerTimestamp;
 using Type = FieldValue::Type;
 
@@ -332,8 +333,8 @@ class BlobValue : public SimpleFieldValue<Type::Blob, ByteString> {
 
 class ReferenceValue : public FieldValue::BaseValue {
  public:
-  ReferenceValue(DatabaseId database_id, DocumentKey key)
-      : database_id_(std::move(database_id)), key_(std::move(key)) {
+  explicit ReferenceValue(Reference reference)
+      : reference_(std::move(reference)) {
   }
 
   Type type() const override {
@@ -344,7 +345,8 @@ class ReferenceValue : public FieldValue::BaseValue {
     if (type() != other.type()) return false;
 
     auto& other_value = Cast<ReferenceValue>(other);
-    return database_id_ == other_value.database_id_ && key_ == other_value.key_;
+    return database_id() == other_value.database_id() &&
+           key() == other_value.key();
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -352,23 +354,34 @@ class ReferenceValue : public FieldValue::BaseValue {
     if (!util::Same(cmp)) return cmp;
 
     auto& other_value = Cast<ReferenceValue>(other);
-    cmp = Compare(database_id_, other_value.database_id_);
+    cmp = Compare(database_id(), other_value.database_id());
     if (!util::Same(cmp)) return cmp;
 
-    return Compare(key_, other_value.key_);
+    return Compare(key(), other_value.key());
   }
 
   std::string ToString() const override {
-    return absl::StrCat("Reference(key=", key_.ToString(), ")");
+    return absl::StrCat("Reference(key=", key().ToString(), ")");
   }
 
   size_t Hash() const override {
-    return util::Hash(database_id_, key_);
+    return util::Hash(database_id(), key());
+  }
+
+  const Reference& value() const {
+    return reference_;
+  }
+
+  const DatabaseId& database_id() const {
+    return reference_.database_id();
+  }
+
+  const DocumentKey& key() const {
+    return reference_.key();
   }
 
  private:
-  DatabaseId database_id_;
-  DocumentKey key_;
+  Reference reference_;
 };
 
 class GeoPointValue : public BaseValue {
@@ -548,6 +561,11 @@ const ByteString& FieldValue::blob_value() const {
   return Cast<BlobValue>(*rep_).value();
 }
 
+const Reference& FieldValue::reference_value() const {
+  HARD_ASSERT(type() == Type::Reference);
+  return Cast<ReferenceValue>(*rep_).value();
+}
+
 const GeoPoint& FieldValue::geo_point_value() const {
   HARD_ASSERT(type() == Type::GeoPoint);
   return Cast<GeoPointValue>(*rep_).value();
@@ -712,8 +730,8 @@ FieldValue FieldValue::FromBlob(ByteString blob) {
 }
 
 FieldValue FieldValue::FromReference(DatabaseId database_id, DocumentKey key) {
-  return FieldValue(
-      std::make_shared<ReferenceValue>(std::move(database_id), std::move(key)));
+  return FieldValue(std::make_shared<ReferenceValue>(
+      Reference(std::move(database_id), std::move(key))));
 }
 
 FieldValue FieldValue::FromGeoPoint(const GeoPoint& value) {

@@ -222,9 +222,8 @@ NS_ASSUME_NONNULL_BEGIN
     case FieldValue::Type::Blob:
       return [self encodedBlobValue:[fieldValue value]];
     case FieldValue::Type::Reference: {
-      FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-      DocumentKey key = [[ref value] key];
-      return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
+      const auto &ref = ((FSTDelegateValue *)fieldValue).referenceValue;
+      return [self encodedReferenceValueForDatabaseID:ref.database_id() key:ref.key()];
     }
     case FieldValue::Type::GeoPoint:
       return [self encodedGeoPointValue:[fieldValue value]];
@@ -345,7 +344,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FSTReferenceValue *)decodedReferenceValue:(NSString *)resourceName {
+- (FSTFieldValue *)decodedReferenceValue:(NSString *)resourceName {
   const ResourcePath path = [self decodedResourcePathWithDatabaseID:resourceName];
   const std::string &project = path[1];
   const std::string &database = path[3];
@@ -355,8 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot encode reference from %s:%s",
               _databaseID.project_id(), _databaseID.database_id(), database_id.project_id(),
               database_id.database_id());
-  return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                databaseID:_databaseID];
+  return FieldValue::FromReference(_databaseID, key).Wrap();
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {
