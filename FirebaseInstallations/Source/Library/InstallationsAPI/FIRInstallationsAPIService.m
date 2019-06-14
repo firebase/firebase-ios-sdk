@@ -73,9 +73,15 @@ NS_ASSUME_NONNULL_END
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
   NSURLRequest *request = [self authTokenRequestWithInstallation:installation];
-  return [self sendURLRequest:request].then(^id _Nullable(NSArray *_Nullable value) {
-    return [self authTokenWithServerResponse:value.lastObject responseData:value.firstObject];
-  });
+  return [self sendURLRequest:request]
+      .then(^FBLPromise<FIRInstallationsStoredAuthToken *> *(NSArray *_Nullable value) {
+        return [self authTokenWithServerResponse:value.lastObject responseData:value.firstObject];
+      })
+      .then(^FIRInstallationsItem *(FIRInstallationsStoredAuthToken *authToken) {
+        FIRInstallationsItem *updatedInstallation = [installation copy];
+        updatedInstallation.authToken = authToken;
+        return updatedInstallation;
+      });
 }
 
 #pragma mark - Register Installation

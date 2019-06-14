@@ -18,10 +18,13 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsItem.h"
+#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsStoredAuthToken.h"
+
+typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 @interface FIRInstallationsAPIService (Tests)
 - (instancetype)initWithURLSession:(NSURLSession *)URLSession
@@ -60,9 +63,8 @@
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
 
   // 1. Stub URL session:
-  // 1.1. Create mock data task.
 
-  // 1.2. URL request validation.
+  // 1.1. URL request validation.
   id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
     XCTAssertEqualObjects(
         request.URL.absoluteString,
@@ -86,18 +88,18 @@
     return YES;
   }];
 
-  // 1.3. Capture completion to call it later.
+  // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
   id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
     taskCompletion = obj;
     return YES;
   }];
 
-  // 1.4. Create a data task mock.
+  // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
   OCMExpect([mockDataTask resume]);
 
-  // 1.5. Expect `dataTaskWithRequest` to be called.
+  // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
                                    completionHandler:completionArg])
       .andReturn(mockDataTask);
@@ -128,12 +130,119 @@
   XCTAssertEqualObjects(promise.value.firebaseInstallationID, installation.firebaseInstallationID);
   XCTAssertEqualObjects(promise.value.refreshToken, @"aaaaaaabbbbbbbbcccccccccdddddddd00000000");
   XCTAssertEqualObjects(promise.value.authToken.token,
-                        @"asdfaefasdfHGJH.SKJDUWIEFlkjvjkd.mznbcviuesbfiuwedbsb");
+                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
   [self assertDate:promise.value.authToken.expirationDate
       isApproximatelyEqualCurrentPlusTimeInterval:604800];
 }
 
 // TODO: More tests for Register Installation API
+
+- (void)testRefreshAuthTokenSuccess {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 1.5. Prepare server response data.
+  NSData *successResponseData = [self loadFixtureNamed:@"APIGenerateTokenResponseSuccess.json"];
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise =
+      [self.service refreshAuthTokenForInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
+
+  // 6. Check result.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertNotEqual(promise.value, installation);
+  XCTAssertEqualObjects(promise.value.appID, installation.appID);
+  XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
+  XCTAssertEqualObjects(promise.value.firebaseInstallationID, installation.firebaseInstallationID);
+  XCTAssertEqualObjects(promise.value.refreshToken, installation.refreshToken);
+  XCTAssertEqualObjects(promise.value.authToken.token,
+                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
+  [self assertDate:promise.value.authToken.expirationDate
+      isApproximatelyEqualCurrentPlusTimeInterval:3987465];
+}
+
+- (void)testRefreshAuthTokenAPIError {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 1.5. Prepare server response data.
+  NSData *errorResponseData =
+      [self loadFixtureNamed:@"APIGenerateTokenResponseInvalidRefreshToken.json"];
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise =
+      [self.service refreshAuthTokenForInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  taskCompletion(errorResponseData, [self responseWithStatusCode:401], nil);
+
+  // 6. Check result.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:401]);
+  XCTAssertNil(promise.value);
+}
 
 #pragma mark - Helpers
 
@@ -144,7 +253,7 @@
 
   NSError *error;
   NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&error];
-  XCTAssertNotNil(data, @"Error: %@", error);
+  XCTAssertNotNil(data, @"File name: %@ Error: %@", fileName, error);
 
   return data;
 }
@@ -165,6 +274,29 @@
   XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
             @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
             precision, self.name);
+}
+
+- (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation {
+  return [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.URL.absoluteString,
+                          @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/"
+                          @"installations/qwertyuiopasdfghjklzxcvbnm/authTokens:generate");
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json",
+                          @"%@", self.name);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-api-key"], self.APIKey, @"%@",
+                          self.name);
+
+    NSError *error;
+    NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
+                                                         options:0
+                                                           error:&error];
+    XCTAssertNotNil(body, @"Error: %@, test: %@", error, self.name);
+
+    // TODO: Find out what the version should we pass and test.
+    XCTAssertEqualObjects(body, @{@"installation" : @{@"sdkVersion" : @"a1.0"}}, @"%@", self.name);
+
+    return YES;
+  }];
 }
 
 @end

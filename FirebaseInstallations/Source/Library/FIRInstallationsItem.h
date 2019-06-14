@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * relevant data and does not contain any logic. `FIRInstallationsItem` must be used on the logic
  * level (not `FIRInstallationsStoredItem`).
  */
-@interface FIRInstallationsItem : NSObject
+@interface FIRInstallationsItem : NSObject <NSCopying>
 
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *firebaseAppName;

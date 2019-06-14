@@ -15,6 +15,8 @@
  */
 
 #import "FIRInstallationsItem.h"
+
+#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsStoredItem.h"
 
 @implementation FIRInstallationsItem
@@ -26,6 +28,17 @@
     _firebaseAppName = [firebaseAppName copy];
   }
   return self;
+}
+
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+  FIRInstallationsItem *clone = [[FIRInstallationsItem alloc] initWithAppID:self.appID
+                                                            firebaseAppName:self.firebaseAppName];
+  clone.firebaseInstallationID = [self.firebaseInstallationID copy];
+  clone.refreshToken = [self.refreshToken copy];
+  clone.authToken = [self.authToken copy];
+  clone.registrationStatus = self.registrationStatus;
+
+  return clone;
 }
 
 - (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item {

@@ -25,6 +25,15 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
 
 @implementation FIRInstallationsStoredAuthToken
 
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+  FIRInstallationsStoredAuthToken *clone = [[FIRInstallationsStoredAuthToken alloc] init];
+  clone.status = self.status;
+  clone.token = [self.token copy];
+  clone.expirationDate = self.expirationDate;
+  clone.storageVersion = self.storageVersion;
+  return clone;
+}
+
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
   [aCoder encodeInteger:self.status forKey:kFIRInstallationsStoredAuthTokenStatusKey];
   [aCoder encodeObject:self.token forKey:kFIRInstallationsStoredAuthTokenTokenKey];

@@ -30,8 +30,8 @@
 }
 
 + (FIRInstallationsItem *)createRegisteredInstallationItem {
-  FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
-                                                           firebaseAppName:@"appName"];
+  FIRInstallationsItem *item = [self createRegisteredInstallationItemWithAppID:@"appID"
+                                                                       appName:@"appName"];
   item.firebaseInstallationID = @"firebaseInstallationID";
   item.refreshToken = @"refreshToken";
   item.registrationStatus = FIRInstallationStatusRegistered;
