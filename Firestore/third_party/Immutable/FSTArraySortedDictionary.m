@@ -58,8 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Returns the index of the first position where array[position] >= key.  */
-- (int)findInsertPositionForKey:(id)key {
-  int newPos = 0;
+- (NSUInteger)findInsertPositionForKey:(id)key {
+  NSUInteger newPos = 0;
   while (newPos < self.keys.count && self.comparator(self.keys[newPos], key) < NSOrderedSame) {
     newPos++;
   }
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (key == nil) {
     return NSNotFound;
   }
-  for (NSInteger pos = 0; pos < self.keys.count; pos++) {
+  for (NSUInteger pos = 0; pos < self.keys.count; pos++) {
     NSComparisonResult result = self.comparator(key, self.keys[pos]);
     if (result == NSOrderedSame) {
       return pos;
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
      */
     if (self.count >= kSortedDictionaryArrayToRBTreeSizeThreshold) {
       NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:self.count];
-      for (NSInteger i = 0; i < self.keys.count; i++) {
+      for (NSUInteger i = 0; i < self.keys.count; i++) {
         dict[self.keys[i]] = self.values[i];
       }
       dict[key] = value;
@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   } else {
     BOOL stop = NO;
-    for (NSInteger i = 0; i < self.keys.count; i++) {
+    for (NSUInteger i = 0; i < self.keys.count; i++) {
       block(self.keys[i], self.values[i], &stop);
       if (stop) return;
     }
@@ -194,14 +194,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSEnumerator *)keyEnumeratorFrom:(id)startKey to:(nullable id)endKey {
-  int start = [self findInsertPositionForKey:startKey];
-  int end = (int)self.count;
+  NSUInteger start = [self findInsertPositionForKey:startKey];
+  NSUInteger end = self.count;
   if (endKey) {
     end = [self findInsertPositionForKey:endKey];
   }
   return [[FSTArraySortedDictionaryEnumerator alloc] initWithKeys:self.keys
-                                                         startPos:start
-                                                           endPos:end
+                                                         startPos:(int)start
+                                                           endPos:(int)end
                                                         isReverse:NO];
 }
 
@@ -210,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSEnumerator *)reverseKeyEnumeratorFrom:(id)startKey {
-  int startPos = [self findInsertPositionForKey:startKey];
+  NSUInteger startPos = [self findInsertPositionForKey:startKey];
   // if there's no exact match, findKeyOrInsertPosition will return the index *after* the closest
   // match, but since this is a reverse iterator, we want to start just *before* the closest match.
   if (startPos >= self.keys.count ||
@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
     startPos -= 1;
   }
   return [[FSTArraySortedDictionaryEnumerator alloc] initWithKeys:self.keys
-                                                         startPos:startPos
+                                                         startPos:(int)startPos
                                                            endPos:-1
                                                         isReverse:YES];
 }

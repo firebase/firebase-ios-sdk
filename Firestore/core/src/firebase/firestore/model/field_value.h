@@ -32,13 +32,12 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 
-#if __OBJC__
-@class FSTFieldValue;
-#endif  // __OBJC__
+OBJC_CLASS(FSTFieldValue);
 
 namespace firebase {
 namespace firestore {
@@ -53,6 +52,7 @@ class ObjectValue;
  */
 class FieldValue {
  public:
+  class ServerTimestamp;
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
 
@@ -84,9 +84,8 @@ class FieldValue {
 
   FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
-#if __OBJC__
+  FSTFieldValue* Wrap() const&;
   FSTFieldValue* Wrap() &&;
-#endif  // __OBJC__
 
   /** Returns the true type for this value. */
   Type type() const {
@@ -118,6 +117,8 @@ class FieldValue {
 
   Timestamp timestamp_value() const;
 
+  const ServerTimestamp& server_timestamp_value() const;
+
   const std::string& string_value() const;
 
   const nanopb::ByteString& blob_value() const;
@@ -144,7 +145,7 @@ class FieldValue {
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
-                                        const FieldValue& previous_value);
+                                        FSTFieldValue* previous_value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
@@ -287,6 +288,22 @@ class ObjectValue : public util::Comparable<ObjectValue> {
                        const FieldValue& value) const;
 
   FieldValue fv_;
+};
+
+class FieldValue::ServerTimestamp {
+ public:
+  explicit ServerTimestamp(Timestamp local_write_time,
+                           FSTFieldValue* previous_value = nil);
+
+  const Timestamp& local_write_time() const {
+    return local_write_time_;
+  }
+
+  FSTFieldValue* previous_value() const;
+
+ private:
+  Timestamp local_write_time_;
+  objc::Handle<FSTFieldValue> previous_value_;
 };
 
 // Pretend you can automatically upcast from ObjectValue to FieldValue.

@@ -42,6 +42,7 @@ namespace model {
 namespace {
 
 using BaseValue = FieldValue::BaseValue;
+using ServerTimestamp = FieldValue::ServerTimestamp;
 using Type = FieldValue::Type;
 
 using nanopb::ByteString;
@@ -253,16 +254,25 @@ class TimestampValue : public BaseValue {
   Timestamp value_;
 };
 
+/**
+ * Represents a locally-applied Server Timestamp.
+ *
+ * Notes:
+ *   - ServerTimestampValue instances are created as the result of applying an
+ *     FSTTransformMutation (see [FSTTransformMutation applyTo]). They can only
+ *     exist in the local view of a document. Therefore they do not need to be
+ *     parsed or serialized.
+ *   - When evaluated locally (e.g. via DocumentSnapshot data), they by default
+ *     evaluate to null.
+ *   - This behavior can be configured by passing custom FieldValueOptions to
+ *     `valueWithOptions:`.
+ *   - They sort after all Timestamp values. With respect to other
+ *     ServerTimestampValues, they sort by their local_write_time.
+ */
 class ServerTimestampValue : public FieldValue::BaseValue {
  public:
-  ServerTimestampValue(Timestamp local_write_time,
-                       absl::optional<FieldValue> previous_value)
-      : local_write_time_(local_write_time),
-        previous_value_(std::move(previous_value)) {
-  }
-
-  explicit ServerTimestampValue(Timestamp local_write_time)
-      : ServerTimestampValue(local_write_time, absl::nullopt) {
+  explicit ServerTimestampValue(ServerTimestamp server_timestamp)
+      : server_timestamp_(server_timestamp) {
   }
 
   Type type() const override {
@@ -270,7 +280,7 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   }
 
   std::string ToString() const override {
-    std::string time = local_write_time_.ToString();
+    std::string time = value().local_write_time().ToString();
     return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
   }
 
@@ -278,7 +288,7 @@ class ServerTimestampValue : public FieldValue::BaseValue {
     if (type() != other.type()) return false;
 
     auto& other_value = Cast<ServerTimestampValue>(other);
-    return local_write_time_ == other_value.local_write_time_;
+    return value().local_write_time() == other_value.value().local_write_time();
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -286,24 +296,28 @@ class ServerTimestampValue : public FieldValue::BaseValue {
     if (!util::Same(cmp)) return cmp;
 
     if (other.type() == Type::ServerTimestamp) {
-      return Compare(local_write_time_,
-                     Cast<ServerTimestampValue>(other).local_write_time_);
+      return Compare(
+          value().local_write_time(),
+          Cast<ServerTimestampValue>(other).value().local_write_time());
     } else {
       return ComparisonResult::Descending;
     }
   }
 
   size_t Hash() const override {
-    size_t result = TimestampInternal::Hash(local_write_time_);
-    if (previous_value_) {
-      result = util::Hash(result, *previous_value_);
+    size_t result = TimestampInternal::Hash(value().local_write_time());
+    if (value().previous_value()) {
+      result = util::Hash(result, value().previous_value());
     }
     return result;
   }
 
+  const ServerTimestamp& value() const {
+    return server_timestamp_;
+  }
+
  private:
-  Timestamp local_write_time_;
-  absl::optional<FieldValue> previous_value_;
+  ServerTimestamp server_timestamp_;
 };
 
 class StringValue : public SimpleFieldValue<Type::String, std::string> {
@@ -519,6 +533,11 @@ Timestamp FieldValue::timestamp_value() const {
   return Cast<TimestampValue>(*rep_).value();
 }
 
+const ServerTimestamp& FieldValue::server_timestamp_value() const {
+  HARD_ASSERT(type() == Type::ServerTimestamp);
+  return Cast<ServerTimestampValue>(*rep_).value();
+}
+
 const std::string& FieldValue::string_value() const {
   HARD_ASSERT(type() == Type::String);
   return Cast<StringValue>(*rep_).value();
@@ -666,13 +685,14 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
-                                           const FieldValue& previous_value) {
-  return FieldValue(
-      std::make_shared<ServerTimestampValue>(local_write_time, previous_value));
+                                           FSTFieldValue* previous_value) {
+  return FieldValue(std::make_shared<ServerTimestampValue>(
+      ServerTimestamp(local_write_time, previous_value)));
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
-  return FieldValue(std::make_shared<ServerTimestampValue>(local_write_time));
+  return FieldValue(std::make_shared<ServerTimestampValue>(
+      ServerTimestamp(local_write_time)));
 }
 
 FieldValue FieldValue::FromString(const char* value) {

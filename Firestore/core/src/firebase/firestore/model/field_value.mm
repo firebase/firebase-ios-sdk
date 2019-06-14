@@ -22,8 +22,21 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+FSTFieldValue* FieldValue::Wrap() const& {
+  return [FSTDelegateValue delegateWithValue:FieldValue(*this)];
+}
+
 FSTFieldValue* FieldValue::Wrap() && {
   return [FSTDelegateValue delegateWithValue:std::move(*this)];
+}
+
+FieldValue::ServerTimestamp::ServerTimestamp(Timestamp local_write_time,
+                                             FSTFieldValue* previous_value)
+    : local_write_time_(local_write_time), previous_value_(previous_value) {
+}
+
+FSTFieldValue* FieldValue::ServerTimestamp::previous_value() const {
+  return previous_value_;
 }
 
 }  // namespace model

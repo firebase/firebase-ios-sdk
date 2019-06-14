@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * inserting and lookups. Feel free to empirically determine this constant, but don't expect much
  * gain in real world performance.
  */
-extern const int kSortedDictionaryArrayToRBTreeSizeThreshold;
+extern const NSUInteger kSortedDictionaryArrayToRBTreeSizeThreshold;
 
 /**
  * FSTImmutableSortedDictionary is a dictionary. It is immutable, but has methods to create new

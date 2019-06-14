@@ -104,27 +104,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * Represents a locally-applied Server Timestamp.
- *
- * Notes:
- * - FSTServerTimestampValue instances are created as the result of applying an FSTTransformMutation
- *   (see [FSTTransformMutation applyTo]). They can only exist in the local view of a document.
- *   Therefore they do not need to be parsed or serialized.
- * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they by default evaluate to NSNull.
- *   This behavior can be configured by passing custom FieldValueOptions to `valueWithOptions:`.
- * - They sort after all Timestamp values. With respect to other FSTServerTimestampValues, they
- *   sort by their localWriteTime.
- */
-@interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(const firebase::Timestamp &)localWriteTime
-                                         previousValue:(nullable FSTFieldValue *)previousValue;
-
-@property(nonatomic, assign, readonly) const firebase::Timestamp &localWriteTime;
-@property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
-
-@end
-
-/**
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>

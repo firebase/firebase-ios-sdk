@@ -422,7 +422,7 @@ TEST(FieldValue, TimestampType) {
   EXPECT_FALSE(a < a);
   const FieldValue c = FieldValue::FromServerTimestamp({100, 0});
   const FieldValue d = FieldValue::FromServerTimestamp(
-      {200, 0}, FieldValue::FromTimestamp({300, 0}));
+      {200, 0}, FieldValue::FromTimestamp({300, 0}).Wrap());
   EXPECT_EQ(Type::ServerTimestamp, c.type());
   EXPECT_EQ(Type::ServerTimestamp, d.type());
   EXPECT_TRUE(c < d);
@@ -575,17 +575,17 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue server_timestamp_value = FieldValue::FromServerTimestamp(
-      {1, 2}, FieldValue::FromTimestamp({3, 4}));
+      {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap());
   clone = server_timestamp_value;
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FieldValue::FromServerTimestamp(
+                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
             clone);
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FieldValue::FromServerTimestamp(
+                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
             server_timestamp_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
-                                            FieldValue::FromTimestamp({3, 4})),
+  EXPECT_EQ(FieldValue::FromServerTimestamp(
+                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
