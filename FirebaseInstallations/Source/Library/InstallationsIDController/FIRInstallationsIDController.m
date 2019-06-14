@@ -29,7 +29,7 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
 
-NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60; // 1 hour.
+NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
@@ -166,6 +166,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60; // 1 h
         return nil;
       })
       .catch(^(NSError *_Nonnull error) {
+        // TODO: Handle potential errors, retry, etc.
         self.registrationPromise = nil;
       });
 
@@ -186,17 +187,22 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60; // 1 h
 
 - (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthToken {
   return [self getInstallationItem]
-  .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem * installstion) {
-    return [self registerInstallationIfNeeded:installstion];
-  })
-  .then(^id(FIRInstallationsItem *registeredInstallstion) {
-    if ([registeredInstallstion.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] > kFIRInstallationsTokenExpirationThreshold) {
-      return registeredInstallstion;
-    } else {
-      // The auth token expired or expires soon. Need to refersh it.
-      return [self.APIService refreshAuthTokenForInstallation:registeredInstallstion];
-    }
-  });
+      .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installstion) {
+        return [self registerInstallationIfNeeded:installstion];
+      })
+      .then(^id(FIRInstallationsItem *registeredInstallstion) {
+        BOOL isTokenExpiredOrExpiresSoon =
+            [registeredInstallstion.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
+            kFIRInstallationsTokenExpirationThreshold;
+        if (isTokenExpiredOrExpiresSoon) {
+          return [self.APIService refreshAuthTokenForInstallation:registeredInstallstion];
+        } else {
+          return registeredInstallstion;
+        }
+      })
+      .catch(^void(NSError *error){
+          // TODO: Handle the errors.
+      });
 }
 
 @end
