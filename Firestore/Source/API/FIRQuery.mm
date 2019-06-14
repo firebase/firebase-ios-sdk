@@ -467,9 +467,8 @@ FIRQuery *Wrap(Query &&query) {
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
     if (sortOrder.field == FieldPath::KeyFieldPath()) {
-      [components addObject:[FSTReferenceValue
-                                referenceValue:[FSTDocumentKey keyWithDocumentKey:document.key]
-                                    databaseID:self.firestore.databaseID]];
+      [components
+          addObject:FieldValue::FromReference(self.firestore.databaseID, document.key).Wrap()];
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
 
@@ -524,8 +523,7 @@ FIRQuery *Wrap(Query &&query) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                          databaseID:self.firestore.databaseID];
+      fieldValue = FieldValue::FromReference(self.firestore.databaseID, key).Wrap();
     }
 
     [components addObject:fieldValue];

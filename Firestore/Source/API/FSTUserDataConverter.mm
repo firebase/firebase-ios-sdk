@@ -476,8 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
           other.project_id(), other.database_id(), _databaseID.project_id(),
           _databaseID.database_id(), context.FieldDescription());
     }
-    return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                  databaseID:_databaseID];
+    return FieldValue::FromReference(_databaseID, reference.key).Wrap();
 
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),

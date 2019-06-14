@@ -215,9 +215,9 @@ Query Query::Filter(FieldPath field_path,
             "is not because it has an odd number of segments.",
             path.CanonicalString());
       }
-      field_value = [FSTReferenceValue
-          referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
-              databaseID:firestore_->database_id()];
+      field_value = FieldValue::FromReference(firestore_->database_id(),
+                                              DocumentKey{path})
+                        .Wrap();
     } else if (field_value.type != FieldValue::Type::Reference) {
       ThrowInvalidArgument(
           "Invalid query. When querying by document ID you must provide a "
