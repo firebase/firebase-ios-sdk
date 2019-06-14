@@ -140,7 +140,7 @@ def categorize_files(files):
         result.classify('objc', 'directory', filename)
         continue
 
-      raise Exception(textwrap.dedent(
+      raise NotImplementedError(textwrap.dedent(
           """
           Don't know how to handle the header %s.
 
