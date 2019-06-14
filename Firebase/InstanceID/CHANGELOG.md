@@ -1,3 +1,7 @@
+# 2019-06-18 -- 4.2.0
+- Added macOS support for InstanceID (#2880)
+- Corrected timezone proto key (#3132)
+
 # 2019-06-04 -- 4.1.1
 - Fixed a crash in token fetching. Removed debug assertion that is only for develop build. (#3018)
 

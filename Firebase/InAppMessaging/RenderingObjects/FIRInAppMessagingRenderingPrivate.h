@@ -36,4 +36,84 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface FIRInAppMessagingActionButton (Private)
+
+- (instancetype)initWithButtonText:(NSString *)btnText
+                   buttonTextColor:(UIColor *)textColor
+                   backgroundColor:(UIColor *)bkgColor;
+
+@end
+
+@interface FIRInAppMessagingImageData (Private)
+
+- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData;
+
+@end
+
+@interface FIRInAppMessagingCampaignInfo (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage;
+
+@end
+
+@interface FIRInAppMessagingAction (Private)
+
+- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
+
+@end
+
+@interface FIRInAppMessagingDisplayMessage (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+
+@end
+
+@interface FIRInAppMessagingModalDisplay (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                  backgroundColor:(UIColor *)backgroundColor
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                     actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
+                        actionURL:(nullable NSURL *)actionURL;
+
+@end
+
+@interface FIRInAppMessagingBannerDisplay (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                  backgroundColor:(UIColor *)backgroundColor
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL;
+
+@end
+
+@interface FIRInAppMessagingImageOnlyDisplay (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL;
+
+@end
+
 NS_ASSUME_NONNULL_END
