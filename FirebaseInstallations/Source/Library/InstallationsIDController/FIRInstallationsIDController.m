@@ -23,9 +23,13 @@
 #endif
 
 #import "FIRInstallationsAPIService.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
+#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
+
+NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60; // 1 hour.
 
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
@@ -72,7 +76,7 @@
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem {
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
-      [self getStoredFID]
+      [self getStoredInstallation]
           .recover(^id(NSError *error) {
             return [self migrateIID];
           })
@@ -91,7 +95,7 @@
   return installationItemPromise;
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)getStoredFID {
+- (FBLPromise<FIRInstallationsItem *> *)getStoredInstallation {
   return [self.installationsStore installationForAppID:self.appID appName:self.appName].validate(
       ^BOOL(FIRInstallationsItem *installation) {
         BOOL isValid = NO;
@@ -166,6 +170,33 @@
       });
 
   return self.registrationPromise;
+}
+
+#pragma mark - Auth Token
+
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthToken {
+  return [self installationWithValidAuthToken].then(
+      ^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
+        FIRInstallationsAuthTokenResult *result = [[FIRInstallationsAuthTokenResult alloc]
+             initWithToken:installation.authToken.token
+            expirationDate:installation.authToken.expirationDate];
+        return result;
+      });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthToken {
+  return [self getInstallationItem]
+  .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem * installstion) {
+    return [self registerInstallationIfNeeded:installstion];
+  })
+  .then(^id(FIRInstallationsItem *registeredInstallstion) {
+    if ([registeredInstallstion.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] > kFIRInstallationsTokenExpirationThreshold) {
+      return registeredInstallstion;
+    } else {
+      // The auth token expired or expires soon. Need to refersh it.
+      return [self.APIService refreshAuthTokenForInstallation:registeredInstallstion];
+    }
+  });
 }
 
 @end
