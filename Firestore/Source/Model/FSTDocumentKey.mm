@@ -19,8 +19,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"

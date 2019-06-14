@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
-  firebase_firestore_core
-  SOURCES
-    database_info.cc
-    database_info.h
-    direction.cc
-    direction.h
-    filter.cc
-    filter.h
-    listen_options.h
-    target_id_generator.cc
-    target_id_generator.h
-    query.cc
-    query.h
-    relation_filter.cc
-    relation_filter.h
-    user_data.h
-    user_data.mm
-  DEPENDS
-    absl_strings
-    firebase_firestore_model
-    firebase_firestore_objc
-)
+add_subdirectory(API)
+add_subdirectory(Model)

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 add_subdirectory(Example/Benchmarks)
+add_subdirectory(Source)
+add_subdirectory(third_party/Immutable)
+
 add_subdirectory(Protos)
 add_subdirectory(core)
 add_subdirectory(fuzzing)
