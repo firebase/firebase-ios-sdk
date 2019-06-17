@@ -64,6 +64,8 @@
   self.appName = nil;
 }
 
+#pragma mark - Get Installation
+
 - (void)testGetInstallationItem_WhenFIDExists_ThenItIsReturned {
   FIRInstallationsItem *storedInstallations =
       [FIRInstallationsItem createRegisteredInstallationItem];
@@ -157,6 +159,51 @@
   // 4.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
 }
+
+- (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
+  // 1. Expect the installation to be requested from the store only once.
+  FIRInstallationsItem *storedInstallation1 =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  FBLPromise<FIRInstallationsItem *> *pendingStorePromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn(pendingStorePromise);
+
+  // 2. Request installation n times
+  NSInteger requestCount = 10;
+  NSMutableArray *instllationPromises = [NSMutableArray arrayWithCapacity:requestCount];
+  for (NSInteger i = 0; i < requestCount; i++) {
+    [instllationPromises addObject:[self.controller getInstallationItem]];
+  }
+
+  // 3. Resolve store promise.
+  [pendingStorePromise fulfill:storedInstallation1];
+
+  // 4. Wait for operation to be completed and check.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  for (FBLPromise<FIRInstallationsItem *> *installationPromise in instllationPromises) {
+    XCTAssertNil(installationPromise.error);
+    XCTAssertEqual(installationPromise.value, storedInstallation1);
+  }
+
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  // 5. Check that a new request is performed once prevoius finished.
+  FIRInstallationsItem *storedInstallation2 =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation2]);
+
+  FBLPromise<FIRInstallationsItem *> *installationPromise = [self.controller getInstallationItem];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(installationPromise.error);
+  XCTAssertEqual(installationPromise.value, storedInstallation2);
+
+  OCMVerifyAll(self.mockInstallationsStore);
+}
+
+#pragma mark - Get Auth Token
 
 - (void)testGetAuthToken_WhenValidInstallationExists_ThenItIsReturned {
   // 1. Expect installation to be requested from the store.
@@ -254,12 +301,12 @@
 - (void)testGetAuthToken_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
   // 1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
-  [FIRInstallationsItem createRegisteredInstallationItem];
+      [FIRInstallationsItem createRegisteredInstallationItem];
 
   FBLPromise *storagePendingPromise = [FBLPromise pendingPromise];
   // Expect the instalation to be requested only once.
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-  .andReturn(storagePendingPromise);
+      .andReturn(storagePendingPromise);
 
   // 2. Request auth token n times.
   NSInteger requestCount = 10;
@@ -282,7 +329,50 @@
     XCTAssertNotNil(authPromise.value);
 
     XCTAssertEqualObjects(authPromise.value.authToken, storedInstallation.authToken.token);
-    XCTAssertEqualObjects(authPromise.value.expirationDate, storedInstallation.authToken.expirationDate);
+    XCTAssertEqualObjects(authPromise.value.expirationDate,
+                          storedInstallation.authToken.expirationDate);
+  }
+}
+
+- (void)testGetAuthTokenForceRefresh_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect API request.
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  FBLPromise *pendingAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn(pendingAPIPromise);
+
+  // 2. Request auth token n times.
+  NSInteger requestCount = 10;
+  NSMutableArray *authTokenPromises = [NSMutableArray arrayWithCapacity:requestCount];
+  for (NSInteger i = 0; i < requestCount; i++) {
+    [authTokenPromises addObject:[self.controller getAuthTokenForcingRefresh:YES]];
+  }
+
+  // 3. Finish the API request.
+  [pendingAPIPromise fulfill:responseInstallation];
+
+  // 4. Wait for the promise to resolve.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 5. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  for (FBLPromise<FIRInstallationsAuthTokenResult *> *authPromise in authTokenPromises) {
+    XCTAssertNil(authPromise.error);
+    XCTAssertNotNil(authPromise.value);
+
+    XCTAssertEqualObjects(authPromise.value.authToken, responseInstallation.authToken.token);
+    XCTAssertEqualObjects(authPromise.value.expirationDate,
+                          responseInstallation.authToken.expirationDate);
   }
 }
 

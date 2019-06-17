@@ -25,6 +25,7 @@
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
@@ -39,7 +40,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
-@property(atomic, strong, nullable) FBLPromise<FIRInstallationsItem *> *registrationPromise;
+@property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
+    *getInstallationPromiseCache;
+@property(nonatomic, readonly)
+    FIRInstallationsSingleOperationPromiseCache<FIRInstallationsAuthTokenResult *>
+        *authTokenPromiseCache;
+@property(nonatomic, readonly)
+    FIRInstallationsSingleOperationPromiseCache<FIRInstallationsAuthTokenResult *>
+        *authTokenForcingRefreshPromiseCache;
 @end
 
 @implementation FIRInstallationsIDController
@@ -70,11 +78,37 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     _appName = appName;
     _installationsStore = installationsStore;
     _APIService = APIService;
+
+    __weak FIRInstallationsIDController *weakSelf = self;
+
+    _getInstallationPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
+        initWithPromiseFactory:^FBLPromise *_Nonnull {
+          FIRInstallationsIDController *strongSelf = weakSelf;
+          return [strongSelf createGetInstallationItemPromise];
+        }];
+
+    _authTokenPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
+        initWithPromiseFactory:^FBLPromise *_Nonnull {
+          FIRInstallationsIDController *strongSelf = weakSelf;
+          return [strongSelf createAuthTokenPromiseForcingRefresh:NO];
+        }];
+
+    _authTokenForcingRefreshPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
+        initWithPromiseFactory:^FBLPromise *_Nonnull {
+          FIRInstallationsIDController *strongSelf = weakSelf;
+          return [strongSelf createAuthTokenPromiseForcingRefresh:YES];
+        }];
   }
   return self;
 }
 
+#pragma mark - Get Installation.
+
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem {
+  return [self.getInstallationPromiseCache getExistingPendingOrCreateNewPromise];
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
       [self getStoredInstallation]
           .recover(^id(NSError *error) {
@@ -149,33 +183,16 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       break;
   }
 
-  // TODO: Check if installations match.
-  if (self.registrationPromise) {
-    return self.registrationPromise;
-  }
-
-  self.registrationPromise = [self.APIService registerInstallation:installation].then(
+  return [self.APIService registerInstallation:installation].then(
       ^id(FIRInstallationsItem *registredInstallation) {
         return [self.installationsStore saveInstallation:registredInstallation];
       });
-
-  // Clean self.registrationPromise on finish.
-  self.registrationPromise
-      .then(^id _Nullable(FIRInstallationsItem *_Nullable value) {
-        self.registrationPromise = nil;
-        return nil;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        // TODO: Handle potential errors, retry, etc.
-        self.registrationPromise = nil;
-      });
-
-  return self.registrationPromise;
 }
 
 #pragma mark - Auth Token
-// TODO: Guarantee a single request at the time.
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
+
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)createAuthTokenPromiseForcingRefresh:
+    (BOOL)forceRefresh {
   return [self installationWithValidAuthTokenForcingRefresh:forceRefresh].then(
       ^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
         FIRInstallationsAuthTokenResult *result = [[FIRInstallationsAuthTokenResult alloc]
@@ -183,6 +200,15 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             expirationDate:installation.authToken.expirationDate];
         return result;
       });
+}
+
+// TODO: Guarantee a single request at the time.
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
+  if (forceRefresh) {
+    return [self.authTokenForcingRefreshPromiseCache getExistingPendingOrCreateNewPromise];
+  } else {
+    return [self.authTokenPromiseCache getExistingPendingOrCreateNewPromise];
+  }
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:
