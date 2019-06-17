@@ -115,7 +115,8 @@
 
 #pragma mark - JSON
 
-+ (NSDictionary<NSString *, id> *)dictionaryFromJSONData:(NSData *)data error:(NSError **)outError {
++ (nullable NSDictionary<NSString *, id> *)dictionaryFromJSONData:(NSData *)data
+                                                            error:(NSError **)outError {
   NSError *error;
   NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 

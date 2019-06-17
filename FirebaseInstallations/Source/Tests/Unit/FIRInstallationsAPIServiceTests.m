@@ -244,6 +244,53 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   XCTAssertNil(promise.value);
 }
 
+- (void)testRefreshAuthTokenDataNil {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise =
+      [self.service refreshAuthTokenForInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  // HTTP 200 but no data (a potential server failure).
+  taskCompletion(nil, [self responseWithStatusCode:200], nil);
+
+  // 6. Check result.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertEqualObjects(promise.error.userInfo[NSLocalizedFailureReasonErrorKey],
+                        @"Failed to serialize JSON data.");
+  XCTAssertNil(promise.value);
+}
+
 #pragma mark - Helpers
 
 - (NSData *)loadFixtureNamed:(NSString *)fileName {

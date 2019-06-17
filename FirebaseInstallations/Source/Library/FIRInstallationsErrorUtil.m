@@ -63,6 +63,13 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
 
 + (NSError *)JSONSerializationError:(NSError *)error {
   // TODO: Form a proper error.
+  NSString *failureReason = [NSString stringWithFormat:@"Failed to serialize JSON data."];
+  return [NSError errorWithDomain:@"FIRInstallationsError"
+                             code:-1
+                         userInfo:@{
+                           NSLocalizedFailureReasonErrorKey : failureReason,
+                           NSUnderlyingErrorKey : error,
+                         }];
   return error;
 }
 

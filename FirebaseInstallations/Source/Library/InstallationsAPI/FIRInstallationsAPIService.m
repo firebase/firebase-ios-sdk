@@ -30,6 +30,26 @@ NSString *const kFIRInstallationsAPIKey = @"x-goog-api-key";
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRInstallationsURLSessionResponse : NSObject
+@property(nonatomic) NSHTTPURLResponse *response;
+@property(nonatomic) NSData *data;
+
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data;
+@end
+
+@implementation FIRInstallationsURLSessionResponse
+
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data {
+  self = [super init];
+  if (self) {
+    _response = response;
+    _data = data ?: [NSData data];
+  }
+  return self;
+}
+
+@end
+
 @interface FIRInstallationsAPIService ()
 @property(nonatomic, readonly) NSURLSession *URLSession;
 @property(nonatomic, readonly) NSString *APIKey;
@@ -63,19 +83,21 @@ NS_ASSUME_NONNULL_END
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
   NSURLRequest *request = [self registerRequestWithInstallation:installation];
-  return [self sendURLRequest:request].then(^id _Nullable(NSArray *_Nullable value) {
-    return [self registerredInstalationWithInstallation:installation
-                                         serverResponse:value.lastObject
-                                           responseData:value.firstObject];
-  });
+  return [self sendURLRequest:request].then(
+      ^id _Nullable(FIRInstallationsURLSessionResponse *response) {
+        return [self registerredInstalationWithInstallation:installation
+                                             serverResponse:response.response
+                                               responseData:response.data];
+      });
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
   NSURLRequest *request = [self authTokenRequestWithInstallation:installation];
   return [self sendURLRequest:request]
-      .then(^FBLPromise<FIRInstallationsStoredAuthToken *> *(NSArray *_Nullable value) {
-        return [self authTokenWithServerResponse:value.lastObject responseData:value.firstObject];
+      .then(^FBLPromise<FIRInstallationsStoredAuthToken *> *(
+          FIRInstallationsURLSessionResponse *response) {
+        return [self authTokenWithServerResponse:response.response responseData:response.data];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsStoredAuthToken *authToken) {
         FIRInstallationsItem *updatedInstallation = [installation copy];
@@ -157,13 +179,21 @@ NS_ASSUME_NONNULL_END
   return [request copy];
 }
 
-/**
- * @return FBLPromise<[NSData, NSURLResponse]>
- */
-- (FBLPromise<NSArray *> *)sendURLRequest:(NSURLRequest *)request {
+- (FBLPromise<FIRInstallationsURLSessionResponse *> *)sendURLRequest:(NSURLRequest *)request {
   // TODO: Consider supporting cancellation.
-  return [FBLPromise wrap2ObjectsOrErrorCompletion:^(FBLPromise2ObjectsOrErrorCompletion handler) {
-    [[self.URLSession dataTaskWithRequest:request completionHandler:handler] resume];
+  return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+    [[self.URLSession
+        dataTaskWithRequest:request
+          completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                              NSError *_Nullable error) {
+            if (error) {
+              reject(error);
+            } else {
+              fulfill([[FIRInstallationsURLSessionResponse alloc]
+                  initWithResponse:(NSHTTPURLResponse *)response
+                              data:data]);
+            }
+          }] resume];
   }];
 }
 
