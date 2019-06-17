@@ -54,8 +54,6 @@ struct LaunchArgs {
       switch self {
       case .cacheEnabled:
         return "A flag to control using the cache for frameworks."
-      case .coreDiagnosticsDir:
-        return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
       case .deleteCache:
@@ -81,9 +79,6 @@ struct LaunchArgs {
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
   let allSDKsPath: URL?
-
-  /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
-  let coreDiagnosticsDir: URL
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
@@ -129,14 +124,6 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
-
-    // Parse the path to CoreDiagnostics.framework.
-    guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsDir.rawValue) else {
-      LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.coreDiagnosticsDir)` for the " +
-        "path to the CoreDiagnostics framework.")
-    }
-
-    coreDiagnosticsDir = URL(fileURLWithPath: diagnosticsPath)
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
