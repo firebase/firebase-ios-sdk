@@ -17,6 +17,9 @@
 
 readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
-"$REPO_DIR/Firebase/CoreDiagnostics/ProtoSupport/generate_nanopb_protos.sh" || echo "Something went wrong generating protos.";
+"$REPO_DIR/Firebase/CoreDiagnostics/ProtoSupport/generate_nanopb_protos.sh" || {
+  echo "Something went wrong generating protos."
+  exit 1
+}
 
 pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --auto-open --gen-directory="${REPO_DIR}/Firebase/CoreDiagnostics/gen" --local-sources="${REPO_DIR}/" --clean
