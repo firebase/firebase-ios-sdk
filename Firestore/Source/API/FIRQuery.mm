@@ -439,7 +439,7 @@ FIRQuery *Wrap(Query &&query) {
                                 value:(id)value {
   FieldValue fieldValue = [self parsedQueryValue:value];
   auto describer = [value] { return util::MakeString(NSStringFromClass([value class])); };
-  return Wrap(_query.Filter(fieldPath, filterOperator, fieldValue, describer));
+  return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }
 
 /**
@@ -476,9 +476,8 @@ FIRQuery *Wrap(Query &&query) {
         if (value->type() == FieldValue::Type::ServerTimestamp) {
           ThrowInvalidArgument(
               "Invalid query. You are trying to start or end a query using a document for which "
-              "the "
-              "field '%s' is an uncommitted server timestamp. (Since the value of this field is "
-              "unknown, you cannot start/end a query with it.)",
+              "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
+              "is unknown, you cannot start/end a query with it.)",
               sortOrder.field.CanonicalString());
         } else {
           components.push_back(*value);

@@ -32,10 +32,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-// TODO(zxu123): We might want to refactor transform_operations.h into several
-// files when the number of different types of operations grows gigantically.
-// For now, put the interface and the only operation here.
-
 /** Represents a transform within a TransformMutation. */
 class TransformOperation {
  public:
@@ -68,7 +64,7 @@ class TransformOperation {
    */
   virtual model::FieldValue ApplyToRemoteDocument(
       const absl::optional<model::FieldValue>& previous_value,
-      model::FieldValue transform_result) const = 0;
+      const model::FieldValue& transform_result) const = 0;
 
   /** Returns whether this field transform is idempotent. */
   virtual bool idempotent() const = 0;
@@ -102,8 +98,8 @@ class ServerTimestampTransform : public TransformOperation {
       const Timestamp& local_write_time) const override;
 
   model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& /* previous_value */,
-      model::FieldValue transform_result) const override;
+      const absl::optional<model::FieldValue>& previous_value,
+      const model::FieldValue& transform_result) const override;
 
   bool operator==(const TransformOperation& other) const override;
 
@@ -133,11 +129,11 @@ class ArrayTransform : public TransformOperation {
 
   model::FieldValue ApplyToLocalView(
       const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& /* local_write_time */) const override;
+      const Timestamp& local_write_time) const override;
 
   model::FieldValue ApplyToRemoteDocument(
       const absl::optional<model::FieldValue>& previous_value,
-      model::FieldValue /* transform_result */) const override;
+      const model::FieldValue& transform_result) const override;
 
   const std::vector<model::FieldValue>& elements() const {
     return elements_;
@@ -185,11 +181,11 @@ class NumericIncrementTransform : public TransformOperation {
 
   model::FieldValue ApplyToLocalView(
       const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& /* local_write_time */) const override;
+      const Timestamp& local_write_time) const override;
 
   model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& /* previous_value */,
-      model::FieldValue transform_result) const override;
+      const absl::optional<model::FieldValue>& previous_value,
+      const model::FieldValue& transform_result) const override;
 
   model::FieldValue operand() const {
     return operand_;

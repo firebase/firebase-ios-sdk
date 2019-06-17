@@ -38,7 +38,7 @@ class DummyOperation : public TransformOperation {
   }
 
   FieldValue ApplyToRemoteDocument(const absl::optional<model::FieldValue>& /* previous_value */,
-                                   FieldValue /* transform_result */) const override {
+                                   const FieldValue& /* transform_result */) const override {
     return FieldValue::Null();
   }
 

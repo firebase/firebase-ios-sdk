@@ -402,7 +402,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableDictionary<NSString *, GCFSValue *> *)encodedMapFields:(const FieldValue::Map &)value {
   NSMutableDictionary<NSString *, GCFSValue *> *result = [NSMutableDictionary dictionary];
 
-  for (auto &&kv : value) {
+  for (const auto &kv : value) {
     NSString *key = util::WrapNSString(kv.first);
     GCFSValue *converted = [self encodedFieldValue:kv.second];
     result[key] = converted;
@@ -629,7 +629,7 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSArrayValue *proto = [GCFSArrayValue message];
   NSMutableArray<GCFSValue *> *protoContents = [proto valuesArray];
 
-  for (FieldValue element : elements) {
+  for (const FieldValue &element : elements) {
     GCFSValue *converted = [self encodedFieldValue:element];
     [protoContents addObject:converted];
   }

@@ -71,7 +71,7 @@ void ParseAccumulator::AddToFieldTransforms(
 }
 
 ParsedSetData ParseAccumulator::MergeData(ObjectValue data) && {
-  return ParsedSetData{data, FieldMask{std::move(field_mask_)},
+  return ParsedSetData{std::move(data), FieldMask{std::move(field_mask_)},
                        std::move(field_transforms_)};
 }
 
@@ -85,12 +85,12 @@ ParsedSetData ParseAccumulator::MergeData(ObjectValue data,
     }
   }
 
-  return ParsedSetData{data, std::move(user_field_mask),
+  return ParsedSetData{std::move(data), std::move(user_field_mask),
                        std::move(covered_field_transforms)};
 }
 
 ParsedSetData ParseAccumulator::SetData(ObjectValue data) && {
-  return ParsedSetData{data, std::move(field_transforms_)};
+  return ParsedSetData{std::move(data), std::move(field_transforms_)};
 }
 
 ParsedUpdateData ParseAccumulator::UpdateData(ObjectValue data) && {
@@ -197,7 +197,7 @@ void ParseContext::AddToFieldTransforms(
 
 ParsedSetData::ParsedSetData(ObjectValue data,
                              std::vector<FieldTransform> field_transforms)
-    : data_{data},
+    : data_{std::move(data)},
       field_transforms_{std::move(field_transforms)},
       patch_{false} {
 }
@@ -205,7 +205,7 @@ ParsedSetData::ParsedSetData(ObjectValue data,
 ParsedSetData::ParsedSetData(ObjectValue data,
                              FieldMask field_mask,
                              std::vector<FieldTransform> field_transforms)
-    : data_{data},
+    : data_{std::move(data)},
       field_mask_{std::move(field_mask)},
       field_transforms_{std::move(field_transforms)},
       patch_{true} {
@@ -223,7 +223,7 @@ std::vector<FSTMutation*> ParsedSetData::ToMutations(
     mutations.push_back(mutation);
   } else {
     FSTMutation* mutation = [[FSTSetMutation alloc] initWithKey:key
-                                                          value:data_
+                                                          value:std::move(data_)
                                                    precondition:precondition];
     mutations.push_back(mutation);
   }
@@ -244,7 +244,7 @@ ParsedUpdateData::ParsedUpdateData(
     ObjectValue data,
     model::FieldMask field_mask,
     std::vector<model::FieldTransform> field_transforms)
-    : data_{data},
+    : data_{std::move(data)},
       field_mask_{std::move(field_mask)},
       field_transforms_{std::move(field_transforms)} {
 }
@@ -256,7 +256,7 @@ std::vector<FSTMutation*> ParsedUpdateData::ToMutations(
   FSTMutation* mutation =
       [[FSTPatchMutation alloc] initWithKey:key
                                   fieldMask:std::move(field_mask_)
-                                      value:data_
+                                      value:std::move(data_)
                                precondition:precondition];
   mutations.push_back(mutation);
 

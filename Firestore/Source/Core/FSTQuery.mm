@@ -139,7 +139,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 @end
 
-@implementation FSTRelationFilter
+@implementation FSTRelationFilter {
+  FieldValue _value;
+}
 
 #pragma mark - Constructor methods
 

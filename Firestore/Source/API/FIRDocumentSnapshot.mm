@@ -251,9 +251,9 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     case ServerTimestampBehavior::kPrevious:
       return sts.previous_value() ? [self convertedValue:*sts.previous_value() options:options]
                                   : [NSNull null];
-    default:
-      HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
   }
+
+  UNREACHABLE();
 }
 
 - (id)convertedReference:(const FieldValue &)value {

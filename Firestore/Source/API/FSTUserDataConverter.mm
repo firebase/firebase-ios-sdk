@@ -134,6 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   ParseAccumulator accumulator{UserDataSource::Set};
   absl::optional<FieldValue> updateData = [self parseData:input context:accumulator.RootContext()];
+  HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
 
   return std::move(accumulator).SetData(ObjectValue(std::move(*updateData)));
 }
@@ -148,6 +149,8 @@ NS_ASSUME_NONNULL_BEGIN
   ParseAccumulator accumulator{UserDataSource::MergeSet};
 
   absl::optional<FieldValue> updateData = [self parseData:input context:accumulator.RootContext()];
+  HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
+
   ObjectValue updateObject = ObjectValue(std::move(*updateData));
 
   if (fieldMask) {

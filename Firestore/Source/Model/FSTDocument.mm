@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
                              key:(DocumentKey)key
                          version:(SnapshotVersion)version
                            state:(FSTDocumentState)state {
-  return [[FSTDocument alloc] initWithData:data
+  return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
                                    version:std::move(version)
                                      state:state];
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
                          version:(SnapshotVersion)version
                            state:(FSTDocumentState)state
                            proto:(GCFSDocument *)proto {
-  return [[FSTDocument alloc] initWithData:data
+  return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
                                    version:std::move(version)
                                      state:state

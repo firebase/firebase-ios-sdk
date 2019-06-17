@@ -36,7 +36,7 @@ FieldValue ServerTimestampTransform::ApplyToLocalView(
 
 FieldValue ServerTimestampTransform::ApplyToRemoteDocument(
     const absl::optional<FieldValue>& /* previous_value */,
-    FieldValue transform_result) const {
+    const FieldValue& transform_result) const {
   return transform_result;
 }
 
@@ -65,7 +65,7 @@ FieldValue ArrayTransform::ApplyToLocalView(
 
 FieldValue ArrayTransform::ApplyToRemoteDocument(
     const absl::optional<FieldValue>& previous_value,
-    FieldValue /* transform_result */) const {
+    const FieldValue& /* transform_result */) const {
   // The server just sends null as the transform result for array operations,
   // so we have to calculate a result the same as we do for local
   // applications.
@@ -91,7 +91,7 @@ bool ArrayTransform::operator==(const TransformOperation& other) const {
 size_t ArrayTransform::Hash() const {
   size_t result = 37;
   result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
-  for (FieldValue element : elements_) {
+  for (const FieldValue& element : elements_) {
     result = 31 * result + element.Hash();
   }
   return result;
@@ -103,11 +103,6 @@ const std::vector<FieldValue>& ArrayTransform::Elements(
   return static_cast<const ArrayTransform&>(op).elements();
 }
 
-/**
- * Inspects the provided value, returning a mutable copy of the internal array
- * if it's of type Array and an empty mutable array if it's nil or any other
- * type of FieldValue.
- */
 FieldValue::Array ArrayTransform::CoercedFieldValuesArray(
     const absl::optional<model::FieldValue>& value) {
   if (value && value->type() == FieldValue::Type::Array) {
@@ -122,7 +117,7 @@ FieldValue ArrayTransform::Apply(
     const absl::optional<FieldValue>& previous_value) const {
   FieldValue::Array result =
       ArrayTransform::CoercedFieldValuesArray(previous_value);
-  for (FieldValue element : elements_) {
+  for (const FieldValue& element : elements_) {
     auto pos = absl::c_find(result, element);
     if (type_ == Type::ArrayUnion) {
       if (pos == result.end()) {
@@ -162,8 +157,8 @@ double AsDouble(const FieldValue& value) {
   } else if (value.type() == FieldValue::Type::Integer) {
     return value.integer_value();
   } else {
-    HARD_FAIL("Expected 'operand' to be of numeric type, but was %s",
-              value.ToString());
+    HARD_FAIL("Expected 'operand' to be of numeric type, but was %s (type %s)",
+              value.ToString(), value.type());
   }
 }
 
@@ -197,7 +192,8 @@ FieldValue NumericIncrementTransform::ApplyToLocalView(
 }
 
 FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
-    const absl::optional<FieldValue>&, FieldValue transform_result) const {
+    const absl::optional<FieldValue>&,
+    const FieldValue& transform_result) const {
   return transform_result;
 }
 

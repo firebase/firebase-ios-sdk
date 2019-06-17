@@ -59,14 +59,6 @@ using firebase::firestore::testutil::Version;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTSerializerBeta (Test)
-- (GCFSValue *)encodedNull;
-- (GCFSValue *)encodedBool:(bool)value;
-- (GCFSValue *)encodedDouble:(double)value;
-- (GCFSValue *)encodedInteger:(int64_t)value;
-- (GCFSValue *)encodedString:(absl::string_view)value;
-@end
-
 @interface FSTLocalSerializerTests : XCTestCase
 
 @property(nonatomic, strong) FSTLocalSerializer *serializer;

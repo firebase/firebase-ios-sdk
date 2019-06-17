@@ -289,7 +289,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GCFSValue *proto = [GCFSValue message];
   [proto.arrayValue.valuesArray addObjectsFromArray:@[
-    [self.serializer encodedBool:YES], [self.serializer encodedString:"foo"]
+    [self.serializer encodedBool:true], [self.serializer encodedString:"foo"]
   ]];
 
   [self assertRoundTripForModel:model proto:proto type:GCFSValue_ValueType_OneOfCase_ArrayValue];
@@ -319,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   GCFSValue *innerObject = [GCFSValue message];
-  innerObject.mapValue.fields[@"b"] = [self.serializer encodedBool:NO];
+  innerObject.mapValue.fields[@"b"] = [self.serializer encodedBool:false];
 
   GCFSValue *middleArray = [GCFSValue message];
   [middleArray.arrayValue.valuesArray addObjectsFromArray:@[
@@ -337,7 +337,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GCFSValue *proto = [GCFSValue message];
   [proto.mapValue.fields addEntriesFromDictionary:@{
-    @"b" : [self.serializer encodedBool:YES],
+    @"b" : [self.serializer encodedBool:true],
     @"d" : [self.serializer encodedDouble:DBL_MAX],
     @"i" : [self.serializer encodedInteger:1],
     @"n" : [self.serializer encodedNull],

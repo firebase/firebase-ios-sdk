@@ -65,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Will be nullopt if the mutation was not a FSTTransformMutation.
  */
+// TODO(wilhuff): This seems like I could be a empty vector without harm.
 @property(nonatomic, assign, readonly)
     const absl::optional<std::vector<model::FieldValue>> &transformResults;
 
