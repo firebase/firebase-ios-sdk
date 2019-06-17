@@ -167,7 +167,6 @@ s%^./%%
 '
 )
 
-echo $files
 needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
