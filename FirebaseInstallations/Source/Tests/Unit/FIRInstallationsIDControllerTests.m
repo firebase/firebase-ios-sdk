@@ -251,6 +251,39 @@
 
 // TODO: Add error tests.
 
-// TODO: Tests on "Guarantee a single request at the time".
+- (void)testGetAuthToken_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+  [FIRInstallationsItem createRegisteredInstallationItem];
+
+  FBLPromise *storagePendingPromise = [FBLPromise pendingPromise];
+  // Expect the instalation to be requested only once.
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+  .andReturn(storagePendingPromise);
+
+  // 2. Request auth token n times.
+  NSInteger requestCount = 10;
+  NSMutableArray *authTokenPromises = [NSMutableArray arrayWithCapacity:requestCount];
+  for (NSInteger i = 0; i < requestCount; i++) {
+    [authTokenPromises addObject:[self.controller getAuthTokenForcingRefresh:NO]];
+  }
+
+  // 3. Finish the storage request.
+  [storagePendingPromise fulfill:storedInstallation];
+
+  // 4. Wait for the promise to resolve.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 5. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+
+  for (FBLPromise<FIRInstallationsAuthTokenResult *> *authPromise in authTokenPromises) {
+    XCTAssertNil(authPromise.error);
+    XCTAssertNotNil(authPromise.value);
+
+    XCTAssertEqualObjects(authPromise.value.authToken, storedInstallation.authToken.token);
+    XCTAssertEqualObjects(authPromise.value.expirationDate, storedInstallation.authToken.expirationDate);
+  }
+}
 
 @end
