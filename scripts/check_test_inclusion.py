@@ -80,7 +80,7 @@ def CheckProject(project_file, test_files):
   """
 
   # An dict of basename to filename
-  basenames = {os.path.basename(f) : f for f in test_files}
+  basenames = {os.path.basename(f): f for f in test_files}
 
   file_list_pattern = re.compile(r"/\* (\S+) in Sources \*/")
   with open(project_file, "r") as fd:

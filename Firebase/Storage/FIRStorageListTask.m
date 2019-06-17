@@ -70,7 +70,7 @@
     // listAll() doesn't set a pageSize as this allows Firebase Storage to determine how many items
     // to return per page. This removes the need to backfill results if Firebase Storage filters
     // objects that are considered invalid (such as items with two consecutive slashes).
-    if (strongSelf->_pageSize) {
+    if (strongSelf->_pageSize != nil) {
       queryParams[@"maxResults"] = [strongSelf->_pageSize stringValue];
     }
 
