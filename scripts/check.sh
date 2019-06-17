@@ -261,4 +261,4 @@ fi
 "${top_dir}/scripts/check_test_inclusion.py"
 
 # Google C++ style
-"${top_dir}/scripts/lint.sh" "${START_SHA}"
+"${top_dir}/scripts/check_lint.py" "${START_SHA}"

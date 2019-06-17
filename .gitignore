@@ -79,6 +79,9 @@ Ninja
 /cmake-build-debug
 /cmake-build-release
 
+# Python
+*.pyc
+
 # Visual Studio
 /.vs
 
