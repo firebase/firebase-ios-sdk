@@ -19,6 +19,21 @@ import Foundation
 extension Firestore {
   public struct Encoder {
     public init() {}
+    /// Returns encoded data that Firestore API recognizes.
+    ///
+    /// If possible, all types will be converted to compatible types Firestore
+    /// can handle. This means certain Firestore specific types will be encoded
+    /// as pass-through: this encoder will only pass those types along since that
+    /// is what Firestore can handle. The same types will be encoded differently
+    /// with other encoders (for example: JSONEncoder).
+    ///
+    /// The Firestore pass-through types are:
+    ///   - GeoPoint
+    ///   - Timestamp
+    ///
+    /// - Parameter value: The Encodable object to convert to encoded data.
+    /// - Returns: A Map keyed by String representing a document Firestore
+    ///            API can work with.
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
         throw EncodingError.invalidValue(value,
@@ -38,21 +53,13 @@ extension Firestore {
 }
 
 private class _FirestoreEncoder: Encoder {
-  // When being encoded, a Swift Encodable object essentially performs a Depth-First-Search tranverse starting from the object. During the tranverse,
-  // for each Encodable object, it requests (through compiler generated code or manual implementation) one of
-  // KeyedEncodingContainer/UnkeyedEncodingContainer/SingleValueEncodingContainer and provides the value of its
-  // fields or contents (if it is unkeyed like an Array or SingleValue) to the requested container.
-
-  // In order to keep track of which point the DFS tranverse is processing at the moment, two stacks
-  // are used.
-
-  // A stack of data containers storing encoded results. When a new field is being encoded,
-  // a corresponding storage is pushed to the stack; and when the field and all of its children fields
-  // are encoded, the stoage should have the entire encoded result for the sub-tree, it is then poped
-  // out and written to the proper place of the new stack top container by referencing to the top of `codingPath`.
+  /// A stack of data containers storing encoded results. When a new object is being encoded,
+  /// a corresponding storage is pushed to the stack; and when the field and all of its children objects
+  /// are encoded, the stoage should have the entire encoded result for the sub-tree, it is then poped
+  /// out and written to the proper place of the new stack top container by referencing to the top of `codingPath`.
   fileprivate var storage: _FirestoreEncodingStorage
-  // An array used as a stack to keep track of where in the object tree the encoder is trying to process
-  // at the moment.
+  /// An array used as a stack to keep track of where in the encoded data tree the encoder is trying to process
+  /// at the moment.
   public fileprivate(set) var codingPath: [CodingKey]
   public var userInfo: [CodingUserInfoKey: Any] = [:]
 
@@ -558,29 +565,6 @@ private class _FirestoreReferencingEncoder: _FirestoreEncoder {
 
     case let .dictionary(dictionary, key):
       dictionary[NSString(string: key)] = value
-    }
-  }
-}
-
-extension DecodingError {
-  static func _typeMismatch(at path: [CodingKey], expectation: Any.Type, reality: Any) -> DecodingError {
-    let description = "Expected to decode \(expectation) but found \(_typeDescription(of: reality)) instead."
-    return .typeMismatch(expectation, Context(codingPath: path, debugDescription: description))
-  }
-
-  fileprivate static func _typeDescription(of value: Any) -> String {
-    if value is NSNull {
-      return "a null value"
-    } else if value is NSNumber /* FIXME: If swift-corelibs-foundation isn't updated to use NSNumber, this check will be necessary: || value is Int || value is Double */ {
-      return "a number"
-    } else if value is String {
-      return "a string/data"
-    } else if value is [Any] {
-      return "an array"
-    } else if value is [String: Any] {
-      return "a dictionary"
-    } else {
-      return "\(type(of: value))"
     }
   }
 }

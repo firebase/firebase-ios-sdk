@@ -19,12 +19,12 @@ import FirebaseFirestore
 @testable import FirebaseFirestoreSwift
 import XCTest
 
-fileprivate func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
+private func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
   let enc = assertEncodes(model, encoded: encoded)
   assertDecodes(enc, encoded: model)
 }
 
-fileprivate func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [String: Any]) -> [String: Any] {
+private func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [String: Any]) -> [String: Any] {
   do {
     let enc = try Firestore.Encoder().encode(model)
     XCTAssertEqual(enc as NSDictionary, encoded as NSDictionary)
@@ -35,7 +35,7 @@ fileprivate func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [Str
   return ["": -1]
 }
 
-fileprivate func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+private func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
   do {
     let decoded = try Firestore.Decoder().decode(X.self, from: model)
     XCTAssertEqual(decoded, encoded)
@@ -44,7 +44,16 @@ fileprivate func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], e
   }
 }
 
-fileprivate func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+private func assertEncodingThrows<X: Equatable & Codable>(_ model: X) -> Void {
+  do {
+    _ = try Firestore.Encoder().encode(model)
+  } catch {
+    return
+  }
+  XCTFail("Failed to throw")
+}
+
+private func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
   do {
     _ = try Firestore.Decoder().decode(X.self, from: model)
   } catch {
@@ -372,5 +381,170 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertNil(encodedDict["md"])
     XCTAssertNil(encodedDict["mi"])
     XCTAssertNil(encodedDict["mb"])
+  }
+
+  func testNestedObjects() {
+    struct SecondLevelNestedModel: Codable, Equatable {
+      var age: Int8
+      var weight: Double
+    }
+    struct NestedModel: Codable, Equatable {
+      var group: String
+      var groupList: [SecondLevelNestedModel]
+      var groupMap: [String: SecondLevelNestedModel]
+      var point: GeoPoint
+    }
+    struct Model: Codable, Equatable {
+      var id: Int64
+      var group: NestedModel
+    }
+
+    let model = Model(id: 123, group: NestedModel(group: "g1", groupList: [SecondLevelNestedModel(age: 20, weight: 80.1), SecondLevelNestedModel(age: 25, weight: 85.1)], groupMap: ["name1": SecondLevelNestedModel(age: 30, weight: 64.2), "name2": SecondLevelNestedModel(age: 35, weight: 79.2)],
+                                                  point: GeoPoint(latitude: 12.0, longitude: 9.1)))
+
+    let dict = ["group": [
+      "group": "g1",
+      "point": GeoPoint(latitude: 12.0, longitude: 9.1),
+      "groupList": [
+        [
+          "age": 20,
+          "weight": 80.1,
+        ],
+        [
+          "age": 25,
+          "weight": 85.1,
+        ],
+      ],
+      "groupMap": [
+        "name1": [
+          "age": 30,
+          "weight": 64.2,
+        ],
+        "name2": [
+          "age": 35,
+          "weight": 79.2,
+        ],
+      ],
+    ], "id": 123] as [String: Any]
+
+    assertRoundTrip(model: model, encoded: dict)
+  }
+
+  func testCollapsingNestedObjects() {
+    // The model is flat but the document has a nested Map.
+    struct Model: Codable, Equatable {
+      var id: Int64
+      var name: String
+
+      init(id: Int64, name: String) {
+        self.id = id
+        self.name = name
+      }
+
+      private enum CodingKeys: String, CodingKey {
+        case id
+        case nested
+      }
+
+      private enum NestedCodingKeys: String, CodingKey {
+        case name
+      }
+
+      init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try id = container.decode(Int64.self, forKey: .id)
+
+        let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
+        try name = nestedContainer.decode(String.self, forKey: .name)
+      }
+
+      func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .nested)
+        try nestedContainer.encode(name, forKey: .name)
+      }
+    }
+
+    let model = Model(id: 12345, name: "ModelName")
+    let dict = ["id": 12345,
+                "nested": ["name": "ModelName"]] as [String: Any]
+
+    assertRoundTrip(model: model, encoded: dict)
+  }
+
+  class SuperModel: Codable, Equatable {
+    var superPower: Double? = 100.0
+    var superName: String? = "superName"
+
+    init(power: Double, name: String) {
+      superPower = power
+      superName = name
+    }
+
+    static func == (lhs: SuperModel, rhs: SuperModel) -> Bool {
+      return (lhs.superName == rhs.superName) && (lhs.superPower == rhs.superPower)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+      case superPower
+      case superName
+    }
+
+    required init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      superPower = try container.decode(Double.self, forKey: .superPower)
+      superName = try container.decode(String.self, forKey: .superName)
+    }
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode(superPower, forKey: .superPower)
+      try container.encode(superName, forKey: .superName)
+    }
+  }
+
+  class SubModel: SuperModel {
+    var timestamp: Timestamp? = Timestamp(seconds: 848_483_737, nanoseconds: 23423)
+
+    init(power: Double, name: String, seconds: Int64, nano: Int32) {
+      super.init(power: power, name: name)
+      timestamp = Timestamp(seconds: seconds, nanoseconds: nano)
+    }
+
+    static func == (lhs: SubModel, rhs: SubModel) -> Bool {
+      return ((lhs as SuperModel) == (rhs as SuperModel)) && (lhs.timestamp == rhs.timestamp)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+      case timestamp
+    }
+
+    required init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      timestamp = try container.decode(Timestamp.self, forKey: .timestamp)
+      try super.init(from: container.superDecoder())
+    }
+
+    override func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode(timestamp, forKey: .timestamp)
+      try super.encode(to: container.superEncoder())
+    }
+  }
+
+  func testClassHierarchy() {
+    let model = SubModel(power: 100, name: "name", seconds: 123_456_789, nano: 654_321)
+    let dict = ["super": ["superPower": 100, "superName": "name"],
+                "timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 654_321)] as [String: Any]
+
+    assertRoundTrip(model: model, encoded: dict)
+  }
+
+  func testEcodingEncodableArrayNotSupported() {
+    struct Model: Codable, Equatable {
+      var name: String
+    }
+    assertEncodingThrows([Model(name: "1")])
   }
 }

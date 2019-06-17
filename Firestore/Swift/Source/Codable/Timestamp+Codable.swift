@@ -24,21 +24,21 @@ import FirebaseFirestore
  * to be marked required but that can't be done in an extension. Declaring the extension on the
  * protocol sidesteps this issue.
  */
-fileprivate protocol CodableTimestamp: Codable {
+private protocol CodableTimestamp: Codable {
   var seconds: Int64 { get }
   var nanoseconds: Int32 { get }
 
   init(seconds: Int64, nanoseconds: Int32)
 }
 
-/** The keys in a GeoPoint. Must match the properties of CodableGeoPoint. */
-fileprivate enum TimestampKeys: String, CodingKey {
+/** The keys in a Timestamp. Must match the properties of CodableTimestamp. */
+private enum TimestampKeys: String, CodingKey {
   case seconds
   case nanoseconds
 }
 
 /**
- * An extension of GeoPoint that implements the behavior of the Codable protocol.
+ * An extension of Timestamp that implements the behavior of the Codable protocol.
  *
  * Note: this is implemented manually here because the Swift compiler can't synthesize these methods
  * when declaring an extension to conform to Codable.
@@ -58,5 +58,5 @@ extension CodableTimestamp {
   }
 }
 
-/** Extends GeoPoint to conform to Codable. */
+/** Extends Timestamp to conform to Codable. */
 extension Timestamp: CodableTimestamp {}

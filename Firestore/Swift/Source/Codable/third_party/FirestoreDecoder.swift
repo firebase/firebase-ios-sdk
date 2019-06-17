@@ -19,6 +19,18 @@ import Foundation
 extension Firestore {
   public struct Decoder {
     public init() {}
+    /// Returns an instance of specified type from a Firestore document.
+    ///
+    /// If exists in `container`, Firestore specific types are recognized, and
+    /// passed through to `Decodable` implementations. This means types below
+    /// in `container` are directly supported:
+    ///   - GeoPoint
+    ///   - Timestamp
+    ///
+    /// - Parameters:
+    ///   - A type to decode a document to.
+    ///   - container: A Map keyed of String representing a Firestore document.
+    /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       guard let value = try decoder.unbox(container, as: T.self) else {
@@ -30,14 +42,17 @@ extension Firestore {
 }
 
 class _FirestoreDecoder: Decoder {
-  /// Options set on the top-level encoder to pass down the decoding hierarchy.
+  // `_FirestoreDecoder`
 
   // MARK: Properties
 
-  /// The decoder's storage.
+  /// A stack of data containers storing data containers to decode. When a new data container is being decoded,
+  /// a corresponding storage is pushed to the stack; and when that container (and all of its children containers)
+  /// has been decoded, it is poped out such that the decoding can proceed with new top storage.
   fileprivate var storage: _FirestoreDecodingStorage
 
-  /// The path to the current point in encoding.
+  /// The path to the current point in the container tree. Given the root container, one could
+  /// conceptually reconstruct `storage` by following `codingPath` from the root container.
   public fileprivate(set) var codingPath: [CodingKey]
 
   /// Contextual user-provided information for use during encoding.
@@ -1012,9 +1027,35 @@ extension _FirestoreDecoder {
         return (value as! T)
       }
     }
+
+    // Decoding an embeded container, this requires expanding the storage stack and
+    // then restore after decoding.
     storage.push(container: value)
     let decoded = try T(from: self)
     storage.popContainer()
     return decoded
+  }
+}
+
+extension DecodingError {
+  static func _typeMismatch(at path: [CodingKey], expectation: Any.Type, reality: Any) -> DecodingError {
+    let description = "Expected to decode \(expectation) but found \(_typeDescription(of: reality)) instead."
+    return .typeMismatch(expectation, Context(codingPath: path, debugDescription: description))
+  }
+
+  fileprivate static func _typeDescription(of value: Any) -> String {
+    if value is NSNull {
+      return "a null value"
+    } else if value is NSNumber /* FIXME: If swift-corelibs-foundation isn't updated to use NSNumber, this check will be necessary: || value is Int || value is Double */ {
+      return "a number"
+    } else if value is String {
+      return "a string/data"
+    } else if value is [Any] {
+      return "an array"
+    } else if value is [String: Any] {
+      return "a dictionary"
+    } else {
+      return "\(type(of: value))"
+    }
   }
 }

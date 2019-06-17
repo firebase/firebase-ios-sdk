@@ -142,7 +142,7 @@ s%^./%%
 
 # Firestore/Swift contains code that is under 'third_party' but should be
 # formatted.
-\%/Firestore/Swift/% p
+\%Firestore/Swift/% p
 
 # Sources controlled outside this tree
 \%/third_party/% d
@@ -167,6 +167,7 @@ s%^./%%
 '
 )
 
+echo $files
 needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
