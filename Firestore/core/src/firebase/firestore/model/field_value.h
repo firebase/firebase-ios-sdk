@@ -31,13 +31,11 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
-
-OBJC_CLASS(FSTFieldValue);
 
 namespace firebase {
 namespace firestore {
@@ -84,9 +82,6 @@ class FieldValue {
   FieldValue();
 
   FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
-
-  FSTFieldValue* Wrap() const&;
-  FSTFieldValue* Wrap() &&;
 
   /** Returns the true type for this value. */
   Type type() const {
@@ -147,9 +142,9 @@ class FieldValue {
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
-                                        FSTFieldValue* previous_value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
+  static FieldValue FromServerTimestamp(
+      const Timestamp& local_write_time,
+      absl::optional<FieldValue> previous_value = absl::nullopt);
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
@@ -225,6 +220,10 @@ class FieldValue {
 /** A structured object value stored in Firestore. */
 class ObjectValue : public util::Comparable<ObjectValue> {
  public:
+  // Default constructible to make using this easy, though prefer
+  // ObjectValue::Empty() to make intentions clear to readers.
+  ObjectValue();
+
   explicit ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
     HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
   }
@@ -286,6 +285,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   size_t Hash() const;
 
+  size_t size() const {
+    return fv_.object_value().size();
+  }
+
  private:
   ObjectValue SetChild(const std::string& child_name,
                        const FieldValue& value) const;
@@ -314,18 +317,23 @@ class FieldValue::Reference {
 
 class FieldValue::ServerTimestamp {
  public:
-  explicit ServerTimestamp(Timestamp local_write_time,
-                           FSTFieldValue* previous_value = nil);
+  ServerTimestamp(Timestamp local_write_time,
+                  absl::optional<FieldValue> previous_value)
+      : local_write_time_(local_write_time),
+        previous_value_(std::move(previous_value)) {
+  }
 
   const Timestamp& local_write_time() const {
     return local_write_time_;
   }
 
-  FSTFieldValue* previous_value() const;
+  const absl::optional<FieldValue>& previous_value() const {
+    return previous_value_;
+  }
 
  private:
   Timestamp local_write_time_;
-  objc::Handle<FSTFieldValue> previous_value_;
+  absl::optional<FieldValue> previous_value_;
 };
 
 // Pretend you can automatically upcast from ObjectValue to FieldValue.

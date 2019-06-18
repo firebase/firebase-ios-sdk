@@ -123,7 +123,7 @@ class ParseAccumulator {
    * @return ParsedSetData that has consumed the contents of this
    * ParseAccumulator.
    */
-  ParsedSetData MergeData(FSTObjectValue* data) &&;
+  ParsedSetData MergeData(model::ObjectValue data) &&;
 
   /**
    * Wraps the given `data` and `user_field_mask` along with any accumulated
@@ -138,7 +138,7 @@ class ParseAccumulator {
    * ParseAccumulator. The field mask in the result will be the user_field_mask
    * and only transforms that are covered by the mask will be included.
    */
-  ParsedSetData MergeData(FSTObjectValue* data,
+  ParsedSetData MergeData(model::ObjectValue data,
                           model::FieldMask user_field_mask) &&;
 
   /**
@@ -148,7 +148,7 @@ class ParseAccumulator {
    * @return ParsedSetData that has consumed the contents of this
    * ParseAccumulator.
    */
-  ParsedSetData SetData(FSTObjectValue* data) &&;
+  ParsedSetData SetData(model::ObjectValue data) &&;
 
   /**
    * Wraps the given `data` along with any accumulated field mask and transforms
@@ -157,7 +157,7 @@ class ParseAccumulator {
    * @return ParsedSetData that has consumed the contents of this
    * ParseAccumulator.
    */
-  ParsedUpdateData UpdateData(FSTObjectValue* data) &&;
+  ParsedUpdateData UpdateData(model::ObjectValue data) &&;
 
  private:
   friend class ParseContext;
@@ -253,9 +253,9 @@ class ParseContext {
 /** The result of parsing document data (e.g. for a SetData call). */
 class ParsedSetData {
  public:
-  ParsedSetData(FSTObjectValue* data,
+  ParsedSetData(model::ObjectValue data,
                 std::vector<model::FieldTransform> field_transforms);
-  ParsedSetData(FSTObjectValue* data,
+  ParsedSetData(model::ObjectValue data,
                 model::FieldMask field_mask,
                 std::vector<model::FieldTransform> field_transforms);
 
@@ -271,7 +271,7 @@ class ParsedSetData {
       const model::Precondition& precondition) &&;
 
  private:
-  FSTObjectValue* data_;
+  model::ObjectValue data_;
   model::FieldMask field_mask_;
   std::vector<model::FieldTransform> field_transforms_;
   bool patch_;
@@ -280,11 +280,11 @@ class ParsedSetData {
 /** The result of parsing "update" data (i.e. for an UpdateData call). */
 class ParsedUpdateData {
  public:
-  ParsedUpdateData(FSTObjectValue* data,
+  ParsedUpdateData(model::ObjectValue data,
                    model::FieldMask field_mask,
                    std::vector<model::FieldTransform> fieldTransforms);
 
-  FSTObjectValue* data() const {
+  const model::ObjectValue& data() const {
     return data_;
   }
 
@@ -304,7 +304,7 @@ class ParsedUpdateData {
       const model::Precondition& precondition) &&;
 
  private:
-  FSTObjectValue* data_;
+  model::ObjectValue data_;
   model::FieldMask field_mask_;
   std::vector<model::FieldTransform> field_transforms_;
 };

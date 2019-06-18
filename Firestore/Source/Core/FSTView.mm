@@ -22,7 +22,6 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -313,7 +312,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     BOOL changeApplied = NO;
     // Calculate change
     if (oldDoc && newDoc) {
-      BOOL docsEqual = [oldDoc.data isEqual:newDoc.data];
+      BOOL docsEqual = oldDoc.data == newDoc.data;
       if (!docsEqual) {
         if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
           changeSet.AddChange(DocumentViewChange{newDoc, DocumentViewChange::Type::kModified});

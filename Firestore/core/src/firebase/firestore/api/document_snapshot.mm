@@ -18,10 +18,11 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,8 @@ namespace api {
 
 using model::DocumentKey;
 using model::FieldPath;
+using model::FieldValue;
+using model::ObjectValue;
 
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
@@ -74,12 +77,15 @@ const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 
-FSTObjectValue* _Nullable DocumentSnapshot::GetData() const {
-  return internal_document_ == nil ? nil : [internal_document_ data];
+absl::optional<ObjectValue> DocumentSnapshot::GetData() const {
+  return internal_document_ == nil ? absl::optional<ObjectValue>{}
+                                   : [internal_document_ data];
 }
 
-id _Nullable DocumentSnapshot::GetValue(const FieldPath& field_path) const {
-  return [[internal_document_ data] valueForPath:field_path];
+absl::optional<FieldValue> DocumentSnapshot::GetValue(
+    const FieldPath& field_path) const {
+  return internal_document_ == nil ? absl::optional<ObjectValue>{}
+                                   : [internal_document_ data].Get(field_path);
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

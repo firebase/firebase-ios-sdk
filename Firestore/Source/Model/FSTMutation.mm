@@ -25,7 +25,6 @@
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -33,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -43,6 +43,8 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
@@ -55,13 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMutationResult {
   SnapshotVersion _version;
+  absl::optional<std::vector<FieldValue>> _transformResults;
 }
 
 - (instancetype)initWithVersion:(SnapshotVersion)version
-               transformResults:(nullable NSArray<FSTFieldValue *> *)transformResults {
+               transformResults:(absl::optional<std::vector<FieldValue>>)transformResults {
   if (self = [super init]) {
     _version = std::move(version);
-    _transformResults = transformResults;
+    _transformResults = std::move(transformResults);
   }
   return self;
 }
@@ -132,20 +135,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSetMutation
 
-@implementation FSTSetMutation
+@implementation FSTSetMutation {
+}
 
 - (instancetype)initWithKey:(DocumentKey)key
-                      value:(FSTObjectValue *)value
+                      value:(ObjectValue)value
                precondition:(Precondition)precondition {
   if (self = [super initWithKey:std::move(key) precondition:std::move(precondition)]) {
-    _value = value;
+    _value = std::move(value);
   }
   return self;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%@ precondition=%@>",
-                                    self.key.ToString().c_str(), self.value,
+  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%s precondition=%@>",
+                                    self.key.ToString().c_str(), self.value.ToString().c_str(),
                                     self.precondition.description()];
 }
 
@@ -158,12 +162,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTSetMutation *otherMutation = (FSTSetMutation *)other;
-  return self.key == otherMutation.key && [self.value isEqual:otherMutation.value] &&
+  return self.key == otherMutation.key && self.value == otherMutation.value &&
          self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
-  return Hash(self.key, self.precondition, [self.value hash]);
+  return Hash(self.key, self.precondition, self.value);
 }
 
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
@@ -215,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithKey:(DocumentKey)key
                   fieldMask:(FieldMask)fieldMask
-                      value:(FSTObjectValue *)value
+                      value:(ObjectValue)value
                precondition:(Precondition)precondition {
   self = [super initWithKey:std::move(key) precondition:std::move(precondition)];
   if (self) {
@@ -239,30 +243,29 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTPatchMutation *otherMutation = (FSTPatchMutation *)other;
   return self.key == otherMutation.key && _fieldMask == *(otherMutation.fieldMask) &&
-         [self.value isEqual:otherMutation.value] &&
-         self.precondition == otherMutation.precondition;
+         self.value == otherMutation.value && self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
-  return Hash(self.key, self.precondition, _fieldMask, [self.value hash]);
+  return Hash(self.key, self.precondition, _fieldMask, self.value);
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%@ precondition=%@>",
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%s precondition=%@>",
                                     self.key.ToString().c_str(), _fieldMask.ToString().c_str(),
-                                    self.value, self.precondition.description()];
+                                    self.value.ToString().c_str(), self.precondition.description()];
 }
 
 /**
  * Patches the data of document if available or creates a new document. Note that this does not
  * check whether or not the precondition of this patch holds.
  */
-- (FSTObjectValue *)patchDocument:(nullable FSTMaybeDocument *)maybeDoc {
-  FSTObjectValue *data;
+- (ObjectValue)patchDocument:(nullable FSTMaybeDocument *)maybeDoc {
+  ObjectValue data;
   if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
     data = ((FSTDocument *)maybeDoc).data;
   } else {
-    data = [FSTObjectValue objectValue];
+    data = ObjectValue::Empty();
   }
   return [self patchObjectValue:data];
 }
@@ -276,7 +279,7 @@ NS_ASSUME_NONNULL_BEGIN
     return maybeDoc;
   }
 
-  FSTObjectValue *newData = [self patchDocument:maybeDoc];
+  ObjectValue newData = [self patchDocument:maybeDoc];
   SnapshotVersion version = [self postMutationVersionForDocument:maybeDoc];
 
   return [FSTDocument documentWithData:newData
@@ -298,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTUnknownDocument documentWithKey:self.key version:mutationResult.version];
   }
 
-  FSTObjectValue *newData = [self patchDocument:maybeDoc];
+  ObjectValue newData = [self patchDocument:maybeDoc];
 
   return [FSTDocument documentWithData:newData
                                    key:self.key
@@ -306,15 +309,15 @@ NS_ASSUME_NONNULL_BEGIN
                                  state:FSTDocumentStateCommittedMutations];
 }
 
-- (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
-  FSTObjectValue *result = objectValue;
+- (ObjectValue)patchObjectValue:(ObjectValue)objectValue {
+  ObjectValue result = std::move(objectValue);
   for (const FieldPath &fieldPath : _fieldMask) {
     if (!fieldPath.empty()) {
-      FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
+      absl::optional<FieldValue> newValue = self.value.Get(fieldPath);
       if (newValue) {
-        result = [result objectBySettingValue:newValue forPath:fieldPath];
+        result = result.Set(fieldPath, *newValue);
       } else {
-        result = [result objectByDeletingPath:fieldPath];
+        result = result.Delete(fieldPath);
       }
     }
   }
@@ -402,11 +405,11 @@ NS_ASSUME_NONNULL_BEGIN
               [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  NSArray<FSTFieldValue *> *transformResults =
+  std::vector<FieldValue> transformResults =
       [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
-  FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
+  ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
 
-  return [FSTDocument documentWithData:newData
+  return [FSTDocument documentWithData:std::move(newData)
                                    key:doc.key
                                version:doc.version
                                  state:FSTDocumentStateLocalMutations];
@@ -431,11 +434,14 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
               [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
-  NSArray<FSTFieldValue *> *transformResults =
-      [self serverTransformResultsWithBaseDocument:maybeDoc
-                            serverTransformResults:mutationResult.transformResults];
 
-  FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
+  HARD_ASSERT(mutationResult.transformResults.has_value());
+  ;
+  std::vector<FieldValue> transformResults =
+      [self serverTransformResultsWithBaseDocument:maybeDoc
+                            serverTransformResults:*mutationResult.transformResults];
+
+  ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
 
   return [FSTDocument documentWithData:newData
                                    key:self.key
@@ -452,25 +458,25 @@ NS_ASSUME_NONNULL_BEGIN
  * @param serverTransformResults The transform results received by the server.
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)
+- (std::vector<FieldValue>)
     serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
-                    serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
-  NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
-  HARD_ASSERT(self.fieldTransforms.size() == serverTransformResults.count,
+                    serverTransformResults:(const std::vector<FieldValue> &)serverTransformResults {
+  std::vector<FieldValue> transformResults;
+  HARD_ASSERT(self.fieldTransforms.size() == serverTransformResults.size(),
               "server transform result count (%s) should match field transforms count (%s)",
-              (unsigned long)serverTransformResults.count, self.fieldTransforms.size());
+              serverTransformResults.size(), self.fieldTransforms.size());
 
-  for (NSUInteger i = 0; i < serverTransformResults.count; i++) {
+  for (size_t i = 0; i < serverTransformResults.size(); i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
     const TransformOperation &transform = fieldTransform.transformation();
 
-    FSTFieldValue *previousValue = nil;
+    absl::optional<model::FieldValue> previousValue;
     if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
       previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
     }
 
-    [transformResults
-        addObject:transform.ApplyToRemoteDocument(previousValue, serverTransformResults[i])];
+    transformResults.push_back(
+        transform.ApplyToRemoteDocument(previousValue, serverTransformResults[i]));
   }
   return transformResults;
 }
@@ -484,32 +490,32 @@ NS_ASSUME_NONNULL_BEGIN
  *     ServerTimestampValues).
  * @return The transform results array.
  */
-- (NSArray<FSTFieldValue *> *)
-    localTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
-                                writeTime:(const Timestamp &)localWriteTime {
-  NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
+- (std::vector<FieldValue>)localTransformResultsWithBaseDocument:
+                               (nullable FSTMaybeDocument *)baseDocument
+                                                       writeTime:(const Timestamp &)localWriteTime {
+  std::vector<FieldValue> transformResults;
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
     const TransformOperation &transform = fieldTransform.transformation();
 
-    FSTFieldValue *previousValue = nil;
+    absl::optional<FieldValue> previousValue;
     if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
       previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
     }
 
-    [transformResults addObject:transform.ApplyToLocalView(previousValue, localWriteTime)];
+    transformResults.push_back(transform.ApplyToLocalView(previousValue, localWriteTime));
   }
   return transformResults;
 }
 
-- (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
-                   transformResults:(NSArray<FSTFieldValue *> *)transformResults {
-  HARD_ASSERT(transformResults.count == self.fieldTransforms.size(),
+- (ObjectValue)transformObject:(ObjectValue)objectValue
+              transformResults:(const std::vector<FieldValue> &)transformResults {
+  HARD_ASSERT(transformResults.size() == self.fieldTransforms.size(),
               "Transform results length mismatch.");
 
   for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
     const FieldPath &fieldPath = fieldTransform.path();
-    objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
+    objectValue = objectValue.Set(fieldPath, transformResults[i]);
   }
   return objectValue;
 }

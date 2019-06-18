@@ -24,12 +24,12 @@ cc_library(
     document_key.h
     document_map.h
     field_mask.h
+    field_mask.cc
     field_path.cc
     field_path.h
     field_transform.h
     field_value.cc
     field_value.h
-    field_value.mm
     field_value_options.h
     maybe_document.cc
     maybe_document.h
@@ -46,6 +46,7 @@ cc_library(
     snapshot_version.cc
     snapshot_version.h
     transform_operations.h
+    transform_operations.mm
     types.h
     unknown_document.cc
     unknown_document.h
@@ -61,11 +62,3 @@ cc_library(
     firebase_firestore_util
     firebase_firestore_types
 )
-
-if(APPLE)
-  target_link_libraries(
-    firebase_firestore_model
-    PRIVATE
-    firebase_firestore_objc_model
-  )
-endif()
