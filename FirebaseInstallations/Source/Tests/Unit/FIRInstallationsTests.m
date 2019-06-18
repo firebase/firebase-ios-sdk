@@ -213,9 +213,27 @@
 }
 
 - (void)testDeleteSuccess {
+  OCMExpect([self.mockIDController deleteInstallation]).andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
   [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
+    [deleteExpectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ deleteExpectation ] timeout:0.5];
+}
+
+- (void)testDeleteError {
+  FBLPromise *errorPromise = [FBLPromise pendingPromise];
+  [errorPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+  OCMExpect([self.mockIDController deleteInstallation]).andReturn(errorPromise);
+
+  XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    // TODO: Verify the error content.
+    
     [deleteExpectation fulfill];
   }];
 
