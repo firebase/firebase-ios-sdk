@@ -23,27 +23,29 @@
 #endif
 
 @interface FIRInstallationsSingleOperationPromiseCache <ResultType>()
-@property(nonatomic, readonly) FBLPromise *_Nonnull (^promiseFactory)(void);
+@property(nonatomic, readonly) FBLPromise *_Nonnull (^newOperationHandler)(void);
 @property(atomic, nullable) FBLPromise *pendingPromise;
 @end
 
 @implementation FIRInstallationsSingleOperationPromiseCache
 
-- (instancetype)initWithPromiseFactory:(FBLPromise<id> *_Nonnull (^)(void))factory {
-  if (factory == nil) {
-    [NSException raise:NSInvalidArgumentException format:@"`factory` must not be `nil`."];
+- (instancetype)initWithNewOperationHandler:
+    (FBLPromise<id> *_Nonnull (^)(void))newOperationHandler {
+  if (newOperationHandler == nil) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"`newOperationHandler` must not be `nil`."];
   }
 
   self = [super init];
   if (self) {
-    _promiseFactory = [factory copy];
+    _newOperationHandler = [newOperationHandler copy];
   }
   return self;
 }
 
 - (FBLPromise *)getExistingPendingOrCreateNewPromise {
   if (!self.pendingPromise) {
-    self.pendingPromise = self.promiseFactory();
+    self.pendingPromise = self.newOperationHandler();
 
     self.pendingPromise
         .then(^id(id result) {

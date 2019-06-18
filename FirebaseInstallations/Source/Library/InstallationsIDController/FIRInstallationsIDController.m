@@ -82,19 +82,19 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     __weak FIRInstallationsIDController *weakSelf = self;
 
     _getInstallationPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
-        initWithPromiseFactory:^FBLPromise *_Nonnull {
+        initWithNewOperationHandler:^FBLPromise *_Nonnull {
           FIRInstallationsIDController *strongSelf = weakSelf;
           return [strongSelf createGetInstallationItemPromise];
         }];
 
     _authTokenPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
-        initWithPromiseFactory:^FBLPromise *_Nonnull {
+        initWithNewOperationHandler:^FBLPromise *_Nonnull {
           FIRInstallationsIDController *strongSelf = weakSelf;
           return [strongSelf createAuthTokenPromiseForcingRefresh:NO];
         }];
 
     _authTokenForcingRefreshPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
-        initWithPromiseFactory:^FBLPromise *_Nonnull {
+        initWithNewOperationHandler:^FBLPromise *_Nonnull {
           FIRInstallationsIDController *strongSelf = weakSelf;
           return [strongSelf createAuthTokenPromiseForcingRefresh:YES];
         }];
