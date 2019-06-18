@@ -544,4 +544,72 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(decoded.timestamp,
                    ServerTimestamp.pending)
   }
+
+  func testIncrementableInt() {
+    struct Model: Codable, Equatable {
+      var expiration: IncrementableInt
+    }
+
+    // Encoding `.increment` to `FieldValue.increment()`
+    var encoded = try! Firestore.Encoder().encode(
+      Model(expiration: IncrementableInt.increment(3)))
+    // FieldValue.increment is not Equatable, checking for the right type only.
+    assert(encoded["expiration"] is FieldValue)
+
+    // Encoding `.value`
+    encoded = try! Firestore.Encoder().encode(
+      Model(expiration: IncrementableInt.value(3)))
+    XCTAssertEqual(encoded as! [String: Int64], ["expiration": 3])
+
+    // Decoding integer
+    let decoded = try! Firestore.Decoder().decode(Model.self, from: ["expiration": 100])
+    XCTAssertEqual(decoded, Model(expiration: IncrementableInt.value(100)))
+  }
+
+  func testIncrementableDouble() {
+    struct Model: Codable, Equatable {
+      var duration: IncrementableDouble
+    }
+
+    // Encoding `.increment` to `FieldValue.increment()`
+    var encoded = try! Firestore.Encoder().encode(
+      Model(duration: IncrementableDouble.increment(3.3)))
+    // FieldValue.increment is not Equatable, checking for the right type only.
+    assert(encoded["duration"] is FieldValue)
+
+    // Encoding `.value`
+    encoded = try! Firestore.Encoder().encode(
+      Model(duration: IncrementableDouble.value(3.3)))
+    XCTAssertEqual(encoded as! [String: Double], ["duration": 3.3])
+
+    // Decoding integer
+    let decoded = try! Firestore.Decoder().decode(Model.self, from: ["duration": 100.99])
+    XCTAssertEqual(decoded, Model(duration: IncrementableDouble.value(100.99)))
+  }
+
+  func testOperatableArray() {
+    struct Model: Codable, Equatable {
+      var values: OperatableArray<String>
+    }
+
+    // Encoding `.union` to `FieldValue.arrayUnion()`
+    var encoded = try! Firestore.Encoder().encode(
+      Model(values: OperatableArray.union(["a"])))
+    // FieldValue.arrayUnion is not Equatable, checking for the right type only.
+    assert(encoded["values"] is FieldValue)
+
+    // Encoding `.remove` to `FieldValue.arrayRemove()`
+    encoded = try! Firestore.Encoder().encode(
+      Model(values: OperatableArray.remove(["a"])))
+    // FieldValue.arrayRemove is not Equatable, checking for the right type only.
+    assert(encoded["values"] is FieldValue)
+
+    encoded = try! Firestore.Encoder().encode(
+      Model(values: OperatableArray.value(["a"])))
+    XCTAssertEqual(encoded["values"] as! [String], ["a"])
+
+    let decoded = try! Firestore.Decoder().decode(Model.self,
+                                                  from: ["values": ["a"]])
+    XCTAssertEqual(decoded, Model(values: OperatableArray.value(["a"])))
+  }
 }
