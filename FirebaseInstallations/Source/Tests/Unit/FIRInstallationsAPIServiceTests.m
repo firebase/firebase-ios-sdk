@@ -314,11 +314,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
                                    completionHandler:completionArg])
-  .andReturn(mockDataTask);
+      .andReturn(mockDataTask);
 
   // 2. Call
-  FBLPromise<NSNull *> *promise =
-  [self.service deleteInstallation:installation];
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service deleteInstallation:installation];
 
   // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
   OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
@@ -335,7 +334,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNil(promise.error);
-  XCTAssertTrue(promise.isFulfilled);
+  XCTAssertEqual(promise.value, installation);
 }
 
 - (void)testDeleteInstallationErrorNotFound {
@@ -360,11 +359,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
                                    completionHandler:completionArg])
-  .andReturn(mockDataTask);
+      .andReturn(mockDataTask);
 
   // 2. Call
-  FBLPromise<NSNull *> *promise =
-  [self.service deleteInstallation:installation];
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service deleteInstallation:installation];
 
   // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
   OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
@@ -441,15 +439,21 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 - (id)deleteInstallationRequestValidationWithInstallation:(FIRInstallationsItem *)installation {
   return [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
-    XCTAssert([request isKindOfClass:[NSURLRequest class]], @"Unexpected class: %@", [request class]);
+    XCTAssert([request isKindOfClass:[NSURLRequest class]], @"Unexpected class: %@",
+              [request class]);
     XCTAssertEqualObjects(request.HTTPMethod, @"DELETE");
-    NSString *expectedURL = [NSString stringWithFormat:@"https://firebaseinstallations.googleapis.com/v1/projects/%@/installations/%@/", self.projectID, installation.firebaseInstallationID];
+    NSString *expectedURL = [NSString
+        stringWithFormat:
+            @"https://firebaseinstallations.googleapis.com/v1/projects/%@/installations/%@/",
+            self.projectID, installation.firebaseInstallationID];
     XCTAssertEqualObjects(request.URL.absoluteString, expectedURL);
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Content-Type"], @"application/json");
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
 
     NSError *error;
-    NSDictionary *JSONBody = [NSJSONSerialization JSONObjectWithData:request.HTTPBody options:0 error:&error];
+    NSDictionary *JSONBody = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
+                                                             options:0
+                                                               error:&error];
     XCTAssertNotNil(JSONBody, @"Error: %@", error);
     XCTAssertEqualObjects(JSONBody, @{});
 

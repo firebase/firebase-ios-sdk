@@ -28,6 +28,7 @@
 #import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallations (Tests)
 @property(nonatomic, readwrite, strong) FIROptions *appOptions;
@@ -117,11 +118,13 @@
 }
 
 - (void)testAuthTokenSuccess {
-  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc]
-       initWithToken:@"token"
-      expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  FIRInstallationsItem *installationWithToken =
+      [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appOptions.googleAppID
+                                                              appName:@"appName"];
+  installationWithToken.authToken.token = @"token";
+  installationWithToken.authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
   OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO])
-      .andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+      .andReturn([FBLPromise resolvedWith:installationWithToken]);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
@@ -161,11 +164,13 @@
 }
 
 - (void)testAuthTokenForcingRefreshSuccess {
-  FIRInstallationsAuthTokenResult *expectedTokenResult = [[FIRInstallationsAuthTokenResult alloc]
-       initWithToken:@"token"
-      expirationDate:[NSDate dateWithTimeIntervalSinceNow:1000]];
+  FIRInstallationsItem *installationWithToken =
+      [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appOptions.googleAppID
+                                                              appName:@"appName"];
+  installationWithToken.authToken.token = @"token";
+  installationWithToken.authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
   OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES])
-      .andReturn([FBLPromise resolvedWith:expectedTokenResult]);
+      .andReturn([FBLPromise resolvedWith:installationWithToken]);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
   [self.installations
@@ -174,9 +179,10 @@
                                 NSError *_Nullable error) {
                      XCTAssertNil(error);
                      XCTAssertNotNil(tokenResult);
-                     XCTAssertEqualObjects(tokenResult.authToken, expectedTokenResult.authToken);
+                     XCTAssertEqualObjects(tokenResult.authToken,
+                                           installationWithToken.authToken.token);
                      XCTAssertEqualObjects(tokenResult.expirationDate,
-                                           expectedTokenResult.expirationDate);
+                                           installationWithToken.authToken.expirationDate);
                      [tokenExpectation fulfill];
                    }];
 

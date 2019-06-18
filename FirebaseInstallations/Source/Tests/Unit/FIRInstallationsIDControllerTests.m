@@ -21,7 +21,6 @@
 #import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStore.h"
@@ -213,8 +212,7 @@
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
   // 2. Request auth token.
-  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
-      [self.controller getAuthTokenForcingRefresh:NO];
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
   FBLWaitForPromisesWithTimeout(0.5);
@@ -225,8 +223,9 @@
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
 
-  XCTAssertEqualObjects(promise.value.authToken, storedInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.expirationDate, storedInstallation.authToken.expirationDate);
+  XCTAssertEqualObjects(promise.value.authToken.token, storedInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
+                        storedInstallation.authToken.expirationDate);
 }
 
 - (void)testGetAuthToken_WhenValidInstallationWithExpiredTokenExists_ThenTokenRequested {
@@ -246,8 +245,7 @@
       .andReturn([FBLPromise resolvedWith:responseInstallation]);
 
   // 2. Request auth token.
-  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
-      [self.controller getAuthTokenForcingRefresh:NO];
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
   FBLWaitForPromisesWithTimeout(0.5);
@@ -258,8 +256,8 @@
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
 
-  XCTAssertEqualObjects(promise.value.authToken, responseInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.expirationDate,
+  XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
                         responseInstallation.authToken.expirationDate);
 }
 
@@ -279,8 +277,7 @@
       .andReturn([FBLPromise resolvedWith:responseInstallation]);
 
   // 2. Request auth token.
-  FBLPromise<FIRInstallationsAuthTokenResult *> *promise =
-      [self.controller getAuthTokenForcingRefresh:YES];
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
 
   // 3. Wait for the promise to resolve.
   FBLWaitForPromisesWithTimeout(0.5);
@@ -291,8 +288,8 @@
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
 
-  XCTAssertEqualObjects(promise.value.authToken, responseInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.expirationDate,
+  XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
+  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
                         responseInstallation.authToken.expirationDate);
 }
 
@@ -324,12 +321,12 @@
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
 
-  for (FBLPromise<FIRInstallationsAuthTokenResult *> *authPromise in authTokenPromises) {
+  for (FBLPromise<FIRInstallationsItem *> *authPromise in authTokenPromises) {
     XCTAssertNil(authPromise.error);
     XCTAssertNotNil(authPromise.value);
 
-    XCTAssertEqualObjects(authPromise.value.authToken, storedInstallation.authToken.token);
-    XCTAssertEqualObjects(authPromise.value.expirationDate,
+    XCTAssertEqualObjects(authPromise.value.authToken.token, storedInstallation.authToken.token);
+    XCTAssertEqualObjects(authPromise.value.authToken.expirationDate,
                           storedInstallation.authToken.expirationDate);
   }
 }
@@ -366,20 +363,174 @@
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
 
-  for (FBLPromise<FIRInstallationsAuthTokenResult *> *authPromise in authTokenPromises) {
+  for (FBLPromise<FIRInstallationsItem *> *authPromise in authTokenPromises) {
     XCTAssertNil(authPromise.error);
     XCTAssertNotNil(authPromise.value);
 
-    XCTAssertEqualObjects(authPromise.value.authToken, responseInstallation.authToken.token);
-    XCTAssertEqualObjects(authPromise.value.expirationDate,
+    XCTAssertEqualObjects(authPromise.value.authToken.token, responseInstallation.authToken.token);
+    XCTAssertEqualObjects(authPromise.value.authToken.expirationDate,
                           responseInstallation.authToken.expirationDate);
   }
 }
 
 #pragma mark - FID Deletion
 
-- (void)testDeleteInstallation {
-  // 1. 
+- (void)testDeleteRegisteredInstallation {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                      appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:installation]);
+
+  // 2. Expect API request to delete installation.
+  OCMExpect([self.mockAPIService deleteInstallation:installation])
+      .andReturn([FBLPromise resolvedWith:installation]);
+
+  // 3. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Call delete installation.
+  FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+
+  // 5. Wait for operations to complete and check.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
 }
+
+- (void)testDeleteUnregisteredInstallation {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                      appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:installation]);
+
+  // 2. Don't expect API request to delete installation.
+  OCMReject([self.mockAPIService deleteInstallation:[OCMArg any]]);
+
+  // 3. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Call delete installation.
+  FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+
+  // 5. Wait for operations to complete and check.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
+}
+
+- (void)testDeleteRegisteredInstallation_WhenAPIRequestFails_ThenFailsAndInstallationIsNotRemoved {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                      appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:installation]);
+
+  // 2. Expect API request to delete installation.
+  FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
+  [rejectedAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+  OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
+
+  // 3. Don't expect the installation to be removed from the storage.
+  OCMReject([self.mockInstallationsStore removeInstallationForAppID:[OCMArg any]
+                                                            appName:[OCMArg any]]);
+
+  // 4. Call delete installation.
+  FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+
+  // 5. Wait for operations to complete and check.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]);
+  XCTAssertTrue(promise.isRejected);
+}
+
+- (void)testDeleteRegisteredInstallation_WhenAPIFailsWithNotFound_ThenInstallationIsRemoved {
+  // 1. Expect installation to be requested from the store.
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                      appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:installation]);
+
+  // 2. Expect API request to delete installation.
+  FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
+  [rejectedAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:404]];
+  OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
+
+  // 3. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Call delete installation.
+  FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+
+  // 5. Wait for operations to complete and check.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
+}
+
+- (void)testDeleteInstallation_WhenThereIsOngoingAuthTokenRequest_ThenUsesItsResult {
+  // 1. Stub mocks for auth token request.
+
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect API request.
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  FBLPromise *pendingAuthTokenAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn(pendingAuthTokenAPIPromise);
+
+  // 2. Send auth token request.
+  [self.controller getAuthTokenForcingRefresh:YES];
+
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
+  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
+
+  // 3. Delete installation.
+
+  // 3.1. Don't expect installation to be requested from the store.
+  OCMReject([self.mockInstallationsStore installationForAppID:[OCMArg any] appName:[OCMArg any]]);
+
+  // 3.2. Expect API request to delete the UPDATED installation.
+  OCMExpect([self.mockAPIService deleteInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 3.3. Expect the UPDATED installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore
+                removeInstallationForAppID:responseInstallation.appID
+                                   appName:responseInstallation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.4. Call delete installation.
+  FBLPromise<NSNull *> *deletePromise = [self.controller deleteInstallation];
+
+  // 4. Fulfill auth token promise to proceed.
+  [pendingAuthTokenAPIPromise fulfill:responseInstallation];
+
+  // 5. Wait for operations to complete and check the result.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(deletePromise.error);
+  XCTAssertTrue(deletePromise.isFulfilled);
+}
+
+// TODO: Test a single delete installation request at a time.
 
 @end

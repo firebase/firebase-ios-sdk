@@ -45,11 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
     (FIRInstallationsItem *)installation;
 
 /**
- * Sends a request to delete the installation, related auth tokens and all related data from the server.
+ * Sends a request to delete the installation, related auth tokens and all related data from the
+ * server.
  * @param installation The installation to delete.
- * @return Returns a promise that is resolved on successful deletion or is rejected with an error otherwise.
+ * @return Returns a promise that is resolved with the passed installation on successful deletion or
+ * is rejected with an error otherwise.
  */
-- (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation;
+- (FBLPromise<FIRInstallationsItem *> *)deleteInstallation:(FIRInstallationsItem *)installation;
 
 @end
 

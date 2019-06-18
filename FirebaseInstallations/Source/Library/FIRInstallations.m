@@ -33,6 +33,7 @@
 
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
 @protocol FIRInstallationsInstanceProvider
@@ -131,6 +132,12 @@
 - (void)authTokenForcingRefresh:(BOOL)forceRefresh
                      completion:(FIRInstallationsTokenHandler)completion {
   [self.installationsIDController getAuthTokenForcingRefresh:forceRefresh]
+      .then(^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
+        FIRInstallationsAuthTokenResult *result = [[FIRInstallationsAuthTokenResult alloc]
+             initWithToken:installation.authToken.token
+            expirationDate:installation.authToken.expirationDate];
+        return result;
+      })
       .then(^id(FIRInstallationsAuthTokenResult *token) {
         completion(token, nil);
         return nil;

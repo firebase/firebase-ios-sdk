@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FBLPromise<ValueType>;
 @class FIRInstallationsItem;
-@class FIRInstallationsAuthTokenResult;
 
 /**
  * The class is responsible for managing FID for a given `FIRApp`.
@@ -34,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
 
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh;
+- (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh;
 
 - (FBLPromise<NSNull *> *)deleteInstallation;
 

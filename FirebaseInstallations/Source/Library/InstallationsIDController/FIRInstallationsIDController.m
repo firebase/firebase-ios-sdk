@@ -23,7 +23,7 @@
 #endif
 
 #import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsAuthTokenResultInternal.h"
+#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
@@ -43,11 +43,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 @property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
     *getInstallationPromiseCache;
 @property(nonatomic, readonly)
-    FIRInstallationsSingleOperationPromiseCache<FIRInstallationsAuthTokenResult *>
-        *authTokenPromiseCache;
+    FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *> *authTokenPromiseCache;
+@property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
+    *authTokenForcingRefreshPromiseCache;
 @property(nonatomic, readonly)
-    FIRInstallationsSingleOperationPromiseCache<FIRInstallationsAuthTokenResult *>
-        *authTokenForcingRefreshPromiseCache;
+    FIRInstallationsSingleOperationPromiseCache<NSNull *> *deleteInstallationPromiseCache;
 @end
 
 @implementation FIRInstallationsIDController
@@ -90,13 +90,19 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     _authTokenPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
         initWithNewOperationHandler:^FBLPromise *_Nonnull {
           FIRInstallationsIDController *strongSelf = weakSelf;
-          return [strongSelf createAuthTokenPromiseForcingRefresh:NO];
+          return [strongSelf installationWithValidAuthTokenForcingRefresh:NO];
         }];
 
     _authTokenForcingRefreshPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
         initWithNewOperationHandler:^FBLPromise *_Nonnull {
           FIRInstallationsIDController *strongSelf = weakSelf;
-          return [strongSelf createAuthTokenPromiseForcingRefresh:YES];
+          return [strongSelf installationWithValidAuthTokenForcingRefresh:YES];
+        }];
+
+    _deleteInstallationPromiseCache = [[FIRInstallationsSingleOperationPromiseCache alloc]
+        initWithNewOperationHandler:^FBLPromise *_Nonnull {
+          FIRInstallationsIDController *strongSelf = weakSelf;
+          return [strongSelf createDeleteInstallationPromise];
         }];
   }
   return self;
@@ -135,7 +141,6 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         BOOL isValid = NO;
         switch (installation.registrationStatus) {
           case FIRInstallationStatusUnregistered:
-          case FIRInstallationStatusRegistrationInProgress:
           case FIRInstallationStatusRegistered:
             isValid = YES;
             break;
@@ -178,7 +183,6 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
     case FIRInstallationStatusUnknown:
     case FIRInstallationStatusUnregistered:
-    case FIRInstallationStatusRegistrationInProgress:
       // Registration required. Proceed.
       break;
   }
@@ -191,19 +195,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 #pragma mark - Auth Token
 
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)createAuthTokenPromiseForcingRefresh:
-    (BOOL)forceRefresh {
-  return [self installationWithValidAuthTokenForcingRefresh:forceRefresh].then(
-      ^FIRInstallationsAuthTokenResult *(FIRInstallationsItem *installation) {
-        FIRInstallationsAuthTokenResult *result = [[FIRInstallationsAuthTokenResult alloc]
-             initWithToken:installation.authToken.token
-            expirationDate:installation.authToken.expirationDate];
-        return result;
-      });
-}
-
-// TODO: Guarantee a single request at the time.
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
+- (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
   if (forceRefresh) {
     return [self.authTokenForcingRefreshPromiseCache getExistingPendingOrCreateNewPromise];
   } else {
@@ -235,8 +227,53 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 #pragma mark - Delete FID
 
 - (FBLPromise<NSNull *> *)deleteInstallation {
-  return [FBLPromise resolvedWith:[NSNull null]];
+  return [self.deleteInstallationPromiseCache getExistingPendingOrCreateNewPromise];
 }
 
+- (FBLPromise<NSNull *> *)createDeleteInstallationPromise {
+  // Check for ongoing requests first, if there is no a request, then check local storage for
+  // existing instlallation.
+  FBLPromise<FIRInstallationsItem *> *currentInstallationPromise =
+      [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
+          ?: [self.authTokenPromiseCache getExistingPendingPromise]
+                 ?: [self.getInstallationPromiseCache getExistingPendingPromise]
+                        ?: [self getStoredInstallation];
+
+  return currentInstallationPromise
+      .then(^id(FIRInstallationsItem *installation) {
+        return [self sendDeleteInstallationRequestIfNeeded:installation];
+      })
+      .then(^id(FIRInstallationsItem *installation) {
+        // Remove the installation from the local storage.
+        return [self.installationsStore removeInstallationForAppID:installation.appID
+                                                           appName:installation.firebaseAppName];
+      });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)sendDeleteInstallationRequestIfNeeded:
+    (FIRInstallationsItem *)installation {
+  switch (installation.registrationStatus) {
+    case FIRInstallationStatusUnknown:
+    case FIRInstallationStatusUnregistered:
+      // The installation is not registered, so it is safe to be deleted as is, so return early.
+      return [FBLPromise resolvedWith:installation];
+      break;
+
+    case FIRInstallationStatusRegistered:
+      // Proceed to de-register the installation on the server.
+      break;
+  }
+
+  return [self.APIService deleteInstallation:installation].recover(^id(NSError *APIError) {
+    if ([APIError isEqual:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:404]]) {
+      // The installation was not found on the server.
+      // Return success.
+      return installation;
+    } else {
+      // Re-throw the error otherwise.
+      return APIError;
+    }
+  });
+}
 
 @end

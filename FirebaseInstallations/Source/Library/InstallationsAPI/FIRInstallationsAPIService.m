@@ -108,9 +108,14 @@ NS_ASSUME_NONNULL_END
 
 - (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation {
   NSURLRequest *request = [self deleteInstallationRequestWithInstallation:installation];
-  return [self sendURLRequest:request].then(^id (FIRInstallationsURLSessionResponse *response) {
-    return [self validateHTTPResponseSatatusCode:response.response];
-  });
+  return [self sendURLRequest:request]
+      .then(^id(FIRInstallationsURLSessionResponse *response) {
+        return [self validateHTTPResponseSatatusCode:response.response];
+      })
+      .then(^id(id result) {
+        // Return the original installation on success.
+        return installation;
+      });
 }
 
 #pragma mark - Register Installation
@@ -179,8 +184,9 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Delete Installation
 
 - (NSURLRequest *)deleteInstallationRequestWithInstallation:(FIRInstallationsItem *)installation {
-  NSString *URLString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/%@/", kFIRInstallationsAPIBaseURL, self.projectID,
-                         installation.firebaseInstallationID];
+  NSString *URLString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/%@/",
+                                                   kFIRInstallationsAPIBaseURL, self.projectID,
+                                                   installation.firebaseInstallationID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
   return [self requestWithURL:URL HTTPMethod:@"DELETE" bodyDict:@{}];
@@ -188,7 +194,9 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - URL Request
 
-- (NSURLRequest *)requestWithURL:(NSURL *)requestURL HTTPMethod:(NSString *)HTTPMethod bodyDict:(NSDictionary *)bodyDict {
+- (NSURLRequest *)requestWithURL:(NSURL *)requestURL
+                      HTTPMethod:(NSString *)HTTPMethod
+                        bodyDict:(NSDictionary *)bodyDict {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
   request.HTTPMethod = HTTPMethod;
   [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
