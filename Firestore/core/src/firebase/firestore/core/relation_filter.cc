@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -28,6 +29,29 @@ namespace core {
 
 using model::FieldPath;
 using model::FieldValue;
+
+namespace {
+
+const char* Describe(Filter::Operator op) {
+  switch (op) {
+    case Filter::Operator::LessThan:
+      return "<";
+    case Filter::Operator::LessThanOrEqual:
+      return "<=";
+    case Filter::Operator::Equal:
+      return "==";
+    case Filter::Operator::GreaterThanOrEqual:
+      return ">=";
+    case Filter::Operator::GreaterThan:
+      return ">";
+    case Filter::Operator::ArrayContains:
+      return "array_contains";
+  }
+
+  UNREACHABLE();
+}
+
+}  // namespace
 
 RelationFilter::RelationFilter(FieldPath field,
                                Operator op,
@@ -81,8 +105,8 @@ bool RelationFilter::MatchesComparison(const FieldValue& other) const {
 }
 
 std::string RelationFilter::CanonicalId() const {
-  // TODO(rsgowman): Port this
-  abort();
+  return absl::StrCat(field_.CanonicalString(), Describe(op_),
+                      value_rhs_.ToString());
 }
 
 }  // namespace core
