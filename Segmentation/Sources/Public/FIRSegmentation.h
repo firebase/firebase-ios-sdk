@@ -53,10 +53,9 @@ NS_SWIFT_NAME(Segmentation)
 /// Set your own custom installation ID to be used for segmentation purposes.
 /// This method needs to be called every time (and immediately) upon any changes to the custom
 /// installation ID.
-/// @param completionHandler Set custom installation ID completion.
-/// @param setCustomInstallationIDError nil if initialization succeeded.
-- (void)setCustomInstallationId:(NSString *)customInstallationId
-                 withCompletion:(void (^)(NSError *setCustomInstallationIDError))completionHandler;
+/// @param completionHandler Set custom installation ID completion. Returns nil if initialization succeeded or an NSError object if initialization failed.
+- (void)setCustomInstallationID:(NSString *)customInstallationID
+                 withCompletion:(void (^)(NSError *))completionHandler;
 
 @end
 

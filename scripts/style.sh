@@ -24,7 +24,9 @@
 # Strip the clang-format version output down to the major version. Examples:
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
-version=$(clang-format --version)
+source $HOME/googdrive/Scripts/aliases.sh
+shopt -s expand_aliases
+version=$(clang-format2 --version)
 
 # Log the version in non-interactive use as it can be useful in travis logs.
 if [[ ! -t 1 ]]; then
@@ -39,7 +41,8 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  8)
+  6 | 7 | 8)
+    # Allow an older clang-format to accommodate Travis version skew.
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -48,9 +51,8 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 8."
-    echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb"
+    echo "Please upgrade to clang-format version 7."
+    echo "If it's installed via homebrew you can run: brew upgrade clang-format"
     exit 1
     ;;
 esac
@@ -58,17 +60,11 @@ esac
 system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
-  # Log the version in non-interactive use as it can be useful in travis logs.
-  if [[ ! -t 1 ]]; then
-    echo "Found: $version"
-  fi
   version="${version/*version /}"
-  # Ensure the swiftformat version is at least 0.35.x since (as of 2019-02-01)
-  # travis runs 0.35.7. We may need to be more strict about version checks in
-  # the future if we run into different versions making incompatible format
-  # changes.
-  if [[ ! "$version" =~ ^0.3[5-9] && ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.35.0"
+  # Allow an older swiftformat because travis isn't running High Sierra yet
+  # and the formula hasn't been updated in a while on Sierra :-/.
+  if [[ "$version" != "0.32.0" && "$version" != "0.33"* && "$version" != "0.35"* ]]; then
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.33.8"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi
@@ -111,8 +107,6 @@ else
   clang_options+=(-i)
 fi
 
-#TODO(#2223) - Find a way to handle spaces in filenames
-
 files=$(
 (
   if [[ $# -gt 0 ]]; then
@@ -136,9 +130,6 @@ s%^./%%
 \%^build/% d
 \%^Debug/% d
 \%^Release/% d
-
-# pod gen output
-\%^gen/% d
 
 # Sources controlled outside this tree
 \%/third_party/% d
@@ -172,7 +163,7 @@ for f in $files; do
       false
     fi
   else
-    clang-format "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
+    clang-format2 "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi
 
   if [[ "$test_only" == true && $? -ne 1 ]]; then

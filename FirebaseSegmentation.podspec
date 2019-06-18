@@ -35,8 +35,8 @@ Firebase Segmentation enables you to associate your custom application instance 
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Segmentation/**/*'
-  s.public_header_files = 'Segmentation/Public/*.h'
+  s.source_files = 'Segmentation/Sources/**/*'
+  s.public_header_files = 'Segmentation/Sources/Public/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'FirebaseInstanceID', '~> 4.1.1'
