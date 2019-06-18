@@ -127,8 +127,8 @@ using firebase::firestore::model::TargetId;
   ObjectValue data = [remoteSerializer decodedFields:document.fields];
   DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
-  return [FSTDocument documentWithData:data
-                                   key:key
+  return [FSTDocument documentWithData:std::move(data)
+                                   key:std::move(key)
                                version:version
                                  state:committedMutations ? FSTDocumentStateCommittedMutations
                                                           : FSTDocumentStateSynced];

@@ -18,15 +18,23 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// The type and UI style of an in-app message.
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
+  /// Modal style.
   FIRInAppMessagingDisplayMessageTypeModal,
+  /// Banner style.
   FIRInAppMessagingDisplayMessageTypeBanner,
+  /// Image-only style.
   FIRInAppMessagingDisplayMessageTypeImageOnly,
+  /// Card style.
   FIRInAppMessagingDisplayMessageTypeCard
 };
 
+/// Represents how an in-app message should be triggered to appear.
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
+  /// Triggered on app foreground.
   FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
+  /// Triggered from an analytics event being fired.
   FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
 };
 
@@ -50,7 +58,10 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
  */
 @property(nonatomic, copy, nonnull, readonly) UIColor *buttonBackgroundColor;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithButtonText:(NSString *)btnText
                    buttonTextColor:(UIColor *)textColor
                    backgroundColor:(UIColor *)bkgColor __deprecated;
@@ -60,6 +71,10 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
  */
 NS_SWIFT_NAME(InAppMessagingImageData)
 @interface FIRInAppMessagingImageData : NSObject
+
+/**
+ * Gets the image URL from image data.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSString *imageURL;
 
 /**
@@ -67,7 +82,10 @@ NS_SWIFT_NAME(InAppMessagingImageData)
  */
 @property(nonatomic, readonly, nullable) NSData *imageRawData;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData __deprecated;
 @end
 
@@ -75,11 +93,25 @@ NS_SWIFT_NAME(InAppMessagingImageData)
  */
 @interface FIRInAppMessagingCampaignInfo : NSObject
 
+/**
+ * Identifier for the campaign for this message.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSString *messageID;
+
+/**
+ * The name of this campaign, as defined in the console on campaign creation.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSString *campaignName;
+
+/**
+ * Whether or not this message is being rendered in Test On Device mode.
+ */
 @property(nonatomic, readonly) BOOL renderAsTestMessage;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage __deprecated;
@@ -91,16 +123,19 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 NS_SWIFT_NAME(InAppMessagingAction)
 @interface FIRInAppMessagingAction : NSObject
 
-/*
+/**
  * The text of the action button, if applicable.
  */
 @property(nonatomic, nullable, copy, readonly) NSString *actionText;
-/*
+/**
  * The URL to follow if the action is clicked.
  */
 @property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithActionText:(nullable NSString *)actionText
                          actionURL:(NSURL *)actionURL __deprecated;
 
@@ -112,11 +147,26 @@ NS_SWIFT_NAME(InAppMessagingAction)
  */
 NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 @interface FIRInAppMessagingDisplayMessage : NSObject
+
+/**
+ * Metadata for the campaign to which this message belongs.
+ */
 @property(nonatomic, copy, nonnull, readonly) FIRInAppMessagingCampaignInfo *campaignInfo;
+
+/**
+ * The type and UI style of this message.
+ */
 @property(nonatomic, readonly) FIRInAppMessagingDisplayMessageType type;
+
+/**
+ * How this message should be triggered.
+ */
 @property(nonatomic, readonly) FIRInAppMessagingDisplayTriggerType triggerType;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
@@ -127,12 +177,12 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
 
-/*
+/**
  * Gets the title text for a card FIAM message.
  */
 @property(nonatomic, nonnull, copy, readonly) NSString *title;
 
-/*
+/**
  * Gets the body text for a card FIAM message.
  */
 @property(nonatomic, nullable, copy, readonly) NSString *body;
@@ -142,7 +192,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
  */
 @property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
-/*
+/**
  * Image data for the supplied portrait image for a card FIAM messasge.
  */
 @property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *portraitImageData;
@@ -177,6 +227,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
  */
 @property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
@@ -221,7 +272,10 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
  */
 @property(nonatomic, copy, nonnull) UIColor *textColor;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
@@ -239,11 +293,20 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
  */
 NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 @interface FIRInAppMessagingBannerDisplay : FIRInAppMessagingDisplayMessage
-// Title is always required for modal messages.
+
+/**
+ * Gets the title of a banner message.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSString *title;
 
-// Image, body, action URL are all optional for banner messages.
+/**
+ * Gets the image data for a banner message.
+ */
 @property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *imageData;
+
+/**
+ * Gets the body text for a banner message.
+ */
 @property(nonatomic, nullable, copy, readonly) NSString *bodyText;
 
 /**
@@ -261,7 +324,10 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
  */
 @property(nonatomic, nullable, readonly) NSURL *actionURL;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
@@ -289,7 +355,10 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
  */
 @property(nonatomic, nullable, readonly) NSURL *actionURL;
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Deprecated, this class shouldn't be directly instantiated.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
@@ -298,20 +367,24 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
                         actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
+/// The way that an in-app message was dismissed.
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
-  FIRInAppMessagingDismissTypeUserSwipe,     // user swipes away the banner view
-  FIRInAppMessagingDismissTypeUserTapClose,  // user clicks on close buttons
-  FIRInAppMessagingDismissTypeAuto,          // automatic dismiss from banner view
-  FIRInAppMessagingDismissUnspecified,       // message is dismissed, but not belonging to any
-                                             // above dismiss category.
+  /// Message was swiped away (only valid for banner messages).
+  FIRInAppMessagingDismissTypeUserSwipe,
+  /// The user tapped a button to close this message.
+  FIRInAppMessagingDismissTypeUserTapClose,
+  /// The message was automatically dismissed (only valid for banner messages).
+  FIRInAppMessagingDismissTypeAuto,
+  /// Dismiss method unknown.
+  FIRInAppMessagingDismissUnspecified,
 };
 
-// enum integer value used in as code for NSError reported from displayErrorEncountered: callback
+/// Error code for an in-app message that failed to display.
 typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
-  FIAMDisplayRenderErrorTypeImageDataInvalid,  // provided image data is not valid for image
-                                               // rendering
-  FIAMDisplayRenderErrorTypeUnspecifiedError,  // error not classified, mainly unexpected
-                                               // failure cases
+  /// The image data for this in-app message is invalid.
+  FIAMDisplayRenderErrorTypeImageDataInvalid,
+  /// Unexpected error.
+  FIAMDisplayRenderErrorTypeUnspecifiedError,
 };
 
 /**

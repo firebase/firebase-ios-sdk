@@ -214,7 +214,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         // override, so use a Precondition of exists=true
         baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
                                                             fieldMask:*fieldMask
-                                                                value:baseValues
+                                                                value:std::move(baseValues)
                                                          precondition:Precondition::Exists(true)]);
       }
     }

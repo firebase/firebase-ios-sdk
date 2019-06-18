@@ -310,7 +310,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (ObjectValue)patchObjectValue:(ObjectValue)objectValue {
-  ObjectValue result = objectValue;
+  ObjectValue result = std::move(objectValue);
   for (const FieldPath &fieldPath : _fieldMask) {
     if (!fieldPath.empty()) {
       absl::optional<FieldValue> newValue = self.value.Get(fieldPath);
@@ -409,7 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
   ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
 
-  return [FSTDocument documentWithData:newData
+  return [FSTDocument documentWithData:std::move(newData)
                                    key:doc.key
                                version:doc.version
                                  state:FSTDocumentStateLocalMutations];

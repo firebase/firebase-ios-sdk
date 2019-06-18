@@ -54,6 +54,10 @@ using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::testutil::Version;
 
+/**
+ * Converts the input arguments to a vector of FieldValues wrapping the input
+ * types.
+ */
 template <typename... Args>
 static std::vector<FieldValue> FieldValueVector(Args... values) {
   return Array(values...).array_value();
