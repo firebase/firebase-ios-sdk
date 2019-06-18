@@ -213,7 +213,8 @@
 }
 
 - (void)testDeleteSuccess {
-  OCMExpect([self.mockIDController deleteInstallation]).andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  OCMExpect([self.mockIDController deleteInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"DeleteSuccess"];
   [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
@@ -233,7 +234,7 @@
   [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
     // TODO: Verify the error content.
-    
+
     [deleteExpectation fulfill];
   }];
 

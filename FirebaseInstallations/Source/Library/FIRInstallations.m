@@ -150,14 +150,14 @@
 
 - (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {
   [self.installationsIDController deleteInstallation]
-  .then(^id(id result) {
-    completion(nil);
-    return nil;
-  })
-  .catch(^void(NSError *error) {
-    // TODO: Make sure the error is in the public domain and wrap if needed.
-    completion(error);
-  });
+      .then(^id(id result) {
+        completion(nil);
+        return nil;
+      })
+      .catch(^void(NSError *error) {
+        // TODO: Make sure the error is in the public domain and wrap if needed.
+        completion(error);
+      });
 }
 
 @end
