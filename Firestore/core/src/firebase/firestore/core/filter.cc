@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 
 namespace firebase {
@@ -33,9 +34,14 @@ using model::FieldValue;
 std::shared_ptr<Filter> Filter::Create(FieldPath path,
                                        Operator op,
                                        FieldValue value_rhs) {
-  // TODO(rsgowman): Java performs a number of checks here, and then invokes the
-  // ctor of the relevant Filter subclass. Port those checks here.
-  if (value_rhs.is_nan()) {
+  if (value_rhs.type() == FieldValue::Type::Null) {
+    if (op != Filter::Operator::Equal) {
+      ThrowInvalidArgument(
+          "Invalid Query. You can only perform equality comparisons on null "
+          "values.");
+    }
+    return std::make_shared<NullFilter>(std::move(path));
+  } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
           "Invalid Query. You can only perform equality comparisons on NaN.");
