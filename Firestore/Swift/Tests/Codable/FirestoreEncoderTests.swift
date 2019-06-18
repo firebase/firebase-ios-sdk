@@ -504,4 +504,44 @@ class FirestoreEncoderTests: XCTestCase {
     }
     assertEncodingThrows([Model(name: "1")])
   }
+
+  func testFieldValuePassthrough() {
+    struct Model: Encodable, Equatable {
+      var fieldValue: FieldValue
+    }
+
+    let model = Model(fieldValue: FieldValue.delete())
+    let dict = ["fieldValue": FieldValue.delete()] as [String: FieldValue]
+
+    let encoded = try! Firestore.Encoder().encode(model)
+
+    XCTAssertEqual(dict, encoded as! [String: FieldValue])
+  }
+
+  func testServerTimestamp() {
+    struct Model: Codable {
+      var timestamp: ServerTimestamp
+    }
+
+    // Encoding `pending`
+    var encoded = try! Firestore.Encoder().encode(Model(timestamp: .pending))
+    XCTAssertEqual(encoded["timestamp"] as! FieldValue, FieldValue.serverTimestamp())
+
+    // Encoding `resolved`
+    encoded = try! Firestore.Encoder().encode(Model(timestamp: .resolved(Timestamp(seconds: 123_456_789, nanoseconds: 4321))))
+    XCTAssertEqual(encoded["timestamp"] as! Timestamp,
+                   Timestamp(seconds: 123_456_789, nanoseconds: 4321))
+
+    // Decoding a Timestamp leads to `resolved`
+    var dict = ["timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 4321)] as [String: Any]
+    var decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    XCTAssertEqual(decoded.timestamp,
+                   ServerTimestamp.resolved(Timestamp(seconds: 123_456_789, nanoseconds: 4321)))
+
+    // Decoding a NSNull() leads to `pending`.
+    dict = ["timestamp": NSNull()] as [String: Any]
+    decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    XCTAssertEqual(decoded.timestamp,
+                   ServerTimestamp.pending)
+  }
 }
