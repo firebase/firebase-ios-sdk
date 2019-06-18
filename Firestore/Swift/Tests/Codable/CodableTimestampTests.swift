@@ -23,14 +23,17 @@ class CodableTimestampTests: XCTestCase {
   func testTimestampEncodes() {
     let timestamp = Timestamp(seconds: 37, nanoseconds: 123)
 
-    let jsonData = try! JSONEncoder().encode(timestamp)
-    let json = String(data: jsonData, encoding: .utf8)!
+    do {
+      let jsonData = try JSONEncoder().encode(timestamp)
+      let json = String(data: jsonData, encoding: .utf8)!
 
-    // The ordering of attributes in the JSON output is not guaranteed, nor is the rounding of
-    // the values so just verify that each required property is present and that the value
-    // starts as expected.
-    XCTAssert(json.contains("\"seconds\":37"))
-    XCTAssert(json.contains("\"nanoseconds\":123"))
+      // The ordering of attributes in the JSON output is not guaranteed, so just verify that
+      // each required property is present.
+      XCTAssert(json.contains("\"seconds\":37"))
+      XCTAssert(json.contains("\"nanoseconds\":123"))
+    } catch {
+      XCTFail("Error: \(error)")
+    }
   }
 
   func testTimestampDecodes() {

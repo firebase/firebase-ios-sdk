@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef BridgingHeader_h
-#define BridgingHeader_h
+#ifndef FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_
+#define FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_
 
-#import "FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTAPIHelpers.h"
 
-#endif /* BridgingHeader_h */
+#endif /* FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_ */

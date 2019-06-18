@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-@testable import FirebaseFirestoreSwift
+import FirebaseFirestoreSwift
 import XCTest
 
 private func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
@@ -62,7 +62,7 @@ private func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any]
   XCTFail("Failed to throw")
 }
 
-class CodableDocumentTests: XCTestCase {
+class FirestoreEncoderTests: XCTestCase {
   func testInt() {
     struct Model: Codable, Equatable {
       let x: Int
@@ -77,33 +77,13 @@ class CodableDocumentTests: XCTestCase {
     _ = assertEncodes(Model(), encoded: [String: Any]())
   }
 
-  func testNil() {
+  func testString() {
     struct Model: Codable, Equatable {
-      let x: Int?
-    }
-    let model = Model(x: nil)
-    let dict = ["x": nil] as [String: Int?]
-    let encodedDict = try! Firestore.Encoder().encode(model)
-    XCTAssertNil(encodedDict["x"])
-    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict as [String: Any])
-    XCTAssertNil(model2)
-  }
-
-  func testIntNilString() {
-    struct Model: Codable, Equatable {
-      let i: Int
-      let x: Int?
       let s: String
     }
-    let model = Model(i: 7, x: nil, s: "abc")
+    let model = Model(s: "abc")
     let encodedDict = try! Firestore.Encoder().encode(model)
-    XCTAssertNil(encodedDict["x"])
-    XCTAssertTrue(encodedDict.keys.contains("i"))
-
-    // TODO: - handle encoding keys with nil values
-    // See https://stackoverflow.com/questions/47266862/encode-nil-value-as-null-with-jsonencoder
-    // and https://bugs.swift.org/browse/SR-9232
-    // XCTAssertTrue(encodedDict.keys.contains("x"))
+    XCTAssertEqual(encodedDict["s"] as! String, "abc")
   }
 
   func testOptional() {
@@ -118,6 +98,11 @@ class CodableDocumentTests: XCTestCase {
     assertDecodingThrows(["x": 42, "opt": "abc"], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["x": 45.55, "opt": 5], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["opt": 5], encoded: Model(x: 42, opt: nil))
+
+    // TODO: - handle encoding keys with nil values
+    // See https://stackoverflow.com/questions/47266862/encode-nil-value-as-null-with-jsonencoder
+    // and https://bugs.swift.org/browse/SR-9232
+    // XCTAssertTrue(encodedDict.keys.contains("x"))
   }
 
   func testEnum() {
@@ -197,7 +182,7 @@ class CodableDocumentTests: XCTestCase {
     assertRoundTrip(model: model, encoded: ["date": date])
   }
 
-  // Uncomment if we decide to reenable embedded DocumentReference's
+  // Uncomment when we decide to reenable embedded DocumentReference's
 //
 //  func testDocumentReference() {
 //    struct Model: Codable, Equatable {
@@ -303,84 +288,56 @@ class CodableDocumentTests: XCTestCase {
     assertRoundTrip(model: model, encoded: dict)
   }
 
-  func testCodingKeys() {
+  func testCodingKeysCanCustomizeEncodingAndDecoding() {
     struct Model: Codable, Equatable {
       var s: String
       var ms: String
       var d: Double
       var md: Double
-      var i: Int
-      var mi: Int
-      var b: Bool
-      var mb: Bool
 
       // Use CodingKeys to only encode part of the struct.
       enum CodingKeys: String, CodingKey {
         case s
         case d
-        case i
-        case b
       }
 
       public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         s = try values.decode(String.self, forKey: .s)
         d = try values.decode(Double.self, forKey: .d)
-        i = try values.decode(Int.self, forKey: .i)
-        b = try values.decode(Bool.self, forKey: .b)
         ms = "filler"
         md = 42.42
-        mi = -9
-        mb = false
       }
 
-      public init(ins: String, inms: String, ind: Double, inmd: Double, ini: Int, inmi: Int, inb: Bool, inmb: Bool) {
+      public init(ins: String, inms: String, ind: Double, inmd: Double) {
         s = ins
         d = ind
-        i = ini
-        b = inb
         ms = inms
         md = inmd
-        mi = inmi
-        mb = inmb
       }
     }
     let model = Model(
       ins: "abc",
       inms: "dummy",
       ind: 123.3,
-      inmd: 0,
-      ini: -4444,
-      inmi: 0,
-      inb: true,
-      inmb: true
+      inmd: 0
     )
     let dict = [
       "s": "abc",
       "d": 123.3,
-      "i": -4444,
-      "b": true,
     ] as [String: Any]
 
     let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.s, model2.s)
     XCTAssertEqual(model.d, model2.d)
-    XCTAssertEqual(model.i, model2.i)
-    XCTAssertEqual(model.b, model2.b)
     XCTAssertEqual(model2.ms, "filler")
     XCTAssertEqual(model2.md, 42.42)
-    XCTAssertEqual(model2.mi, -9)
-    XCTAssertEqual(model2.mb, false)
 
     let encodedDict = try! Firestore.Encoder().encode(model)
     XCTAssertEqual(encodedDict["s"] as! String, "abc")
     XCTAssertEqual(encodedDict["d"] as! Double, 123.3)
-    XCTAssertEqual(encodedDict["i"] as! Int, -4444)
-    XCTAssertEqual(encodedDict["b"] as! Bool, true)
     XCTAssertNil(encodedDict["ms"])
     XCTAssertNil(encodedDict["md"])
-    XCTAssertNil(encodedDict["mi"])
-    XCTAssertNil(encodedDict["mb"])
   }
 
   func testNestedObjects() {
@@ -541,7 +498,7 @@ class CodableDocumentTests: XCTestCase {
     assertRoundTrip(model: model, encoded: dict)
   }
 
-  func testEcodingEncodableArrayNotSupported() {
+  func testEncodingEncodableArrayNotSupported() {
     struct Model: Codable, Equatable {
       var name: String
     }

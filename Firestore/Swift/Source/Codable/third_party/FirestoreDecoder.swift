@@ -34,7 +34,11 @@ extension Firestore {
     public func decode<T: Decodable>(_: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       guard let value = try decoder.unbox(container, as: T.self) else {
-        throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
+        throw DecodingError.valueNotFound(
+          T.self,
+          DecodingError.Context(codingPath: [],
+                                debugDescription: "The given dictionary was invalid")
+        )
       }
       return value
     }
@@ -46,9 +50,10 @@ class _FirestoreDecoder: Decoder {
 
   // MARK: Properties
 
-  /// A stack of data containers storing data containers to decode. When a new data container is being decoded,
-  /// a corresponding storage is pushed to the stack; and when that container (and all of its children containers)
-  /// has been decoded, it is poped out such that the decoding can proceed with new top storage.
+  /// A stack of data containers storing data containers to decode. When a new data
+  /// container is being decoded, a corresponding storage is pushed to the stack;
+  /// and when that container (and all of its children containers) has been decoded,
+  /// it is popped out such that the decoding can proceed with new top storage.
   fileprivate var storage: _FirestoreDecodingStorage
 
   /// The path to the current point in the container tree. Given the root container, one could
