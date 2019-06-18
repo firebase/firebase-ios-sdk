@@ -22,7 +22,6 @@ Currently supports linting Objective-C, Objective-C++, C++, and Python source.
 import argparse
 import logging
 import os
-import re
 import subprocess
 import sys
 import textwrap
@@ -144,7 +143,7 @@ def lint_py(files):
       _flake8_warned = True
       _logger.warn(textwrap.dedent(
           """
-          Could not find flake8 on the path; skipping python lint.
+          Could not find flake8 on $PATH; skipping python lint.
           Install with:
 
             pip install --user flake8
@@ -182,41 +181,6 @@ def _unique(items):
   return list(set(items))
 
 
-def make_path():
-  """Makes a list of paths to search for binaries.
-
-  Returns:
-    A list of directories that can be sources of binaries to run. This includes
-    both the PATH environment variable and any bin directories associated with
-    python install locations.
-  """
-  # Start with the system-supplied PATH.
-  path = os.environ['PATH'].split(os.pathsep)
-
-  # In addition, add any bin directories near the lib directories in the python
-  # path. This makes it possible to find flake8 in ~/Library/Python/2.7/bin
-  # after pip install --user flake8. Also handle installations on Windows which
-  # go in %APPDATA%/Python/Scripts.
-  lib_pattern = re.compile(r'(.*)/[^/]*/site-packages')
-  for entry in sys.path:
-    entry = entry.replace(os.sep, '/')
-    m = lib_pattern.match(entry)
-    if not m:
-      continue
-
-    python_root = m.group(1).replace('/', os.sep)
-
-    for bin_basename in ('bin', 'Scripts'):
-      bin_dir = os.path.join(python_root, bin_basename)
-      if bin_dir not in path and os.path.exists(bin_dir):
-        path.append(bin_dir)
-
-  return path
-
-
-_PATH = make_path()
-
-
 def which(executable):
   """Finds the executable with the given name.
 
@@ -227,8 +191,10 @@ def which(executable):
   if executable.startswith('/'):
     return executable
 
+  path = os.environ['PATH'].split(os.pathsep)
+
   for executable_with_ext in _executable_names(executable):
-    for entry in _PATH:
+    for entry in path:
       joined = os.path.join(entry, executable_with_ext)
       if os.path.isfile(joined) and os.access(joined, os.X_OK):
         return joined
