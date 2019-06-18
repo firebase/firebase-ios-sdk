@@ -28,12 +28,21 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/** Represents a filter to be applied to the query. */
+/**
+ * RelationFilter is a document filter constraint on a query with a single
+ * relation operator.
+ */
 class RelationFilter : public Filter {
  public:
   /**
    * Creates a new filter that compares fields and values. Only intended to be
    * called from Filter::Create().
+   *
+   * @param field A path to a field in the document to filter on. The LHS of the
+   *     expression.
+   * @param op The binary operator to apply.
+   * @param value_rhs A constant value to compare @a field to. The RHS of the
+   *     expression.
    */
   RelationFilter(model::FieldPath field,
                  Operator op,
@@ -49,8 +58,13 @@ class RelationFilter : public Filter {
   bool MatchesValue(const model::FieldValue& other) const;
   bool MatchesComparison(const model::FieldValue& other) const;
 
+  /** The left hand side of the relation. A path into a document field. */
   const model::FieldPath field_;
+
+  /** The type of equality/inequality operator to use in the relation. */
   const Operator op_;
+
+  /** The right hand side of the relation. A constant value to compare to. */
   const model::FieldValue value_rhs_;
 };
 

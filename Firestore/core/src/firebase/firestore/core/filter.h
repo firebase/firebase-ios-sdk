@@ -56,8 +56,7 @@ class Filter {
                                         Operator op,
                                         model::FieldValue value_rhs);
 
-  virtual ~Filter() {
-  }
+  virtual ~Filter() = default;
 
   /** Returns the field the Filter operates over. */
   virtual const model::FieldPath& field() const = 0;
