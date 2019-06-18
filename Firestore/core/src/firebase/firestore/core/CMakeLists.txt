@@ -22,6 +22,8 @@ cc_library(
     filter.cc
     filter.h
     listen_options.h
+    nan_filter.cc
+    nan_filter.h
     query.cc
     query.h
     relation_filter.cc
