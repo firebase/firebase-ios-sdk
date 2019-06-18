@@ -107,7 +107,10 @@ NS_ASSUME_NONNULL_END
 }
 
 - (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation {
-  return [FBLPromise resolvedWith:[NSNull null]];
+  NSURLRequest *request = [self deleteInstallationRequestWithInstallation:installation];
+  return [self sendURLRequest:request].then(^id (FIRInstallationsURLSessionResponse *response) {
+    return [self validateHTTPResponseSatatusCode:response.response];
+  });
 }
 
 #pragma mark - Register Installation
@@ -124,7 +127,7 @@ NS_ASSUME_NONNULL_END
     @"sdkVersion" : [self SDKVersion]
   };
 
-  return [self requestWithURL:URL bodyDict:bodyDict];
+  return [self requestWithURL:URL HTTPMethod:@"POST" bodyDict:bodyDict];
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)
@@ -153,7 +156,7 @@ NS_ASSUME_NONNULL_END
   NSURL *URL = [NSURL URLWithString:URLString];
 
   NSDictionary *bodyDict = @{@"installation" : @{@"sdkVersion" : [self SDKVersion]}};
-  return [self requestWithURL:URL bodyDict:bodyDict];
+  return [self requestWithURL:URL HTTPMethod:@"POST" bodyDict:bodyDict];
 }
 
 - (FBLPromise<FIRInstallationsStoredAuthToken *> *)
@@ -173,11 +176,21 @@ NS_ASSUME_NONNULL_END
   });
 }
 
+#pragma mark - Delete Installation
+
+- (NSURLRequest *)deleteInstallationRequestWithInstallation:(FIRInstallationsItem *)installation {
+  NSString *URLString = [NSString stringWithFormat:@"%@/v1/projects/%@/installations/%@/", kFIRInstallationsAPIBaseURL, self.projectID,
+                         installation.firebaseInstallationID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  return [self requestWithURL:URL HTTPMethod:@"DELETE" bodyDict:@{}];
+}
+
 #pragma mark - URL Request
 
-- (NSURLRequest *)requestWithURL:(NSURL *)requestURL bodyDict:(NSDictionary *)bodyDict {
+- (NSURLRequest *)requestWithURL:(NSURL *)requestURL HTTPMethod:(NSString *)HTTPMethod bodyDict:(NSDictionary *)bodyDict {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
-  request.HTTPMethod = @"POST";
+  request.HTTPMethod = HTTPMethod;
   [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
   [self setJSONHTTPBody:bodyDict forRequest:request];
   return [request copy];
