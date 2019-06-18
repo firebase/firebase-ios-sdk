@@ -26,7 +26,7 @@
 #import "FIRInstallationsItem+RegisterInstallationAPI.h"
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
-NSString *const kFIRInstallationsAPIKey = @"x-goog-api-key";
+NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,6 +104,10 @@ NS_ASSUME_NONNULL_END
         updatedInstallation.authToken = authToken;
         return updatedInstallation;
       });
+}
+
+- (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation {
+  return [FBLPromise resolvedWith:[NSNull null]];
 }
 
 #pragma mark - Register Installation

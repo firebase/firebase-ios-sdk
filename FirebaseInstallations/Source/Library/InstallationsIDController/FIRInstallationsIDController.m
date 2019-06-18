@@ -232,4 +232,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       });
 }
 
+#pragma mark - Delete FID
+
+- (FBLPromise<NSNull *> *)deleteInstallation {
+  return [FBLPromise resolvedWith:[NSNull null]];
+}
+
+
 @end

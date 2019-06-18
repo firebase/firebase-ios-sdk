@@ -376,4 +376,10 @@
   }
 }
 
+#pragma mark - FID Deletion
+
+- (void)testDeleteInstallation {
+  // 1. 
+}
+
 @end

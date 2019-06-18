@@ -66,11 +66,12 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.1. URL request validation.
   id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.HTTPMethod, @"POST");
     XCTAssertEqualObjects(
         request.URL.absoluteString,
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-api-key"], self.APIKey);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
@@ -291,6 +292,60 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   XCTAssertNil(promise.value);
 }
 
+- (void)testDeleteInstallationSuccess {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssert([request isKindOfClass:[NSURLRequest class]], @"Unexpected class: %@", [request class]);
+    XCTAssertEqualObjects(request.HTTPMethod, @"DELETE");
+    NSString *expectedURL = [NSString stringWithFormat:@"https://firebaseinstallations.googleapis.com/v1/projects/%@/installations/%@/", self.projectID, installation.firebaseInstallationID];
+    XCTAssertEqualObjects(request.URL.absoluteString, expectedURL);
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Content-Type"], @"application/json");
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
+    return YES;
+  }];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+  .andReturn(mockDataTask);
+
+  // 2. Call
+  FBLPromise<NSNull *> *promise =
+  [self.service deleteInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  // HTTP 200 but no data (a potential server failure).
+  NSData *successResponseData = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
+  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
+
+  // 6. Check result.
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
+}
+
 #pragma mark - Helpers
 
 - (NSData *)loadFixtureNamed:(NSString *)fileName {
@@ -325,12 +380,13 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 - (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation {
   return [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.HTTPMethod, @"POST");
     XCTAssertEqualObjects(request.URL.absoluteString,
                           @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/"
                           @"installations/qwertyuiopasdfghjklzxcvbnm/authTokens:generate");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json",
                           @"%@", self.name);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-api-key"], self.APIKey, @"%@",
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey, @"%@",
                           self.name);
 
     NSError *error;

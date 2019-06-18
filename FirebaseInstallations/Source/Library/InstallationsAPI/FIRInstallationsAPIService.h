@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID;
 
 /**
- * Sends an request to register a new FID to get auth and refresh tokens.
+ * Sends a request to register a new FID to get auth and refresh tokens.
  * @param installation The `FIRInstallationsItem` instance with the FID to register.
  * @return A promise that is resolved with a new `FIRInstallationsItem` instance with valid tokens.
  * It is rejected with an error in case of a failure.
@@ -43,6 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation;
+
+/**
+ * Sends a request to delete the installation, related auth tokens and all related data from the server.
+ * @param installation The installation to delete.
+ * @return Returns a promise that is resolved on successful deletion or is rejected with an error otherwise.
+ */
+- (FBLPromise<NSNull *> *)deleteInstallation:(FIRInstallationsItem *)installation;
 
 @end
 

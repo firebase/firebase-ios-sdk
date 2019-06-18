@@ -47,6 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FBLPromise<ResultType> *)getExistingPendingOrCreateNewPromise;
 
+/**
+ * Returns an existing pending promise or `nil`.
+ * @return Returns an existing pending promise if there is one or `nil` otherwise.
+ */
+- (nullable FBLPromise<ResultType> *)getExistingPendingPromise;
+
 @end
 
 NS_ASSUME_NONNULL_END

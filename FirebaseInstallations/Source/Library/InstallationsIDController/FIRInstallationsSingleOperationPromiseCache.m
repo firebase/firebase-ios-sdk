@@ -58,4 +58,8 @@
   return self.pendingPromise;
 }
 
+- (nullable FBLPromise *)getExistingPendingPromise {
+  return self.pendingPromise;
+}
+
 @end
