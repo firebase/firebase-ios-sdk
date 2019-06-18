@@ -31,12 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The designated initializer.
- * @param factory The block that must return a new promise representing the single-at-a-time
- * operation. The promise should be fulfilled when the operation is completed. The factory block
- * will be used to create a new promise when needed.
+ * @param newOperationHandler The block that must return a new promise representing the
+ * single-at-a-time operation. The promise should be fulfilled when the operation is completed. The
+ * factory block will be used to create a new promise when needed.
  */
-- (instancetype)initWithPromiseFactory:(FBLPromise<ResultType> *_Nonnull (^)(void))factory
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNewOperationHandler:
+    (FBLPromise<ResultType> *_Nonnull (^)(void))newOperationHandler NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates a new promise or returns an existing pending one.
