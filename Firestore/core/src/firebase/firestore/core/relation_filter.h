@@ -65,8 +65,8 @@ class RelationFilter : public Filter {
   bool Equals(const Filter& other) const override;
 
  private:
-  bool MatchesValue(const model::FieldValue& other) const;
-  bool MatchesComparison(const model::FieldValue& other) const;
+  bool MatchesValue(const model::FieldValue& lhs) const;
+  bool MatchesComparison(util::ComparisonResult result) const;
 
   /** The left hand side of the relation. A path into a document field. */
   const model::FieldPath field_;
