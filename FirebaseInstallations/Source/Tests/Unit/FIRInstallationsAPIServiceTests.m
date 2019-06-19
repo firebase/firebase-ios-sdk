@@ -423,6 +423,10 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                           @"%@", self.name);
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey, @"%@",
                           self.name);
+    NSString *expectedAuthHeader =
+        [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Authorization"], expectedAuthHeader, @"%@",
+                          self.name);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
@@ -449,6 +453,11 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects(request.URL.absoluteString, expectedURL);
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Content-Type"], @"application/json");
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
+
+    NSString *expectedAuthHeader =
+        [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Authorization"], expectedAuthHeader, @"%@",
+                          self.name);
 
     NSError *error;
     NSDictionary *JSONBody = [NSJSONSerialization JSONObjectWithData:request.HTTPBody

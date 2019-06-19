@@ -40,13 +40,20 @@
 }
 
 - (void)testGenerateFID {
-  NSString *fid1 = [FIRInstallationsItem generateFID];
-  XCTAssertEqual(fid1.length, 22);
+  NSString *FID1 = [FIRInstallationsItem generateFID];
+  [self assertValidFID:FID1];
 
-  NSString *fid2 = [FIRInstallationsItem generateFID];
-  XCTAssertEqual(fid2.length, 22);
+  NSString *FID2 = [FIRInstallationsItem generateFID];
+  XCTAssertEqual(FID2.length, 22);
+  [self assertValidFID:FID2];
 
-  XCTAssertNotEqualObjects(fid1, fid2);
+  XCTAssertNotEqualObjects(FID1, FID2);
+}
+
+- (void)assertValidFID:(NSString *)FID {
+  XCTAssertEqual(FID.length, 22);
+  XCTAssertFalse([FID containsString:@"/"]);
+  XCTAssertFalse([FID containsString:@"+"]);
 }
 
 @end
