@@ -187,9 +187,12 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       break;
   }
 
-  return [self.APIService registerInstallation:installation].then(
-      ^id(FIRInstallationsItem *registredInstallation) {
+  return [self.APIService registerInstallation:installation]
+      .then(^id(FIRInstallationsItem *registredInstallation) {
         return [self.installationsStore saveInstallation:registredInstallation];
+      })
+      .then(^FIRInstallationsItem *(id result) {
+        return installation;
       });
 }
 
