@@ -38,6 +38,11 @@
 }
 
 - (void)tearDown {
+  // Delete the installation.
+  [self.installations deleteWithCompletion:^(NSError * _Nullable error) {
+    XCTAssertNil(error);
+  }];
+
   // Wait for any pending background job to be completed.
   FBLWaitForPromisesWithTimeout(10);
 }
@@ -46,36 +51,10 @@
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
 // So far, lets run the tests locally.
 - (void)testGetFID {
-  XCTestExpectation *expectation1 = [self expectationWithDescription:@"FID"];
+  NSString *FID1 = [self getFID];
+  NSString *FID2 = [self getFID];
 
-  __block NSString *retreivedID;
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        XCTAssertNotNil(identifier);
-        XCTAssertNil(error);
-        XCTAssertEqual(identifier.length, 22);
-
-        retreivedID = identifier;
-
-        [expectation1 fulfill];
-      }];
-
-  [self waitForExpectations:@[ expectation1 ] timeout:2];
-
-  XCTestExpectation *expectation2 = [self expectationWithDescription:@"FID"];
-
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        XCTAssertNotNil(identifier);
-        XCTAssertNil(error);
-        XCTAssertEqual(identifier.length, 22);
-
-        XCTAssertEqualObjects(identifier, retreivedID);
-
-        [expectation2 fulfill];
-      }];
-
-  [self waitForExpectations:@[ expectation2 ] timeout:2];
+  XCTAssertEqualObjects(FID1, FID2);
 }
 
 - (void)testAuthToken {
@@ -114,6 +93,8 @@
   XCTAssertNotEqualObjects(authTokenBefore.authToken, authTokenAfter.authToken);
   XCTAssertNotEqualObjects(authTokenBefore.expirationDate, authTokenAfter.expirationDate);
 }
+
+#pragma mark - Helpers
 
 - (NSString *)getFID {
   XCTestExpectation *expectation =
