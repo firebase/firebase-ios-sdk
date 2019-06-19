@@ -76,7 +76,7 @@
   NSMutableData *fidData = [NSMutableData dataWithBytes:&prefix length:1];
 
   [fidData appendData:uuidData];
-  NSString *fidString = [fidData base64EncodedStringWithOptions:0];
+  NSString *fidString = [self base64URLEncodedStringWithData:fidData];
 
   // TODO: Consider implementation which does not modify UUID.
 
@@ -89,6 +89,13 @@
   // so we will not affect probability of the collisions much.
   // Also remove the '=' padding.
   return [fidString substringWithRange:NSMakeRange(0, 22)];
+}
+
++ (NSString *)base64URLEncodedStringWithData:(NSData *)data {
+  NSString *string = [data base64EncodedStringWithOptions:0];
+  string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+  string = [string stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
+  return string;
 }
 
 @end
