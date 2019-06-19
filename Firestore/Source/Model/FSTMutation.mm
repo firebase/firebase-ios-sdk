@@ -40,6 +40,7 @@
 using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -183,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:self.value
                                    key:self.key
                                version:version
-                                 state:FSTDocumentStateLocalMutations];
+                                 state:DocumentState::kLocalMutations];
 }
 
 - (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
@@ -198,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:self.value
                                    key:self.key
                                version:mutationResult.version
-                                 state:FSTDocumentStateCommittedMutations];
+                                 state:DocumentState::kCommittedMutations];
 }
 
 - (nullable const FieldMask *)fieldMask {
@@ -285,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:newData
                                    key:self.key
                                version:version
-                                 state:FSTDocumentStateLocalMutations];
+                                 state:DocumentState::kLocalMutations];
 }
 
 - (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
@@ -306,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:newData
                                    key:self.key
                                version:mutationResult.version
-                                 state:FSTDocumentStateCommittedMutations];
+                                 state:DocumentState::kCommittedMutations];
 }
 
 - (ObjectValue)patchObjectValue:(ObjectValue)objectValue {
@@ -412,7 +413,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:std::move(newData)
                                    key:doc.key
                                version:doc.version
-                                 state:FSTDocumentStateLocalMutations];
+                                 state:DocumentState::kLocalMutations];
 }
 
 - (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
@@ -446,7 +447,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:newData
                                    key:self.key
                                version:mutationResult.version
-                                 state:FSTDocumentStateCommittedMutations];
+                                 state:DocumentState::kCommittedMutations];
 }
 
 /**

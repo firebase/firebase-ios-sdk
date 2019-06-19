@@ -32,12 +32,14 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
@@ -130,8 +132,8 @@ using firebase::firestore::model::TargetId;
   return [FSTDocument documentWithData:std::move(data)
                                    key:std::move(key)
                                version:version
-                                 state:committedMutations ? FSTDocumentStateCommittedMutations
-                                                          : FSTDocumentStateSynced];
+                                 state:committedMutations ? DocumentState::kCommittedMutations
+                                                          : DocumentState::kSynced];
 }
 
 /** Encodes a NoDocument value to the equivalent proto. */
