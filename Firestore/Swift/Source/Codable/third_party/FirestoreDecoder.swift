@@ -18,8 +18,6 @@ import Foundation
 
 extension Firestore {
   public struct Decoder {
-    fileprivate static let documentRefUserInfoKey = CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")
-
     public init() {}
     /// Returns an instance of specified type from a Firestore document.
     ///
@@ -28,22 +26,13 @@ extension Firestore {
     /// in `container` are directly supported:
     ///   - GeoPoint
     ///   - Timestamp
-    ///   - DocumentReference
     ///
     /// - Parameters:
     ///   - A type to decode a document to.
     ///   - container: A Map keyed of String representing a Firestore document.
-    ///   - document: A reference to the Firestore Document that is being
-    ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
-    public func decode<T: Decodable>(_: T.Type,
-                                     from container: [String: Any],
-                                     in document: DocumentReference? = nil) throws -> T {
+    public func decode<T: Decodable>(_: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
-      if let doc = document {
-        decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = doc
-      }
-
       guard let value = try decoder.unbox(container, as: T.self) else {
         throw DecodingError.valueNotFound(
           T.self,
@@ -333,24 +322,6 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
   }
 
   public func decode<T: Decodable>(_: T.Type, forKey key: Key) throws -> T {
-    if T.self == SelfDocumentID.self {
-      let docRef = decoder.userInfo[
-        Firestore.Decoder.documentRefUserInfoKey!
-      ] as! DocumentReference?
-
-      if contains(key) {
-        let docPath = (docRef != nil) ? docRef!.path : "nil"
-        var codingPathCopy = codingPath.map { key in key.stringValue }
-        codingPathCopy.append(key.stringValue)
-
-        throw FirestoreDecodingError.fieldNameConfict("Field name " +
-          "\(codingPathCopy) was found from document \"\(docPath)\", " +
-          "cannot assign the document reference to this field.")
-      }
-
-      return SelfDocumentID(from: docRef) as! T
-    }
-
     let entry = try require(key: key)
 
     decoder.codingPath.append(key)
@@ -1006,10 +977,6 @@ extension _FirestoreDecoder {
 
   func unbox(_ value: Any, as type: Date.Type) throws -> Date? {
     guard !(value is NSNull) else { return nil }
-    // Firestore returns all dates as Timestamp, converting it to Date so it can be used in custom objects.
-    if let timestamp = value as? Timestamp {
-      return timestamp.dateValue()
-    }
     guard let date = value as? Date else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
@@ -1066,7 +1033,7 @@ extension _FirestoreDecoder {
       }
     }
 
-    // Decoding an embedded container, this requires expanding the storage stack and
+    // Decoding an embeded container, this requires expanding the storage stack and
     // then restore after decoding.
     storage.push(container: value)
     let decoded = try T(from: self)
