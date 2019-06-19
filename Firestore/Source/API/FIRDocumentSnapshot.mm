@@ -262,7 +262,6 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   const DatabaseId &refDatabase = ref.database_id();
   const DatabaseId &database = _snapshot.firestore()->database_id();
   if (refDatabase != database) {
-    // TODO(b/32073923): Log this as a proper warning.
     LOG_WARN("Document %s contains a document reference within a different database (%s/%s) which "
              "is not supported. It will be treated as a reference within the current database "
              "(%s/%s) instead.",
