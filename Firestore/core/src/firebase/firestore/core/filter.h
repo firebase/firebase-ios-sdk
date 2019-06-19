@@ -81,6 +81,10 @@ class Filter {
   /** A debug description of the Filter. */
   virtual std::string ToString() const = 0;
 
+  virtual bool IsInequality() const {
+    return false;
+  }
+
   friend bool operator==(const Filter& lhs, const Filter& rhs) {
     return lhs.Equals(rhs);
   }

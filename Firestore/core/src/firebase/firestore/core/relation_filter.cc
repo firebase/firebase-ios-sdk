@@ -114,6 +114,10 @@ std::string RelationFilter::ToString() const {
                             value_rhs_.ToString());
 }
 
+bool RelationFilter::IsInequality() const {
+  return op_ != Operator::Equal && op_ != Operator::ArrayContains;
+}
+
 bool RelationFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kRelationFilter) return false;
 
