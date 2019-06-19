@@ -79,16 +79,19 @@
 }
 
 - (void)testAuthToken {
-  XCTestExpectation *authTokenExpectation = [self expectationWithDescription:@"authTokenExpectation"];
+  XCTestExpectation *authTokenExpectation =
+      [self expectationWithDescription:@"authTokenExpectation"];
 
-  [self.installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult * _Nullable tokenResult, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(tokenResult);
-    XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
-    XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
+  [self.installations
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(tokenResult);
+        XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
+        XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
 
-    [authTokenExpectation fulfill];
-  }];
+        [authTokenExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 }
@@ -98,11 +101,11 @@
   FIRInstallationsAuthTokenResult *authTokenBefore = [self getAuthToken];
 
   XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"Delete Installation"];
-  [self.installations deleteWithCompletion:^(NSError * _Nullable error) {
-    XCTAssertNotNil(error);
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
     [deleteExpectation fulfill];
   }];
-  [self waitForExpectations:@[deleteExpectation] timeout:2];
+  [self waitForExpectations:@[ deleteExpectation ] timeout:2];
 
   NSString *FIDAfter = [self getFID];
   FIRInstallationsAuthTokenResult *authTokenAfter = [self getAuthToken];
@@ -113,19 +116,20 @@
 }
 
 - (NSString *)getFID {
-  XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"FID %@", self.name]];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:[NSString stringWithFormat:@"FID %@", self.name]];
 
   __block NSString *retreivedID;
   [self.installations
-   installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-     XCTAssertNotNil(identifier);
-     XCTAssertNil(error);
-     XCTAssertEqual(identifier.length, 22);
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNotNil(identifier);
+        XCTAssertNil(error);
+        XCTAssertEqual(identifier.length, 22);
 
-     retreivedID = identifier;
+        retreivedID = identifier;
 
-     [expectation fulfill];
-   }];
+        [expectation fulfill];
+      }];
 
   [self waitForExpectations:@[ expectation ] timeout:2];
 
@@ -133,19 +137,22 @@
 }
 
 - (FIRInstallationsAuthTokenResult *)getAuthToken {
-  XCTestExpectation *authTokenExpectation = [self expectationWithDescription:@"authTokenExpectation"];
+  XCTestExpectation *authTokenExpectation =
+      [self expectationWithDescription:@"authTokenExpectation"];
 
   __block FIRInstallationsAuthTokenResult *retreivedTokenResult;
-  [self.installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult * _Nullable tokenResult, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(tokenResult);
-    XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
-    XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
+  [self.installations
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(tokenResult);
+        XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
+        XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
 
-    retreivedTokenResult = tokenResult;
+        retreivedTokenResult = tokenResult;
 
-    [authTokenExpectation fulfill];
-  }];
+        [authTokenExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 
