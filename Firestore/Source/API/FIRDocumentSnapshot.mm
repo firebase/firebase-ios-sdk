@@ -240,7 +240,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   }
 }
 
-- (id)convertedServerTimestamp:(const FieldValue &)value options:(const FieldValueOptions &)options {
+- (id)convertedServerTimestamp:(const FieldValue &)value
+                       options:(const FieldValueOptions &)options {
   const auto &sts = value.server_timestamp_value();
   switch (options.server_timestamp_behavior()) {
     case ServerTimestampBehavior::kNone:
