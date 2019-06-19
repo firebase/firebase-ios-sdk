@@ -232,7 +232,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 - (FBLPromise<NSNull *> *)createDeleteInstallationPromise {
   // Check for ongoing requests first, if there is no a request, then check local storage for
-  // existing instlallation.
+  // existing installation.
   FBLPromise<FIRInstallationsItem *> *currentInstallationPromise =
       [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
           ?: [self.authTokenPromiseCache getExistingPendingPromise]
