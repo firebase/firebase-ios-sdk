@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly) NSString* user;
 
+@property(nonatomic, readonly) NSString* identityToken;
+
 @property(nonatomic, readonly) NSString* password;
 
 /** @fn initWithAuthorizationCredential:
@@ -41,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithPasswordCredential:(ASPasswordCredential *)passwordCredential NS_DESIGNATED_INITIALIZER API_AVAILABLE(ios(12.0));
 
-- (nullable instancetype)initWithUser:(NSString *)user password:(NSString *)password NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithUser:(NSString *)user identityToken:(NSData *)identityToken NS_DESIGNATED_INITIALIZER;
 
 @end
 

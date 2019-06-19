@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super initWithProvider:FIRAppleAuthProviderID];
   if (self) {
     _user = [[appleIDCredential user]copy];
+    _identityToken = [[appleIDCredential identityToken] base64EncodedStringWithOptions: nil]
   }
   return self;
 }
@@ -48,22 +49,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithPasswordCredential: (ASPasswordCredential *)passwordCredential {
   self = [super initWithProvider: FIRAppleAuthProviderID];
   if (self) {
+    _user = [[passwordCredential user] copy];
     _password = [[passwordCredential password] copy];
   }
   return self;
 }
 
-- (nullable instancetype)initWithUser:(NSString *)user password:(NSString *)password {
+- (nullable instancetype)initWithUser:(NSString *)user identityToken:(NSString *)identityToken {
   self = [super initWithProvider: FIRAppleAuthProviderID];
   if (self) {
     _user = [user copy];
-    _password = [password copy];
+    _identityToken = [identityToken copy];
   }
   return self;
 }
 
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
-  request.providerAccessToken = _user;
+  request.providerAccessToken = _identityToken;
 }
 
 #pragma mark - NSSecureCoding
@@ -74,14 +76,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *user = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"user"];
-  NSString *password = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"password"];
-  self = [self initWithUser:user password:password];
+  NSString *identityToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"identityToken"];
+  self = [self initWithUser:user identityToken:identityToken];
   return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:self.user forKey:@"user"];
-  [aCoder encodeObject:self.password forKey: @"password"];
+  [aCoder encodeObject:self.identityToken forKey: @"identityToken"];
 }
 
 @end
