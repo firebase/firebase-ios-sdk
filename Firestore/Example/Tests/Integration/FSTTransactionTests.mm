@@ -163,24 +163,70 @@
         XCTAssertNil(*error);
         XCTAssertTrue(snapshot.exists);
         [transaction deleteDocument:doc];
-        // TODO(dimond): In theory this should work, but it's complex to make it work, so instead we
-        // just let the transaction fail and verify it's unsupported for now
         [transaction setData:@{@"foo" : @"new-bar"} forDocument:doc];
         return @YES;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqualObjects(@YES, result);
+        XCTAssertNil(error);
         [expectation fulfill];
       }];
   [self awaitExpectations];
 }
 
-- (void)testWriteDocumentTwice {
+- (void)testWriteExistingDocumentTwice {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
+
+  [self writeDocumentRef:doc data:@{@"a" : @42}];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **error) {
+        // Read the document in the transaction to trigger a precondition on
+        // the writes.
+        [transaction getDocument:doc error:error];
+        [transaction setData:@{@"a" : @"b"} forDocument:doc];
+        [transaction setData:@{@"c" : @"d"} forDocument:doc];
+        return @YES;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        XCTAssertEqualObjects(@YES, result);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(snapshot.data, @{@"c" : @"d"});
+}
+
+- (void)testWriteNonExistingDocumentTwice {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **error) {
+        // Read the document in the transaction to trigger a precondition that
+        // the document doesn't exist.
+        [transaction getDocument:doc error:error];
+        [transaction setData:@{@"a" : @"b"} forDocument:doc];
+        [transaction setData:@{@"c" : @"d"} forDocument:doc];
+        return @YES;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        XCTAssertEqualObjects(@YES, result);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(snapshot.data, @{@"c" : @"d"});
+}
+
+- (void)testBlindWriteDocumentTwice {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
 

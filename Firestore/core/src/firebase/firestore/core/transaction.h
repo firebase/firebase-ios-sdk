@@ -137,6 +137,11 @@ class Transaction {
                      model::SnapshotVersion,
                      model::DocumentKeyHash>
       read_versions_;
+
+  std::unordered_map<model::DocumentKey,
+                     model::Precondition,
+                     model::DocumentKeyHash>
+      write_postconditions_;
 };
 
 using TransactionResultCallback = util::StatusOrCallback<absl::any>;

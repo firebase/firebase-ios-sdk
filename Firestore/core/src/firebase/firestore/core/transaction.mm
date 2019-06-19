@@ -110,6 +110,12 @@ void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
 }
 
 Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
+  // Sets and Deletes don't apply preconditions after the first write.
+  auto found = write_postconditions_.find(key);
+  if (found != write_postconditions_.end()) {
+    return Precondition::None();
+  }
+
   absl::optional<SnapshotVersion> version = GetVersion(key);
   if (version.has_value()) {
     return Precondition::UpdateTime(version.value());
@@ -118,14 +124,35 @@ Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
   }
 }
 
+namespace {
+
+Status UpdateNonExistentDocumentDisallowed() {
+  return Status{FirestoreErrorCode::Aborted,
+                "Can't update a document that doesn't exist."};
+}
+
+}  // namespace
+
 StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
+  auto found = write_postconditions_.find(key);
+  if (found != write_postconditions_.end()) {
+    // Document has already been written in this transaction.
+    const Precondition& previous_outcome = found->second;
+    // The document to update doesn't exist, so fail the transaction.
+    if (previous_outcome == Precondition::Exists(false)) {
+      return UpdateNonExistentDocumentDisallowed();
+    } else {
+      // The previous write will condition on update time if that's appropriate.
+      return Precondition::Exists(true);
+    }
+  }
+
   absl::optional<SnapshotVersion> version = GetVersion(key);
 
   if (version.has_value() && version.value() == SnapshotVersion::None()) {
     // The document to update doesn't exist, so fail the transaction.
-    return Status{FirestoreErrorCode::Aborted,
-                  "Can't update a document that doesn't exist."};
+    return UpdateNonExistentDocumentDisallowed();
   } else if (version.has_value()) {
     // Document exists, just base precondition on document update time.
     return Precondition::UpdateTime(version.value());
@@ -138,6 +165,8 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
 
 void Transaction::Set(const DocumentKey& key, ParsedSetData&& data) {
   WriteMutations(std::move(data).ToMutations(key, CreatePrecondition(key)));
+
+  write_postconditions_[key] = Precondition::Exists(true);
 }
 
 void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
@@ -147,6 +176,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
   } else {
     WriteMutations(
         std::move(data).ToMutations(key, maybe_precondition.ValueOrDie()));
+    write_postconditions_[key] = Precondition::Exists(true);
   }
 }
 
@@ -159,6 +189,7 @@ void Transaction::Delete(const DocumentKey& key) {
   // Since the delete will be applied before all following writes, we need to
   // ensure that the precondition for the next write will be exists: false.
   read_versions_[key] = SnapshotVersion::None();
+  write_postconditions_[key] = Precondition::Exists(false);
 }
 
 void Transaction::Commit(util::StatusCallback&& callback) {
