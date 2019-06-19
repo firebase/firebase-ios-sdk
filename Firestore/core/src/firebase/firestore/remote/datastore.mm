@@ -183,8 +183,11 @@ void Datastore::CommitMutationsWithCredentials(
     const Token& token,
     const std::vector<FSTMutation*>& mutations,
     CommitCallback&& callback) {
-  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
-      serializer_bridge_.CreateCommitRequest(mutations));
+  GCFSCommitRequest* request =
+      serializer_bridge_.CreateCommitRequest(mutations);
+  LOG_DEBUG("commit: %s", [request description]);
+
+  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(request);
 
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
       kRpcNameCommit, token, std::move(message));
