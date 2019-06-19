@@ -128,7 +128,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   // Initiate registration process on success if needed, but return the instalation without waiting
   // for it.
   installationItemPromise.then(^id(FIRInstallationsItem *installation) {
-    [self registerInstallationIfNeeded:installation];
+    [self getAuthTokenForcingRefresh:NO];
     return nil;
   });
 
@@ -189,10 +189,13 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
   return [self.APIService registerInstallation:installation]
       .then(^id(FIRInstallationsItem *registredInstallation) {
-        return [self.installationsStore saveInstallation:registredInstallation];
+        // Expected successful result: @[FIRInstallationsItem *registredInstallation, NSNull]
+        return [FBLPromise all:@[
+                                 registredInstallation,
+                                 [self.installationsStore saveInstallation:registredInstallation]]];
       })
-      .then(^FIRInstallationsItem *(id result) {
-        return installation;
+      .then(^FIRInstallationsItem *(NSArray *result) {
+        return result.firstObject;
       });
 }
 
