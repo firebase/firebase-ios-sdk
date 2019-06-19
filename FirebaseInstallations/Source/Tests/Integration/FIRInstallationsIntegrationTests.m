@@ -50,14 +50,14 @@
 // TODO: Enable the test once Travis configurred.
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
 // So far, lets run the tests locally.
-- (void)testGetFID {
+- (void)disabled_testGetFID {
   NSString *FID1 = [self getFID];
   NSString *FID2 = [self getFID];
 
   XCTAssertEqualObjects(FID1, FID2);
 }
 
-- (void)testAuthToken {
+- (void)disabled_testAuthToken {
   XCTestExpectation *authTokenExpectation =
       [self expectationWithDescription:@"authTokenExpectation"];
 
@@ -75,7 +75,7 @@
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 }
 
-- (void)testDeleteInstallation {
+- (void)disabled_testDeleteInstallation {
   NSString *FIDBefore = [self getFID];
   FIRInstallationsAuthTokenResult *authTokenBefore = [self getAuthToken];
 
