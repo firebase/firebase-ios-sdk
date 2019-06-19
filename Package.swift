@@ -19,6 +19,9 @@ let package = Package(
     .library(
       name: "GoogleUtilities_Logger",
       targets: ["GoogleUtilities_Logger"]),
+    .library(
+      name: "FirebaseCore",
+      targets: ["FirebaseCore"]),
   ],
   dependencies: [
     // Dependencies declare other external packages that this package depends on.
@@ -40,6 +43,18 @@ let package = Package(
       name: "GoogleUtilities_Logger",
       dependencies: ["GoogleUtilities_Environment"],
       path: "GoogleUtilities/Logger",
-      publicHeadersPath: "Public")
+      publicHeadersPath: "Public"),
+    .target(
+      name: "FirebaseCore",
+      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
+      path: "Firebase/Core",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
+        .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("Firebase_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
+//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+      ])
   ]
 )
