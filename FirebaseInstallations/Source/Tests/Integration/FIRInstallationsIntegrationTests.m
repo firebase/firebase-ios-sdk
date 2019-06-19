@@ -39,7 +39,7 @@
 
 - (void)tearDown {
   // Delete the installation.
-  [self.installations deleteWithCompletion:^(NSError * _Nullable error) {
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
   }];
 

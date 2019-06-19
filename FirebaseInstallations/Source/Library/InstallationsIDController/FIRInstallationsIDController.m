@@ -191,8 +191,8 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .then(^id(FIRInstallationsItem *registredInstallation) {
         // Expected successful result: @[FIRInstallationsItem *registredInstallation, NSNull]
         return [FBLPromise all:@[
-                                 registredInstallation,
-                                 [self.installationsStore saveInstallation:registredInstallation]]];
+          registredInstallation, [self.installationsStore saveInstallation:registredInstallation]
+        ]];
       })
       .then(^FIRInstallationsItem *(NSArray *result) {
         return result.firstObject;
