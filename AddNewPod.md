@@ -31,7 +31,8 @@ for FIRComponent registration. See examples of setting `GCC_PREPROCESSOR_DEFINIT
 The Firebase library `Foo` should be defined in `FirebaseFoo.podspec`. All of its
 contents should be in the `FirebaseFoo` directory.
 
-* FirebaseFoo/Source - All source. Directory structure is up to the library owner.
+* FirebaseFoo/Sources - All source. Directory structure is up to the library owner. Any code from a
+non-Google open source project should be nested under a `third_party` directory.
 * FirebaseFoo/Public - Public Headers.
 * FirebaseFoo/Private - Private Headers (headers not part of public API, but available for 
 explicit import by other Firebase pods)
