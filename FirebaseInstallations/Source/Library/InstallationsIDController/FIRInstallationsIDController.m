@@ -234,10 +234,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   // Check for ongoing requests first, if there is no a request, then check local storage for
   // existing installation.
   FBLPromise<FIRInstallationsItem *> *currentInstallationPromise =
-      [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
-          ?: [self.authTokenPromiseCache getExistingPendingPromise]
-                 ?: [self.getInstallationPromiseCache getExistingPendingPromise]
-                        ?: [self getStoredInstallation];
+      [self mostRecentInstallationOperation] ?: [self getStoredInstallation];
 
   return currentInstallationPromise
       .then(^id(FIRInstallationsItem *installation) {
@@ -274,6 +271,12 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       return APIError;
     }
   });
+}
+
+- (nullable FBLPromise<FIRInstallationsItem *> *)mostRecentInstallationOperation {
+  return [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
+             ?: [self.authTokenPromiseCache getExistingPendingPromise]
+                    ?: [self.getInstallationPromiseCache getExistingPendingPromise];
 }
 
 @end
