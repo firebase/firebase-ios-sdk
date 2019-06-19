@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 
+#include <ostream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
@@ -51,6 +52,10 @@ std::shared_ptr<Filter> Filter::Create(FieldPath path,
     return std::make_shared<RelationFilter>(std::move(path), op,
                                             std::move(value_rhs));
   }
+}
+
+std::ostream& operator<<(std::ostream& os, const Filter& filter) {
+  return os << filter.ToString();
 }
 
 }  // namespace core

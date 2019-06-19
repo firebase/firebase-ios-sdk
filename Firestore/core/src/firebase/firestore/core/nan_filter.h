@@ -43,6 +43,8 @@ class NanFilter : public Filter {
   /** A unique ID identifying the filter; used when serializing queries. */
   std::string CanonicalId() const override;
 
+  std::string ToString() const override;
+
  protected:
   bool Equals(const Filter& other) const override;
 

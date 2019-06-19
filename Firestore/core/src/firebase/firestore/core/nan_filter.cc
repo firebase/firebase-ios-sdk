@@ -37,6 +37,10 @@ std::string NanFilter::CanonicalId() const {
   return field().CanonicalString() + " IS NaN";
 }
 
+std::string NanFilter::ToString() const {
+  return CanonicalId();
+}
+
 bool NanFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kNanFilter) return false;
 

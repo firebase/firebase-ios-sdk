@@ -37,6 +37,10 @@ std::string NullFilter::CanonicalId() const {
   return field().CanonicalString() + " IS NULL";
 }
 
+std::string NullFilter::ToString() const {
+  return CanonicalId();
+}
+
 bool NullFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kNullFilter) return false;
 

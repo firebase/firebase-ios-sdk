@@ -53,6 +53,7 @@ class RelationFilter : public Filter {
   bool Matches(const model::Document& doc) const override;
 
   std::string CanonicalId() const override;
+  std::string ToString() const override;
 
  protected:
   Type type() const override {

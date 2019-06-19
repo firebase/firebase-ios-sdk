@@ -109,6 +109,11 @@ std::string RelationFilter::CanonicalId() const {
                       value_rhs_.ToString());
 }
 
+std::string RelationFilter::ToString() const {
+  return util::StringFormat("%s %s %s", field_.CanonicalString(), Describe(op_),
+                            value_rhs_.ToString());
+}
+
 bool RelationFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kRelationFilter) return false;
 

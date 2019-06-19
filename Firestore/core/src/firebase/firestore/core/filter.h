@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FILTER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FILTER_H_
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 
@@ -77,6 +78,9 @@ class Filter {
   /** A unique ID identifying the filter; used when serializing queries. */
   virtual std::string CanonicalId() const = 0;
 
+  /** A debug description of the Filter. */
+  virtual std::string ToString() const = 0;
+
   friend bool operator==(const Filter& lhs, const Filter& rhs) {
     return lhs.Equals(rhs);
   }
@@ -88,6 +92,8 @@ class Filter {
 inline bool operator!=(const Filter& lhs, const Filter& rhs) {
   return !(lhs == rhs);
 }
+
+std::ostream& operator<<(std::ostream& os, const Filter& filter);
 
 }  // namespace core
 }  // namespace firestore
