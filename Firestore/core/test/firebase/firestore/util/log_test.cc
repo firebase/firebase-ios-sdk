@@ -48,6 +48,23 @@ TEST(Log, LogAllKinds) {
   LOG_DEBUG("test va-args %s %s %s", "abc", std::string{"def"}, 123);
 }
 
+TEST(Log, CountFormatSpecifiers) {
+  static_assert(CountFormatSpecifiers(nullptr) == 0);
+  static_assert(CountFormatSpecifiers("") == 0);
+  static_assert(CountFormatSpecifiers("nothing interesting") == 0);
+  static_assert(CountFormatSpecifiers("double %% percent") == 0);
+  static_assert(
+      CountFormatSpecifiers("%% multiple %% double %%%% percents %%") == 0);
+
+  static_assert(CountFormatSpecifiers("%s%s%s") == 3);
+  static_assert(CountFormatSpecifiers("%s%%%s") == 2);
+  static_assert(CountFormatSpecifiers("%%%s%%") == 1);
+
+  static_assert(CountFormatSpecifiers("%i") < 0);
+  static_assert(CountFormatSpecifiers("% s") < 0);
+  static_assert(CountFormatSpecifiers("%s%s%s%i") < 0);
+}
+
 }  //  namespace util
 }  //  namespace firestore
 }  //  namespace firebase
