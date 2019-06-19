@@ -263,7 +263,6 @@
 		5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0972021552C00B64F25 /* FSTMemoryMutationQueueTests.mm */; };
 		5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0982021552C00B64F25 /* FSTLevelDBQueryCacheTests.mm */; };
 		5492E0B12021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */; };
-		5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */; };
 		5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */; };
 		5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B62021555100B64F25 /* FSTDocumentTests.mm */; };
 		5492E0BE2021555100B64F25 /* FSTMutationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B72021555100B64F25 /* FSTMutationTests.mm */; };
@@ -457,7 +456,6 @@
 		938F2AF6EC5CD0B839300DB0 /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D621C2DDC800EFB9CC /* query.pb.cc */; };
 		939A15D3AD941CF7242DA9FA /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */; };
 		939C898FE9D129F6A2EA259C /* FSTHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03A2021401F00B64F25 /* FSTHelpers.mm */; };
-		94E5399FA5EA82CCB0549AB5 /* FSTDocumentKeyTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */; };
 		95ED06D2B0078D3CDB821B68 /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
 		9664E5831CE35D515CDBC12A /* FSTRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */; };
 		974FF09E6AFD24D5A39B898B /* local_serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F8043813A5D16963EC02B182 /* local_serializer_test.cc */; };
@@ -543,7 +541,6 @@
 		B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4688208F9B9100554BA2 /* executor_test.cc */; };
 		B6FDE6F91D3F81D045E962A0 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		B8062EBDB8E5B680E46A6DD1 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
-		B89EF6551734723BDC6AB79C /* FSTDocumentKeyTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */; };
 		BA9A65BD6D993B2801A3C768 /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
 		BAB43C839445782040657239 /* executor_std_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4687208F9B9100554BA2 /* executor_std_test.cc */; };
 		BBFCCD960DD2937EE278D7B6 /* FSTQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0892021552A00B64F25 /* FSTQueryCacheTests.mm */; };
@@ -860,7 +857,6 @@
 		5492E0982021552C00B64F25 /* FSTLevelDBQueryCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBQueryCacheTests.mm; sourceTree = "<group>"; };
 		5492E0992021552C00B64F25 /* FSTPersistenceTestHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTPersistenceTestHelpers.h; sourceTree = "<group>"; };
 		5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteDocumentCacheTests.mm; sourceTree = "<group>"; };
-		5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDocumentKeyTests.mm; sourceTree = "<group>"; };
 		5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDocumentSetTests.mm; sourceTree = "<group>"; };
 		5492E0B62021555100B64F25 /* FSTDocumentTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDocumentTests.mm; sourceTree = "<group>"; };
 		5492E0B72021555100B64F25 /* FSTMutationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMutationTests.mm; sourceTree = "<group>"; };
@@ -1794,7 +1790,6 @@
 		DE51B17B1F0D48AC0013853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */,
 				5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */,
 				5492E0B62021555100B64F25 /* FSTDocumentTests.mm */,
 				5492E0B72021555100B64F25 /* FSTMutationTests.mm */,
@@ -3001,7 +2996,6 @@
 				CD0AA9E5D83C00CAAE7C2F67 /* FIRTimestampTest.m in Sources */,
 				9D71628E38D9F64C965DF29E /* FSTAPIHelpers.mm in Sources */,
 				10B7426844685A48234C093B /* FSTArraySortedDictionaryTests.m in Sources */,
-				B89EF6551734723BDC6AB79C /* FSTDocumentKeyTests.mm in Sources */,
 				F8D3EF0C9044BB3F3E81C6CA /* FSTDocumentSetTests.mm in Sources */,
 				E980E1DCF759D5EF9F6B98F2 /* FSTDocumentTests.mm in Sources */,
 				F4F00BF4E87D7F0F0F8831DB /* FSTEventAccumulator.mm in Sources */,
@@ -3177,7 +3171,6 @@
 				36E174A66C323891AEA16A2A /* FIRTimestampTest.m in Sources */,
 				6E4854B19B120C6F0F8192CC /* FSTAPIHelpers.mm in Sources */,
 				F1661B1C5F3E30535FB65046 /* FSTArraySortedDictionaryTests.m in Sources */,
-				94E5399FA5EA82CCB0549AB5 /* FSTDocumentKeyTests.mm in Sources */,
 				C13502E39B0AEF0FADDDA5F2 /* FSTDocumentSetTests.mm in Sources */,
 				4E679B9AA80202184D459569 /* FSTDocumentTests.mm in Sources */,
 				73E42D984FB36173A2BDA57C /* FSTEventAccumulator.mm in Sources */,
@@ -3430,7 +3423,6 @@
 				B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */,
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
-				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,

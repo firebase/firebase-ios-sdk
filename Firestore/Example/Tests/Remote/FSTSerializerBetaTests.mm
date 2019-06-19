@@ -39,7 +39,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -49,6 +48,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -63,7 +63,9 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
@@ -100,6 +102,9 @@ bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
   }
   UNREACHABLE();
 }
+
+NSString *const kDocumentKeyPath =
+    [[NSString alloc] initWithUTF8String:FieldPath::kDocumentKeyPath];
 
 }  // namespace
 
