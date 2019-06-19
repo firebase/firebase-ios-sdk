@@ -90,7 +90,7 @@ static NSString *const kFIRServiceIAM = @"InAppMessaging";
 /**
  * The file name to keep the unique install string.
  */
-static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
+NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 /**
  * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
@@ -298,7 +298,7 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
-static pb_bytes_array_t *FIREncodeString(NSString *string) {
+pb_bytes_array_t *FIREncodeString(NSString *string) {
   NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
   return FIREncodeData(stringBytes);
 }
@@ -308,7 +308,7 @@ static pb_bytes_array_t *FIREncodeString(NSString *string) {
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
-static pb_bytes_array_t *FIREncodeData(NSData *data) {
+pb_bytes_array_t *FIREncodeData(NSData *data) {
   pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   memcpy(pbBytes->bytes, [data bytes], data.length);
   pbBytes->size = (pb_size_t)data.length;
@@ -320,7 +320,7 @@ static pb_bytes_array_t *FIREncodeData(NSData *data) {
  * @param serviceString The SDK service string to convert.
  * @return The representative nanopb enum.
  */
-static logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringToTypeEnum(
+logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringToTypeEnum(
     NSString *serviceString) {
   static NSDictionary<NSString *, NSNumber *> *serviceStringToTypeEnum;
   if (serviceStringToTypeEnum == nil) {
@@ -374,9 +374,8 @@ static logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromService
  * @param config The proto to populate
  * @param diagnosticObjects The dictionary of diagnostics objects.
  */
-static void FIRPopulateProtoWithInfoFromUserInfoParams(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config,
-    NSDictionary<NSString *, id> *diagnosticObjects) {
+void FIRPopulateProtoWithInfoFromUserInfoParams(logs_proto_mobilesdk_ios_ICoreConfiguration *config,
+                                                NSDictionary<NSString *, id> *diagnosticObjects) {
   NSNumber *configurationType = diagnosticObjects[kFIRCDConfigurationTypeKey];
   if (configurationType) {
     switch (configurationType.integerValue) {
@@ -413,9 +412,8 @@ static void FIRPopulateProtoWithInfoFromUserInfoParams(
  * @param config The proto to populate
  * @param diagnosticObjects The dictionary of diagnostics objects.
  */
-static void FIRPopulateProtoWithCommonInfoFromApp(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config,
-    NSDictionary<NSString *, id> *diagnosticObjects) {
+void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfiguration *config,
+                                           NSDictionary<NSString *, id> *diagnosticObjects) {
   config->pod_name = logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_FIREBASE;
   config->has_pod_name = 1;
 
@@ -477,8 +475,7 @@ static void FIRPopulateProtoWithCommonInfoFromApp(
  *
  * @param config The proto to populate
  */
-static void FIRPopulateProtoWithInstalledServices(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
+void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   NSMutableArray<NSNumber *> *sdkServiceInstalledArray = [NSMutableArray array];
 
   // AdMob
@@ -604,7 +601,7 @@ static void FIRPopulateProtoWithInstalledServices(
  *
  * @param config The proto to populate.
  */
-static void FIRPopulateProtoWithNumberOfLinkedFrameworks(
+void FIRPopulateProtoWithNumberOfLinkedFrameworks(
     logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   int numFrameworks = -1;  // Subtract the app binary itself.
   unsigned int numImages;
@@ -627,8 +624,7 @@ static void FIRPopulateProtoWithNumberOfLinkedFrameworks(
  *
  * @param config The proto to populate.
  */
-static void FIRPopulateProtoWithInfoPlistValues(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
+void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
 
   NSString *xcodeVersion = info[@"DTXcodeBuild"] ?: @"";
