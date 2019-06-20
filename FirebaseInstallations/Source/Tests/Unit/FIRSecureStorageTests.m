@@ -161,18 +161,26 @@
 }
 
 - (void)assertNonExistingObjectForKey:(NSString *)key class:(Class)class {
+  OCMExpect([self.mockCache objectForKey:key]).andForwardToRealObject();
+
   FBLPromise<id<NSSecureCoding>> *promise =
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertNil(promise.error);
   XCTAssertNil(promise.value);
+
+  OCMVerifyAll(self.mockCache);
 }
 
 - (void)assertRemoveObjectForKey:(NSString *)key {
+  OCMExpect([self.mockCache removeObjectForKey:key]).andForwardToRealObject();
+
   FBLPromise<NSNull *> *removePromise = [self.storage removeObjectForKey:key accessGroup:nil];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertNil(removePromise.error);
+
+  OCMVerifyAll(self.mockCache);
 }
 
 @end
