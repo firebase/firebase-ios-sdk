@@ -14,7 +14,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'GoogleDataTransportCCTSupport-' + s.version.to_s
+    :tag => 'DataTransportCCTSupport-' + s.version.to_s
   }
 
   s.ios.deployment_target = '8.0'
