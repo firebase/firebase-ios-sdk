@@ -239,7 +239,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_app_count = 1;
   config->use_default_app = 1;
   config->has_use_default_app = 1;
-  config->dynamic_framework_count = 3;
+  config->dynamic_framework_count = 4;
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
   config->min_supported_ios_version = FIREncodeString(@"8.0");
