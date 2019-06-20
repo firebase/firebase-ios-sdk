@@ -33,6 +33,8 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
+#import "FIRDiagnosticsDateFileStorage.h"
+
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
 
@@ -147,6 +149,9 @@ NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 /** The transport object used to send data. */
 @property(nonnull, nonatomic) GDTTransport *transport;
+
+/** The storage to store the date of the last sent heartbeat. */
+@property(nonnull, nonatomic, readonly) FIRDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 @end
 
@@ -670,6 +675,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInstalledServices(&icore_config);
     FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
+    [diagnostics setHeartbeatFalgIfNeededToConfig:&icore_config];
 
     // This log object is capable of converting the proto to bytes.
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
@@ -679,6 +685,34 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     event.dataObject = (id<GDTEventDataObject>)log;
     [diagnostics->_transport sendTelemetryEvent:event];
   });
+}
+
+#pragma mark - Heartbeat
+
+- (void)setHeartbeatFalgIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
+  // Check if need to send a heartbeat.
+  NSDate *currentDate = [NSDate date];
+  NSDate *lastCheckin = [self.heartbeatDateStorage date];
+  if (lastCheckin) {
+    // Ensure the previous checkin was on a different date in the past.
+    if ([self isDate:currentDate inSameDayOrBeforeThan:lastCheckin]) {
+      return;
+    }
+  }
+
+  // Update heartbeat sent date.
+  NSError *error;
+  if (![self.heartbeatDateStorage setDate:currentDate error:&error]) {
+    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@", error);
+  }
+
+  // Set the flag.
+  config->sdk_name = logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
+}
+
+- (BOOL)isDate:(NSDate *)date1 inSameDayOrBeforeThan:(NSDate *)date2 {
+  return [[NSCalendar currentCalendar] isDate:date1 inSameDayAsDate:date2] ||
+  [date1 compare:date2] == NSOrderedAscending;
 }
 
 @end
