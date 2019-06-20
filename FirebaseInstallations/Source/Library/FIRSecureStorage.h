@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// The class provides a convenient abstraction on top of the iOS Keychain API to save data.
 @interface FIRSecureStorage : NSObject
 
-- (instancetype)initWithService:(NSString *)service;
-
 /**
  * Get an object by key.
  * @param key The key.

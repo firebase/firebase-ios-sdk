@@ -15,38 +15,66 @@
  */
 
 #import <XCTest/XCTest.h>
+
+#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+
 #import "FIRSecureStorage.h"
 
 @interface FIRSecureStorage (Tests)
--(void)resetInMemoryCache;
+- (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
+- (void)resetInMemoryCache;
 @end
 
 @interface FIRSecureStorageTests : XCTestCase
 @property(nonatomic, strong) FIRSecureStorage *storage;
+@property(nonatomic, strong) NSCache *cache;
+@property(nonatomic, strong) id mockCache;
 @end
 
 @implementation FIRSecureStorageTests
 
 - (void)setUp {
-  self.storage = [[FIRSecureStorage alloc] initWithService:@"com.tests.FIRSecureStorageTests"];
+  self.cache = [[NSCache alloc] init];
+  self.mockCache = OCMPartialMock(self.cache);
+  self.storage = [[FIRSecureStorage alloc] initWithService:@"com.tests.FIRSecureStorageTests"
+                                                     cache:self.mockCache];
 }
 
 - (void)tearDown {
   self.storage = nil;
+  self.mockCache = nil;
+  self.cache = nil;
 }
 
 - (void)testSetGetObjectForKey {
-  [self assertSuccessWriteAndReadObject:@[ @1, @2 ] class:[NSArray class] key:@"test-key1"];
-  // Check overriding an object by key.
-  [self assertSuccessWriteAndReadObject:@{@"key" : @"value"}
-                                  class:[NSDictionary class]
-                                    key:@"test-key1"];
+  // 1. Write and read object initially.
+  [self assertSuccessWriteObject:@[ @1, @2 ] forKey:@"test-key1"];
+  [self assertSuccessReadObject:@[ @1, @2 ]
+                         forKey:@"test-key1"
+                          class:[NSArray class]
+                  existsInCache:YES];
 
-  // Check object by another key.
-  [self assertSuccessWriteAndReadObject:@{@"key" : @"value"}
-                                  class:[NSDictionary class]
-                                    key:@"test-key2"];
+  // 2. Override existing object.
+  [self assertSuccessWriteObject:@{@"key" : @"value"} forKey:@"test-key1"];
+  [self assertSuccessReadObject:@{@"key" : @"value"}
+                         forKey:@"test-key1"
+                          class:[NSDictionary class]
+                  existsInCache:YES];
+
+  // 3. Read existing object wich is not present in in-memory cache.
+  [self.cache removeAllObjects];
+  [self assertSuccessReadObject:@{@"key" : @"value"}
+                         forKey:@"test-key1"
+                          class:[NSDictionary class]
+                  existsInCache:NO];
+
+  // 4. Write and read an object for another key.
+  [self assertSuccessWriteObject:@{@"key" : @"value"} forKey:@"test-key2"];
+  [self assertSuccessReadObject:@{@"key" : @"value"}
+                         forKey:@"test-key2"
+                          class:[NSDictionary class]
+                  existsInCache:YES];
 }
 
 - (void)testGetNonExistingObject {
@@ -59,11 +87,10 @@
   // Wtite.
   [self assertSuccessWriteObject:@[ @8 ] forKey:key];
 
-  // In-memory cache does not really care of classes. The objectClass is needed to support
-  // `NSSecureCoding`.
-  [self.storage resetInMemoryCache];
-
   // Read.
+  // Skip in-memory cache because the error is relevant only for Keychain.
+  OCMExpect([self.mockCache objectForKey:key]).andReturn(nil);
+
   FBLPromise<id<NSSecureCoding>> *getPromise = [self.storage getObjectForKey:key
                                                                  objectClass:[NSString class]
                                                                  accessGroup:nil];
@@ -72,12 +99,14 @@
   XCTAssertNil(getPromise.value);
   XCTAssertNotNil(getPromise.error);
   // TODO: Test for particular error.
+
+  OCMVerifyAll(self.mockCache);
 }
 
 - (void)testRemoveExistingObject {
   NSString *key = @"testRemoveExistingObject";
   // Store the object.
-  [self assertSuccessWriteAndReadObject:@[ @5 ] class:[NSArray class] key:key];
+  [self assertSuccessWriteObject:@[ @5 ] forKey:(NSString *)key];
 
   // Remove object.
   [self assertRemoveObjectForKey:key];
@@ -92,30 +121,43 @@
   [self assertNonExistingObjectForKey:key class:[NSArray class]];
 }
 
-// TODO: Tests for in-memory cache.
-
 #pragma mark - Common
 
 - (void)assertSuccessWriteObject:(id<NSSecureCoding>)object forKey:(NSString *)key {
+  OCMExpect([self.mockCache setObject:object forKey:key]).andForwardToRealObject();
+
   FBLPromise<NSNull *> *setPromise = [self.storage setObject:object forKey:key accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertNil(setPromise.error);
+
+  OCMVerify(self.mockCache);
+
+  // Check in-memory cache.
+  XCTAssertEqualObjects([self.cache objectForKey:key], object);
 }
 
-- (void)assertSuccessWriteAndReadObject:(id<NSSecureCoding>)object
-                                  class:(Class)class
-                                    key:(NSString *)key {
-  // Write.
-  [self assertSuccessWriteObject:object forKey:key];
+- (void)assertSuccessReadObject:(id<NSSecureCoding>)object
+                         forKey:(NSString *)key
+                          class:(Class)class
+                  existsInCache:(BOOL)existisInCache {
+  OCMExpect([self.mockCache objectForKey:key]).andForwardToRealObject();
 
-  // Read.
+  if (!existisInCache) {
+    OCMExpect([self.mockCache setObject:object forKey:key]).andForwardToRealObject();
+  }
+
   FBLPromise<id<NSSecureCoding>> *getPromise =
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssertEqualObjects(getPromise.value, object);
   XCTAssertNil(getPromise.error);
+
+  OCMVerifyAll(self.mockCache);
+
+  // Check in-memory cache.
+  XCTAssertEqualObjects([self.cache objectForKey:key], object);
 }
 
 - (void)assertNonExistingObjectForKey:(NSString *)key class:(Class)class {

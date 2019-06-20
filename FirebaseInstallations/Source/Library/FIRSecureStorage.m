@@ -35,10 +35,13 @@
 @implementation FIRSecureStorage
 
 - (instancetype)init {
-  return [self initWithService:@"com.firebase.FIRInstallations.installations"];
+  NSCache *cache = [[NSCache alloc] init];
+  // Cache up to 5 installations.
+  cache.countLimit = 5;
+  return [self initWithService:@"com.firebase.FIRInstallations.installations" cache:cache];
 }
 
-- (instancetype)initWithService:(NSString *)service {
+- (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {
   self = [super init];
   if (self) {
     _keychainQueue =
@@ -46,9 +49,7 @@
     _inMemoryCacheQueue = dispatch_queue_create("com.firebase.FIRSecureStorage.InMemoryChache",
                                                 DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
-    _inMemoryCache = [[NSCache alloc] init];
-    // Cache up to 5 installations.
-    _inMemoryCache.countLimit = 5;
+    _inMemoryCache = cache;
   }
   return self;
 }
