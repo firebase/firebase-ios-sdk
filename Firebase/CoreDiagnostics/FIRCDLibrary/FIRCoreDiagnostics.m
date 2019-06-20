@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_END
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }
 
-/** Initializer for unit tests */
+/** Initializer for unit tests. */
 - (instancetype)initWithTransport:(GDTTransport *)transport
              heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
   self = [super init];
