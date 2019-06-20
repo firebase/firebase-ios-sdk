@@ -36,9 +36,6 @@
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
 
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
 #ifdef FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = YES;
 #else   // FIREBASE_BUILD_ZIP_FILE
@@ -154,10 +151,6 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 + (void)load {
   FIRCoreDiagnosticsImplementation = self;
-}
-
-+ (NSString *)libraryVersion {
-  return @STR(FIRCoreDiagnostics_VERSION);
 }
 
 + (instancetype)sharedInstance {

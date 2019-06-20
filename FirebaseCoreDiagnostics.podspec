@@ -38,7 +38,7 @@ variable FIREBASE_DIAGNOSTICS set to 0.
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
-      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1 FIRCoreDiagnostics_VERSION=' + s.version.to_s,
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
   }.merge(header_search_paths)
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
