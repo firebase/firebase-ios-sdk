@@ -90,11 +90,6 @@ static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 static NSString *const kFIRServiceIAM = @"InAppMessaging";
 
 /**
- * The file name to keep the unique install string.
- */
-NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
-
-/**
  * The file name to the recent heartbeat date.
  */
 NSString *const kFIRDiagnosticsHeartbeatDateFileName = @"FIREBASE_HEARTBEAT_DATE";
@@ -206,55 +201,7 @@ NS_ASSUME_NONNULL_END
   return self;
 }
 
-#pragma mark - Install string helpers
-
-/** Returns a string representing this unique install.
- *
- * @return a unique string for this install.
- */
-+ (NSString *)installString {
-  @synchronized(self) {
-    NSURL *filePathURL = [FIRCoreDiagnostics filePathURLWithName:kUniqueInstallFileName];
-    // Return nil if failing creating the folder.
-    if (!filePathURL.absoluteString.length) {
-      return nil;
-    }
-    NSString *uniqueString = [FIRCoreDiagnostics stringAtURL:filePathURL];
-    if (uniqueString.length > 0) {
-      return uniqueString;
-    }
-    uniqueString = [[NSUUID UUID] UUIDString];
-    if ([FIRCoreDiagnostics writeString:uniqueString toURL:filePathURL]) {
-      return uniqueString;
-    }
-    return nil;
-  }
-}
-
-/** Writes a string to the given url file path.
- *
- * @param string The string to write in the file.
- * @param filePathURL The file path to write.
- * @return YES if successful, NO otherwise.
- */
-+ (BOOL)writeString:(NSString *)string toURL:(NSURL *)filePathURL {
-  @synchronized(self) {
-    NSError *error;
-    if ([string writeToURL:filePathURL atomically:YES encoding:NSUTF8StringEncoding error:&error]) {
-      // Exclude from backing up to iCloud.
-      [filePathURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
-      if (error) {
-        GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100003",
-                      @"Unable to update internal resource: %@", error);
-      }
-      return YES;
-    } else {
-      GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100004",
-                    @"Unable to persist internal state: %@", error);
-      return NO;
-    }
-  }
-}
+#pragma mark - File path helpers
 
 /** Returns the URL path of the file with name fileName under the Application Support folder for
  * local logging. Creates the Application Support folder if the folder doesn't exist.
@@ -283,19 +230,6 @@ NS_ASSUME_NONNULL_END
     }
     return [directoryURL URLByAppendingPathComponent:fileName];
   }
-}
-
-/** Returns the string in the file at the given file path.
- *
- * @return The string in the file at the given file path.
- */
-+ (NSString *)stringAtURL:(NSURL *)filePathURL {
-  // An error here would mean that either the file is not there (legitimate) or there is
-  // an issue reading the disk, which is not actionable. Ignoring the error.
-  NSString *content = [NSString stringWithContentsOfURL:filePathURL
-                                               encoding:NSUTF8StringEncoding
-                                                  error:nil];
-  return content;
 }
 
 #pragma mark - Metadata helpers
@@ -471,11 +405,6 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
   NSString *libraryVersionID = diagnosticObjects[kFIRCDLibraryVersionIDKey];
   if (libraryVersionID) {
     config->icore_version = FIREncodeString(libraryVersionID);
-  }
-
-  NSString *installString = [FIRCoreDiagnostics installString];
-  if (installString.length) {
-    config->install = FIREncodeString(installString);
   }
 
   NSString *deviceModel = [FIRCoreDiagnostics deviceModel];

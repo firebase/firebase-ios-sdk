@@ -39,8 +39,6 @@
 /** For testing use only. This symbol should be provided by */
 Class FIRCoreDiagnosticsImplementation;
 
-extern NSString *const kUniqueInstallFileName;
-
 extern NSString *const kFIRAppDiagnosticsNotification;
 
 extern NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
@@ -216,34 +214,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   // A pb_release here should not be necessary here, as FIRCoreDiagnosticsLog should do it.
 }
 
-- (void)testWritingStringToFile {
-  NSString *uniqueString = [FIRCoreDiagnostics installString];
-  XCTAssertNotNil(uniqueString);
-
-  NSURL *filePathURL = [FIRCoreDiagnostics filePathURLWithName:kUniqueInstallFileName];
-  XCTAssertTrue([filePathURL.path
-      hasSuffix:@"Library/Application Support/Google/FIRApp/FIREBASE_UNIQUE_INSTALL"]);
-  NSDictionary<NSString *, id> *values =
-      [filePathURL resourceValuesForKeys:@[ NSURLIsExcludedFromBackupKey ] error:NULL];
-  XCTAssertEqualObjects(values[NSURLIsExcludedFromBackupKey], @YES);
-
-  NSString *content = [FIRCoreDiagnostics stringAtURL:filePathURL];
-  XCTAssertTrue([uniqueString isEqualToString:content]);
-  // Check whether the saved unique string follows the correct format.
-  // A sample UUID: 5A870F63-078E-4D92-9145-EC2EF97E6681
-  NSString *pattern = @"^[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}$";
-  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                                         options:0
-                                                                           error:nil];
-  NSUInteger matchNumber = [regex numberOfMatchesInString:content
-                                                  options:0
-                                                    range:NSMakeRange(0, [content length])];
-  XCTAssertTrue(matchNumber == 1);
-
-  // Writing the same string to the same file again should still succeed.
-  XCTAssertTrue([FIRCoreDiagnostics writeString:content toURL:filePathURL]);
-}
-
 // Populates the ICoreConfiguration proto.
 - (void)populateProto:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
@@ -259,7 +229,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_pod_name = 1;
   config->app_id = FIREncodeString(kGoogleAppID);
   config->bundle_id = FIREncodeString(kBundleID);
-  config->install = FIREncodeString([FIRCoreDiagnostics installString]);
   config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
 #if TARGET_OS_IPHONE
   config->os_version = FIREncodeString([[UIDevice currentDevice] systemVersion]);
