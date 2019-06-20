@@ -21,67 +21,67 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceAdMob = @"AdMob";
+FOUNDATION_EXTERN NSString *const kFIRServiceAdMob;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceAuth = @"Auth";
+FOUNDATION_EXTERN NSString *const kFIRServiceAuth;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceAuthUI = @"AuthUI";
+FOUNDATION_EXTERN NSString *const kFIRServiceAuthUI;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceCrash = @"Crash";
+FOUNDATION_EXTERN NSString *const kFIRServiceCrash;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceDatabase = @"Database";
+FOUNDATION_EXTERN NSString *const kFIRServiceDatabase;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
+FOUNDATION_EXTERN NSString *const kFIRServiceDynamicLinks;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceFirestore = @"Firestore";
+FOUNDATION_EXTERN NSString *const kFIRServiceFirestore;
+ 
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceFunctions;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceFunctions = @"Functions";
+FOUNDATION_EXTERN NSString *const kFIRServiceInstanceID;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceInstanceID = @"InstanceID";
+FOUNDATION_EXTERN NSString *const kFIRServiceInvites;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceInvites = @"Invites";
+FOUNDATION_EXTERN NSString *const kFIRServiceMessaging;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceMessaging = @"Messaging";
+FOUNDATION_EXTERN NSString *const kFIRServiceMeasurement;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceMeasurement = @"Measurement";
+FOUNDATION_EXTERN NSString *const kFIRServicePerformance;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServicePerformance = @"Performance";
+FOUNDATION_EXTERN NSString *const kFIRServiceRemoteConfig;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
+FOUNDATION_EXTERN NSString *const kFIRServiceStorage;
 
 /** An SDK service identifier. */
-static NSString *const kFIRServiceStorage = @"Storage";
+FOUNDATION_EXTERN NSString *const kGGLServiceAnalytics;
 
 /** An SDK service identifier. */
-static NSString *const kGGLServiceAnalytics = @"Analytics";
-
-/** An SDK service identifier. */
-static NSString *const kGGLServiceSignIn = @"SignIn";
+FOUNDATION_EXTERN NSString *const kGGLServiceSignIn;
 
 /** A dictionary key for the diagnostics configuration. */
-static NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"FIRAppDiagnosticsConfigurationTypeKey";
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
 
 /** A dictionary key for the FIRApp context. */
-static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsFIRAppKey;
 
 /** A dictionary key for the SDK name. */
-static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsSDKNameKey;
 
 /** A dictionary key for the SDK version. */
-static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsSDKVersionKey;
 
 /** Allows the interoperation of FirebaseCore and FirebaseCoreDiagnostics. */
 @protocol FIRCoreDiagnosticsInterop <NSObject>
@@ -97,6 +97,6 @@ static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKV
 /** The class that implements this interop protocol. Unforunately, the components framework can't
  * be used because of a cyclical dependency issue.
  */
-extern Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
+FOUNDATION_EXTERN Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
 
 NS_ASSUME_NONNULL_END
