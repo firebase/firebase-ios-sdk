@@ -32,6 +32,9 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
+// TODO: Remove ASAP. Only needed for solving a chicken-and-egg pod lib lint issue.
+Class FIRCoreDiagnosticsImplementation;
+
 extern NSString *const kUniqueInstallFileName;
 
 extern NSString *const kFIRAppDiagnosticsNotification;
