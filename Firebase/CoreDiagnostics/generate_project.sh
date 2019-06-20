@@ -19,4 +19,4 @@ readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
 "$REPO_DIR/Firebase/CoreDiagnostics/ProtoSupport/generate_nanopb_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --app-host-source-dir="${REPO_DIR}/Example/CoreDiagnostics/AppHost/" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --clean
+pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --app-host-source-dir="${REPO_DIR}/Example/CoreDiagnostics/AppHost/" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git --clean

@@ -15,6 +15,9 @@
  */
 
 #import <XCTest/XCTest.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif // TARGET_OS_IPHONE
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
@@ -227,7 +230,11 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->bundle_id = FIREncodeString(kBundleID);
   config->install = FIREncodeString([FIRCoreDiagnostics installString]);
   config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
+#if TARGET_OS_IPHONE
   config->os_version = FIREncodeString([[UIDevice currentDevice] systemVersion]);
+#else
+  config->os_version = FIREncodeString([[NSProcessInfo processInfo] operatingSystemVersionString]);
+#endif // TARGET_OS_IPHONE
   config->app_count = 1;
   config->has_app_count = 1;
   config->use_default_app = 1;

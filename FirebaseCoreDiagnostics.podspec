@@ -16,7 +16,7 @@ several extern variables are expected to be implemented.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CoreDiagnostics-' + s.version.to_s
+    :tag => 'FirebaseCoreDiagnostics-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -43,7 +43,6 @@ several extern variables are expected to be implemented.
   }.merge(header_search_paths)
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
-  s.private_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Private/*.h'
   s.framework = 'Foundation'
   
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
@@ -56,6 +55,6 @@ several extern variables are expected to be implemented.
     unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
-    unit_tests.requires_app_host = false
+    unit_tests.requires_app_host = true
   end
 end
