@@ -18,10 +18,15 @@ detailed instructions. Some Firebase specific guidance below:
 * `s.dependency` - Dependencies on other Firebase pods should allow minor version updates - 
 like `s.dependency 'FirebaseCore', '~> 6.0'`
 
-* `s.pod_target_xcconfig` - Add any specific build settings. For portability, any Firebase
+* `s.pod_target_xcconfig` - Add any specific build settings.
+  * For portability, any Firebase
 pod with other Firebase dependencies should build for c99 -
-`'GCC_C_LANGUAGE_STANDARD' => 'c99'`. The pod's version should be passed in as a #define
+`'GCC_C_LANGUAGE_STANDARD' => 'c99'`.
+  * The pod's version should be passed in as a #define
 for FIRComponent registration. See examples of setting `GCC_PREPROCESSOR_DEFINITIONS`.
+  * All imports (outside of Public headers) should be repo relative -
+    `'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/FirebaseFoo'` TBD whether it should be
+    the root of the repo or the `FirebaseFoo` directory.
 
 * `s.test_spec` should be used for defining all unit and integration test suites.
 
