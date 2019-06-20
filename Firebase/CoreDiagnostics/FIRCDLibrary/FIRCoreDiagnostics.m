@@ -33,7 +33,7 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GDTTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
-@property(nonatomic, readonly) FIRDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 @end
 
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_END
                                                        transformers:nil
                                                              target:kGDTTargetCCT];
 
-  FIRDiagnosticsDateFileStorage *dateStorage = [[FIRDiagnosticsDateFileStorage alloc]
+  FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
       initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
@@ -170,7 +170,7 @@ NS_ASSUME_NONNULL_END
 
 /** Initializer for unit tests */
 - (instancetype)initWithTransport:(GDTTransport *)transport
-             heartbeatDateStorage:(FIRDiagnosticsDateFileStorage *)heartbeatDateStorage {
+             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =

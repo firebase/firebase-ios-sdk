@@ -33,7 +33,7 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 // TODO: Remove ASAP. Only needed for solving a chicken-and-egg pod lib lint issue.
 Class FIRCoreDiagnosticsImplementation;
@@ -51,12 +51,12 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 // Initialization.
 + (instancetype)sharedInstance;
 - (instancetype)initWithTransport:(GDTTransport *)transport
-             heartbeatDateStorage:(FIRDiagnosticsDateFileStorage *)heartbeatDateStorage;
+             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage;
 
 // Properties.
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 @property(nonatomic, readonly) GDTTransport *transport;
-@property(nonatomic, readonly) FIRDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 // Install string helpers.
 + (NSString *)installString;
@@ -146,7 +146,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   OCMStub([self.mockTransport eventForTransport])
       .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
 
-  self.mockDateStorage = OCMClassMock([FIRDiagnosticsDateFileStorage class]);
+  self.mockDateStorage = OCMClassMock([FIRCoreDiagnosticsDateFileStorage class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
                                               heartbeatDateStorage:self.mockDateStorage];
 }
@@ -309,7 +309,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
   XCTAssert(
-      [sharedInstance.heartbeatDateStorage isKindOfClass:[FIRDiagnosticsDateFileStorage class]]);
+      [sharedInstance.heartbeatDateStorage isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
 
   NSDate *date = [NSDate date];
 

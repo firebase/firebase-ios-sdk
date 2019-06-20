@@ -15,14 +15,14 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
-@interface FIRDiagnosticsDateFileStorageTests : XCTestCase
+@interface FIRCoreDiagnosticsDateFileStorageTests : XCTestCase
 @property(nonatomic) NSURL *fileURL;
-@property(nonatomic) FIRDiagnosticsDateFileStorage *storage;
+@property(nonatomic) FIRCoreDiagnosticsDateFileStorage *storage;
 @end
 
-@implementation FIRDiagnosticsDateFileStorageTests
+@implementation FIRCoreDiagnosticsDateFileStorageTests
 
 - (void)setUp {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
@@ -41,7 +41,7 @@
               @"Error: %@", error);
   }
 
-  self.storage = [[FIRDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
+  self.storage = [[FIRCoreDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
 }
 
 - (void)tearDown {
@@ -70,8 +70,8 @@
   NSError *error;
   XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
 
-  FIRDiagnosticsDateFileStorage *anotherStorage =
-      [[FIRDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
+  FIRCoreDiagnosticsDateFileStorage *anotherStorage =
+      [[FIRCoreDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
 
   XCTAssertEqualObjects([anotherStorage date], date);
 }

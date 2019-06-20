@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// Stores a date to a specified file.
-@interface FIRDiagnosticsDateFileStorage : NSObject
+@interface FIRCoreDiagnosticsDateFileStorage : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
