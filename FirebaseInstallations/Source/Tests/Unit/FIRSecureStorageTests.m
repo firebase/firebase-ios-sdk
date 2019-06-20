@@ -18,6 +18,10 @@
 #import "FBLPromise+Testing.h"
 #import "FIRSecureStorage.h"
 
+@interface FIRSecureStorage (Tests)
+-(void)resetInMemoryCache;
+@end
+
 @interface FIRSecureStorageTests : XCTestCase
 @property(nonatomic, strong) FIRSecureStorage *storage;
 @end
@@ -55,6 +59,10 @@
   // Wtite.
   [self assertSuccessWriteObject:@[ @8 ] forKey:key];
 
+  // In-memory cache does not really care of classes. The objectClass is needed to support
+  // `NSSecureCoding`.
+  [self.storage resetInMemoryCache];
+
   // Read.
   FBLPromise<id<NSSecureCoding>> *getPromise = [self.storage getObjectForKey:key
                                                                  objectClass:[NSString class]
@@ -83,6 +91,8 @@
   [self assertRemoveObjectForKey:key];
   [self assertNonExistingObjectForKey:key class:[NSArray class]];
 }
+
+// TODO: Tests for in-memory cache.
 
 #pragma mark - Common
 
