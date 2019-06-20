@@ -54,6 +54,7 @@ using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
@@ -242,7 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:value
                                    key:key
                                version:testutil::Version(version)
-                                 state:FSTDocumentStateSynced];
+                                 state:DocumentState::kSynced];
 }
 
 - (FSTDocument *)nextTestDocument {
@@ -629,7 +630,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc = [FSTDocument documentWithData:_testValue
                                                  key:middleDocToUpdate
                                              version:testutil::Version(version)
-                                               state:FSTDocumentStateSynced];
+                                               state:DocumentState::kSynced];
     _documentCache->Add(doc);
     [self updateTargetInTransaction:middleTarget];
   });

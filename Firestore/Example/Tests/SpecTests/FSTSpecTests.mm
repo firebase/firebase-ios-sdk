@@ -61,6 +61,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -213,11 +214,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
-  FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
-                                       ? FSTDocumentStateLocalMutations
-                                       : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
-                                              ? FSTDocumentStateCommittedMutations
-                                              : FSTDocumentStateSynced);
+  DocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
+                                    ? DocumentState::kLocalMutations
+                                    : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
+                                           ? DocumentState::kCommittedMutations
+                                           : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
@@ -308,7 +309,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:*value
                                                               key:key
                                                           version:std::move(version)
-                                                            state:FSTDocumentStateSynced]
+                                                            state:DocumentState::kSynced]
                                   : [FSTDeletedDocument documentWithKey:key
                                                                 version:std::move(version)
                                                   hasCommittedMutations:NO];

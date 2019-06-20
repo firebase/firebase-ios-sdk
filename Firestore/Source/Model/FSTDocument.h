@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -28,16 +29,6 @@
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** Describes the `hasPendingWrites` state of a document. */
-typedef NS_ENUM(NSInteger, FSTDocumentState) {
-  /** Local mutations applied via the mutation queue. Document is potentially inconsistent. */
-  FSTDocumentStateLocalMutations,
-  /** Mutations applied based on a write acknowledgment. Document is potentially inconsistent. */
-  FSTDocumentStateCommittedMutations,
-  /** No mutations applied. Document was sent to us by Watch. */
-  FSTDocumentStateSynced
-};
 
 /**
  * The result of a lookup for a given path may be an existing document or a tombstone that marks
@@ -59,12 +50,12 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
 + (instancetype)documentWithData:(model::ObjectValue)data
                              key:(model::DocumentKey)key
                          version:(model::SnapshotVersion)version
-                           state:(FSTDocumentState)state;
+                           state:(model::DocumentState)state;
 
 + (instancetype)documentWithData:(model::ObjectValue)data
                              key:(model::DocumentKey)key
                          version:(model::SnapshotVersion)version
-                           state:(FSTDocumentState)state
+                           state:(model::DocumentState)state
                            proto:(GCFSDocument *)proto;
 
 - (absl::optional<model::FieldValue>)fieldForPath:(const model::FieldPath &)path;

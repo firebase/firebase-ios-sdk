@@ -34,10 +34,12 @@ namespace firebase {
 namespace firestore {
 namespace objc {
 
+using model::DocumentState;
+
 TEST(ObjCCompatibilityTest, Equals) {
-  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc2 = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
+  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
+  FSTDocument* doc2 = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
 
   EXPECT_TRUE(Equals(doc1a, doc1b));
   EXPECT_FALSE(Equals(doc1a, doc2));
@@ -45,10 +47,10 @@ TEST(ObjCCompatibilityTest, Equals) {
 }
 
 TEST(ObjCCompatibilityTest, ContainerEquals) {
-  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc2a = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc2b = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
+  FSTDocument* doc2a = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
+  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
+  FSTDocument* doc2b = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
 
   std::vector<FSTDocument*> v1{doc1a, doc2a};
   std::vector<FSTDocument*> v2{doc1b, doc2b};

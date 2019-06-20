@@ -71,6 +71,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -455,7 +456,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTDocument documentWithData:value
                                    key:key
                                version:version
-                                 state:FSTDocumentStateSynced
+                                 state:DocumentState::kSynced
                                  proto:response.found];
 }
 
@@ -1186,7 +1187,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMaybeDocument *document = [FSTDocument documentWithData:value
                                                          key:key
                                                      version:version
-                                                       state:FSTDocumentStateSynced
+                                                       state:DocumentState::kSynced
                                                        proto:change.document];
 
   std::vector<TargetId> updatedTargetIDs = [self decodedIntegerArray:change.targetIdsArray];

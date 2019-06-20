@@ -32,6 +32,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
@@ -80,14 +81,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTDocument {
-  FSTDocumentState _documentState;
+  DocumentState _documentState;
   util::DelayedConstructor<ObjectValue> _data;
 }
 
 + (instancetype)documentWithData:(ObjectValue)data
                              key:(DocumentKey)key
                          version:(SnapshotVersion)version
-                           state:(FSTDocumentState)state {
+                           state:(DocumentState)state {
   return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
                                    version:std::move(version)
@@ -97,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)documentWithData:(ObjectValue)data
                              key:(DocumentKey)key
                          version:(SnapshotVersion)version
-                           state:(FSTDocumentState)state
+                           state:(DocumentState)state
                            proto:(GCFSDocument *)proto {
   return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
@@ -109,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithData:(ObjectValue)data
                          key:(DocumentKey)key
                      version:(SnapshotVersion)version
-                       state:(FSTDocumentState)state {
+                       state:(DocumentState)state {
   self = [super initWithKey:std::move(key) version:std::move(version)];
   if (self) {
     _data.Init(std::move(data));
@@ -122,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithData:(ObjectValue)data
                          key:(DocumentKey)key
                      version:(SnapshotVersion)version
-                       state:(FSTDocumentState)state
+                       state:(DocumentState)state
                        proto:(GCFSDocument *)proto {
   self = [super initWithKey:std::move(key) version:std::move(version)];
   if (self) {
@@ -134,11 +135,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (bool)hasLocalMutations {
-  return _documentState == FSTDocumentStateLocalMutations;
+  return _documentState == DocumentState::kLocalMutations;
 }
 
 - (bool)hasCommittedMutations {
-  return _documentState == FSTDocumentStateCommittedMutations;
+  return _documentState == DocumentState::kCommittedMutations;
 }
 
 - (bool)hasPendingWrites {
