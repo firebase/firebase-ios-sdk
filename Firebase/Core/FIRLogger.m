@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRLogger.h"
+#import "Core/Private/FIRLogger.h"
+#import "Core/Public/FIRLoggerLevel.h"
 
-#import <FirebaseCore/FIRLoggerLevel.h>
+#if SWIFT_PACKAGE
+#import "GULAppEnvironmentUtil.h"
+#import "GULLogger.h"
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 #import "Private/FIRVersion.h"
 
