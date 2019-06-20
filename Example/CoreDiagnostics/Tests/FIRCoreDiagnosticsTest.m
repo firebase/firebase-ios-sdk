@@ -327,7 +327,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   [self assertEventSentWithHeartbeat:YES];
 }
 
-#pragma mark - Singletone
+#pragma mark - Singleton
 
 - (void)testSharedInstanceDateStorageProperlyInitialized {
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
