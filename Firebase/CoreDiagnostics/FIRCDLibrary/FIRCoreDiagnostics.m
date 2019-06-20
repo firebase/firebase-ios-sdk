@@ -180,10 +180,11 @@ NS_ASSUME_NONNULL_END
 
 - (instancetype)init {
   GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
-                                                        transformers:nil
-                                                              target:kGDTTargetCCT];
+                                                       transformers:nil
+                                                             target:kGDTTargetCCT];
 
-  FIRDiagnosticsDateFileStorage *dateStorage = [[FIRDiagnosticsDateFileStorage alloc] initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
+  FIRDiagnosticsDateFileStorage *dateStorage = [[FIRDiagnosticsDateFileStorage alloc]
+      initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }
@@ -194,7 +195,7 @@ NS_ASSUME_NONNULL_END
   self = [super init];
   if (self) {
     _diagnosticsQueue =
-    dispatch_queue_create("com.google.FIRCoreDiagnostics", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_create("com.google.FIRCoreDiagnostics", DISPATCH_QUEUE_SERIAL);
     _transport = transport;
     _heartbeatDateStorage = heartbeatDateStorage;
   }
@@ -656,7 +657,8 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
   // Update heartbeat sent date.
   NSError *error;
   if (![self.heartbeatDateStorage setDate:currentDate error:&error]) {
-    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@", error);
+    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@",
+                error);
   }
 
   // Set the flag.
@@ -665,7 +667,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 
 - (BOOL)isDate:(NSDate *)date1 inSameDayOrBeforeThan:(NSDate *)date2 {
   return [[NSCalendar currentCalendar] isDate:date1 inSameDayAsDate:date2] ||
-  [date1 compare:date2] == NSOrderedAscending;
+         [date1 compare:date2] == NSOrderedAscending;
 }
 
 @end

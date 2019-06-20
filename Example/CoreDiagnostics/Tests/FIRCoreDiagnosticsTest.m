@@ -17,15 +17,15 @@
 #import <XCTest/XCTest.h>
 #if TARGET_OS_IOS || TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
-#endif // TARGET_OS_IPHONE
+#endif  // TARGET_OS_IPHONE
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTEventDataObject.h>
 #import <GoogleDataTransport/GDTTransport.h>
-#import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -168,7 +168,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
   self.mockTransport = OCMClassMock([GDTTransport class]);
   OCMStub([self.mockTransport eventForTransport])
-  .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
+      .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
 
   self.mockDateStorage = OCMClassMock([FIRDiagnosticsDateFileStorage class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
@@ -260,7 +260,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   if (minVersion) {
     config->min_supported_ios_version = FIREncodeString(minVersion);
   }
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
   config->using_zip_file = 0;
   config->has_using_zip_file = 1;
   config->deployment_type = logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS;
@@ -300,7 +300,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   dateComponents.hour = 0;
   dateComponents.day += 1;
   NSDate *startOfNextDay = [calendar dateFromComponents:dateComponents];
-  NSDate *endOfTheDay = [startOfNextDay dateByAddingTimeInterval:- 1];
+  NSDate *endOfTheDay = [startOfNextDay dateByAddingTimeInterval:-1];
   OCMExpect([self.mockDateStorage date]).andReturn(endOfTheDay);
   OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
                                     error:[OCMArg anyObjectRef]]);
@@ -332,12 +332,14 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (void)testSharedInstanceDateStorageProperlyInitialized {
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
-  XCTAssert([sharedInstance.heartbeatDateStorage isKindOfClass:[FIRDiagnosticsDateFileStorage class]]);
+  XCTAssert(
+      [sharedInstance.heartbeatDateStorage isKindOfClass:[FIRDiagnosticsDateFileStorage class]]);
 
   NSDate *date = [NSDate date];
 
   NSError *error;
-  XCTAssertTrue([sharedInstance.heartbeatDateStorage setDate:date error:&error], @"Error %@", error);
+  XCTAssertTrue([sharedInstance.heartbeatDateStorage setDate:date error:&error], @"Error %@",
+                error);
 
   XCTAssertEqualObjects([sharedInstance.heartbeatDateStorage date], date);
 }
@@ -359,7 +361,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
     FIRCoreDiagnosticsLog *dataObject = obj.dataObject;
     XCTAssert([dataObject isKindOfClass:[FIRCoreDiagnosticsLog class]]);
 
-    BOOL isSentEventHeartbeat = dataObject.config.sdk_name == logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
+    BOOL isSentEventHeartbeat =
+        dataObject.config.sdk_name == logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
     XCTAssertEqual(isSentEventHeartbeat, isHeartbeat);
 
     return YES;

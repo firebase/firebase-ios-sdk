@@ -51,7 +51,8 @@
 
 - (nullable NSDate *)date {
   NSString *timestampString = [NSString stringWithContentsOfURL:self.fileURL
-                                                       encoding:NSUTF8StringEncoding error:nil];
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:nil];
   if (timestampString.length == 0) {
     return nil;
   }

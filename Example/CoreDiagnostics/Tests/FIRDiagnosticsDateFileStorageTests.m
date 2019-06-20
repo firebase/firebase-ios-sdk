@@ -9,9 +9,8 @@
 @implementation FIRDiagnosticsDateFileStorageTests
 
 - (void)setUp {
-  NSString *documentsPath =
-      [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES)
-          firstObject];
+  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
+      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
   self.fileURL = [documentsURL URLByAppendingPathComponent:@"FIRDiagnosticsDateFileStorageTests"
@@ -22,7 +21,8 @@
     XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:documentsURL
                                        withIntermediateDirectories:YES
                                                         attributes:nil
-                                                             error:&error], @"Error: %@", error);
+                                                             error:&error],
+              @"Error: %@", error);
   }
 
   self.storage = [[FIRDiagnosticsDateFileStorage alloc] initWithFileURL:self.fileURL];
