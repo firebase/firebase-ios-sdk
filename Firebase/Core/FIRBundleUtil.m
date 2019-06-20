@@ -14,7 +14,11 @@
 
 #import "Private/FIRBundleUtil.h"
 
+#if SWIFT_PACKAGE
+#import "GULAppEnvironmentUtil.h"
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
 
 @implementation FIRBundleUtil
 
