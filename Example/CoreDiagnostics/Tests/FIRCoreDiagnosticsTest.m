@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 #if TARGET_OS_IOS || TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
-#endif  // TARGET_OS_IPHONE
+#endif  // TARGET_OS_IOS
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
