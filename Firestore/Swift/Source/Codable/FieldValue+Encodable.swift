@@ -32,8 +32,10 @@ extension FieldValue: Encodable {
 ///
 /// Example:
 /// struct CustomModel {
-///   var ts: ServerTimestamp = .pending
+///   var ts: ServerTimestamp
 /// }
+/// Then `CustomModel(ts: .pending)` will tell server to fill `ts` with current
+/// timestamp.
 public enum ServerTimestamp: Codable, Equatable {
   /// When being read (decoded) from Firestore, NSNull values will be mapped to `pending`.
   /// When being written (encoded) to Firestore, `pending` means requesting server to
@@ -75,6 +77,8 @@ public enum ServerTimestamp: Codable, Equatable {
 /// struct CustomModel {
 ///   var intValue: IncrementableInt
 /// }
+/// Then encoding `CustomModel(intValue: .increment(3))` will tell server to
+/// increment field `intValue` by 3.
 public enum IncrementableInt: Codable, Equatable, Hashable, ExpressibleByIntegerLiteral {
   /// When being written (encoded), `.increment(i)` will be mapped to
   /// `FieldValue.increment(i)`, which requests the server to increment the value
@@ -114,6 +118,8 @@ public enum IncrementableInt: Codable, Equatable, Hashable, ExpressibleByInteger
 /// struct CustomModel {
 ///   var doubleValue: IncrementableDouble
 /// }
+/// Then encoding `CustomModel(doubleValue: .increment(4.2))` will tell server to
+/// increment field `intValue` by 4.2.
 public enum IncrementableDouble: Codable, Equatable, Hashable, ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Double
 
