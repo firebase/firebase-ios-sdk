@@ -15,7 +15,7 @@ detailed instructions. Some Firebase specific guidance below:
 
 * `s.static_framework` - By default, Firebase pods should be static frameworks.
 
-* `s.dependency` - Dependencies on other Firebase pods should allow minor version updates - 
+* `s.dependency` - Dependencies on other Firebase pods should allow minor version updates -
 like `s.dependency 'FirebaseCore', '~> 6.0'`
 
 * `s.pod_target_xcconfig` - Add any specific build settings.
@@ -39,7 +39,7 @@ contents should be in the `FirebaseFoo` directory.
 * FirebaseFoo/Sources - All source. Directory structure is up to the library owner. Any code from a
 non-Google open source project should be nested under a `third_party` directory.
 * FirebaseFoo/Public - Public Headers.
-* FirebaseFoo/Private - Private Headers (headers not part of public API, but available for 
+* FirebaseFoo/Private - Private Headers (headers not part of public API, but available for
 explicit import by other Firebase pods)
 * FirebaseFoo/Tests/Unit - Required
 * FirebaseFoo/Tests/Integration - Encouraged
