@@ -53,27 +53,6 @@ static BOOL kUsingZipFile = NO;
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS
 #endif
 
-extern NSString *const kFIRServiceAdMob;
-extern NSString *const kFIRServiceAuth;
-extern NSString *const kFIRServiceAuthUI;
-extern NSString *const kFIRServiceDatabase;
-extern NSString *const kFIRServiceDynamicLinks;
-extern NSString *const kFIRServiceFirestore;
-extern NSString *const kFIRServiceFunctions;
-extern NSString *const kFIRServiceInstanceID;
-extern NSString *const kFIRServiceMessaging;
-extern NSString *const kFIRServiceMeasurement;
-extern NSString *const kFIRServicePerformance;
-extern NSString *const kFIRServiceRemoteConfig;
-extern NSString *const kFIRServiceStorage;
-extern NSString *const kGGLServiceAnalytics;
-extern NSString *const kGGLServiceSignIn;
-
-extern NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
-extern NSString *const kFIRAppDiagnosticsFIRAppKey;
-extern NSString *const kFIRAppDiagnosticsSDKNameKey;
-extern NSString *const kFIRAppDiagnosticsSDKVersionKey;
-
 static NSString *const kFIRServiceMLVisionOnDeviceAutoML = @"MLVisionOnDeviceAutoML";
 static NSString *const kFIRServiceMLVisionOnDeviceFace = @"MLVisionOnDeviceFace";
 static NSString *const kFIRServiceMLVisionOnDeviceBarcode = @"MLVisionOnDeviceBarcode";
