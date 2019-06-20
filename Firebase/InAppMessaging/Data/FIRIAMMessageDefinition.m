@@ -60,6 +60,15 @@
   return self.endTime < [[NSDate date] timeIntervalSince1970];
 }
 
+- (BOOL)messageRenderedOnAppLaunchEvent {
+  for (FIRIAMDisplayTriggerDefinition *nextTrigger in self.renderTriggers) {
+    if (nextTrigger.triggerType == FIRIAMRenderTriggerOnAppLaunch) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
 - (BOOL)messageRenderedOnAppForegroundEvent {
   for (FIRIAMDisplayTriggerDefinition *nextTrigger in self.renderTriggers) {
     if (nextTrigger.triggerType == FIRIAMRenderTriggerOnAppForeground) {

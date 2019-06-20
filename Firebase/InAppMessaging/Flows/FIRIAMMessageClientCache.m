@@ -126,6 +126,26 @@
   return self.testMessages.count > 0;
 }
 
+- (nullable FIRIAMMessageDefinition *)nextOnAppLaunchDisplayMsg {
+  // search from the start to end in the list (which implies the display priority) for the
+  // first match (some messages in the cache may not be eligible for the current display
+  // message fetch
+  NSSet<NSString *> *impressionSet =
+      [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
+
+  @synchronized(self) {
+    for (FIRIAMMessageDefinition *next in self.regularMessages) {
+      // message being active and message not impressed yet
+      if ([next messageHasStarted] && ![next messageHasExpired] &&
+          ![impressionSet containsObject:next.renderData.messageID] &&
+          [next messageRenderedOnAppLaunchEvent]) {
+        return next;
+      }
+    }
+  }
+  return nil;
+}
+
 - (nullable FIRIAMMessageDefinition *)nextOnAppOpenDisplayMsg {
   // search from the start to end in the list (which implies the display priority) for the
   // first match (some messages in the cache may not be eligible for the current display

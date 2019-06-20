@@ -417,7 +417,8 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
                                  // One-time triggering of checks for both fetch flow
                                  // upon SDK/app startup.
-                                 [self.fetchOnAppForegroundFlow checkAndFetch];
+                                 [self.fetchOnAppForegroundFlow
+                                     checkAndFetchForInitialAppLaunch:YES];
                                } else {
                                  FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM180009",
                                              @"No FIAM SDK startup due to settings.");

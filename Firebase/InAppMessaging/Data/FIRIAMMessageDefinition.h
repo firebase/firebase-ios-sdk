@@ -52,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)messageHasExpired;
 - (BOOL)messageHasStarted;
 
+// should this message be rendered on initial app launch?
+- (BOOL)messageRenderedOnAppLaunchEvent;
 // should this message be rendered when the app gets foregrounded?
 - (BOOL)messageRenderedOnAppForegroundEvent;
 // should this message be rendered when a given analytics event is fired?
