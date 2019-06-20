@@ -472,7 +472,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   return string;
 }
 
-- (BOOL)sortsBeforeDocument:(FSTDocument *)document
+- (bool)sortsBeforeDocument:(FSTDocument *)document
              usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder {
   HARD_ASSERT(_position.size() <= sortOrder.count,
               "FSTIndexPosition has more components than provided sort order.");

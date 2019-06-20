@@ -35,6 +35,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -48,6 +49,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::DocumentState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,7 +77,7 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         BOOL fromCache) {
   FSTDocument *doc =
       data ? FSTTestDoc(path, version, data,
-                        hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced)
+                        hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced)
            : nil;
   return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
                                             documentKey:testutil::Key(path)
@@ -107,7 +109,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   for (NSString *key in oldDocs) {
     oldDocuments = oldDocuments.insert(
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, oldDocs[key],
-                   hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced));
+                   hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced));
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
@@ -118,7 +120,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
-                   hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
+                   hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced);
     newDocuments = newDocuments.insert(docToAdd);
     documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
     if (hasPendingWrites) {

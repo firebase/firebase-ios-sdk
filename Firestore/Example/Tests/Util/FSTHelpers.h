@@ -243,7 +243,7 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        FSTDocumentState documentState);
+                        model::DocumentState documentState);
 
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,

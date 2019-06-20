@@ -42,6 +42,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -76,7 +77,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
 - (void)testAppliesSetsToDocuments {
   NSDictionary *docData = @{@"foo" : @"foo-value", @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"bar" : @"bar-value"});
   FSTMaybeDocument *setDoc = [set applyToLocalDocument:baseDoc
@@ -85,12 +86,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"bar" : @"bar-value"};
   XCTAssertEqualObjects(
-      setDoc, FSTTestDoc("collection/key", 0, expectedData, FSTDocumentStateLocalMutations));
+      setDoc, FSTTestDoc("collection/key", 0, expectedData, DocumentState::kLocalMutations));
 }
 
 - (void)testAppliesPatchesToDocuments {
   NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
   FSTMaybeDocument *patchedDoc = [patch applyToLocalDocument:baseDoc
@@ -99,12 +100,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value"};
   XCTAssertEqualObjects(
-      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, FSTDocumentStateLocalMutations));
+      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, DocumentState::kLocalMutations));
 }
 
 - (void)testDeletesValuesFromTheFieldMask {
   NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"}};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   DocumentKey key = Key("collection/key");
   FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
@@ -117,12 +118,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"foo" : @{@"baz" : @"baz-value"}};
   XCTAssertEqualObjects(
-      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, FSTDocumentStateLocalMutations));
+      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, DocumentState::kLocalMutations));
 }
 
 - (void)testPatchesPrimitiveValue {
   NSDictionary *docData = @{@"foo" : @"foo-value", @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
   FSTMaybeDocument *patchedDoc = [patch applyToLocalDocument:baseDoc
@@ -131,7 +132,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value"};
   XCTAssertEqualObjects(
-      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, FSTDocumentStateLocalMutations));
+      patchedDoc, FSTTestDoc("collection/key", 0, expectedData, DocumentState::kLocalMutations));
 }
 
 - (void)testPatchingDeletedDocumentsDoesNothing {
@@ -145,7 +146,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
 - (void)testAppliesLocalServerTimestampTransformToDocuments {
   NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *transform = FSTTestTransformMutation(
       @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
@@ -161,7 +162,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   FSTDocument *expectedDoc = [FSTDocument documentWithData:expectedData
                                                        key:FSTTestDocKey(@"collection/key")
                                                    version:Version(0)
-                                                     state:FSTDocumentStateLocalMutations];
+                                                     state:DocumentState::kLocalMutations];
 
   XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
@@ -403,7 +404,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 - (void)transformBaseDoc:(NSDictionary<NSString *, id> *)baseData
          applyTransforms:(NSArray<NSDictionary<NSString *, id> *> *)transforms
                expecting:(NSDictionary<NSString *, id> *)expectedData {
-  FSTMaybeDocument *currentDoc = FSTTestDoc("collection/key", 0, baseData, FSTDocumentStateSynced);
+  FSTMaybeDocument *currentDoc = FSTTestDoc("collection/key", 0, baseData, DocumentState::kSynced);
 
   for (NSDictionary<NSString *, id> *transformData in transforms) {
     FSTMutation *transform = FSTTestTransformMutation(@"collection/key", transformData);
@@ -415,7 +416,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   FSTDocument *expectedDoc = [FSTDocument documentWithData:FSTTestObjectValue(expectedData)
                                                        key:FSTTestDocKey(@"collection/key")
                                                    version:Version(0)
-                                                     state:FSTDocumentStateLocalMutations];
+                                                     state:DocumentState::kLocalMutations];
 
   XCTAssertEqualObjects(currentDoc, expectedDoc);
 }
@@ -428,7 +429,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
 - (void)testAppliesServerAckedIncrementTransformToDocuments {
   NSDictionary *docData = @{@"sum" : @1};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *transform = FSTTestTransformMutation(
       @"collection/key", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]});
@@ -441,12 +442,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"sum" : @3};
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 1, expectedData,
-                                                   FSTDocumentStateCommittedMutations));
+                                                   DocumentState::kCommittedMutations));
 }
 
 - (void)testAppliesServerAckedServerTimestampTransformToDocuments {
   NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *transform = FSTTestTransformMutation(
       @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
@@ -462,13 +463,13 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   NSDictionary *expectedData =
       @{@"foo" : @{@"bar" : publicTimestamp.dateValue}, @"baz" : @"baz-value"};
   FSTDocument *expectedDoc =
-      FSTTestDoc("collection/key", 1, expectedData, FSTDocumentStateCommittedMutations);
+      FSTTestDoc("collection/key", 1, expectedData, DocumentState::kCommittedMutations);
   XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
 
 - (void)testAppliesServerAckedArrayTransformsToDocuments {
   NSDictionary *docData = @{@"array_1" : @[ @1, @2 ], @"array_2" : @[ @"a", @"b" ]};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
     @"array_1" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @3 ]],
@@ -485,12 +486,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"array_1" : @[ @1, @2, @3 ], @"array_2" : @[ @"b" ]};
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 1, expectedData,
-                                                   FSTDocumentStateCommittedMutations));
+                                                   DocumentState::kCommittedMutations));
 }
 
 - (void)testDeleteDeletes {
   NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *mutation = FSTTestDeleteMutation(@"collection/key");
   FSTMaybeDocument *result = [mutation applyToLocalDocument:baseDoc
@@ -501,7 +502,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
 - (void)testSetWithMutationResult {
   NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"new-bar"});
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(4)
@@ -510,12 +511,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"foo" : @"new-bar"};
   XCTAssertEqualObjects(
-      setDoc, FSTTestDoc("collection/key", 4, expectedData, FSTDocumentStateCommittedMutations));
+      setDoc, FSTTestDoc("collection/key", 4, expectedData, DocumentState::kCommittedMutations));
 }
 
 - (void)testPatchWithMutationResult {
   NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
 
   FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"new-bar"}, {});
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(4)
@@ -525,7 +526,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NSDictionary *expectedData = @{@"foo" : @"new-bar"};
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 4, expectedData,
-                                               FSTDocumentStateCommittedMutations));
+                                               DocumentState::kCommittedMutations));
 }
 
 #define ASSERT_VERSION_TRANSITION(mutation, base, result, expected)                         \
@@ -538,7 +539,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
  * Tests the transition table documented in FSTMutation.h.
  */
 - (void)testTransitions {
-  FSTDocument *docV3 = FSTTestDoc("collection/key", 3, @{}, FSTDocumentStateSynced);
+  FSTDocument *docV3 = FSTTestDoc("collection/key", 3, @{}, DocumentState::kSynced);
   FSTDeletedDocument *deletedV3 = FSTTestDeletedDoc("collection/key", 3, NO);
 
   FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
@@ -548,7 +549,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   FSTDeletedDocument *docV7Deleted = FSTTestDeletedDoc("collection/key", 7, YES);
   FSTDocument *docV7Committed =
-      FSTTestDoc("collection/key", 7, @{}, FSTDocumentStateCommittedMutations);
+      FSTTestDoc("collection/key", 7, @{}, DocumentState::kCommittedMutations);
   FSTUnknownDocument *docV7Unknown = FSTTestUnknownDoc("collection/key", 7);
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(7)

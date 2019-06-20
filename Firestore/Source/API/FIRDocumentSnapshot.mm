@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value_options.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -212,7 +213,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     case FieldValue::Type::Timestamp:
       return [self convertedTimestamp:value options:options];
     case FieldValue::Type::ServerTimestamp:
-      return [self convertedServerTimetamp:value options:options];
+      return [self convertedServerTimestamp:value options:options];
     case FieldValue::Type::String:
       return util::WrapNSString(value.string_value());
     case FieldValue::Type::Blob:
@@ -239,7 +240,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   }
 }
 
-- (id)convertedServerTimetamp:(const FieldValue &)value options:(const FieldValueOptions &)options {
+- (id)convertedServerTimestamp:(const FieldValue &)value
+                       options:(const FieldValueOptions &)options {
   const auto &sts = value.server_timestamp_value();
   switch (options.server_timestamp_behavior()) {
     case ServerTimestampBehavior::kNone:
@@ -261,12 +263,11 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   const DatabaseId &refDatabase = ref.database_id();
   const DatabaseId &database = _snapshot.firestore()->database_id();
   if (refDatabase != database) {
-    // TODO(b/32073923): Log this as a proper warning.
-    NSLog(@"WARNING: Document %@ contains a document reference within a different database "
-           "(%s/%s) which is not supported. It will be treated as a reference within the "
-           "current database (%s/%s) instead.",
-          self.reference.path, refDatabase.project_id().c_str(), refDatabase.database_id().c_str(),
-          database.project_id().c_str(), database.database_id().c_str());
+    LOG_WARN("Document %s contains a document reference within a different database (%s/%s) which "
+             "is not supported. It will be treated as a reference within the current database "
+             "(%s/%s) instead.",
+             _snapshot.CreateReference().Path(), refDatabase.project_id(),
+             refDatabase.database_id(), database.project_id(), database.database_id());
   }
   const DocumentKey &key = ref.key();
   return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];

@@ -1356,10 +1356,10 @@
 		5495EB012040E90200EBA509 /* Codable */ = {
 			isa = PBXGroup;
 			children = (
-				1235769422B86E65007DDFA9 /* FirestoreEncoderTests.swift */,
 				5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */,
 				7B65C996438B84DBC7616640 /* CodableTimestampTests.swift */,
 				1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */,
+				1235769422B86E65007DDFA9 /* FirestoreEncoderTests.swift */,
 			);
 			path = Codable;
 			sourceTree = "<group>";
@@ -1397,9 +1397,9 @@
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
-				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				544A20ED20F6C046004E52CD /* API */,
 				5495EB012040E90200EBA509 /* Codable */,
+				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
 			name = SwiftTests;

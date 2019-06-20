@@ -26,6 +26,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+/** Describes the `hasPendingWrites` state of a document. */
 enum class DocumentState {
   /**
    * Local mutations applied via the mutation queue. Document is potentially

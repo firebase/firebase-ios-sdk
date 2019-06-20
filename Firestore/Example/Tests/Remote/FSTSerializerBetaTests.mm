@@ -64,6 +64,7 @@ using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -839,7 +840,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsDocumentChangeWithTargetIds {
   DocumentWatchChange expected {
     {1, 2}, {}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
   };
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
@@ -857,7 +858,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
   DocumentWatchChange expected {
     {2}, {1}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
   };
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];

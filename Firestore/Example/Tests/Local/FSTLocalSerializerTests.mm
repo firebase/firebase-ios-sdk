@@ -50,6 +50,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
@@ -138,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, FSTDocumentStateSynced);
+  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, DocumentState::kSynced);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
