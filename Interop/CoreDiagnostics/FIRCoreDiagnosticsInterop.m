@@ -24,7 +24,7 @@
 // result. Other shared variables have also been moved here to save binary size that would have
 // arisen from having all these variables declared as static in the interop header.
 
- #import "Public/FIRCoreDiagnosticsInterop.h"
+#import "Public/FIRCoreDiagnosticsInterop.h"
 
 Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
 

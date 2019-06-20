@@ -15,8 +15,8 @@
 #import "FIRTestCase.h"
 #import "FIRTestComponents.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 #import <FirebaseCore/FIRAppInternal.h>

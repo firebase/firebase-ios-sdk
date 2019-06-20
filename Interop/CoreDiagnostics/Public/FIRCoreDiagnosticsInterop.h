@@ -40,7 +40,7 @@ FOUNDATION_EXTERN NSString *const kFIRServiceDynamicLinks;
 
 /** An SDK service identifier. */
 FOUNDATION_EXTERN NSString *const kFIRServiceFirestore;
- 
+
 /** An SDK service identifier. */
 FOUNDATION_EXTERN NSString *const kFIRServiceFunctions;
 

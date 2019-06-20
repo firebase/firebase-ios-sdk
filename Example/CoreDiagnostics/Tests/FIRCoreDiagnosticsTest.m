@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 #if TARGET_OS_IOS || TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
@@ -93,11 +93,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _diagnosticObjects = @{
-      kFIRCDGoogleAppIDKey : kGoogleAppID,
-      @"BUNDLE_ID" : kBundleID,
-      kFIRCDllAppsCountKey : @1
-    };
+    _diagnosticObjects =
+        @{kFIRCDGoogleAppIDKey : kGoogleAppID, @"BUNDLE_ID" : kBundleID, kFIRCDllAppsCountKey : @1};
   }
   return self;
 }
@@ -230,7 +227,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   if (minVersion) {
     config->min_supported_ios_version = FIREncodeString(minVersion);
   }
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
   config->using_zip_file = 0;
   config->has_using_zip_file = 1;
   config->deployment_type = logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS;
