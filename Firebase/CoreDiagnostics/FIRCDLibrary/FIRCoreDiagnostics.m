@@ -141,19 +141,23 @@ NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 @end
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** This class produces a protobuf containing diagnostics and usage data to be logged. */
 @interface FIRCoreDiagnostics : NSObject <FIRCoreDiagnosticsInterop>
 
 /** The queue on which all diagnostics collection will occur. */
-@property(nonnull, nonatomic) dispatch_queue_t diagnosticsQueue;
+@property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 
 /** The transport object used to send data. */
-@property(nonnull, nonatomic) GDTTransport *transport;
+@property(nonatomic, readonly) GDTTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
-@property(nonnull, nonatomic, readonly) FIRDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) FIRDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 @end
+
+NS_ASSUME_NONNULL_END
 
 @implementation FIRCoreDiagnostics
 
@@ -175,13 +179,23 @@ NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 }
 
 - (instancetype)init {
+  GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
+                                                        transformers:nil
+                                                              target:kGDTTargetCCT];
+  FIRDiagnosticsDateFileStorage *dateStorage = nil;
+
+  return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
+}
+
+/** Initializer for unit tests */
+- (instancetype)initWithTransport:(GDTTransport *)transport
+             heartbeatDateStorage:(FIRDiagnosticsDateFileStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =
-        dispatch_queue_create("com.google.FIRCoreDiagnostics", DISPATCH_QUEUE_SERIAL);
-    _transport = [[GDTTransport alloc] initWithMappingID:@"137"
-                                            transformers:nil
-                                                  target:kGDTTargetCCT];
+    dispatch_queue_create("com.google.FIRCoreDiagnostics", DISPATCH_QUEUE_SERIAL);
+    _transport = transport;
+    _heartbeatDateStorage = heartbeatDateStorage;
   }
   return self;
 }
@@ -657,7 +671,11 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 
 + (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
   FIRCoreDiagnostics *diagnostics = [FIRCoreDiagnostics sharedInstance];
-  dispatch_async(diagnostics->_diagnosticsQueue, ^{
+  [diagnostics sendDiagnosticsData:diagnosticsData];
+}
+
+- (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
+  dispatch_async(self.diagnosticsQueue, ^{
     NSDictionary<NSString *, id> *diagnosticObjects = diagnosticsData.diagnosticObjects;
     NSNumber *isDataCollectionDefaultEnabled =
         diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey];
@@ -675,15 +693,15 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInstalledServices(&icore_config);
     FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
-    [diagnostics setHeartbeatFalgIfNeededToConfig:&icore_config];
+    [self setHeartbeatFalgIfNeededToConfig:&icore_config];
 
     // This log object is capable of converting the proto to bytes.
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
 
     // Send the log as a telemetry event.
-    GDTEvent *event = [diagnostics->_transport eventForTransport];
+    GDTEvent *event = [self.transport eventForTransport];
     event.dataObject = (id<GDTEventDataObject>)log;
-    [diagnostics->_transport sendTelemetryEvent:event];
+    [self.transport sendTelemetryEvent:event];
   });
 }
 
