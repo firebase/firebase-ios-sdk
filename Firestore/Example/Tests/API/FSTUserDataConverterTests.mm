@@ -36,7 +36,6 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::testutil::Field;
-using firebase::firestore::testutil::WrapObject;
 
 @interface FSTUserDataConverterTests : XCTestCase
 @end

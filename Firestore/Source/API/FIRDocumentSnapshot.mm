@@ -213,7 +213,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     case FieldValue::Type::Timestamp:
       return [self convertedTimestamp:value options:options];
     case FieldValue::Type::ServerTimestamp:
-      return [self convertedServerTimetamp:value options:options];
+      return [self convertedServerTimestamp:value options:options];
     case FieldValue::Type::String:
       return util::WrapNSString(value.string_value());
     case FieldValue::Type::Blob:
@@ -240,7 +240,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   }
 }
 
-- (id)convertedServerTimetamp:(const FieldValue &)value options:(const FieldValueOptions &)options {
+- (id)convertedServerTimestamp:(const FieldValue &)value
+                       options:(const FieldValueOptions &)options {
   const auto &sts = value.server_timestamp_value();
   switch (options.server_timestamp_behavior()) {
     case ServerTimestampBehavior::kNone:
