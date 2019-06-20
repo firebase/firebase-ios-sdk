@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseCore
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
 
@@ -10,3 +11,5 @@ print("Device model? Answer: \(GULAppEnvironmentUtil.deviceModel() ?? "NONE")")
 print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
 print("Is App extension? Answer: \(GULAppEnvironmentUtil.isAppExtension())")
 print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
+
+print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")

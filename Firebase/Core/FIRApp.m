@@ -14,11 +14,7 @@
 
 #include <sys/utsname.h>
 
-#if SWIFT_PACKAGE
-#import "Public/FIRApp.h"
-#else
-#import <Firebase/FIRApp.h>
-#endif
+#import "Core/Public/FIRApp.h"
 #import "Private/FIRAnalyticsConfiguration.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"

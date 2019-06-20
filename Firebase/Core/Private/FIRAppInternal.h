@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-
-#if SWIFT_PACKAGE
-#import "../Public/FIRApp.h"
-#import "FIRErrors.h"
-#else
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRErrors.h>
-#endif
+#import "Core/Private/FIRErrors.h"
+#import "Core/Public/FIRApp.h"
 
 @class FIRComponentContainer;
 @protocol FIRLibrary;

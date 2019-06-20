@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-#import "../Public/FIROptions.h"
-#else
-#import <FirebaseCore/FIROptions.h>
-#endif
+#import "Core/Public/FIROptions.h"
 
 /**
  * Keys for the strings in the plist file.

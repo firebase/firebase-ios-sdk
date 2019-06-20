@@ -32,7 +32,7 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"]
+      dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
     .target(
       name: "GoogleUtilities_Environment",
@@ -50,11 +50,12 @@ let package = Package(
       path: "Firebase/Core",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
+        .headerSearchPath("$(SRCROOT)/Firebase $(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
         .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("Firebase_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+// TODO - Add support for cflags cSetting so that we can set the -fno-autolink option
       ])
   ]
 )

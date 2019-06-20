@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
 #import "FIRLoggerLevel.h"
-#else
-#import <FirebaseCore/FIRLoggerLevel.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
