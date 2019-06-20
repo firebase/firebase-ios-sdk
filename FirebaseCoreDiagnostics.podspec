@@ -55,7 +55,6 @@ several extern variables are expected to be implemented.
     unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
-    s.framework = 'UIKit'
     unit_tests.requires_app_host = false
   end
 end

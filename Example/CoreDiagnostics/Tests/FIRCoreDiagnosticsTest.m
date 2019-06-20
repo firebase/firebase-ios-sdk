@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS || TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
 #endif // TARGET_OS_IPHONE
 
@@ -25,6 +25,7 @@
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 #import <GoogleDataTransport/GDTEventDataObject.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
@@ -233,19 +234,36 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->bundle_id = FIREncodeString(kBundleID);
   config->install = FIREncodeString([FIRCoreDiagnostics installString]);
   config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
-#if TARGET_OS_IPHONE
-  config->os_version = FIREncodeString([[UIDevice currentDevice] systemVersion]);
-#else
-  config->os_version = FIREncodeString([[NSProcessInfo processInfo] operatingSystemVersionString]);
-#endif // TARGET_OS_IPHONE
+  config->os_version = FIREncodeString([GULAppEnvironmentUtil systemVersion]);
   config->app_count = 1;
   config->has_app_count = 1;
   config->use_default_app = 1;
   config->has_use_default_app = 1;
-  config->dynamic_framework_count = 3;
+
+  int numFrameworks = -1;  // Subtract the app binary itself.
+  unsigned int numImages;
+  const char **imageNames = objc_copyImageNames(&numImages);
+  for (unsigned int i = 0; i < numImages; i++) {
+    NSString *imageName = [NSString stringWithUTF8String:imageNames[i]];
+    if ([imageName rangeOfString:@"System/Library"].length != 0        // Apple .frameworks
+        || [imageName rangeOfString:@"Developer/Library"].length != 0  // Xcode debug .frameworks
+        || [imageName rangeOfString:@"usr/lib"].length != 0) {         // Public .dylibs
+      continue;
+    }
+    numFrameworks++;
+  }
+  free(imageNames);
+  config->dynamic_framework_count = numFrameworks;
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
+#if TARGET_OS_IOS
   config->min_supported_ios_version = FIREncodeString(@"8.0");
+#else
+  NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
+  if (minVersion) {
+    config->min_supported_ios_version = FIREncodeString(minVersion);
+  }
+#endif // TARGET_OS_IOS
   config->using_zip_file = 0;
   config->has_using_zip_file = 1;
   config->deployment_type = logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS;
