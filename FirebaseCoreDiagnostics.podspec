@@ -51,7 +51,6 @@ several extern variables are expected to be implemented.
   s.dependency 'GoogleUtilities/Logger', '~> 6.0'
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.dependency 'FirebaseCore', '~> 6.0'
     unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'

@@ -20,6 +20,69 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** An SDK service identifier. */
+static NSString *const kFIRServiceAdMob = @"AdMob";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceAuth = @"Auth";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceAuthUI = @"AuthUI";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceCrash = @"Crash";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceDatabase = @"Database";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceFirestore = @"Firestore";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceFunctions = @"Functions";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceInstanceID = @"InstanceID";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceInvites = @"Invites";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceMessaging = @"Messaging";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceMeasurement = @"Measurement";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServicePerformance = @"Performance";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
+
+/** An SDK service identifier. */
+static NSString *const kFIRServiceStorage = @"Storage";
+
+/** An SDK service identifier. */
+static NSString *const kGGLServiceAnalytics = @"Analytics";
+
+/** An SDK service identifier. */
+static NSString *const kGGLServiceSignIn = @"SignIn";
+
+/** A dictionary key for the diagnostics configuration. */
+static NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"FIRAppDiagnosticsConfigurationTypeKey";
+
+/** A dictionary key for the FIRApp context. */
+static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
+
+/** A dictionary key for the SDK name. */
+static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
+
+/** A dictionary key for the SDK version. */
+static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
+
 /** Allows the interoperation of FirebaseCore and FirebaseCoreDiagnostics. */
 @protocol FIRCoreDiagnosticsInterop <NSObject>
 

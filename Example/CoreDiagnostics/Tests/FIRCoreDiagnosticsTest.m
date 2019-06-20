@@ -19,8 +19,6 @@
 #import <UIKit/UIKit.h>
 #endif  // TARGET_OS_IOS
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 #import <GoogleDataTransport/GDTEvent.h>
@@ -41,33 +39,13 @@
 Class FIRCoreDiagnosticsImplementation;
 
 extern NSString *const kFIRAppDiagnosticsNotification;
-
-extern NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
-extern NSString *const kFIRAppDiagnosticsErrorKey;
-extern NSString *const kFIRAppDiagnosticsFIRAppKey;
-extern NSString *const kFIRAppDiagnosticsSDKNameKey;
-extern NSString *const kFIRAppDiagnosticsSDKVersionKey;
-
 extern NSString *const kFIRLastCheckinDateKey;
 
-NSString *const kGoogleAppID = @"1:123:ios:123abc";
-NSString *const kBundleID = @"com.google.FirebaseSDKTests";
-NSString *const kLibraryVersionID = @"1.2.3";
+static NSString *const kGoogleAppID = @"1:123:ios:123abc";
+static NSString *const kBundleID = @"com.google.FirebaseSDKTests";
+static NSString *const kLibraryVersionID = @"1.2.3";
 
 #pragma mark - Testing interfaces
-
-@interface GULUserDefaults (ExposedForTests)
-- (void)clearAllData;
-@end
-
-@interface FIRApp ()
-
-- (BOOL)configureCore;
-+ (NSError *)errorForInvalidAppID;
-+ (NSError *)errorForMissingOptions;
-- (BOOL)isAppIDValid;
-
-@end
 
 @interface FIRCoreDiagnostics : NSObject
 // Initialization.
@@ -130,7 +108,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   if (self) {
     _diagnosticObjects = @{
       kFIRCDGoogleAppIDKey : kGoogleAppID,
-      kFIRBundleID : kFIRBundleID,
+      @"BUNDLE_ID" : kBundleID,
       kFIRCDllAppsCountKey : @1
     };
   }
@@ -163,8 +141,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
 - (void)setUp {
   [super setUp];
-  [FIROptions resetDefaultOptions];
-  [FIRApp resetApps];
 
   self.mockTransport = OCMClassMock([GDTTransport class]);
   OCMStub([self.mockTransport eventForTransport])
