@@ -3400,11 +3400,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				544A20EE20F6C10C004E52CD /* BasicCompileTests.swift in Sources */,
-				1235769322B7E99F007DDFA9 /* EncodableFieldValueTests.swift in Sources */,
 				5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */,
-				12E62D5822BBC6EF0074F412 /* FSTHelpers.mm in Sources */,
 				127CC0D222B3ADDC00A3E42A /* CodableTimestampTests.swift in Sources */,
+				1235769322B7E99F007DDFA9 /* EncodableFieldValueTests.swift in Sources */,
 				12E62D5722BBC41A0074F412 /* FSTAPIHelpers.mm in Sources */,
+				12E62D5822BBC6EF0074F412 /* FSTHelpers.mm in Sources */,
 				1235769522B86E65007DDFA9 /* FirestoreEncoderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

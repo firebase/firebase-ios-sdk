@@ -182,27 +182,27 @@ class FirestoreEncoderTests: XCTestCase {
     assertRoundTrip(model: model, encoded: ["date": date])
   }
 
- func testDocumentReference() {
-   struct Model: Codable, Equatable {
-     let doc: DocumentReference
-   }
-   let d = FSTTestDocRef("abc/xyz")
-   let model = Model(doc: d)
-   assertRoundTrip(model: model, encoded: ["doc": d])
- }
+  func testDocumentReference() {
+    struct Model: Codable, Equatable {
+      let doc: DocumentReference
+    }
+    let d = FSTTestDocRef("abc/xyz")
+    let model = Model(doc: d)
+    assertRoundTrip(model: model, encoded: ["doc": d])
+  }
 
- // DocumentReference is not Codable unless embedded in a Firestore object.
- func testEncodingDocumentReferenceThrowsWithJSONEncoder() {
-   let doc = FSTTestDocRef("abc/xyz")
-   do {
-     _ = try JSONEncoder().encode(doc)
-     XCTFail("Failed to throw")
-   } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
-     return
-   } catch {
-     XCTFail("Unrecognized error: \(error)")
-   }
- }
+  // DocumentReference is not Codable unless embedded in a Firestore object.
+  func testEncodingDocumentReferenceThrowsWithJSONEncoder() {
+    let doc = FSTTestDocRef("abc/xyz")
+    do {
+      _ = try JSONEncoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
 
   func testTimestamp() {
     struct Model: Codable, Equatable {
