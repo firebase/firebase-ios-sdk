@@ -236,9 +236,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_app_count = 1;
   config->use_default_app = 1;
   config->has_use_default_app = 1;
-<<<<<<< HEAD
-  config->dynamic_framework_count = 4;
-=======
 
   int numFrameworks = -1;  // Subtract the app binary itself.
   unsigned int numImages;
@@ -254,7 +251,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   }
   free(imageNames);
   config->dynamic_framework_count = numFrameworks;
->>>>>>> mph-master6
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
 #if TARGET_OS_IOS
