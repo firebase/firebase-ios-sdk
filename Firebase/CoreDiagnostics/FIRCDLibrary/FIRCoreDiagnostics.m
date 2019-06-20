@@ -95,6 +95,11 @@ static NSString *const kFIRServiceIAM = @"InAppMessaging";
 NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 /**
+ * The file name to the recent heartbeat date.
+ */
+NSString *const kFIRDiagnosticsHeartbeatDateFileName = @"FIREBASE_HEARTBEAT_DATE";
+
+/**
  * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
  */
 @interface FIRCoreDiagnosticsLog : NSObject
@@ -182,7 +187,8 @@ NS_ASSUME_NONNULL_END
   GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
                                                         transformers:nil
                                                               target:kGDTTargetCCT];
-  FIRDiagnosticsDateFileStorage *dateStorage = nil;
+
+  FIRDiagnosticsDateFileStorage *dateStorage = [[FIRDiagnosticsDateFileStorage alloc] initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }

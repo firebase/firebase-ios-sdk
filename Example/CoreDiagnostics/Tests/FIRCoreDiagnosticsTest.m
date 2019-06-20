@@ -286,7 +286,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
 #pragma mark - Heartbeats
 
-- (void)testCheckinNotAddedTheSameDay {
+- (void)testHeartbeatNotSentTheSameDay {
   NSCalendar *calendar = [NSCalendar currentCalendar];
 
   NSCalendarUnit unitFlags = NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitMonth;
@@ -321,7 +321,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   [self assertEventSentWithHeartbeat:NO];
 }
 
-- (void)testCheckinAddedNoPreviousCheckin {
+- (void)testHeartbeatSentNoPreviousCheckin {
   OCMExpect([self.mockDateStorage date]).andReturn(nil);
   OCMExpect([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
                                     error:[OCMArg anyObjectRef]]);
@@ -329,7 +329,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   [self assertEventSentWithHeartbeat:YES];
 }
 
-- (void)testCheckinAddedNextDayDefaultApp {
+- (void)testHeartbeatSentNextDayDefaultApp {
   NSDate *startOfToday = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
   NSDate *endOfYesterday = [startOfToday dateByAddingTimeInterval:-1];
 
