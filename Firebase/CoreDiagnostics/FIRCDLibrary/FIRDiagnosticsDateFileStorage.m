@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
 
 @interface FIRDiagnosticsDateFileStorage ()
 @property(nonatomic, readonly) NSURL *fileURL;

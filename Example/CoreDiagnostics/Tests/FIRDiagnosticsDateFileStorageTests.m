@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
 
 @interface FIRDiagnosticsDateFileStorageTests : XCTestCase
 @property(nonatomic) NSURL *fileURL;

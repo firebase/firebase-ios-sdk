@@ -33,7 +33,7 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";

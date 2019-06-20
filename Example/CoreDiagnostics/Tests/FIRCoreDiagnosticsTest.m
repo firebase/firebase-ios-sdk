@@ -33,7 +33,7 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRDiagnosticsDateFileStorage.h"
+#import "FIRCDLibrary/FIRDiagnosticsDateFileStorage.h"
 
 // TODO: Remove ASAP. Only needed for solving a chicken-and-egg pod lib lint issue.
 Class FIRCoreDiagnosticsImplementation;
