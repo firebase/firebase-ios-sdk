@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRErrors.h>
+#import "Core/Private/FIRErrors.h"
+#import "Core/Public/FIRApp.h"
 
 @class FIRComponentContainer;
 @protocol FIRLibrary;
