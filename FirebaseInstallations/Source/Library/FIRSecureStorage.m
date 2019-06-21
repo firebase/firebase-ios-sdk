@@ -44,10 +44,10 @@
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {
   self = [super init];
   if (self) {
-    _keychainQueue =
-        dispatch_queue_create("com.firebase.FIRSecureStorage.Keychain", DISPATCH_QUEUE_SERIAL);
-    _inMemoryCacheQueue = dispatch_queue_create("com.firebase.FIRSecureStorage.InMemoryChache",
-                                                DISPATCH_QUEUE_SERIAL);
+    _keychainQueue = dispatch_queue_create(
+        "com.firebase.FIRInstallations.FIRSecureStorage.Keychain", DISPATCH_QUEUE_SERIAL);
+    _inMemoryCacheQueue = dispatch_queue_create(
+        "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryChache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
     _inMemoryCache = cache;
   }

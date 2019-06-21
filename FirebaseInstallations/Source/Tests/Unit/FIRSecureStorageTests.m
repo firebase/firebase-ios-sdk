@@ -62,7 +62,7 @@
                           class:[NSDictionary class]
                   existsInCache:YES];
 
-  // 3. Read existing object wich is not present in in-memory cache.
+  // 3. Read existing object which is not present in in-memory cache.
   [self.cache removeAllObjects];
   [self assertSuccessReadObject:@{@"key" : @"value"}
                          forKey:@"test-key1"
