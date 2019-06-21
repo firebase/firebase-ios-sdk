@@ -135,7 +135,7 @@ target 'Firestore_Example_tvOS' do
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../' 
+  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do
     inherit! :search_paths
