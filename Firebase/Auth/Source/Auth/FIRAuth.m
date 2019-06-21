@@ -2025,6 +2025,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
+    user.auth = self;
   }
 
   return user;
