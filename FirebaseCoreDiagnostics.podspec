@@ -44,7 +44,7 @@ several extern variables are expected to be implemented.
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
   s.framework = 'Foundation'
-  
+
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 0.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.0'
