@@ -142,7 +142,7 @@
       return testMessage;
     }
   }
-  
+
   // otherwise check for a message from a published campaign
   return [self nextMessageForTrigger:FIRIAMRenderTriggerOnAppForeground];
 }
@@ -152,8 +152,8 @@
   // first match (some messages in the cache may not be eligible for the current display
   // message fetch
   NSSet<NSString *> *impressionSet =
-  [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
-  
+      [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
+
   @synchronized(self) {
     for (FIRIAMMessageDefinition *next in self.regularMessages) {
       // message being active and message not impressed yet
