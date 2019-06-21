@@ -34,7 +34,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -51,20 +50,15 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::testutil::Field;
+using firebase::firestore::testutil::Version;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTSerializerBeta (Test)
-- (GCFSValue *)encodedNull;
-- (GCFSValue *)encodedBool:(BOOL)value;
-- (GCFSValue *)encodedDouble:(double)value;
-- (GCFSValue *)encodedInteger:(int64_t)value;
-- (GCFSValue *)encodedString:(NSString *)value;
-@end
 
 @interface FSTLocalSerializerTests : XCTestCase
 
@@ -82,13 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMutationBatch {
   FSTMutation *base = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                                  fieldMask:FieldMask{testutil::Field("a")}
+                                                  fieldMask:FieldMask{Field("a")}
                                                       value:FSTTestObjectValue(@{@"a" : @"b"})
                                                precondition:Precondition::Exists(true)];
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
   FSTMutation *patch =
       [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                  fieldMask:FieldMask{testutil::Field("a")}
+                                  fieldMask:FieldMask{Field("a")}
                                       value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
                                precondition:Precondition::Exists(true)];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
@@ -101,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *baseProto = [GCFSWrite message];
   baseProto.update.name = @"projects/p/databases/d/documents/bar/baz";
   [baseProto.update.fields addEntriesFromDictionary:@{
-    @"a" : [self.remoteSerializer encodedString:@"b"],
+    @"a" : [self.remoteSerializer encodedString:"b"],
   }];
   [baseProto.updateMask.fieldPathsArray addObjectsFromArray:@[ @"a" ]];
   baseProto.currentDocument.exists = YES;
@@ -109,14 +103,14 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *setProto = [GCFSWrite message];
   setProto.update.name = @"projects/p/databases/d/documents/foo/bar";
   [setProto.update.fields addEntriesFromDictionary:@{
-    @"a" : [self.remoteSerializer encodedString:@"b"],
+    @"a" : [self.remoteSerializer encodedString:"b"],
     @"num" : [self.remoteSerializer encodedInteger:1]
   }];
 
   GCFSWrite *patchProto = [GCFSWrite message];
   patchProto.update.name = @"projects/p/databases/d/documents/bar/baz";
   [patchProto.update.fields addEntriesFromDictionary:@{
-    @"a" : [self.remoteSerializer encodedString:@"b"],
+    @"a" : [self.remoteSerializer encodedString:"b"],
     @"num" : [self.remoteSerializer encodedInteger:1]
   }];
   [patchProto.updateMask.fieldPathsArray addObjectsFromArray:@[ @"a" ]];
@@ -145,13 +139,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, FSTDocumentStateSynced);
+  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, DocumentState::kSynced);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
   maybeDocProto.document.name = @"projects/p/databases/d/documents/some/path";
   [maybeDocProto.document.fields addEntriesFromDictionary:@{
-    @"foo" : [self.remoteSerializer encodedString:@"bar"],
+    @"foo" : [self.remoteSerializer encodedString:"bar"],
   }];
   maybeDocProto.document.updateTime.seconds = 0;
   maybeDocProto.document.updateTime.nanos = 42000;
@@ -193,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesQueryData {
   FSTQuery *query = FSTTestQuery("room");
   TargetId targetID = 42;
-  SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion version = Version(1039);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query

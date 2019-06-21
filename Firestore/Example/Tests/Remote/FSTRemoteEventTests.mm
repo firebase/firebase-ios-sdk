@@ -39,6 +39,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -228,10 +229,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targetMap{
       [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
 
-  FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1, 2, 3}, {4, 5, 6}, existingDoc.key, existingDoc);
 
-  FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change2 = MakeDocChange({1, 4}, {2, 6}, newDoc.key, newDoc);
 
   // Create a remote event that includes both `change1` and `change2` as well as a NO_CHANGE event
@@ -280,11 +281,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testWillIgnoreEventsForPendingTargets {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
   auto change2 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
   auto change3 = MakeTargetChange(WatchTargetChangeState::Added, {1});
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change4 = MakeDocChange({1}, {}, doc2.key, doc2);
 
   // We're waiting for the unwatch and watch ack
@@ -309,7 +310,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testWillIgnoreEventsForRemovedTargets {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
   auto change2 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
 
@@ -333,17 +334,17 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testWillKeepResetMappingEvenWithUpdates {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
 
   // Reset stream, ignoring doc1
   auto change2 = MakeTargetChange(WatchTargetChangeState::Reset, {1});
 
   // Add doc2, doc3
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change3 = MakeDocChange({1}, {}, doc2.key, doc2);
 
-  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, DocumentState::kSynced);
   auto change4 = MakeDocChange({1}, {}, doc3.key, doc3);
 
   // Remove doc2 again, should not show up in reset mapping
@@ -398,10 +399,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
-  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {2}, doc1a.key, doc1a);
 
-  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, DocumentState::kSynced);
   auto change2 = MakeDocChange({2}, {1}, doc1b.key, doc1b);
 
   RemoteEvent event =
@@ -448,13 +449,13 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testTargetAddedChangeWillResetPreviousState {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 3}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1, 3}, {2}, doc1.key, doc1);
   auto change2 = MakeTargetChange(WatchTargetChangeState::Current, {1, 2, 3}, _resumeToken1);
   auto change3 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
   auto change4 = MakeTargetChange(WatchTargetChangeState::Removed, {2});
   auto change5 = MakeTargetChange(WatchTargetChangeState::Added, {1});
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change6 = MakeDocChange({1}, {3}, doc2.key, doc2);
 
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}, {2, 1}};
@@ -514,9 +515,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testExistenceFilterMismatchClearsTarget {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
   auto change3 = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
@@ -570,7 +571,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange markCurrent{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(markCurrent);
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   DocumentWatchChange addDoc{{1}, {}, doc1.key, doc1};
   aggregator.HandleDocumentChange(addDoc);
 
@@ -596,9 +597,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testDocumentUpdate {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, DocumentState::kSynced);
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, DocumentState::kSynced);
   auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
 
   WatchChangeAggregator aggregator =
@@ -622,11 +623,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   DocumentWatchChange change3{{}, {1}, deletedDoc1.key, deletedDoc1};
   aggregator.HandleDocumentChange(change3);
 
-  FSTDocument *updatedDoc2 = FSTTestDoc("docs/2", 3, @{@"value" : @2}, FSTDocumentStateSynced);
+  FSTDocument *updatedDoc2 = FSTTestDoc("docs/2", 3, @{@"value" : @2}, DocumentState::kSynced);
   DocumentWatchChange change4{{1}, {}, updatedDoc2.key, updatedDoc2};
   aggregator.HandleDocumentChange(change4);
 
-  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, DocumentState::kSynced);
   DocumentWatchChange change5{{1}, {}, doc3.key, doc3};
   aggregator.HandleDocumentChange(change5);
 
@@ -759,11 +760,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testSeparatesDocumentUpdates {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
 
-  FSTDocument *newDoc = FSTTestDoc("docs/new", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
+  FSTDocument *newDoc = FSTTestDoc("docs/new", 1, @{@"key" : @"value"}, DocumentState::kSynced);
   auto newDocChange = MakeDocChange({1}, {}, newDoc.key, newDoc);
 
   FSTDocument *existingDoc =
-      FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, FSTDocumentStateSynced);
+      FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, DocumentState::kSynced);
   auto existingDocChange = MakeDocChange({1}, {}, existingDoc.key, existingDoc);
 
   FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("docs/deleted", 1, NO);
@@ -793,9 +794,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   targetMap.insert(additionalTargets.begin(), additionalTargets.end());
 
   // Add 3 docs: 1 is limbo and non-limbo, 2 is limbo-only, 3 is non-limbo
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("docs/3", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"key" : @"value"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 1, @{@"key" : @"value"}, DocumentState::kSynced);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 1, @{@"key" : @"value"}, DocumentState::kSynced);
 
   // Target 2 is a limbo target
   auto docChange1 = MakeDocChange({1, 2}, {}, doc1.key, doc1);
