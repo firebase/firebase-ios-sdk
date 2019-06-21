@@ -6,7 +6,10 @@ use_frameworks!
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
+pod 'FirebaseCoreDiagnostics', :path => '../..'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../..'
+pod 'GoogleDataTransport', :path => '../..'
+pod 'GoogleDataTransportCCTSupport', :path => '../..'
 
 target 'InAppMessaging_Example_iOS' do
   platform :ios, '8.0'
