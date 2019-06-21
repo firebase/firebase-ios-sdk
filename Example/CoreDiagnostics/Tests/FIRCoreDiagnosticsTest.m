@@ -305,8 +305,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (void)testSharedInstanceDateStorageProperlyInitialized {
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
-  XCTAssert(
-      [sharedInstance.heartbeatDateStorage isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
+  XCTAssert([sharedInstance.heartbeatDateStorage
+      isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
 
   NSDate *date = [NSDate date];
 
