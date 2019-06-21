@@ -274,7 +274,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   // we expect to register a fetch with sdk manager
   OCMVerify([self.mockSDKModeManager registerOneMoreFetch]);
-  
+
   // we expect that the message cache is checked for app launch messages
   OCMVerify([self.flow checkForAppLaunchMessage]);
 }
