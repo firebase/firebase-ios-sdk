@@ -127,32 +127,10 @@
 }
 
 - (nullable FIRIAMMessageDefinition *)nextOnAppLaunchDisplayMsg {
-  // search from the start to end in the list (which implies the display priority) for the
-  // first match (some messages in the cache may not be eligible for the current display
-  // message fetch
-  NSSet<NSString *> *impressionSet =
-      [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
-
-  @synchronized(self) {
-    for (FIRIAMMessageDefinition *next in self.regularMessages) {
-      // message being active and message not impressed yet
-      if ([next messageHasStarted] && ![next messageHasExpired] &&
-          ![impressionSet containsObject:next.renderData.messageID] &&
-          [next messageRenderedOnAppLaunchEvent]) {
-        return next;
-      }
-    }
-  }
-  return nil;
+  return [self nextMessageForTrigger:FIRIAMRenderTriggerOnAppLaunch];
 }
 
 - (nullable FIRIAMMessageDefinition *)nextOnAppOpenDisplayMsg {
-  // search from the start to end in the list (which implies the display priority) for the
-  // first match (some messages in the cache may not be eligible for the current display
-  // message fetch
-  NSSet<NSString *> *impressionSet =
-      [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
-
   @synchronized(self) {
     // always first check test message which always have higher prirority
     if (self.testMessages.count > 0) {
@@ -163,12 +141,25 @@
                   @"Returning a test message for app foreground display");
       return testMessage;
     }
+  }
+  
+  // otherwise check for a message from a published campaign
+  return [self nextMessageForTrigger:FIRIAMRenderTriggerOnAppForeground];
+}
 
+- (nullable FIRIAMMessageDefinition *)nextMessageForTrigger:(FIRIAMRenderTrigger)trigger {
+  // search from the start to end in the list (which implies the display priority) for the
+  // first match (some messages in the cache may not be eligible for the current display
+  // message fetch
+  NSSet<NSString *> *impressionSet =
+  [NSSet setWithArray:[self.bookKeeper getMessageIDsFromImpressions]];
+  
+  @synchronized(self) {
     for (FIRIAMMessageDefinition *next in self.regularMessages) {
       // message being active and message not impressed yet
       if ([next messageHasStarted] && ![next messageHasExpired] &&
           ![impressionSet containsObject:next.renderData.messageID] &&
-          [next messageRenderedOnAppForegroundEvent]) {
+          [next messageRenderedOnTrigger:trigger]) {
         return next;
       }
     }
