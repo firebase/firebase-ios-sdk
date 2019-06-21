@@ -101,8 +101,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     const char *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
-    bool hasPendingWrites,
-    bool fromCache) {
+    BOOL hasPendingWrites,
+    BOOL fromCache) {
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
   DocumentSet oldDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[]);
   DocumentKeySet mutatedKeys;
@@ -133,7 +133,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             oldDocuments,
                             std::move(documentChanges),
                             mutatedKeys,
-                            fromCache,
+                            static_cast<bool>(fromCache),
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
   return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
