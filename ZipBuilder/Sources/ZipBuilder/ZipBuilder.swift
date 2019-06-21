@@ -65,9 +65,6 @@ struct ZipBuilder {
   struct FilesystemPaths {
     // MARK: - Required Paths
 
-    /// The path to the CoreDiagnostics.framework directory with the Zip flag enabled.
-    var coreDiagnosticsDir: URL
-
     /// The path to the directory containing the blank xcodeproj and Info.plist for building source
     /// based frameworks.
     var templateDir: URL
@@ -207,29 +204,6 @@ struct ZipBuilder {
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
-    }
-
-    // Overwrite the `FirebaseCoreDiagnostics.framework` in the `FirebaseAnalytics` folder. This is
-    // needed because it was compiled specifically with the `ZIP` bit enabled, helping us understand
-    // the distribution of CocoaPods vs Zip file integrations.
-    if podsToInstall.contains(.analytics) {
-      let overriddenAnalytics: [URL] = {
-        guard let currentFrameworks = frameworks["FirebaseAnalytics"] else {
-          fatalError("Attempted to replace CoreDiagnostics framework but the FirebaseAnalytics " +
-            "directory does not exist. Existing directories: \(frameworks.keys)")
-        }
-
-        // Filter out any CoreDiagnostics directories from the frameworks to install. There should
-        // only be one.
-        let withoutDiagnostics: [URL] = currentFrameworks.filter { url in
-          url.lastPathComponent != "FirebaseCoreDiagnostics.framework"
-        }
-
-        return withoutDiagnostics + [paths.coreDiagnosticsDir]
-      }()
-
-      // Set the newly required framework paths for Analytics.
-      frameworks["FirebaseAnalytics"] = overriddenAnalytics
     }
 
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
