@@ -526,7 +526,7 @@ class FirestoreEncoderTests: XCTestCase {
 
     XCTAssertEqual(dict, encoded as! [String: FieldValue])
   }
-  
+
   func testEncodingFieldValueNotEmbeddedThrows() {
     let ts = FieldValue.serverTimestamp()
     do {
