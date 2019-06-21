@@ -606,23 +606,22 @@
 
 - (void)checkAndDisplayNextAppLaunchMessage {
   // synchronizing on self so that we won't potentially enter the render flow from two
-  // threads: example like showing analytics triggered message and a regular app open
-  // triggered message concurrently
+  // threads.
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027",
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028",
                   @"Message display component is not present yet. No display should happen.");
       return;
     }
 
     if (self.suppressMessageDisplay) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400016",
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400029",
                   @"Message display is being suppressed. No regular message rendering.");
       return;
     }
 
     if (self.isMsgBeingDisplayed) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400002",
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400030",
                   @"An in-app message display is in progress, do not over-display on top of it.");
       return;
     }
@@ -630,19 +629,18 @@
     if ([self.messageCache hasTestMessage] || [self enoughIntervalFromLastDisplay]) {
       // We can display test messages anytime or display regular messages when
       // the display time interval has been reached
-      FIRIAMMessageDefinition *nextForegroundMessage =
-          [self.messageCache nextOnAppLaunchDisplayMsg];
+      FIRIAMMessageDefinition *nextAppLaunchMessage = [self.messageCache nextOnAppLaunchDisplayMsg];
 
-      if (nextForegroundMessage) {
-        [self displayForMessage:nextForegroundMessage
+      if (nextAppLaunchMessage) {
+        [self displayForMessage:nextAppLaunchMessage
                     triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent];
         self.lastDisplayTime = [self.timeFetcher currentTimestampInSeconds];
       } else {
-        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400001",
+        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400040",
                     @"No appropriate in-app message detected for display.");
       }
     } else {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400003",
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400041",
                   @"Minimal display interval of %lf seconds has not been reached yet.",
                   self.setting.displayMinIntervalInMinutes * 60.0);
     }
