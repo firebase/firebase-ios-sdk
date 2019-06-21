@@ -26,28 +26,108 @@
 #import "FIRInstallationsErrorUtil.h"
 
 @interface FIRSecureStorage ()
-@property(nonatomic, strong) dispatch_queue_t keychainQueue;
+@property(nonatomic, readonly) dispatch_queue_t keychainQueue;
+@property(nonatomic, readonly) dispatch_queue_t inMemoryCacheQueue;
 @property(nonatomic, readonly) NSString *service;
+@property(nonatomic, readonly) NSCache<NSString *, id<NSSecureCoding>> *inMemoryCache;
 @end
 
 @implementation FIRSecureStorage
 
 - (instancetype)init {
-  return [self initWithService:@"com.firebase.FIRInstallations.installations"];
+  NSCache *cache = [[NSCache alloc] init];
+  // Cache up to 5 installations.
+  cache.countLimit = 5;
+  return [self initWithService:@"com.firebase.FIRInstallations.installations" cache:cache];
 }
 
-- (instancetype)initWithService:(NSString *)service {
+- (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {
   self = [super init];
   if (self) {
-    _keychainQueue = dispatch_queue_create("com.firebase.FIRSecureStorage", DISPATCH_QUEUE_SERIAL);
+    _keychainQueue = dispatch_queue_create(
+        "com.firebase.FIRInstallations.FIRSecureStorage.Keychain", DISPATCH_QUEUE_SERIAL);
+    _inMemoryCacheQueue = dispatch_queue_create(
+        "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryChache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
+    _inMemoryCache = cache;
   }
   return self;
 }
 
+#pragma mark - Public
+
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
                                         accessGroup:(nullable NSString *)accessGroup {
+  return [FBLPromise onQueue:self.inMemoryCacheQueue
+                          do:^id _Nullable {
+                            // Return cached object or fail otherwise.
+                            id object = [self.inMemoryCache objectForKey:key];
+                            return object
+                                       ?: [[NSError alloc]
+                                              initWithDomain:FBLPromiseErrorDomain
+                                                        code:FBLPromiseErrorCodeValidationFailure
+                                                    userInfo:nil];
+                          }]
+      .recover(^id _Nullable(NSError *error) {
+        // Look for the object in the keychain.
+        return [self getObjectFromKeychainForKey:key
+                                     objectClass:objectClass
+                                     accessGroup:accessGroup];
+      });
+}
+
+- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
+                             forKey:(NSString *)key
+                        accessGroup:(nullable NSString *)accessGroup {
+  return [FBLPromise onQueue:self.inMemoryCacheQueue
+                          do:^id _Nullable {
+                            // Save to the in-memory cache first.
+                            [self.inMemoryCache setObject:object forKey:[key copy]];
+                            return [NSNull null];
+                          }]
+      .thenOn(self.keychainQueue, ^id(id result) {
+        // Then store the object to the keychain.
+        NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGroup];
+        NSError *error;
+        NSData *encodedObject = [self archiveDataForObject:object error:&error];
+        if (!encodedObject) {
+          return error;
+        }
+
+        if (![self setItem:encodedObject withQuery:query error:&error]) {
+          return error;
+        }
+
+        return [NSNull null];
+      });
+}
+
+- (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
+                                 accessGroup:(nullable NSString *)accessGroup {
+  return [FBLPromise onQueue:self.inMemoryCacheQueue
+                          do:^id _Nullable {
+                            [self.inMemoryCache removeObjectForKey:key];
+                            return nil;
+                          }]
+      .thenOn(self.keychainQueue, ^id(id result) {
+        NSDictionary *query = [self keychainQueryWithKey:key accessGroup:accessGroup];
+
+        NSError *error;
+        if (![self removeItemWithQuery:query error:&error]) {
+          return error;
+        }
+
+        return [NSNull null];
+      });
+}
+
+#pragma mark - Private
+
+- (FBLPromise<id<NSSecureCoding>> *)getObjectFromKeychainForKey:(NSString *)key
+                                                    objectClass:(Class)objectClass
+                                                    accessGroup:(nullable NSString *)accessGroup {
+  // Look for the object in the keychain.
   return [FBLPromise onQueue:self.keychainQueue
                           do:^id {
                             NSDictionary *query = [self keychainQueryWithKey:key
@@ -69,45 +149,22 @@
                             }
 
                             return object;
-                          }];
+                          }]
+      .thenOn(self.inMemoryCacheQueue,
+              ^id<NSSecureCoding> _Nullable(id<NSSecureCoding> _Nullable object) {
+                // Save object to the in-memory cache if exists and return the object.
+                if (object) {
+                  [self.inMemoryCache setObject:object forKey:[key copy]];
+                }
+                return object;
+              });
 }
 
-- (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object
-                             forKey:(NSString *)key
-                        accessGroup:(nullable NSString *)accessGroup {
-  return [FBLPromise onQueue:self.keychainQueue
-                          do:^id _Nullable {
-                            NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGroup];
-                            NSError *error;
-                            NSData *encodedObject = [self archiveDataForObject:object error:&error];
-                            if (!encodedObject) {
-                              return error;
-                            }
-
-                            if (![self setItem:encodedObject withQuery:query error:&error]) {
-                              return error;
-                            }
-
-                            return [NSNull null];
-                          }];
+- (void)resetInMemoryCache {
+  [self.inMemoryCache removeAllObjects];
 }
 
-- (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
-                                 accessGroup:(nullable NSString *)accessGroup {
-  return [FBLPromise onQueue:self.keychainQueue
-                          do:^id _Nullable {
-                            NSDictionary *query = [self keychainQueryWithKey:key
-                                                                 accessGroup:accessGroup];
-
-                            NSError *error;
-                            if (![self removeItemWithQuery:query error:&error]) {
-                              return error;
-                            }
-
-                            return [NSNull null];
-                          }];
-}
+#pragma mark - Keychain
 
 - (NSMutableDictionary<NSString *, id> *)keychainQueryWithKey:(NSString *)key
                                                   accessGroup:(nullable NSString *)accessGroup {
