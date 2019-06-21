@@ -6,7 +6,8 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 Firebase Core Diagnostics collects diagnostic data to help improve and provide Firebase services.
 This SDK is integrated using a 'soft-link' mechanism and can be omitted by having the environment
-variable FIREBASE_DIAGNOSTICS set to 0.
+variable FIREBASE_DIAGNOSTICS set to 0. Core Diagnostics cannot be built without FirebaseCore, as
+several extern variables are expected to be implemented.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -42,11 +43,17 @@ variable FIREBASE_DIAGNOSTICS set to 0.
   }.merge(header_search_paths)
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
-  s.private_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Private/*.h'
   s.framework = 'Foundation'
   
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 0.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.0'
   s.dependency 'GoogleUtilities/Logger', '~> 6.0'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
+    unit_tests.dependency 'OCMock'
+    unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
+    unit_tests.requires_app_host = false
+  end
 end

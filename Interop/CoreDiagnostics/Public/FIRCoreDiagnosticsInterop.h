@@ -20,6 +20,69 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceAdMob;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceAuth;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceAuthUI;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceCrash;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceDatabase;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceDynamicLinks;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceFirestore;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceFunctions;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceInstanceID;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceInvites;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceMessaging;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceMeasurement;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServicePerformance;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceRemoteConfig;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kFIRServiceStorage;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kGGLServiceAnalytics;
+
+/** An SDK service identifier. */
+FOUNDATION_EXTERN NSString *const kGGLServiceSignIn;
+
+/** A dictionary key for the diagnostics configuration. */
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
+
+/** A dictionary key for the FIRApp context. */
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsFIRAppKey;
+
+/** A dictionary key for the SDK name. */
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsSDKNameKey;
+
+/** A dictionary key for the SDK version. */
+FOUNDATION_EXTERN NSString *const kFIRAppDiagnosticsSDKVersionKey;
+
 /** Allows the interoperation of FirebaseCore and FirebaseCoreDiagnostics. */
 @protocol FIRCoreDiagnosticsInterop <NSObject>
 
@@ -34,6 +97,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The class that implements this interop protocol. Unforunately, the components framework can't
  * be used because of a cyclical dependency issue.
  */
-extern Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
+FOUNDATION_EXTERN Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
 
 NS_ASSUME_NONNULL_END

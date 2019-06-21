@@ -33,6 +33,8 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
+#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
 
@@ -50,27 +52,6 @@ static BOOL kUsingZipFile = NO;
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS
 #endif
 
-extern NSString *const kFIRServiceAdMob;
-extern NSString *const kFIRServiceAuth;
-extern NSString *const kFIRServiceAuthUI;
-extern NSString *const kFIRServiceDatabase;
-extern NSString *const kFIRServiceDynamicLinks;
-extern NSString *const kFIRServiceFirestore;
-extern NSString *const kFIRServiceFunctions;
-extern NSString *const kFIRServiceInstanceID;
-extern NSString *const kFIRServiceMessaging;
-extern NSString *const kFIRServiceMeasurement;
-extern NSString *const kFIRServicePerformance;
-extern NSString *const kFIRServiceRemoteConfig;
-extern NSString *const kFIRServiceStorage;
-extern NSString *const kGGLServiceAnalytics;
-extern NSString *const kGGLServiceSignIn;
-
-extern NSString *const kFIRAppDiagnosticsConfigurationTypeKey;
-extern NSString *const kFIRAppDiagnosticsFIRAppKey;
-extern NSString *const kFIRAppDiagnosticsSDKNameKey;
-extern NSString *const kFIRAppDiagnosticsSDKVersionKey;
-
 static NSString *const kFIRServiceMLVisionOnDeviceAutoML = @"MLVisionOnDeviceAutoML";
 static NSString *const kFIRServiceMLVisionOnDeviceFace = @"MLVisionOnDeviceFace";
 static NSString *const kFIRServiceMLVisionOnDeviceBarcode = @"MLVisionOnDeviceBarcode";
@@ -85,9 +66,9 @@ static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 static NSString *const kFIRServiceIAM = @"InAppMessaging";
 
 /**
- * The file name to keep the unique install string.
+ * The file name to the recent heartbeat date.
  */
-static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
+NSString *const kFIRDiagnosticsHeartbeatDateFileName = @"FIREBASE_HEARTBEAT_DATE";
 
 /**
  * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
@@ -136,16 +117,23 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 
 @end
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** This class produces a protobuf containing diagnostics and usage data to be logged. */
 @interface FIRCoreDiagnostics : NSObject <FIRCoreDiagnosticsInterop>
 
 /** The queue on which all diagnostics collection will occur. */
-@property(nonnull, nonatomic) dispatch_queue_t diagnosticsQueue;
+@property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 
 /** The transport object used to send data. */
-@property(nonnull, nonatomic) GDTTransport *transport;
+@property(nonatomic, readonly) GDTTransport *transport;
+
+/** The storage to store the date of the last sent heartbeat. */
+@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 @end
+
+NS_ASSUME_NONNULL_END
 
 @implementation FIRCoreDiagnostics
 
@@ -163,66 +151,35 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
 }
 
 - (instancetype)init {
+  GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
+                                                       transformers:nil
+                                                             target:kGDTTargetCCT];
+
+  FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
+      initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
+
+  return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
+}
+
+/** Initializer for unit tests.
+ *
+ * @param transport A `GDTTransport` instance which that be used to send event.
+ * @param heartbeatDateStorage An instanse of date storage to track heartbeat sending.
+ * @return Returns the initialized `FIRCoreDiagnostics` instance.
+ */
+- (instancetype)initWithTransport:(GDTTransport *)transport
+             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =
         dispatch_queue_create("com.google.FIRCoreDiagnostics", DISPATCH_QUEUE_SERIAL);
-    _transport = [[GDTTransport alloc] initWithMappingID:@"137"
-                                            transformers:nil
-                                                  target:kGDTTargetCCT];
+    _transport = transport;
+    _heartbeatDateStorage = heartbeatDateStorage;
   }
   return self;
 }
 
-#pragma mark - Install string helpers
-
-/** Returns a string representing this unique install.
- *
- * @return a unique string for this install.
- */
-+ (NSString *)installString {
-  @synchronized(self) {
-    NSURL *filePathURL = [FIRCoreDiagnostics filePathURLWithName:kUniqueInstallFileName];
-    // Return nil if failing creating the folder.
-    if (!filePathURL.absoluteString.length) {
-      return nil;
-    }
-    NSString *uniqueString = [FIRCoreDiagnostics stringAtURL:filePathURL];
-    if (uniqueString.length > 0) {
-      return uniqueString;
-    }
-    uniqueString = [[NSUUID UUID] UUIDString];
-    if ([FIRCoreDiagnostics writeString:uniqueString toURL:filePathURL]) {
-      return uniqueString;
-    }
-    return nil;
-  }
-}
-
-/** Writes a string to the given url file path.
- *
- * @param string The string to write in the file.
- * @param filePathURL The file path to write.
- * @return YES if successful, NO otherwise.
- */
-+ (BOOL)writeString:(NSString *)string toURL:(NSURL *)filePathURL {
-  @synchronized(self) {
-    NSError *error;
-    if ([string writeToURL:filePathURL atomically:YES encoding:NSUTF8StringEncoding error:&error]) {
-      // Exclude from backing up to iCloud.
-      [filePathURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
-      if (error) {
-        GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100003",
-                      @"Unable to update internal resource: %@", error);
-      }
-      return YES;
-    } else {
-      GULLogWarning(kFIRCoreDiagnostics, YES, @"I-COR100004",
-                    @"Unable to persist internal state: %@", error);
-      return NO;
-    }
-  }
-}
+#pragma mark - File path helpers
 
 /** Returns the URL path of the file with name fileName under the Application Support folder for
  * local logging. Creates the Application Support folder if the folder doesn't exist.
@@ -253,19 +210,6 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
   }
 }
 
-/** Returns the string in the file at the given file path.
- *
- * @return The string in the file at the given file path.
- */
-+ (NSString *)stringAtURL:(NSURL *)filePathURL {
-  // An error here would mean that either the file is not there (legitimate) or there is
-  // an issue reading the disk, which is not actionable. Ignoring the error.
-  NSString *content = [NSString stringWithContentsOfURL:filePathURL
-                                               encoding:NSUTF8StringEncoding
-                                                  error:nil];
-  return content;
-}
-
 #pragma mark - Metadata helpers
 
 /** Returns the model of iOS device. Sample platform strings are @"iPhone7,1" for iPhone 6 Plus,
@@ -291,7 +235,7 @@ static NSString *const kUniqueInstallFileName = @"FIREBASE_UNIQUE_INSTALL";
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
-static pb_bytes_array_t *FIREncodeString(NSString *string) {
+pb_bytes_array_t *FIREncodeString(NSString *string) {
   NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
   return FIREncodeData(stringBytes);
 }
@@ -301,7 +245,7 @@ static pb_bytes_array_t *FIREncodeString(NSString *string) {
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
-static pb_bytes_array_t *FIREncodeData(NSData *data) {
+pb_bytes_array_t *FIREncodeData(NSData *data) {
   pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   memcpy(pbBytes->bytes, [data bytes], data.length);
   pbBytes->size = (pb_size_t)data.length;
@@ -313,7 +257,7 @@ static pb_bytes_array_t *FIREncodeData(NSData *data) {
  * @param serviceString The SDK service string to convert.
  * @return The representative nanopb enum.
  */
-static logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringToTypeEnum(
+logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringToTypeEnum(
     NSString *serviceString) {
   static NSDictionary<NSString *, NSNumber *> *serviceStringToTypeEnum;
   if (serviceStringToTypeEnum == nil) {
@@ -367,9 +311,8 @@ static logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromService
  * @param config The proto to populate
  * @param diagnosticObjects The dictionary of diagnostics objects.
  */
-static void FIRPopulateProtoWithInfoFromUserInfoParams(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config,
-    NSDictionary<NSString *, id> *diagnosticObjects) {
+void FIRPopulateProtoWithInfoFromUserInfoParams(logs_proto_mobilesdk_ios_ICoreConfiguration *config,
+                                                NSDictionary<NSString *, id> *diagnosticObjects) {
   NSNumber *configurationType = diagnosticObjects[kFIRCDConfigurationTypeKey];
   if (configurationType) {
     switch (configurationType.integerValue) {
@@ -406,9 +349,8 @@ static void FIRPopulateProtoWithInfoFromUserInfoParams(
  * @param config The proto to populate
  * @param diagnosticObjects The dictionary of diagnostics objects.
  */
-static void FIRPopulateProtoWithCommonInfoFromApp(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config,
-    NSDictionary<NSString *, id> *diagnosticObjects) {
+void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfiguration *config,
+                                           NSDictionary<NSString *, id> *diagnosticObjects) {
   config->pod_name = logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_FIREBASE;
   config->has_pod_name = 1;
 
@@ -443,11 +385,6 @@ static void FIRPopulateProtoWithCommonInfoFromApp(
     config->icore_version = FIREncodeString(libraryVersionID);
   }
 
-  NSString *installString = [FIRCoreDiagnostics installString];
-  if (installString.length) {
-    config->install = FIREncodeString(installString);
-  }
-
   NSString *deviceModel = [FIRCoreDiagnostics deviceModel];
   if (deviceModel.length) {
     config->device_model = FIREncodeString(deviceModel);
@@ -470,8 +407,7 @@ static void FIRPopulateProtoWithCommonInfoFromApp(
  *
  * @param config The proto to populate
  */
-static void FIRPopulateProtoWithInstalledServices(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
+void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   NSMutableArray<NSNumber *> *sdkServiceInstalledArray = [NSMutableArray array];
 
   // AdMob
@@ -597,7 +533,7 @@ static void FIRPopulateProtoWithInstalledServices(
  *
  * @param config The proto to populate.
  */
-static void FIRPopulateProtoWithNumberOfLinkedFrameworks(
+void FIRPopulateProtoWithNumberOfLinkedFrameworks(
     logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   int numFrameworks = -1;  // Subtract the app binary itself.
   unsigned int numImages;
@@ -620,8 +556,7 @@ static void FIRPopulateProtoWithNumberOfLinkedFrameworks(
  *
  * @param config The proto to populate.
  */
-static void FIRPopulateProtoWithInfoPlistValues(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
+void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
 
   NSString *xcodeVersion = info[@"DTXcodeBuild"] ?: @"";
@@ -649,7 +584,11 @@ static void FIRPopulateProtoWithInfoPlistValues(
 
 + (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
   FIRCoreDiagnostics *diagnostics = [FIRCoreDiagnostics sharedInstance];
-  dispatch_async(diagnostics->_diagnosticsQueue, ^{
+  [diagnostics sendDiagnosticsData:diagnosticsData];
+}
+
+- (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
+  dispatch_async(self.diagnosticsQueue, ^{
     NSDictionary<NSString *, id> *diagnosticObjects = diagnosticsData.diagnosticObjects;
     NSNumber *isDataCollectionDefaultEnabled =
         diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey];
@@ -667,15 +606,45 @@ static void FIRPopulateProtoWithInfoPlistValues(
     FIRPopulateProtoWithInstalledServices(&icore_config);
     FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
+    [self setHeartbeatFalgIfNeededToConfig:&icore_config];
 
     // This log object is capable of converting the proto to bytes.
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
 
     // Send the log as a telemetry event.
-    GDTEvent *event = [diagnostics->_transport eventForTransport];
+    GDTEvent *event = [self.transport eventForTransport];
     event.dataObject = (id<GDTEventDataObject>)log;
-    [diagnostics->_transport sendTelemetryEvent:event];
+    [self.transport sendTelemetryEvent:event];
   });
+}
+
+#pragma mark - Heartbeat
+
+- (void)setHeartbeatFalgIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
+  // Check if need to send a heartbeat.
+  NSDate *currentDate = [NSDate date];
+  NSDate *lastCheckin = [self.heartbeatDateStorage date];
+  if (lastCheckin) {
+    // Ensure the previous checkin was on a different date in the past.
+    if ([self isDate:currentDate inSameDayOrBeforeThan:lastCheckin]) {
+      return;
+    }
+  }
+
+  // Update heartbeat sent date.
+  NSError *error;
+  if (![self.heartbeatDateStorage setDate:currentDate error:&error]) {
+    GULLogError(kFIRCoreDiagnostics, NO, @"I-COR100004", @"Unable to persist internal state: %@",
+                error);
+  }
+
+  // Set the flag.
+  config->sdk_name = logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
+}
+
+- (BOOL)isDate:(NSDate *)date1 inSameDayOrBeforeThan:(NSDate *)date2 {
+  return [[NSCalendar currentCalendar] isDate:date1 inSameDayAsDate:date2] ||
+         [date1 compare:date2] == NSOrderedAscending;
 }
 
 @end
