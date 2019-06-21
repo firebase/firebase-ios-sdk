@@ -21,6 +21,7 @@ let package = Package(
       targets: ["GoogleUtilities_Logger"]),
     .library(
       name: "FirebaseCore",
+      type: .static, // TODO - investigate why this still builds a dynamic library
       targets: ["FirebaseCore"]),
   ],
   dependencies: [
@@ -57,5 +58,6 @@ let package = Package(
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
 // TODO - Add support for cflags cSetting so that we can set the -fno-autolink option
       ])
-  ]
+  ],
+  cLanguageStandard: .c99
 )
