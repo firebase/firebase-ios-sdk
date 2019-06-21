@@ -232,8 +232,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                  requestImpressions:impressions];
 
                              if (forInitialAppLaunch) {
-                               [[FIRIAMRuntimeManager getSDKRuntimeInstance]
-                                       .displayExecutor checkAndDisplayNextAppLaunchMessage];
+                               [self checkForAppLaunchMessage];
                              }
                            }
                            // Send this regardless whether fetch is successful or not.
@@ -255,5 +254,10 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                  timestamp:nil];
     [self.activityLogger addLogRecord:record];
   }
+}
+
+- (void)checkForAppLaunchMessage {
+  [[FIRIAMRuntimeManager getSDKRuntimeInstance]
+          .displayExecutor checkAndDisplayNextAppLaunchMessage];
 }
 @end
