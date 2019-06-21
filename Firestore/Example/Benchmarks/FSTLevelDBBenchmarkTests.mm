@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#include <cstdint>
 
-#include "benchmark/benchmark.h"
+#include <cstdint>
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "benchmark/benchmark.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,7 +104,7 @@ class LevelDBFixture : public benchmark::Fixture {
       auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
       std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, DocumentData());
-      WriteIndex(txn, docKey);
+      WriteIndex(&txn, docKey);
     }
     txn.Commit();
     // Force a write to disk to simulate startup situation
@@ -112,11 +112,11 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
  protected:
-  void WriteIndex(LevelDbTransaction &txn, const DocumentKey &docKey) {
+  void WriteIndex(LevelDbTransaction *txn, const DocumentKey &docKey) {
     // Arbitrary target ID
     TargetId targetID = 1;
-    txn.Put(LevelDbDocumentTargetKey::Key(docKey, targetID), emptyBuffer_);
-    txn.Put(LevelDbTargetDocumentKey::Key(targetID, docKey), emptyBuffer_);
+    txn->Put(LevelDbDocumentTargetKey::Key(docKey, targetID), emptyBuffer_);
+    txn->Put(LevelDbTargetDocumentKey::Key(targetID, docKey), emptyBuffer_);
   }
 
   FSTLevelDB *db_;
@@ -128,7 +128,7 @@ class LevelDBFixture : public benchmark::Fixture {
 // Write a couple large values (documents)
 // In each test, either overwrite index entries and documents, or just documents
 
-BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
+BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {  // NOLINT
   bool writeIndexes = static_cast<bool>(state.range(0));
   int64_t documentSize = state.range(1);
   int64_t docsToUpdate = state.range(2);
@@ -137,7 +137,7 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
     LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
       auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
-      if (writeIndexes) WriteIndex(txn, docKey);
+      if (writeIndexes) WriteIndex(&txn, docKey);
       std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, documentUpdate);
     }

@@ -33,4 +33,5 @@ cc_library(
   DEPENDS
     absl_strings
     firebase_firestore_model
+    firebase_firestore_objc
 )

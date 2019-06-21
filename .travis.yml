@@ -16,6 +16,7 @@ jobs:
       before_install:
         - brew install clang-format
         - brew install swiftformat
+        - pip install flake8
       script:
         - ./scripts/check.sh --test-only
 

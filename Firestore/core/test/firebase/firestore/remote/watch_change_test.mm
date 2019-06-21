@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "gtest/gtest.h"
 
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -35,7 +36,7 @@ namespace firestore {
 namespace remote {
 
 TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
-  FSTMaybeDocument* doc = FSTTestDoc("a/b", 1, @{}, FSTDocumentStateSynced);
+  FSTMaybeDocument* doc = FSTTestDoc("a/b", 1, @{}, DocumentState::kSynced);
   DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key, doc};
 
   EXPECT_EQ(change.updated_target_ids().size(), 3);

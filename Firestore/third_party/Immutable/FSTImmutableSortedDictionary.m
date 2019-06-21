@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-const int kSortedDictionaryArrayToRBTreeSizeThreshold = 25;
+const NSUInteger kSortedDictionaryArrayToRBTreeSizeThreshold = 25;
 
 @implementation FSTImmutableSortedDictionary
 

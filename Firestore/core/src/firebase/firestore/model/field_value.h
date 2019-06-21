@@ -31,13 +31,11 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
-
-#if __OBJC__
-@class FSTFieldValue;
-#endif  // __OBJC__
 
 namespace firebase {
 namespace firestore {
@@ -52,6 +50,8 @@ class ObjectValue;
  */
 class FieldValue {
  public:
+  class Reference;
+  class ServerTimestamp;
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
 
@@ -83,10 +83,6 @@ class FieldValue {
 
   FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
-#if __OBJC__
-  FSTFieldValue* Wrap() &&;
-#endif  // __OBJC__
-
   /** Returns the true type for this value. */
   Type type() const {
     return rep_->type();
@@ -117,9 +113,13 @@ class FieldValue {
 
   Timestamp timestamp_value() const;
 
+  const ServerTimestamp& server_timestamp_value() const;
+
   const std::string& string_value() const;
 
-  const std::vector<uint8_t>& blob_value() const;
+  const nanopb::ByteString& blob_value() const;
+
+  const Reference& reference_value() const;
 
   const GeoPoint& geo_point_value() const;
 
@@ -142,13 +142,13 @@ class FieldValue {
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
-                                        const FieldValue& previous_value);
-  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
+  static FieldValue FromServerTimestamp(
+      const Timestamp& local_write_time,
+      absl::optional<FieldValue> previous_value = absl::nullopt);
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
-  static FieldValue FromBlob(const uint8_t* source, size_t size);
+  static FieldValue FromBlob(nanopb::ByteString blob);
   static FieldValue FromReference(DatabaseId database_id, DocumentKey value);
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const Array& value);
@@ -220,6 +220,10 @@ class FieldValue {
 /** A structured object value stored in Firestore. */
 class ObjectValue : public util::Comparable<ObjectValue> {
  public:
+  // Default constructible to make using this easy, though prefer
+  // ObjectValue::Empty() to make intentions clear to readers.
+  ObjectValue();
+
   explicit ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
     HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
   }
@@ -281,11 +285,55 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   size_t Hash() const;
 
+  size_t size() const {
+    return fv_.object_value().size();
+  }
+
  private:
   ObjectValue SetChild(const std::string& child_name,
                        const FieldValue& value) const;
 
   FieldValue fv_;
+};
+
+class FieldValue::Reference {
+ public:
+  Reference(DatabaseId database_id, DocumentKey key)
+      : database_id_(std::move(database_id)), key_(std::move(key)) {
+  }
+
+  const DatabaseId& database_id() const {
+    return database_id_;
+  }
+
+  const DocumentKey& key() const {
+    return key_;
+  }
+
+ private:
+  DatabaseId database_id_;
+  DocumentKey key_;
+};
+
+class FieldValue::ServerTimestamp {
+ public:
+  ServerTimestamp(Timestamp local_write_time,
+                  absl::optional<FieldValue> previous_value)
+      : local_write_time_(local_write_time),
+        previous_value_(std::move(previous_value)) {
+  }
+
+  const Timestamp& local_write_time() const {
+    return local_write_time_;
+  }
+
+  const absl::optional<FieldValue>& previous_value() const {
+    return previous_value_;
+  }
+
+ private:
+  Timestamp local_write_time_;
+  absl::optional<FieldValue> previous_value_;
 };
 
 // Pretend you can automatically upcast from ObjectValue to FieldValue.

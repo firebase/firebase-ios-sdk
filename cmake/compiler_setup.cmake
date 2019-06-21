@@ -125,9 +125,9 @@ if(MSVC)
 endif()
 
 foreach(flag ${common_flags} ${c_flags})
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
+  list(APPEND FIREBASE_C_FLAGS ${flag})
 endforeach()
 
 foreach(flag ${common_flags} ${cxx_flags})
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+  list(APPEND FIREBASE_CXX_FLAGS ${flag})
 endforeach()

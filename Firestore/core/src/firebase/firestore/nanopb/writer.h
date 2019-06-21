@@ -47,12 +47,9 @@ class Writer {
 
  protected:
   /**
-   * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
-   * a shallow copy will be taken. (Non-null pointers within this struct must
-   * remain valid for the lifetime of this Writer.)
+   * Creates a new Writer, with a default-initialized pb_ostream_t.
    */
-  explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
-  }
+  Writer() = default;
 
   pb_ostream_t stream_{};
 };
@@ -66,17 +63,65 @@ class Writer {
 class ByteStringWriter : public Writer {
  public:
   ByteStringWriter();
+  ~ByteStringWriter();
 
-  nanopb::ByteString ToByteString() const;
+  ByteStringWriter(const ByteStringWriter&) = delete;
+  ByteStringWriter(ByteStringWriter&&) = delete;
+
+  ByteStringWriter& operator=(const ByteStringWriter&) = delete;
+  ByteStringWriter& operator=(ByteStringWriter&&) = delete;
 
   /**
-   * Returns the vector backing this ByteStringWriter, taking ownership of its
-   * contents.
+   * Appends the given data to the internal buffer, growing the capacity of the
+   * buffer to fit.
    */
-  std::vector<uint8_t> Release();
+  void Append(const void* data, size_t size);
+
+  /**
+   * Reserves the given number of bytes of total capacity. To reserve `n` more
+   * bytes in a writer `w`, call `w.Reserve(w.size() + n)`.
+   */
+  void Reserve(size_t capacity);
+
+  /**
+   * Sets the size of the buffer to some value less than the current capacity,
+   * presumably after writing into the buffer with `pos()`.
+   */
+  void SetSize(size_t size);
+
+  /**
+   * Returns a ByteString that takes ownership of the bytes backing this
+   * writer.
+   */
+  ByteString Release();
+
+  size_t size() const {
+    return buffer_ ? buffer_->size : 0;
+  }
+
+  size_t capacity() const {
+    return capacity_;
+  }
+
+  /**
+   * Returns the number of remaining bytes: the difference between capacity and
+   * size.
+   */
+  size_t remaining() const {
+    return capacity_ - size();
+  }
+
+  /**
+   * Returns the current writing position within this writer's internal buffer.
+   * This can only be used after calling `Reserve()`.
+   */
+  uint8_t* pos() {
+    return buffer_->bytes + buffer_->size;
+  }
 
  private:
-  std::vector<uint8_t> buffer_;
+  pb_bytes_array_t* buffer_ = nullptr;
+  size_t capacity_ = 0;
 };
 
 /**

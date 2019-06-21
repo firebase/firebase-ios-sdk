@@ -20,10 +20,10 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
@@ -34,9 +34,11 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/algorithm/container.h"
 
 namespace core = firebase::firestore::core;
 namespace objc = firebase::firestore::objc;
@@ -78,13 +80,13 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 + (instancetype)filterWithField:(const FieldPath &)field
                  filterOperator:(Filter::Operator)op
-                          value:(FSTFieldValue *)value {
-  if (value.type == FieldValue::Type::Null) {
+                          value:(FieldValue)value {
+  if (value.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
     }
     return [[FSTNullFilter alloc] initWithField:field];
-  } else if (value.isNAN) {
+  } else if (value.is_nan()) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. NaN only supports equality comparisons.");
     }
@@ -124,7 +126,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
  */
 - (instancetype)initWithField:(FieldPath)field
                filterOperator:(Filter::Operator)filterOperator
-                        value:(FSTFieldValue *)value NS_DESIGNATED_INITIALIZER;
+                        value:(FieldValue)value NS_DESIGNATED_INITIALIZER;
 
 /** Returns YES if @a document matches the receiver's constraint. */
 - (BOOL)matchesDocument:(FSTDocument *)document;
@@ -137,13 +139,15 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 @end
 
-@implementation FSTRelationFilter
+@implementation FSTRelationFilter {
+  FieldValue _value;
+}
 
 #pragma mark - Constructor methods
 
 - (instancetype)initWithField:(FieldPath)field
                filterOperator:(Filter::Operator)filterOperator
-                        value:(FSTFieldValue *)value {
+                        value:(FieldValue)value {
   self = [super init];
   if (self) {
     _field = std::move(field);
@@ -167,9 +171,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"%s %@ %@", _field.CanonicalString().c_str(),
+  return [NSString stringWithFormat:@"%s %@ %s", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
-                                    self.value];
+                                    self.value.ToString().c_str()];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -186,23 +190,26 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   if (_field.IsKeyFieldPath()) {
-    HARD_ASSERT(self.value.type == FieldValue::Type::Reference,
-                "Comparing on key, but filter value not a FSTReferenceValue.");
+    HARD_ASSERT(self.value.type() == FieldValue::Type::Reference,
+                "Comparing on key, but filter value not a Reference.");
     HARD_ASSERT(self.filterOperator != Filter::Operator::ArrayContains,
                 "arrayContains queries don't make sense on document keys.");
-    FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
-    NSComparisonResult comparison = util::WrapCompare(document.key, refValue.value.key);
+    const auto &ref = self.value.reference_value();
+    ComparisonResult comparison = document.key.CompareTo(ref.key());
     return [self matchesComparison:comparison];
   } else {
-    return [self matchesValue:[document fieldForPath:self.field]];
+    auto value = [document fieldForPath:self.field];
+    if (!value) return false;
+
+    return [self matchesValue:*value];
   }
 }
 
 - (NSString *)canonicalID {
   // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
-  return [NSString stringWithFormat:@"%s%@%@", _field.CanonicalString().c_str(),
+  return [NSString stringWithFormat:@"%s%@%s", _field.CanonicalString().c_str(),
                                     FSTStringFromQueryRelationOperator(self.filterOperator),
-                                    [self.value value]];
+                                    self.value.ToString().c_str()];
 }
 
 - (BOOL)isEqualToFilter:(FSTRelationFilter *)other {
@@ -212,41 +219,39 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   if (_field != other.field) {
     return NO;
   }
-  if (![self.value isEqual:other.value]) {
-    return NO;
-  }
-  return YES;
+  return self.value == other.value;
 }
 
 /** Returns YES if receiver is true with the given value as its LHS. */
-- (BOOL)matchesValue:(FSTFieldValue *)other {
+- (BOOL)matchesValue:(const FieldValue &)other {
   if (self.filterOperator == Filter::Operator::ArrayContains) {
-    if ([other isMemberOfClass:[FSTArrayValue class]]) {
-      FSTArrayValue *arrayValue = (FSTArrayValue *)other;
-      return [arrayValue.internalValue containsObject:self.value];
+    if (other.type() == FieldValue::Type::Array) {
+      const auto &array = other.array_value();
+      auto found = absl::c_find(array, self.value);
+      return found != array.end();
     } else {
       return false;
     }
   } else {
     // Only perform comparison queries on types with matching backend order (such as double and
     // int).
-    return self.value.typeOrder == other.typeOrder &&
-           [self matchesComparison:[other compare:self.value]];
+    return FieldValue::Comparable(self.value.type(), other.type()) &&
+           [self matchesComparison:other.CompareTo(self.value)];
   }
 }
 
-- (BOOL)matchesComparison:(NSComparisonResult)comparison {
+- (BOOL)matchesComparison:(util::ComparisonResult)comparison {
   switch (self.filterOperator) {
     case Filter::Operator::LessThan:
-      return comparison == NSOrderedAscending;
+      return comparison == ComparisonResult::Ascending;
     case Filter::Operator::LessThanOrEqual:
-      return comparison == NSOrderedAscending || comparison == NSOrderedSame;
+      return comparison == ComparisonResult::Ascending || comparison == ComparisonResult::Same;
     case Filter::Operator::Equal:
-      return comparison == NSOrderedSame;
+      return comparison == ComparisonResult::Same;
     case Filter::Operator::GreaterThanOrEqual:
-      return comparison == NSOrderedDescending || comparison == NSOrderedSame;
+      return comparison == ComparisonResult::Descending || comparison == ComparisonResult::Same;
     case Filter::Operator::GreaterThan:
-      return comparison == NSOrderedDescending;
+      return comparison == ComparisonResult::Descending;
     default:
       HARD_FAIL("Unknown operator: %s", self.filterOperator);
   }
@@ -270,8 +275,8 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
-  return fieldValue != nil && fieldValue.type == FieldValue::Type::Null;
+  absl::optional<FieldValue> fieldValue = [document fieldForPath:self.field];
+  return fieldValue && fieldValue->type() == FieldValue::Type::Null;
 }
 
 - (NSString *)canonicalID {
@@ -316,8 +321,8 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  FSTFieldValue *fieldValue = [document fieldForPath:self.field];
-  return fieldValue != nil && fieldValue.isNAN;
+  absl::optional<FieldValue> fieldValue = [document fieldForPath:self.field];
+  return fieldValue && fieldValue->is_nan();
 }
 
 - (NSString *)canonicalID {
@@ -386,11 +391,11 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   if (_field == FieldPath::KeyFieldPath()) {
     result = util::Compare(document1.key, document2.key);
   } else {
-    FSTFieldValue *value1 = [document1 fieldForPath:self.field];
-    FSTFieldValue *value2 = [document2 fieldForPath:self.field];
-    HARD_ASSERT(value1 != nil && value2 != nil,
+    absl::optional<FieldValue> value1 = [document1 fieldForPath:self.field];
+    absl::optional<FieldValue> value2 = [document2 fieldForPath:self.field];
+    HARD_ASSERT(value1.has_value() && value2.has_value(),
                 "Trying to compare documents on fields that don't exist.");
-    result = util::MakeComparisonResult([value1 compare:value2]);
+    result = value1->CompareTo(*value2);
   }
   if (!self.isAscending) {
     result = util::ReverseOrder(result);
@@ -437,17 +442,19 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 #pragma mark - FSTBound
 
-@implementation FSTBound
+@implementation FSTBound {
+  std::vector<FieldValue> _position;
+}
 
-- (instancetype)initWithPosition:(NSArray<FSTFieldValue *> *)position isBefore:(BOOL)isBefore {
+- (instancetype)initWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
   if (self = [super init]) {
-    _position = position;
+    _position = std::move(position);
     _before = isBefore;
   }
   return self;
 }
 
-+ (instancetype)boundWithPosition:(NSArray<FSTFieldValue *> *)position isBefore:(BOOL)isBefore {
++ (instancetype)boundWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
   return [[FSTBound alloc] initWithPosition:position isBefore:isBefore];
 }
 
@@ -459,31 +466,33 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   } else {
     [string appendString:@"a:"];
   }
-  for (FSTFieldValue *component in self.position) {
-    [string appendFormat:@"%@", component];
+  for (const FieldValue &component : _position) {
+    [string appendFormat:@"%s", component.ToString().c_str()];
   }
   return string;
 }
 
-- (BOOL)sortsBeforeDocument:(FSTDocument *)document
+- (bool)sortsBeforeDocument:(FSTDocument *)document
              usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder {
-  HARD_ASSERT(self.position.count <= sortOrder.count,
+  HARD_ASSERT(_position.size() <= sortOrder.count,
               "FSTIndexPosition has more components than provided sort order.");
-  __block ComparisonResult result = ComparisonResult::Same;
-  [self.position enumerateObjectsUsingBlock:^(FSTFieldValue *fieldValue, NSUInteger idx,
-                                              BOOL *stop) {
+  ComparisonResult result = ComparisonResult::Same;
+  for (size_t idx = 0; idx < _position.size(); ++idx) {
+    const FieldValue &fieldValue = _position[idx];
+
     FSTSortOrder *sortOrderComponent = sortOrder[idx];
     ComparisonResult comparison;
     if (sortOrderComponent.field == FieldPath::KeyFieldPath()) {
-      HARD_ASSERT(fieldValue.type == FieldValue::Type::Reference,
-                  "FSTBound has a non-key value where the key path is being used %s", fieldValue);
-      FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
-      comparison = util::Compare(refValue.value.key, document.key);
+      HARD_ASSERT(fieldValue.type() == FieldValue::Type::Reference,
+                  "FSTBound has a non-key value where the key path is being used %s",
+                  fieldValue.ToString());
+      const auto &ref = fieldValue.reference_value();
+      comparison = ref.key().CompareTo(document.key);
     } else {
-      FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
-      HARD_ASSERT(docValue != nil,
+      absl::optional<FieldValue> docValue = [document fieldForPath:sortOrderComponent.field];
+      HARD_ASSERT(docValue.has_value(),
                   "Field should exist since document matched the orderBy already.");
-      comparison = util::MakeComparisonResult([fieldValue compare:docValue]);
+      comparison = fieldValue.CompareTo(*docValue);
     }
 
     if (!sortOrderComponent.isAscending) {
@@ -492,9 +501,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
     if (!util::Same(comparison)) {
       result = comparison;
-      *stop = YES;
+      break;
     }
-  }];
+  }
 
   return self.isBefore ? result <= ComparisonResult::Same : result < ComparisonResult::Same;
 }
@@ -502,8 +511,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTBound: position:%@ before:%@>", self.position,
-                                    self.isBefore ? @"YES" : @"NO"];
+  return
+      [NSString stringWithFormat:@"<FSTBound: position:%s before:%@>",
+                                 util::ToString(_position).c_str(), self.isBefore ? @"YES" : @"NO"];
 }
 
 - (BOOL)isEqual:(NSObject *)other {
@@ -516,11 +526,11 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
   FSTBound *otherBound = (FSTBound *)other;
 
-  return [self.position isEqualToArray:otherBound.position] && self.isBefore == otherBound.isBefore;
+  return _position == otherBound->_position && self.isBefore == otherBound.isBefore;
 }
 
 - (NSUInteger)hash {
-  return 31 * self.position.hash + (self.isBefore ? 0 : 1);
+  return util::Hash(self.position, self.isBefore);
 }
 
 - (instancetype)copyWithZone:(nullable NSZone *)zone {
@@ -870,7 +880,8 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   for (FSTSortOrder *orderBy in self.explicitSortOrders) {
     const FieldPath &fieldPath = orderBy.field;
     // order by key always matches
-    if (fieldPath != FieldPath::KeyFieldPath() && [document fieldForPath:fieldPath] == nil) {
+    if (fieldPath != FieldPath::KeyFieldPath() &&
+        [document fieldForPath:fieldPath] == absl::nullopt) {
       return NO;
     }
   }

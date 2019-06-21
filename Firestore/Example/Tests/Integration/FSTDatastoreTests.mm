@@ -27,7 +27,6 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -46,9 +45,11 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::BatchId;
@@ -63,6 +64,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
+using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
@@ -221,7 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
-                                                       localWriteTime:[FIRTimestamp timestamp]
+                                                       localWriteTime:Timestamp::Now()
                                                         baseMutations:{}
                                                             mutations:{mutation}];
   _testWorkerQueue->Enqueue([=] {
@@ -244,11 +246,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSetMutation *)setMutation {
-  return [[FSTSetMutation alloc]
-       initWithKey:DocumentKey::FromPathString("rooms/eros")
-             value:[[FSTObjectValue alloc]
-                       initWithDictionary:@{@"name" : FieldValue::FromString("Eros").Wrap()}]
-      precondition:Precondition::None()];
+  return [[FSTSetMutation alloc] initWithKey:DocumentKey::FromPathString("rooms/eros")
+                                       value:WrapObject("name", "Eros")
+                                precondition:Precondition::None()];
 }
 
 @end

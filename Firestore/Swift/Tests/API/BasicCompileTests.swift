@@ -211,7 +211,7 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
 }
 
 func addDocument(to collectionRef: CollectionReference) {
-  collectionRef.addDocument(data: ["foo": 42])
+  _ = collectionRef.addDocument(data: ["foo": 42])
   // or
   collectionRef.document().setData(["foo": 42])
 }

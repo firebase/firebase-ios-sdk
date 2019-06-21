@@ -84,6 +84,12 @@ LLVM_DISABLE_WARNINGS_FLAGS = [
     "-Wobjc-literal-conversion",
     "-Wno-sign-conversion",
     "-Wstring-conversion",
+
+    # Additional flags added to make Firestore builds warning-clean
+    "-Wno-shadow",
+    "-Wno-unused-member-function",
+    "-Wno-tautological-type-limit-compare",
+    "-Wno-unused-template",
 ]
 
 LLVM_TEST_DISABLE_WARNINGS_FLAGS = [

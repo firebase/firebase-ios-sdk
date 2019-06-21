@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-
-#import "Firestore/Source/Model/FSTFieldValue.h"
-
-namespace firebase {
-namespace firestore {
-namespace model {
-
-FSTFieldValue* FieldValue::Wrap() && {
-  return [FSTDelegateValue delegateWithValue:std::move(*this)];
+public enum FirestoreDecodingError: Error {
+  case decodingIsNotSupported
 }
 
-}  // namespace model
-}  // namespace firestore
-}  // namespace firebase
+public enum FirestoreEncodingError: Error {
+  case encodingIsNotSupported
+}

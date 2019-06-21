@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -31,14 +32,14 @@ class DummyOperation : public TransformOperation {
     return Type::Test;
   }
 
-  FSTFieldValue* ApplyToLocalView(FSTFieldValue* /* previousValue */,
-                                  FIRTimestamp* /* localWriteTime */) const override {
-    return nil;
+  FieldValue ApplyToLocalView(const absl::optional<model::FieldValue>& /* previous_value */,
+                              const Timestamp& /* local_write_time */) const override {
+    return FieldValue::Null();
   }
 
-  FSTFieldValue* ApplyToRemoteDocument(FSTFieldValue* /* previousValue */,
-                                       FSTFieldValue* /* transformResult */) const override {
-    return nil;
+  FieldValue ApplyToRemoteDocument(const absl::optional<model::FieldValue>& /* previous_value */,
+                                   const FieldValue& /* transform_result */) const override {
+    return FieldValue::Null();
   }
 
   bool idempotent() const override {

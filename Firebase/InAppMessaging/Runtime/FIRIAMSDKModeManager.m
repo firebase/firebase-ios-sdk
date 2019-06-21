@@ -61,7 +61,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
       _sdkMode = FIRIAMSDKModeNewlyInstalled;
 
       // initialize the mode and fetch count in the persistent storage
-      [_userDefaults setObject:[NSNumber numberWithInt:_sdkMode]
+      [_userDefaults setObject:[NSNumber numberWithInteger:_sdkMode]
                         forKey:kFIRIAMUserDefaultKeyForSDKMode];
       [_userDefaults setInteger:0 forKey:kFIRIAMUserDefaultKeyForServerFetchCount];
     } else {
@@ -88,7 +88,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
                   (int)_fetchCount);
 
       _sdkMode = FIRIAMSDKModeRegular;
-      [_userDefaults setObject:[NSNumber numberWithInt:_sdkMode]
+      [_userDefaults setObject:[NSNumber numberWithInteger:_sdkMode]
                         forKey:kFIRIAMUserDefaultKeyForSDKMode];
     } else {
       [_userDefaults setInteger:_fetchCount forKey:kFIRIAMUserDefaultKeyForServerFetchCount];
@@ -98,7 +98,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
 
 - (void)becomeTestingInstance {
   _sdkMode = FIRIAMSDKModeTesting;
-  [_userDefaults setObject:[NSNumber numberWithInt:_sdkMode]
+  [_userDefaults setObject:[NSNumber numberWithInteger:_sdkMode]
                     forKey:kFIRIAMUserDefaultKeyForSDKMode];
 
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM290004",

@@ -16,13 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 @class FSTDocument;
-@class FSTFieldValue;
 
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)filterWithField:(const model::FieldPath &)field
                  filterOperator:(core::Filter::Operator)op
-                          value:(FSTFieldValue *)value;
+                          value:(model::FieldValue)value;
 
 /** Returns the field the Filter operates over. Abstract method. */
 - (const model::FieldPath &)field;
@@ -72,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithField:(model::FieldPath)field
                filterOperator:(core::Filter::Operator)filterOperator
-                        value:(FSTFieldValue *)value;
+                        value:(model::FieldValue)value;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -86,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) core::Filter::Operator filterOperator;
 
 /** The right hand side of the relation. A constant value to compare to. */
-@property(nonatomic, strong, readonly) FSTFieldValue *value;
+@property(nonatomic, assign, readonly) const model::FieldValue &value;
 
 @end
 
@@ -142,16 +143,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @param position The position relative to the sort order.
  * @param isBefore Whether this bound is just before or just after the position.
  */
-+ (instancetype)boundWithPosition:(NSArray<FSTFieldValue *> *)position isBefore:(BOOL)isBefore;
++ (instancetype)boundWithPosition:(std::vector<model::FieldValue>)position isBefore:(bool)isBefore;
 
 /** Whether this bound is just before or just after the provided position */
-@property(nonatomic, assign, readonly, getter=isBefore) BOOL before;
+@property(nonatomic, assign, readonly, getter=isBefore) bool before;
 
 /** The index position of this bound represented as an array of field values. */
-@property(nonatomic, strong, readonly) NSArray<FSTFieldValue *> *position;
+@property(nonatomic, assign, readonly) const std::vector<model::FieldValue> &position;
 
-/** Returns YES if a document comes before a bound using the provided sort order. */
-- (BOOL)sortsBeforeDocument:(FSTDocument *)document
+/** Returns true if a document comes before a bound using the provided sort order. */
+- (bool)sortsBeforeDocument:(FSTDocument *)document
              usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder;
 
 @end

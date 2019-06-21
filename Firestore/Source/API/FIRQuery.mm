@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
@@ -36,7 +37,6 @@
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
@@ -400,7 +400,7 @@ FIRQuery *Wrap(Query &&query) {
 
 #pragma mark - Private Methods
 
-- (FSTFieldValue *)parsedQueryValue:(id)value {
+- (FieldValue)parsedQueryValue:(id)value {
   return [self.firestore.dataConverter parsedQueryValue:value];
 }
 
@@ -437,9 +437,9 @@ FIRQuery *Wrap(Query &&query) {
 - (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
-  FSTFieldValue *fieldValue = [self parsedQueryValue:value];
+  FieldValue fieldValue = [self parsedQueryValue:value];
   auto describer = [value] { return util::MakeString(NSStringFromClass([value class])); };
-  return Wrap(_query.Filter(fieldPath, filterOperator, fieldValue, describer));
+  return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }
 
 /**
@@ -458,7 +458,8 @@ FIRQuery *Wrap(Query &&query) {
                          "that doesn't exist.");
   }
   FSTDocument *document = snapshot.internalDocument;
-  NSMutableArray<FSTFieldValue *> *components = [NSMutableArray array];
+  const model::DatabaseId &databaseID = self.firestore.databaseID;
+  std::vector<FieldValue> components;
 
   // Because people expect to continue/end a query at the exact document provided, we need to
   // use the implicit sort order rather than the explicit sort order, because it's guaranteed to
@@ -467,20 +468,20 @@ FIRQuery *Wrap(Query &&query) {
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
     if (sortOrder.field == FieldPath::KeyFieldPath()) {
-      [components addObject:[FSTReferenceValue
-                                referenceValue:[FSTDocumentKey keyWithDocumentKey:document.key]
-                                    databaseID:self.firestore.databaseID]];
+      components.push_back(FieldValue::FromReference(databaseID, document.key));
     } else {
-      FSTFieldValue *value = [document fieldForPath:sortOrder.field];
+      absl::optional<FieldValue> value = [document fieldForPath:sortOrder.field];
 
-      if (value.type == FieldValue::Type::ServerTimestamp) {
-        ThrowInvalidArgument(
-            "Invalid query. You are trying to start or end a query using a document for which the "
-            "field '%s' is an uncommitted server timestamp. (Since the value of this field is "
-            "unknown, you cannot start/end a query with it.)",
-            sortOrder.field.CanonicalString());
-      } else if (value != nil) {
-        [components addObject:value];
+      if (value) {
+        if (value->type() == FieldValue::Type::ServerTimestamp) {
+          ThrowInvalidArgument(
+              "Invalid query. You are trying to start or end a query using a document for which "
+              "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
+              "is unknown, you cannot start/end a query with it.)",
+              sortOrder.field.CanonicalString());
+        } else {
+          components.push_back(*value);
+        }
       } else {
         ThrowInvalidArgument(
             "Invalid query. You are trying to start or end a query using a document for which the "
@@ -501,16 +502,17 @@ FIRQuery *Wrap(Query &&query) {
                          "than were specified in the order by.");
   }
 
-  NSMutableArray<FSTFieldValue *> *components = [NSMutableArray array];
-  [fieldValues enumerateObjectsUsingBlock:^(id rawValue, NSUInteger idx, BOOL *stop) {
+  std::vector<FieldValue> components;
+  for (NSUInteger idx = 0, max = fieldValues.count; idx < max; ++idx) {
+    id rawValue = fieldValues[idx];
     FSTSortOrder *sortOrder = explicitSortOrders[idx];
-    FSTFieldValue *fieldValue = [self parsedQueryValue:rawValue];
+
+    FieldValue fieldValue = [self parsedQueryValue:rawValue];
     if (sortOrder.field.IsKeyFieldPath()) {
-      if (fieldValue.type != FieldValue::Type::String) {
+      if (fieldValue.type() != FieldValue::Type::String) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
-      const std::string &documentID =
-          static_cast<FSTDelegateValue *>(fieldValue).internalValue.string_value();
+      const std::string &documentID = fieldValue.string_value();
       if (![self.query isCollectionGroupQuery] && documentID.find('/') != std::string::npos) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
@@ -524,12 +526,11 @@ FIRQuery *Wrap(Query &&query) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                          databaseID:self.firestore.databaseID];
+      fieldValue = FieldValue::FromReference(self.firestore.databaseID, key);
     }
 
-    [components addObject:fieldValue];
-  }];
+    components.push_back(fieldValue);
+  }
 
   return [FSTBound boundWithPosition:components isBefore:isBefore];
 }

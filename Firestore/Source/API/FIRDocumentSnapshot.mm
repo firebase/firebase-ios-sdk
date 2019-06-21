@@ -17,15 +17,18 @@
 #import "FIRDocumentSnapshot+Internal.h"
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "Firestore/Source/API/FIRTimestamp+Internal.h"
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
@@ -35,19 +38,27 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value_options.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::MakeFIRGeoPoint;
+using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldValueOptions;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ServerTimestampBehavior;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -151,8 +162,10 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 - (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   FieldValueOptions options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
-  FSTObjectValue *data = _snapshot.GetData();
-  return data == nil ? nil : [self convertedObject:data options:options];
+  absl::optional<ObjectValue> data = _snapshot.GetData();
+  if (!data) return nil;
+
+  return [self convertedObject:data->GetInternalValue() options:options];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -170,9 +183,9 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
   }
 
-  FSTFieldValue *fieldValue = _snapshot.GetValue(fieldPath.internalValue);
+  absl::optional<FieldValue> fieldValue = _snapshot.GetValue(fieldPath.internalValue);
   FieldValueOptions options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
-  return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
+  return !fieldValue ? nil : [self convertedValue:*fieldValue options:options];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
@@ -187,48 +200,97 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   SUPPRESS_END()
 }
 
-- (id)convertedValue:(FSTFieldValue *)value options:(const FieldValueOptions &)options {
-  if (value.type == FieldValue::Type::Object) {
-    return [self convertedObject:(FSTObjectValue *)value options:options];
-  } else if (value.type == FieldValue::Type::Array) {
-    return [self convertedArray:(FSTArrayValue *)value options:options];
-  } else if (value.type == FieldValue::Type::Reference) {
-    FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    const DatabaseId &refDatabase = ref.databaseID;
-    const DatabaseId &database = _snapshot.firestore()->database_id();
-    if (refDatabase != database) {
-      // TODO(b/32073923): Log this as a proper warning.
-      NSLog(@"WARNING: Document %@ contains a document reference within a different database "
-             "(%s/%s) which is not supported. It will be treated as a reference within the "
-             "current database (%s/%s) instead.",
-            self.reference.path, refDatabase.project_id().c_str(),
-            refDatabase.database_id().c_str(), database.project_id().c_str(),
-            database.database_id().c_str());
-    }
-    DocumentKey key = [[ref valueWithOptions:options] key];
-    return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];
+- (id)convertedValue:(FieldValue)value options:(const FieldValueOptions &)options {
+  switch (value.type()) {
+    case FieldValue::Type::Null:
+      return [NSNull null];
+    case FieldValue::Type::Boolean:
+      return value.boolean_value() ? @YES : @NO;
+    case FieldValue::Type::Integer:
+      return @(value.integer_value());
+    case FieldValue::Type::Double:
+      return @(value.double_value());
+    case FieldValue::Type::Timestamp:
+      return [self convertedTimestamp:value options:options];
+    case FieldValue::Type::ServerTimestamp:
+      return [self convertedServerTimestamp:value options:options];
+    case FieldValue::Type::String:
+      return util::WrapNSString(value.string_value());
+    case FieldValue::Type::Blob:
+      return MakeNSData(value.blob_value());
+    case FieldValue::Type::Reference:
+      return [self convertedReference:value];
+    case FieldValue::Type::GeoPoint:
+      return MakeFIRGeoPoint(value.geo_point_value());
+    case FieldValue::Type::Array:
+      return [self convertedArray:value.array_value() options:options];
+    case FieldValue::Type::Object:
+      return [self convertedObject:value.object_value() options:options];
+  }
+
+  UNREACHABLE();
+}
+
+- (id)convertedTimestamp:(const FieldValue &)value options:(const FieldValueOptions &)options {
+  FIRTimestamp *wrapped = MakeFIRTimestamp(value.timestamp_value());
+  if (options.timestamps_in_snapshots_enabled()) {
+    return wrapped;
   } else {
-    return [value valueWithOptions:options];
+    return [wrapped dateValue];
   }
 }
 
-- (NSDictionary<NSString *, id> *)convertedObject:(FSTObjectValue *)objectValue
-                                          options:(const FieldValueOptions &)options {
-  NSMutableDictionary *result = [NSMutableDictionary dictionary];
-  [objectValue.internalValue
-      enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *value, BOOL *stop) {
-        result[key] = [self convertedValue:value options:options];
-      }];
+- (id)convertedServerTimestamp:(const FieldValue &)value
+                       options:(const FieldValueOptions &)options {
+  const auto &sts = value.server_timestamp_value();
+  switch (options.server_timestamp_behavior()) {
+    case ServerTimestampBehavior::kNone:
+      return [NSNull null];
+    case ServerTimestampBehavior::kEstimate: {
+      FieldValue local_write_time = FieldValue::FromTimestamp(sts.local_write_time());
+      return [self convertedTimestamp:local_write_time options:options];
+    }
+    case ServerTimestampBehavior::kPrevious:
+      return sts.previous_value() ? [self convertedValue:*sts.previous_value() options:options]
+                                  : [NSNull null];
+  }
+
+  UNREACHABLE();
+}
+
+- (id)convertedReference:(const FieldValue &)value {
+  const auto &ref = value.reference_value();
+  const DatabaseId &refDatabase = ref.database_id();
+  const DatabaseId &database = _snapshot.firestore()->database_id();
+  if (refDatabase != database) {
+    LOG_WARN("Document %s contains a document reference within a different database (%s/%s) which "
+             "is not supported. It will be treated as a reference within the current database "
+             "(%s/%s) instead.",
+             _snapshot.CreateReference().Path(), refDatabase.project_id(),
+             refDatabase.database_id(), database.project_id(), database.database_id());
+  }
+  const DocumentKey &key = ref.key();
+  return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];
+}
+
+- (NSArray<id> *)convertedArray:(const FieldValue::Array &)arrayContents
+                        options:(const FieldValueOptions &)options {
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:arrayContents.size()];
+  for (const FieldValue &value : arrayContents) {
+    [result addObject:[self convertedValue:value options:options]];
+  }
   return result;
 }
 
-- (NSArray<id> *)convertedArray:(FSTArrayValue *)arrayValue
-                        options:(const FieldValueOptions &)options {
-  NSArray<FSTFieldValue *> *internalValue = arrayValue.internalValue;
-  NSMutableArray *result = [NSMutableArray arrayWithCapacity:internalValue.count];
-  [internalValue enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
-    [result addObject:[self convertedValue:value options:options]];
-  }];
+- (NSDictionary<NSString *, id> *)convertedObject:(const FieldValue::Map &)objectValue
+                                          options:(const FieldValueOptions &)options {
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  for (const auto &kv : objectValue) {
+    const std::string &key = kv.first;
+    const FieldValue &value = kv.second;
+
+    result[util::WrapNSString(key)] = [self convertedValue:value options:options];
+  }
   return result;
 }
 

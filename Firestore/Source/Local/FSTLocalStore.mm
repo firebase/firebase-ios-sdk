@@ -33,6 +33,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
@@ -49,6 +50,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
 
+using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LocalDocumentsView;
@@ -64,8 +66,9 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -172,7 +175,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
-  FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
+  Timestamp localWriteTime = Timestamp::Now();
   DocumentKeySet keys;
   for (FSTMutation *mutation : mutations) {
     keys = keys.insert(mutation.key);
@@ -204,15 +207,14 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       if (fieldMask) {
         // `documentsForKeys` is guaranteed to return a (nullable) entry for every document key.
         FSTMaybeDocument *maybeDocument = existingDocuments.find(mutation.key)->second;
-        FSTObjectValue *baseValues =
-            [maybeDocument isKindOfClass:[FSTDocument class]]
-                ? [((FSTDocument *)maybeDocument).data objectByApplyingFieldMask:*fieldMask]
-                : [FSTObjectValue objectValue];
+        ObjectValue baseValues = [maybeDocument isKindOfClass:[FSTDocument class]]
+                                     ? fieldMask->ApplyTo(((FSTDocument *)maybeDocument).data)
+                                     : ObjectValue::Empty();
         // NOTE: The base state should only be applied if there's some existing document to
         // override, so use a Precondition of exists=true
         baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
                                                             fieldMask:*fieldMask
-                                                                value:baseValues
+                                                                value:std::move(baseValues)
                                                          precondition:Precondition::Exists(true)]);
       }
     }

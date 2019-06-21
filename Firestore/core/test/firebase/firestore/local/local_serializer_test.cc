@@ -140,7 +140,7 @@ class LocalSerializerTest : public ::testing::Test {
     writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                                   &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   void ExpectSerializationRoundTrip(const QueryData& query_data,
@@ -172,7 +172,7 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   void ExpectSerializationRoundTrip(
@@ -206,7 +206,7 @@ class LocalSerializerTest : public ::testing::Test {
         serializer->EncodeMutationBatch(mutation_batch);
     writer.WriteNanopbMessage(firestore_client_WriteBatch_fields, &proto);
     serializer->FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    return writer.ToByteString();
+    return writer.Release();
   }
 
   std::string message_differences;
@@ -316,11 +316,11 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);
-  std::vector<uint8_t> resume_token = testutil::ResumeToken(1039);
+  ByteString resume_token = testutil::ResumeToken(1039);
 
   QueryData query_data(core::Query(query), target_id, sequence_number,
                        QueryPurpose::kListen, SnapshotVersion(version),
-                       std::vector<uint8_t>(resume_token));
+                       ByteString(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.
   ByteStringWriter writer;
@@ -331,7 +331,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   remote_serializer.FreeNanopbMessage(
       google_firestore_v1_Target_QueryTarget_fields, &proto);
 
-  ByteString query_target_bytes = writer.ToByteString();
+  ByteString query_target_bytes = writer.Release();
   auto query_target_proto =
       ProtobufParse<v1::Target::QueryTarget>(query_target_bytes);
 

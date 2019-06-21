@@ -22,9 +22,9 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
@@ -182,7 +182,7 @@ ListenerRegistration Query::AddSnapshotListener(
 
 Query Query::Filter(FieldPath field_path,
                     Filter::Operator op,
-                    FSTFieldValue* field_value,
+                    FieldValue field_value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
     if (op == Filter::Operator::ArrayContains) {
@@ -190,10 +190,8 @@ Query Query::Filter(FieldPath field_path,
           "Invalid query. You can't perform arrayContains queries on document "
           "ID since document IDs are not arrays.");
     }
-    if (field_value.type == FieldValue::Type::String) {
-      const std::string& document_key =
-          static_cast<FSTDelegateValue*>(field_value)
-              .internalValue.string_value();
+    if (field_value.type() == FieldValue::Type::String) {
+      const std::string& document_key = field_value.string_value();
       if (document_key.empty()) {
         ThrowInvalidArgument(
             "Invalid query. When querying by document ID you must provide a "
@@ -215,10 +213,9 @@ Query Query::Filter(FieldPath field_path,
             "is not because it has an odd number of segments.",
             path.CanonicalString());
       }
-      field_value = [FSTReferenceValue
-          referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
-              databaseID:firestore_->database_id()];
-    } else if (field_value.type != FieldValue::Type::Reference) {
+      field_value = FieldValue::FromReference(firestore_->database_id(),
+                                              DocumentKey{path});
+    } else if (field_value.type() != FieldValue::Type::Reference) {
       ThrowInvalidArgument(
           "Invalid query. When querying by document ID you must provide a "
           "valid string or DocumentReference, but it was of type: %s",

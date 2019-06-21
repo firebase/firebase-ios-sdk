@@ -48,13 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Invalid field path. Provided names must not be empty.");
   }
 
-  std::vector<std::string> field_names;
-  field_names.reserve(fieldNames.count);
-  for (int i = 0; i < fieldNames.count; ++i) {
-    field_names.emplace_back(util::MakeString(fieldNames[i]));
+  std::vector<std::string> converted;
+  converted.reserve(fieldNames.count);
+  for (NSString *fieldName in fieldNames) {
+    converted.emplace_back(util::MakeString(fieldName));
   }
 
-  return [self initPrivate:FieldPath::FromSegments(std::move(field_names))];
+  return [self initPrivate:FieldPath::FromSegments(std::move(converted))];
 }
 
 + (instancetype)documentID {

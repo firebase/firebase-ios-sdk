@@ -79,8 +79,14 @@ Ninja
 /cmake-build-debug
 /cmake-build-release
 
+# Python
+*.pyc
+
 # Visual Studio
 /.vs
+
+# Visual Studio Code
+/.vscode
 
 # CocoaPods generate
 gen/

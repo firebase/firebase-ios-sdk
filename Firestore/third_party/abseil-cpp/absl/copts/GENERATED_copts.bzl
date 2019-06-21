@@ -53,6 +53,10 @@ ABSL_CLANG_CL_FLAGS = [
     "-Wobjc-literal-conversion",
     "-Wno-sign-conversion",
     "-Wstring-conversion",
+    "-Wno-shadow",
+    "-Wno-unused-member-function",
+    "-Wno-tautological-type-limit-compare",
+    "-Wno-unused-template",
     "/DNOMINMAX",
     "/DWIN32_LEAN_AND_MEAN",
     "/D_CRT_SECURE_NO_WARNINGS",
@@ -161,6 +165,10 @@ ABSL_LLVM_FLAGS = [
     "-Wobjc-literal-conversion",
     "-Wno-sign-conversion",
     "-Wstring-conversion",
+    "-Wno-shadow",
+    "-Wno-unused-member-function",
+    "-Wno-tautological-type-limit-compare",
+    "-Wno-unused-template",
 ]
 
 ABSL_LLVM_TEST_FLAGS = [

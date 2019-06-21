@@ -21,13 +21,21 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Source/API/converters.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::MakeGeoPoint;
+using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
+using firebase::firestore::nanopb::MakeNSData;
+using firebase::firestore::testutil::Field;
 
 @interface FSTUserDataConverterTests : XCTestCase
 @end
@@ -35,48 +43,44 @@ using firebase::firestore::model::FieldValue;
 @implementation FSTUserDataConverterTests
 
 - (void)testConvertsIntegers {
-  NSArray *values = @[
+  NSArray<NSNumber *> *values = @[
     @(INT_MIN), @(-1), @0, @1, @2, @(UCHAR_MAX), @(INT_MAX),  // Standard integers
     @(LONG_MIN), @(LONG_MAX), @(LLONG_MIN), @(LLONG_MAX)      // Larger values
   ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], @([value longLongValue]));
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Integer);
+  for (NSNumber *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Integer);
+    XCTAssertEqual(wrapped.integer_value(), [value longLongValue]);
   }
 }
 
 - (void)testConvertsDoubles {
   // Note that 0x1.0p-1074 is a hex floating point literal representing the minimum subnormal
   // number: <https://en.wikipedia.org/wiki/Denormal_number>.
-  NSArray *values = @[
+  NSArray<NSNumber *> *values = @[
     @(-INFINITY), @(-DBL_MAX), @(LLONG_MIN * -1.0), @(-1.1), @(-0x1.0p-1074), @(-0.0), @(0.0),
     @(0x1.0p-1074), @(DBL_MIN), @(1.1), @(LLONG_MAX * 1.0), @(DBL_MAX), @(INFINITY)
   ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Double);
+  for (NSNumber *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Double);
+    XCTAssertEqual(wrapped.double_value(), [value doubleValue]);
   }
 }
 
 - (void)testConvertsNilAndNSNull {
-  FSTFieldValue *nullValue = FieldValue::Null().Wrap();
-  XCTAssertEqualObjects(FSTTestFieldValue(nil), nullValue);
-  XCTAssertEqualObjects(FSTTestFieldValue([NSNull null]), nullValue);
-  XCTAssertEqualObjects([nullValue value], [NSNull null]);
-  XCTAssertEqual(nullValue.type, FieldValue::Type::Null);
+  FieldValue nullValue = FieldValue::Null();
+  XCTAssertEqual(nullValue.type(), FieldValue::Type::Null);
+  XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
+  XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
 }
 
 - (void)testConvertsBooleans {
-  NSArray *values = @[ @YES, @NO ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Boolean);
+  NSArray<NSNumber *> *values = @[ @YES, @NO ];
+  for (NSNumber *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Boolean);
+    XCTAssertEqual(wrapped.boolean_value(), [value boolValue]);
   }
 }
 
@@ -86,8 +90,8 @@ using firebase::firestore::model::FieldValue;
   // with signed chars but on arm64 these end up being stored as signed shorts. This forces us to
   // choose, and it's more useful to support shorts as Integers than it is to treat unsigned char as
   // Boolean.
-  FSTFieldValue *wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
-  XCTAssertEqualObjects(wrapped, FieldValue::FromInteger(1).Wrap());
+  FieldValue wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
+  XCTAssertEqual(wrapped, FieldValue::FromInteger(1));
 }
 
 union DoubleBits {
@@ -96,115 +100,112 @@ union DoubleBits {
 };
 
 - (void)testConvertsStrings {
-  NSArray *values = @[ @"", @"abc" ];
+  NSArray<NSString *> *values = @[ @"", @"abc" ];
   for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::String);
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::String);
+    XCTAssertEqual(wrapped.string_value(), util::MakeString(value));
   }
 }
 
 - (void)testConvertsDates {
-  NSArray *values = @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
-    XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
-    XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Timestamp);
+  NSArray<NSDate *> *values =
+      @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
+  for (NSDate *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(wrapped.timestamp_value(), MakeTimestamp(value));
   }
 }
 
 - (void)testConvertsGeoPoints {
-  NSArray *values = @[ FSTTestGeoPoint(1.24, 4.56), FSTTestGeoPoint(-20, 100) ];
+  NSArray<FIRGeoPoint *> *values = @[ FSTTestGeoPoint(1.24, 4.56), FSTTestGeoPoint(-20, 100) ];
 
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::GeoPoint);
+  for (FIRGeoPoint *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::GeoPoint);
+    XCTAssertEqual(wrapped.geo_point_value(), MakeGeoPoint(value));
   }
 }
 
 - (void)testConvertsBlobs {
-  NSArray *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
-  for (id value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTBlobValue class]);
-    XCTAssertEqualObjects([wrapped value], value);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Blob);
+  NSArray<NSData *> *values = @[ FSTTestData(1, 2, 3), FSTTestData(1, 2) ];
+  for (NSData *value in values) {
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Blob);
+    XCTAssertEqualObjects(MakeNSData(wrapped.blob_value()), value);
   }
 }
 
 - (void)testConvertsResourceNames {
-  NSArray *values = @[
+  NSArray<FSTDocumentKeyReference *> *values = @[
     FSTTestRef("project", DatabaseId::kDefault, @"foo/bar"),
     FSTTestRef("project", DatabaseId::kDefault, @"foo/baz")
   ];
   for (FSTDocumentKeyReference *value in values) {
-    FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
-    XCTAssertEqualObjects([wrapped value], [FSTDocumentKey keyWithDocumentKey:value.key]);
-    XCTAssertTrue(((FSTReferenceValue *)wrapped).databaseID == value.databaseID);
-    XCTAssertEqual(wrapped.type, FieldValue::Type::Reference);
+    FieldValue wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(wrapped.type(), FieldValue::Type::Reference);
+    XCTAssertEqual(wrapped.reference_value().key(), value.key);
+    XCTAssertTrue(wrapped.reference_value().database_id() == value.databaseID);
   }
 }
 
 - (void)testConvertsEmptyObjects {
-  XCTAssertEqualObjects(FSTTestFieldValue(@{}), [FSTObjectValue objectValue]);
-  XCTAssertEqual(FSTTestFieldValue(@{}).type, FieldValue::Type::Object);
+  XCTAssertEqual(ObjectValue(FSTTestFieldValue(@{})), ObjectValue::Empty());
+  XCTAssertEqual(FSTTestFieldValue(@{}).type(), FieldValue::Type::Object);
 }
 
 - (void)testConvertsSimpleObjects {
-  FSTObjectValue *actual =
+  ObjectValue actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
-  FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
-    @"a" : FieldValue::FromString("foo").Wrap(),
-    @"b" : FieldValue::FromInteger(1).Wrap(),
-    @"c" : FieldValue::True().Wrap(),
-    @"d" : FieldValue::Null().Wrap()
-  }];
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Object);
+  ObjectValue expected = ObjectValue::FromMap({{"a", FieldValue::FromString("foo")},
+                                               {"b", FieldValue::FromInteger(1)},
+                                               {"c", FieldValue::True()},
+                                               {"d", FieldValue::Null()}});
+  XCTAssertEqual(actual, expected);
+  XCTAssertEqual(actual.AsFieldValue().type(), FieldValue::Type::Object);
 }
 
 - (void)testConvertsNestedObjects {
-  FSTObjectValue *actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
-  FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
-    @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
-      @"b" : [[FSTObjectValue alloc]
-          initWithDictionary:@{@"c" : FieldValue::FromString("foo").Wrap()}],
-      @"d" : FieldValue::True().Wrap()
-    }]
-  }];
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Object);
+  ObjectValue actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
+  ObjectValue expected = ObjectValue::FromMap({
+      {"a",
+       ObjectValue::FromMap({{"b", ObjectValue::FromMap({{"c", FieldValue::FromString("foo")}})},
+                             {"d", FieldValue::True()}})},
+  });
+  XCTAssertEqual(actual, expected);
+  XCTAssertEqual(actual.AsFieldValue().type(), FieldValue::Type::Object);
 }
 
 - (void)testConvertsArrays {
-  FSTArrayValue *expected = [[FSTArrayValue alloc]
-      initWithValueNoCopy:@[ FieldValue::FromString("value").Wrap(), FieldValue::True().Wrap() ]];
+  FieldValue expected = FieldValue::FromArray({
+      FieldValue::FromString("value"),
+      FieldValue::True(),
+  });
 
-  FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertEqualObjects(actual, expected);
-  XCTAssertEqual(actual.type, FieldValue::Type::Array);
+  FieldValue actual = (FieldValue)FSTTestFieldValue(@[ @"value", @YES ]);
+  XCTAssertEqual(actual, expected);
+  XCTAssertEqual(actual.type(), FieldValue::Type::Array);
 }
 
 - (void)testNSDatesAreConvertedToTimestamps {
   NSDate *date = [NSDate date];
   id input = @{@"array" : @[ @1, date ], @"obj" : @{@"date" : date, @"string" : @"hi"}};
-  FSTObjectValue *value = FSTTestObjectValue(input);
-  id output = [value value];
+  ObjectValue value = FSTTestObjectValue(input);
   {
-    XCTAssertTrue([output[@"array"][1] isKindOfClass:[FIRTimestamp class]]);
-    FIRTimestamp *actual = output[@"array"][1];
-    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
+    auto array = value.Get(Field("array"));
+    XCTAssertTrue(array.has_value());
+    XCTAssertEqual(array->type(), FieldValue::Type::Array);
+
+    const FieldValue &actual = array->array_value()[1];
+    XCTAssertEqual(actual.type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(actual.timestamp_value(), MakeTimestamp(date));
   }
   {
-    XCTAssertTrue([output[@"obj"][@"date"] isKindOfClass:[FIRTimestamp class]]);
-    FIRTimestamp *actual = output[@"array"][1];
-    XCTAssertEqualObjects([FIRTimestamp timestampWithDate:date], actual);
+    auto found = value.Get(Field("obj.date"));
+    XCTAssertTrue(found.has_value());
+    XCTAssertEqual(found->type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(found->timestamp_value(), MakeTimestamp(date));
   }
 }
 

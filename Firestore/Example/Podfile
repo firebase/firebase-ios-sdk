@@ -3,7 +3,8 @@
 #source 'https://github.com/CocoaPods/Specs.git'
 
 # Comment the following line to use the CocoaPods master repo instead.
-source 'https://cdn.jsdelivr.net/cocoa/'
+# Disabled. See https://github.com/firebase/firebase-ios-sdk/issues/3165
+# source 'https://cdn.jsdelivr.net/cocoa/'
 
 use_frameworks!
 
@@ -42,7 +43,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '6.2.0'
+  pod 'Firebase/CoreOnly', '6.3.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'

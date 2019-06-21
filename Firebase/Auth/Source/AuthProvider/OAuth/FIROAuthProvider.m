@@ -23,11 +23,9 @@
 #import "FIRAuthBackend.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
-#import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthWebUtils.h"
-#import "FIRFacebookAuthProvider.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIROAuthCredential.h"
 
@@ -167,12 +165,6 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
     @return An Instance of @c FIROAuthProvider.
   */
 - (nullable instancetype)initWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {
-  if ([providerID isEqual:FIRFacebookAuthProviderID]) {
-    [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
-        @"Sign in with Facebook is not supported via this method; the Facebook TOS "
-         "dictate that you must use the Facebook iOS SDK for Facebook login."];
-    return nil;
-  }
   self = [super init];
   if (self) {
     _auth = auth;
