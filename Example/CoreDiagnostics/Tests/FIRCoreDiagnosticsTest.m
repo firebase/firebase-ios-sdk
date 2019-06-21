@@ -21,7 +21,9 @@
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTEventDataObject.h>
+#import <GoogleDataTransport/GDTTransport.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -31,10 +33,11 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
+#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+
 // TODO: Remove ASAP. Only needed for solving a chicken-and-egg pod lib lint issue.
 Class FIRCoreDiagnosticsImplementation;
 
-extern NSString *const kUniqueInstallFileName;
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
 
@@ -45,6 +48,15 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 #pragma mark - Testing interfaces
 
 @interface FIRCoreDiagnostics : NSObject
+// Initialization.
++ (instancetype)sharedInstance;
+- (instancetype)initWithTransport:(GDTTransport *)transport
+             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage;
+
+// Properties.
+@property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
+@property(nonatomic, readonly) GDTTransport *transport;
+@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 // Install string helpers.
 + (NSString *)installString;
@@ -77,6 +89,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
 // FIRCoreDiagnosticsInterop.
 + (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData;
+- (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData;
 
 @end
 
@@ -115,10 +128,32 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
 @property(nonatomic) id optionsInstanceMock;
 @property(nonatomic) NSDictionary<NSString *, id> *expectedUserInfo;
+@property(nonatomic) FIRCoreDiagnostics *diagnostics;
+@property(nonatomic) id mockDateStorage;
+@property(nonatomic) id mockTransport;
 
 @end
 
 @implementation FIRCoreDiagnosticsTest
+
+- (void)setUp {
+  [super setUp];
+
+  self.mockTransport = OCMClassMock([GDTTransport class]);
+  OCMStub([self.mockTransport eventForTransport])
+      .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
+
+  self.mockDateStorage = OCMClassMock([FIRCoreDiagnosticsDateFileStorage class]);
+  self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
+                                              heartbeatDateStorage:self.mockDateStorage];
+}
+
+- (void)tearDown {
+  self.diagnostics = nil;
+  self.mockTransport = nil;
+  self.mockDateStorage = nil;
+  [super tearDown];
+}
 
 /** Tests initialization. */
 - (void)testExternVariableIsSet {
@@ -153,34 +188,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   // A pb_release here should not be necessary here, as FIRCoreDiagnosticsLog should do it.
 }
 
-- (void)testWritingStringToFile {
-  NSString *uniqueString = [FIRCoreDiagnostics installString];
-  XCTAssertNotNil(uniqueString);
-
-  NSURL *filePathURL = [FIRCoreDiagnostics filePathURLWithName:kUniqueInstallFileName];
-  XCTAssertTrue([filePathURL.path
-      hasSuffix:@"Library/Application Support/Google/FIRApp/FIREBASE_UNIQUE_INSTALL"]);
-  NSDictionary<NSString *, id> *values =
-      [filePathURL resourceValuesForKeys:@[ NSURLIsExcludedFromBackupKey ] error:NULL];
-  XCTAssertEqualObjects(values[NSURLIsExcludedFromBackupKey], @YES);
-
-  NSString *content = [FIRCoreDiagnostics stringAtURL:filePathURL];
-  XCTAssertTrue([uniqueString isEqualToString:content]);
-  // Check whether the saved unique string follows the correct format.
-  // A sample UUID: 5A870F63-078E-4D92-9145-EC2EF97E6681
-  NSString *pattern = @"^[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}$";
-  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                                         options:0
-                                                                           error:nil];
-  NSUInteger matchNumber = [regex numberOfMatchesInString:content
-                                                  options:0
-                                                    range:NSMakeRange(0, [content length])];
-  XCTAssertTrue(matchNumber == 1);
-
-  // Writing the same string to the same file again should still succeed.
-  XCTAssertTrue([FIRCoreDiagnostics writeString:content toURL:filePathURL]);
-}
-
 // Populates the ICoreConfiguration proto.
 - (void)populateProto:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
@@ -196,7 +203,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_pod_name = 1;
   config->app_id = FIREncodeString(kGoogleAppID);
   config->bundle_id = FIREncodeString(kBundleID);
-  config->install = FIREncodeString([FIRCoreDiagnostics installString]);
   config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
   config->os_version = FIREncodeString([GULAppEnvironmentUtil systemVersion]);
   config->app_count = 1;
@@ -236,6 +242,118 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_deployed_in_app_store = 1;
   config->swizzling_enabled = 1;
   config->has_swizzling_enabled = 1;
+}
+
+#pragma mark - Heartbeats
+
+- (void)testHeartbeatNotSentTheSameDay {
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+
+  NSCalendarUnit unitFlags = NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitMonth;
+  NSDateComponents *dateComponents = [calendar components:unitFlags fromDate:[NSDate date]];
+
+  // Verify start of the day
+  NSDate *startOfTheDay = [calendar dateFromComponents:dateComponents];
+  OCMExpect([self.mockDateStorage date]).andReturn(startOfTheDay);
+  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                    error:[OCMArg anyObjectRef]]);
+
+  [self assertEventSentWithHeartbeat:NO];
+
+  // Verify middle of the day
+  dateComponents.hour = 12;
+  NSDate *middleOfTheDay = [calendar dateFromComponents:dateComponents];
+  OCMExpect([self.mockDateStorage date]).andReturn(middleOfTheDay);
+  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                    error:[OCMArg anyObjectRef]]);
+
+  [self assertEventSentWithHeartbeat:NO];
+
+  // Verify end of the day
+  dateComponents.hour = 0;
+  dateComponents.day += 1;
+  NSDate *startOfNextDay = [calendar dateFromComponents:dateComponents];
+  NSDate *endOfTheDay = [startOfNextDay dateByAddingTimeInterval:-1];
+  OCMExpect([self.mockDateStorage date]).andReturn(endOfTheDay);
+  OCMReject([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[OCMArg any]]
+                                    error:[OCMArg anyObjectRef]]);
+
+  [self assertEventSentWithHeartbeat:NO];
+}
+
+- (void)testHeartbeatSentNoPreviousCheckin {
+  OCMExpect([self.mockDateStorage date]).andReturn(nil);
+  OCMExpect([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
+                                    error:[OCMArg anyObjectRef]]);
+
+  [self assertEventSentWithHeartbeat:YES];
+}
+
+- (void)testHeartbeatSentNextDayDefaultApp {
+  NSDate *startOfToday = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
+  NSDate *endOfYesterday = [startOfToday dateByAddingTimeInterval:-1];
+
+  OCMExpect([self.mockDateStorage date]).andReturn(endOfYesterday);
+  OCMExpect([self.mockDateStorage setDate:[self OCMArgToCheckDateEqualTo:[NSDate date]]
+                                    error:[OCMArg anyObjectRef]]);
+
+  [self assertEventSentWithHeartbeat:YES];
+}
+
+#pragma mark - Singleton
+
+- (void)testSharedInstanceDateStorageProperlyInitialized {
+  FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
+  XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
+  XCTAssert(
+      [sharedInstance.heartbeatDateStorage isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
+
+  NSDate *date = [NSDate date];
+
+  NSError *error;
+  XCTAssertTrue([sharedInstance.heartbeatDateStorage setDate:date error:&error], @"Error %@",
+                error);
+
+  XCTAssertEqualObjects([sharedInstance.heartbeatDateStorage date], date);
+}
+
+#pragma mark - Helpers
+
+- (void)assertEventSentWithHeartbeat:(BOOL)isHeartbeat {
+  [self expectEventToBeSentToTransportWithHeartbeat:isHeartbeat];
+
+  [self.diagnostics sendDiagnosticsData:[[FIRCoreDiagnosticsTestData alloc] init]];
+
+  OCMVerifyAllWithDelay(self.mockTransport, 0.5);
+  OCMVerifyAllWithDelay(self.mockDateStorage, 0.5);
+}
+
+- (void)expectEventToBeSentToTransportWithHeartbeat:(BOOL)isHeartbeat {
+  id eventValidation = [OCMArg checkWithBlock:^BOOL(GDTEvent *obj) {
+    XCTAssert([obj isKindOfClass:[GDTEvent class]]);
+    FIRCoreDiagnosticsLog *dataObject = obj.dataObject;
+    XCTAssert([dataObject isKindOfClass:[FIRCoreDiagnosticsLog class]]);
+
+    BOOL isSentEventHeartbeat =
+        dataObject.config.sdk_name == logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
+    XCTAssertEqual(isSentEventHeartbeat, isHeartbeat);
+
+    return YES;
+  }];
+  OCMExpect([self.mockTransport sendTelemetryEvent:eventValidation]);
+}
+
+- (BOOL)isDate:(NSDate *)date1 approximatelyEqual:(NSDate *)date2 {
+  NSTimeInterval precision = 10;
+  NSTimeInterval diff = ABS([date1 timeIntervalSinceDate:date2]);
+  return diff <= precision;
+}
+
+- (id)OCMArgToCheckDateEqualTo:(NSDate *)date {
+  return [OCMArg checkWithBlock:^BOOL(id obj) {
+    XCTAssert([obj isKindOfClass:[NSDate class]], "%@", self.name);
+    return [self isDate:obj approximatelyEqual:date];
+  }];
 }
 
 @end
