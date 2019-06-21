@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_CHANGE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_CHANGE_H_
 
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
@@ -56,6 +57,10 @@ class DocumentChange {
 
   size_t new_index() const {
     return new_index_;
+  }
+
+  const std::shared_ptr<Firestore>& firestore() const {
+    return document_.firestore();
   }
 
   /**

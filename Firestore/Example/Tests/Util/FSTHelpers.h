@@ -38,7 +38,6 @@
 @class FSTDeletedDocument;
 @class FSTDocument;
 @class FSTDocumentKeyReference;
-@class FSTFieldValue;
 @class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
@@ -228,11 +227,11 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
-/** Wraps a plain value into an FSTFieldValue instance. */
-FSTFieldValue *FSTTestFieldValue(id _Nullable value);
+/** Wraps a plain value into an FieldValue instance. */
+model::FieldValue FSTTestFieldValue(id _Nullable value);
 
 /** Wraps a NSDictionary value into an FSTObjectValue instance. */
-FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
+model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
 firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
@@ -244,7 +243,7 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        FSTDocumentState documentState);
+                        model::DocumentState documentState);
 
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,

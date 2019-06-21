@@ -23,14 +23,13 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-
 #include "absl/types/optional.h"
 
 @class FSTDocument;
-@class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FIRTimestamp;
@@ -45,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithVersion:(model::SnapshotVersion)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults
+               transformResults:(absl::optional<std::vector<model::FieldValue>>)transformResults
     NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -64,9 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
  * The resulting fields returned from the backend after a FSTTransformMutation has been committed.
  * Contains one FieldValue for each FieldTransform that was in the mutation.
  *
- * Will be nil if the mutation was not a FSTTransformMutation.
+ * Will be nullopt if the mutation was not a FSTTransformMutation.
  */
-@property(nonatomic, strong, readonly) NSArray<FSTFieldValue *> *_Nullable transformResults;
+// TODO(wilhuff): This seems like I could be a empty vector without harm.
+@property(nonatomic, assign, readonly)
+    const absl::optional<std::vector<model::FieldValue>> &transformResults;
 
 @end
 
@@ -189,11 +190,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @param precondition The precondition for this mutation.
  */
 - (instancetype)initWithKey:(model::DocumentKey)key
-                      value:(FSTObjectValue *)value
+                      value:(model::ObjectValue)value
                precondition:(model::Precondition)precondition NS_DESIGNATED_INITIALIZER;
 
 /** The object value to use when setting the document. */
-@property(nonatomic, strong, readonly) FSTObjectValue *value;
+@property(nonatomic, assign, readonly) model::ObjectValue value;
 @end
 
 #pragma mark - FSTPatchMutation
@@ -226,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithKey:(model::DocumentKey)key
                   fieldMask:(model::FieldMask)fieldMask
-                      value:(FSTObjectValue *)value
+                      value:(model::ObjectValue)value
                precondition:(model::Precondition)precondition NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -236,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::FieldMask *)fieldMask;
 
 /** The fields and associated values to use when patching the document. */
-@property(nonatomic, strong, readonly) FSTObjectValue *value;
+@property(nonatomic, assign, readonly) model::ObjectValue value;
 
 @end
 

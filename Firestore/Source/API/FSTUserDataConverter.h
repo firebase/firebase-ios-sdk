@@ -24,10 +24,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
+@class FIRTimestamp;
 @class FSTObjectValue;
-@class FSTFieldValue;
 @class FSTMutation;
 
 namespace core = firebase::firestore::core;
@@ -81,7 +82,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 - (core::ParsedUpdateData)parsedUpdateData:(id)input;
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */
-- (FSTFieldValue *)parsedQueryValue:(id)input;
+- (model::FieldValue)parsedQueryValue:(id)input;
 
 @end
 

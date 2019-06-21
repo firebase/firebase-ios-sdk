@@ -39,8 +39,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -50,7 +48,9 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -63,9 +63,13 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -73,6 +77,7 @@ using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
 namespace {
@@ -99,24 +104,12 @@ bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
   UNREACHABLE();
 }
 
+NSString *const kDocumentKeyPath =
+    [[NSString alloc] initWithUTF8String:FieldPath::kDocumentKeyPath];
+
 }  // namespace
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTSerializerBeta (Test)
-- (GCFSValue *)encodedNull;
-- (GCFSValue *)encodedBool:(BOOL)value;
-- (GCFSValue *)encodedDouble:(double)value;
-- (GCFSValue *)encodedInteger:(int64_t)value;
-- (GCFSValue *)encodedString:(NSString *)value;
-- (GCFSValue *)encodedDate:(NSDate *)value;
-
-- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask;
-- (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
-    (const std::vector<FieldTransform> &)fieldTransforms;
-
-- (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter;
-@end
 
 @interface GCFSStructuredQuery_Order (Test)
 + (instancetype)messageWithProperty:(NSString *)property ascending:(BOOL)ascending;
@@ -145,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNull {
-  FSTFieldValue *model = FieldValue::Null().Wrap();
+  FieldValue model = FieldValue::Null();
 
   GCFSValue *proto = [GCFSValue message];
   proto.nullValue = GPBNullValue_NullValue;
@@ -156,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesBool {
   NSArray<NSNumber *> *examples = @[ @YES, @NO ];
   for (NSNumber *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.booleanValue = [example boolValue];
@@ -170,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesIntegers {
   NSArray<NSNumber *> *examples = @[ @(LLONG_MIN), @(-100), @(-1), @0, @1, @100, @(LLONG_MAX) ];
   for (NSNumber *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.integerValue = [example longLongValue];
@@ -196,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
     @(0.0 / 0.0)
   ];
   for (NSNumber *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.doubleValue = [example doubleValue];
@@ -215,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
     @"(╯°□°）╯︵ ┻━┻",
   ];
   for (NSString *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.stringValue = example;
@@ -253,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FIRGeoPoint *> *examples =
       @[ FSTTestGeoPoint(0, 0), FSTTestGeoPoint(1.24, 4.56), FSTTestGeoPoint(-90, 180) ];
   for (FIRGeoPoint *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.geoPointValue = [GTPLatLng message];
@@ -275,7 +268,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestData(0, 1, 255, -1),
   ];
   for (NSData *example in examples) {
-    FSTFieldValue *model = FSTTestFieldValue(example);
+    FieldValue model = FSTTestFieldValue(example);
 
     GCFSValue *proto = [GCFSValue message];
     proto.bytesValue = example;
@@ -298,18 +291,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesArrays {
-  FSTFieldValue *model = FSTTestFieldValue(@[ @YES, @"foo" ]);
+  FieldValue model = FSTTestFieldValue(@[ @YES, @"foo" ]);
 
   GCFSValue *proto = [GCFSValue message];
   [proto.arrayValue.valuesArray addObjectsFromArray:@[
-    [self.serializer encodedBool:YES], [self.serializer encodedString:@"foo"]
+    [self.serializer encodedBool:true], [self.serializer encodedString:"foo"]
   ]];
 
   [self assertRoundTripForModel:model proto:proto type:GCFSValue_ValueType_OneOfCase_ArrayValue];
 }
 
 - (void)testEncodesEmptyMap {
-  FSTFieldValue *model = [FSTObjectValue objectValue];
+  FieldValue model = ObjectValue::Empty();
 
   GCFSValue *proto = [GCFSValue message];
   proto.mapValue = [GCFSMapValue message];
@@ -318,7 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNestedObjects {
-  FSTFieldValue *model = FSTTestFieldValue(@{
+  FieldValue model = FSTTestFieldValue(@{
     @"b" : @YES,
     @"d" : @(DBL_MAX),
     @"i" : @1,
@@ -332,11 +325,11 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   GCFSValue *innerObject = [GCFSValue message];
-  innerObject.mapValue.fields[@"b"] = [self.serializer encodedBool:NO];
+  innerObject.mapValue.fields[@"b"] = [self.serializer encodedBool:false];
 
   GCFSValue *middleArray = [GCFSValue message];
   [middleArray.arrayValue.valuesArray addObjectsFromArray:@[
-    [self.serializer encodedInteger:2], [self.serializer encodedString:@"bar"], innerObject
+    [self.serializer encodedInteger:2], [self.serializer encodedString:"bar"], innerObject
   ]];
 
   innerObject = [GCFSValue message];
@@ -350,11 +343,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   GCFSValue *proto = [GCFSValue message];
   [proto.mapValue.fields addEntriesFromDictionary:@{
-    @"b" : [self.serializer encodedBool:YES],
+    @"b" : [self.serializer encodedBool:true],
     @"d" : [self.serializer encodedDouble:DBL_MAX],
     @"i" : [self.serializer encodedInteger:1],
     @"n" : [self.serializer encodedNull],
-    @"s" : [self.serializer encodedString:@"foo"],
+    @"s" : [self.serializer encodedString:"foo"],
     @"a" : middleArray,
     @"o" : middleObject
   }];
@@ -362,15 +355,15 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForModel:model proto:proto type:GCFSValue_ValueType_OneOfCase_MapValue];
 }
 
-- (void)assertRoundTripForModel:(FSTFieldValue *)model
+- (void)assertRoundTripForModel:(const FieldValue &)model
                           proto:(GCFSValue *)value
                            type:(GCFSValue_ValueType_OneOfCase)type {
   GCFSValue *actualProto = [self.serializer encodedFieldValue:model];
   XCTAssertEqual(actualProto.valueTypeOneOfCase, type);
   XCTAssertEqualObjects(actualProto, value);
 
-  FSTFieldValue *actualModel = [self.serializer decodedFieldValue:value];
-  XCTAssertEqualObjects(actualModel, model);
+  FieldValue actualModel = [self.serializer decodedFieldValue:value];
+  XCTAssertEqual(actualModel, model);
 }
 
 - (void)testEncodesSetMutation {
@@ -470,13 +463,15 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion updateVersion = testutil::Version(4000);
   GCFSWriteResult *proto = [GCFSWriteResult message];
   proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
-  [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
+  [proto.transformResultsArray addObject:[self.serializer encodedString:"result"]];
 
   FSTMutationResult *result = [self.serializer decodedMutationResult:proto
                                                        commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, updateVersion);
-  XCTAssertEqualObjects(result.transformResults, @[ FieldValue::FromString("result").Wrap() ]);
+  XCTAssertTrue(result.transformResults.has_value());
+
+  XCTAssertEqual(*result.transformResults, Array("result").array_value());
 }
 
 - (void)testDecodesDeleteMutationResult {
@@ -487,7 +482,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, commitVersion);
-  XCTAssertEqual(result.transformResults.count, 0);
+  XCTAssertFalse(result.transformResults.has_value());
 }
 
 - (void)testRoundTripSpecialFieldNames {
@@ -845,7 +840,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsDocumentChangeWithTargetIds {
   DocumentWatchChange expected {
     {1, 2}, {}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
   };
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
@@ -863,7 +858,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
   DocumentWatchChange expected {
     {2}, {1}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
   };
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];

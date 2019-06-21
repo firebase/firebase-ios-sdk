@@ -49,6 +49,7 @@ using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::DelayedConstructor;
@@ -103,10 +104,10 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> otherAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
   FSTDocument *doc2prime = FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"},
-                                      FSTDocumentStateSynced);
+                                      DocumentState::kSynced);
 
   auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
   auto otherListener = QueryListener::Create(query, Accumulating(&otherAccum));
@@ -174,8 +175,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> accum;
 
   FSTQuery *query = FSTTestQuery("rooms/Eros");
-  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, DocumentState::kSynced);
 
   std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
       AsyncEventListener<ViewSnapshot>::Create(
@@ -212,8 +213,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> fullAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
   auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
   auto fullListener =
@@ -245,11 +246,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateLocalMutations);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
   FSTDocument *doc1Prime =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, DocumentState::kSynced);
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,
@@ -292,14 +293,14 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateLocalMutations);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
   FSTDocument *doc2 =
-      FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateLocalMutations);
+      FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kLocalMutations);
   FSTDocument *doc1Prime =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2Prime =
-      FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, DocumentState::kSynced);
 
   ListenOptions options(
       /*include_query_metadata_changes=*/true,
@@ -338,11 +339,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateLocalMutations);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
   FSTDocument *doc1Prime =
-      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
+      FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, DocumentState::kSynced);
 
   auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
 
@@ -370,8 +371,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,
@@ -409,8 +410,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
+  FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,

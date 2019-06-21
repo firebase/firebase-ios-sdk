@@ -28,18 +28,20 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -124,14 +126,14 @@ using firebase::firestore::model::TargetId;
           withCommittedMutations:(BOOL)committedMutations {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
-  FSTObjectValue *data = [remoteSerializer decodedFields:document.fields];
+  ObjectValue data = [remoteSerializer decodedFields:document.fields];
   DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
-  return [FSTDocument documentWithData:data
-                                   key:key
+  return [FSTDocument documentWithData:std::move(data)
+                                   key:std::move(key)
                                version:version
-                                 state:committedMutations ? FSTDocumentStateCommittedMutations
-                                                          : FSTDocumentStateSynced];
+                                 state:committedMutations ? DocumentState::kCommittedMutations
+                                                          : DocumentState::kSynced];
 }
 
 /** Encodes a NoDocument value to the equivalent proto. */
