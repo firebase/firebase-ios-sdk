@@ -25,7 +25,7 @@ final class UploadMetricsTests: XCTestCase {
     let target_one = Target(name: "Auth_Example_iOS.app", coverage: 0.1)
     let target_two = Target(name: "Core_Example_iOS.app", coverage: 0.2)
     let report = CoverageReport(targets: [target_one, target_two], coverage: 0.15)
-    let metricsUpdate = TableUpdate.createFrom(coverage: report, pullRequest: PULL_REQUEST, currentTime:CURRENT_TIME)
+    let metricsUpdate = TableUpdate.createFrom(coverage: report, pullRequest: PULL_REQUEST, currentTime: CURRENT_TIME)
     XCTAssertEqual(metricsUpdate.table_name, "Coverage1")
     XCTAssertEqual(metricsUpdate.replace_measurements.count, 2)
     XCTAssertEqual(metricsUpdate.replace_measurements[0],

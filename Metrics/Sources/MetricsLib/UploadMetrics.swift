@@ -59,7 +59,7 @@ public struct TableUpdate: Encodable {
   public static func createFrom(coverage: CoverageReport, pullRequest: Int, currentTime: String) -> TableUpdate {
     var metrics = [[String]]()
     for target in coverage.targets {
-      if (TARGETS_TO_COLLECT.contains(target.name)) {
+      if TARGETS_TO_COLLECT.contains(target.name) {
         var row = [String]()
         row.append(target.name.components(separatedBy: "_")[0])
         row.append(String(pullRequest))
