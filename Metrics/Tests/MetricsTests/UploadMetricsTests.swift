@@ -19,6 +19,7 @@ import XCTest
 
 let PULL_REQUEST = 777
 let CURRENT_TIME = "2019-06-21 11:11:11"
+let TABLE_NAME = "IosCodeCoverage"
 
 final class UploadMetricsTests: XCTestCase {
   func testShouldCreateTableUpdateFromCoverageReport() {
@@ -26,19 +27,19 @@ final class UploadMetricsTests: XCTestCase {
     let target_two = Target(name: "Core_Example_iOS.app", coverage: 0.2)
     let report = CoverageReport(targets: [target_one, target_two], coverage: 0.15)
     let metricsUpdate = TableUpdate.createFrom(coverage: report, pullRequest: PULL_REQUEST, currentTime: CURRENT_TIME)
-    XCTAssertEqual(metricsUpdate.table_name, "Coverage1")
+    XCTAssertEqual(metricsUpdate.table_name, TABLE_NAME)
     XCTAssertEqual(metricsUpdate.replace_measurements.count, 2)
     XCTAssertEqual(metricsUpdate.replace_measurements[0],
-                   ["Auth_Example_iOS.app", String(PULL_REQUEST), String(target_one.coverage), CURRENT_TIME])
+                   ["Auth", String(PULL_REQUEST), String(target_one.coverage), CURRENT_TIME])
     XCTAssertEqual(metricsUpdate.replace_measurements[1],
-                   ["Core_Example_iOS.app", String(PULL_REQUEST), String(target_two.coverage), CURRENT_TIME])
+                   ["Core", String(PULL_REQUEST), String(target_two.coverage), CURRENT_TIME])
   }
 
   func testShouldIgnoreUnkownTargets() {
     let target = Target(name: "Unknown_Target", coverage: 0.3)
     let report = CoverageReport(targets: [target], coverage: 0.15)
     let metrics = TableUpdate.createFrom(coverage: report, pullRequest: PULL_REQUEST, currentTime: CURRENT_TIME)
-    XCTAssertEqual(metrics.table_name, "Coverage1")
+    XCTAssertEqual(metrics.table_name, TABLE_NAME)
     XCTAssertEqual(metrics.replace_measurements.count, 0)
   }
 

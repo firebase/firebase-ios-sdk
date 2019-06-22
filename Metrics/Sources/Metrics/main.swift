@@ -26,6 +26,7 @@ let pullRequest = flags.int("p",
                             "pull_request",
                             description: "Required - The number of the pull request that corresponds to this coverage run.")
 
+/// Returns the current UTC time in a string format.
 func currentTime() -> String {
   let formatter = DateFormatter()
   formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"

@@ -16,7 +16,7 @@
 
 import Foundation
 
-/// A mapping of SDKs to an ID that will represent that SDK in the database.
+/// A set of SDK targets for which to collect code coverage.
 let TARGETS_TO_COLLECT: Set = [
   "Auth_Example_iOS.app",
   "Core_Example_iOS.app",
