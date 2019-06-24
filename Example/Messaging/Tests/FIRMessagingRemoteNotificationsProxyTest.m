@@ -26,6 +26,7 @@
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 
@@ -180,18 +181,18 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testSwizzlingNonAppDelegate {
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
-  [[GULAppDelegateSwizzler sharedApplication] setDelegate:(id<GULApplicationDelegate>)invalidAppDelegate];
+  [[GULAppEnvironmentUtil sharedApplication] setDelegate:(id<GULApplicationDelegate>)invalidAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
-  [invalidAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [invalidAppDelegate application:[GULAppEnvironmentUtil sharedApplication]
      didReceiveRemoteNotification:@{}];
 }
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-  [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
+  [[GULAppEnvironmentUtil sharedApplication] setDelegate:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
@@ -199,7 +200,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [incompleteAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [incompleteAppDelegate application:[GULAppEnvironmentUtil sharedApplication]
         didReceiveRemoteNotification:notification];
 #pragma clang diagnostic pop
 
@@ -208,7 +209,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-  [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
+  [[GULAppEnvironmentUtil sharedApplication] setDelegate:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -223,7 +224,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
   FakeAppDelegate *appDelegate = [[FakeAppDelegate alloc] init];
-  [[GULAppDelegateSwizzler sharedApplication] setDelegate:appDelegate];
+  [[GULAppEnvironmentUtil sharedApplication] setDelegate:appDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
@@ -235,7 +236,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [appDelegate application:[GULAppEnvironmentUtil sharedApplication]
         didReceiveRemoteNotification:notification];
 #pragma clang diagnostic pop
 
@@ -248,7 +249,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [appDelegate application:[GULAppEnvironmentUtil sharedApplication]
       didReceiveRemoteNotification:notification
       fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 
@@ -263,7 +264,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   OCMExpect([self.mockMessaging setAPNSToken:deviceToken]);
 
-  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [appDelegate application:[GULAppEnvironmentUtil sharedApplication]
       didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
   XCTAssertEqual(appDelegate.deviceToken, deviceToken);
@@ -272,7 +273,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify application:didFailToRegisterForRemoteNotificationsWithError:
   NSError *error = [NSError errorWithDomain:@"tests" code:-1 userInfo:nil];
 
-  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [appDelegate application:[GULAppEnvironmentUtil sharedApplication]
       didFailToRegisterForRemoteNotificationsWithError:error];
 
   XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);

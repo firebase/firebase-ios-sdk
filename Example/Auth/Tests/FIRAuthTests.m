@@ -29,6 +29,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
@@ -334,7 +335,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
 
   self.fakeApplicationDelegate = [[FIRAuthAppDelegate alloc] init];
-  [[GULAppDelegateSwizzler sharedApplication]
+  [[GULAppEnvironmentUtil sharedApplication]
       setDelegate:(id<UIApplicationDelegate>)self.fakeApplicationDelegate];
 #endif // TARGET_OS_IOS
 
@@ -2317,7 +2318,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     return YES;
   }]]);
 
-  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
 didRegisterForRemoteNotificationsWithDeviceToken:apnsToken];
 
   [self.mockTokenManager verify];
@@ -2328,7 +2329,7 @@ didRegisterForRemoteNotificationsWithDeviceToken:apnsToken];
 
   OCMExpect([self.mockTokenManager cancelWithError:error]);
 
-  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
 didFailToRegisterForRemoteNotificationsWithError:error];
 
   [self.mockTokenManager verify];
@@ -2341,7 +2342,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
                didReceiveRemoteNotification:notification];
 #pragma clang diagnostic pop
 
@@ -2353,7 +2354,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
   OCMExpect([self.mockNotificationManager canHandleNotification:notification]);
 
-  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  [self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
                didReceiveRemoteNotification:notification
                      fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 
@@ -2367,7 +2368,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
     [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
 
-    XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+    XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
                                                     openURL:url
                                                     options:@{}]);
 
@@ -2382,7 +2383,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+  XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppEnvironmentUtil sharedApplication]
                                                   openURL:url
                                                   sourceApplication:@""
                                                annotation:[[NSObject alloc] init]]);

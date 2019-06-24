@@ -188,7 +188,7 @@ withNotification:(NSDictionary *)notification
     return;
   }
 
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  UIApplication *application = [GULAppEnvironmentUtil sharedApplication];
   if (!application) {
     return;
   }

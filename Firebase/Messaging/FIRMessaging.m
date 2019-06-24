@@ -49,6 +49,7 @@
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -444,7 +445,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     });
     return;
   }
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  UIApplication *application = [GULAppEnvironmentUtil sharedApplication];
   if (!application) {
     return;
   }
@@ -687,7 +688,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // We require a token from Instance ID
   NSString *token = self.defaultFcmToken;
   // Only on foreground connections
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  UIApplication *application = [GULAppEnvironmentUtil sharedApplication];
   if (!application) {
     return NO;
   }

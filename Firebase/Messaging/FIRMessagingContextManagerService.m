@@ -21,6 +21,7 @@
 #import "FIRMessagingUtilities.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #define kFIRMessagingContextManagerPrefixKey @"google.c.cm."
 #define kFIRMessagingContextManagerNotificationKeyPrefix @"gcm.notification."
@@ -175,7 +176,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (userInfo.count) {
     notification.userInfo = userInfo;
   }
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  UIApplication *application = [GULAppEnvironmentUtil sharedApplication];
   if (!application) {
     return;
   }
