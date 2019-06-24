@@ -154,7 +154,7 @@ static NSString *const kGULDidReceiveRemoteNotificationWithCompletionSEL =
   if (_isObserving) {
     return;
   }
-  [[GULAppDelegateSwizzler sharedApplication]
+  [[GULAppEnvironmentUtil sharedApplication]
       addObserver:self
        forKeyPath:kGULAppDelegateKeyPath
           options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
@@ -177,8 +177,8 @@ static NSString *const kGULDidReceiveRemoteNotificationWithCompletionSEL =
     if ([oldValue isEqual:gOriginalAppDelegate]) {
       gOriginalAppDelegate = nil;
       // Remove the observer. Parse it to NSObject to avoid warning.
-      [[GULAppDelegateSwizzler sharedApplication] removeObserver:self
-                                                      forKeyPath:kGULAppDelegateKeyPath];
+      [[GULAppEnvironmentUtil sharedApplication] removeObserver:self
+                                                     forKeyPath:kGULAppDelegateKeyPath];
       _isObserving = NO;
     }
   }
@@ -287,7 +287,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
   dispatch_once(&sProxyAppDelegateOnceToken, ^{
     id<GULApplicationDelegate> originalDelegate =
-        [GULAppDelegateSwizzler sharedApplication].delegate;
+        [GULAppEnvironmentUtil sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
   });
 }
@@ -300,7 +300,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   [self proxyOriginalDelegate];
 
   dispatch_once(&sProxyAppDelegateRemoteNotificationOnceToken, ^{
-    id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+    id<GULApplicationDelegate> appDelegate = [GULAppEnvironmentUtil sharedApplication].delegate;
 
     NSMutableDictionary *realImplementationsBySelector =
         [objc_getAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey) mutableCopy];
@@ -314,21 +314,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                              [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN);
     [self reassignAppDelegate];
   });
-}
-
-#pragma mark - Create proxy
-
-+ (GULApplication *)sharedApplication {
-  if ([GULAppEnvironmentUtil isAppExtension]) {
-    return nil;
-  }
-  id sharedApplication = nil;
-  Class uiApplicationClass = NSClassFromString(kGULApplicationClassName);
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
-  }
-  return sharedApplication;
 }
 
 #pragma mark - Override default methods
@@ -548,9 +533,9 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 /// Register KVO only once. Otherwise, the observing method will be called as many times as
 /// being registered.
 + (void)reassignAppDelegate {
-  id<GULApplicationDelegate> delegate = [self sharedApplication].delegate;
-  [self sharedApplication].delegate = nil;
-  [self sharedApplication].delegate = delegate;
+  id<GULApplicationDelegate> delegate = [GULAppEnvironmentUtil sharedApplication].delegate;
+  [GULAppEnvironmentUtil sharedApplication].delegate = nil;
+  [GULAppEnvironmentUtil sharedApplication].delegate = delegate;
   gOriginalAppDelegate = delegate;
   [[GULAppDelegateObserver sharedInstance] observeUIApplication];
 }

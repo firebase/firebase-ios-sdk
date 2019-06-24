@@ -63,4 +63,14 @@
 }
 #endif
 
+- (void)testSharedApplication {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  XCTAssertEqual([GULAppEnvironmentUtil sharedApplication], [UIApplication sharedApplication]);
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
+
+#if TARGET_OS_OSX
+  XCTAssertEqual([GULAppEnvironmentUtil sharedApplication], [NSApplication sharedApplication]);
+#endif  // TARGET_OS_OSX
+}
+
 @end

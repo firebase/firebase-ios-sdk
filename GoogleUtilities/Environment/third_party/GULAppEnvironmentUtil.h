@@ -15,6 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <GoogleUtilities/GULApplication.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface GULAppEnvironmentUtil : NSObject
 
@@ -31,7 +34,7 @@
 + (BOOL)isSimulator;
 
 /// The current device model. Returns an empty string if device model cannot be retrieved.
-+ (NSString *)deviceModel;
++ (nullable NSString *)deviceModel;
 
 /// The current operating system version. Returns an empty string if the system version cannot be
 /// retrieved.
@@ -43,4 +46,13 @@
 /// @return Returns @YES when is run on iOS version greater or equal to 7.0
 + (BOOL)isIOS7OrHigher;
 
+/** Returns the current sharedApplication.
+ *
+ *  @return the current application instance if in an app, or nil if in extension or if it doesn't
+ * exist.
+ */
++ (nullable GULApplication *)sharedApplication;
+
 @end
+
+NS_ASSUME_NONNULL_END

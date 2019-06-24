@@ -259,4 +259,17 @@ static BOOL HasEmbeddedMobileProvision() {
     return NO;
 }
 
++ (nullable GULApplication *)sharedApplication {
+  if ([GULAppEnvironmentUtil isAppExtension]) {
+    return nil;
+  }
+  id sharedApplication = nil;
+  Class uiApplicationClass = NSClassFromString(kGULApplicationClassName);
+  if (uiApplicationClass &&
+      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
+    sharedApplication = [uiApplicationClass sharedApplication];
+  }
+  return sharedApplication;
+}
+
 @end
