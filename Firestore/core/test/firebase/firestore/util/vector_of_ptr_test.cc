@@ -1,0 +1,77 @@
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
+
+#include "gtest/gtest.h"
+
+namespace firebase {
+namespace firestore {
+namespace util {
+
+TEST(VectorOfPtrTest, DefaultConstructor) {
+  vector_of_ptr<int> values;
+  EXPECT_EQ(0, values.size());
+}
+
+TEST(VectorOfPtrTest, PushBack) {
+  vector_of_ptr<int> values;
+  values.push_back(std::make_shared<int>(0));
+  values.push_back(std::make_shared<int>(42));
+  EXPECT_EQ(2, values.size());
+}
+
+TEST(VectorOfPtrTest, BracedInitialization) {
+  vector_of_ptr<int> brace_initialized_ints{std::make_shared<int>(0),
+                                            std::make_shared<int>(1)};
+
+  EXPECT_EQ(2, brace_initialized_ints.size());
+
+  brace_initialized_ints = {};
+  EXPECT_EQ(0, brace_initialized_ints.size());
+}
+
+TEST(VectorOfPtrTest, EqualityIsValueEquality) {
+  vector_of_ptr<int> lhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
+  vector_of_ptr<int> rhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
+  vector_of_ptr<int> other = {std::make_shared<int>(1),
+                              std::make_shared<int>(0)};
+  vector_of_ptr<int> contains_nulls = {nullptr, nullptr};
+  vector_of_ptr<int> empty;
+
+  EXPECT_EQ(lhs, lhs);
+  EXPECT_EQ(lhs, rhs);
+  EXPECT_NE(lhs, other);
+  EXPECT_NE(lhs, contains_nulls);
+  EXPECT_NE(lhs, empty);
+}
+
+TEST(VectorOfPtrTest, IterationIsOnPointers) {
+  std::shared_ptr<int> pointers[] = {std::make_shared<int>(-1),
+                                     std::make_shared<int>(42)};
+  vector_of_ptr<int> vector = {pointers[0], pointers[1]};
+
+  size_t pos = 0;
+  for (const std::shared_ptr<int>& element : vector) {
+    ASSERT_EQ(*pointers[pos], *element);
+    ++pos;
+  }
+  ASSERT_EQ(pos, sizeof(pointers) / sizeof(pointers[0]));
+}
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase

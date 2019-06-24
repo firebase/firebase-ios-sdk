@@ -182,6 +182,9 @@
 		535F51F2FF2AB52A6E629091 /* FSTLevelDBMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */; };
 		53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D921C2DDC800EFB9CC /* write.pb.cc */; };
 		54080260D85A6F583E61DA1D /* FSTLocalSerializerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08A2021552A00B64F25 /* FSTLocalSerializerTests.mm */; };
+		540C379D22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 540C379C22C1741000E70F15 /* vector_of_ptr_test.cc */; };
+		540C379E22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 540C379C22C1741000E70F15 /* vector_of_ptr_test.cc */; };
+		540C379F22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 540C379C22C1741000E70F15 /* vector_of_ptr_test.cc */; };
 		54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54131E9620ADE678001DF3FF /* string_format_test.cc */; };
 		544129DA21C2DDC800EFB9CC /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D221C2DDC800EFB9CC /* common.pb.cc */; };
 		544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D421C2DDC800EFB9CC /* firestore.pb.cc */; };
@@ -783,6 +786,7 @@
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		4C73C0CC6F62A90D8573F383 /* string_apple_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_benchmark.mm; sourceTree = "<group>"; };
 		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
+		540C379C22C1741000E70F15 /* vector_of_ptr_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vector_of_ptr_test.cc; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		544129D021C2DDC800EFB9CC /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
 		544129D121C2DDC800EFB9CC /* common.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.pb.h; sourceTree = "<group>"; };
@@ -1316,6 +1320,7 @@
 				79507DF8378D3C42F5B36268 /* string_win_test.cc */,
 				B68B1E002213A764008977EF /* to_string_apple_test.mm */,
 				B696858D2214B53900271095 /* to_string_test.cc */,
+				540C379C22C1741000E70F15 /* vector_of_ptr_test.cc */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3150,6 +3155,7 @@
 				8DA258092DD856D829D973B5 /* transform_operations_test.mm in Sources */,
 				5F19F66D8B01BA2B97579017 /* tree_sorted_map_test.cc in Sources */,
 				16F52ECC6FA8A0587CD779EB /* user_test.cc in Sources */,
+				540C379E22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */,
 				E3C0E5F834A82EEE9F8C4519 /* watch_change_test.mm in Sources */,
 				53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */,
 				59E6941008253D4B0F77C2BA /* writer_test.cc in Sources */,
@@ -3325,6 +3331,7 @@
 				5C7FAF228D0F52CFFE9E41B5 /* transform_operations_test.mm in Sources */,
 				627253FDEC6BB5549FE77F4E /* tree_sorted_map_test.cc in Sources */,
 				596C782EFB68131380F8EEF8 /* user_test.cc in Sources */,
+				540C379F22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */,
 				178FE1E277C63B3E7120BE56 /* watch_change_test.mm in Sources */,
 				A5AB1815C45FFC762981E481 /* write.pb.cc in Sources */,
 				A21819C437C3C80450D7EEEE /* writer_test.cc in Sources */,
@@ -3582,6 +3589,7 @@
 				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
 				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
+				540C379D22C1741000E70F15 /* vector_of_ptr_test.cc in Sources */,
 				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
 				3BA4EEA6153B3833F86B8104 /* writer_test.cc in Sources */,
