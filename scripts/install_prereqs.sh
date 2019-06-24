@@ -127,6 +127,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
+  FirebaseCoreDiagnostics-*-xcodebuild)
+    gem install xcpretty
+    pod_gen FirebaseCoreDiagnostics.podspec
+    ;;
+
   GoogleDataTransport-*-xcodebuild)
     gem install xcpretty
     pod_gen GoogleDataTransport.podspec
