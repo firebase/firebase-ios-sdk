@@ -34,8 +34,13 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
+#if SWIFT_PACKAGE
+#import "GTMSessionFetcher.h"
+#import "GTMSessionFetcherService.h"
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 @implementation FIRStorageReference
 

@@ -16,12 +16,21 @@
 
 #import "Public/FIRStorage.h"
 
+#if SWIFT_PACKAGE
+#import "FIRAuthInterop.h"
+#import "FIRAppInternal.h"
+#import "FIRComponent.h"
+#import "FIRComponentContainer.h"
+#import "FIRDependency.h"
+#import "FIRLibrary.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
