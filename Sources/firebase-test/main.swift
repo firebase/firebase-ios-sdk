@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseCore
+import FirebaseStorage
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
 
@@ -13,3 +14,5 @@ print("Is App extension? Answer: \(GULAppEnvironmentUtil.isAppExtension())")
 print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
 
 print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
+
+print("Storage Version String? Answer: \(StorageVersionString)")

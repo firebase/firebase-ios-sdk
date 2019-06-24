@@ -22,8 +22,13 @@
 #import "FIRStorageTaskSnapshot_Private.h"
 #import "FIRStorageUtils.h"
 
+#if SWIFT_PACKAGE
+#import "GTMSessionFetcher.h"
+#import "GTMSessionFetcherService.h"
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

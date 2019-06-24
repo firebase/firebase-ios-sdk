@@ -23,6 +23,15 @@
 #import "FIRStorage_Private.h"
 #import "Public/FIRStorageReference.h"
 
+#if SWIFT_PACKAGE
+#import "FIRAuthInterop.h"
+#import "FIRAppInternal.h"
+#import "FIRComponentContainer.h"
+#import "FIROptions.h"
+
+#import "GTMSessionFetcher.h"
+#import "GTMSessionFetcherLogging.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -30,6 +39,7 @@
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
+#endif
 
 static NSMutableDictionary<
     NSString * /* app name */,

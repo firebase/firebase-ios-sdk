@@ -20,7 +20,11 @@
 #import "FIRStorageTask_Private.h"
 #import "FIRStorageUploadTask_Private.h"
 
+#if SWIFT_PACKAGE
+#import "GTMSessionUploadFetcher.h"
+#else
 #import <GTMSessionFetcher/GTMSessionUploadFetcher.h>
+#endif
 
 @implementation FIRStorageUploadTask
 
