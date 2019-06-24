@@ -23,17 +23,20 @@ let package = Package(
       name: "FirebaseCore",
       type: .static, // TODO - investigate why this still builds a dynamic library
       targets: ["FirebaseCore"]),
+    .library(
+      name: "FirebaseStorage",
+      type: .static, // TODO - investigate why this still builds a dynamic library
+      targets: ["FirebaseStorage"]),
   ],
   dependencies: [
-    // Dependencies declare other external packages that this package depends on.
-    // .package(url: /* package url */, from: "1.0.0"),
+    .package(url: "https://github.com/paulb777/gtm-session-fetcher.git", .branch("spm2")),
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
+      dependencies: ["FirebaseCore", "FirebaseStorage", "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
     .target(
       name: "GoogleUtilities_Environment",
@@ -45,6 +48,14 @@ let package = Package(
       dependencies: ["GoogleUtilities_Environment"],
       path: "GoogleUtilities/Logger",
       publicHeadersPath: "Public"),
+// Interop fails with
+// warning: Source files for target FirebaseAuthInterop should be located under ..firebase-ios-sdk/Interop/Auth
+//'Firebase' : error: target 'FirebaseAuthInterop' referenced in product 'FirebaseAuthInterop' could not be found
+//    .target(
+//      name: "FirebaseAuthInterop",
+//      path: "Interop/Auth",
+//      sources: ["Interop/Auth/Public/FIRAuthInterop.h"],
+//      publicHeadersPath: "Public"),
     .target(
       name: "FirebaseCore",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
@@ -57,6 +68,22 @@ let package = Package(
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
 // TODO - Add support for cflags cSetting so that we can set the -fno-autolink option
+      ]),
+    .target(
+      name: "FirebaseStorage",
+      dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
+      path: "Firebase/Storage",
+      publicHeadersPath: "Public",
+      cSettings: [
+         // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("$(SRCROOT)/Firebase $(SRCROOT)/Interop/Auth/Public $(SRCROOT)/Firebase/Core/Private"),
+        .define("FIRStorage_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
+//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+      ],
+      linkerSettings: [
+        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
+        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
       ])
   ],
   cLanguageStandard: .c99

@@ -20,7 +20,11 @@
 
 #import "FirebaseStorage.h"
 
+#if SWIFT_PACKAGE
+#import "FIRAuthInterop.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
+#endif
 
 @implementation FIRStorageTokenAuthorizer {
  @private
