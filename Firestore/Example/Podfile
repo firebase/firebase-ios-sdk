@@ -48,7 +48,7 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
-  pod 'FirebaseCoreDiagnostics, :path => '../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../'
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'
   pod 'GoogleDataTransportCCTSupport', :path => '../../'
