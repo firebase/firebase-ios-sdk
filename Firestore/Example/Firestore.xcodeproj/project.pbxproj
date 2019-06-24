@@ -4723,7 +4723,6 @@
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
