@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "GTMSessionFetcherService.h"
+#else
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 @protocol FIRAuthInterop;
 
