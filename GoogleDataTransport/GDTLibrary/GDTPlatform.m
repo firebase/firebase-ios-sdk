@@ -86,7 +86,10 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 
 - (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
 #if TARGET_OS_IOS || TARGET_OS_TVOS
-  return [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:handler];
+  if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
+    return [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:handler];
+  }
+  return GDTBackgroundIdentifierInvalid;
 #else
   return GDTBackgroundIdentifierInvalid;
 #endif  // TARGET_OS_IOS || TARGET_OS_TVOS
@@ -94,7 +97,9 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
 #if TARGET_OS_IOS || TARGET_OS_TVOS
-  [[UIApplication sharedApplication] endBackgroundTask:bgID];
+  if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
+    [[UIApplication sharedApplication] endBackgroundTask:bgID];
+  }
 #endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 }
 
