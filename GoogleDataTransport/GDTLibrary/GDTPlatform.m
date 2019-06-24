@@ -85,22 +85,35 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 
 - (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
-#if TARGET_OS_IOS || TARGET_OS_TVOS
-  if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
-    return [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:handler];
-  }
-  return GDTBackgroundIdentifierInvalid;
-#else
-  return GDTBackgroundIdentifierInvalid;
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+  return [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
 }
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
-#if TARGET_OS_IOS || TARGET_OS_TVOS
-  if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
-    [[UIApplication sharedApplication] endBackgroundTask:bgID];
+  [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
+}
+
+#pragma mark - App environment helpers
+
+- (BOOL)isAppExtension {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
+  return appExtension;
+#elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
+- (UIApplication *)sharedApplicationForBackgroundTask {
+  if ([self isAppExtension]) {
+    return nil;
   }
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+  id sharedApplication = nil;
+  Class uiApplicationClass = NSClassFromString(@"UIApplication");
+  if (uiApplicationClass &&
+      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
+    sharedApplication = [uiApplicationClass sharedApplication];
+  }
+  return sharedApplication;
 }
 
 #pragma mark - UIApplicationDelegate
