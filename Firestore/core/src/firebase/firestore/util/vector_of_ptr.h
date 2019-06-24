@@ -41,11 +41,11 @@ namespace util {
  * for some reason, usually this is to enable polymorphism or because copying
  * values of T is expensive.
  */
-template <typename T, typename P = std::shared_ptr<T>>
+template <typename P>
 class vector_of_ptr {
  public:
-  using value_type = T;
   using pointer_type = P;
+  using value_type = decltype(*std::declval<P>());
   using vector_type = std::vector<P>;
 
   vector_of_ptr() = default;

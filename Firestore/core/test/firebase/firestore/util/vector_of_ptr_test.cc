@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
 
+#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -23,20 +24,20 @@ namespace firestore {
 namespace util {
 
 TEST(VectorOfPtrTest, DefaultConstructor) {
-  vector_of_ptr<int> values;
+  vector_of_ptr<std::shared_ptr<int>> values;
   EXPECT_EQ(0, values.size());
 }
 
 TEST(VectorOfPtrTest, PushBack) {
-  vector_of_ptr<int> values;
+  vector_of_ptr<std::shared_ptr<int>> values;
   values.push_back(std::make_shared<int>(0));
   values.push_back(std::make_shared<int>(42));
   EXPECT_EQ(2, values.size());
 }
 
 TEST(VectorOfPtrTest, BracedInitialization) {
-  vector_of_ptr<int> brace_initialized_ints{std::make_shared<int>(0),
-                                            std::make_shared<int>(1)};
+  vector_of_ptr<std::shared_ptr<int>> brace_initialized_ints{
+      std::make_shared<int>(0), std::make_shared<int>(1)};
 
   EXPECT_EQ(2, brace_initialized_ints.size());
 
@@ -44,13 +45,23 @@ TEST(VectorOfPtrTest, BracedInitialization) {
   EXPECT_EQ(0, brace_initialized_ints.size());
 }
 
+TEST(VectorOfPtrTest, WorksWithUniquePtr) {
+  vector_of_ptr<std::unique_ptr<int>> values;
+  values.push_back(absl::make_unique<int>(42));
+
+  auto pointer = absl::make_unique<int>(0);
+  values.push_back(std::move(pointer));
+
+  ASSERT_EQ(2, values.size());
+}
+
 TEST(VectorOfPtrTest, EqualityIsValueEquality) {
-  vector_of_ptr<int> lhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
-  vector_of_ptr<int> rhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
-  vector_of_ptr<int> other = {std::make_shared<int>(1),
-                              std::make_shared<int>(0)};
-  vector_of_ptr<int> contains_nulls = {nullptr, nullptr};
-  vector_of_ptr<int> empty;
+  using int_ptr_vector = vector_of_ptr<std::shared_ptr<int>>;
+  int_ptr_vector lhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
+  int_ptr_vector rhs = {std::make_shared<int>(0), std::make_shared<int>(1)};
+  int_ptr_vector other = {std::make_shared<int>(1), std::make_shared<int>(0)};
+  int_ptr_vector contains_nulls = {nullptr, nullptr};
+  int_ptr_vector empty;
 
   EXPECT_EQ(lhs, lhs);
   EXPECT_EQ(lhs, rhs);
@@ -62,7 +73,7 @@ TEST(VectorOfPtrTest, EqualityIsValueEquality) {
 TEST(VectorOfPtrTest, IterationIsOnPointers) {
   std::shared_ptr<int> pointers[] = {std::make_shared<int>(-1),
                                      std::make_shared<int>(42)};
-  vector_of_ptr<int> vector = {pointers[0], pointers[1]};
+  vector_of_ptr<std::shared_ptr<int>> vector = {pointers[0], pointers[1]};
 
   size_t pos = 0;
   for (const std::shared_ptr<int>& element : vector) {
