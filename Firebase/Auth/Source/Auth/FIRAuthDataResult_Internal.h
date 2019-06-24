@@ -22,12 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthDataResult () <NSSecureCoding>
 
-/** @property credential
-    @brief The updated OAuth credential after the sign-in, link and reauthenticate action.
-    @detail This property is for OAuth sign in only.
- */
-@property(nonatomic, readonly, nullable) FIROAuthCredential *credential;
-
 /** @fn initWithUser:additionalUserInfo:
     @brief Designated initializer.
     @param user The signed in user reference.

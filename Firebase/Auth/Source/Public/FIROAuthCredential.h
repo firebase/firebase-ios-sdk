@@ -36,6 +36,13 @@ NS_SWIFT_NAME(OAuthCredential)
  */
 @property(nonatomic, readonly, nullable) NSString *accessToken;
 
+/** @property secret
+    @brief The secret associated with this credential. This will be nil for OAuth 2.0 providers.
+    @detail OAuthCredential already exposes a providerId getter. This will help the developer
+        determine whether an access token/secret pair is needed.
+ */
+@property(nonatomic, readonly, nullable) NSString *secret;
+
 /** @fn init
     @brief This class is not supposed to be instantiated directly.
  */
