@@ -79,7 +79,8 @@ static NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
 static NSString *const kFIRServiceStorage = @"Storage";
 static NSString *const kGGLServiceAnalytics = @"Analytics";
 static NSString *const kGGLServiceSignIn = @"SignIn";
-static NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"FIRAppDiagnosticsConfigurationTypeKey";
+static NSString *const kFIRAppDiagnosticsConfigurationTypeKey =
+    @"FIRAppDiagnosticsConfigurationTypeKey";
 static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
 static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
 static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";

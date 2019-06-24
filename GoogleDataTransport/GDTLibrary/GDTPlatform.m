@@ -85,7 +85,8 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 
 - (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
-  return [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
+  return
+      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
 }
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
