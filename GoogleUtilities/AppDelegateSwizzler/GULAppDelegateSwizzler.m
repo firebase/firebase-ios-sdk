@@ -316,6 +316,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   });
 }
 
++ (GULApplication *)sharedApplication {
+  return [GULAppEnvironmentUtil sharedApplication];
+}
+
 #pragma mark - Override default methods
 
 /** Creates a new subclass of the class of the given object and sets the isa value of the given

@@ -92,6 +92,14 @@ typedef NSString *const GULAppDelegateInterceptorID;
  */
 + (BOOL)isAppDelegateProxyEnabled;
 
+/** Returns the current sharedApplication.
+ *
+ *  @return the current application instance if in an app, or nil if in extension or if it doesn't
+ * exist.
+ */
++ (nullable GULApplication *)sharedApplication DEPRECATED_MSG_ATTRIBUTE(
+    "Use [GULAppEnvironmentUtil sharedApplication] instead.");
+
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;
 
