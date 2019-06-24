@@ -61,9 +61,28 @@ static NSString *const kFIRServiceMLVisionOnDeviceObjectDetection =
     @"MLVisionOnDeviceObjectDetection";
 static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 
-// Reconcile this with kFIRLoggerInAppMessaging defined in FIRCore+InAppMessaging.m
-// after fiam sdk is released
+static NSString *const kFIRServiceAdMob = @"AdMob";
+static NSString *const kFIRServiceAuth = @"Auth";
+static NSString *const kFIRServiceAuthUI = @"AuthUI";
+static NSString *const kFIRServiceCrash = @"Crash";
+static NSString *const kFIRServiceDatabase = @"Database";
+static NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
+static NSString *const kFIRServiceFirestore = @"Firestore";
+static NSString *const kFIRServiceFunctions = @"Functions";
 static NSString *const kFIRServiceIAM = @"InAppMessaging";
+static NSString *const kFIRServiceInstanceID = @"InstanceID";
+static NSString *const kFIRServiceInvites = @"Invites";
+static NSString *const kFIRServiceMessaging = @"Messaging";
+static NSString *const kFIRServiceMeasurement = @"Measurement";
+static NSString *const kFIRServicePerformance = @"Performance";
+static NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
+static NSString *const kFIRServiceStorage = @"Storage";
+static NSString *const kGGLServiceAnalytics = @"Analytics";
+static NSString *const kGGLServiceSignIn = @"SignIn";
+static NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"FIRAppDiagnosticsConfigurationTypeKey";
+static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
+static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
+static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
 
 /**
  * The file name to the recent heartbeat date.

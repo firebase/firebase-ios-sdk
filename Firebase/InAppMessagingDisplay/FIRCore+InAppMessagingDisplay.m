@@ -19,4 +19,3 @@
 
 NSString *const kFIRServiceInAppMessagingDisplay = @"InAppMessagingDisplay";
 NSString *const kFirebaseInAppMessagingDisplayErrorDomain = @"com.firebase.inappmessaging.display";
-FIRLoggerService kFIRLoggerInAppMessagingDisplay = @"[Firebase/InAppMessagingDisplay]";
