@@ -26,16 +26,25 @@
 
 static NSString *const kFIRInstallationsIIDKeyPairPublicTagPrefix = @"com.google.iid.keypair.public-";
 static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix = @"com.google.iid.keypair.private-";
+static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
 @implementation FIRInstallationsIIDStore
 
 - (FBLPromise<NSString *> *)existingIID {
-  return [FBLPromise resolvedWith:@""];
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable{
+    NSData *IIDPublicKeyData = [self IIDPublicKeyData];
+    return [self IIDWithPublicKeyData:IIDPublicKeyData];
+  }]
+  .validate(^BOOL(NSString * _Nullable IID) {
+    return IID.length > 0;
+  });
 }
 
 - (FBLPromise<NSNull *> *)deleteExistingIID {
   return [FBLPromise resolvedWith:[NSNull null]];
 }
+
+#pragma mark - IID decoding
 
 - (NSString *)IIDWithPublicKeyData:(NSData *)publicKeyData {
   NSData *publicKeySHA1 = [self sha1WithData:publicKeyData];
@@ -67,69 +76,55 @@ static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix = @"com.googl
   NSString *string = [data base64EncodedStringWithOptions:0];
   string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
   string = [string stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
+  string = [string stringByReplacingOccurrencesOfString:@"=" withString:@""];
   return string;
 }
 
-
-//- (NSString *)webSafeBase64WithData:(NSData *)inData {
-//  int shift_ = 0;
-//  BOOL doPad_ = NO;
-//  int padLen_ = 0;
-//  unsigned int mask_ = 0;
-//  char *charMap_;
-//
-//  NSUInteger inLen = [inData length];
-//  if (inLen <= 0) {
-//    // Empty input
-//    return @"";
-//  }
-//  unsigned char *inBuf = (unsigned char *)[inData bytes];
-//  NSUInteger inPos = 0;
-//
-//  NSUInteger outLen = (inLen * 8 + shift_ - 1) / shift_;
-//  if (doPad_) {
-//    outLen = ((outLen + padLen_ - 1) / padLen_) * padLen_;
-//  }
-//  NSMutableData *outData = [NSMutableData dataWithLength:outLen];
-//  unsigned char *outBuf = (unsigned char *)[outData mutableBytes];
-//  NSUInteger outPos = 0;
-//
-//  unsigned int buffer = inBuf[inPos++];
-//  int bitsLeft = 8;
-//  while (bitsLeft > 0 || inPos < inLen) {
-//    if (bitsLeft < shift_) {
-//      if (inPos < inLen) {
-//        buffer <<= 8;
-//        buffer |= (inBuf[inPos++] & 0xff);
-//        bitsLeft += 8;
-//      } else {
-//        int pad = shift_ - bitsLeft;
-//        buffer <<= pad;
-//        bitsLeft += pad;
-//      }
-//    }
-//    unsigned int idx = (buffer >> (bitsLeft - shift_)) & mask_;
-//    bitsLeft -= shift_;
-//    outBuf[outPos++] = charMap_[idx];
-//  }
-//
-//  if (doPad_) {
-//    while (outPos < outLen) outBuf[outPos++] = paddingChar_;
-//  }
-//
-//  if (outPos != outLen) {
-//    FIRInstanceIDLoggerError(kFIRInstanceIDStringEncodingBufferUnderflow,
-//                             @"Underflowed output buffer");
-//    return nil;
-//  }
-//  [outData setLength:outPos];
-//
-//  return [[NSString alloc] initWithData:outData encoding:NSASCIIStringEncoding];
-//}
-
 #pragma mark - Keychain
 
+- (NSData *)IIDPublicKeyData {
+  NSDictionary *query = [self keyPairQueryWithTag:[self keychainPublicKeyTag]];
 
+  CFTypeRef keyRef = NULL;
+  OSStatus status =
+  SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&keyRef);
+
+  if (status != noErr) {
+    if (keyRef) {
+      CFRelease(keyRef);
+    }
+    return nil;
+  }
+
+  return (__bridge NSData *)keyRef;
+}
+
+- (NSDictionary *)keyPairQueryWithTag:(NSString *)tag {
+  NSMutableDictionary *queryKey = [NSMutableDictionary dictionary];
+  NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+
+  queryKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+  queryKey[(__bridge id)kSecAttrApplicationTag] = tagData;
+  queryKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
+  queryKey[(__bridge id)kSecReturnData] = @(YES);
+  return queryKey;
+}
+
+- (NSString *)keychainPublicKeyTag {
+  NSString *mainAppBundleID = [[NSBundle mainBundle] bundleIdentifier];
+  if (mainAppBundleID.length == 0) {
+    return nil;
+  }
+  return [NSString stringWithFormat:@"%@%@", kFIRInstallationsIIDKeyPairPublicTagPrefix, mainAppBundleID];
+}
+
+- (NSString *)mainbundleIdentifier {
+  NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+  if (!bundleIdentifier.length) {
+    return nil;
+  }
+  return bundleIdentifier;
+}
 
 #pragma mark - Plist
 
@@ -139,7 +134,8 @@ static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix = @"com.googl
     return NO;
   }
 
-  return [[NSDictionary alloc] initWithContentsOfFile:path];
+  NSDictionary *plistContent = [[NSDictionary alloc] initWithContentsOfFile:path];
+  return plistContent[kFIRInstallationsIIDCreationTimePlistKey] != nil;
 }
 
 - (NSString *)plistPath {
