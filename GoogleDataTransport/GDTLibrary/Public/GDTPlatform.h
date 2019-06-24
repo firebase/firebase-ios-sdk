@@ -17,11 +17,11 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,14 +47,14 @@ typedef NSUInteger GDTBackgroundIdentifier NS_TYPED_ENUM;
 /** A background task's invalid sentinel value. */
 FOUNDATION_EXPORT const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid;
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 /** A protocol that wraps UIApplicationDelegate or NSObject protocol, depending on the platform. */
 @protocol GDTApplicationDelegate <UIApplicationDelegate>
 #elif TARGET_OS_OSX
 @protocol GDTApplicationDelegate <NSApplicationDelegate>
 #else
 @protocol GDTApplicationDelegate <NSObject>
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 @end
 
