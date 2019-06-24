@@ -117,8 +117,9 @@
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTStoredEvent *dailyEvent = [_generator generateStoredEvent:GDTEventQoSDaily];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSWifiOnly]];
-  [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQoSTelemetry]];
+  GDTStoredEvent *telemetryEvent = [_generator generateStoredEvent:GDTEventQoSTelemetry];
   [prioritizer prioritizeEvent:dailyEvent];
+  [prioritizer prioritizeEvent:telemetryEvent];
   GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
   // If no previous daily upload time existed, the daily event will be included.
   XCTAssertTrue([package.events containsObject:dailyEvent]);
@@ -133,6 +134,7 @@
   [prioritizer.timeOfLastDailyUpload setValue:@(previousTime) forKeyPath:@"timeMillis"];
   package = [prioritizer uploadPackageWithConditions:GDTUploadConditionMobileData];
   XCTAssertTrue([package.events containsObject:dailyEvent]);
+  XCTAssertTrue([package.events containsObject:telemetryEvent]);
 }
 
 @end
