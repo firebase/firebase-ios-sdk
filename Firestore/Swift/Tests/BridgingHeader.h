@@ -17,6 +17,6 @@
 #ifndef FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_
 #define FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_
 
-#import "Firestore/Example/Tests/Util/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
 #endif /* FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_ */

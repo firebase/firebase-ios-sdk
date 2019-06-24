@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <Foundation/Foundation.h>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
-#include "absl/strings/string_view.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
 @class FIRFirestore;
 @class FIRQuerySnapshot;
+
+/** Allow tests to just use an int literal for versions. */
+typedef int64_t FSTTestSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,17 +34,17 @@ extern "C" {
 FIRFirestore *FSTTestFirestore();
 
 /** A convenience method for creating a doc snapshot for tests. */
-FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache);
 
 /** A convenience method for creating a collection reference from a path string. */
-FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path);
+FIRCollectionReference *FSTTestCollectionRef(const char *path);
 
 /** A convenience method for creating a document reference from a path string. */
-FIRDocumentReference *FSTTestDocRef(const absl::string_view path);
+FIRDocumentReference *FSTTestDocRef(const char *path);
 
 /**
  * A convenience method for creating a particular query snapshot for tests.
@@ -63,11 +61,11 @@ FIRDocumentReference *FSTTestDocRef(const absl::string_view path);
  * @returns A query snapshot that consists of both sets of documents.
  */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    const absl::string_view path,
+    const char *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
-    bool hasPendingWrites,
-    bool fromCache);
+    BOOL hasPendingWrites,
+    BOOL fromCache);
 
 #if __cplusplus
 }  // extern "C"
