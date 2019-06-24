@@ -51,6 +51,30 @@
 
   XCTAssertNil(IIDPromise.error);
   XCTAssertEqualObjects(IIDPromise.value, existingIID);
+  NSLog(@"Existing IID: %@", IIDPromise.value);
+}
+
+- (void)testDeleteExistingIID {
+  // Generate IID.
+  NSString *existingIID1 = [self readExistingIID];
+
+  // Delete IID.
+  FBLPromise<NSNull *> *deletePromise = [self.IIDStore deleteExistingIID];
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNil(deletePromise.error);
+  XCTAssertTrue(deletePromise.isFulfilled);
+
+  // Check there is no IID.
+  FBLPromise<NSString *> *IIDPromise = [self.IIDStore existingIID];
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  XCTAssertNotNil(IIDPromise.error);
+  XCTAssertTrue(IIDPromise.isRejected);
+
+  // Generate a new IID and check it is different.
+  NSString *existingIID2 = [self readExistingIID];
+  XCTAssertNotEqualObjects(existingIID1, existingIID2);
 }
 
 #pragma mark - Helpers

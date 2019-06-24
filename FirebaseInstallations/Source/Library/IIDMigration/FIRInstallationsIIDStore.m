@@ -31,7 +31,11 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 @implementation FIRInstallationsIIDStore
 
 - (FBLPromise<NSString *> *)existingIID {
-  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable{
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable {
+    if (![self hasPlistIIDFlag]) {
+      return nil;
+    }
+
     NSData *IIDPublicKeyData = [self IIDPublicKeyData];
     return [self IIDWithPublicKeyData:IIDPublicKeyData];
   }]
@@ -41,7 +45,10 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (FBLPromise<NSNull *> *)deleteExistingIID {
-  return [FBLPromise resolvedWith:[NSNull null]];
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable{
+    NSError *error;
+    return [self deleteIIDFlagFromPlist:&error] ? [NSNull null] : error;
+  }];
 }
 
 #pragma mark - IID decoding
@@ -128,6 +135,22 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
 #pragma mark - Plist
 
+- (BOOL)deleteIIDFlagFromPlist:(NSError **)outError {
+  NSString *path = [self plistPath];
+  if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+    return YES;
+  }
+
+  NSMutableDictionary *plistContent = [[NSMutableDictionary alloc] initWithContentsOfFile:path];
+  plistContent[kFIRInstallationsIIDCreationTimePlistKey] = nil;
+
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    return [plistContent writeToURL:[NSURL fileURLWithPath:path] error:outError];
+  }
+
+  return [plistContent writeToFile:path atomically:YES];
+}
+
 - (BOOL)hasPlistIIDFlag {
   NSString *path = [self plistPath];
   if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -139,7 +162,7 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (NSString *)plistPath {
-  NSString *plistNameWithExtension = @"g-checkin.plist";
+  NSString *plistNameWithExtension = @"com.google.iid-keypair.plist";
   NSString *_subDirectoryName = @"Google/FirebaseInstanceID";
 
   NSArray *directoryPaths =
