@@ -550,6 +550,76 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 }
 
 /**
+ *  Tests that the callback handler will be invoked when the default token is fetched
+ *  despite the token being unchanged.
+ */
+- (void)testDefaultToken_callbackInvokedForUnchangedToken {
+  XCTestExpectation *defaultTokenExpectation =
+      [self expectationWithDescription:@"Token fetch was successful."];
+
+  __block FIRInstanceIDTokenInfo *cachedTokenInfo = nil;
+
+  [self stubKeyPairStoreToReturnValidKeypair];
+
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  // Mock Token manager to always succeed the token fetch, and return
+  // a particular cached value.
+
+  // Return a dynamic cachedToken variable whenever the cached is checked.
+  // This uses an invocation-based mock because the |cachedToken| pointer
+  // will change. Normal stubbing will always return the initial pointer,
+  // which in this case is 0x0 (nil).
+  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+    [invocation setReturnValue:&cachedTokenInfo];
+  }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
+
+  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+    self.newTokenCompletion(kToken, nil);
+  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+                                 scope:kFIRInstanceIDDefaultTokenScope
+                               keyPair:[OCMArg any]
+                               options:[OCMArg any]
+                               handler:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                 self.newTokenCompletion = obj;
+                                 return obj != nil;
+                               }]];
+
+  __block NSInteger notificationPostCount = 0;
+  __block NSString *notificationToken = nil;
+
+  // Fetch token once to store token state
+  NSString *notificationName = kFIRInstanceIDTokenRefreshNotification;
+  self.tokenRefreshNotificationObserver = [[NSNotificationCenter defaultCenter]
+      addObserverForName:notificationName
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull note) {
+                // Should have saved token to cache
+                cachedTokenInfo = sTokenInfo;
+
+                notificationPostCount++;
+                notificationToken = [[self.instanceID token] copy];
+                [defaultTokenExpectation fulfill];
+              }];
+  XCTAssertNil([self.mockInstanceID token]);
+  [self waitForExpectationsWithTimeout:10.0 handler:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
+
+  XCTAssertEqualObjects(notificationToken, kToken);
+
+  // Fetch default handler again without any token changes
+  XCTestExpectation *tokenCallback = [self expectationWithDescription:@"Callback was invoked."];
+
+  [self.mockInstanceID defaultTokenWithHandler:^(NSString *token, NSError *error) {
+    notificationToken = token;
+    [tokenCallback fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:10.0 handler:nil];
+  XCTAssertEqualObjects(notificationToken, kToken);
+}
+
+/**
  *  Test that when we fetch a new default token and cache it successfully we post a
  *  tokenRefresh notification which allows to fetch the cached token.
  */

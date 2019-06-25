@@ -36,7 +36,7 @@ extension Firestore {
     ///            API can work with.
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       // DocumentReference and FieldValue cannot be encoded directly.
-      guard T.self != DocumentReference.self && T.self != FieldValue.self else {
+      guard T.self != DocumentReference.self, T.self != FieldValue.self else {
         throw FirestoreEncodingError.encodingIsNotSupported
       }
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
