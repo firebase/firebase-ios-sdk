@@ -28,8 +28,8 @@ extension WriteBatch {
   ///   - value: a instance of `Encoded` to be encoded to a document.
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
-  func setData<T: Encodable>(from value: T,
-                             forDocument doc: DocumentReference) throws -> WriteBatch {
+  public func setData<T: Encodable>(from value: T,
+                                    forDocument doc: DocumentReference) throws -> WriteBatch {
     return try setData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
   }
 
@@ -44,9 +44,9 @@ extension WriteBatch {
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
-  func setData<T: Encodable>(from value: T,
-                             encoder: Firestore.Encoder,
-                             forDocument doc: DocumentReference) throws -> WriteBatch {
+  public func setData<T: Encodable>(from value: T,
+                                    encoder: Firestore.Encoder,
+                                    forDocument doc: DocumentReference) throws -> WriteBatch {
     setData(try encoder.encode(value), forDocument: doc)
     return self
   }

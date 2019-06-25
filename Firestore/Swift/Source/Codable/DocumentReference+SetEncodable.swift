@@ -30,8 +30,8 @@ extension DocumentReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  func setData<T: Encodable>(from value: T,
-                             completion: ((Error?) -> Void)? = nil) throws {
+  public func setData<T: Encodable>(from value: T,
+                                    completion: ((Error?) -> Void)? = nil) throws {
     try setData(from: value, encoder: Firestore.Encoder(), completion: completion)
   }
 
@@ -48,9 +48,9 @@ extension DocumentReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  func setData<T: Encodable>(from value: T,
-                             encoder: Firestore.Encoder,
-                             completion: ((Error?) -> Void)? = nil) throws {
+  public func setData<T: Encodable>(from value: T,
+                                    encoder: Firestore.Encoder,
+                                    completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), completion: completion)
   }
 }
