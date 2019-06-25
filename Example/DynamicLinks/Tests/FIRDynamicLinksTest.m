@@ -83,6 +83,7 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
 
 @interface FakeShortLinkResolver : FIRDynamicLinkNetworking
 + (instancetype)resolverWithBlock:(FakeShortLinkResolverHandler)resolverHandler;
+- (instancetype)init;  // Re-declared since superclass's `init` is unavailable.
 @end
 
 @implementation FakeShortLinkResolver {
