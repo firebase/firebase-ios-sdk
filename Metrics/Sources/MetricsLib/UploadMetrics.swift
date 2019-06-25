@@ -16,15 +16,15 @@
 
 import Foundation
 
-/// A mapping of SDKs to an ID that will represent that SDK in the database.
-let TARGET_TO_SDK_INDEX = [
-  "Auth_Example_iOS.app": 0.0,
-  "Core_Example_iOS.app": 1.0,
-  "Database_Example_iOS.app": 2.0,
-  "DynamicLinks_Example_iOS.app": 3.0,
-  "InstanceID_Example_iOS.app": 4.0,
-  "Messaging_Example_iOS.app": 5.0,
-  "Storage_Example_iOS.app": 6.0,
+/// A set of SDK targets for which to collect code coverage.
+let TARGETS_TO_COLLECT: Set = [
+  "Auth_Example_iOS.app",
+  "Core_Example_iOS.app",
+  "Database_Example_iOS.app",
+  "DynamicLinks_Example_iOS.app",
+  "InstanceID_Example_iOS.app",
+  "Messaging_Example_iOS.app",
+  "Storage_Example_iOS.app",
   // TODO(Corrob): Add support for Firestore, Functions, and InAppMessaging.
 ]
 
@@ -47,30 +47,30 @@ public struct UploadMetrics: Encodable {
 public struct TableUpdate: Encodable {
   public var table_name: String
   public var column_names: [String]
-  public var replace_measurements: [[Double]]
+  public var replace_measurements: [[String]]
 
-  public init(table_name: String, column_names: [String], replace_measurements: [[Double]]) {
+  public init(table_name: String, column_names: [String], replace_measurements: [[String]]) {
     self.table_name = table_name
     self.column_names = column_names
     self.replace_measurements = replace_measurements
   }
 
   /// Creates a table update for code coverage by parsing a coverage report from XCov.
-  public static func createFrom(coverage: CoverageReport, pullRequest: Int) -> TableUpdate {
-    var metrics = [[Double]]()
+  public static func createFrom(coverage: CoverageReport, pullRequest: Int, currentTime: String) -> TableUpdate {
+    var metrics = [[String]]()
     for target in coverage.targets {
-      let sdkKey = TARGET_TO_SDK_INDEX[target.name]
-      if sdkKey == nil {
-        print("WARNING - target \(target.name) has no mapping to an SDK id. Skipping...")
-      } else {
-        var row = [Double]()
-        row.append(Double(pullRequest))
-        row.append(sdkKey!)
-        row.append(target.coverage)
+      if TARGETS_TO_COLLECT.contains(target.name) {
+        var row = [String]()
+        row.append(target.name.components(separatedBy: "_")[0])
+        row.append(String(pullRequest))
+        row.append(String(target.coverage))
+        row.append(currentTime)
         metrics.append(row)
+      } else {
+        print("WARNING - target \(target.name) is being filtered out from coverage collection. Skipping...")
       }
     }
-    let columnNames = ["pull_request_id", "sdk_id", "coverage_percent"]
-    return TableUpdate(table_name: "Coverage1", column_names: columnNames, replace_measurements: metrics)
+    let columnNames = ["product_name", "pull_request_id", "coverage_total", "collection_time"]
+    return TableUpdate(table_name: "IosCodeCoverage", column_names: columnNames, replace_measurements: metrics)
   }
 }
