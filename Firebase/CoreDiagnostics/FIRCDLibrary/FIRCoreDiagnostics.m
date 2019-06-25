@@ -626,7 +626,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInstalledServices(&icore_config);
     FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
-    [self setHeartbeatFalgIfNeededToConfig:&icore_config];
+    [self setHeartbeatFlagIfNeededToConfig:&icore_config];
 
     // This log object is capable of converting the proto to bytes.
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
@@ -640,7 +640,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 
 #pragma mark - Heartbeat
 
-- (void)setHeartbeatFalgIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
+- (void)setHeartbeatFlagIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   // Check if need to send a heartbeat.
   NSDate *currentDate = [NSDate date];
   NSDate *lastCheckin = [self.heartbeatDateStorage date];
