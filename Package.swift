@@ -11,6 +11,9 @@ let package = Package(
     // other packages.
     // This is a test-only executable for us to try `swift run` and use all imported modules from a
     // Swift target.
+
+    // Comment out to avoid executable product 'storage-quickstart' should have exactly one executable target for 
+    // dependencies.
     .executable(name: "firebase-test", targets: ["firebase-test"]),
     //
     .library(
