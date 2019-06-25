@@ -23,6 +23,7 @@
 #endif
 
 #import <CommonCrypto/CommonDigest.h>
+#import "FIRInstallationsErrorUtil.h"
 
 static NSString *const kFIRInstallationsIIDKeyPairPublicTagPrefix = @"com.google.iid.keypair.public-";
 static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix = @"com.google.iid.keypair.private-";
@@ -47,7 +48,15 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 - (FBLPromise<NSNull *> *)deleteExistingIID {
   return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable{
     NSError *error;
-    return [self deleteIIDFlagFromPlist:&error] ? [NSNull null] : error;
+    if (![self deleteIIDFlagFromPlist:&error]) {
+      return error;
+    }
+
+    if (![self deleteIID:&error]) {
+      return error;
+    }
+
+    return [NSNull null];
   }];
 }
 
@@ -90,7 +99,8 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 #pragma mark - Keychain
 
 - (NSData *)IIDPublicKeyData {
-  NSDictionary *query = [self keyPairQueryWithTag:[self keychainPublicKeyTag]];
+  NSString *tag = [self keychainKeyTagWithPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix];
+  NSDictionary *query = [self keyPairQueryWithTag:tag returnData:YES];
 
   CFTypeRef keyRef = NULL;
   OSStatus status =
@@ -106,23 +116,53 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   return (__bridge NSData *)keyRef;
 }
 
-- (NSDictionary *)keyPairQueryWithTag:(NSString *)tag {
+- (BOOL)deleteIID:(NSError **)outError {
+  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix error:outError]) {
+    return NO;
+  }
+
+  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPrivateTagPrefix error:outError]) {
+    return NO;
+  }
+
+  return YES;
+}
+
+- (BOOL)deleteKeychainKeyWithTagPrefix:(NSString *)tagPrefix error:(NSError **)outError {
+  NSString *keyTag = [self keychainKeyTagWithPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix];
+  NSDictionary *keyQuery = [self keyPairQueryWithTag:keyTag returnData:NO];
+
+  OSStatus status = SecItemDelete((__bridge CFDictionaryRef)keyQuery);
+
+  // When item is not found, it should NOT be considered as an error. The operation should
+  // continue.
+  if (status != noErr && status != errSecItemNotFound) {
+    FIRInstallationsItemSetErrorToPointer([FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete" status:status], outError);
+    return NO;
+  }
+
+  return YES;
+}
+
+- (NSDictionary *)keyPairQueryWithTag:(NSString *)tag returnData:(BOOL)shouldReturnData {
   NSMutableDictionary *queryKey = [NSMutableDictionary dictionary];
   NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
 
   queryKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
   queryKey[(__bridge id)kSecAttrApplicationTag] = tagData;
   queryKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
-  queryKey[(__bridge id)kSecReturnData] = @(YES);
+  if (shouldReturnData) {
+    queryKey[(__bridge id)kSecReturnData] = @(YES);
+  }
   return queryKey;
 }
 
-- (NSString *)keychainPublicKeyTag {
+- (NSString *)keychainKeyTagWithPrefix:(NSString *)prefix {
   NSString *mainAppBundleID = [[NSBundle mainBundle] bundleIdentifier];
   if (mainAppBundleID.length == 0) {
     return nil;
   }
-  return [NSString stringWithFormat:@"%@%@", kFIRInstallationsIIDKeyPairPublicTagPrefix, mainAppBundleID];
+  return [NSString stringWithFormat:@"%@%@", prefix, mainAppBundleID];
 }
 
 - (NSString *)mainbundleIdentifier {

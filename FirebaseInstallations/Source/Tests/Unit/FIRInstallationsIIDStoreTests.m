@@ -73,6 +73,7 @@
   XCTAssertTrue(IIDPromise.isRejected);
 
   // Generate a new IID and check it is different.
+  self.instanceID = [FIRInstanceID instanceIDForTests];
   NSString *existingIID2 = [self readExistingIID];
   XCTAssertNotEqualObjects(existingIID1, existingIID2);
 }
