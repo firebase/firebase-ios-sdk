@@ -45,11 +45,14 @@ template <typename P>
 class vector_of_ptr {
  public:
   using pointer_type = P;
-  using value_type = decltype(*std::declval<P>());
+  using value_type = decltype(*P());
   using vector_type = std::vector<P>;
 
+  using iterator = typename vector_type::iterator;
+  using const_iterator = typename vector_type::const_iterator;
+
   vector_of_ptr() = default;
-  vector_of_ptr(std::initializer_list<P> values) : values_(std::move(values)) {
+  vector_of_ptr(std::initializer_list<P> values) : values_(values) {
   }
 
   size_t size() const {
@@ -60,17 +63,17 @@ class vector_of_ptr {
     values_.push_back(std::move(value));
   }
 
-  typename vector_type::iterator begin() {
+  iterator begin() {
     return values_.begin();
   }
-  typename vector_type::const_iterator begin() const {
+  const_iterator begin() const {
     return values_.begin();
   }
 
-  typename vector_type::iterator end() {
+  iterator end() {
     return values_.end();
   }
-  typename vector_type::const_iterator end() const {
+  const_iterator end() const {
     return values_.end();
   }
 

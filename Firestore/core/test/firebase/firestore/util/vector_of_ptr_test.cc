@@ -63,11 +63,16 @@ TEST(VectorOfPtrTest, EqualityIsValueEquality) {
   int_ptr_vector contains_nulls = {nullptr, nullptr};
   int_ptr_vector empty;
 
+  EXPECT_EQ(empty, int_ptr_vector());
+
   EXPECT_EQ(lhs, lhs);
   EXPECT_EQ(lhs, rhs);
   EXPECT_NE(lhs, other);
   EXPECT_NE(lhs, contains_nulls);
   EXPECT_NE(lhs, empty);
+
+  EXPECT_EQ(contains_nulls, contains_nulls);
+  EXPECT_NE(contains_nulls, lhs);
 }
 
 TEST(VectorOfPtrTest, IterationIsOnPointers) {
