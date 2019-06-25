@@ -20,9 +20,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The class encapsulates a port of a piece FirebaseInstanceID logic required to migrate IID. */
 @interface FIRInstallationsIIDStore : NSObject
 
+/**
+ * Retrives existing IID if present.
+ * @return Returns a promise that is resolved with IID string if IID has been found or rejected with
+ * an error otherwise.
+ */
 - (FBLPromise<NSString *> *)existingIID;
+
+/**
+ * Deletes existing IID if present.
+ * @return Returns a promise that is resolved with `[NSNull null]` if the IID was successfuly
+ * deleted or was not found. The promise is rejected otherwise.
+ */
 - (FBLPromise<NSNull *> *)deleteExistingIID;
 
 @end

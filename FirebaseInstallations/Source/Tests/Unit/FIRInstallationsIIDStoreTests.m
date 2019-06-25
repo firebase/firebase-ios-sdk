@@ -16,15 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBLPromise+Testing.h"
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import "FBLPromise+Testing.h"
 
 #import "FIRInstallationsIIDStore.h"
 
 @interface FIRInstanceID (Tests)
 + (FIRInstanceID *)instanceIDForTests;
 @end
-
 
 @interface FIRInstallationsIIDStoreTests : XCTestCase
 @property(nonatomic) FIRInstanceID *instanceID;
@@ -55,25 +54,27 @@
 }
 
 - (void)testDeleteExistingIID {
-  // Generate IID.
+  // 1. Generate IID.
   NSString *existingIID1 = [self readExistingIID];
 
-  // Delete IID.
+  // 2. Delete IID.
   FBLPromise<NSNull *> *deletePromise = [self.IIDStore deleteExistingIID];
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
 
-  // Check there is no IID.
+  // 3. Check there is no IID.
   FBLPromise<NSString *> *IIDPromise = [self.IIDStore existingIID];
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNotNil(IIDPromise.error);
   XCTAssertTrue(IIDPromise.isRejected);
 
-  // Generate a new IID and check it is different.
+  // 4. Re-instantiate IID instanse to reset its in-memory cache.
   self.instanceID = [FIRInstanceID instanceIDForTests];
+
+  // 5. Generate a new IID and check it is different.
   NSString *existingIID2 = [self readExistingIID];
   XCTAssertNotEqualObjects(existingIID1, existingIID2);
 }
@@ -84,7 +85,7 @@
   __block NSString *existingIID;
 
   XCTestExpectation *IIDExpectation = [self expectationWithDescription:@"IIDExpectation"];
-  [self.instanceID getIDWithHandler:^(NSString * _Nullable identity, NSError * _Nullable error) {
+  [self.instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
     XCTAssertNil(error);
     XCTAssertNotNil(identity);
     existingIID = identity;

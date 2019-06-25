@@ -25,39 +25,43 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "FIRInstallationsErrorUtil.h"
 
-static NSString *const kFIRInstallationsIIDKeyPairPublicTagPrefix = @"com.google.iid.keypair.public-";
-static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix = @"com.google.iid.keypair.private-";
+static NSString *const kFIRInstallationsIIDKeyPairPublicTagPrefix =
+    @"com.google.iid.keypair.public-";
+static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix =
+    @"com.google.iid.keypair.private-";
 static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
 @implementation FIRInstallationsIIDStore
 
 - (FBLPromise<NSString *> *)existingIID {
-  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable {
-    if (![self hasPlistIIDFlag]) {
-      return nil;
-    }
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)
+                          do:^id _Nullable {
+                            if (![self hasPlistIIDFlag]) {
+                              return nil;
+                            }
 
-    NSData *IIDPublicKeyData = [self IIDPublicKeyData];
-    return [self IIDWithPublicKeyData:IIDPublicKeyData];
-  }]
-  .validate(^BOOL(NSString * _Nullable IID) {
-    return IID.length > 0;
-  });
+                            NSData *IIDPublicKeyData = [self IIDPublicKeyData];
+                            return [self IIDWithPublicKeyData:IIDPublicKeyData];
+                          }]
+      .validate(^BOOL(NSString *_Nullable IID) {
+        return IID.length > 0;
+      });
 }
 
 - (FBLPromise<NSNull *> *)deleteExistingIID {
-  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0) do:^id _Nullable{
-    NSError *error;
-    if (![self deleteIIDFlagFromPlist:&error]) {
-      return error;
-    }
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)
+                          do:^id _Nullable {
+                            NSError *error;
+                            if (![self deleteIIDFlagFromPlist:&error]) {
+                              return error;
+                            }
 
-    if (![self deleteIID:&error]) {
-      return error;
-    }
+                            if (![self deleteIID:&error]) {
+                              return error;
+                            }
 
-    return [NSNull null];
-  }];
+                            return [NSNull null];
+                          }];
 }
 
 #pragma mark - IID decoding
@@ -103,8 +107,7 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   NSDictionary *query = [self keyPairQueryWithTag:tag returnData:YES];
 
   CFTypeRef keyRef = NULL;
-  OSStatus status =
-  SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&keyRef);
+  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&keyRef);
 
   if (status != noErr) {
     if (keyRef) {
@@ -117,11 +120,13 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (BOOL)deleteIID:(NSError **)outError {
-  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix error:outError]) {
+  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix
+                                      error:outError]) {
     return NO;
   }
 
-  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPrivateTagPrefix error:outError]) {
+  if (![self deleteKeychainKeyWithTagPrefix:kFIRInstallationsIIDKeyPairPrivateTagPrefix
+                                      error:outError]) {
     return NO;
   }
 
@@ -137,7 +142,9 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   // When item is not found, it should NOT be considered as an error. The operation should
   // continue.
   if (status != noErr && status != errSecItemNotFound) {
-    FIRInstallationsItemSetErrorToPointer([FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete" status:status], outError);
+    FIRInstallationsItemSetErrorToPointer(
+        [FIRInstallationsErrorUtil keychainErrorWithFunction:@"SecItemDelete" status:status],
+        outError);
     return NO;
   }
 
@@ -206,7 +213,7 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   NSString *_subDirectoryName = @"Google/FirebaseInstanceID";
 
   NSArray *directoryPaths =
-  NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
+      NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
   NSArray *components = @[ directoryPaths.lastObject, _subDirectoryName, plistNameWithExtension ];
 
   return [NSString pathWithComponents:components];
