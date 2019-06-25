@@ -16,6 +16,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseInstanceID', :path => '../'
   pod 'FirebaseMessaging', :path => '../'
   pod 'FirebaseStorage', :path => '../'
-  pod 'GoogleUtilities', :path => '../'
   pod 'GoogleDataTransport', :path => '../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../'
+  pod 'GoogleUtilities', :path => '../'
 end

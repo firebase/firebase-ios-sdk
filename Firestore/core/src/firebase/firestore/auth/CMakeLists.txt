@@ -34,6 +34,10 @@ cc_library(
   DEPENDS
     FirebaseAuthInterop
     FirebaseCore
+    FirebaseCoreDiagnostics
+    FirebaseCoreDiagnosticsInterop
+    GoogleDataTransport
+    GoogleDataTransportCCTSupport
     GoogleUtilities
     firebase_firestore_auth_base
   EXCLUDE_FROM_ALL
