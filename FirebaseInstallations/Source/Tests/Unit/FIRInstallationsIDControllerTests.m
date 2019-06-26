@@ -23,6 +23,7 @@
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
+#import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
@@ -30,13 +31,15 @@
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
-                         APIService:(FIRInstallationsAPIService *)APIService;
+                         APIService:(FIRInstallationsAPIService *)APIService
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
 @property(nonatomic) FIRInstallationsIDController *controller;
 @property(nonatomic) id mockInstallationsStore;
 @property(nonatomic) id mockAPIService;
+@property(nonatomic) id mockIIDStore;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 @end
@@ -48,15 +51,19 @@
   self.appName = @"appName";
   self.mockInstallationsStore = OCMClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMClassMock([FIRInstallationsAPIService class]);
+  self.mockIIDStore = OCMClassMock([FIRInstallationsIIDStore class]);
+
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
                                                         appName:self.appName
                                              installationsStore:self.mockInstallationsStore
-                                                     APIService:self.mockAPIService];
+                                                     APIService:self.mockAPIService
+                                                       IIDStore:self.mockIIDStore];
 }
 
 - (void)tearDown {
   self.controller = nil;
+  self.mockIIDStore = nil;
   self.mockAPIService = nil;
   self.mockInstallationsStore = nil;
   self.appID = nil;
@@ -82,24 +89,14 @@
 
 - (void)testGetInstallationItem_WhenNoFIDAndNoIID_ThenFIDIsCreatedAndRegistered {
   // 1. Stub store get installation.
-  NSError *notFoundError =
-      [FIRInstallationsErrorUtil installationItemNotFoundForAppID:self.appID appName:self.appName];
-  FBLPromise *installationNotFoundPromise = [FBLPromise pendingPromise];
-  [installationNotFoundPromise reject:notFoundError];
-
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn(installationNotFoundPromise);
+  [self expectInstallationsStoreGetInstallationNotFound];
 
   // 2. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
 
   OCMExpect([self.mockInstallationsStore
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
-                  XCTAssertEqualObjects([obj class], [FIRInstallationsItem class]);
-                  XCTAssertEqualObjects(obj.appID, self.appID);
-                  XCTAssertEqualObjects(obj.firebaseAppName, self.appName);
-                  XCTAssertEqual(obj.registrationStatus, FIRInstallationStatusUnregistered);
-                  XCTAssertNotNil(obj.firebaseInstallationID);
+                  [self assertValidCreatedInstallation:obj];
 
                   createdInstallation = obj;
                   return YES;
@@ -109,10 +106,7 @@
   // 3. Stub API register installation.
   // 3.1. Verify installation to be registered.
   id registerInstallationValidation = [OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
-    XCTAssertEqualObjects([obj class], [FIRInstallationsItem class]);
-    XCTAssertEqualObjects(obj.appID, self.appID);
-    XCTAssertEqualObjects(obj.firebaseAppName, self.appName);
-    XCTAssertEqual(obj.registrationStatus, FIRInstallationStatusUnregistered);
+    [self assertValidCreatedInstallation:obj];
     XCTAssertEqual(obj.firebaseInstallationID.length, 22);
     return YES;
   }];
@@ -122,17 +116,22 @@
   OCMExpect([self.mockAPIService registerInstallation:registerInstallationValidation])
       .andReturn(registerPromise);
 
-  // 4. Call get installation and check.
+  // 4. Expect IIDStore to be checked for existing IID.
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
+  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+
+  // 5. Call get installation and check.
   FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
       [self.controller getInstallationItem];
 
-  // 4.1. Wait for the stored item to be read and saved.
+  // 5.1. Wait for the stored item to be read and saved.
   OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
 
-  // 4.2. Wait for `registerInstallation` to be called.
+  // 5.2. Wait for `registerInstallation` to be called.
   OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
 
-  // 4.3. Expect for the registered installation to be saved.
+  // 5.3. Expect for the registered installation to be saved.
   FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem
       createRegisteredInstallationItemWithAppID:createdInstallation.appID
                                         appName:createdInstallation.firebaseAppName];
@@ -144,10 +143,10 @@
                 }]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
-  // 4.5. Resolve `registerPromise` to simulate finished registration.
+  // 5.5. Resolve `registerPromise` to simulate finished registration.
   [registerPromise fulfill:registeredInstallation];
 
-  // 4.4. Wait for the task to complete.
+  // 5.4. Wait for the task to complete.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(getInstallationPromise.error);
@@ -155,8 +154,80 @@
   // complete here.
   XCTAssertEqual(getInstallationPromise.value, createdInstallation);
 
-  // 4.5. Verify registered installation was saved.
+  // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockIIDStore);
+}
+
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenIIDIsUsedAsFID {
+  // 1. Stub store get installation.
+  [self expectInstallationsStoreGetInstallationNotFound];
+
+  // 2. Expect IIDStore to be checked for existing IID.
+  NSString *existingIID = @"existing-iid";
+  OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
+
+  // 3. Stub store save installation.
+  __block FIRInstallationsItem *createdInstallation;
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
+                  XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Stub API register installation.
+  // 4.1. Verify installation to be registered.
+  id registerInstallationValidation = [OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+    [self assertValidCreatedInstallation:obj];
+    XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
+    return YES;
+  }];
+
+  // 4.2. Expect for `registerInstallation` to be called.
+  FBLPromise<FIRInstallationsItem *> *registerPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:registerInstallationValidation])
+      .andReturn(registerPromise);
+
+  // 5. Call get installation and check.
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
+      [self.controller getInstallationItem];
+
+  // 5.1. Wait for the stored item to be read and saved.
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
+
+  // 5.2. Wait for `registerInstallation` to be called.
+  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
+
+  // 5.3. Expect for the registered installation to be saved.
+  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem
+      createRegisteredInstallationItemWithAppID:createdInstallation.appID
+                                        appName:createdInstallation.firebaseAppName];
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  XCTAssertEqual(registeredInstallation, obj);
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 5.5. Resolve `registerPromise` to simulate finished registration.
+  [registerPromise fulfill:registeredInstallation];
+
+  // 5.4. Wait for the task to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(getInstallationPromise.error);
+  // We expect the initially created installation to be returned - must not wait for registration to
+  // complete here.
+  XCTAssertEqual(getInstallationPromise.value, createdInstallation);
+
+  // 5.5. Verify registered installation was saved.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 - (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
@@ -532,5 +603,25 @@
 }
 
 // TODO: Test a single delete installation request at a time.
+
+#pragma mark - Helpers
+
+- (void)expectInstallationsStoreGetInstallationNotFound {
+  NSError *notFoundError =
+      [FIRInstallationsErrorUtil installationItemNotFoundForAppID:self.appID appName:self.appName];
+  FBLPromise *installationNotFoundPromise = [FBLPromise pendingPromise];
+  [installationNotFoundPromise reject:notFoundError];
+
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn(installationNotFoundPromise);
+}
+
+- (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {
+  XCTAssertEqualObjects([installation class], [FIRInstallationsItem class]);
+  XCTAssertEqualObjects(installation.appID, self.appID);
+  XCTAssertEqualObjects(installation.firebaseAppName, self.appName);
+  XCTAssertEqual(installation.registrationStatus, FIRInstallationStatusUnregistered);
+  XCTAssertNotNil(installation.firebaseInstallationID);
+}
 
 @end

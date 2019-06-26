@@ -24,6 +24,7 @@
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
@@ -37,6 +38,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 @property(nonatomic, readonly) NSString *appName;
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
+@property(nonatomic, readonly) FIRInstallationsIIDStore *IIDStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
@@ -61,23 +63,28 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:nil];
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
+  FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
+
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
-                        APIService:apiService];
+                        APIService:apiService
+                          IIDStore:IIDStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
-                         APIService:(FIRInstallationsAPIService *)APIService {
+                         APIService:(FIRInstallationsAPIService *)APIService
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore {
   self = [super init];
   if (self) {
     _appID = appID;
     _appName = appName;
     _installationsStore = installationsStore;
     _APIService = APIService;
+    _IIDStore = IIDStore;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 
@@ -116,14 +123,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 - (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
-      [self getStoredInstallation]
-          .recover(^id(NSError *error) {
-            return [self migrateIID];
-          })
-          .recover(^id(NSError *error) {
-            // TODO: Are the cases when we should not create a new FID?
-            return [self createAndSaveFID];
-          });
+      [self getStoredInstallation].recover(^id(NSError *error) {
+        // TODO: Are the cases when we should not create a new FID?
+        return [self createAndSaveFID];
+      });
 
   // Initiate registration process on success if needed, but return the instalation without waiting
   // for it.
@@ -155,9 +158,15 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createAndSaveFID {
+  return [self migrateOrGenerateFID].then(^FBLPromise<FIRInstallationsItem *> *(NSString *FID) {
+    return [self createAndSaveInstallationWithFID:FID];
+  });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)createAndSaveInstallationWithFID:(NSString *)FID {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
-  installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+  installation.firebaseInstallationID = FID;
   installation.registrationStatus = FIRInstallationStatusUnregistered;
 
   return [self.installationsStore saveInstallation:installation].then(^id(NSNull *result) {
@@ -165,11 +174,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   });
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)migrateIID {
-  // TODO: Implement.
-  FBLPromise *promise = [FBLPromise pendingPromise];
-  [promise reject:[NSError errorWithDomain:@"FIRInstallationsIDController" code:-1 userInfo:nil]];
-  return promise;
+- (FBLPromise<NSString *> *)migrateOrGenerateFID {
+  return [self.IIDStore existingIID].recover(^NSString *(NSError *error) {
+    return [FIRInstallationsItem generateFID];
+  });
 }
 
 #pragma mark - FID registration
