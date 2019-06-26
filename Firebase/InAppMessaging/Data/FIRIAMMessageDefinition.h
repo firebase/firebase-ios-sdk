@@ -15,6 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
+#import "FIRIAMDisplayTriggerDefinition.h"
 #import "FIRIAMMessageRenderData.h"
 
 @class FIRIAMDisplayTriggerDefinition;
@@ -52,8 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)messageHasExpired;
 - (BOOL)messageHasStarted;
 
-// should this message be rendered when the app gets foregrounded?
-- (BOOL)messageRenderedOnAppForegroundEvent;
+// should this message be rendered given the FIAM trigger type? only use this method for app launch
+// and foreground trigger, use messageRenderedOnAnalyticsEvent: for analytics triggers
+- (BOOL)messageRenderedOnTrigger:(FIRIAMRenderTrigger)trigger;
 // should this message be rendered when a given analytics event is fired?
 - (BOOL)messageRenderedOnAnalyticsEvent:(NSString *)eventName;
 @end
