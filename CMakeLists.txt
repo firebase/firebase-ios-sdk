@@ -206,9 +206,12 @@ target_compile_definitions(
   PUBLIC -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
 )
 
+# Enable #include <nanopb/pb.h>
 target_include_directories(
   protobuf-nanopb-static
-  INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
+  INTERFACE
+  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
 
