@@ -25,6 +25,15 @@ let coveragePath = flags.string("c",
 let pullRequest = flags.int("p",
                             "pull_request",
                             description: "Required - The number of the pull request that corresponds to this coverage run.")
+
+/// Returns the current UTC time in a string format.
+func currentTime() -> String {
+  let formatter = DateFormatter()
+  formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+  formatter.timeZone = TimeZone(identifier: "UTC")
+  return formatter.string(from: Date())
+}
+
 do {
   try flags.parse()
   if !coveragePath.wasSet {
@@ -35,13 +44,11 @@ do {
     print("Please specify the corresponding pull request number. -p or --pull_request")
     exit(1)
   }
-  let pullRequestTable = TableUpdate(table_name: "PullRequests",
-                                     column_names: ["pull_request_id"],
-                                     replace_measurements: [[Double(pullRequest.value!)]])
   let coverageReport = try CoverageReport.load(path: coveragePath.value!)
   let coverageTable = TableUpdate.createFrom(coverage: coverageReport,
-                                             pullRequest: pullRequest.value!)
-  let metrics = UploadMetrics(tables: [pullRequestTable, coverageTable])
+                                             pullRequest: pullRequest.value!,
+                                             currentTime: currentTime())
+  let metrics = UploadMetrics(tables: [coverageTable])
   try Uploader.upload(metrics: metrics)
 } catch {
   print("Error occurred: \(error)")

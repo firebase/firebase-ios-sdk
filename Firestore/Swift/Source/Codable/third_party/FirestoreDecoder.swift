@@ -1033,7 +1033,7 @@ extension _FirestoreDecoder {
       }
     }
 
-    // Decoding an embeded container, this requires expanding the storage stack and
+    // Decoding an embedded container, this requires expanding the storage stack and
     // then restore after decoding.
     storage.push(container: value)
     let decoded = try T(from: self)

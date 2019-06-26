@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseFirestore
+import Foundation
+import XCTest
 
-internal func isFirestorePassthroughType<T: Any>(_ value: T) -> Bool {
-  return
-    T.self == GeoPoint.self ||
-    T.self == Timestamp.self ||
-    T.self == FieldValue.self ||
-    T.self == DocumentReference.self
+class EncodableFieldValue: XCTestCase {
+  func testFieldValueEncodeThrows() {
+    let fieldValue = FieldValue.delete()
+
+    do {
+      _ = try JSONEncoder().encode(fieldValue)
+    } catch {
+      return
+    }
+    XCTFail("Encoding FieldValue from encoders other than FirestoreEncoder should throw.")
+  }
 }

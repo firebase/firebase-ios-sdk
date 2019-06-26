@@ -1,5 +1,8 @@
+# 6.2.1
+- Fix Xcode 11 build warning. (#3133)
+
 # 6.2.0
-- Stop conditional compilation for GoogleUtilities testing (#3058)
+- Stop conditional compilation for GoogleUtilities testing. (#3058)
 
 # 6.1.0
 - Added `GULAppDelegateSwizzler` macOS support. (#2911)
