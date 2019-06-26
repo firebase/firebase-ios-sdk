@@ -306,6 +306,13 @@ class CMakeGenerator
     @target.include_directories('PRIVATE', *hmap_dirs.to_a.sort)
   end
 
+  # Account for differences in dependency names between CocoaPods and CMake.
+  # Keys should be CocoaPod dependency names and values should be the
+  # equivalent CMake library targets.
+  DEP_RENAMES = {
+    'nanopb' => 'protobuf-nanopb-static'
+  }
+
   # Adds Pod::Spec +dependencies+ as target_link_libraries. Only root-specs are
   # added as dependencies because in the CMake build there can be only one
   # target for the framework.
@@ -316,6 +323,8 @@ class CMakeGenerator
       next if dep.name.start_with?(prefix)
 
       name = dep.name.sub(/\/.*/, '')
+      name = DEP_RENAMES.fetch(name, name)
+
       @target.link_libraries('PUBLIC', name)
     end
   end
