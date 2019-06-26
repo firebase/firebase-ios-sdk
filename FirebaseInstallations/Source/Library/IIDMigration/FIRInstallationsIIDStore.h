@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRInstallationsIIDStore : NSObject
 
 /**
- * Retrives existing IID if present.
+ * Retrieves existing IID if present.
  * @return Returns a promise that is resolved with IID string if IID has been found or rejected with
  * an error otherwise.
  */
