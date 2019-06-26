@@ -303,7 +303,7 @@ class CMakeGenerator
 
       hmap_dirs.add(File.dirname(source))
     end
-    @target.include_directories('PRIVATE', hmap_dirs.to_a.sort)
+    @target.include_directories('PRIVATE', *hmap_dirs.to_a.sort)
   end
 
   # Adds Pod::Spec +dependencies+ as target_link_libraries. Only root-specs are
@@ -345,9 +345,9 @@ class CMakeGenerator
 
     defs = split(xcconfig['GCC_PREPROCESSOR_DEFINITIONS'])
     defs = defs.map { |x| '-D' + x }
-    @target.compile_definitions(type, defs)
+    @target.compile_definitions(type, *defs)
 
-    @target.include_directories(type, split(xcconfig['HEADER_SEARCH_PATHS']))
+    @target.include_directories(type, *split(xcconfig['HEADER_SEARCH_PATHS']))
   end
 
   # Splits a textual value in xcconfig. Always returns an array, but that array
