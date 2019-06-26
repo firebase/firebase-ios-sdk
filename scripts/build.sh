@@ -314,12 +314,15 @@ case "$product-$method-$platform" in
           test
     fi
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
+    # Firestore_IntegrationTests_iOS require Swift 4, which needs Xcode 9
+    if [["$platform" == 'iOS' && "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+    fi
     ;;
 
   Firestore-cmake-macOS)
