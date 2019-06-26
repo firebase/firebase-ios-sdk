@@ -435,5 +435,5 @@ jobs:
 branches:
   only:
     - master
-    - pb-cleanup-firservice
+    - pb-debug-travis
 
