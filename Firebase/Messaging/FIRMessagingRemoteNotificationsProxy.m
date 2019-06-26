@@ -417,7 +417,8 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
 }
 #endif
 
-- (void)application:(GULApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+- (void)application:(GULApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     [FIRMessaging messaging].APNSToken = deviceToken;
 }
 
