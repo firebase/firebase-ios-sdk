@@ -35,7 +35,7 @@ NSString *const kFIRServiceAuth;
 NSString *const kFIRServiceAuthUI;
 NSString *const kFIRServiceCrash;
 NSString *const kFIRServiceDatabase;
-NSString *const kFIRServiceDynamicLink;
+NSString *const kFIRServiceDynamicLinks;
 NSString *const kFIRServiceFirestore;
 NSString *const kFIRServiceFunctions;
 NSString *const kFIRServiceInstanceID;
