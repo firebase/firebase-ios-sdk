@@ -74,12 +74,12 @@ firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcodebuild "$@"; result=$?
+  xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    xcodebuild "$@"; result=$?
+    xcodebuild "$@" | xcpretty; result=$?
   fi
   if [[ $result != 0 ]]; then
     exit $result
@@ -89,7 +89,6 @@ function RunXcodebuild() {
 ios_flags=(
   -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPhone 7'
-#  -destination 'platform=iOS Simulator,name=iPhone 7,OS=12.0'
 )
 macos_flags=(
   -sdk 'macosx'
@@ -237,12 +236,12 @@ case "$product-$method-$platform" in
     ;;
 
   InAppMessaging-xcodebuild-iOS)
-    # RunXcodebuild \
-    #     -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
-    #     -scheme 'InAppMessaging_Example_iOS' \
-    #     "${xcb_flags[@]}" \
-    #     build \
-    #     test
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
 
     cd InAppMessaging/Example
     sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
