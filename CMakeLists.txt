@@ -217,6 +217,11 @@ include(compiler_setup)
 
 
 # Firebase packages
+
+# Set variables that CocoaPods expects to be able to expand in values it
+# includes in the xcconfigs it generates.
+set(PODS_TARGET_SRCROOT ${FIREBASE_SOURCE_DIR})
+
 podspec_framework(
   ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
   SPECS Logger
