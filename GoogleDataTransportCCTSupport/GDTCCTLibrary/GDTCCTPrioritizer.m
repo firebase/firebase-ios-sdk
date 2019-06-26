@@ -21,7 +21,7 @@
 #import <GoogleDataTransport/GDTStoredEvent.h>
 #import <GoogleDataTransport/GDTTargets.h>
 
-const static NSUInteger kMillisPerDay = 8.64e+7;
+const static int64_t kMillisPerDay = 8.64e+7;
 
 @implementation GDTCCTPrioritizer
 

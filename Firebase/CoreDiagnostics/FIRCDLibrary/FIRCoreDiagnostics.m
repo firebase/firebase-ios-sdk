@@ -538,7 +538,7 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType *servicesInstalled =
       malloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType) *
              sdkServiceInstalledArray.count);
-  for (int i = 0; i < sdkServiceInstalledArray.count; i++) {
+  for (NSUInteger i = 0; i < sdkServiceInstalledArray.count; i++) {
     NSNumber *typeEnum = sdkServiceInstalledArray[i];
     logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType serviceType =
         (int32_t)typeEnum.integerValue;
@@ -600,7 +600,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
   config->has_swizzling_enabled = 1;
 }
 
-#pragma FIRCoreDiagnosticsInterop
+#pragma mark - FIRCoreDiagnosticsInterop
 
 + (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
   FIRCoreDiagnostics *diagnostics = [FIRCoreDiagnostics sharedInstance];
