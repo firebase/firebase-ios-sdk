@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 #include "absl/strings/string_view.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -38,6 +39,8 @@ using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::ComparisonResult;
+
+using testutil::Value;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -626,6 +629,53 @@ NS_ASSUME_NONNULL_BEGIN
                           FSTTestOrderBy("foo", @"desc"), FSTTestOrderBy("bar", @"asc"),
                           FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc")
                         ]));
+}
+
+MATCHER_P(HasCanonicalId, expected, "") {
+  std::string actual = util::MakeString([arg canonicalID]);
+  *result_listener << "which has canonicalID " << actual;
+  return actual == expected;
+}
+
+- (void)testCanonicalIDs {
+  FSTQuery *query = FSTTestQuery("coll");
+  XC_ASSERT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
+
+  FSTQuery *cg = [FSTQuery queryWithPath:ResourcePath::Empty() collectionGroup:@"foo"];
+  XC_ASSERT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
+
+  FSTQuery *subcoll = FSTTestQuery("foo/bar/baz");
+  XC_ASSERT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
+
+  FSTQuery *filters = FSTTestQuery("coll");
+  filters = [filters queryByAddingFilter:FSTTestFilter("str", @"==", @"foo")];
+  XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
+
+  // Inequality filters end up in the order by too
+  filters = [filters queryByAddingFilter:FSTTestFilter("int", @"<", @42)];
+  XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
+
+  FSTQuery *orderBys = FSTTestQuery("coll");
+  orderBys = [orderBys queryByAddingSortBy:"up" ascending:true];
+  XC_ASSERT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
+
+  // __name__'s order matches the trailing component
+  orderBys = [orderBys queryByAddingSortBy:"down" ascending:false];
+  XC_ASSERT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
+
+  FSTQuery *limit = [FSTTestQuery("coll") queryBySettingLimit:25];
+  XC_ASSERT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25"));
+
+  FSTQuery *bounds = FSTTestQuery("airports");
+  bounds = [bounds queryByAddingSortBy:"name" ascending:YES];
+  bounds = [bounds queryByAddingSortBy:"score" ascending:NO];
+  bounds = [bounds queryByAddingStartAt:[FSTBound boundWithPosition:{Value("OAK"), Value(1000)}
+                                                           isBefore:true]];
+  bounds = [bounds queryByAddingEndAt:[FSTBound boundWithPosition:{Value("SFO"), Value(2000)}
+                                                         isBefore:false]];
+  XC_ASSERT_THAT(
+      bounds,
+      HasCanonicalId("airports|f:|ob:nameascscoredesc__name__desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
 
 @end
