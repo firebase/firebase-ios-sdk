@@ -299,7 +299,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 }
 
 inline core::Query Query(absl::string_view path) {
-  return core::Query::AtPath(Resource(path));
+  return core::Query(Resource(path));
 }
 
 inline std::unique_ptr<model::SetMutation> SetMutation(

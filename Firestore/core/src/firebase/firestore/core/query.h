@@ -38,24 +38,16 @@ class Query {
  public:
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
-  /**
-   * Creates and returns a new Query.
-   *
-   * @param path The path to the collection to be queried over.
-   * @return A new instance of Query.
-   */
-  static Query AtPath(model::ResourcePath path) {
-    return Query(std::move(path), {});
-  }
-
   static Query Invalid() {
-    return Query::AtPath(model::ResourcePath::Empty());
+    return Query(model::ResourcePath::Empty());
   }
 
-  /** Initializes a query with all of its components directly. */
+  /**
+   * Initializes a Query with a path and optional additional query constraints.
+   * Path must currently be empty if this is a collection group query.
+   */
   Query(model::ResourcePath path,
-        std::vector<std::shared_ptr<core::Filter>>
-            filters /* TODO(rsgowman): other params */)
+        std::vector<std::shared_ptr<core::Filter>> filters = {})
       : path_(std::move(path)), filters_(std::move(filters)) {
   }
 
