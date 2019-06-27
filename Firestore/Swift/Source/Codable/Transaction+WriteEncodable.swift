@@ -19,22 +19,7 @@ import FirebaseFirestore
 
 extension Transaction {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
-  /// to the document referred by this `DocumentReference`. If no document exists,
-  /// it is created. If a document already exists, it is overwritten.
-  ///
-  /// See `Firestore.Encoder` for more details about the encoding process.
-  ///
-  /// - Parameters:
-  ///   - value: a instance of `Encoded` to be encoded to a document.
-  ///   - doc: The document to create/overwrite the encoded data to.
-  /// - Returns: This instance of `Transaction`. Used for chaining method calls.
-  public func setData<T: Encodable>(from value: T,
-                                    forDocument doc: DocumentReference) throws -> Transaction {
-    return try setData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
-  }
-
-  /// Encodes an instance of `Encodable` and overwrites the encoded data
-  /// to the document referred by this `DocumentReference`. If no document exists,
+  /// to the document referred by `doc`. If no document exists,
   /// it is created. If a document already exists, it is overwritten.
   ///
   /// See `Firestore.Encoder` for more details about the encoding process.
@@ -45,37 +30,57 @@ extension Transaction {
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   public func setData<T: Encodable>(from value: T,
-                                    encoder: Firestore.Encoder,
-                                    forDocument doc: DocumentReference) throws -> Transaction {
+                                    forDocument doc: DocumentReference,
+                                    encoder: Firestore.Encoder = Firestore.Encoder()) throws -> Transaction {
     setData(try encoder.encode(value), forDocument: doc)
     return self
   }
 
-  /// Updates fields in the document referred to by `doc`, using the `Encodable` object
-  /// passed in. If document does not exist, the write batch will fail.
+  /// Encodes an instance of `Encodable` and overwrites the encoded data
+  /// to the document referred by `doc`. If no document exists,
+  /// it is created. If a document already exists, it is overwritten.  If you pass
+  /// merge:true, the provided `Encodable` will be merged into any existing document.
+  ///
+  /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: An instance of `Encodable` to be used to update the Firestore document.
-  ///   - doc: The document to update the encoded data to.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
+  ///   - doc: The document to create/overwrite the encoded data to.
+  ///   - merge: Whether to merge the provided `Encodable` into any existing
+  ///            document.
+  ///   - encoder: The encoder instance to use to run the encoding.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
-  public func updateData<T: Encodable>(from value: T,
-                                       forDocument doc: DocumentReference)
-    throws -> Transaction {
-    return try updateData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
+  public func setData<T: Encodable>(from value: T,
+                                    forDocument doc: DocumentReference,
+                                    merge: Bool,
+                                    encoder: Firestore.Encoder = Firestore.Encoder()) throws -> Transaction {
+    setData(try encoder.encode(value), forDocument: doc, merge: merge)
+    return self
   }
 
-  /// Updates fields in the document referred to by `doc`, using the `Encodable` object
-  /// passed in. If document does not exist, the write batch will fail.
+  /// Encodes an instance of `Encodable` and writes the encoded data to the document referred
+  /// by `doc` by only replacing the fields specified under `mergeFields`.
+  /// Any field that is not specified in mergeFields is ignored and remains untouched. If the
+  /// document doesn’t yet exist, this method creates it and then sets the data.
+  ///
+  /// It is an error to include a field in `mergeFields` that does not have a corresponding
+  /// field in the `Encodable`.
+  ///
+  /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: An instance of `Encodable` to be used to update the Firestore document.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
+  ///   - doc: The document to create/overwrite the encoded data to.
+  ///   - mergeFields: Array of `String` or `FieldPath` elements specifying which fields to
+  ///                  merge. Fields can contain dots to reference nested fields within the
+  ///                  document.
   ///   - encoder: The encoder instance to use to run the encoding.
-  ///   - doc: The document to update the encoded data to.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
-  public func updateData<T: Encodable>(from value: T,
-                                       encoder: Firestore.Encoder,
-                                       forDocument doc: DocumentReference)
-    throws -> Transaction {
-    return updateData(try encoder.encode(value), forDocument: doc)
+  public func setData<T: Encodable>(from value: T,
+                                    forDocument doc: DocumentReference,
+                                    mergeFields: [Any],
+                                    encoder: Firestore.Encoder = Firestore.Encoder()) throws -> Transaction {
+    setData(try encoder.encode(value), forDocument: doc, mergeFields: mergeFields)
+    return self
   }
 }

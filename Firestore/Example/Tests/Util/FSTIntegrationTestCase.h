@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// NOTE: For Swift compatibility, please keep this header Objective-C only.
+//       Swift cannot interact with any C++ definitions.
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 

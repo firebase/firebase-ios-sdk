@@ -29,43 +29,38 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
   private func setData<T: Encodable>(from value: T,
                                      forDocument doc: DocumentReference,
-                                     withFlavor flavor: WriteFlavor = .docRef) throws {
+                                     withFlavor flavor: WriteFlavor = .docRef,
+                                     merge: Bool? = nil,
+                                     mergeFields: [Any]? = nil) throws {
     let completion = completionForExpectation(withName: "setData")
 
     switch flavor {
     case .docRef:
-      try doc.setData(from: value, completion: completion)
+      if let mergeUnwrapped = merge {
+        try doc.setData(from: value, merge: mergeUnwrapped, completion: completion)
+      } else if let mergeFieldsUnwrapped = mergeFields {
+        try doc.setData(from: value, mergeFields: mergeFieldsUnwrapped, completion: completion)
+      } else {
+        try doc.setData(from: value, completion: completion)
+      }
     case .writeBatch:
-      try doc.firestore.batch().setData(from: value, forDocument: doc).commit(completion: completion)
+      if let mergeUnwrapped = merge {
+        try doc.firestore.batch().setData(from: value, forDocument: doc, merge: mergeUnwrapped).commit(completion: completion)
+      } else if let mergeFieldsUnwrapped = mergeFields {
+        try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFieldsUnwrapped).commit(completion: completion)
+      } else {
+        try doc.firestore.batch().setData(from: value, forDocument: doc).commit(completion: completion)
+      }
     case .transaction:
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
-          try transaction.setData(from: value, forDocument: doc)
-        } catch {
-          XCTFail("setData with transation failed.")
-        }
-        return nil
-      }) { object, error in
-        completion?(error)
-    } }
-
-    awaitExpectations()
-  }
-
-  private func updateData<T: Encodable>(from value: T,
-                                        forDocument doc: DocumentReference,
-                                        withFlavor flavor: WriteFlavor = .docRef) throws {
-    let completion = completionForExpectation(withName: "updateData")
-
-    switch flavor {
-    case .docRef:
-      try doc.updateData(from: value, completion: completion)
-    case .writeBatch:
-      try doc.firestore.batch().updateData(from: value, forDocument: doc).commit(completion: completion)
-    case .transaction:
-      doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
-        do {
-          try transaction.updateData(from: value, forDocument: doc)
+          if let mergeUnwrapped = merge {
+            try transaction.setData(from: value, forDocument: doc, merge: mergeUnwrapped)
+          } else if let mergeFieldsUnwrapped = mergeFields {
+            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFieldsUnwrapped)
+          } else {
+            try transaction.setData(from: value, forDocument: doc)
+          }
         } catch {
           XCTFail("setData with transation failed.")
         }
@@ -173,24 +168,41 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testSetThenUpdate() throws {
-    struct Model: Codable, Equatable {
-      var name: String?
+  func testSetThenMerge() throws {
+    struct Model: Codable {
+      var name: String
       var age: Int32
+    }
+    struct ModelUpdate: Codable {
+      var age: Int32
+      var hobby: String
+    }
+    struct ModelMerge: Codable, Equatable {
+      var name: String
+      var age: Int32
+      var hobby: String
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
                       age: 42)
-    let update = Model(name: nil, age: 43)
+    let update = ModelUpdate(age: 43, hobby: "No")
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
-      try updateData(from: update, forDocument: docToWrite, withFlavor: flavor)
+      try setData(from: update, forDocument: docToWrite, withFlavor: flavor, merge: true)
 
-      let readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
+      var readAfterUpdate = try readDocument(forRef: docToWrite).data(as: ModelMerge.self)
 
-      XCTAssertEqual(readAfterUpdate!, Model(name: "test",
-                                             age: 43), "Failed with flavor \(flavor)")
+      XCTAssertEqual(readAfterUpdate!, ModelMerge(name: "test",
+                                                  age: 43, hobby: "No"), "Failed with flavor \(flavor)")
+
+      let newUpdate = ModelUpdate(age: 10, hobby: "Play")
+      // Note 'hobby' is not updated.
+      try setData(from: newUpdate, forDocument: docToWrite, withFlavor: flavor, mergeFields: ["age"])
+
+      readAfterUpdate = try readDocument(forRef: docToWrite).data(as: ModelMerge.self)
+      XCTAssertEqual(readAfterUpdate!, ModelMerge(name: "test",
+                                                  age: 10, hobby: "No"), "Failed with flavor \(flavor)")
     }
   }
 }
