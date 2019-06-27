@@ -24,8 +24,8 @@ macro(podspec_framework PODSPEC_FILE)
     set(multi SPECS)
     cmake_parse_arguments(psf "" "" "${multi}" ${ARGN})
 
-    get_filename_component(_properties_file ${PODSPEC_FILE} NAME_WE)
-    set(_properties_file ${_properties_file}.cmake)
+    get_filename_component(_pod_name ${PODSPEC_FILE} NAME_WE)
+    set(_properties_file ${_pod_name}.cmake)
 
     # Use bundler only if the current source tree has it set up. Otherwise fall
     # back on the system ruby setup, which may have CocoaPods installed.
@@ -55,5 +55,14 @@ macro(podspec_framework PODSPEC_FILE)
     )
 
     include(${CMAKE_CURRENT_BINARY_DIR}/${_properties_file})
+
+    # Non-Firestore Objective-C code in this repository is not as strict about
+    # warnings.
+    target_compile_options(
+      ${_pod_name}
+      PRIVATE
+      -Wno-unused-parameter
+      -Wno-deprecated-declarations
+    )
   endif()
 endmacro()
