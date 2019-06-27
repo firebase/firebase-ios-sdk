@@ -32,8 +32,8 @@ void Fail(const char* file,
           const int line,
           const std::string& message) {
   [[NSAssertionHandler currentHandler]
-      handleFailureInFunction:WrapNSString(func)
-                         file:WrapNSString(file)
+      handleFailureInFunction:MakeNSString(func)
+                         file:MakeNSString(file)
                    lineNumber:line
                   description:@"FIRESTORE INTERNAL ASSERTION FAILED: %s",
                               message.c_str()];

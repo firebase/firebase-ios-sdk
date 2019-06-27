@@ -26,6 +26,7 @@
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
@@ -44,7 +45,6 @@ using util::CompletionEndState;
 using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
-using util::WrapNSString;
 using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
@@ -61,8 +61,8 @@ grpc::ByteBuffer MakeByteBuffer(NSData* data) {
 
 grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
   GCFSDocument* doc = [GCFSDocument message];
-  doc.name =
-      WrapNSString(std::string{"projects/p/databases/d/documents/"} + doc_name);
+  doc.name = util::MakeNSString(
+      absl::StrCat("projects/p/databases/d/documents/", doc_name));
   GCFSValue* value = [GCFSValue message];
   value.stringValue = @"bar";
   [doc.fields addEntriesFromDictionary:@{

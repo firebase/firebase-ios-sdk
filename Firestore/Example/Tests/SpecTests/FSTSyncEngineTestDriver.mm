@@ -81,7 +81,6 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::ToString;
-using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The Query is also included in the view, so we skip it.
   std::string str = StringFormat("<FSTQueryEvent: viewSnapshot=%s, error=%s>",
                                  ToString(_maybeViewSnapshot), self.error);
-  return WrapNSString(str);
+  return util::MakeNSString(str);
 }
 
 @end
