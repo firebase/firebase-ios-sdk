@@ -159,14 +159,16 @@ typedef struct _logs_proto_mobilesdk_ios_ICoreConfiguration {
     int32_t log_error_count;
     bool has_log_warning_count;
     int32_t log_warning_count;
+    bool has_using_gdt;
+    bool using_gdt;
 /* @@protoc_insertion_point(struct:logs_proto_mobilesdk_ios_ICoreConfiguration) */
 } logs_proto_mobilesdk_ios_ICoreConfiguration;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define logs_proto_mobilesdk_ios_ICoreConfiguration_init_default {false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_MIN, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_BuildType_MIN, NULL, 0, NULL, 0, NULL, NULL, NULL, false, 0, NULL, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_MIN, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_MIN, false, 0, NULL, NULL, NULL, false, 0, false, 0, false, 0, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_MIN, NULL, false, 0, false, 0, false, 0, false, 0}
-#define logs_proto_mobilesdk_ios_ICoreConfiguration_init_zero {false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_MIN, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_BuildType_MIN, NULL, 0, NULL, 0, NULL, NULL, NULL, false, 0, NULL, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_MIN, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_MIN, false, 0, NULL, NULL, NULL, false, 0, false, 0, false, 0, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_MIN, NULL, false, 0, false, 0, false, 0, false, 0}
+#define logs_proto_mobilesdk_ios_ICoreConfiguration_init_default {false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_MIN, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_BuildType_MIN, NULL, 0, NULL, 0, NULL, NULL, NULL, false, 0, NULL, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_MIN, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_MIN, false, 0, NULL, NULL, NULL, false, 0, false, 0, false, 0, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_MIN, NULL, false, 0, false, 0, false, 0, false, 0, false, 0}
+#define logs_proto_mobilesdk_ios_ICoreConfiguration_init_zero {false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_MIN, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_BuildType_MIN, NULL, 0, NULL, 0, NULL, NULL, NULL, false, 0, NULL, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_MIN, NULL, NULL, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_MIN, false, 0, NULL, NULL, NULL, false, 0, false, 0, false, 0, NULL, false, 0, false, _logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_MIN, NULL, false, 0, false, 0, false, 0, false, 0, false, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define logs_proto_mobilesdk_ios_ICoreConfiguration_pod_name_tag 16
@@ -201,9 +203,10 @@ typedef struct _logs_proto_mobilesdk_ios_ICoreConfiguration {
 #define logs_proto_mobilesdk_ios_ICoreConfiguration_swizzling_enabled_tag 33
 #define logs_proto_mobilesdk_ios_ICoreConfiguration_log_error_count_tag 34
 #define logs_proto_mobilesdk_ios_ICoreConfiguration_log_warning_count_tag 35
+#define logs_proto_mobilesdk_ios_ICoreConfiguration_using_gdt_tag 36
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t logs_proto_mobilesdk_ios_ICoreConfiguration_fields[33];
+extern const pb_field_t logs_proto_mobilesdk_ios_ICoreConfiguration_fields[34];
 
 /* Maximum encoded size of messages (where known) */
 /* logs_proto_mobilesdk_ios_ICoreConfiguration_size depends on runtime parameters */
