@@ -1,10 +1,8 @@
 # Uncomment the next two lines for pre-release testing on internal repo
 #source 'sso://cpdc-internal/firebase'
-#source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://cdn.cocoapods.org/'
 
-# Comment the following line to use the CocoaPods master repo instead.
-# Disabled. See https://github.com/firebase/firebase-ios-sdk/issues/3165
-# source 'https://cdn.jsdelivr.net/cocoa/'
+source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 

@@ -1,8 +1,6 @@
 use_frameworks!
 
-# Comment the following line to use the CocoaPods master repo instead.
-# Disabled. See https://github.com/firebase/firebase-ios-sdk/issues/3165
-# source 'https://cdn.jsdelivr.net/cocoa/'
+source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
