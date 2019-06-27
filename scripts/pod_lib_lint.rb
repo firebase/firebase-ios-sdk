@@ -48,7 +48,6 @@ def main(args)
 
   command.push(*args)
   puts command.join(' ')
-  exec('bundle exec pod repo update')
   exec(*command)
 end
 
