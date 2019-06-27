@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -174,7 +175,14 @@ NS_ASSUME_NONNULL_BEGIN
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(int32_t)limit
                      startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
+                       endAt:(nullable FSTBound *)endAtBound;
+
+- (instancetype)initWithQuery:(core::Query)query
+                     filterBy:(NSArray<FSTFilter *> *)filters
+                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
+                        limit:(int32_t)limit
+                      startAt:(nullable FSTBound *)startAtBound
+                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates and returns a new FSTQuery.

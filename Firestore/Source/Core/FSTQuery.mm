@@ -545,10 +545,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 @interface FSTQuery () {
   // Cached value of the canonicalID property.
   NSString *_canonicalID;
-  // The base path of the query.
-  ResourcePath _path;
-  // The collection group of the query, if any.
-  std::shared_ptr<const std::string> _collectionGroup;
+
+  // The C++ implementation of this query to which FSTQuery delegates.
+  Query _query;
 }
 
 /** A list of fields given to sort by. This does not include the implicit key sort at the end. */
@@ -585,9 +584,23 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
                        limit:(int32_t)limit
                      startAt:(nullable FSTBound *)startAtBound
                        endAt:(nullable FSTBound *)endAtBound {
+  Query query(std::move(path), std::move(collectionGroup));
+  return [self initWithQuery:std::move(query)
+                    filterBy:filters
+                     orderBy:sortOrders
+                       limit:limit
+                     startAt:startAtBound
+                       endAt:endAtBound];
+}
+
+- (instancetype)initWithQuery:(core::Query)query
+                     filterBy:(NSArray<FSTFilter *> *)filters
+                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
+                        limit:(int32_t)limit
+                      startAt:(nullable FSTBound *)startAtBound
+                        endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
-    _path = std::move(path);
-    _collectionGroup = std::move(collectionGroup);
+    _query = std::move(query);
     _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
@@ -746,7 +759,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 }
 
 - (BOOL)isDocumentQuery {
-  return DocumentKey::IsDocumentKey(_path) && !self.collectionGroup && self.filters.count == 0;
+  return DocumentKey::IsDocumentKey(self.path) && !self.collectionGroup && self.filters.count == 0;
 }
 
 - (BOOL)isCollectionGroupQuery {
@@ -804,11 +817,11 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 /** The base path of the query. */
 - (const firebase::firestore::model::ResourcePath &)path {
-  return _path;
+  return _query.path();
 }
 
 - (const std::shared_ptr<const std::string> &)collectionGroup {
-  return _collectionGroup;
+  return _query.collection_group();
 }
 
 #pragma mark - Private properties
@@ -819,7 +832,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   }
 
   NSMutableString *canonicalID = [NSMutableString string];
-  [canonicalID appendFormat:@"%s", _path.CanonicalString().c_str()];
+  [canonicalID appendFormat:@"%s", self.path.CanonicalString().c_str()];
 
   if (self.collectionGroup) {
     [canonicalID appendFormat:@"|cg:%s", self.collectionGroup->c_str()];
@@ -857,8 +870,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return self.path == other.path && util::Equals(self.collectionGroup, other.collectionGroup) &&
-         self.limit == other.limit && objc::Equals(self.filters, other.filters) &&
+  return _query == other->_query && self.limit == other.limit &&
          objc::Equals(self.sortOrders, other.sortOrders) &&
          objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
 }
@@ -871,12 +883,12 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
     // rooted at a document path yet.
     return document.key.HasCollectionId(*self.collectionGroup) &&
            self.path.IsPrefixOf(documentPath);
-  } else if (DocumentKey::IsDocumentKey(_path)) {
+  } else if (DocumentKey::IsDocumentKey(self.path)) {
     // Exact match for document queries.
     return self.path == documentPath;
   } else {
     // Shallow ancestor queries by default.
-    return self.path.IsPrefixOf(documentPath) && _path.size() == documentPath.size() - 1;
+    return self.path.IsPrefixOf(documentPath) && self.path.size() == documentPath.size() - 1;
   }
 }
 
