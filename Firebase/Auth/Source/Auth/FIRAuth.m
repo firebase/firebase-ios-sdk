@@ -2020,13 +2020,13 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
-    user.auth = self;
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
   }
 
+  user.auth = self;
   return user;
 }
 

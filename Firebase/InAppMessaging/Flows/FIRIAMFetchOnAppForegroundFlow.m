@@ -35,7 +35,7 @@
   // to a concurrent global queue instead of serial queue since app open event won't happen at
   // fast speed to cause race conditions
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-    [self checkAndFetch];
+    [self checkAndFetchForInitialAppLaunch:NO];
   });
 }
 

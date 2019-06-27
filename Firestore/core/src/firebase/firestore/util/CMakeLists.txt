@@ -214,6 +214,7 @@ cc_library(
     status_win.cc
     statusor.cc
     statusor.h
+    statusor_callback.h
     statusor_internals.h
     strerror.cc
     strerror.h
@@ -257,10 +258,12 @@ cc_library(
     ordered_code.cc
     ordered_code.h
     range.h
+    sanitizers.h
     string_util.cc
     string_util.h
     to_string.h
     type_traits.h
+    vector_of_ptr.h
     warnings.h
   DEPENDS
     absl_base

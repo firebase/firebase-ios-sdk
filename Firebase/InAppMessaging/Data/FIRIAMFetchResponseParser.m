@@ -101,9 +101,12 @@
   NSMutableArray<FIRIAMDisplayTriggerDefinition *> *triggers = [[NSMutableArray alloc] init];
 
   for (NSDictionary *nextTriggerCondition in triggerConditions) {
+    // Handle app_launch and on_foreground cases.
     if (nextTriggerCondition[@"fiamTrigger"]) {
       if ([nextTriggerCondition[@"fiamTrigger"] isEqualToString:@"ON_FOREGROUND"]) {
         [triggers addObject:[[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger]];
+      } else if ([nextTriggerCondition[@"fiamTrigger"] isEqualToString:@"APP_LAUNCH"]) {
+        [triggers addObject:[[FIRIAMDisplayTriggerDefinition alloc] initForAppLaunchTrigger]];
       }
     } else if ([nextTriggerCondition[@"event"] isKindOfClass:[NSDictionary class]]) {
       NSDictionary *triggeringEvent = (NSDictionary *)nextTriggerCondition[@"event"];

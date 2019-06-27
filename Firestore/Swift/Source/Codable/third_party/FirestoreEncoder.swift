@@ -35,6 +35,10 @@ extension Firestore {
     /// - Returns: A Map keyed by String representing a document Firestore
     ///            API can work with.
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+      // DocumentReference and FieldValue cannot be encoded directly.
+      guard T.self != DocumentReference.self, T.self != FieldValue.self else {
+        throw FirestoreEncodingError.encodingIsNotSupported
+      }
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
         throw EncodingError.invalidValue(value,
                                          EncodingError.Context(codingPath: [],
@@ -495,7 +499,7 @@ extension _FirestoreEncoder: SingleValueEncodingContainer {
 }
 
 /// Special subclass of `_FirestoreEncoder` used by `superEncoder`.
-/// It inherits the codingPath from the referencing `_FirestoreEncoder` but uses it's own
+/// It inherits the codingPath from the referencing `_FirestoreEncoder` but uses its own
 /// storage. The encoded result will be written back to the referencing encoder's storage
 /// when it is `deinit`-ed.
 private class _FirestoreReferencingEncoder: _FirestoreEncoder {

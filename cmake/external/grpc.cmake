@@ -33,6 +33,11 @@ ExternalProject_Add(
   BUILD_COMMAND ""
   TEST_COMMAND ""
   INSTALL_COMMAND ""
+
+  # TODO(b/136119129): Get a common version of nanopb with gRPC.
+  # We need to resolve how to arrange for gRPC and Firestore to get a common
+  # version of nanopb.
+  PATCH_COMMAND sed -i.bak "/third_party\\/nanopb/ d" ${PROJECT_BINARY_DIR}/src/grpc/CMakeLists.txt
 )
 
 # gRPC depends upon these projects, so from an IWYU point of view should
