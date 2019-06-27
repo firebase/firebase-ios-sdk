@@ -11,9 +11,6 @@ let package = Package(
     // other packages.
     // This is a test-only executable for us to try `swift run` and use all imported modules from a
     // Swift target.
-
-    // Comment out to avoid executable product 'storage-quickstart' should have exactly one executable target for 
-    // dependencies.
     .executable(name: "firebase-test", targets: ["firebase-test"]),
     //
     .library(
@@ -46,11 +43,24 @@ let package = Package(
       path: "GoogleUtilities/Environment/third_party",
       sources: ["GULAppEnvironmentUtil.m"],
       publicHeadersPath: "."),
+    // Need OCMock https://github.com/erikdoe/ocmock/issues/375
+    // .testTarget(
+    //   name: "GoogleUtilities_EnvironmentTests",
+    //   path: "GoogleUtilities/Example/Tests/Environment",
+    //   sources: ["GULAppEnvironmentUtilTest.m"]),
     .target(
       name: "GoogleUtilities_Logger",
       dependencies: ["GoogleUtilities_Environment"],
       path: "GoogleUtilities/Logger",
       publicHeadersPath: "Public"),
+    .testTarget(
+      name: "GoogleUtilities_LoggerTests",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/Example/Tests/Logger",
+      sources: ["GULLoggerTest.m"],
+      cSettings: [
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
+      ]),
 // Interop fails with
 // warning: Source files for target FirebaseAuthInterop should be located under ..firebase-ios-sdk/Interop/Auth
 //'Firebase' : error: target 'FirebaseAuthInterop' referenced in product 'FirebaseAuthInterop' could not be found

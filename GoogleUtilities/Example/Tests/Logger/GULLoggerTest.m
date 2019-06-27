@@ -15,10 +15,13 @@
 #ifdef DEBUG
 // The tests depend upon library methods only built with #ifdef DEBUG
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 #import <asl.h>
 
