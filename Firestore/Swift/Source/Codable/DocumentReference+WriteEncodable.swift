@@ -25,7 +25,7 @@ extension DocumentReference {
   /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: a instance of `Encoded` to be encoded to a document.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - completion: A block to execute once the document has been successfully
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
@@ -42,8 +42,8 @@ extension DocumentReference {
   /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: A instance of `Encoded` to be encoded to a document.
-  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
+  ///   - encoder: An encoder instance to use to run the encoding.
   ///   - completion: A block to execute once the document has been successfully
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
@@ -54,12 +54,36 @@ extension DocumentReference {
     setData(try encoder.encode(value), completion: completion)
   }
 
+  /// Updates fields in the document referred to by this `FIRDocumentReference`, using the
+  /// `Encodable` object passed in. If the document does not exist, the update fails and
+  /// the specified completion block receives an error.
+
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be used to update the document.
+  ///   - completion: A block to execute when the update is complete. If the update is successful the
+  ///      error parameter will be nil, otherwise it will give an indication of how the update failed.
+  ///      This block will only execute when the client is online and the commit has completed against
+  ///      the server. The completion handler will not be called when the device is offline, though
+  ///      local changes will be visible immediately.
   public func updateData<T: Encodable>(from value: T,
                                        completion: ((Error?) -> Void)? = nil)
     throws {
     try updateData(from: value, encoder: Firestore.Encoder(), completion: completion)
   }
 
+  /// Updates fields in the document referred to by this `FIRDocumentReference`, using the
+  /// `Encodable` object passed in. If the document does not exist, the update fails and
+  /// the specified completion block receives an error.
+
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be used to update the document.
+  ///   - encoder: An encoder instance to use to encode `value` to key-value pairs to be used
+  ///      in the update.
+  ///   - completion: A block to execute when the update is complete. If the update is successful the
+  ///      error parameter will be nil, otherwise it will give an indication of how the update failed.
+  ///      This block will only execute when the client is online and the commit has completed against
+  ///      the server. The completion handler will not be called when the device is offline, though
+  ///      local changes will be visible immediately.
   public func updateData<T: Encodable>(from value: T,
                                        encoder: Firestore.Encoder,
                                        completion: ((Error?) -> Void)? = nil)

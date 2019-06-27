@@ -25,7 +25,7 @@ extension WriteBatch {
   /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: a instance of `Encoded` to be encoded to a document.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
   public func setData<T: Encodable>(from value: T,
@@ -40,7 +40,7 @@ extension WriteBatch {
   /// See `Firestore.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
-  ///   - value: a instance of `Encoded` to be encoded to a document.
+  ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
@@ -51,12 +51,27 @@ extension WriteBatch {
     return self
   }
 
+  /// Updates fields in the document referred to by `doc`, using the `Encodable` object
+  /// passed in. If document does not exist, the write batch will fail.
+  ///
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be used to update the Firestore document.
+  ///   - doc: The document to update the encoded data to.
+  /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
   public func updateData<T: Encodable>(from value: T,
                                        forDocument doc: DocumentReference)
     throws -> WriteBatch {
     return try updateData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
   }
 
+  /// Updates fields in the document referred to by `doc`, using the `Encodable` object
+  /// passed in. If document does not exist, the write batch will fail.
+  ///
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be used to update the Firestore document.
+  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - doc: The document to update the encoded data to.
+  /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
   public func updateData<T: Encodable>(from value: T,
                                        encoder: Firestore.Encoder,
                                        forDocument doc: DocumentReference)
