@@ -42,7 +42,7 @@ FOUNDATION_EXPORT NSString *const kGDTApplicationWillTerminateNotification;
 BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags);
 
 /** A typedef identify background identifiers. */
-typedef NSUInteger GDTBackgroundIdentifier NS_TYPED_ENUM;
+typedef NSUInteger GDTBackgroundIdentifier;
 
 /** A background task's invalid sentinel value. */
 FOUNDATION_EXPORT const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid;
