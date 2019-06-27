@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension WriteBatch {
+extension Transaction {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the document referred by this `DocumentReference`. If no document exists,
   /// it is created. If a document already exists, it is overwritten.
@@ -27,9 +27,9 @@ extension WriteBatch {
   /// - Parameters:
   ///   - value: a instance of `Encoded` to be encoded to a document.
   ///   - doc: The document to create/overwrite the encoded data to.
-  /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
+  /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   public func setData<T: Encodable>(from value: T,
-                                    forDocument doc: DocumentReference) throws -> WriteBatch {
+                                    forDocument doc: DocumentReference) throws -> Transaction {
     return try setData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
   }
 
@@ -43,25 +43,24 @@ extension WriteBatch {
   ///   - value: a instance of `Encoded` to be encoded to a document.
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - doc: The document to create/overwrite the encoded data to.
-  /// - Returns: This instance of `WriteBatch`. Used for chaining method calls.
+  /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   public func setData<T: Encodable>(from value: T,
                                     encoder: Firestore.Encoder,
-                                    forDocument doc: DocumentReference) throws -> WriteBatch {
+                                    forDocument doc: DocumentReference) throws -> Transaction {
     setData(try encoder.encode(value), forDocument: doc)
     return self
   }
 
   public func updateData<T: Encodable>(from value: T,
                                        forDocument doc: DocumentReference)
-    throws -> WriteBatch {
+    throws -> Transaction {
     return try updateData(from: value, encoder: Firestore.Encoder(), forDocument: doc)
   }
 
   public func updateData<T: Encodable>(from value: T,
                                        encoder: Firestore.Encoder,
                                        forDocument doc: DocumentReference)
-    throws -> WriteBatch {
-    updateData(try encoder.encode(value), forDocument: doc)
-    return self
+    throws -> Transaction {
+    return updateData(try encoder.encode(value), forDocument: doc)
   }
 }
