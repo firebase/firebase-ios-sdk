@@ -142,7 +142,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
 
       let data = readDocument(forRef: docToWrite)
-      
+
       XCTAssertEqual(data["array"] as! [Int], [1, 2, 3], "Failed with flavor \(flavor)")
       XCTAssertEqual(data["intValue"] as! Int, 3, "Failed with flavor \(flavor)")
     }
@@ -182,7 +182,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     let model = Model(name: "test",
                       age: 42)
     let update = Model(name: nil, age: 43)
-    
+
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
       try updateData(from: update, forDocument: docToWrite, withFlavor: flavor)
