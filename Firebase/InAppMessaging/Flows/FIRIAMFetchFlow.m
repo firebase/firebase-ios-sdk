@@ -19,6 +19,7 @@
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMClearcutLogger.h"
 #import "FIRIAMFetchFlow.h"
+#import "FIRIAMRuntimeManager.h"
 
 @implementation FIRIAMFetchSetting
 @end
@@ -124,7 +125,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                    nextFetchWaitTime:fetchWaitTime];
 }
 
-- (void)checkAndFetch {
+- (void)checkAndFetchForInitialAppLaunch:(BOOL)forInitialAppLaunch {
   NSTimeInterval intervalFromLastFetchInSeconds =
       [self.timeFetcher currentTimestampInSeconds] - self.fetchBookKeeper.lastFetchTime;
 
@@ -229,6 +230,10 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                              [self handleSuccessullyFetchedMessages:messages
                                                   withFetchWaitTime:nextFetchWaitTime
                                                  requestImpressions:impressions];
+
+                             if (forInitialAppLaunch) {
+                               [self checkForAppLaunchMessage];
+                             }
                            }
                            // Send this regardless whether fetch is successful or not.
                            [self sendFetchIsDoneNotification];
@@ -249,5 +254,10 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                  timestamp:nil];
     [self.activityLogger addLogRecord:record];
   }
+}
+
+- (void)checkForAppLaunchMessage {
+  [[FIRIAMRuntimeManager getSDKRuntimeInstance]
+          .displayExecutor checkAndDisplayNextAppLaunchMessage];
 }
 @end

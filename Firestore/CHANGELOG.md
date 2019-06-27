@@ -1,5 +1,9 @@
 # Unreleased
 
+# 1.4.1
+- [fixed] Fixed certificate loading for non-CocoaPods builds that may not
+  include bundle identifiers in their frameworks or apps (#3184).
+
 # 1.4.0
 - [feature] Added `clearPersistence()`, which clears the persistent storage
   including pending writes and cached documents. This is intended to help

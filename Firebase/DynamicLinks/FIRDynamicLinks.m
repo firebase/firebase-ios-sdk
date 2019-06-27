@@ -190,12 +190,12 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     error =
         [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
                                                     errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:kFIRServiceDynamicLinks
+                                                      service:@"DynamicLinks"
                                                        reason:errorDescription];
   }
   if (error) {
     // TODO: Remove this call to sendLogsWithServiceName:version:.
-    [app sendLogsWithServiceName:kFIRServiceDynamicLinks version:kFIRDLVersion error:error];
+    [app sendLogsWithServiceName:@"DynamicLinks" version:kFIRDLVersion error:error];
     NSString *message = nil;
     if (options.usingOptionsFromDefaultPlist) {
       // Configured using plist file

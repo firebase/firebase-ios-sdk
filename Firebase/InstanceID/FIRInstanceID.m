@@ -947,9 +947,9 @@ static FIRInstanceID *gInstanceID;
                                           object:[self.defaultFCMToken copy]];
         [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
                                                    postingStyle:NSPostASAP];
-
-        [self performDefaultTokenHandlerWithToken:token error:nil];
       }
+
+      [self performDefaultTokenHandlerWithToken:token error:nil];
     }
   };
 

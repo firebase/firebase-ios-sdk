@@ -28,6 +28,26 @@
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
+// The kFIRService strings are only here while transitioning CoreDiagnostics from the Analytics
+// pod to a Core dependency. These symbols are not used and should be deleted after the transition.
+NSString *const kFIRServiceAdMob;
+NSString *const kFIRServiceAuth;
+NSString *const kFIRServiceAuthUI;
+NSString *const kFIRServiceCrash;
+NSString *const kFIRServiceDatabase;
+NSString *const kFIRServiceDynamicLinks;
+NSString *const kFIRServiceFirestore;
+NSString *const kFIRServiceFunctions;
+NSString *const kFIRServiceInstanceID;
+NSString *const kFIRServiceInvites;
+NSString *const kFIRServiceMessaging;
+NSString *const kFIRServiceMeasurement;
+NSString *const kFIRServicePerformance;
+NSString *const kFIRServiceRemoteConfig;
+NSString *const kFIRServiceStorage;
+NSString *const kGGLServiceAnalytics;
+NSString *const kGGLServiceSignIn;
+
 NSString *const kFIRDefaultAppName = @"__FIRAPP_DEFAULT";
 NSString *const kFIRAppReadyToConfigureSDKNotification = @"FIRAppReadyToConfigureSDKNotification";
 NSString *const kFIRAppDeleteNotification = @"FIRAppDeleteNotification";

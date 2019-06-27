@@ -42,13 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *pendingToken;
 
-/** @property secret
-    @brief The secret associated with this credential. This will be nil for OAuth 2.0 providers.
-    @detail OAuthCredential already exposes a providerId getter. This will help the developer
-        determine whether an access token/secret pair is needed.
- */
-@property(nonatomic, readonly, nullable) NSString *secret;
-
 /** @fn initWithProviderId:IDToken:accessToken:secret:pendingToken
     @brief Designated initializer.
     @param providerID The provider ID associated with the credential being created.

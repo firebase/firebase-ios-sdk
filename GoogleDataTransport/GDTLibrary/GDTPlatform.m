@@ -38,7 +38,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 @implementation GDTApplication
 
 + (void)load {
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSAssert(GDTBackgroundIdentifierInvalid == UIBackgroundTaskInvalid,
            @"GDTBackgroundIdentifierInvalid and UIBackgroundTaskInvalid should be the same.");
 #endif
@@ -57,7 +57,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 - (instancetype)init {
   self = [super init];
   if (self) {
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
                            selector:@selector(iOSApplicationDidEnterBackground:)
@@ -79,13 +79,14 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
                            selector:@selector(macOSApplicationWillTerminate:)
                                name:NSApplicationWillTerminateNotification
                              object:nil];
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
   }
   return self;
 }
 
 - (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
-  return [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
+  return
+      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
 }
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
@@ -103,7 +104,15 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif
 }
 
-- (UIApplication *)sharedApplicationForBackgroundTask {
+/** Returns a UIApplication instance if on the appropriate platform.
+ *
+ * @return The shared UIApplication if on the appropriate platform.
+ */
+#if TARGET_OS_IOS || TARGET_OS_TV
+- (nullable UIApplication *)sharedApplicationForBackgroundTask {
+#else
+- (nullable id)sharedApplicationForBackgroundTask {
+#endif
   if ([self isAppExtension]) {
     return nil;
   }
@@ -118,7 +127,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 
 #pragma mark - UIApplicationDelegate
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
@@ -133,7 +142,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTApplicationWillTerminateNotification object:nil];
 }
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #pragma mark - NSApplicationDelegate
 

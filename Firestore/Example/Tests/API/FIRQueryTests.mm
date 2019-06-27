@@ -23,6 +23,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 namespace api = firebase::firestore::api;
 

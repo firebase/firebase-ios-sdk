@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+import FirebaseFirestore
+import Foundation
+import XCTest
 
-// This file contains declarations that should go into FirebaseCore when
-// Firebase InAppMessagingDisplay is merged into master. Keep them separate now to help
-// with build from development folder and avoid merge conflicts.
+class EncodableFieldValue: XCTestCase {
+  func testFieldValueEncodeThrows() {
+    let fieldValue = FieldValue.delete()
 
-extern FIRLoggerService kFIRLoggerInAppMessagingDisplay;
-
-// this should eventually be in FIRError.h
-extern NSString *const kFirebaseInAppMessagingDisplayErrorDomain;
+    do {
+      _ = try JSONEncoder().encode(fieldValue)
+    } catch {
+      return
+    }
+    XCTFail("Encoding FieldValue from encoders other than FirestoreEncoder should throw.")
+  }
+}

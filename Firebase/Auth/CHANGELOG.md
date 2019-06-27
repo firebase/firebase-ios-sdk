@@ -1,5 +1,9 @@
+# v6.2.0
+- Expose `secret` of OAuth credential in public header. (#3089)
+- Fix a keychain issue where API key is incorrectly set. (#3239)
+
 # v6.1.2
-- Raise an exception when signing in with Facebook using `OAuthProvider`. (#3138)
+- Fix line limits and linter warnings in public documentation. (#3139)
 
 # v6.1.1
 - Fix an issue where a user can't link with email provider by email link. (#3030)

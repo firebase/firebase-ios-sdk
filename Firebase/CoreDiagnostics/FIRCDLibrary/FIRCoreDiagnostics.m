@@ -61,9 +61,29 @@ static NSString *const kFIRServiceMLVisionOnDeviceObjectDetection =
     @"MLVisionOnDeviceObjectDetection";
 static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 
-// Reconcile this with kFIRLoggerInAppMessaging defined in FIRCore+InAppMessaging.m
-// after fiam sdk is released
+static NSString *const kFIRServiceAdMob = @"AdMob";
+static NSString *const kFIRServiceAuth = @"Auth";
+static NSString *const kFIRServiceAuthUI = @"AuthUI";
+static NSString *const kFIRServiceCrash = @"Crash";
+static NSString *const kFIRServiceDatabase = @"Database";
+static NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
+static NSString *const kFIRServiceFirestore = @"Firestore";
+static NSString *const kFIRServiceFunctions = @"Functions";
 static NSString *const kFIRServiceIAM = @"InAppMessaging";
+static NSString *const kFIRServiceInstanceID = @"InstanceID";
+static NSString *const kFIRServiceInvites = @"Invites";
+static NSString *const kFIRServiceMessaging = @"Messaging";
+static NSString *const kFIRServiceMeasurement = @"Measurement";
+static NSString *const kFIRServicePerformance = @"Performance";
+static NSString *const kFIRServiceRemoteConfig = @"RemoteConfig";
+static NSString *const kFIRServiceStorage = @"Storage";
+static NSString *const kGGLServiceAnalytics = @"Analytics";
+static NSString *const kGGLServiceSignIn = @"SignIn";
+static NSString *const kFIRAppDiagnosticsConfigurationTypeKey =
+    @"FIRAppDiagnosticsConfigurationTypeKey";
+static NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRAppDiagnosticsFIRAppKey";
+static NSString *const kFIRAppDiagnosticsSDKNameKey = @"FIRAppDiagnosticsSDKNameKey";
+static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKVersionKey";
 
 /**
  * The file name to the recent heartbeat date.
@@ -518,7 +538,7 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType *servicesInstalled =
       malloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType) *
              sdkServiceInstalledArray.count);
-  for (int i = 0; i < sdkServiceInstalledArray.count; i++) {
+  for (NSUInteger i = 0; i < sdkServiceInstalledArray.count; i++) {
     NSNumber *typeEnum = sdkServiceInstalledArray[i];
     logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType serviceType =
         (int32_t)typeEnum.integerValue;
@@ -580,7 +600,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
   config->has_swizzling_enabled = 1;
 }
 
-#pragma FIRCoreDiagnosticsInterop
+#pragma mark - FIRCoreDiagnosticsInterop
 
 + (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData {
   FIRCoreDiagnostics *diagnostics = [FIRCoreDiagnostics sharedInstance];
@@ -606,7 +626,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInstalledServices(&icore_config);
     FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
-    [self setHeartbeatFalgIfNeededToConfig:&icore_config];
+    [self setHeartbeatFlagIfNeededToConfig:&icore_config];
 
     // This log object is capable of converting the proto to bytes.
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
@@ -620,7 +640,7 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
 
 #pragma mark - Heartbeat
 
-- (void)setHeartbeatFalgIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
+- (void)setHeartbeatFlagIfNeededToConfig:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   // Check if need to send a heartbeat.
   NSDate *currentDate = [NSDate date];
   NSDate *lastCheckin = [self.heartbeatDateStorage date];

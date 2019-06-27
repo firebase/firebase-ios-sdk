@@ -265,7 +265,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testErrorForSubspecConfigurationFailure {
   NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
                                                                errorCode:-38
-                                                                 service:kFIRServiceAuth
+                                                                 service:@"Auth"
                                                                   reason:@"some reason"];
   XCTAssertNotNil(error);
   XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);

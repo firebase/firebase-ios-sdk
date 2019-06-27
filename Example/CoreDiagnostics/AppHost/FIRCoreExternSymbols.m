@@ -18,5 +18,5 @@
 
 // This file is only used to help compile FirebaseCoreDiagnostics for testing. */
 
-/** For testing use only. This symbol should be provided by */
+/** For testing use only. This symbol should be provided by FirebaseCoreDiagnostics. */
 Class FIRCoreDiagnosticsImplementation;
