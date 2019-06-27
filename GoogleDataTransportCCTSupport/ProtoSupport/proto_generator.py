@@ -262,7 +262,7 @@ def nanopb_rename_delete(lines):
 
 
 def nanopb_use_module_import(lines):
-  """Changes #include <pb.h> to #include <nanopb/pb.h>"""
+  """Changes #include <pb.h> to include <nanopb/pb.h>""" # Don't let Copybara alter this line.
   return [line.replace('#include <pb.h>', '#include <nanopb/pb.h>') for line in lines]
 
 
