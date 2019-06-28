@@ -30,6 +30,7 @@ extension Firestore {
     /// The Firestore pass-through types are:
     ///   - GeoPoint
     ///   - Timestamp
+    ///   - DocumentReference
     ///
     /// - Parameter value: The Encodable object to convert to encoded data.
     /// - Returns: A Map keyed by String representing a document Firestore

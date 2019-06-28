@@ -26,6 +26,7 @@ extension Firestore {
     /// in `container` are directly supported:
     ///   - GeoPoint
     ///   - Timestamp
+    ///   - DocumentReference
     ///
     /// - Parameters:
     ///   - A type to decode a document to.
