@@ -22,6 +22,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const FIRInstallationIDDidChangeNotification;
+
 typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
                                           NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsIDHandler);

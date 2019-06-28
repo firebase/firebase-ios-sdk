@@ -31,6 +31,7 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
 
+NSString *const FIRInstallationIDDidChangeNotification = @"FIRInstallationIDDidChangeNotification";
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
 @interface FIRInstallationsIDController ()
@@ -158,9 +159,16 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createAndSaveFID {
-  return [self migrateOrGenerateFID].then(^FBLPromise<FIRInstallationsItem *> *(NSString *FID) {
-    return [self createAndSaveInstallationWithFID:FID];
-  });
+  return [self migrateOrGenerateFID]
+      .then(^FBLPromise<FIRInstallationsItem *> *(NSString *FID) {
+        return [self createAndSaveInstallationWithFID:FID];
+      })
+      .then(^FIRInstallationsItem *(FIRInstallationsItem *installation) {
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:FIRInstallationIDDidChangeNotification
+                          object:nil];
+        return installation;
+      });
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createAndSaveInstallationWithFID:(NSString *)FID {

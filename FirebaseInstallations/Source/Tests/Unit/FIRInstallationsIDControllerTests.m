@@ -20,6 +20,7 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
 
+#import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
@@ -603,6 +604,51 @@
 }
 
 // TODO: Test a single delete installation request at a time.
+
+#pragma mark - Notifications
+
+- (void)testFIDDidChangeNotificationIsSentWhenFIDCreated {
+  // 1. Stub - no installation.
+  // 1.2. FID store.
+  [self expectInstallationsStoreGetInstallationNotFound];
+
+  OCMStub([self.mockInstallationsStore saveInstallation:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 1.3. IID store.
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
+  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+
+  // 1.4. API Service.
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:[FIRInstallationsItem createRegisteredInstallationItem]]);
+
+  // 2. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:FIRInstallationIDDidChangeNotification
+                                object:nil
+                               handler:^BOOL(NSNotification *_Nonnull notification) {
+                                 return YES;
+                               }];
+
+  // 3. Request FID.
+  FBLPromise *promise = [self.controller getInstallationItem];
+  FBLWaitForPromisesWithTimeout(0.5);
+
+  // 4. Check.
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testFIDDidChangeNotificationIsSentWhenInstallationIsDeleted {
+  
+}
 
 #pragma mark - Helpers
 
