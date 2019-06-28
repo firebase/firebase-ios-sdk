@@ -22,4 +22,4 @@ readonly REPO_DIR="$( git rev-parse --show-toplevel )"
   exit 1
 }
 
-pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --app-host-source-dir="${REPO_DIR}/Example/CoreDiagnostics/AppHost/" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git --clean
+pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --clean
