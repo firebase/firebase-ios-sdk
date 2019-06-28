@@ -171,6 +171,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
     kFIRCDLibraryVersionIDKey : kLibraryVersionID,
     kFIRCDUsingOptionsFromDefaultPlistKey : @YES
   });
+  icoreConfiguration.using_gdt = 1;
+  icoreConfiguration.has_using_gdt = 1;
   FIRPopulateProtoWithNumberOfLinkedFrameworks(&icoreConfiguration);
   FIRPopulateProtoWithInfoPlistValues(&icoreConfiguration);
   icoreConfiguration.configuration_type =
@@ -191,12 +193,12 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 // Populates the ICoreConfiguration proto.
 - (void)populateProto:(logs_proto_mobilesdk_ios_ICoreConfiguration *)config {
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
-  NSString *xcodeVersion = info[@"DTXcodeBuild"];
-  XCTAssertNotNil(xcodeVersion);
-  NSString *sdkVersion = info[@"DTSDKBuild"];
-  XCTAssertNotNil(sdkVersion);
+  NSString *xcodeVersion = info[@"DTXcodeBuild"] ?: @"";
+  NSString *sdkVersion = info[@"DTSDKBuild"] ?: @"";
   NSString *combinedVersions = [NSString stringWithFormat:@"%@-%@", xcodeVersion, sdkVersion];
 
+  config->using_gdt = 1;
+  config->has_using_gdt = 1;
   config->configuration_type = logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_CORE;
   config->icore_version = FIREncodeString(kLibraryVersionID);
   config->pod_name = logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_FIREBASE;
@@ -226,9 +228,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->dynamic_framework_count = numFrameworks;
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
-#if TARGET_OS_IOS
-  config->min_supported_ios_version = FIREncodeString(@"8.0");
-#else
+#if !TARGET_OS_IOS
   NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
   if (minVersion) {
     config->min_supported_ios_version = FIREncodeString(minVersion);
