@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef GUL_LOGGER_LEVEL_H
+#define GUL_LOGGER_LEVEL_H
+
 /**
  * The log levels used by internal logging.
  */
@@ -33,3 +36,5 @@ typedef NS_ENUM(NSInteger, GULLoggerLevel) {
   /** Maximum log level. */
   GULLoggerLevelMax = GULLoggerLevelDebug
 } NS_SWIFT_NAME(GoogleLoggerLevel);
+
+#endif /* GUL_LOGGER_LEVEL_H */
