@@ -620,6 +620,9 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     logs_proto_mobilesdk_ios_ICoreConfiguration icore_config =
         logs_proto_mobilesdk_ios_ICoreConfiguration_init_default;
 
+    icore_config.using_gdt = 1;
+    icore_config.has_using_gdt = 1;
+
     // Populate the proto with information.
     FIRPopulateProtoWithInfoFromUserInfoParams(&icore_config, diagnosticObjects);
     FIRPopulateProtoWithCommonInfoFromApp(&icore_config, diagnosticObjects);

@@ -99,4 +99,5 @@ message ICoreConfiguration {
   optional bool swizzling_enabled = 33;
   optional int32 log_error_count = 34;
   optional int32 log_warning_count = 35;
+  optional bool using_gdt = 36;
 }

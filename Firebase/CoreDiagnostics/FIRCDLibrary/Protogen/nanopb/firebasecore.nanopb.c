@@ -26,7 +26,7 @@
 
 
 
-const pb_field_t logs_proto_mobilesdk_ios_ICoreConfiguration_fields[33] = {
+const pb_field_t logs_proto_mobilesdk_ios_ICoreConfiguration_fields[34] = {
     PB_FIELD(  1, UENUM   , OPTIONAL, STATIC  , FIRST, logs_proto_mobilesdk_ios_ICoreConfiguration, configuration_type, configuration_type, 0),
     PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, version_name, configuration_type, 0),
     PB_FIELD(  3, INT64   , OPTIONAL, STATIC  , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, build_number, version_name, 0),
@@ -59,6 +59,7 @@ const pb_field_t logs_proto_mobilesdk_ios_ICoreConfiguration_fields[33] = {
     PB_FIELD( 33, BOOL    , OPTIONAL, STATIC  , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, swizzling_enabled, app_extensions, 0),
     PB_FIELD( 34, INT32   , OPTIONAL, STATIC  , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, log_error_count, swizzling_enabled, 0),
     PB_FIELD( 35, INT32   , OPTIONAL, STATIC  , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, log_warning_count, log_error_count, 0),
+    PB_FIELD( 36, BOOL    , OPTIONAL, STATIC  , OTHER, logs_proto_mobilesdk_ios_ICoreConfiguration, using_gdt, log_warning_count, 0),
     PB_LAST_FIELD
 };
 
