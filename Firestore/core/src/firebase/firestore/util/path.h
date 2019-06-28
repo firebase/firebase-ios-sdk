@@ -95,7 +95,7 @@ class Path {
 
 #if defined(__OBJC__)
   NSString* ToNSString() const {
-    return WrapNSString(native_value());
+    return MakeNSString(native_value());
   }
 #endif
 
