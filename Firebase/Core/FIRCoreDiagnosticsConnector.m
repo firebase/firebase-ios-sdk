@@ -32,8 +32,12 @@ Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
   if (!FIRCoreDiagnosticsImplementation) {
     FIRCoreDiagnosticsImplementation = NSClassFromString(@"FIRCoreDiagnostics");
     if (FIRCoreDiagnosticsImplementation) {
-      NSAssert([FIRCoreDiagnosticsImplementation conformsToProtocol:@protocol(FIRCoreDiagnosticsInterop)], @"If FIRCoreDiagnostics is implemented, it must conform to the interop protocol.");
-      NSAssert([FIRCoreDiagnosticsImplementation respondsToSelector:@selector(sendDiagnosticsData:)], @"If FIRCoreDiagnostics is implemented, it must implement +sendDiagnosticsData.");
+      NSAssert([FIRCoreDiagnosticsImplementation
+                   conformsToProtocol:@protocol(FIRCoreDiagnosticsInterop)],
+               @"If FIRCoreDiagnostics is implemented, it must conform to the interop protocol.");
+      NSAssert(
+          [FIRCoreDiagnosticsImplementation respondsToSelector:@selector(sendDiagnosticsData:)],
+          @"If FIRCoreDiagnostics is implemented, it must implement +sendDiagnosticsData.");
     }
   }
 }
