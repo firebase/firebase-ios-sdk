@@ -47,7 +47,13 @@ let package = Package(
       name: "GoogleUtilities_Logger",
       dependencies: ["GoogleUtilities_Environment"],
       path: "GoogleUtilities/Logger",
-      publicHeadersPath: "Public"),
+      publicHeadersPath: "Public",
+      cSettings: [
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
+        .define("TEST_PAUL_DEFINE", to: "1"),  // SPM loses defaults if other cSettings
+//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+      ]
+      ),
 // Interop fails with
 // warning: Source files for target FirebaseAuthInterop should be located under ..firebase-ios-sdk/Interop/Auth
 //'Firebase' : error: target 'FirebaseAuthInterop' referenced in product 'FirebaseAuthInterop' could not be found
