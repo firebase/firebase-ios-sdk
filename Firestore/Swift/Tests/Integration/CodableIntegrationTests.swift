@@ -36,28 +36,28 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     switch flavor {
     case .docRef:
-      if let mergeUnwrapped = merge {
-        try doc.setData(from: value, merge: mergeUnwrapped, completion: completion)
-      } else if let mergeFieldsUnwrapped = mergeFields {
-        try doc.setData(from: value, mergeFields: mergeFieldsUnwrapped, completion: completion)
+      if let merge = merge {
+        try doc.setData(from: value, merge: merge, completion: completion)
+      } else if let mergeFields = mergeFields {
+        try doc.setData(from: value, mergeFields: mergeFields, completion: completion)
       } else {
         try doc.setData(from: value, completion: completion)
       }
     case .writeBatch:
-      if let mergeUnwrapped = merge {
-        try doc.firestore.batch().setData(from: value, forDocument: doc, merge: mergeUnwrapped).commit(completion: completion)
-      } else if let mergeFieldsUnwrapped = mergeFields {
-        try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFieldsUnwrapped).commit(completion: completion)
+      if let merge = merge {
+        try doc.firestore.batch().setData(from: value, forDocument: doc, merge: merge).commit(completion: completion)
+      } else if let mergeFields = mergeFields {
+        try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFields).commit(completion: completion)
       } else {
         try doc.firestore.batch().setData(from: value, forDocument: doc).commit(completion: completion)
       }
     case .transaction:
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
-          if let mergeUnwrapped = merge {
-            try transaction.setData(from: value, forDocument: doc, merge: mergeUnwrapped)
-          } else if let mergeFieldsUnwrapped = mergeFields {
-            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFieldsUnwrapped)
+          if let merge = merge {
+            try transaction.setData(from: value, forDocument: doc, merge: merge)
+          } else if let mergeFields = mergeFields {
+            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
             try transaction.setData(from: value, forDocument: doc)
           }
@@ -169,40 +169,33 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSetThenMerge() throws {
-    struct Model: Codable {
-      var name: String
-      var age: Int32
-    }
-    struct ModelUpdate: Codable {
-      var age: Int32
-      var hobby: String
-    }
-    struct ModelMerge: Codable, Equatable {
-      var name: String
-      var age: Int32
-      var hobby: String
+    struct Model: Codable, Equatable {
+      var name: String? = nil
+      var age: Int32? = nil
+      var hobby: String? = nil
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
-                      age: 42)
-    let update = ModelUpdate(age: 43, hobby: "No")
+                      age: 42, hobby: nil)
+    // 'name' will be skipped in merge because it's Optional.
+    let update = Model(name: nil, age: 43, hobby: "No")
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
       try setData(from: update, forDocument: docToWrite, withFlavor: flavor, merge: true)
 
-      var readAfterUpdate = try readDocument(forRef: docToWrite).data(as: ModelMerge.self)
+      var readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
 
-      XCTAssertEqual(readAfterUpdate!, ModelMerge(name: "test",
-                                                  age: 43, hobby: "No"), "Failed with flavor \(flavor)")
+      XCTAssertEqual(readAfterUpdate!, Model(name: "test",
+                                             age: 43, hobby: "No"), "Failed with flavor \(flavor)")
 
-      let newUpdate = ModelUpdate(age: 10, hobby: "Play")
-      // Note 'hobby' is not updated.
-      try setData(from: newUpdate, forDocument: docToWrite, withFlavor: flavor, mergeFields: ["age"])
+      let newUpdate = Model(name: "xxxx", age: 10, hobby: "Play")
+      // Note 'name' is not updated.
+      try setData(from: newUpdate, forDocument: docToWrite, withFlavor: flavor, mergeFields: ["age", FieldPath(["hobby"])])
 
-      readAfterUpdate = try readDocument(forRef: docToWrite).data(as: ModelMerge.self)
-      XCTAssertEqual(readAfterUpdate!, ModelMerge(name: "test",
-                                                  age: 10, hobby: "No"), "Failed with flavor \(flavor)")
+      readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
+      XCTAssertEqual(readAfterUpdate!, Model(name: "test",
+                                             age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
     }
   }
 }
