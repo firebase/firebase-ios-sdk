@@ -31,9 +31,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/** The class that implements this interop protocol. Unforunately, the components framework can't
- * be used because of a cyclical dependency issue.
- */
-FOUNDATION_EXTERN Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
-
 NS_ASSUME_NONNULL_END

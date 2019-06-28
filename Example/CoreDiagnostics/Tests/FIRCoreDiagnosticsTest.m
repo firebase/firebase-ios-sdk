@@ -35,9 +35,6 @@
 
 #import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
-// TODO: Remove ASAP. Only needed for solving a chicken-and-egg pod lib lint issue.
-Class FIRCoreDiagnosticsImplementation;
-
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
 
@@ -153,11 +150,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   self.mockTransport = nil;
   self.mockDateStorage = nil;
   [super tearDown];
-}
-
-/** Tests initialization. */
-- (void)testExternVariableIsSet {
-  XCTAssertNotNil(FIRCoreDiagnosticsImplementation);
 }
 
 /** Tests populating the proto correctly. */

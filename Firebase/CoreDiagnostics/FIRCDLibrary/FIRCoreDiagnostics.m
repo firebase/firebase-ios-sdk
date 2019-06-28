@@ -157,10 +157,6 @@ NS_ASSUME_NONNULL_END
 
 @implementation FIRCoreDiagnostics
 
-+ (void)load {
-  FIRCoreDiagnosticsImplementation = self;
-}
-
 + (instancetype)sharedInstance {
   static FIRCoreDiagnostics *sharedInstance;
   static dispatch_once_t onceToken;

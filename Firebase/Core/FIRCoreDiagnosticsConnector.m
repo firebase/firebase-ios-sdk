@@ -28,6 +28,20 @@ Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
 
 @implementation FIRCoreDiagnosticsConnector
 
++ (void)initialize {
+  if (!FIRCoreDiagnosticsImplementation) {
+    FIRCoreDiagnosticsImplementation = NSClassFromString(@"FIRCoreDiagnostics");
+    if (FIRCoreDiagnosticsImplementation) {
+      NSAssert([FIRCoreDiagnosticsImplementation
+                   conformsToProtocol:@protocol(FIRCoreDiagnosticsInterop)],
+               @"If FIRCoreDiagnostics is implemented, it must conform to the interop protocol.");
+      NSAssert(
+          [FIRCoreDiagnosticsImplementation respondsToSelector:@selector(sendDiagnosticsData:)],
+          @"If FIRCoreDiagnostics is implemented, it must implement +sendDiagnosticsData.");
+    }
+  }
+}
+
 + (void)logConfigureCoreWithOptions:(FIROptions *)options {
   if (FIRCoreDiagnosticsImplementation) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
