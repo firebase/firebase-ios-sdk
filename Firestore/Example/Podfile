@@ -9,6 +9,9 @@ source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 
+install! 'cocoapods',
+    :generate_multiple_pod_projects => true,
+    :incremental_installation => true
 
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
