@@ -6,22 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		DE29E7F51F2174B000909613 /* AllTests_iOS */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests_iOS" */;
-			buildPhases = (
-			);
-			dependencies = (
-				DE29E7FA1F2174DD00909613 /* PBXTargetDependency */,
-				54C9EDFF2040E41900A969CD /* PBXTargetDependency */,
-				DE29E7FC1F2174DD00909613 /* PBXTargetDependency */,
-			);
-			name = AllTests_iOS;
-			productName = AllTests;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		00701EDB1AB5C1B7534AC90E /* objc_class_test_helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5748BD89DF96FB1B20272F3 /* objc_class_test_helper.mm */; };
 		0087625FD31D76E1365C589E /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
@@ -1214,13 +1198,6 @@
 			remoteGlobalIDString = 6003F589195388D20070C39A;
 			remoteInfo = Firestore_Example;
 		};
-		54C9EDFE2040E41900A969CD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 54C9EDF02040E16300A969CD;
-			remoteInfo = Firestore_SwiftTests_iOS;
-		};
 		5CAE131E20FFFED600BE9A4A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -1248,20 +1225,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6003F589195388D20070C39A;
 			remoteInfo = Firestore;
-		};
-		DE29E7F91F2174DD00909613 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 6003F5AD195388D20070C39A;
-			remoteInfo = Firestore_Tests;
-		};
-		DE29E7FB1F2174DD00909613 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE03B2941F2149D600A30B9C;
-			remoteInfo = Firestore_IntegrationTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2762,10 +2725,6 @@
 						CreatedOnToolsVersion = 9.0;
 						DevelopmentTeam = EQHXZ8M8AV;
 					};
-					DE29E7F51F2174B000909613 = {
-						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = EQHXZ8M8AV;
-					};
 				};
 			};
 			buildConfigurationList = 6003F585195388D10070C39A /* Build configuration list for PBXProject "Firestore" */;
@@ -2786,7 +2745,6 @@
 				6003F5AD195388D20070C39A /* Firestore_Tests_iOS */,
 				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 				DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests_iOS */,
-				DE29E7F51F2174B000909613 /* AllTests_iOS */,
 				6EDD3AD120BF247500C33877 /* Firestore_FuzzTests_iOS */,
 				5CAE131820FFFED600BE9A4A /* Firestore_Benchmarks_iOS */,
 				DAFF0CF421E64AC30062958F /* Firestore_Example_macOS */,
@@ -4742,11 +4700,6 @@
 			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = 54C9EDF62040E16300A969CD /* PBXContainerItemProxy */;
 		};
-		54C9EDFF2040E41900A969CD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */;
-			targetProxy = 54C9EDFE2040E41900A969CD /* PBXContainerItemProxy */;
-		};
 		5CAE131F20FFFED600BE9A4A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
@@ -4766,16 +4719,6 @@
 			isa = PBXTargetDependency;
 			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = DE03B2961F2149D600A30B9C /* PBXContainerItemProxy */;
-		};
-		DE29E7FA1F2174DD00909613 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 6003F5AD195388D20070C39A /* Firestore_Tests_iOS */;
-			targetProxy = DE29E7F91F2174DD00909613 /* PBXContainerItemProxy */;
-		};
-		DE29E7FC1F2174DD00909613 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests_iOS */;
-			targetProxy = DE29E7FB1F2174DD00909613 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -5600,22 +5543,6 @@
 			};
 			name = Release;
 		};
-		DE29E7F61F2174B000909613 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		DE29E7F71F2174B000909613 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5732,15 +5659,6 @@
 			buildConfigurations = (
 				DE03B2E71F2149D600A30B9C /* Debug */,
 				DE03B2E81F2149D600A30B9C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests_iOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE29E7F61F2174B000909613 /* Debug */,
-				DE29E7F71F2174B000909613 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
