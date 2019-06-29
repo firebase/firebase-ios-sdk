@@ -29,10 +29,10 @@ namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRQueryTests : XCTestCase
+@interface FIRQueryUnitTests : XCTestCase
 @end
 
-@implementation FIRQueryTests
+@implementation FIRQueryUnitTests
 
 - (void)testEquals {
   std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
