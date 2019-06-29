@@ -641,7 +641,8 @@ MATCHER_P(HasCanonicalId, expected, "") {
   FSTQuery *query = FSTTestQuery("coll");
   XC_ASSERT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
 
-  FSTQuery *cg = [FSTQuery queryWithPath:ResourcePath::Empty() collectionGroup:@"foo"];
+  FSTQuery *cg = [FSTQuery queryWithPath:ResourcePath::Empty()
+                         collectionGroup:std::make_shared<const std::string>("foo")];
   XC_ASSERT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
 
   FSTQuery *subcoll = FSTTestQuery("foo/bar/baz");

@@ -84,7 +84,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   CollectionReference GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
   WriteBatch GetBatch();
-  FIRQuery* GetCollectionGroup(NSString* collection_id);
+  FIRQuery* GetCollectionGroup(std::string collection_id);
 
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback);
