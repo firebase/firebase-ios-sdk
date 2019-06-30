@@ -51,7 +51,9 @@ target 'Firestore_Example_iOS' do
     inherit! :search_paths
 
     pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
@@ -94,7 +96,9 @@ target 'Firestore_Example_macOS' do
     inherit! :search_paths
 
     pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
@@ -125,7 +129,9 @@ target 'Firestore_Example_tvOS' do
     inherit! :search_paths
 
     pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
