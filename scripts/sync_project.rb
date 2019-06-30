@@ -51,6 +51,7 @@ def sync_firestore()
   # Files on the filesystem that should be ignored.
   s.ignore_files = [
     'CMakeLists.txt',
+    'README.md',
     'InfoPlist.strings',
     '*.orig',
     '*.plist',
@@ -175,9 +176,18 @@ class TargetDef
     return diff
   end
 
+  # We're only managing synchronization of files in these phases.
+  INTERESTING_PHASES = [
+    Xcodeproj::Project::Object::PBXHeadersBuildPhase,
+    Xcodeproj::Project::Object::PBXSourcesBuildPhase,
+    Xcodeproj::Project::Object::PBXResourcesBuildPhase,
+  ]
+
   # Finds all the files referred to by any phase in a target
   def each_target_file(target)
     target.build_phases.each do |phase|
+      next if not INTERESTING_PHASES.include?(phase.class)
+
       phase.files.each do |build_file|
         yield build_file.file_ref
       end
@@ -287,6 +297,10 @@ class Syncer
 
       next if remove_paths.include?(file_ref.real_path)
 
+      path = file_ref.real_path
+      next if @finder.ignore_basename?(path.basename)
+      next if @finder.ignore_pathname?(path)
+
       result.push(file_ref)
     end
     return result
@@ -362,7 +376,7 @@ class Syncer
       #return target.headers_build_phase
       return nil
     else
-      #return target.resources_build_phase
+      return target.resources_build_phase
       return nil
     end
   end
@@ -614,7 +628,6 @@ class DirectoryLister
     return result
   end
 
-  private
   def ignore_basename?(basename)
     @ignore_basenames.each do |ignore|
       if basename.fnmatch(ignore)
