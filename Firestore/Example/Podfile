@@ -110,6 +110,7 @@ target 'Firestore_Example_macOS' do
   target 'Firestore_IntegrationTests_macOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
 
     pod 'OCMock'
@@ -138,6 +139,7 @@ target 'Firestore_Example_tvOS' do
   target 'Firestore_IntegrationTests_tvOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
 
     pod 'OCMock'
