@@ -49,8 +49,7 @@ let package = Package(
       path: "GoogleUtilities/Logger",
       publicHeadersPath: "Public",
       cSettings: [
-        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-        .define("TEST_PAUL_DEFINE", to: "1"),  // SPM loses defaults if other cSettings
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
       ]
       ),
@@ -68,7 +67,8 @@ let package = Package(
       path: "Firebase/Core",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("$(SRCROOT)/Firebase $(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
+        .headerSearchPath("$(SRCROOT)/Firebase"),
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
         .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("Firebase_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
@@ -82,7 +82,9 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
          // SPM doesn't support interface frameworks or private headers
-        .headerSearchPath("$(SRCROOT)/Firebase $(SRCROOT)/Interop/Auth/Public $(SRCROOT)/Firebase/Core/Private"),
+        .headerSearchPath("$(SRCROOT)/Firebase"),
+        .headerSearchPath("$(SRCROOT)/Interop/Auth/Public"),
+        .headerSearchPath("$(SRCROOT)/Firebase/Core/Private"), // SPM doesn't support private headers
         .define("FIRStorage_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
