@@ -4191,6 +4191,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
@@ -4258,6 +4260,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
@@ -4328,6 +4332,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Debug;
@@ -4397,6 +4403,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Release;
