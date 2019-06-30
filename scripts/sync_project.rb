@@ -28,7 +28,8 @@ gem 'xcodeproj', '!= 1.5.8'
 require 'xcodeproj'
 
 
-ROOT_DIR = Pathname.new(File.join(File.dirname(__FILE__), '..')).expand_path()
+ROOT_DIR = Pathname.new(__FILE__).dirname().join('..').expand_path()
+PODFILE_DIR = ROOT_DIR.join('Firestore', 'Example')
 
 
 def main()
@@ -66,6 +67,24 @@ def sync_firestore()
   ]
 
   ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_Example_#{platform}" do |t|
+      t.xcconfig = {
+        # Passing -all_load is required to get all our C++ code into the test
+        # host.
+        #
+        # Normally when running tests, the test target contains only the tests
+        # proper, and links against the test host for the code under test. The
+        # test host doesn't do anything though, so the linker strips C++-only
+        # object code away.
+        #
+        # This is particular to C++ because by default CocoaPods configures the
+        # test host to link with the -ObjC flag. This causes the linker to pull
+        # in any all Objective-C object code. -all_load fixes this by forcing
+        # the linker to pull in everything.
+        'OTHER_LDFLAGS' => '-all_load',
+      }
+    end
+
     s.target "Firestore_Tests_#{platform}" do |t|
       t.source_files = [
         'Firestore/Example/Tests/**',
@@ -131,13 +150,18 @@ end
 class TargetDef
   def initialize(name)
     @name = name
+    @sync_sources = false
     @source_files = PatternList.new()
     @exclude_files = PatternList.new()
+
+    @xcconfig = {}
   end
 
-  attr_reader :name, :source_files, :exclude_files
+  attr_reader :name, :sync_sources, :source_files, :exclude_files
+  attr_accessor :xcconfig
 
   def source_files=(value)
+    @sync_sources = true
     @source_files.patterns.replace(value)
   end
 
@@ -262,11 +286,15 @@ class Syncer
       target_def = find_target(target.name)
       next if target_def.nil?
 
-      target_diff = target_def.diff(project_files, target)
+      if target_def.sync_sources
+        target_diff = target_def.diff(project_files, target)
 
-      target_diff.sorted_entries.each do |entry|
-        sync_target_entry(target, entry)
+        target_diff.sorted_entries.each do |entry|
+          sync_target_entry(target, entry)
+        end
       end
+
+      sync_xcconfig(target_def, target)
     end
 
     remove_from_project(to_remove)
@@ -366,6 +394,32 @@ class Syncer
       #return target.resources_build_phase
       return nil
     end
+  end
+
+  # Syncs build settings to the .xcconfig file for the build configuration,
+  # avoiding any changes to the Xcode project file.
+  def sync_xcconfig(target_def, target)
+    dirty = false
+    target.build_configurations.each do |config|
+      requested = flatten(target_def.xcconfig)
+
+      path = PODFILE_DIR.join(config.base_configuration_reference.path)
+      contents = Xcodeproj::Config.new(path)
+      contents.merge!(requested)
+      contents.save_as(path)
+    end
+  end
+
+  # Converts a hash of lists to a flat hash of strings.
+  def flatten(xcconfig)
+    result = {}
+    xcconfig.each do |key, value|
+      if value.is_a?(Array)
+        value = value.join(' ')
+      end
+      result[key] = value
+    end
+    return result
   end
 end
 
@@ -618,6 +672,8 @@ class DirectoryLister
   # ignoring files that match the global ignore_files patterns.
   def entries(path)
     result = []
+    return result if not path.exist?
+
     path.entries.each do |entry|
       next if ignore_basename?(entry)
 
