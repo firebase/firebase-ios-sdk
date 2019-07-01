@@ -300,10 +300,7 @@
       completion:^(id result, NSError *error) {
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(b/35201829): This should be NotFound, but right now we retry transactions on any
-        // error and so this turns into Aborted instead.
-        // TODO(mikelehen): Actually it's FailedPrecondition, unlike Android. What do we want???
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
         [expectation fulfill];
       }];
   [self awaitExpectations];

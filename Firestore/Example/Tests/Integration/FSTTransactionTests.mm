@@ -117,7 +117,7 @@
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
         // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
         // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -145,7 +145,7 @@
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
         // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
         // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -174,7 +174,7 @@
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
         // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
         // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];

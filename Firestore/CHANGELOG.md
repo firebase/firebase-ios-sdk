@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] Failed transactions now throw the failure from the last attempt,
+  instead of `ABORTED.` 
 
 # 1.4.1
 - [fixed] Fixed certificate loading for non-CocoaPods builds that may not

@@ -318,10 +318,7 @@ class LimboResolution {
 
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
-              Status wrappedError =
-                  Status(FirestoreErrorCode::FailedPrecondition, "Transaction failed all retries.")
-                      .CausedBy(std::move(status));
-              resultCallback(std::move(wrappedError));
+              resultCallback(std::move(status));
               return;
             }
             workerQueue->VerifyIsCurrentQueue();
