@@ -2479,7 +2479,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-b9437b04/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
@@ -2511,7 +2511,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-tvOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-85d94889/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-c3f74682/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
@@ -2653,7 +2653,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-65885a2c/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-1338e9d8/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
@@ -2738,13 +2738,25 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-tvOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-tvOS/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest-tvOS/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -2903,7 +2915,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-iOS/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
@@ -2954,13 +2966,25 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-macOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest-macOS/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock-macOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -2996,7 +3020,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-b9437b04/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
