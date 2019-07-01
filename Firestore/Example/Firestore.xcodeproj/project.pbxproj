@@ -1069,7 +1069,6 @@
 		DAFF0CFF21E64AC40062958F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DAFF0D0021E64AC40062958F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DAFF0D0221E64AC40062958F /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
-		DAFF0D0721E653460062958F /* roots.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = roots.pem; path = ../../../../etc/roots.pem; sourceTree = "<group>"; };
 		DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE03B3621F215E1600A30B9C /* CAcert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = CAcert.pem; sourceTree = "<group>"; };
 		DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicCompileTests.swift; sourceTree = "<group>"; };
@@ -1751,7 +1750,6 @@
 		DAFF0CF621E64AC30062958F /* macOS */ = {
 			isa = PBXGroup;
 			children = (
-				DAFF0D0621E652FD0062958F /* resources */,
 				DAFF0CF721E64AC30062958F /* AppDelegate.h */,
 				DAFF0CF821E64AC30062958F /* AppDelegate.m */,
 				DAFF0CFA21E64AC40062958F /* Assets.xcassets */,
@@ -1761,14 +1759,6 @@
 				DAFF0D0021E64AC40062958F /* main.m */,
 			);
 			path = macOS;
-			sourceTree = "<group>";
-		};
-		DAFF0D0621E652FD0062958F /* resources */ = {
-			isa = PBXGroup;
-			children = (
-				DAFF0D0721E653460062958F /* roots.pem */,
-			);
-			path = resources;
 			sourceTree = "<group>";
 		};
 		DE2EF06E1F3D07D7003D0CDC /* Immutable */ = {
