@@ -62,7 +62,7 @@ class CardMessageViewController: CommonMessageTestVC {
     }
 
     override var secondaryActionButton: InAppMessagingActionButton? {
-      return writablePrimaryActionButton
+      return writableSecondaryActionButton
     }
 
     override var secondaryActionURL: URL? {
@@ -123,7 +123,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
-      textColor: UIColor.black,
+      textColor: UIColor.brown,
       portraitImageData: portraitImageData,
       landscapeImageData: landscapeImageData,
       backgroundColor: UIColor.white,
