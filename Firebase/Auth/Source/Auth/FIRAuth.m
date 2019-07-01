@@ -22,6 +22,16 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#if SWIFT_PACKAGE
+#import "FIRAppInternal.h"
+#import "FIRComponent.h"
+#import "FIRComponentContainer.h"
+#import "FIRLibrary.h"
+#import "FIRLogger.h"
+#import "FIROptions.h"
+#import "GULAppDelegateSwizzler.h"
+#import "GULAppEnvironmentUtil.h"
+#else
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -30,6 +40,7 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
 
 #import "FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
