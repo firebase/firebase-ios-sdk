@@ -1,3 +1,6 @@
+
+require 'pathname'
+
 # Uncomment the next two lines for pre-release testing on internal repo
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
@@ -5,6 +8,13 @@
 source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
+
+
+post_install do |installer|
+  sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
+  system(sync.to_s)
+end
+
 
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
