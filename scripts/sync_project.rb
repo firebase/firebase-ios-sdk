@@ -53,6 +53,7 @@ end
 def sync_firestore()
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
   spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
+  swift_spec = Pod::Spec.from_file('FirebaseFirestoreSwift.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself
@@ -88,6 +89,12 @@ def sync_firestore()
 
   # Settings for all Objective-C/C++ targets
   xcconfig_objc = xcconfig_spec
+
+  xcconfig_swift = {
+    'SWIFT_OBJC_BRIDGING_HEADER' =>
+        '${PODS_ROOT}/../../../Firestore/Swift/Tests/BridgingHeader.h',
+    'SWIFT_VERSION' => pick_swift_version(swift_spec),
+  }
 
   ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_Example_#{platform}" do |t|
@@ -138,7 +145,11 @@ def sync_firestore()
         'Firestore/Swift/Tests/Integration/**',
         'Firestore/core/test/firebase/firestore/testutil/**',
       ]
-      t.xcconfig = xcconfig_objc
+      t.xcconfig = xcconfig_objc + xcconfig_swift
+    end
+
+    s.target 'Firestore_SwiftTests_iOS' do |t|
+      t.xcconfig = xcconfig_swift
     end
   end
 
@@ -147,6 +158,16 @@ def sync_firestore()
   if project.dirty?
     project.save()
   end
+end
+
+
+# Picks a swift version to use from a podspec's swift_versions
+def pick_swift_version(spec)
+  versions = spec.attributes_hash['swift_versions']
+  if versions.is_a?(Array)
+    return versions[-1]
+  end
+  return versions
 end
 
 
