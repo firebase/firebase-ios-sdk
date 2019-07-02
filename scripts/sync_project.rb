@@ -183,6 +183,7 @@ def sync_firestore(test_only)
         'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
         'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
         'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
+        'Firestore/Swift/Tests/Integration/**',
         'Firestore/core/test/firebase/firestore/testutil/**',
       ]
       t.xcconfig = xcconfig_objc + xcconfig_swift
@@ -318,7 +319,7 @@ end
 
 class Syncer
   HEADERS = %w{.h}
-  SOURCES = %w{.c .cc .m .mm}
+  SOURCES = %w{.c .cc .m .mm .swift}
 
   def initialize(project, root_dir)
     @project = project
