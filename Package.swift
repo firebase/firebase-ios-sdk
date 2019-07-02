@@ -150,6 +150,7 @@ let package = Package(
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/AuthProvider/Email"),
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/AuthProvider/Google"),
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/AuthProvider/OAuth"),
+        .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/AuthProvider/Phone"),
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/AuthProvider/Twitter"),
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/Backend"),
         .headerSearchPath("$(SRCROOT)/Firebase/Auth/Source/Backend/RPC"),
