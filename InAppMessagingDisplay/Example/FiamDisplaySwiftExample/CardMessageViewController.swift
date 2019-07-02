@@ -123,7 +123,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
-      textColor: UIColor.brown,
+      textColor: UIColor.black,
       portraitImageData: portraitImageData,
       landscapeImageData: landscapeImageData,
       backgroundColor: UIColor.white,
