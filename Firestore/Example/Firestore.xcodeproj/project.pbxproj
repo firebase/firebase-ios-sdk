@@ -114,6 +114,7 @@
 		2AAEABFD550255271E3BAC91 /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
 		2B1E95FAFD350C191B525F3B /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D93620239689000A432D /* empty_credentials_provider_test.cc */; };
 		2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
+		2D32D28CD25E4BD410546E73 /* CodableIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */; };
 		2E0BBA7E627EB240BA11B0D0 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		2E169CF1E9E499F054BB873A /* FSTEventAccumulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */; };
 		2E6E6164F44B9E3C6BB88313 /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
@@ -519,6 +520,7 @@
 		AD86162AC78673BA969F3467 /* FSTQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0892021552A00B64F25 /* FSTQueryCacheTests.mm */; };
 		AEBF3F80ACC01AA8A27091CD /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		B03F286F3AEC3781C386C646 /* FIRNumericTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */; };
+		B096FD60E1C4C632B0F665EF /* CodableIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */; };
 		B192F30DECA8C28007F9B1D0 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		B220E091D8F4E6DE1EA44F57 /* executor_libdispatch_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4689208F9B9100554BA2 /* executor_libdispatch_test.mm */; };
 		B3C87C635527A2E57944B789 /* ordered_code_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */; };
@@ -1412,9 +1414,9 @@
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
-				124C932A22C1635300CA8C2D /* Integration */,
 				544A20ED20F6C046004E52CD /* API */,
 				5495EB012040E90200EBA509 /* Codable */,
+				124C932A22C1635300CA8C2D /* Integration */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -2477,7 +2479,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-b9437b04/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
@@ -2509,7 +2511,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-tvOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-85d94889/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-c3f74682/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
@@ -2651,7 +2653,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-65885a2c/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-1338e9d8/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
@@ -2736,13 +2738,25 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-tvOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-tvOS/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest-tvOS/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -2901,7 +2915,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-iOS/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
@@ -2952,13 +2966,25 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-macOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest-macOS/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock-macOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -2994,7 +3020,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-b9437b04/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
@@ -3366,6 +3392,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B096FD60E1C4C632B0F665EF /* CodableIntegrationTests.swift in Sources */,
 				95ED06D2B0078D3CDB821B68 /* FIRArrayTransformTests.mm in Sources */,
 				EC160876D8A42166440E0B53 /* FIRCursorTests.mm in Sources */,
 				EA38690795FBAA182A9AA63E /* FIRDatabaseTests.mm in Sources */,
@@ -3396,6 +3423,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D32D28CD25E4BD410546E73 /* CodableIntegrationTests.swift in Sources */,
 				660E99DEDA0A6FC1CCB200F9 /* FIRArrayTransformTests.mm in Sources */,
 				A55266E6C986251D283CE948 /* FIRCursorTests.mm in Sources */,
 				7DD67E9621C52B790E844B16 /* FIRDatabaseTests.mm in Sources */,
@@ -3643,6 +3671,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,
@@ -3652,7 +3681,6 @@
 				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
-				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
 				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,
@@ -4187,6 +4215,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
@@ -4254,6 +4284,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
@@ -4324,6 +4356,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Debug;
@@ -4393,6 +4427,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Release;

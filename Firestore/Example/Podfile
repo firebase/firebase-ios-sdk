@@ -64,7 +64,9 @@ target 'Firestore_Example_macOS' do
   platform :osx, '10.11'
 
   pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_macOS' do
@@ -81,6 +83,7 @@ target 'Firestore_Example_macOS' do
   target 'Firestore_IntegrationTests_macOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
 
     pod 'OCMock'
@@ -92,7 +95,9 @@ target 'Firestore_Example_tvOS' do
   platform :tvos, '10.0'
 
   pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do
@@ -109,6 +114,7 @@ target 'Firestore_Example_tvOS' do
   target 'Firestore_IntegrationTests_tvOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
 
     pod 'OCMock'
