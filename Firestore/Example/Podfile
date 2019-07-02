@@ -6,35 +6,6 @@ source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 
-
-# Appends the given +paths+ to the HEADER_SEARCH_PATHS setting for the given
-# target in all build configurations.
-def append_header_search_path(target, *paths)
-  setting = 'HEADER_SEARCH_PATHS'
-  target.build_configurations.each do |config|
-    config.build_settings[setting] ||= '$(inherited)'
-    paths.each do |path|
-      config.build_settings[setting] << ' '
-      config.build_settings[setting] << path
-    end
-  end
-end
-
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    # Building the FirebaseFirestore framework proper seems fragile in Xcode:
-    # changes to public headers seem to cause weird cascading failures in the
-    # IDE's pre-build error detection. The issue seems to be that the Pod's
-    # public headers are found by clang at build time through a copy headers
-    # phase, but the interactive editor won't have those in place, especially
-    # when the build is broken by current edits.
-    if target.name =~ /^FirebaseFirestore/
-      append_header_search_path(target, '$(PODS_ROOT)/../../../Firestore/Source/Public')
-    end
-  end
-end
-
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
@@ -93,7 +64,9 @@ target 'Firestore_Example_macOS' do
   platform :osx, '10.11'
 
   pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_macOS' do
@@ -121,7 +94,9 @@ target 'Firestore_Example_tvOS' do
   platform :tvos, '10.0'
 
   pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do
