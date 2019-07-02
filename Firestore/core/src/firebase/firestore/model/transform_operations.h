@@ -113,7 +113,8 @@ class ServerTimestampTransform : public TransformOperation {
       const model::FieldValue& transform_result) const override;
 
   absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& /* previous_value */) const override {
+      const absl::optional<model::FieldValue>& /* previous_value */)
+      const override {
     return absl::nullopt;  // Server timestamps are idempotent and don't require
                            // a base value.
   }
@@ -153,7 +154,8 @@ class ArrayTransform : public TransformOperation {
       const model::FieldValue& transform_result) const override;
 
   absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& /* previous_value */) const override {
+      const absl::optional<model::FieldValue>& /* previous_value */)
+      const override {
     return absl::nullopt;  // Array transforms are idempotent and don't require
                            // a base value.
   }
