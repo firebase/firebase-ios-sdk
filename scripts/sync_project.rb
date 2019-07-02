@@ -180,6 +180,17 @@ def sync_firestore()
       t.xcconfig = xcconfig_objc + xcconfig_swift
     end
 
+    s.target 'Firestore_Benchmarks_iOS' do |t|
+      t.xcconfig = xcconfig_objc
+    end
+
+    s.target 'Firestore_FuzzTests_iOS' do |t|
+      t.xcconfig = xcconfig_objc + {
+        'INFOPLIST_FILE' =>
+            '${SRCROOT}/FuzzTests/Firestore_FuzzTests_iOS-Info.plist'
+      }
+    end
+
     s.target 'Firestore_SwiftTests_iOS' do |t|
       t.xcconfig = xcconfig_objc + xcconfig_swift
     end
