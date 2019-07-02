@@ -41,8 +41,18 @@ def main()
 end
 
 
+# Make it so that you can "add" hash literals together by merging their
+# contents.
+class Hash
+  def +(other)
+    return merge(other)
+  end
+end
+
+
 def sync_firestore()
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
+  spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself
@@ -68,9 +78,20 @@ def sync_firestore()
     'SwiftTests',
   ]
 
+  # Copy key settings from the podspec
+  podspec_settings = [
+    'CLANG_CXX_LANGUAGE_STANDARD',
+    'GCC_C_LANGUAGE_STANDARD',
+  ]
+  xcconfig_spec = spec.attributes_hash['pod_target_xcconfig'].dup
+  xcconfig_spec.select! { |k, v| podspec_settings.include?(k) }
+
+  # Settings for all Objective-C/C++ targets
+  xcconfig_objc = xcconfig_spec
+
   ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_Example_#{platform}" do |t|
-      t.xcconfig = {
+      t.xcconfig = xcconfig_objc + {
         # Passing -all_load is required to get all our C++ code into the test
         # host.
         #
@@ -101,6 +122,7 @@ def sync_firestore()
         # These files are integration tests, handled below
         'Firestore/Example/Tests/Integration/**',
       ]
+      t.xcconfig = xcconfig_objc
     end
   end
 
@@ -116,6 +138,7 @@ def sync_firestore()
         'Firestore/Swift/Tests/Integration/**',
         'Firestore/core/test/firebase/firestore/testutil/**',
       ]
+      t.xcconfig = xcconfig_objc
     end
   end
 
