@@ -1412,9 +1412,9 @@
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
-				124C932A22C1635300CA8C2D /* Integration */,
 				544A20ED20F6C046004E52CD /* API */,
 				5495EB012040E90200EBA509 /* Codable */,
+				124C932A22C1635300CA8C2D /* Integration */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -3643,6 +3643,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,
@@ -3652,7 +3653,6 @@
 				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
-				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
 				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,
