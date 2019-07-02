@@ -62,7 +62,6 @@
 		12158DFCEE09D24B7988A340 /* maybe_document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */; };
 		1235769322B7E99F007DDFA9 /* EncodableFieldValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */; };
 		1235769522B86E65007DDFA9 /* FirestoreEncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235769422B86E65007DDFA9 /* FirestoreEncoderTests.swift */; };
-		124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */; };
 		127CC0D222B3ADDC00A3E42A /* CodableTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C996438B84DBC7616640 /* CodableTimestampTests.swift */; };
 		1291D9F5300AFACD1FBD262D /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		12BB9ED1CA98AA52B92F497B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
@@ -1412,9 +1411,9 @@
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
-				124C932A22C1635300CA8C2D /* Integration */,
 				544A20ED20F6C046004E52CD /* API */,
 				5495EB012040E90200EBA509 /* Codable */,
+				124C932A22C1635300CA8C2D /* Integration */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -3652,7 +3651,6 @@
 				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
-				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
 				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,
