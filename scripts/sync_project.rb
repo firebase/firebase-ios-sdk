@@ -97,7 +97,39 @@ def sync_firestore(test_only)
   xcconfig_spec.select! { |k, v| podspec_settings.include?(k) }
 
   # Settings for all Objective-C/C++ targets
-  xcconfig_objc = xcconfig_spec
+  xcconfig_objc = xcconfig_spec + {
+    'INFOPLIST_FILE' => '"${SRCROOT}/Tests/Tests-Info.plist"',
+
+    # Duplicate the header search paths from the main podspec because they're
+    # phrased in terms of PODS_TARGET_SRCROOT, which isn't defined for other
+    # targets.
+    'HEADER_SEARCH_PATHS' => [
+      # Include fully qualified from the root of the repo
+      '"${PODS_ROOT}/../../.."',
+
+      # Make public headers available as "FIRQuery.h"
+      '"${PODS_ROOT}/../../../Firestore/Source/Public"',
+
+      # Generated protobuf and nanopb output expects to search relative to the
+      # output path.
+      '"${PODS_ROOT}/../../../Firestore/Protos/cpp"',
+      '"${PODS_ROOT}/../../../Firestore/Protos/nanopb"',
+
+      # Other dependencies that assume #includes are relative to their roots.
+      '"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp"',
+      '"${PODS_ROOT}/GoogleTest/googlemock/include"',
+      '"${PODS_ROOT}/GoogleTest/googletest/include"',
+      '"${PODS_ROOT}/leveldb-library/include"',
+    ],
+
+    'SYSTEM_HEADER_SEARCH_PATHS' => [
+      # Nanopb wants to #include <pb.h>
+      '"${PODS_ROOT}/nanopb"',
+
+      # Protobuf wants to #include <google/protobuf/stubs/common.h>
+      '"${PODS_ROOT}/ProtobufCpp/src"',
+    ]
+  }
 
   xcconfig_swift = {
     'SWIFT_OBJC_BRIDGING_HEADER' =>
@@ -157,7 +189,7 @@ def sync_firestore(test_only)
     end
 
     s.target 'Firestore_SwiftTests_iOS' do |t|
-      t.xcconfig = xcconfig_swift
+      t.xcconfig = xcconfig_objc + xcconfig_swift
     end
   end
 
