@@ -197,6 +197,11 @@ extern NSString *const kFIRLibraryVersionID;
   options.storageBucket = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.storageBucket, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.appGroupID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.appGroupID, @"1");
 }
 
 - (void)testCopyWithZone {
