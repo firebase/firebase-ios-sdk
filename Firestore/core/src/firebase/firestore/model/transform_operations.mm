@@ -172,29 +172,34 @@ NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
 FieldValue NumericIncrementTransform::ApplyToLocalView(
     const absl::optional<FieldValue>& previous_value,
     const Timestamp& /* local_write_time */) const {
+  absl::optional<FieldValue> base_value = ComputeBaseValue(previous_value);
+
   // Return an integer value only if the previous value and the operand is an
   // integer.
-  if (previous_value) {
-    if (previous_value->type() == FieldValue::Type::Integer &&
-        operand_.type() == FieldValue::Type::Integer) {
-      int64_t sum = SafeIncrement(previous_value->integer_value(),
-                                  operand_.integer_value());
-      return FieldValue::FromInteger(sum);
-    } else if (FieldValue::IsNumber(previous_value->type())) {
-      double sum = AsDouble(*previous_value) + AsDouble(operand_);
-      return FieldValue::FromDouble(sum);
-    }
+  if (base_value && base_value->type() == FieldValue::Type::Integer &&
+      operand_.type() == FieldValue::Type::Integer) {
+    int64_t sum =
+        SafeIncrement(base_value->integer_value(), operand_.integer_value());
+    return FieldValue::FromInteger(sum);
+  } else {
+    HARD_ASSERT(base_value && FieldValue::IsNumber(base_value->type()),
+                "'base_value' is not of numeric type");
+    double sum = AsDouble(*base_value) + AsDouble(operand_);
+    return FieldValue::FromDouble(sum);
   }
-
-  // Otherwise, if the previous value does not exist or if the previous value is
-  // not a number, use the value of the transform as the new base value.
-  return operand_;
 }
 
 FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
     const absl::optional<FieldValue>&,
     const FieldValue& transform_result) const {
   return transform_result;
+}
+
+absl::optional<FieldValue> NumericIncrementTransform::ComputeBaseValue(
+    const absl::optional<FieldValue>& previous_value) const {
+  return previous_value && FieldValue::IsNumber(previous_value->type())
+             ? previous_value
+             : absl::optional<FieldValue>{FieldValue::FromInteger(0)};
 }
 
 bool NumericIncrementTransform::operator==(

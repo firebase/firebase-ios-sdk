@@ -171,6 +171,12 @@
 }
 
 - (void)testServerTimestampsWithPreviousValue {
+  // The following update includes an update of the nested map "deep", which updates it to contain
+  // a single ServerTimestamp. As such, the update is split into two mutations: One that sets
+  // "deep" to an empty map and overwrites the previous ServerTimestamp value and a second
+  // transform that writes the new ServerTimestamp. This step in the test verifies that we can
+  // still access the old ServerTimestamp value (from `previousSnapshot`) even though it was
+  // removed in an intermediate step.
   [self writeDocumentRef:_docRef data:_setData];
   [self verifyTimestampsInSnapshot:[_accumulator awaitLocalEvent] fromPreviousSnapshot:nil];
   FIRDocumentSnapshot *remoteSnapshot = [_accumulator awaitRemoteEvent];

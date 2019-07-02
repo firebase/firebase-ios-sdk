@@ -42,8 +42,9 @@ class DummyOperation : public TransformOperation {
     return FieldValue::Null();
   }
 
-  bool idempotent() const override {
-    return true;
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& previous_value) const override {
+    return absl::nullopt;
   }
 
   bool operator==(const TransformOperation& other) const override {

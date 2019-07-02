@@ -74,13 +74,6 @@ class FieldMask {
    */
   bool covers(const FieldPath& fieldPath) const;
 
-  /**
-   * Applies this field mask to the provided object value and returns an object
-   * that only contains fields that are specified in both the input object and
-   * this field mask.
-   */
-  ObjectValue ApplyTo(const ObjectValue& data) const;
-
   std::string ToString() const;
 
 #if defined(__OBJC__)
