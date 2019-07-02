@@ -17,8 +17,13 @@
 #include <CommonCrypto/CommonCrypto.h>
 #import "FIROAuthProvider.h"
 
+#if SWIFT_PACKAGE
+#import "FIRApp.h"
+#import "FIROptions.h"
+#else
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FIRAuthBackend.h"
 #import "FIRAuth_Internal.h"
