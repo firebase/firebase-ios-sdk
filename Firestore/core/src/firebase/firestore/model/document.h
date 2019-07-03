@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 
+#if __OBJC__
+#import "Firestore/Source/Model/FSTDocument.h"
+#endif
+
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -57,6 +61,21 @@ class Document : public MaybeDocument {
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state);
+
+#if __OBJC__
+  explicit Document(FSTDocument* doc)
+      : MaybeDocument(doc.key, doc.version),
+        data_(doc.data),
+        document_state_(doc.documentState) {
+  }
+
+  FSTDocument* ToDocument() const {
+    return [FSTDocument documentWithData:data_
+                                     key:key()
+                                 version:version()
+                                   state:document_state_];
+  }
+#endif  // __OBJC__
 
   const ObjectValue& data() const {
     return data_;

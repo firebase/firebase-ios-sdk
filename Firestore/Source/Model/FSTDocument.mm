@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -31,6 +32,7 @@
 #include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldPath;
