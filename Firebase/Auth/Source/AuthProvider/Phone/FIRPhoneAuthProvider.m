@@ -19,9 +19,11 @@
 #if SWIFT_PACKAGE
 #import "FIRApp.h"
 #import "FIRLogger.h"
+#import "FIROptions.h"
 #else
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
 #endif
 
 
@@ -39,7 +41,6 @@
 #import "FIRAuthSettings.h"
 #import "FIRAuthWebUtils.h"
 #import "FirebaseAuthVersion.h"
-#import <FirebaseCore/FIROptions.h>
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
