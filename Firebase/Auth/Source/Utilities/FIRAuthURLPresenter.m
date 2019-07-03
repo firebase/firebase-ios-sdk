@@ -24,6 +24,8 @@
 #import "FIRAuthUIDelegate.h"
 #import "FIRAuthWebViewController.h"
 
+#if TARGET_OS_IOS
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate,
@@ -188,3 +190,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

@@ -14,12 +14,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GULReachabilityChecker+Internal.h"
-#import "Private/GULReachabilityChecker.h"
-#import "Private/GULReachabilityMessageCode.h"
+#import "Reachability/GULReachabilityChecker+Internal.h"
+#import "Reachability/Private/GULReachabilityChecker.h"
+#import "Reachability/Private/GULReachabilityMessageCode.h"
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#import "GULReachabilityChecker.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#endif
 
 static GULLoggerService kGULLoggerReachability = @"[GULReachability]";
 

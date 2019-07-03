@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULLoggerLevel.h>
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#else
+#import <GoogleUtilities/GULLogger.h>
+#endif
 
 #import "GULNetworkMessageCode.h"
 

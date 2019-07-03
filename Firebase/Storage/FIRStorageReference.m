@@ -31,13 +31,14 @@
 #import "FIRStorageUtils.h"
 #import "FIRStorage_Private.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
-
 #if SWIFT_PACKAGE
+#import "FIRApp.h"
+#import "FIROptions.h"
 #import "GTMSessionFetcher.h"
 #import "GTMSessionFetcherService.h"
 #else
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif

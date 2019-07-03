@@ -18,6 +18,8 @@
 
 #import "FIRAuthWebView.h"
 
+#if TARGET_OS_IOS
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthWebViewController () <UIWebViewDelegate>
@@ -109,3 +111,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

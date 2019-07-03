@@ -16,6 +16,8 @@
 
 #import "FIRAuthAPNSToken.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthAPNSToken {
@@ -50,3 +52,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

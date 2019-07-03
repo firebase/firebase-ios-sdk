@@ -15,7 +15,11 @@
  */
 
 #import <Foundation/Foundation.h>
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if

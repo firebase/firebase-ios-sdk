@@ -1,5 +1,7 @@
 import Foundation
+import Firebase
 import FirebaseCore
+import FirebaseAuth
 import FirebaseStorage
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger

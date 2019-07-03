@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "GULAppDelegateSwizzler.h"
+#import "GULMutableDictionary.h"
+#else
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
+#endif
 
 @class GULApplication;
 

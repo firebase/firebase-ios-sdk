@@ -18,7 +18,11 @@
 
 #import "FIRAuth.h"
 
+#if SWIFT_PACKAGE
+#import "FIRAuthInterop.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
+#endif
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;

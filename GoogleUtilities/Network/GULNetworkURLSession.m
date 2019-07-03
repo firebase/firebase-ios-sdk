@@ -16,7 +16,12 @@
 
 #import "Private/GULNetworkURLSession.h"
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
+
 #import "Private/GULMutableDictionary.h"
 #import "Private/GULNetworkConstants.h"
 #import "Private/GULNetworkMessageCode.h"
