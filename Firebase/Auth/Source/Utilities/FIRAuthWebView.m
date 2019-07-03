@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if TARGET_OS_IOS
 
 #import "FIRAuthWebView.h"
+
+#if TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FIRAuthAppCredentialManager.h"
 
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
+
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 NS_ASSUME_NONNULL_BEGIN
 

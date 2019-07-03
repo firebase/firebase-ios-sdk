@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if TARGET_OS_IOS
 
 #import "FIRPhoneAuthCredential.h"
 
@@ -21,6 +20,8 @@
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
+
+#if TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 

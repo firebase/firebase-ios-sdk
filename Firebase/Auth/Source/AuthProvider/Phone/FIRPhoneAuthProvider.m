@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if TARGET_OS_IOS
 
 #import "FIRPhoneAuthProvider.h"
 
-#import <FirebaseCore/FIRLogger.h>
-#import "FIRPhoneAuthCredential_Internal.h"
+#if SWIFT_PACKAGE
+#import "FIRApp.h"
+#import "FIRLogger.h"
+#else
 #import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRLogger.h>
+#endif
+
+
+#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredential.h"
@@ -40,6 +46,8 @@
 #import "FIRSendVerificationCodeResponse.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
+
+#if TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 
