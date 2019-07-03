@@ -115,9 +115,8 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
+        // This is the error surfaced by the backend.
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -143,9 +142,8 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
+        // This is the error surfaced by the backend.
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -172,8 +170,7 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
+        // This is the error surfaced by the backend.
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
@@ -237,6 +234,8 @@
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
         XCTAssertNotNil(error);
+        // This is the error surfaced by the backend.
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -410,6 +409,8 @@
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
         [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
       }];
   [self awaitExpectations];
 
@@ -433,6 +434,7 @@
         // We currently require every document read to also be written.
         // TODO(b/34879758): Fix this check once we drop that requirement.
         XCTAssertNotNil(error);
+         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];

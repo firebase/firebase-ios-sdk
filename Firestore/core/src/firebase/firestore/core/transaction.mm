@@ -79,8 +79,13 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
                          LookupCallback&& callback) {
   EnsureCommitNotCalled();
 
-  HARD_ASSERT(mutations_.empty(),
-              "Transactions lookups are invalid after writes.");
+  if (!mutations_.empty()) {
+    Status lookup_error = Status{FirestoreErrorCode::InvalidArgument,
+                                 "Firestore transactions require all reads to "
+                                 "be executed before all writes"};
+    callback({}, lookup_error);
+    return;
+  }
 
   datastore_->LookupDocuments(
       keys, [this, callback](const std::vector<FSTMaybeDocument*>& documents,
@@ -122,11 +127,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
   absl::optional<SnapshotVersion> version = GetVersion(key);
 
-  if (version.has_value() && version.value() == SnapshotVersion::None()) {
-    // The document to update doesn't exist, so fail the transaction.
-    return Status{FirestoreErrorCode::Aborted,
-                  "Can't update a document that doesn't exist."};
-  } else if (version.has_value()) {
+  if (version.has_value() && version.value() != SnapshotVersion::None()) {
     // Document exists, just base precondition on document update time.
     return Precondition::UpdateTime(version.value());
   } else {
@@ -184,7 +185,7 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
     callback(
-        Status{FirestoreErrorCode::FailedPrecondition,
+        Status{FirestoreErrorCode::InvalidArgument,
                "Every document read in a transaction must also be written in "
                "that transaction."});
   } else {
