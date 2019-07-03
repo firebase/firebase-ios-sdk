@@ -23,6 +23,9 @@ let package = Package(
       name: "GoogleUtilities_Logger",
       targets: ["GoogleUtilities_Logger"]),
     .library(
+      name: "Firebase",
+      targets: ["Firebase"]),
+    .library(
       name: "FirebaseCore",
       type: .static, // TODO - investigate why this still builds a dynamic library
       targets: ["FirebaseCore"]),
@@ -43,7 +46,8 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: ["FirebaseCore", "FirebaseAuth", "FirebaseStorage", "GoogleUtilities_AppDelegateSwizzler",
+      dependencies: ["Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseStorage",
+                     "GoogleUtilities_AppDelegateSwizzler",
                      "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
     .target(
@@ -117,6 +121,11 @@ let package = Package(
 //      path: "Interop/Auth",
 //      sources: ["Interop/Auth/Public/FIRAuthInterop.h"],
 //      publicHeadersPath: "Public"),
+    .target(
+      name: "Firebase",
+      path: "Firebase/Firebase",
+      publicHeadersPath: "Public"
+    ),
     .target(
       name: "FirebaseCore",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
