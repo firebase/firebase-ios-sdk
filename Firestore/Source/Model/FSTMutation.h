@@ -154,19 +154,25 @@ NS_ASSUME_NONNULL_BEGIN
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(const firebase::Timestamp &)localWriteTime;
 
+/**
+ * If this mutation is not idempotent, returns the base value to persist with this mutation.
+ * If a base value is returned, the mutation is always applied to this base value, even if
+ * document has already been updated.
+ *
+ * The base value is a sparse object that consists of only the document fields for which this
+ * mutation contains a non-idempotent transformation (e.g. a numeric increment). The provided
+ * value guarantees consistent behavior for non-idempotent transforms and allow us to return the
+ * same latency-compensated value even if the backend has already applied the mutation. The base
+ * value is empty for idempotent mutations, as they can be re-played even if the backend has
+ * already applied them.
+ *
+ * @return a base value to store along with the mutation, or empty for idempotent mutations.
+ */
+- (absl::optional<model::ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc;
+
 - (const model::DocumentKey &)key;
 
 - (const model::Precondition &)precondition;
-
-/**
- * If applicable, returns the field mask for this mutation. Fields that are not included in this
- * field mask are not modified when this mutation is applied. Mutations that replace all document
- * values return 'nullptr'.
- */
-- (nullable const model::FieldMask *)fieldMask;
-
-/** Returns whether all operations in the mutation are idempotent. */
-@property(nonatomic, readonly) BOOL idempotent;
 
 @end
 

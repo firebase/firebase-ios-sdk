@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an internal assertion that was triggered when an update
+   with a `FieldValue.serverTimestamp()` and an update with a
+  `FieldValue.increment()` were pending for the same document.
 
 # 1.4.1
 - [fixed] Fixed certificate loading for non-CocoaPods builds that may not
