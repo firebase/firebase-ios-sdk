@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/GULObjectSwizzler.h"
+#import <GoogleUtilities/GULObjectSwizzler.h>
 
 #import <objc/runtime.h>
 
@@ -150,9 +150,15 @@
   }
 }
 
-- (void)dealloc {
-  objc_disposeClassPair(_generatedClass);
+- (void)swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:(BOOL)isInstanceOfGeneratedSubclass {
+  if (isInstanceOfGeneratedSubclass) {
+    objc_disposeClassPair(_generatedClass);
+  }
 }
+
+//- (void)dealloc {
+//  NSLog(@"---");
+//}
 
 - (BOOL)isSwizzlingProxyObject {
   return [_swizzledObject isProxy];

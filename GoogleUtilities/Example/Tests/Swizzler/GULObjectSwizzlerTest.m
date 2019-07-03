@@ -349,4 +349,20 @@
   objc_disposeClassPair(generatedClass);
 }
 
+- (void)testMultySwizzling {
+  NSObject *object = [[NSObject alloc] init];
+
+  NSInteger swizzleCount = 10;
+  for (NSInteger i = 0; i < swizzleCount; i++) {
+    GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:object];
+    [swizzler copySelector:@selector(donorDescription)
+                 fromClass:[GULObjectSwizzlerTest class]
+           isClassSelector:NO];
+    [swizzler swizzle];
+  }
+
+  XCTAssertNoThrow([object performSelector:@selector(donorDescription)]);
+  object = nil;
+}
+
 @end
