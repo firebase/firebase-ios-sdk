@@ -88,10 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::FieldPath &)field;
 
 /** The type of equality/inequality operator to use in the relation. */
-@property(nonatomic, assign, readonly) core::Filter::Operator filterOperator;
+- (core::Filter::Operator)filterOperator;
 
 /** The right hand side of the relation. A constant value to compare to. */
-@property(nonatomic, assign, readonly) const model::FieldValue &value;
+- (const model::FieldValue &)value;
 
 @end
 

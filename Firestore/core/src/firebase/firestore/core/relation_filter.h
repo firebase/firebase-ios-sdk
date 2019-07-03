@@ -34,6 +34,8 @@ namespace core {
  */
 class RelationFilter : public Filter {
  public:
+  RelationFilter() = default;
+
   /**
    * Creates a new filter that compares fields and values. Only intended to be
    * called from Filter::Create().
@@ -49,6 +51,14 @@ class RelationFilter : public Filter {
                  model::FieldValue value_rhs);
 
   const model::FieldPath& field() const override;
+
+  Operator op() const {
+    return op_;
+  }
+
+  const model::FieldValue& value() const {
+    return value_rhs_;
+  }
 
   bool Matches(const model::Document& doc) const override;
 
@@ -71,13 +81,13 @@ class RelationFilter : public Filter {
   bool MatchesComparison(util::ComparisonResult result) const;
 
   /** The left hand side of the relation. A path into a document field. */
-  const model::FieldPath field_;
+  model::FieldPath field_;
 
   /** The type of equality/inequality operator to use in the relation. */
-  const Operator op_;
+  Operator op_;
 
   /** The right hand side of the relation. A constant value to compare to. */
-  const model::FieldValue value_rhs_;
+  model::FieldValue value_rhs_;
 };
 
 }  // namespace core
