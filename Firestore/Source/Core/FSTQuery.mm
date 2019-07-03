@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -263,45 +264,43 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 #pragma mark - FSTNullFilter
 
-@interface FSTNullFilter () {
-  FieldPath _field;
+@implementation FSTNullFilter {
+  core::NullFilter _filter;
 }
-@end
 
-@implementation FSTNullFilter
 - (instancetype)initWithField:(FieldPath)field {
   if (self = [super init]) {
-    _field = std::move(field);
+    _filter = core::NullFilter(std::move(field));
   }
   return self;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  absl::optional<FieldValue> fieldValue = [document fieldForPath:self.field];
-  return fieldValue && fieldValue->type() == FieldValue::Type::Null;
+  model::Document converted(document);
+  return _filter.Matches(converted);
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%s IS NULL", _field.CanonicalString().c_str()];
+  return util::MakeNSString(_filter.CanonicalId());
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
-  return _field;
+  return _filter.field();
 }
 
 - (NSString *)description {
-  return [self canonicalID];
+  return util::MakeNSString(_filter.ToString());
 }
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return _field == ((FSTNullFilter *)other)->_field;
+  return _filter == ((FSTNullFilter *)other)->_filter;
 }
 
 - (NSUInteger)hash {
-  return util::Hash(_field);
+  return _filter.Hash();
 }
 
 @end
