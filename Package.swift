@@ -27,15 +27,19 @@ let package = Package(
       targets: ["Firebase"]),
     .library(
       name: "FirebaseCore",
-      type: .static, // TODO - investigate why this still builds a dynamic library
+      type: .static, // Seems to always be dynamic for macOS and always static for iOS whether this is set or not
       targets: ["FirebaseCore"]),
     .library(
       name: "FirebaseAuth",
-      type: .static, // TODO - investigate why this still builds a dynamic library
+      type: .static,
       targets: ["FirebaseAuth"]),
     .library(
+      name: "FirebaseFunctions",
+      type: .static,
+      targets: ["FirebaseFunctions"]),
+    .library(
       name: "FirebaseStorage",
-      type: .static, // TODO - investigate why this still builds a dynamic library
+      type: .static,
       targets: ["FirebaseStorage"]),
   ],
   dependencies: [
@@ -46,7 +50,7 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: ["Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseStorage",
+      dependencies: ["Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseStorage",
                      "GoogleUtilities_AppDelegateSwizzler",
                      "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
@@ -132,7 +136,8 @@ let package = Package(
       path: "Firebase/Core",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("$(SRCROOT)/Firebase"),
+        .headerSearchPath("$(SRCROOT)"),
+        .headerSearchPath("$(SRCROOT)/Firebase"), // TODO - remove this in favor of putting Firebase in imports.
         .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
         .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("Firebase_VERSION", to: "0.0.1"),  // TODO Fix version
@@ -148,6 +153,7 @@ let package = Package(
       publicHeadersPath: "Source/Public",
       cSettings: [
          // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("$(SRCROOT)"),
         .headerSearchPath("$(SRCROOT)/Firebase"),
         .headerSearchPath("$(SRCROOT)/Interop/Auth/Public"),
         .headerSearchPath("$(SRCROOT)/Firebase/Core/Private"), // SPM doesn't support private headers
@@ -177,18 +183,29 @@ let package = Package(
       //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]),
     .target(
+      name: "FirebaseFunctions",
+      dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
+      path: "Functions/FirebaseFunctions",
+      publicHeadersPath: "Public",
+      cSettings: [
+         // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("$(SRCROOT)"),
+        .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
+      ]),
+    .target(
       name: "FirebaseStorage",
       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
       path: "Firebase/Storage",
       publicHeadersPath: "Public",
       cSettings: [
          // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("$(SRCROOT)"),
         .headerSearchPath("$(SRCROOT)/Firebase"),
         .headerSearchPath("$(SRCROOT)/Interop/Auth/Public"),
         .headerSearchPath("$(SRCROOT)/Firebase/Core/Private"), // SPM doesn't support private headers
         .define("FIRStorage_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
       ],
       linkerSettings: [
         .linkedFramework("CoreServices", .when(platforms: [.macOS])),

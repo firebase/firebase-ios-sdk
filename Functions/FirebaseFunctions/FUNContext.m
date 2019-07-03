@@ -15,7 +15,11 @@
 
 #import "FUNContext.h"
 
+#ifdef SWIFT_PACKAGE
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
+#endif
 
 #import "FUNInstanceIDProxy.h"
 
