@@ -1,4 +1,4 @@
-#import <FirebaseCore/FirebaseCore.h>
+@import FirebaseCore;
 
 #if !defined(__has_include)
   #error "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \
@@ -8,8 +8,8 @@
     #import <FirebaseAnalytics/FirebaseAnalytics.h>
   #endif
 
-  #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
-    #import <FirebaseAuth/FirebaseAuth.h>
+  #if __has_include("FirebaseAuth.h")
+    #import "FirebaseAuth.h"
   #endif
 
   #if __has_include(<FirebaseDatabase/FirebaseDatabase.h>)
@@ -131,8 +131,8 @@ Firebase Remote Config works as intended."
     #endif
   #endif
 
-  #if __has_include(<FirebaseStorage/FirebaseStorage.h>)
-    #import <FirebaseStorage/FirebaseStorage.h>
+  #if __has_include("FirebaseStorage.h")
+    #import "FirebaseStorage.h"
   #endif
 
   #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
