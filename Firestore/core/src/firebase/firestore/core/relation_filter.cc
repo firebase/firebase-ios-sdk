@@ -19,6 +19,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
@@ -120,6 +121,10 @@ std::string RelationFilter::CanonicalId() const {
 std::string RelationFilter::ToString() const {
   return util::StringFormat("%s %s %s", field_.CanonicalString(), Describe(op_),
                             value_rhs_.ToString());
+}
+
+size_t RelationFilter::Hash() const {
+  return util::Hash(field_, static_cast<int>(op_), value_rhs_);
 }
 
 bool RelationFilter::IsInequality() const {

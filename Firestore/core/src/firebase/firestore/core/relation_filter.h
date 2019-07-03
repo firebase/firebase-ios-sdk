@@ -55,6 +55,8 @@ class RelationFilter : public Filter {
   std::string CanonicalId() const override;
   std::string ToString() const override;
 
+  size_t Hash() const override;
+
   bool IsInequality() const override;
 
  protected:

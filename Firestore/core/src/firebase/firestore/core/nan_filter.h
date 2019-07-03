@@ -45,6 +45,8 @@ class NanFilter : public Filter {
 
   std::string ToString() const override;
 
+  size_t Hash() const override;
+
  protected:
   bool Equals(const Filter& other) const override;
 

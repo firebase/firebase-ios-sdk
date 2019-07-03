@@ -41,6 +41,10 @@ std::string NullFilter::ToString() const {
   return CanonicalId();
 }
 
+size_t NullFilter::Hash() const {
+  return field_.Hash();
+}
+
 bool NullFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kNullFilter) return false;
 

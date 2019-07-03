@@ -41,6 +41,10 @@ std::string NanFilter::ToString() const {
   return CanonicalId();
 }
 
+size_t NanFilter::Hash() const {
+  return field_.Hash();
+}
+
 bool NanFilter::Equals(const Filter& other) const {
   if (other.type() != Type::kNanFilter) return false;
 

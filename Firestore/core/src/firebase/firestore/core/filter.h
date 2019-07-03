@@ -81,6 +81,8 @@ class Filter {
   /** A debug description of the Filter. */
   virtual std::string ToString() const = 0;
 
+  virtual size_t Hash() const = 0;
+
   virtual bool IsInequality() const {
     return false;
   }
