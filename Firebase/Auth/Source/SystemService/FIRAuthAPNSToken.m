@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FIRAuthAPNSToken.h"
 
@@ -50,3 +51,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

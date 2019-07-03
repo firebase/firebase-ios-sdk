@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FIRAuthAppCredentialManager.h"
 
@@ -162,3 +163,4 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

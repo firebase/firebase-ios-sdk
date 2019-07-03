@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FIRAuthAPNSTokenManager.h"
 
@@ -245,3 +246,4 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

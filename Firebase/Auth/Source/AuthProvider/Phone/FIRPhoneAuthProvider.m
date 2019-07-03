@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if TARGET_OS_IOS
 
 #import "FIRPhoneAuthProvider.h"
 
@@ -443,3 +444,4 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

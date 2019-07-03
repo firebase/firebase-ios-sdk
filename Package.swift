@@ -188,31 +188,3 @@ let package = Package(
   ],
   cLanguageStandard: .c99
 )
-
-#if os(macOS)
-package.targets.first(where: { $0.name == "FirebaseAuth" })!
-    .exclude += [
-                 "Source/SystemService/FIRAuthNotificationManager.h",
-                 "Source/SystemService/FIRAuthNotificationManager.m",
-                 "Source/SystemService/FIRAuthAppCredentialManager.h",
-                 "Source/SystemService/FIRAuthAppCredentialManager.m",
-                 "Source/SystemService/FIRAuthAPNSTokenManager.h",
-                 "Source/SystemService/FIRAuthAPNSTokenManager.m",
-                 "Source/SystemService/FIRAuthAPNSTokenType.h",
-                 "Source/SystemService/FIRAuthAPNSTokenType.m",
-                 "Source/SystemService/FIRAuthAPNSToken.h",
-                 "Source/SystemService/FIRAuthAPNSToken.m",
-                 "Source/Utilities/FIRAuthDefaultUIDelegate.h",
-                 "Source/Utilities/FIRAuthDefaultUIDelegate.m",
-                 "Source/Utilities/FIRAuthURLPresenter.h",
-                 "Source/Utilities/FIRAuthURLPresenter.m",
-                 "Source/Utilities/FIRAuthWebView.h",
-                 "Source/Utilities/FIRAuthWebView.m",
-                 "Source/Utilities/FIRAuthWebViewController.h",
-                 "Source/Utilities/FIRAuthWebViewController.m",
-                 "Source/Public/FIRPhoneAuthCredential.h",
-                 "Source/AuthProvider/Phone/FIRPhoneAuthCredential.m",
-                 "Source/Public/FIRPhoneAuthProvider.h",
-                 "Source/AuthProvider/Phone/FIRPhoneAuthProvider.m",
-                ]
-#endif
