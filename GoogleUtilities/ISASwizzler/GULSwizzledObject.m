@@ -63,12 +63,14 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 }
 
 - (void)dealloc {
+  // We need to make sure the swizzler is deallocated after the swizzled object to do the clean up
+  // only when the swizzled object is not used.
   GULObjectSwizzler *swizzler = nil;
   BOOL isInstanceOfGeneratedClass = NO;
 
   @autoreleasepool {
     Class generatedClass = [self gul_class];
-    isInstanceOfGeneratedClass = object_getClass(self) != generatedClass;
+    isInstanceOfGeneratedClass = object_getClass(self) == generatedClass;
 
     swizzler = [[self gul_objectSwizzler] retain];
     [GULObjectSwizzler setAssociatedObject:self
@@ -80,10 +82,7 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 
   [super dealloc];
 
-  // The generated subclass will be disposed when if no its subclasses detected.
-  //   NOTE: If the
   [swizzler swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:isInstanceOfGeneratedClass];
-
   [swizzler release];
 }
 

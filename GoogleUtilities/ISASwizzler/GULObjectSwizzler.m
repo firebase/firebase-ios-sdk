@@ -152,13 +152,12 @@
 
 - (void)swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:(BOOL)isInstanceOfGeneratedSubclass {
   if (isInstanceOfGeneratedSubclass) {
+    // If the swizzled object had a different class, it most likely indicates that the object was
+    // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
+    // will have to keep it to prevent a crash.
     objc_disposeClassPair(_generatedClass);
   }
 }
-
-//- (void)dealloc {
-//  NSLog(@"---");
-//}
 
 - (BOOL)isSwizzlingProxyObject {
   return [_swizzledObject isProxy];
