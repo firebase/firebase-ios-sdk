@@ -29,6 +29,8 @@ namespace core {
 /** Filter that matches NaN (not-a-number) values. */
 class NanFilter : public Filter {
  public:
+  NanFilter() = default;
+
   explicit NanFilter(model::FieldPath field);
 
   Type type() const override {
