@@ -79,6 +79,10 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallations]);
 
+  // Don't expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  notificationExpectation.inverted = YES;
+
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
@@ -86,6 +90,7 @@
   XCTAssertEqual(promise.value, storedInstallations);
 
   OCMVerifyAll(self.mockInstallationsStore);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
 
 - (void)testGetInstallationItem_WhenNoFIDAndNoIID_ThenFIDIsCreatedAndRegistered {
@@ -239,17 +244,17 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(pendingStorePromise);
 
-  // 2. Request installation n times
+  // 3. Request installation n times
   NSInteger requestCount = 10;
   NSMutableArray *instllationPromises = [NSMutableArray arrayWithCapacity:requestCount];
   for (NSInteger i = 0; i < requestCount; i++) {
     [instllationPromises addObject:[self.controller getInstallationItem]];
   }
 
-  // 3. Resolve store promise.
+  // 4. Resolve store promise.
   [pendingStorePromise fulfill:storedInstallation1];
 
-  // 4. Wait for operation to be completed and check.
+  // 5. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   for (FBLPromise<FIRInstallationsItem *> *installationPromise in instllationPromises) {
@@ -259,7 +264,7 @@
 
   OCMVerifyAll(self.mockInstallationsStore);
 
-  // 5. Check that a new request is performed once prevoius finished.
+  // 6. Check that a new request is performed once prevoius finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
@@ -463,14 +468,18 @@
                                                             appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
-  // 4. Call delete installation.
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+
+  // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
-  // 5. Wait for operations to complete and check.
+  // 6. Wait for operations to complete and check.
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
 
 - (void)testDeleteUnregisteredInstallation {
@@ -488,14 +497,18 @@
                                                             appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
-  // 4. Call delete installation.
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+
+  // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
-  // 5. Wait for operations to complete and check.
+  // 6. Wait for operations to complete and check.
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
 
 - (void)testDeleteRegisteredInstallation_WhenAPIRequestFails_ThenFailsAndInstallationIsNotRemoved {
@@ -514,14 +527,19 @@
   OCMReject([self.mockInstallationsStore removeInstallationForAppID:[OCMArg any]
                                                             appName:[OCMArg any]]);
 
-  // 4. Call delete installation.
+  // 4. Don't expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  notificationExpectation.inverted = YES;
+
+  // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
-  // 5. Wait for operations to complete and check.
+  // 6. Wait for operations to complete and check.
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]);
   XCTAssertTrue(promise.isRejected);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
 
 - (void)testDeleteRegisteredInstallation_WhenAPIFailsWithNotFound_ThenInstallationIsRemoved {
@@ -541,14 +559,18 @@
                                                             appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
-  // 4. Call delete installation.
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+
+  // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
-  // 5. Wait for operations to complete and check.
+  // 6. Wait for operations to complete and check.
   FBLWaitForPromisesWithTimeout(0.5);
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
 
 - (void)testDeleteInstallation_WhenThereIsOngoingAuthTokenRequest_ThenUsesItsResult {
@@ -625,12 +647,7 @@
       .andReturn([FBLPromise resolvedWith:[FIRInstallationsItem createRegisteredInstallationItem]]);
 
   // 2. Expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation =
-      [self expectationForNotification:FIRInstallationIDDidChangeNotification
-                                object:nil
-                               handler:^BOOL(NSNotification *_Nonnull notification) {
-                                 return YES;
-                               }];
+  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
 
   // 3. Request FID.
   FBLPromise *promise = [self.controller getInstallationItem];
@@ -668,6 +685,16 @@
   XCTAssertEqualObjects(installation.firebaseAppName, self.appName);
   XCTAssertEqual(installation.registrationStatus, FIRInstallationStatusUnregistered);
   XCTAssertNotNil(installation.firebaseInstallationID);
+}
+
+- (XCTestExpectation *)installationIDDidChangeNotificationExpectation {
+  XCTestExpectation *notificationExpectation =
+  [self expectationForNotification:FIRInstallationIDDidChangeNotification
+                            object:nil
+                           handler:^BOOL(NSNotification *_Nonnull notification) {
+                             return YES;
+                           }];
+  return notificationExpectation;
 }
 
 @end
