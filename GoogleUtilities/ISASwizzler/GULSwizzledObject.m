@@ -77,7 +77,6 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
                                        key:kSwizzlerAssociatedObjectKey
                                      value:nil
                                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
-    NSLog(@"Deallocating class %@", [self class]);
   }
 
   [super dealloc];
