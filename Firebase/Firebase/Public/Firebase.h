@@ -31,8 +31,8 @@ Firebase Dynamic Links works as intended."
     #import <FirebaseFirestore/FirebaseFirestore.h>
   #endif
 
-  #if __has_include(<FirebaseFunctions/FirebaseFunctions.h>)
-    #import <FirebaseFunctions/FirebaseFunctions.h>
+  #if __has_include("FirebaseFunctions.h")
+    #import "FirebaseFunctions.h"
   #endif
 
   #if __has_include(<FirebaseInAppMessaging/FirebaseInAppMessaging.h>)
