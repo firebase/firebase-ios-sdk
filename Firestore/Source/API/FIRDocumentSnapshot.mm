@@ -59,7 +59,6 @@ using firebase::firestore::model::FieldValueOptions;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ServerTimestampBehavior;
 using firebase::firestore::nanopb::MakeNSData;
-using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -143,7 +142,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (NSString *)documentID {
-  return WrapNSString(_snapshot.document_id());
+  return util::MakeNSString(_snapshot.document_id());
 }
 
 @dynamic metadata;
@@ -215,7 +214,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     case FieldValue::Type::ServerTimestamp:
       return [self convertedServerTimestamp:value options:options];
     case FieldValue::Type::String:
-      return util::WrapNSString(value.string_value());
+      return util::MakeNSString(value.string_value());
     case FieldValue::Type::Blob:
       return MakeNSData(value.blob_value());
     case FieldValue::Type::Reference:
@@ -289,7 +288,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     const std::string &key = kv.first;
     const FieldValue &value = kv.second;
 
-    result[util::WrapNSString(key)] = [self convertedValue:value options:options];
+    result[util::MakeNSString(key)] = [self convertedValue:value options:options];
   }
   return result;
 }

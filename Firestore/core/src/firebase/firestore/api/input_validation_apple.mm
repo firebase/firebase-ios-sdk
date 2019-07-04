@@ -29,7 +29,7 @@ namespace impl {
 
 static NSException* MakeException(NSString* name, const std::string& message) {
   return [[NSException alloc] initWithName:name
-                                    reason:util::WrapNSString(message)
+                                    reason:util::MakeNSString(message)
                                   userInfo:nil];
 }
 

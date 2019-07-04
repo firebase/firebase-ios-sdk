@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId &)databaseID
                                           path:(const ResourcePath &)path {
-  return util::WrapNSString([self encodedResourcePathForDatabaseID:databaseID]
+  return util::MakeNSString([self encodedResourcePathForDatabaseID:databaseID]
                                 .Append("documents")
                                 .Append(path)
                                 .CanonicalString());
@@ -203,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedDatabaseID {
-  return util::WrapNSString([self encodedResourcePathForDatabaseID:_databaseID].CanonicalString());
+  return util::MakeNSString([self encodedResourcePathForDatabaseID:_databaseID].CanonicalString());
 }
 
 #pragma mark - FieldValue <=> Value proto
@@ -315,7 +315,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSValue *)encodedString:(absl::string_view)value {
   GCFSValue *result = [GCFSValue message];
-  result.stringValue = util::WrapNSString(value);
+  result.stringValue = util::MakeNSString(value);
   return result;
 }
 
@@ -404,7 +404,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableDictionary<NSString *, GCFSValue *> *result = [NSMutableDictionary dictionary];
 
   for (const auto &kv : value) {
-    NSString *key = util::WrapNSString(kv.first);
+    NSString *key = util::MakeNSString(kv.first);
     GCFSValue *converted = [self encodedFieldValue:kv.second];
     result[key] = converted;
   }
@@ -579,7 +579,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
   for (const FieldPath &field : fieldMask) {
-    [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
+    [mask.fieldPathsArray addObject:util::MakeNSString(field.CanonicalString())];
   }
   return mask;
 }
@@ -605,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSDocumentTransform_FieldTransform *)encodedFieldTransform:
     (const FieldTransform &)fieldTransform {
   GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-  proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
+  proto.fieldPath = util::MakeNSString(fieldTransform.path().CanonicalString());
   if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
 
@@ -793,7 +793,7 @@ NS_ASSUME_NONNULL_BEGIN
     HARD_ASSERT(path.size() % 2 != 0, "Document queries with filters are not supported.");
     queryTarget.parent = [self encodedQueryPath:path.PopLast()];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
-    from.collectionId = util::WrapNSString(path.last_segment());
+    from.collectionId = util::MakeNSString(path.last_segment());
     [queryTarget.structuredQuery.fromArray addObject:from];
   }
 
@@ -982,7 +982,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(const FieldPath &)fieldPath {
   GCFSStructuredQuery_FieldReference *ref = [GCFSStructuredQuery_FieldReference message];
-  ref.fieldPath = util::WrapNSString(fieldPath.CanonicalString());
+  ref.fieldPath = util::MakeNSString(fieldPath.CanonicalString());
   return ref;
 }
 

@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <memory>
-
 @class FSTMaybeDocument;
 
 NS_ASSUME_NONNULL_BEGIN

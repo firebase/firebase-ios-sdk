@@ -33,21 +33,6 @@ bool FieldMask::covers(const FieldPath& fieldPath) const {
   return false;
 }
 
-ObjectValue FieldMask::ApplyTo(const ObjectValue& data) const {
-  ObjectValue filtered = ObjectValue::Empty();
-  for (const FieldPath& path : fields_) {
-    if (path.empty()) {
-      return data;
-    } else {
-      absl::optional<FieldValue> new_value = data.Get(path);
-      if (new_value) {
-        filtered = filtered.Set(path, *new_value);
-      }
-    }
-  }
-  return filtered;
-}
-
 std::string FieldMask::ToString() const {
   // Ideally, one should use a string builder. Since this is only non-critical
   // code for logging and debugging, the logic is kept simple here.

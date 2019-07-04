@@ -28,7 +28,7 @@ FIROptions* OptionsForUnitTesting(const absl::string_view project_id) {
   FIROptions* options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123ab"
                                   GCMSenderID:@"gcm_sender_id"];
-  options.projectID = util::WrapNSString(project_id);
+  options.projectID = util::MakeNSString(project_id);
   return options;
 }
 
