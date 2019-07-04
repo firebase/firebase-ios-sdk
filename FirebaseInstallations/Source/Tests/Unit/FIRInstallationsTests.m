@@ -72,6 +72,21 @@
   [FIRApp resetApps];
 }
 
+- (void)testDefaultAppInstallation {
+  FIRApp *defaultApp = [self createAndConfigureAppWithName:kFIRDefaultAppName];
+  FIRInstallations *installations = [FIRInstallations installations];
+
+  XCTAssertNotNil(installations);
+  XCTAssertEqualObjects(installations.appOptions.googleAppID, defaultApp.options.googleAppID);
+  XCTAssertEqualObjects(installations.appName, defaultApp.name);
+
+  [FIRApp resetApps];
+}
+
+- (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
+  XCTAssertNil([FIRInstallations installations]);
+}
+
 - (void)testInstallationIDSuccess {
   // Stub get installation.
   FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
@@ -259,6 +274,7 @@
 - (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
     @"GOOGLE_APP_ID" : @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
+    @"GCM_SENDER_ID" : @"valid_sender_id"
   }];
   [FIRApp configureWithName:name options:options];
 

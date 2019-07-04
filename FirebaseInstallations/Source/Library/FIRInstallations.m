@@ -36,10 +36,10 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
-@protocol FIRInstallationsInstanceProvider
+@protocol FIRInstallationsInstanceProvider <FIRLibrary>
 @end
 
-@interface FIRInstallations () <FIRLibrary>
+@interface FIRInstallations () <FIRInstallationsInstanceProvider>
 @property(nonatomic, readonly) FIROptions *appOptions;
 @property(nonatomic, readonly) NSString *appName;
 
@@ -106,6 +106,15 @@
 }
 
 #pragma mark - Public
+
++ (FIRInstallations *)installations {
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  if (!defaultApp) {
+    return nil;
+  }
+  
+  return [self installationsWithApp:defaultApp];
+}
 
 + (FIRInstallations *)installationsWithApp:(FIRApp *)app {
   id<FIRInstallationsInstanceProvider> installations =

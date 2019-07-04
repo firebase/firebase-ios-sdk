@@ -16,8 +16,8 @@
 
 // TODO: Add short docs to the API
 #import <Foundation/Foundation.h>
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
-@class FIRInstallationsAuthTokenResult;
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,7 +35,7 @@ typedef void (^FIRInstallationsTokenHandler)(
 NS_SWIFT_NAME(Installations)
 @interface FIRInstallations : NSObject
 
-// TODO: Add `+ (FIRInstallations *)installations;`
++ (nullable FIRInstallations *)installations;
 
 + (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
