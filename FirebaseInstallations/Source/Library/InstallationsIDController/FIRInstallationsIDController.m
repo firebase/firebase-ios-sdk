@@ -164,6 +164,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         return [self createAndSaveInstallationWithFID:FID];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsItem *installation) {
+        // TODO: Consider passing additional info like FIRApp ID or maybe even FIRInstallationsItem
         [[NSNotificationCenter defaultCenter]
             postNotificationName:FIRInstallationIDDidChangeNotification
                           object:nil];
