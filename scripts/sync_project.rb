@@ -20,6 +20,7 @@
 #
 # Run this script after adding/removing tests to keep the project in sync.
 
+require 'optparse'
 require 'pathname'
 
 # Note that xcodeproj 1.5.8 appears to be broken
@@ -33,14 +34,23 @@ PODFILE_DIR = ROOT_DIR.join('Firestore', 'Example')
 
 
 def main()
+  test_only = false
+  OptionParser.new do |opts|
+    opts.on('--test-only', 'Check diffs without writing') do |v|
+      test_only = v
+    end
+  end.parse!
+
   # Make all filenames relative to the project root.
   Dir.chdir(ROOT_DIR.to_s)
 
-  sync_firestore()
+  changes = sync_firestore(test_only)
+  status = test_only && changes > 0 ? 2 : 0
+  exit(status)
 end
 
 
-def sync_firestore()
+def sync_firestore(test_only)
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
 
   # Enable warnings after opening the project to avoid the warnings in
@@ -116,11 +126,14 @@ def sync_firestore()
     end
   end
 
-  s.sync()
-  sort_project(project)
-  if project.dirty?
-    project.save()
+  changes = s.sync(test_only)
+  if not test_only
+    sort_project(project)
+    if project.dirty?
+      project.save()
+    end
   end
+  return changes
 end
 
 
@@ -271,10 +284,11 @@ class Syncer
   #  3. The file must be added to a target phase describing how it's built.
   #
   # The Xcodeproj library handles (1) for us automatically if we do (2).
-  def sync()
+  def sync(test_only = false)
     # Figure the diff between the filesystem and the group structure
     group_differ = GroupDiffer.new(@finder)
     group_diff = group_differ.diff(@groups)
+    changes = group_diff.changes
     to_remove = group_diff.to_remove
 
     # Add all files first, to ensure they exist for later steps
@@ -288,16 +302,19 @@ class Syncer
 
       if target_def.sync_sources
         target_diff = target_def.diff(project_files, target)
-
         target_diff.sorted_entries.each do |entry|
-          sync_target_entry(target, entry)
+          changes += sync_target_entry(target, entry)
         end
       end
 
-      sync_xcconfig(target_def, target)
+      if not test_only
+        # Don't sync xcconfig changes in test-only mode.
+        sync_xcconfig(target_def, target)
+      end
     end
 
     remove_from_project(to_remove)
+    return changes
   end
 
   private
@@ -361,11 +378,13 @@ class Syncer
     end
   end
 
+  # Syncs a single build file for a given phase. Returns the number of changes
+  # made.
   def sync_target_entry(target, entry)
-    return if entry.unchanged?
+    return 0 if entry.unchanged?
 
     phase = find_phase(target, entry.path)
-    return if phase.nil?
+    return 0 if phase.nil?
 
     mark_change_in_group(target.display_name)
     if entry.to_add?
@@ -375,9 +394,12 @@ class Syncer
       printf("  %s - removed\n", basename(entry.ref))
       phase.remove_file_reference(entry.ref)
     end
+
+    return 1
   end
 
-  # Finds the phase to which the given pathname belongs based on its file extension.
+  # Finds the phase to which the given pathname belongs based on its file
+  # extension.
   #
   # Returns nil if the path does not belong in any phase.
   def find_phase(target, path)
@@ -549,6 +571,10 @@ class Diff
   # Returns a list of entries in sorted order.
   def sorted_entries()
     return @entries.values.sort { |a, b| a.path.basename <=> b.path.basename }
+  end
+
+  def changes()
+    return @entries.values.count { |entry| entry.to_add? || entry.to_remove? }
   end
 end
 
