@@ -151,10 +151,14 @@
 }
 
 - (void)swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:(BOOL)isInstanceOfGeneratedSubclass {
+  // If the swizzled object had a different class, it most likely indicates that the object was
+  // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
+  // will have to keep it to prevent a crash.
+
+  // TODO: Consider adding a flag that can be set by the host application to dispose the class pair
+  // unconditionally. It may be used by apps that use ISA Swizzling themself and are confident in
+  // disposing their subclasses.
   if (isInstanceOfGeneratedSubclass) {
-    // If the swizzled object had a different class, it most likely indicates that the object was
-    // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
-    // will have to keep it to prevent a crash.
     objc_disposeClassPair(_generatedClass);
   }
 }
