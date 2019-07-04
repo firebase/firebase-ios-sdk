@@ -358,9 +358,11 @@ class Syncer
     if SOURCES.include?(ext)
       return target.source_build_phase
     elsif HEADERS.include?(ext)
+      # TODO(wilhuff): sync headers
       #return target.headers_build_phase
       return nil
     else
+      # TODO(wilhuff): sync resources (including JSON files for spec tests).
       #return target.resources_build_phase
       return nil
     end
@@ -500,14 +502,28 @@ end
 # Diffs folder groups against the filesystem directories referenced by those
 # folder groups.
 #
-# This performs the diff starting from the directories referenced by the groups
-# in the project, finding files contained within them. When comparing the files
-# it finds against the project this acts on absolute paths to avoid problems
-# with arbitrary additional groupings in project structure that are standard,
-# e.g. "Supporting Files" or "en.lproj" which either act as aliases for the
-# parent or are folders that are omitted from the project view.  Processing the
-# diff this way allows these warts to be tolerated, even if they won't
-# necessarily be recreated if an artifact is added to the filesystem.
+# Folder groups in the project may each refer to an arbitrary path, so
+# traversing from a parent group to a subgroup may jump to a radically
+# different filesystem location or alias a previously processed directory.
+#
+# This class performs a diff by essentially tracking only whether or not a
+# given absolute path has been seen in either the filesystem or the group
+# structure, without paying attention to where in the group structure the file
+# reference actually occurs.
+#
+# This helps ensure that the default arbitrary splits in group structure are
+# preserved. For example, "Supporting Files" is an alias for the same directory
+# as the parent group, and Apple's default project setup hides some files in
+# "Supporting Files". The approach this diff takes preserves this arrangement
+# without understanding specifically which files should be hidden and which
+# should exist in the parent.
+#
+# However, this approach has limitations: removing a file from "Supporting
+# Files" will be handled, but re-adding the file is likely to add it to the
+# group that mirrors the filesystem hierarchy rather than back into its
+# original position. So far this approach has been acceptable because there's
+# nothing of value in these aliasing folders. Should this change we'll have to
+# revisit.
 class GroupDiffer
   def initialize(dir_lister)
     @dir_lister = dir_lister
