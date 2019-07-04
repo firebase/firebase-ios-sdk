@@ -15,14 +15,14 @@
  */
 
 // TODO: Add short docs to the API
-#import <Foundation/Foundation.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import <Foundation/Foundation.h>
 
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const FIRInstallationIDDidChangeNotification;
+FOUNDATION_EXPORT const NSNotificationName FIRInstallationIDDidChangeNotification;
 
 typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
                                           NSError *__nullable error)

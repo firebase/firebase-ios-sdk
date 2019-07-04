@@ -112,7 +112,7 @@
   if (!defaultApp) {
     return nil;
   }
-  
+
   return [self installationsWithApp:defaultApp];
 }
 

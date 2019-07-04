@@ -31,7 +31,8 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
 
-NSString *const FIRInstallationIDDidChangeNotification = @"FIRInstallationIDDidChangeNotification";
+const NSNotificationName FIRInstallationIDDidChangeNotification =
+    @"FIRInstallationIDDidChangeNotification";
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
 @interface FIRInstallationsIDController ()
