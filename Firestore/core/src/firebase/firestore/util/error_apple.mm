@@ -39,7 +39,7 @@ NSError* MakeNSError(const int64_t error_code,
 
   NSMutableDictionary<NSString*, id>* user_info =
       [NSMutableDictionary dictionary];
-  user_info[NSLocalizedDescriptionKey] = WrapNSString(error_msg);
+  user_info[NSLocalizedDescriptionKey] = MakeNSString(error_msg);
   if (cause) {
     user_info[NSUnderlyingErrorKey] = cause;
   }

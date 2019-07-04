@@ -206,9 +206,12 @@ target_compile_definitions(
   PUBLIC -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
 )
 
+# Enable #include <nanopb/pb.h>
 target_include_directories(
   protobuf-nanopb-static
-  INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
+  INTERFACE
+  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
 
@@ -217,6 +220,11 @@ include(compiler_setup)
 
 
 # Firebase packages
+
+# Set variables that CocoaPods expects to be able to expand in values it
+# includes in the xcconfigs it generates.
+set(PODS_TARGET_SRCROOT ${FIREBASE_SOURCE_DIR})
+
 podspec_framework(
   ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
   SPECS Logger

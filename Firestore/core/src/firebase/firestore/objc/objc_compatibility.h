@@ -114,7 +114,7 @@ using unordered_map = std::unordered_map<K, V, Hash<K>, EqualTo<K>>;
  */
 template <typename T>
 NSString* Description(const T& value) {
-  return util::WrapNSString(util::ToString(value));
+  return util::MakeNSString(util::ToString(value));
 }
 
 }  // namespace objc

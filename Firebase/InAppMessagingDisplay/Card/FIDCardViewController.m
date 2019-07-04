@@ -105,6 +105,7 @@
   self.titleLabel.textColor = self.cardDisplayMessage.textColor;
 
   self.bodyTextView.text = self.cardDisplayMessage.body;
+  self.bodyTextView.textColor = self.cardDisplayMessage.textColor;
 
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
