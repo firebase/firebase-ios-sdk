@@ -80,7 +80,8 @@
       .andReturn([FBLPromise resolvedWith:storedInstallations]);
 
   // Don't expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
   notificationExpectation.inverted = YES;
 
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
@@ -469,7 +470,8 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
 
   // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
@@ -498,7 +500,8 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
 
   // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
@@ -528,7 +531,8 @@
                                                             appName:[OCMArg any]]);
 
   // 4. Don't expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
   notificationExpectation.inverted = YES;
 
   // 5. Call delete installation.
@@ -560,7 +564,8 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
 
   // 5. Call delete installation.
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
@@ -647,7 +652,8 @@
       .andReturn([FBLPromise resolvedWith:[FIRInstallationsItem createRegisteredInstallationItem]]);
 
   // 2. Expect FIRInstallationIDDidChangeNotification to be sent.
-  XCTestExpectation *notificationExpectation = [self installationIDDidChangeNotificationExpectation];
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
 
   // 3. Request FID.
   FBLPromise *promise = [self.controller getInstallationItem];
@@ -661,10 +667,6 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
   OCMVerifyAll(self.mockAPIService);
-}
-
-- (void)testFIDDidChangeNotificationIsSentWhenInstallationIsDeleted {
-  
 }
 
 #pragma mark - Helpers
@@ -689,11 +691,11 @@
 
 - (XCTestExpectation *)installationIDDidChangeNotificationExpectation {
   XCTestExpectation *notificationExpectation =
-  [self expectationForNotification:FIRInstallationIDDidChangeNotification
-                            object:nil
-                           handler:^BOOL(NSNotification *_Nonnull notification) {
-                             return YES;
-                           }];
+      [self expectationForNotification:FIRInstallationIDDidChangeNotification
+                                object:nil
+                               handler:^BOOL(NSNotification *_Nonnull notification) {
+                                 return YES;
+                               }];
   return notificationExpectation;
 }
 

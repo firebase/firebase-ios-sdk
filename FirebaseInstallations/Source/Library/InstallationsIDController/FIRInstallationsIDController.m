@@ -266,6 +266,12 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         // Remove the installation from the local storage.
         return [self.installationsStore removeInstallationForAppID:installation.appID
                                                            appName:installation.firebaseAppName];
+      })
+      .then(^NSNull *(NSNull *result) {
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:FIRInstallationIDDidChangeNotification
+                          object:nil];
+        return result;
       });
 }
 
