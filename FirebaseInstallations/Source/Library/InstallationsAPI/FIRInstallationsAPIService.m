@@ -248,7 +248,6 @@ NS_ASSUME_NONNULL_END
   }];
 }
 
-// TODO: Set proper sdkVersion.
 - (NSString *)SDKVersion {
   return [NSString stringWithUTF8String:FIRInstallationsVersionStr];
 }
