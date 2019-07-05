@@ -157,7 +157,7 @@
       });
 }
 
-- (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {
+- (void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion {
   [self.installationsIDController deleteInstallation]
       .then(^id(id result) {
         completion(nil);
