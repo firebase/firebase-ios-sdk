@@ -86,7 +86,7 @@
 }
 
 - (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
-  XCTAssertNil([FIRInstallations installations]);
+  XCTAssertThrows([FIRInstallations installations]);
 }
 
 - (void)testInstallationIDSuccess {

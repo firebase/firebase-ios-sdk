@@ -83,8 +83,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects(body[@"authVersion"], @"FIS_v2");
     XCTAssertEqualObjects(body[@"appId"], installation.appID);
 
-    // TODO: Find out what the version should we pass and test.
-    //    XCTAssertEqualObjects(body[@"sdkVersion"], @"a1.0");
+    XCTAssertEqualObjects(body[@"sdkVersion"], @"0.1.0");
 
     return YES;
   }];
@@ -435,7 +434,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertNotNil(body, @"Error: %@, test: %@", error, self.name);
 
     // TODO: Find out what the version should we pass and test.
-    XCTAssertEqualObjects(body, @{@"installation" : @{@"sdkVersion" : @"a1.0"}}, @"%@", self.name);
+    XCTAssertEqualObjects(body, @{@"installation" : @{@"sdkVersion" : @"0.1.0"}}, @"%@", self.name);
 
     return YES;
   }];
