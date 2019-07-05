@@ -36,7 +36,8 @@
 
 - (instancetype)initWithAppOptions:(FIROptions *)appOptions
                            appName:(NSString *)appName
-         installationsIDController:(FIRInstallationsIDController *)installationsIDController;
+         installationsIDController:(FIRInstallationsIDController *)installationsIDController
+                 prefetchAuthToken:(BOOL)prefetchAuthToken;
 
 @end
 
@@ -56,7 +57,8 @@
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
   self.installations = [[FIRInstallations alloc] initWithAppOptions:self.appOptions
                                                             appName:@"appName"
-                                          installationsIDController:self.mockIDController];
+                                          installationsIDController:self.mockIDController
+                                                  prefetchAuthToken:NO];
 }
 
 - (void)tearDown {
