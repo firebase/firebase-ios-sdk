@@ -32,53 +32,72 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   NSString *failureReason = [NSString
       stringWithFormat:@"NSKeyedArchiver exception with name: %@, reason: %@, userInfo: %@",
                        exception.name, exception.reason, exception.userInfo];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
                      failureReason:failureReason
                    underlyingError:nil];
 }
 
 + (NSError *)keyedArchiverErrorWithError:(NSError *)error {
   NSString *failureReason = [NSString stringWithFormat:@"NSKeyedArchiver error"];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
                      failureReason:failureReason
                    underlyingError:error];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
-  // TODO: Form a proper error
   NSString *failureReason = [NSString stringWithFormat:@"%@ (%li)", keychainFunction, (long)status];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeKeychain failureReason:failureReason underlyingError:nil];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeKeychain
+                     failureReason:failureReason
+                   underlyingError:nil];
 }
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName {
   NSString *failureReason =
       [NSString stringWithFormat:@"Installation for appID %@ appName %@ not found", appID, appName];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                     failureReason:failureReason
+                   underlyingError:nil];
 }
 
 + (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode {
   NSString *failureReason = [NSString
       stringWithFormat:@"Unexpected server response HTTP code: %lu", (unsigned long)HTTPCode];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                     failureReason:failureReason
+                   underlyingError:nil];
 }
 
 + (NSError *)JSONSerializationError:(NSError *)error {
   NSString *failureReason = [NSString stringWithFormat:@"Failed to serialize JSON data."];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                     failureReason:failureReason
+                   underlyingError:nil];
 }
 
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName {
   NSString *failureReason = [NSString
       stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                     failureReason:failureReason
+                   underlyingError:nil];
 }
 
 + (NSError *)networkErrorWithError:(NSError *)error {
-  return [self publicErrorWithCode:FIRInstallationsErrorCodeServerUnreachable failureReason:@"Networt connection error" underlyingError:error];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeServerUnreachable
+                     failureReason:@"Networt connection error"
+                   underlyingError:error];
 }
 
-+ (NSError *)publicErrorWithCode:(FIRInstallationsErrorCode)code
-                   failureReason:(NSString *)failureReason
++ (NSError *)publicDomainErrorWithError:(NSError *)error {
+  if ([error.domain isEqualToString:kFirebaseInstallationsErrorDomain]) {
+    return error;
+  }
+
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:nil underlyingError:error];
+}
+
++ (NSError *)installationsErrorWithCode:(FIRInstallationsErrorCode)code
+                   failureReason:(nullable NSString *)failureReason
                  underlyingError:(nullable NSError *)underlyingError {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   userInfo[NSUnderlyingErrorKey] = underlyingError;

@@ -26,6 +26,7 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
 + (NSError *)keyedArchiverErrorWithError:(NSError *)error;
+
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
@@ -37,6 +38,12 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 + (NSError *)networkErrorWithError:(NSError *)error;
 
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName;
+
+/**
+ * Returns the passed error if it is already in the public domain or a new error with the passed
+ * error at `NSUnderlyingErrorKey`.
+ */
++ (NSError *)publicDomainErrorWithError:(NSError *)error;
 
 @end
 
