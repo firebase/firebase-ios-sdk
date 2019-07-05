@@ -97,16 +97,6 @@ extern NSString *const kServiceInfoFileType;
 @property(nonatomic, readonly) BOOL isMeasurementEnabled;
 
 /**
- * Whether or not Analytics was enabled in the developer console.
- */
-@property(nonatomic, readonly) BOOL isAnalyticsEnabled;
-
-/**
- * Whether or not SignIn was enabled in the developer console.
- */
-@property(nonatomic, readonly) BOOL isSignInEnabled;
-
-/**
  * Whether or not editing is locked. This should occur after FIROptions has been set on a FIRApp.
  */
 @property(nonatomic, getter=isEditingLocked) BOOL editingLocked;
