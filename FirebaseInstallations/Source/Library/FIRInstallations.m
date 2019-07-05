@@ -112,7 +112,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRInstallations *)installations {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    return nil;
     [NSException raise:NSInternalInconsistencyException
                 format:@"The default FIRApp instance must be configured before the default FIRAuth"
                        @"instance can be initialized. One way to ensure that is to call "
