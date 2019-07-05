@@ -36,6 +36,8 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol FIRInstallationsInstanceProvider <FIRLibrary>
 @end
 
@@ -119,7 +121,12 @@
 + (FIRInstallations *)installations {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    return nil;
+    [NSException raise:NSInternalInconsistencyException
+                format:@"The default FIRApp instance must be configured before the default FIRAuth"
+                       @"instance can be initialized. One way to ensure that is to call "
+                       @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App "
+                       @"Delegate's `application:didFinishLaunchingWithOptions:` "
+                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
   }
 
   return [self installationsWithApp:defaultApp];
@@ -179,3 +186,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
