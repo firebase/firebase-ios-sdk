@@ -178,7 +178,6 @@ NS_ASSUME_NONNULL_BEGIN
                        endAt:(nullable FSTBound *)endAtBound;
 
 - (instancetype)initWithQuery:(core::Query)query
-                     filterBy:(NSArray<FSTFilter *> *)filters
                       orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit
                       startAt:(nullable FSTBound *)startAtBound
@@ -296,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const std::shared_ptr<const std::string> &)collectionGroup;
 
 /** The filters on the documents returned by the query. */
-@property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;
+- (NSArray<FSTFilter *> *)filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
 @property(nonatomic, assign, readonly) int32_t limit;

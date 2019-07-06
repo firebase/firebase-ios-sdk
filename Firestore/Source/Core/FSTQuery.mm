@@ -50,6 +50,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::Query;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -461,6 +462,53 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTQuery
 
+namespace {
+
+Query::FilterList MakeFilters(NSArray<FSTFilter *> *filters) {
+  Query::FilterList result;
+  for (FSTFilter *filter in filters) {
+    std::shared_ptr<Filter> converted;
+    if ([filter isKindOfClass:[FSTRelationFilter class]]) {
+      FSTRelationFilter *relationFilter = (FSTRelationFilter *)filter;
+      converted =
+          Filter::Create(relationFilter.field, relationFilter.filterOperator, relationFilter.value);
+    } else if ([filter isKindOfClass:[FSTNanFilter class]]) {
+      converted = Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Nan());
+    } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
+      converted = Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Null());
+    } else {
+      HARD_FAIL("Unknown filter type: %s", [filter description]);
+    }
+
+    result.push_back(std::move(converted));
+  }
+  return result;
+}
+
+NSArray<FSTFilter *> *MakeFSTFilters(const Query::FilterList &filters) {
+  NSMutableArray<FSTFilter *> *result = [[NSMutableArray alloc] initWithCapacity:filters.size()];
+  for (const auto &filter : filters) {
+    FSTFilter *converted;
+    if (filter->type() == Filter::Type::kRelationFilter) {
+      const auto &relationFilter = std::static_pointer_cast<core::RelationFilter>(filter);
+      converted = [FSTFilter filterWithField:relationFilter->field()
+                              filterOperator:relationFilter->op()
+                                       value:relationFilter->value()];
+    } else if (filter->type() == Filter::Type::kNanFilter) {
+      converted = [[FSTNanFilter alloc] initWithField:filter->field()];
+    } else if (filter->type() == Filter::Type::kNullFilter) {
+      converted = [[FSTNullFilter alloc] initWithField:filter->field()];
+    } else {
+      HARD_FAIL("Unknown filter type: %s", filter->ToString());
+    }
+
+    [result addObject:converted];
+  }
+  return result;
+}
+
+}  // namespace
+
 @interface FSTQuery () {
   // Cached value of the canonicalID property.
   NSString *_canonicalID;
@@ -503,9 +551,8 @@ NS_ASSUME_NONNULL_BEGIN
                        limit:(int32_t)limit
                      startAt:(nullable FSTBound *)startAtBound
                        endAt:(nullable FSTBound *)endAtBound {
-  Query query(std::move(path), std::move(collectionGroup));
+  Query query(std::move(path), std::move(collectionGroup), MakeFilters(filters));
   return [self initWithQuery:std::move(query)
-                    filterBy:filters
                      orderBy:sortOrders
                        limit:limit
                      startAt:startAtBound
@@ -513,14 +560,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithQuery:(core::Query)query
-                     filterBy:(NSArray<FSTFilter *> *)filters
                       orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit
                       startAt:(nullable FSTBound *)startAtBound
                         endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
     _query = std::move(query);
-    _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
     _startAt = startAtBound;
@@ -554,6 +599,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #pragma mark - Public methods
+
+- (NSArray<FSTFilter *> *)filters {
+  return MakeFSTFilters(_query.filters());
+}
 
 - (NSArray *)sortOrders {
   if (self.memoizedSortOrders == nil) {

@@ -18,6 +18,7 @@
 
 #include <algorithm>
 
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -28,9 +29,25 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using Operator = Filter::Operator;
+using Type = Filter::Type;
+
 using model::Document;
 using model::DocumentKey;
+using model::FieldPath;
 using model::ResourcePath;
+
+namespace {
+
+template <typename T>
+util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
+                                   T&& value) {
+  util::vector_of_ptr<T> updated = vector;
+  updated.push_back(std::forward<T>(value));
+  return updated;
+}
+
+}  // namespace
 
 Query::Query(ResourcePath path, std::string collection_group)
     : path_(std::move(path)),
@@ -45,18 +62,46 @@ bool Query::IsDocumentQuery() const {
          filters_.empty();
 }
 
+const FieldPath* Query::InequalityFilterField() const {
+  for (const auto& filter : filters_) {
+    if (filter->IsInequality()) {
+      return &filter->field();
+    }
+  }
+  return nullptr;
+}
+
+bool Query::HasArrayContainsFilter() const {
+  for (const auto& filter : filters_) {
+    if (filter->type() == Type::kRelationFilter) {
+      const auto& relationFilter =
+          std::static_pointer_cast<RelationFilter>(filter);
+      if (relationFilter->op() == Operator::ArrayContains) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // MARK: - Builder methods
 
 Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
-  HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
-              "No filter is allowed for document query");
+  HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
-  // TODO(rsgowman): ensure only one inequality field
+  const FieldPath* new_inequality_field = nullptr;
+  if (filter->IsInequality()) {
+    new_inequality_field = &filter->field();
+  }
+  const FieldPath* query_inequality_field = InequalityFilterField();
+  HARD_ASSERT(!query_inequality_field || !new_inequality_field ||
+                  *query_inequality_field == *new_inequality_field,
+              "Query must only have one inequality field.");
+
   // TODO(rsgowman): ensure first orderby must match inequality field
 
-  auto updated_filters = filters_;
-  updated_filters.push_back(std::move(filter));
-  return Query(path_, collection_group_, std::move(updated_filters));
+  return Query(path_, collection_group_,
+               AppendingTo(filters_, std::move(filter)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
@@ -71,7 +116,7 @@ bool Query::Matches(const Document& doc) const {
 }
 
 bool Query::MatchesPath(const Document& doc) const {
-  const ResourcePath& doc_path = doc.key().path();
+  ResourcePath doc_path = doc.key().path();
   if (DocumentKey::IsDocumentKey(path_)) {
     return path_ == doc_path;
   } else {
