@@ -529,6 +529,73 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
                                                DocumentState::kCommittedMutations));
 }
 
+- (void)testNonTransformMutationBaseValue {
+  NSDictionary *docData = @{@"foo" : @"foo"};
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
+
+  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"bar"});
+  XCTAssertFalse([set extractBaseValue:baseDoc]);
+
+  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
+  XCTAssertFalse([patch extractBaseValue:baseDoc]);
+
+  FSTMutation *deleter = FSTTestDeleteMutation(@"collection/key");
+  XCTAssertFalse([deleter extractBaseValue:baseDoc]);
+}
+
+- (void)testServerTimestampBaseValue {
+  NSDictionary *docData = @{@"time" : @"foo", @"nested" : @{@"time" : @"foo"}};
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
+
+  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+    @"time" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"nested.time" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
+
+  // Server timestamps are idempotent and don't require base values.
+  XCTAssertFalse([transform extractBaseValue:baseDoc]);
+}
+
+- (void)testNumericIncrementBaseValue {
+  NSDictionary *docData = @{
+    @"ignore" : @"foo",
+    @"double" : @42.0,
+    @"long" : @42,
+    @"string" : @"foo",
+    @"map" : @{},
+    @"nested" :
+        @{@"ignore" : @"foo", @"double" : @42.0, @"long" : @42, @"string" : @"foo", @"map" : @{}}
+  };
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, DocumentState::kSynced);
+
+  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+    @"double" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"long" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"string" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"map" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"missing" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"nested.double" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"nested.long" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"nested.string" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"nested.map" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"nested.missing" : [FIRFieldValue fieldValueForIntegerIncrement:1]
+  });
+
+  ObjectValue expectedBaseValue = FSTTestObjectValue(@{
+    @"double" : @42.0,
+    @"long" : @42,
+    @"string" : @0,
+    @"map" : @0,
+    @"missing" : @0,
+    @"nested" : @{@"double" : @42.0, @"long" : @42, @"string" : @0, @"map" : @0, @"missing" : @0}
+  });
+
+  // Server timestamps are idempotent and don't require base values.
+  absl::optional<ObjectValue> actualBaseValue = [transform extractBaseValue:baseDoc];
+  XCTAssertTrue([transform extractBaseValue:baseDoc]);
+  XCTAssertEqual(expectedBaseValue, *actualBaseValue);
+}
+
 #define ASSERT_VERSION_TRANSITION(mutation, base, result, expected)                         \
   do {                                                                                      \
     FSTMaybeDocument *actual = [mutation applyToRemoteDocument:base mutationResult:result]; \

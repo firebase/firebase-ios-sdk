@@ -62,7 +62,7 @@ class CardMessageViewController: CommonMessageTestVC {
     }
 
     override var secondaryActionButton: InAppMessagingActionButton? {
-      return writablePrimaryActionButton
+      return writableSecondaryActionButton
     }
 
     override var secondaryActionURL: URL? {

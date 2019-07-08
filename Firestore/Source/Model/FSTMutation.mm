@@ -102,20 +102,16 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
+- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+  return absl::nullopt;
+}
+
 - (const DocumentKey &)key {
   return _key;
 }
 
 - (const firebase::firestore::model::Precondition &)precondition {
   return _precondition;
-}
-
-- (BOOL)idempotent {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (nullable const FieldMask *)fieldMask {
-  @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (void)verifyKeyMatches:(nullable FSTMaybeDocument *)maybeDoc {
@@ -202,12 +198,8 @@ NS_ASSUME_NONNULL_BEGIN
                                  state:DocumentState::kCommittedMutations];
 }
 
-- (nullable const FieldMask *)fieldMask {
-  return nullptr;
-}
-
-- (BOOL)idempotent {
-  return YES;
+- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+  return absl::nullopt;
 }
 
 @end
@@ -289,6 +281,10 @@ NS_ASSUME_NONNULL_BEGIN
                                  state:DocumentState::kLocalMutations];
 }
 
+- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+  return absl::nullopt;
+}
+
 - (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
                              mutationResult:(FSTMutationResult *)mutationResult {
   [self verifyKeyMatches:maybeDoc];
@@ -323,10 +319,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
   return result;
-}
-
-- (BOOL)idempotent {
-  return YES;
 }
 
 @end
@@ -407,7 +399,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
   std::vector<FieldValue> transformResults =
-      [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
+      [self localTransformResultsWithLocalDocument:maybeDoc
+                                      baseDocument:baseDoc
+                                         writeTime:localWriteTime];
   ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
 
   return [FSTDocument documentWithData:std::move(newData)
@@ -437,7 +431,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
   HARD_ASSERT(mutationResult.transformResults.has_value());
-  ;
+
   std::vector<FieldValue> transformResults =
       [self serverTransformResultsWithBaseDocument:maybeDoc
                             serverTransformResults:*mutationResult.transformResults];
@@ -448,6 +442,28 @@ NS_ASSUME_NONNULL_BEGIN
                                    key:self.key
                                version:mutationResult.version
                                  state:DocumentState::kCommittedMutations];
+}
+
+- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+  absl::optional<ObjectValue> base_object = absl::nullopt;
+
+  for (const FieldTransform &transform : self.fieldTransforms) {
+    absl::optional<FieldValue> existing_value;
+    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+      existing_value = {[((FSTDocument *)maybeDoc) fieldForPath:transform.path()]};
+    }
+
+    absl::optional<FieldValue> coerced_value =
+        transform.transformation().ComputeBaseValue(existing_value);
+    if (coerced_value) {
+      if (!base_object) {
+        base_object = {ObjectValue::Empty()};
+      }
+      base_object = {base_object->Set(transform.path(), *coerced_value)};
+    }
+  }
+
+  return base_object;
 }
 
 /**
@@ -486,23 +502,32 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an array of "transform results" (a transform result is a field value representing the
  * result of applying a transform) for use when applying an FSTTransformMutation locally.
  *
+ * @param maybeDocument The current state of the document after applying all previous mutations.
  * @param baseDocument The document prior to applying this mutation batch.
  * @param localWriteTime The local time of the transform mutation (used to generate
  *     ServerTimestampValues).
  * @return The transform results array.
  */
-- (std::vector<FieldValue>)localTransformResultsWithBaseDocument:
-                               (nullable FSTMaybeDocument *)baseDocument
-                                                       writeTime:(const Timestamp &)localWriteTime {
+- (std::vector<FieldValue>)
+    localTransformResultsWithLocalDocument:(nullable FSTMaybeDocument *)maybeDocument
+                              baseDocument:(nullable FSTMaybeDocument *)baseDocument
+                                 writeTime:(const Timestamp &)localWriteTime {
   std::vector<FieldValue> transformResults;
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
     const TransformOperation &transform = fieldTransform.transformation();
 
     absl::optional<FieldValue> previousValue;
-    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    if ([maybeDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)maybeDocument) fieldForPath:fieldTransform.path()];
     }
 
+    if (!previousValue && [baseDocument isMemberOfClass:[FSTDocument class]]) {
+      // If the current document does not contain a value for the mutated field, use the value
+      // that existed before applying this mutation batch. This solves an edge case where a
+      // FSTPatchMutation clears the values in a nested map before the FSTTransformMutation is
+      // applied.
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    }
     transformResults.push_back(transform.ApplyToLocalView(previousValue, localWriteTime));
   }
   return transformResults;
@@ -519,19 +544,6 @@ NS_ASSUME_NONNULL_BEGIN
     objectValue = objectValue.Set(fieldPath, transformResults[i]);
   }
   return objectValue;
-}
-
-- (nullable const FieldMask *)fieldMask {
-  return &_fieldMask;
-}
-
-- (BOOL)idempotent {
-  for (const auto &transform : self.fieldTransforms) {
-    if (!transform.idempotent()) {
-      return NO;
-    }
-  }
-  return YES;
 }
 
 @end
@@ -594,12 +606,8 @@ NS_ASSUME_NONNULL_BEGIN
                        hasCommittedMutations:YES];
 }
 
-- (nullable const FieldMask *)fieldMask {
-  return nullptr;
-}
-
-- (BOOL)idempotent {
-  return YES;
+- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+  return absl::nullopt;
 }
 
 @end

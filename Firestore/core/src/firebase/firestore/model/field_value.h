@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -265,6 +266,12 @@ class ObjectValue : public util::Comparable<ObjectValue> {
    * @return A new FieldValue with the field path removed.
    */
   ObjectValue Delete(const FieldPath& field_path) const;
+
+  /**
+   * Returns a FieldMask built from all FieldPaths starting from this
+   * ObjectValue, including paths from nested objects.
+   */
+  FieldMask ToFieldMask() const;
 
   // TODO(rsgowman): Add Value() method?
   //

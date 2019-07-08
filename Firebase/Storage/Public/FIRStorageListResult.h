@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(StorageListResult)
 @interface FIRStorageListResult : NSObject <NSCopying>
 
-- (nullable instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * The prefixes (folders) returned by the `list()` operation.

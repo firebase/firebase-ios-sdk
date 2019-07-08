@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
 
-- (nullable instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithRequestClass:APIKey:authLanguage:
     @brief Designated initializer.

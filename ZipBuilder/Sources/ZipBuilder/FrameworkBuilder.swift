@@ -55,14 +55,18 @@ struct FrameworkBuilder {
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
+  /// A flag to indicate this build is for carthage. This is primarily used for CoreDiagnostics.
+  private let carthageBuild: Bool
+
   /// The Pods directory for building the framework.
   private var podsDir: URL {
     return projectDir.appendingPathComponent("Pods", isDirectory: true)
   }
 
   /// Default initializer.
-  init(projectDir: URL) {
+  init(projectDir: URL, carthageBuild: Bool = false) {
     self.projectDir = projectDir
+    self.carthageBuild = carthageBuild
   }
 
   // MARK: - Public Functions
@@ -223,7 +227,8 @@ struct FrameworkBuilder {
                            "ARCHS=\(arch.rawValue)",
                            "BUILD_DIR=\(buildDir.path)",
                            "-sdk", platform.rawValue]
-    let args = standardOptions + platform.extraArguments()
+    let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
+    let args = standardOptions + platform.extraArguments() + [distributionFlag]
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))
