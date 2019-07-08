@@ -36,10 +36,12 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
-@protocol FIRInstallationsInstanceProvider
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol FIRInstallationsInstanceProvider <FIRLibrary>
 @end
 
-@interface FIRInstallations () <FIRLibrary>
+@interface FIRInstallations () <FIRInstallationsInstanceProvider>
 @property(nonatomic, readonly) FIROptions *appOptions;
 @property(nonatomic, readonly) NSString *appName;
 
@@ -107,6 +109,20 @@
 
 #pragma mark - Public
 
++ (FIRInstallations *)installations {
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  if (!defaultApp) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"The default FirebaseApp instance must be configured before the default"
+                       @"FirebaseApp instance can be initialized. One way to ensure that is to "
+                       @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
+                       @" Delegate's `application:didFinishLaunchingWithOptions:` "
+                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+  }
+
+  return [self installationsWithApp:defaultApp];
+}
+
 + (FIRInstallations *)installationsWithApp:(FIRApp *)app {
   id<FIRInstallationsInstanceProvider> installations =
       FIR_COMPONENT(FIRInstallationsInstanceProvider, app.container);
@@ -148,7 +164,7 @@
       });
 }
 
-- (void)deleteWithCompletion:(void (^)(NSError *__nullable))completion {
+- (void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion {
   [self.installationsIDController deleteInstallation]
       .then(^id(id result) {
         completion(nil);
@@ -161,3 +177,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
