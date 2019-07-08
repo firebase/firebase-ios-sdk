@@ -67,13 +67,20 @@
   [super tearDown];
 }
 
+// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
+// side effect now (triggers a background task).
 - (void)testInstallationsWithApp {
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
 
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
+
   [FIRApp resetApps];
 }
 
+// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
+// side effect now (triggers a background task).
 - (void)testDefaultAppInstallation {
   FIRApp *defaultApp = [self createAndConfigureAppWithName:kFIRDefaultAppName];
   FIRInstallations *installations = [FIRInstallations installations];
@@ -81,6 +88,9 @@
   XCTAssertNotNil(installations);
   XCTAssertEqualObjects(installations.appOptions.googleAppID, defaultApp.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, defaultApp.name);
+
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
 
   [FIRApp resetApps];
 }
