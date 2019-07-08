@@ -71,6 +71,9 @@
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
 
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
+
   [FIRApp resetApps];
 }
 
@@ -81,6 +84,9 @@
   XCTAssertNotNil(installations);
   XCTAssertEqualObjects(installations.appOptions.googleAppID, defaultApp.options.googleAppID);
   XCTAssertEqualObjects(installations.appName, defaultApp.name);
+
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
 
   [FIRApp resetApps];
 }
