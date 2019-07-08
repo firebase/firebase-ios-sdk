@@ -67,6 +67,8 @@
   [super tearDown];
 }
 
+// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
+// side effect now (triggers a background task).
 - (void)testInstallationsWithApp {
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
@@ -77,6 +79,8 @@
   [FIRApp resetApps];
 }
 
+// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
+// side effect now (triggers a background task).
 - (void)testDefaultAppInstallation {
   FIRApp *defaultApp = [self createAndConfigureAppWithName:kFIRDefaultAppName];
   FIRInstallations *installations = [FIRInstallations installations];
