@@ -3,6 +3,7 @@ import Foundation
 import FirebaseCore
 import FirebaseAuth
 import FirebaseFunctions
+import FirebaseInstanceID
 import FirebaseStorage
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
@@ -19,3 +20,5 @@ print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
 print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
 
 print("Storage Version String? Answer: \(StorageVersionString)")
+
+print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")

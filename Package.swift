@@ -38,6 +38,10 @@ let package = Package(
       type: .static,
       targets: ["FirebaseFunctions"]),
     .library(
+      name: "FirebaseInstanceID",
+      type: .static,
+      targets: ["FirebaseInstanceID"]),
+    .library(
       name: "FirebaseStorage",
       type: .static,
       targets: ["FirebaseStorage"]),
@@ -50,8 +54,8 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: ["Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseStorage",
-                     "GoogleUtilities_AppDelegateSwizzler",
+      dependencies: ["Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseInstanceID",
+                     "FirebaseStorage", "GoogleUtilities_AppDelegateSwizzler",
                      "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
     .target(
@@ -115,6 +119,18 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_UserDefaults",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/UserDefaults",
+      publicHeadersPath: "Private", // Consider renaming "Private" directory to "Public"
+      cSettings: [
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities"),
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities/UserDefaults/Private"),
+        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
       ]
     ),
 // Interop fails with
@@ -194,6 +210,17 @@ let package = Package(
         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
       ]),
     .target(
+      name: "FirebaseInstanceID",
+      dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "Firebase/InstanceID",
+      publicHeadersPath: "Public",
+      cSettings: [
+         // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("$(SRCROOT)"),
+        .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
+      ]),
+    .target(
       name: "FirebaseStorage",
       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
       path: "Firebase/Storage",
@@ -210,7 +237,7 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("CoreServices", .when(platforms: [.macOS])),
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
-      ])
+      ]),
   ],
   cLanguageStandard: .c99
 )

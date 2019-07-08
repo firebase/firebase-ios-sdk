@@ -21,8 +21,13 @@
 #endif
 #import <sys/utsname.h>
 
-#import <FirebaseCore/FIROptions.h>
+#ifdef SWIFT_PACKAGE
+#import "GULUserDefaults.h"
+#else
 #import <GoogleUtilities/GULUserDefaults.h>
+#endif
+
+#import <FirebaseCore/FIROptions.h>
 #import "FIRInstanceID.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDLogger.h"

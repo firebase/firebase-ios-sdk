@@ -14,7 +14,11 @@
 
 #import "Private/GULUserDefaults.h"
 
+#if SWIFT_PACKAGE
+#import "GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
