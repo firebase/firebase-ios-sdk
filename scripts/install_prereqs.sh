@@ -26,7 +26,7 @@ function install_secrets() {
   # requests from forks. See
   # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
   if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
-    openssl aes-256-cbc -K $encrypted_44810a80e6cc_key -iv $encrypted_44810a80e6cc_iv \
+    openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
