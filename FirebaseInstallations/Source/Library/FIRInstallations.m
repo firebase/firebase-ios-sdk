@@ -91,18 +91,27 @@ NS_ASSUME_NONNULL_BEGIN
                                                       projectID:appOptions.projectID];
   return [self initWithAppOptions:appOptions
                           appName:appName
-        installationsIDController:IDController];
+        installationsIDController:IDController
+                prefetchAuthToken:YES];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
 - (instancetype)initWithAppOptions:(FIROptions *)appOptions
                            appName:(NSString *)appName
-         installationsIDController:(FIRInstallationsIDController *)installationsIDController {
+         installationsIDController:(FIRInstallationsIDController *)installationsIDController
+                 prefetchAuthToken:(BOOL)prefetchAuthToken {
   self = [super init];
   if (self) {
     _appOptions = [appOptions copy];
     _appName = [appName copy];
     _installationsIDController = installationsIDController;
+
+    // Pre-fetch auth token.
+    if (prefetchAuthToken) {
+      [self authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                      NSError *_Nullable error){
+      }];
+    }
   }
   return self;
 }
