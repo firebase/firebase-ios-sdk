@@ -565,4 +565,29 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(decoded.timestamp,
                    ServerTimestamp.pending)
   }
+
+  func testExplicitNull() throws {
+    struct Model: Codable, Equatable {
+      var name: ExplicitNull<String>
+    }
+
+    // Encoding 'none'
+    let fieldIsNull = Model(name: .none)
+    var encoded = try Firestore.Encoder().encode(fieldIsNull)
+    XCTAssertTrue(encoded.keys.contains("name"))
+    XCTAssertEqual(encoded["name"]! as! NSNull, NSNull())
+
+    // Decoding null
+    var decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    XCTAssertEqual(decoded, fieldIsNull)
+
+    // Encoding 'some'
+    let fieldIsNotNull = Model(name: .some("good name"))
+    encoded = try Firestore.Encoder().encode(fieldIsNotNull)
+    XCTAssertEqual(encoded["name"]! as! String, "good name")
+
+    // Decoding not-null value
+    decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    XCTAssertEqual(decoded, fieldIsNotNull)
+  }
 }

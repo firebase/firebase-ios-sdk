@@ -136,6 +136,63 @@ double DOUBLE_EPSILON = 0.000001;
   [self expectApproximateLocalAndRemoteValue:13.37];
 }
 
+- (void)testIncrementTwiceInABatch {
+  [self writeInitialData:@{@"sum" : @"overwrite"}];
+
+  FIRWriteBatch *batch = _docRef.firestore.batch;
+  [batch updateData:@{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]}
+        forDocument:_docRef];
+  [batch updateData:@{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]}
+        forDocument:_docRef];
+  [batch
+      commitWithCompletion:[self completionForExpectationWithName:@"testIncrementTwiceInABatch"]];
+  [self awaitExpectations];
+
+  [self expectApproximateLocalAndRemoteValue:2];
+}
+
+- (void)testIncrementDeleteIncrementInABatch {
+  [self writeInitialData:@{@"sum" : @"overwrite"}];
+
+  FIRWriteBatch *batch = _docRef.firestore.batch;
+  [batch updateData:@{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]}
+        forDocument:_docRef];
+  [batch updateData:@{@"sum" : [FIRFieldValue fieldValueForDelete]} forDocument:_docRef];
+  [batch updateData:@{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:3]}
+        forDocument:_docRef];
+  [batch commitWithCompletion:
+             [self completionForExpectationWithName:@"testIncrementDeleteIncrementInABatch"]];
+  [self awaitExpectations];
+
+  [self expectApproximateLocalAndRemoteValue:3];
+}
+
+- (void)testServerTimestampAndIncrement {
+  // This test stacks two pending transforms (a ServerTimestamp and an Increment transform)
+  // and reproduces the setup that was reported in
+  // https://github.com/firebase/firebase-android-sdk/issues/491
+  // In our original code, a NumericIncrementTransform could cause us to decode the
+  // ServerTimestamp as part of a FSTPatchMutation, which triggered an assertion failure.
+  [self writeInitialData:@{@"val" : @"overwrite"}];
+
+  [self disableNetwork];
+
+  [_docRef updateData:@{@"val" : [FIRFieldValue fieldValueForServerTimestamp]}];
+  [_docRef updateData:@{@"val" : [FIRFieldValue fieldValueForIntegerIncrement:1]}];
+
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertNotNil([snap valueForField:@"val"
+              serverTimestampBehavior:FIRServerTimestampBehaviorEstimate]);
+
+  snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualObjects(@1, snap[@"val"]);
+
+  [self enableNetwork];
+
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualObjects(@1, snap[@"val"]);
+}
+
 - (void)testMultipleDoubleIncrements {
   [self writeInitialData:@{@"sum" : @"0.0"}];
 

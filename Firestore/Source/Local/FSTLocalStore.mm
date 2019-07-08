@@ -49,6 +49,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
+#include "absl/types/optional.h"
 
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
@@ -192,29 +193,17 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // transform.
     std::vector<FSTMutation *> baseMutations;
     for (FSTMutation *mutation : mutations) {
-      if (mutation.idempotent) {
-        continue;
-      }
+      auto base_document_it = existingDocuments.find(mutation.key);
+      FSTMaybeDocument *base_document =
+          base_document_it != existingDocuments.end() ? base_document_it->second : nil;
 
-      // Theoretically, we should only include non-idempotent fields in this field mask as this mask
-      // is used to prevent flicker for non-idempotent transforms by providing consistent base
-      // values. By including the fields for all DocumentTransforms, we incorrectly prevent rebasing
-      // of idempotent transforms (such as `arrayUnion()`) when any non-idempotent transforms are
-      // present.
-      // TODO(mrschmidt): Expose a method that only returns the a field mask for non-idempotent
-      // transforms
-      const FieldMask *fieldMask = [mutation fieldMask];
-      if (fieldMask) {
-        // `documentsForKeys` is guaranteed to return a (nullable) entry for every document key.
-        FSTMaybeDocument *maybeDocument = existingDocuments.find(mutation.key)->second;
-        ObjectValue baseValues = [maybeDocument isKindOfClass:[FSTDocument class]]
-                                     ? fieldMask->ApplyTo(((FSTDocument *)maybeDocument).data)
-                                     : ObjectValue::Empty();
+      absl::optional<ObjectValue> base_value = [mutation extractBaseValue:base_document];
+      if (base_value) {
         // NOTE: The base state should only be applied if there's some existing document to
         // override, so use a Precondition of exists=true
         baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
-                                                            fieldMask:*fieldMask
-                                                                value:std::move(baseValues)
+                                                            fieldMask:base_value->ToFieldMask()
+                                                                value:*base_value
                                                          precondition:Precondition::Exists(true)]);
       }
     }

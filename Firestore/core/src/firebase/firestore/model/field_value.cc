@@ -21,10 +21,12 @@
 #include <iostream>
 #include <memory>
 #include <new>
+#include <set>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -645,6 +647,34 @@ absl::optional<FieldValue> ObjectValue::Get(const FieldPath& field_path) const {
     }
   }
   return *current;
+}
+
+FieldMask ObjectValue::ToFieldMask() const {
+  std::set<FieldPath> fields;
+
+  for (FieldValue::Map::const_iterator iter = fv_.object_value().begin();
+       iter != fv_.object_value().end(); ++iter) {
+    FieldPath current_path{iter->first};
+    FieldValue value = iter->second;
+
+    if (value.type() == Type::Object) {
+      ObjectValue nested_map{value};
+      FieldMask nested_mask = nested_map.ToFieldMask();
+      if (nested_mask.size() == 0) {
+        // Preserve the empty map by adding it to the FieldMask.
+        fields.insert(current_path);
+      } else {
+        // For nested and non-empty ObjectValues, add the FieldPath of the leaf
+        // nodes.
+        for (const FieldPath& nested_path : nested_mask) {
+          fields.insert(current_path.Append(nested_path));
+        }
+      }
+    } else {
+      fields.insert(current_path);
+    }
+  }
+  return FieldMask(fields);
 }
 
 ObjectValue ObjectValue::SetChild(const std::string& child_name,

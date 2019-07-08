@@ -87,6 +87,20 @@ TEST(FieldValueTest, ExtractsFields) {
   EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
 }
 
+TEST(FieldValueTest, ExtractsFieldMask) {
+  ObjectValue value =
+      WrapObject("a", "b", "map",
+                 Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
+                 "emptymap", Map());
+
+  FieldMask expectedMask =
+      FieldMask({Field("a"), Field("map.a"), Field("map.b"), Field("map.c"),
+                 Field("map.nested.d"), Field("emptymap")});
+  FieldMask actualMask = value.ToFieldMask();
+
+  EXPECT_EQ(expectedMask, actualMask);
+}
+
 TEST(FieldValueTest, OverwritesExistingFields) {
   ObjectValue old = WrapObject("a", "old");
   ObjectValue mod = old.Set(Field("a"), Value("mod"));
