@@ -42,7 +42,10 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -68,6 +71,7 @@ using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::GeoPoint;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::RelationFilter;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -841,11 +845,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  NSArray<FSTFilter *> *filterBy;
+  Query::FilterList filterBy;
   if (query.hasWhere) {
     filterBy = [self decodedFilters:query.where];
-  } else {
-    filterBy = @[];
   }
 
   NSArray<FSTSortOrder *> *orderBy;
@@ -870,13 +872,12 @@ NS_ASSUME_NONNULL_BEGIN
     endAt = [self decodedBound:query.endAt];
   }
 
-  return [[FSTQuery alloc] initWithPath:path
-                        collectionGroup:collectionGroup
-                               filterBy:filterBy
-                                orderBy:orderBy
-                                  limit:limit
-                                startAt:startAt
-                                  endAt:endAt];
+  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy));
+  return [[FSTQuery alloc] initWithQuery:std::move(inner)
+                                 orderBy:orderBy
+                                   limit:limit
+                                 startAt:startAt
+                                   endAt:endAt];
 }
 
 #pragma mark Filters
@@ -904,8 +905,8 @@ NS_ASSUME_NONNULL_BEGIN
   return composite;
 }
 
-- (NSArray<FSTFilter *> *)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
-  NSMutableArray<FSTFilter *> *result = [NSMutableArray array];
+- (Query::FilterList)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
+  Query::FilterList result;
 
   NSArray<GCFSStructuredQuery_Filter *> *filters;
   if (proto.filterTypeOneOfCase ==
@@ -923,11 +924,11 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_FAIL("Nested composite filters are not supported");
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_FieldFilter:
-        [result addObject:[self decodedRelationFilter:filter.fieldFilter]];
+        result.push_back([self decodedRelationFilter:filter.fieldFilter]);
         break;
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_UnaryFilter:
-        [result addObject:[self decodedUnaryFilter:filter.unaryFilter]];
+        result.push_back([self decodedUnaryFilter:filter.unaryFilter]);
         break;
 
       default:
@@ -946,11 +947,11 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (std::shared_ptr<RelationFilter>)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
-  Filter::Operator filterOperator = [self decodedRelationFilterOperator:proto.op];
+  Filter::Operator op = [self decodedRelationFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
-  return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
+  return std::make_shared<RelationFilter>(std::move(fieldPath), op, std::move(value));
 }
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(FSTFilter *)filter {
@@ -966,14 +967,14 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (FSTFilter *)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (std::shared_ptr<Filter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
-      return [[FSTNanFilter alloc] initWithField:field];
+      return std::make_shared<core::NanFilter>(std::move(field));
 
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
-      return [[FSTNullFilter alloc] initWithField:field];
+      return std::make_shared<core::NullFilter>(std::move(field));
 
     default:
       HARD_FAIL("Unrecognized UnaryFilter.operator %s", proto.op);

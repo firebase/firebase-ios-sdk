@@ -169,14 +169,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a query with all of its components directly.
  */
-- (instancetype)initWithPath:(model::ResourcePath)path
-             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
-                    filterBy:(NSArray<FSTFilter *> *)filters
-                     orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(int32_t)limit
-                     startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound;
-
 - (instancetype)initWithQuery:(core::Query)query
                       orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit

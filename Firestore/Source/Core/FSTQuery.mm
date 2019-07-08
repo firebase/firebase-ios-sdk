@@ -464,23 +464,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
+std::shared_ptr<core::Filter> MakeFilter(FSTFilter *filter) {
+  if ([filter isKindOfClass:[FSTRelationFilter class]]) {
+    FSTRelationFilter *relationFilter = (FSTRelationFilter *)filter;
+    return Filter::Create(relationFilter.field, relationFilter.filterOperator,
+                          relationFilter.value);
+  } else if ([filter isKindOfClass:[FSTNanFilter class]]) {
+    return Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Nan());
+  } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
+    return Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Null());
+  } else {
+    HARD_FAIL("Unknown filter type: %s", [filter description]);
+  }
+}
+
 Query::FilterList MakeFilters(NSArray<FSTFilter *> *filters) {
   Query::FilterList result;
   for (FSTFilter *filter in filters) {
-    std::shared_ptr<Filter> converted;
-    if ([filter isKindOfClass:[FSTRelationFilter class]]) {
-      FSTRelationFilter *relationFilter = (FSTRelationFilter *)filter;
-      converted =
-          Filter::Create(relationFilter.field, relationFilter.filterOperator, relationFilter.value);
-    } else if ([filter isKindOfClass:[FSTNanFilter class]]) {
-      converted = Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Nan());
-    } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
-      converted = Filter::Create(filter.field, Filter::Operator::Equal, FieldValue::Null());
-    } else {
-      HARD_FAIL("Unknown filter type: %s", [filter description]);
-    }
-
-    result.push_back(std::move(converted));
+    result.push_back(MakeFilter(filter));
   }
   return result;
 }
@@ -535,28 +536,11 @@ NSArray<FSTFilter *> *MakeFSTFilters(const Query::FilterList &filters) {
 
 + (instancetype)queryWithPath:(ResourcePath)path
               collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
-  return [[FSTQuery alloc] initWithPath:std::move(path)
-                        collectionGroup:std::move(collectionGroup)
-                               filterBy:@[]
-                                orderBy:@[]
-                                  limit:Query::kNoLimit
-                                startAt:nil
-                                  endAt:nil];
-}
-
-- (instancetype)initWithPath:(ResourcePath)path
-             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
-                    filterBy:(NSArray<FSTFilter *> *)filters
-                     orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(int32_t)limit
-                     startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound {
-  Query query(std::move(path), std::move(collectionGroup), MakeFilters(filters));
-  return [self initWithQuery:std::move(query)
-                     orderBy:sortOrders
-                       limit:limit
-                     startAt:startAtBound
-                       endAt:endAtBound];
+  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
+                             orderBy:@[]
+                               limit:Query::kNoLimit
+                             startAt:nil
+                               endAt:nil];
 }
 
 - (instancetype)initWithQuery:(core::Query)query
@@ -652,78 +636,55 @@ NSArray<FSTFilter *> *MakeFSTFilters(const Query::FilterList &filters) {
 }
 
 - (instancetype)queryByAddingFilter:(FSTFilter *)filter {
-  HARD_ASSERT(![self isDocumentQuery], "No filtering allowed for document query");
-
-  const FieldPath *newInequalityField = nullptr;
-  if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-      [((FSTRelationFilter *)filter) isInequality]) {
-    newInequalityField = &filter.field;
-  }
-  const FieldPath *queryInequalityField = [self inequalityFilterField];
-  HARD_ASSERT(
-      !queryInequalityField || !newInequalityField || *queryInequalityField == *newInequalityField,
-      "Query must only have one inequality field.");
-
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:[self.filters arrayByAddingObject:filter]
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  std::shared_ptr<core::Filter> converted = MakeFilter(filter);
+  return [[FSTQuery alloc] initWithQuery:_query.Filter(converted)
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
   HARD_ASSERT(![self isDocumentQuery], "No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryBySettingLimit:(int32_t)limit {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingStartAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:bound
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:bound
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:bound];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:bound];
 }
 
 - (instancetype)collectionQueryAtPath:(firebase::firestore::model::ResourcePath)path {
-  return [[FSTQuery alloc] initWithPath:path
-                        collectionGroup:nil
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(path)
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (BOOL)isDocumentQuery {
