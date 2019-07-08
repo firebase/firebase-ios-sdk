@@ -3642,6 +3642,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				124C933122C16ACB00CA8C2D /* CodableIntegrationTests.swift in Sources */,
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,

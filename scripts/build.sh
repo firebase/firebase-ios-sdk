@@ -316,7 +316,7 @@ case "$product-$method-$platform" in
 
     # Firestore_IntegrationTests_iOS require Swift 4, which needs Xcode 9
     # Other non-iOS platforms don't have swift integration tests yet.
-    if [["$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
+    if [[ "$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
