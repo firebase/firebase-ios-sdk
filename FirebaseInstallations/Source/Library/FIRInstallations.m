@@ -31,11 +31,11 @@
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
+#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
-#import "FIRInstallationsErrorUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
