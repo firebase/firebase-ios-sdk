@@ -19,17 +19,16 @@
 extern NSString *const kFirebaseInstallationsErrorDomain;
 
 typedef NS_ENUM(NSUInteger, FIRInstallationsErrorCode) {
-  /// Unknown error.
+  /** Unknown error. See `userInfo` for details. */
   FIRInstallationsErrorCodeUnknown = 0,
 
-  /// Keychain error. See userInfo value by key NSUnderlyingErrorKey for details.
+  /** Keychain error. See `userInfo` for details. */
   FIRInstallationsErrorCodeKeychain = 1,
 
-  /// Server unreachable. A network error or server is unavailable.
+  /** Server unreachable. A network error or server is unavailable. See `userInfo` for details. */
   FIRInstallationsErrorCodeServerUnreachable = 2,
 
-  /// FIRApp configuration issues e.g. invalid GMP-App-ID, etc. See userInfo value by key
-  /// NSUnderlyingErrorKey for details.
+  /** FIRApp configuration issues e.g. invalid GMP-App-ID, etc. See `userInfo` for details. */
   FIRInstallationsErrorCodeInvalidConfiguration = 3,
 
 } NS_SWIFT_NAME(InstallationsErrorCode);
