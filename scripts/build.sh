@@ -212,7 +212,7 @@ case "$product-$method-$platform" in
           build \
           test
       fi
-      
+
       # Test iOS Objective-C static library build
       cd Example
       sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
