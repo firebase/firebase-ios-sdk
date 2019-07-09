@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import CommonCrypto
 import Foundation
 
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
@@ -112,4 +113,12 @@ public extension CarthageUtils {
       fatalError("Failed to create Info.plist for \(name) during Carthage build: \(error)")
     }
   }
-}
+
+  /// Hashes the contents of the directory recursively.
+  static private func hashContents(forDir dir: URL) throws -> String {
+    let allContents = try FileManager.default.recursivelySearch(for: .allFiles, in: dir)
+    // Sort the contents to make it deterministic.
+    let sortedContents = allContents.sorted { $0 < $1 }
+
+  }
+
