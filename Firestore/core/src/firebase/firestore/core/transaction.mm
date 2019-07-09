@@ -127,7 +127,11 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
   absl::optional<SnapshotVersion> version = GetVersion(key);
 
-  if (version.has_value() && version.value() != SnapshotVersion::None()) {
+  if (version.has_value() && version.value() == SnapshotVersion::None()) {
+    // The document to update doesn't exist, so fail the transaction.
+    return Status{FirestoreErrorCode::InvalidArgument,
+                  "Can't update a document that doesn't exist."};
+  } else if (version.has_value()) {
     // Document exists, just base precondition on document update time.
     return Precondition::UpdateTime(version.value());
   } else {

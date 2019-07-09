@@ -315,7 +315,6 @@ class LimboResolution {
               resultCallback(std::move(maybe_result));
               return;
             }
-
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
               resultCallback(std::move(status));
