@@ -38,6 +38,8 @@ def main(args)
     exit(1)
   end
 
+  STDOUT.sync = true
+
   command = %w(bundle exec pod lib lint --sources=https://cdn.cocoapods.org/)
 
   # Figure out which dependencies are local
@@ -51,18 +53,14 @@ def main(args)
 
   # Run the lib lint command in a thread.
   t = Thread.new do
-    "MPH running in thread now."
     system(*command)
   end
 
   # Print every minute since linting can run for >10m without output.
   number_of_times_checked = 0
-  puts "MPH is thread alive?"
   while t.alive? do
-    puts "Thread is alive."
     sleep 1.0
     number_of_times_checked += 1
-    puts "MPH #{number_of_times_checked} #{number_of_times_checked % 60} #{number_of_times_checked / 60}" # DO NOT MERGE TO MASTER, FOR DEBUGGING TRAVIS ONLY
     if (number_of_times_checked % 60) == 0 then
       puts "Still working, running for #{number_of_times_checked / 60}min."
     end
