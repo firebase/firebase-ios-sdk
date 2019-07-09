@@ -22,7 +22,6 @@ import Foundation
 public enum CarthageUtils {}
 
 public extension CarthageUtils {
-
   static func generateCarthageRelease(fromPackagedDir packagedDir: URL, outputDir: URL) {
     // TODO: Get Firebase version (either parse readme or pass it in, likely pass it in)
 
@@ -64,12 +63,14 @@ public extension CarthageUtils {
         }
       }
 
-      // TODO: Create a `Firebase` framework to support `import Firebase` and `Firebase.h`.
+      // Analytics includes all the Core frameworks and Firebase module, do extra work to package
+      // it.
       if productDir == "Analytics" {
+        // TODO: Create a `Firebase` framework to support `import Firebase` and `Firebase.h`.
         // TODO: Rebuild CoreDiagnostics to include the correct compiler flag.
         //    let builder = FrameworkBuilder(projectDir: <#T##URL#>, carthageBuild: true)
 
-        // TODO: Copy the NOTICES file from FirebaseCore.
+        // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
         let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.framework", noticesName])
         let noticesPath = packagedDir.appendingPathComponent(noticesName)
@@ -80,9 +81,15 @@ public extension CarthageUtils {
         }
       }
 
-      // TODO: Calculate the hash of the directory since it's used in the zip naming. Temporarily
-      // use 10 random characters from a UUID.
-      let hash = UUID().uuidString.prefix(10)
+      // Hash the contents of the directory to get a unique name for Carthage.
+      let hash: String
+      do {
+        // Only use the first 16 characters, that's what we did before.
+        hash = try String(hashContents(forDir: fullPath).prefix(16))
+      } catch {
+        fatalError("Could not hash contents of \(productDir) for Carthage build. \(error)")
+      }
+
       let zipName = "\(productDir)-\(hash).zip"
       let productZip = outputDir.appendingPathComponent(zipName)
       let zipped = Zip.zipContents(ofDir: fullPath)
@@ -90,12 +97,12 @@ public extension CarthageUtils {
         try FileManager.default.moveItem(at: zipped, to: productZip)
       } catch {
         fatalError("Could not move packaged zip file for \(productDir) during Carthage build. " +
-            "\(error)")
+          "\(error)")
       }
     }
   }
 
-  static private func generatePlistContents(forName name: String) -> Data {
+  private static func generatePlistContents(forName name: String) -> Data {
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
@@ -115,10 +122,22 @@ public extension CarthageUtils {
   }
 
   /// Hashes the contents of the directory recursively.
-  static private func hashContents(forDir dir: URL) throws -> String {
+  private static func hashContents(forDir dir: URL) throws -> String {
+    var hasher = Hasher()
     let allContents = try FileManager.default.recursivelySearch(for: .allFiles, in: dir)
     // Sort the contents to make it deterministic.
-    let sortedContents = allContents.sorted { $0 < $1 }
+    let sortedContents = allContents.sorted { $0.absoluteString < $1.absoluteString }
+    for file in sortedContents {
+      guard let data = FileManager.default.contents(atPath: file.path) else {
+        fatalError("Could not get contents of \(file) when hashing for Carthage.")
+      }
 
+      data.withUnsafeBytes {
+        hasher.combine(bytes: $0)
+      }
+    }
+
+    let hashValue = hasher.finalize()
+    return "\(hashValue)"
   }
-
+}
