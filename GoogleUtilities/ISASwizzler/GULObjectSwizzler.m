@@ -81,8 +81,8 @@
     if (swizzledObject) {
       _swizzledObject = swizzledObject;
       _originalClass = object_getClass(object);
-      NSString *newClassName = [NSString
-          stringWithFormat:@"fir_%p_%@", swizzledObject, NSStringFromClass(_originalClass)];
+      NSString *newClassName = [NSString stringWithFormat:@"fir_%@_%@", [[NSUUID UUID] UUIDString],
+                                                          NSStringFromClass(_originalClass)];
       _generatedClass = objc_allocateClassPair(_originalClass, newClassName.UTF8String, 0);
       NSAssert(_generatedClass, @"Wasn't able to allocate the class pair.");
     } else {
