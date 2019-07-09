@@ -65,6 +65,12 @@ swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
 -customSpecRepos sso://cpdc-internal/firebase
 ```
 
+## Carthage
+
+Carthage binaries can also be built at the same time as the zip file by passing in `-carthage true`
+as a command line argument. This will result in a folder called "CarthageOutput" at the root where
+the zip directory exists containing all the zip files necessary for distribution.
+
 ## Debugging
 
 You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory.
