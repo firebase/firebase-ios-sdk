@@ -59,7 +59,8 @@ def main(args)
   while t.alive? do
     sleep 1.0
     number_of_times_checked += 1
-    if number_of_times_checked % 60 == 0 then
+    puts "MPH #{number_of_times_checked} #{number_of_times_checked % 60} #{number_of_times_checked / 60}" # DO NOT MERGE TO MASTER, FOR DEBUGGING TRAVIS ONLY
+    if (number_of_times_checked % 60) == 0 then
       puts "Still working, running for #{number_of_times_checked / 60}min."
     end
   end
