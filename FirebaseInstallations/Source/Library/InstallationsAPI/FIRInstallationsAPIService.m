@@ -33,7 +33,7 @@ NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsURLSessionResponse : NSObject
-@property(nonatomic) NSHTTPURLResponse *HTTPresponse;
+@property(nonatomic) NSHTTPURLResponse *HTTPResponse;
 @property(nonatomic) NSData *data;
 
 - (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data;
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data {
   self = [super init];
   if (self) {
-    _HTTPresponse = response;
+    _HTTPResponse = response;
     _data = data ?: [NSData data];
   }
   return self;
@@ -237,12 +237,13 @@ NS_ASSUME_NONNULL_END
 
 - (FBLPromise<FIRInstallationsURLSessionResponse *> *)validateHTTPResponseSatatusCode:
     (FIRInstallationsURLSessionResponse *)response {
-  NSInteger statusCode = response.HTTPresponse.statusCode;
+  NSInteger statusCode = response.HTTPResponse.statusCode;
   return [FBLPromise do:^id _Nullable {
     if (statusCode < 200 || statusCode >= 300) {
-      NSLog(@"Unexpected API response: %@, body: %@", response.HTTPresponse,
+      NSLog(@"Unexpected API response: %@, body: %@", response.HTTPResponse,
             [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
-      return [FIRInstallationsErrorUtil APIErrorWithHTTPCode:statusCode];
+      return [FIRInstallationsErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse
+                                                            data:response.data];
     }
     return response;
   }];

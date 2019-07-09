@@ -18,6 +18,8 @@
 
 #import <FirebaseInstallations/FIRInstallationsErrors.h>
 
+@class FIRInstallationsHTTPError;
+
 NS_ASSUME_NONNULL_BEGIN
 
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
@@ -31,13 +33,15 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
 
-+ (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode;
-
 + (NSError *)JSONSerializationError:(NSError *)error;
 
 + (NSError *)networkErrorWithError:(NSError *)error;
 
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName;
+
++ (FIRInstallationsHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                                   data:(nullable NSData *)data;
++ (BOOL)isAPIError:(NSError *)error withHTTPCode:(NSInteger)HTTPCode;
 
 /**
  * Returns the passed error if it is already in the public domain or a new error with the passed

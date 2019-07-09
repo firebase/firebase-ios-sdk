@@ -253,7 +253,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   return [FBLPromise attempts:1
       delay:1
       condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
-        return [error isEqual:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
       }
       retry:^id _Nullable {
         return [self.APIService refreshAuthTokenForInstallation:installation];
@@ -304,7 +304,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   }
 
   return [self.APIService deleteInstallation:installation].recover(^id(NSError *APIError) {
-    if ([APIError isEqual:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:404]]) {
+    if ([FIRInstallationsErrorUtil isAPIError:APIError withHTTPCode:404]) {
       // The installation was not found on the server.
       // Return success.
       return installation;

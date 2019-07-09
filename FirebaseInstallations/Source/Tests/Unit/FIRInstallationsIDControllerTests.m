@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallations.h"

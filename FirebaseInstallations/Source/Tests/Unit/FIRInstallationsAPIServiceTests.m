@@ -240,7 +240,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 6. Check result.
   FBLWaitForPromisesWithTimeout(0.5);
 
-  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:401]);
+  XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:401]);
   XCTAssertNil(promise.value);
 }
 
@@ -376,7 +376,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 6. Check result.
   FBLWaitForPromisesWithTimeout(0.5);
 
-  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:404]);
+  XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error withHTTPCode:404]);
   XCTAssertNil(promise.value);
 }
 

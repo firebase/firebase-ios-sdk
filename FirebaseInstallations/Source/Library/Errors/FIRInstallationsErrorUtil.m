@@ -16,9 +16,9 @@
 
 #import "FIRInstallationsErrorUtil.h"
 
+#import "FIRInstallationsHTTPError.h"
+
 NSString *const kFirebaseInstallationsErrorDomain = @"com.firebase.installations";
-// NSString *const kFirebaseInstallationsInternalErrorDomain =
-// @"com.firebase.installations.internal";
 
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   if (pointer != NULL) {
@@ -59,12 +59,17 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                           underlyingError:nil];
 }
 
-+ (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode {
-  NSString *failureReason = [NSString
-      stringWithFormat:@"Unexpected server response HTTP code: %lu", (unsigned long)HTTPCode];
-  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
-                            failureReason:failureReason
-                          underlyingError:nil];
++ (FIRInstallationsHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                                   data:(nullable NSData *)data {
+  return [[FIRInstallationsHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
+}
+
++ (BOOL)isAPIError:(NSError *)error withHTTPCode:(NSInteger)HTTPCode {
+  if (![error isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    return NO;
+  }
+
+  return [(FIRInstallationsHTTPError *)error HTTPResponse].statusCode == HTTPCode;
 }
 
 + (NSError *)JSONSerializationError:(NSError *)error {

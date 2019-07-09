@@ -22,11 +22,13 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import "FBLPromise+Testing.h"
+#import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
