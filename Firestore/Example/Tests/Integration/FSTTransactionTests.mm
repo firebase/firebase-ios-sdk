@@ -43,6 +43,7 @@
         // We currently require every document read to also be written.
         // TODO(b/34879758): Fix this check once we drop that requirement.
         XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -115,7 +116,6 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // This is the error surfaced by the backend.
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
@@ -142,7 +142,6 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // This is the error surfaced by the backend.
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
@@ -372,6 +371,7 @@
         // XCTAssertNil(error);
         // XCTAssertEqualObjects(@(16), snapshot[@"count"]);
         XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
