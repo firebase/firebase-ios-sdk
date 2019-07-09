@@ -418,7 +418,7 @@
   XCTAssertEqualObjects(@(1234.0), snapshot[@"count"]);
 }
 
-- (void)testReadandUpdateNonExistentDocumentWithExternalWrite {
+- (void)testReadAndUpdateNonExistentDocumentWithExternalWrite {
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
