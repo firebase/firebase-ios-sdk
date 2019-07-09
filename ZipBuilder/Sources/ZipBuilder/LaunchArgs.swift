@@ -40,6 +40,7 @@ struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
     case cacheEnabled
+    case carthage
     case customSpecRepos
     case coreDiagnosticsDir
     case deleteCache
@@ -54,6 +55,8 @@ struct LaunchArgs {
       switch self {
       case .cacheEnabled:
         return "A flag to control using the cache for frameworks."
+      case .carthage:
+        return "Enables or disables the Carthage build. Disabled by default."
       case .coreDiagnosticsDir:
         return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
       case .customSpecRepos:
@@ -81,6 +84,9 @@ struct LaunchArgs {
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
   let allSDKsPath: URL?
+
+  /// Enables or disables the Carthage build. Disabled by default.
+  let carthage: Bool
 
   /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
   let coreDiagnosticsDir: URL
@@ -199,6 +205,7 @@ struct LaunchArgs {
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+    carthage = defaults.bool(forKey: Key.carthage.rawValue)
 
     // Parse the cache keys. If no value is provided for each, it defaults to `false`.
     cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
