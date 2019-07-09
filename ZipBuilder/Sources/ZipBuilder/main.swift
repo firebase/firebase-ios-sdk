@@ -52,7 +52,24 @@ do {
   let location = try builder.buildAndAssembleReleaseDir()
   print("Location of directory to be packaged: \(location)")
 
-  // TODO: Package the Carthage distribution with the current Zip structure.
+  // Package carthage if it's enabled.
+  if args.carthage {
+    do {
+      // Create a copy of the release directory since we'll be modifying it.
+      let carthagePath = location.deletingLastPathComponent().appendingPathComponent("CarthageBuild")
+      let fileManager = FileManager.default
+      fileManager.removeDirectoryIfExists(at: carthagePath)
+      try fileManager.copyItem(at: location, to: carthagePath)
+
+      // Package the Carthage distribution with the current directory structure.
+      let output = location.deletingLastPathComponent().appendingPathComponent("CarthageOutput")
+      fileManager.removeDirectoryIfExists(at: output)
+      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
+      CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath, outputDir: output)
+    } catch {
+      fatalError("Could not copy output directory for Carthage build: \(error)")
+    }
+  }
 
   // Prepare the release directory for zip packaging.
   do {
