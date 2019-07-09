@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import CommonCrypto
 import Foundation
 
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
