@@ -48,7 +48,21 @@ def main(args)
 
   command.push(*args)
   puts command.join(' ')
-  exec(*command)
+
+  # Run the lib lint command in a thread.
+  t = Thread.new do
+    system(*command)
+  end
+
+  # Print every minute since linting can run for >10m without output.
+  number_of_times_checked = 0
+  while t.alive? do
+    sleep 1.0
+    number_of_times_checked += 1
+    if number_of_times_checked % 60 == 0 then
+      puts "Still working, running for #{number_of_times_checked / 60}min."
+    end
+  end
 end
 
 # Loads all the specs (inclusing subspecs) from the given podspec file.
