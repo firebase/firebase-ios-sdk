@@ -89,8 +89,8 @@ def sync_firestore(test_only)
         #
         # This is particular to C++ because by default CocoaPods configures the
         # test host to link with the -ObjC flag. This causes the linker to pull
-        # in any all Objective-C object code. -all_load fixes this by forcing
-        # the linker to pull in everything.
+        # in all Objective-C object code. -all_load fixes this by forcing the
+        # linker to pull in everything.
         'OTHER_LDFLAGS' => '-all_load',
       }
     end
@@ -284,6 +284,8 @@ class Syncer
   #  3. The file must be added to a target phase describing how it's built.
   #
   # The Xcodeproj library handles (1) for us automatically if we do (2).
+  #
+  # Returns the number of changes made during synchronization.
   def sync(test_only = false)
     # Figure the diff between the filesystem and the group structure
     group_differ = GroupDiffer.new(@finder)
