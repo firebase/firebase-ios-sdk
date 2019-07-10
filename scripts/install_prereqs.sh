@@ -102,6 +102,8 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
+    echo "InAppMessaging Podfile.lock"
+    cat InAppMessaging/Example/Podfile.lock
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
