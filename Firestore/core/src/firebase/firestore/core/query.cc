@@ -31,6 +31,28 @@ using model::Document;
 using model::DocumentKey;
 using model::ResourcePath;
 
+// MARK: - Accessors
+
+bool Query::IsDocumentQuery() const {
+  return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
+}
+
+// MARK: - Builder methods
+
+Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
+  HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
+              "No filter is allowed for document query");
+
+  // TODO(rsgowman): ensure only one inequality field
+  // TODO(rsgowman): ensure first orderby must match inequality field
+
+  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
+  updated_filters.push_back(std::move(filter));
+  return Query(path_, std::move(updated_filters));
+}
+
+// MARK: - Matching
+
 bool Query::Matches(const Document& doc) const {
   return MatchesPath(doc) && MatchesOrderBy(doc) && MatchesFilters(doc) &&
          MatchesBounds(doc);
@@ -62,16 +84,12 @@ bool Query::MatchesBounds(const Document&) const {
   return true;
 }
 
-Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
-  HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
-              "No filter is allowed for document query");
-
-  // TODO(rsgowman): ensure only one inequality field
-  // TODO(rsgowman): ensure first orderby must match inequality field
-
-  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
-  updated_filters.push_back(std::move(filter));
-  return Query(path_, std::move(updated_filters));
+bool operator==(const Query& lhs, const Query& rhs) {
+  // TODO(rsgowman): check limit (once it exists)
+  // TODO(rsgowman): check orderby (once it exists)
+  // TODO(rsgowman): check startat (once it exists)
+  // TODO(rsgowman): check endat (once it exists)
+  return lhs.path() == rhs.path() && lhs.filters() == rhs.filters();
 }
 
 }  // namespace core

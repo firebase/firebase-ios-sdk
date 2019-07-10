@@ -59,28 +59,32 @@ class Query {
       : path_(std::move(path)), filters_(std::move(filters)) {
   }
 
+  // MARK: - Accessors
+
   /** The base path of the query. */
   const model::ResourcePath& path() const {
     return path_;
   }
+
+  /** Returns true if this Query is for a specific document. */
+  bool IsDocumentQuery() const;
 
   /** The filters on the documents returned by the query. */
   const std::vector<std::shared_ptr<core::Filter>>& filters() const {
     return filters_;
   }
 
-  /** Returns true if the document matches the constraints of this query. */
-  bool Matches(const model::Document& doc) const;
-
-  /** Returns true if this Query is for a specific document. */
-  bool IsDocumentQuery() const {
-    return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
-  }
+  // MARK: - Builder methods
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
   Query Filter(std::shared_ptr<core::Filter> filter) const;
+
+  // MARK: - Matching
+
+  /** Returns true if the document matches the constraints of this query. */
+  bool Matches(const model::Document& doc) const;
 
  private:
   bool MatchesPath(const model::Document& doc) const;
@@ -99,13 +103,7 @@ class Query {
   // TODO(rsgowman): Port collection group queries logic.
 };
 
-inline bool operator==(const Query& lhs, const Query& rhs) {
-  // TODO(rsgowman): check limit (once it exists)
-  // TODO(rsgowman): check orderby (once it exists)
-  // TODO(rsgowman): check startat (once it exists)
-  // TODO(rsgowman): check endat (once it exists)
-  return lhs.path() == rhs.path() && lhs.filters() == rhs.filters();
-}
+bool operator==(const Query& lhs, const Query& rhs);
 
 inline bool operator!=(const Query& lhs, const Query& rhs) {
   return !(lhs == rhs);
