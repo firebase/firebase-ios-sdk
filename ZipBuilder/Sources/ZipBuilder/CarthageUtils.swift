@@ -85,7 +85,8 @@ public extension CarthageUtils {
       let hash: String
       do {
         // Only use the first 16 characters, that's what we did before.
-        hash = try String(hashContents(forDir: fullPath).prefix(16))
+        let fullHash = try HashCalculator.sha256Contents(ofDir: fullPath)
+        hash = String(fullHash.prefix(16))
       } catch {
         fatalError("Could not hash contents of \(productDir) for Carthage build. \(error)")
       }
@@ -119,25 +120,5 @@ public extension CarthageUtils {
     } catch {
       fatalError("Failed to create Info.plist for \(name) during Carthage build: \(error)")
     }
-  }
-
-  /// Hashes the contents of the directory recursively.
-  private static func hashContents(forDir dir: URL) throws -> String {
-    var hasher = Hasher()
-    let allContents = try FileManager.default.recursivelySearch(for: .allFiles, in: dir)
-    // Sort the contents to make it deterministic.
-    let sortedContents = allContents.sorted { $0.absoluteString < $1.absoluteString }
-    for file in sortedContents {
-      guard let data = FileManager.default.contents(atPath: file.path) else {
-        fatalError("Could not get contents of \(file) when hashing for Carthage.")
-      }
-
-      data.withUnsafeBytes {
-        hasher.combine(bytes: $0)
-      }
-    }
-
-    let hashValue = hasher.finalize()
-    return "\(hashValue)"
   }
 }
