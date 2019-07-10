@@ -66,8 +66,23 @@ class TransformOperation {
       const absl::optional<model::FieldValue>& previous_value,
       const model::FieldValue& transform_result) const = 0;
 
-  /** Returns whether this field transform is idempotent. */
-  virtual bool idempotent() const = 0;
+  /**
+   * If this transform operation is not idempotent, returns the base value to
+   * persist for this transform operation. If a base value is returned, the
+   * transform operation is always applied to this base value, even if document
+   * has already been updated.
+   *
+   * <p>Base values provide consistent behavior for non-idempotent transforms
+   * and allow us to return the same latency-compensated value even if the
+   * backend has already applied the transform operation. The base value is
+   * empty for idempotent transforms, as they can be re-played even if the
+   * backend has already applied them.
+   *
+   * @return a base value to store along with the mutation, or empty for
+   * idempotent transforms.
+   */
+  virtual absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& previous_value) const = 0;
 
   /** Returns whether the two are equal. */
   virtual bool operator==(const TransformOperation& other) const = 0;
@@ -89,10 +104,6 @@ class ServerTimestampTransform : public TransformOperation {
     return Type::ServerTimestamp;
   }
 
-  bool idempotent() const override {
-    return true;
-  }
-
   model::FieldValue ApplyToLocalView(
       const absl::optional<model::FieldValue>& previous_value,
       const Timestamp& local_write_time) const override;
@@ -100,6 +111,13 @@ class ServerTimestampTransform : public TransformOperation {
   model::FieldValue ApplyToRemoteDocument(
       const absl::optional<model::FieldValue>& previous_value,
       const model::FieldValue& transform_result) const override;
+
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& /* previous_value */)
+      const override {
+    return absl::nullopt;  // Server timestamps are idempotent and don't require
+                           // a base value.
+  }
 
   bool operator==(const TransformOperation& other) const override;
 
@@ -135,12 +153,15 @@ class ArrayTransform : public TransformOperation {
       const absl::optional<model::FieldValue>& previous_value,
       const model::FieldValue& transform_result) const override;
 
-  const std::vector<model::FieldValue>& elements() const {
-    return elements_;
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& /* previous_value */)
+      const override {
+    return absl::nullopt;  // Array transforms are idempotent and don't require
+                           // a base value.
   }
 
-  bool idempotent() const override {
-    return true;
+  const std::vector<model::FieldValue>& elements() const {
+    return elements_;
   }
 
   bool operator==(const TransformOperation& other) const override;
@@ -187,12 +208,11 @@ class NumericIncrementTransform : public TransformOperation {
       const absl::optional<model::FieldValue>& previous_value,
       const model::FieldValue& transform_result) const override;
 
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& previous_value) const override;
+
   model::FieldValue operand() const {
     return operand_;
-  }
-
-  bool idempotent() const override {
-    return false;
   }
 
   bool operator==(const TransformOperation& other) const override;

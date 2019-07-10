@@ -1,3 +1,6 @@
+# Unreleased
+- Add explicit Foundation import for headers.
+
 # 6.2.1
 - Fix Xcode 11 build warning. (#3133)
 

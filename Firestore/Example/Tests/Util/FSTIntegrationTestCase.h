@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
+// NOTE: For Swift compatibility, please keep this header Objective-C only.
+//       Swift cannot interact with any C++ definitions.
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-
-#include <memory>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 #import "FIRFirestoreSource.h"
-
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FIRApp;
 @class FIRCollectionReference;
@@ -34,8 +32,6 @@
 @class FIRFirestoreSettings;
 @class FIRQuery;
 @class FSTEventAccumulator;
-
-namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -111,8 +107,6 @@ extern "C" {
 - (void)disableNetwork;
 
 - (void)enableNetwork;
-
-- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

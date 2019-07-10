@@ -314,12 +314,16 @@ case "$product-$method-$platform" in
           test
     fi
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
+    # Firestore_IntegrationTests_iOS require Swift 4, which needs Xcode 9
+    # Other non-iOS platforms don't have swift integration tests yet.
+    if [[ "$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+    fi
     ;;
 
   Firestore-cmake-macOS)
@@ -339,6 +343,15 @@ case "$product-$method-$platform" in
         -scheme "SymbolCollisionTest" \
         "${xcb_flags[@]}" \
         build
+    ;;
+
+  FirebaseCoreDiagnostics-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'gen/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.xcworkspace' \
+        -scheme "FirebaseCoreDiagnostics-$platform-Unit-unit" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     ;;
 
   GoogleDataTransport-xcodebuild-*)

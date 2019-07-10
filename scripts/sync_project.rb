@@ -28,9 +28,12 @@ gem 'xcodeproj', '!= 1.5.8'
 require 'xcodeproj'
 
 
+ROOT_DIR = Pathname.new(File.join(File.dirname(__FILE__), '..')).expand_path()
+
+
 def main()
   # Make all filenames relative to the project root.
-  Dir.chdir(File.join(File.dirname(__FILE__), '..'))
+  Dir.chdir(ROOT_DIR.to_s)
 
   sync_firestore()
 end
@@ -43,7 +46,7 @@ def sync_firestore()
   # xcodeproj itself
   $VERBOSE = true
 
-  s = Syncer.new(project, Dir.pwd)
+  s = Syncer.new(project, ROOT_DIR)
 
   # Files on the filesystem that should be ignored.
   s.ignore_files = [
@@ -55,7 +58,7 @@ def sync_firestore()
   ]
 
   # Folder groups in the Xcode project that contain tests.
-  s.test_groups = [
+  s.groups = [
     'Tests',
     'CoreTests',
     'CoreTestsProtos',
@@ -102,34 +105,18 @@ def sync_firestore()
 end
 
 
-# The definition of a test target including the target name, its source_files
-# and exclude_files. A file is considered part of a target if it matches a
-# pattern in source_files but does not match a pattern in exclude_files.
-class TargetDef
-  def initialize(name)
-    @name = name
-    @source_files = []
-    @exclude_files = []
+# A list of filesystem patterns
+class PatternList
+  def initialize()
+    @patterns = []
   end
 
-  attr_accessor :name, :source_files, :exclude_files
+  attr_accessor :patterns
 
-  # Returns true if the given relative_path matches this target's source_files
-  # but not its exclude_files.
-  #
-  # Args:
-  # - relative_path: a Pathname instance with a path relative to the project
-  #   root.
-  def matches?(relative_path)
-    return matches_patterns(relative_path, @source_files) &&
-      !matches_patterns(relative_path, @exclude_files)
-  end
-
-  private
-  # Evaluates the relative_path against the given list of fnmatch patterns.
-  def matches_patterns(relative_path, patterns)
-    patterns.each do |pattern|
-      if relative_path.fnmatch?(pattern)
+  # Evaluates the rel_path against the given list of fnmatch patterns.
+  def matches?(rel_path)
+    @patterns.each do |pattern|
+      if rel_path.fnmatch?(pattern)
         return true
       end
     end
@@ -138,17 +125,78 @@ class TargetDef
 end
 
 
+# The definition of a test target including the target name, its source_files
+# and exclude_files. A file is considered part of a target if it matches a
+# pattern in source_files but does not match a pattern in exclude_files.
+class TargetDef
+  def initialize(name)
+    @name = name
+    @source_files = PatternList.new()
+    @exclude_files = PatternList.new()
+  end
+
+  attr_reader :name, :source_files, :exclude_files
+
+  def source_files=(value)
+    @source_files.patterns.replace(value)
+  end
+
+  def exclude_files=(value)
+    @exclude_files.patterns.replace(value)
+  end
+
+  # Returns true if the given rel_path matches this target's source_files
+  # but not its exclude_files.
+  #
+  # Args:
+  # - rel_path: a Pathname instance with a path relative to the project root.
+  def matches?(rel_path)
+    return @source_files.matches?(rel_path) && !@exclude_files.matches?(rel_path)
+  end
+
+  def diff(project_files, target)
+    diff = Diff.new
+
+    project_files.each do |file_ref|
+      if matches?(relative_path(file_ref))
+        entry = diff.track(file_ref.real_path)
+        entry.in_source = true
+        entry.ref = file_ref
+      end
+    end
+
+    each_target_file(target) do |file_ref|
+      entry = diff.track(file_ref.real_path)
+      entry.in_target = true
+      entry.ref = file_ref
+    end
+
+    return diff
+  end
+
+  # Finds all the files referred to by any phase in a target
+  def each_target_file(target)
+    target.build_phases.each do |phase|
+      phase.files.each do |build_file|
+        yield build_file.file_ref
+      end
+    end
+  end
+end
+
+
 class Syncer
+  HEADERS = %w{.h}
+  SOURCES = %w{.c .cc .m .mm}
+
   def initialize(project, root_dir)
     @project = project
-    @root_dir = Pathname.new(root_dir)
+    @finder = DirectoryLister.new(root_dir)
 
-    @finder = DirectoryLister.new(@root_dir)
+    @groups = []
+    @targets = []
 
     @seen_groups = {}
-
-    @test_groups = []
-    @targets = []
   end
 
   # Considers the given fnmatch glob patterns to be ignored by the syncer.
@@ -160,14 +208,14 @@ class Syncer
 
   # Names the groups within the project that serve as roots for tests within
   # the project.
-  def test_groups=(groups)
-    @test_groups = []
+  def groups=(groups)
+    @groups = []
     groups.each do |group|
       project_group = @project[group]
       if project_group.nil?
         raise "Project does not contain group #{group}"
       end
-      @test_groups.push(@project[group])
+      @groups.push(@project[group])
     end
   end
 
@@ -179,6 +227,16 @@ class Syncer
     block.call(t)
   end
 
+  # Finds the target definition with the given name.
+  def find_target(name)
+    @targets.each do |target|
+      if target.name == name
+        return target
+      end
+    end
+    return nil
+  end
+
   # Synchronizes the filesystem with the project.
   #
   # Generally there are three separate ways a file is referenced within a project:
@@ -186,192 +244,160 @@ class Syncer
   #  1. The file must be in the global list of files, assigning it a UUID.
   #  2. The file must be added to folder groups, describing where it is in the
   #     folder view of the Project Navigator.
-  #  3. The file must be added to a target describing how it's built.
+  #  3. The file must be added to a target phase describing how it's built.
   #
   # The Xcodeproj library handles (1) for us automatically if we do (2).
-  #
-  # Synchronization essentially proceeds in two steps:
-  #
-  #  1. Sync the filesystem structure with the folder group structure. This has
-  #     the effect of bringing (1) and (2) into sync.
-  #  2. Sync the global list of files with the targets.
   def sync()
+    # Figure the diff between the filesystem and the group structure
     group_differ = GroupDiffer.new(@finder)
-    group_diffs = group_differ.diff(@test_groups)
-    sync_groups(group_diffs)
+    group_diff = group_differ.diff(@groups)
+    to_remove = group_diff.to_remove
 
-    @targets.each do |target_def|
-      sync_target(target_def)
+    # Add all files first, to ensure they exist for later steps
+    add_to_project(group_diff.to_add)
+
+    project_files = find_project_files_after_removal(@project.files, to_remove)
+
+    @project.native_targets.each do |target|
+      target_def = find_target(target.name)
+      next if target_def.nil?
+
+      target_diff = target_def.diff(project_files, target)
+
+      target_diff.sorted_entries.each do |entry|
+        sync_target_entry(target, entry)
+      end
     end
+
+    remove_from_project(to_remove)
   end
 
   private
-  def sync_groups(diff_entries)
-    diff_entries.each do |entry|
-      if !entry.in_source && entry.in_target
-        remove_from_project(entry.ref)
-      end
 
-      if entry.in_source && !entry.in_target
-        add_to_project(entry.path)
-      end
-    end
-  end
-
-  # Removes the given file reference from the project after the file is found
-  # missing but references to it still exist in the project.
-  def remove_from_project(file_ref)
-    group = file_ref.parents[-1]
-
-    mark_change_in_group(relative_path(group))
-    puts "  #{basename(file_ref)} - removed"
-
-    # If the file is gone, any build phase that refers to must also remove the
-    # file. Without this, the project will have build file references that
-    # contain no actual file.
-    @project.native_targets.each do |target|
-      target.build_phases.each do |phase|
-        if phase.include?(file_ref)
-          phase.remove_file_reference(file_ref)
-        end
-      end
+  def find_project_files_after_removal(files, to_remove)
+    remove_paths = Set.new()
+    to_remove.each do |entry|
+      remove_paths.add(entry.path)
     end
 
-    file_ref.remove_from_project
+    result = []
+    files.each do |file_ref|
+      next if file_ref.source_tree != '<group>'
+
+      next if remove_paths.include?(file_ref.real_path)
+
+      result.push(file_ref)
+    end
+    return result
   end
 
   # Adds the given file to the project, in a path starting from the test root
   # that fully prefixes the file.
-  def add_to_project(path)
-    root_group = find_test_group_containing(path)
+  def add_to_project(to_add)
+    to_add.each do |entry|
+      path = entry.path
+      root_group = find_group_containing(path)
 
-    # Find or create the group to contain the path.
-    dir_rel_path = path.relative_path_from(root_group.real_path).dirname
-    group = root_group.find_subpath(dir_rel_path.to_s, true)
+      # Find or create the group to contain the path.
+      dir_rel_path = path.relative_path_from(root_group.real_path).dirname
+      group = root_group.find_subpath(dir_rel_path.to_s, true)
 
-    mark_change_in_group(relative_path(group))
+      file_ref = group.new_file(path.to_s)
+      ext = path.extname
 
-    file_ref = group.new_file(path.to_s)
-
-    puts "  #{basename(file_ref)} - added"
-    return file_ref
+      entry.ref = file_ref
+    end
   end
 
-  # Finds a test group whose path prefixes the given entry. Starting from the
-  # project root may not work since not all test directories exist within the
+  # Finds a group whose path prefixes the given entry. Starting from the
+  # project root may not work since not all directories exist within the
   # example app.
-  def find_test_group_containing(path)
-    @test_groups.each do |group|
+  def find_group_containing(path)
+    @groups.each do |group|
       rel = path.relative_path_from(group.real_path)
       next if rel.to_s.start_with?('..')
 
       return group
     end
 
-    raise "Could not find an existing test group that's a parent of #{entry.path}"
+    raise "Could not find an existing group that's a parent of #{entry.path}"
   end
 
-  def mark_change_in_group(group)
-    path = group.to_s
-    if !@seen_groups.has_key?(path)
-      puts "#{path} ..."
-      @seen_groups[path] = true
+  # Removes the given file references from the project after the file is found
+  # to not exist on the filesystem but references to it still exist in the
+  # project.
+  def remove_from_project(to_remove)
+    to_remove.each do |entry|
+      file_ref = entry.ref
+      file_ref.remove_from_project
     end
   end
 
-  SOURCES = %w{.c .cc .m .mm}
+  def sync_target_entry(target, entry)
+    return if entry.unchanged?
 
-  def sync_target(target_def)
-    target = @project.native_targets.find { |t| t.name == target_def.name }
-    if !target
-      raise "Missing target #{target_def.name}"
-    end
+    phase = find_phase(target, entry.path)
+    return if phase.nil?
 
-    files = find_files_for_target(target_def)
-    sources, resources = classify_files(files)
-
-    sync_build_phase(target, target.source_build_phase, sources)
-  end
-
-  def classify_files(files)
-    sources = {}
-    resources = {}
-
-    files.each do |file|
-      path = file.real_path
-      ext = path.extname
-      if SOURCES.include?(ext)
-        sources[path] = file
-      end
-    end
-
-    return sources, resources
-  end
-
-  def sync_build_phase(target, phase, sources)
-    # buffer changes to the phase to avoid modifying the array we're iterating
-    # over.
-    to_remove = []
-    phase.files.each do |build_file|
-      source_path = build_file.file_ref.real_path
-      if sources.has_key?(source_path)
-        # matches spec and existing target no action taken
-        sources.delete(source_path)
-
-      else
-        # in the phase but now missing in the groups
-        to_remove.push(build_file)
-      end
-    end
-
-    to_remove.each do |build_file|
-      mark_change_in_group(target.name)
-
-      source_path = build_file.file_ref.real_path
-      puts "  #{relative_path(source_path)} - removed"
-      phase.remove_build_file(build_file)
-    end
-
-    sources.each do |path, file_ref|
-      mark_change_in_group(target.name)
-
-      phase.add_file_reference(file_ref)
-      puts "  #{relative_path(file_ref)} - added"
+    mark_change_in_group(target.display_name)
+    if entry.to_add?
+      printf("  %s - added\n", basename(entry.ref))
+      phase.add_file_reference(entry.ref)
+    else
+      printf("  %s - removed\n", basename(entry.ref))
+      phase.remove_file_reference(entry.ref)
     end
   end
 
-  def find_files_for_target(target_def)
-    result = []
-
-    @project.files.each do |file_ref|
-      next if file_ref.source_tree != '<group>'
-
-      rel = relative_path(file_ref)
-      if target_def.matches?(rel)
-        result.push(file_ref)
-      end
+  # Finds the phase to which the given pathname belongs based on its file extension.
+  #
+  # Returns nil if the path does not belong in any phase.
+  def find_phase(target, path)
+    path = normalize_to_pathname(path)
+    ext = path.extname
+    if SOURCES.include?(ext)
+      return target.source_build_phase
+    elsif HEADERS.include?(ext)
+      # TODO(wilhuff): sync headers
+      #return target.headers_build_phase
+      return nil
+    else
+      # TODO(wilhuff): sync resources (including JSON files for spec tests).
+      #return target.resources_build_phase
+      return nil
     end
-    return result
   end
+end
 
-  def normalize_to_pathname(file_ref)
-    if !file_ref.is_a? Pathname
-      if file_ref.is_a? String
-        file_ref = Pathname.new(file_ref)
-      else
-        file_ref = file_ref.real_path
-      end
+
+def normalize_to_pathname(file_ref)
+  if !file_ref.is_a? Pathname
+    if file_ref.is_a? String
+      file_ref = Pathname.new(file_ref)
+    else
+      file_ref = file_ref.real_path
     end
-    return file_ref
   end
+  return file_ref
+end
 
-  def basename(file_ref)
-    return normalize_to_pathname(file_ref).basename
-  end
 
-  def relative_path(file_ref)
-    file_ref = normalize_to_pathname(file_ref)
-    return file_ref.relative_path_from(@root_dir)
+def basename(file_ref)
+  return normalize_to_pathname(file_ref).basename
+end
+
+
+def relative_path(file_ref)
+  path = normalize_to_pathname(file_ref)
+  return path.relative_path_from(ROOT_DIR)
+end
+
+
+def mark_change_in_group(group)
+  path = group.to_s
+  if !@seen_groups.has_key?(path)
+    puts "#{path} ..."
+    @seen_groups[path] = true
   end
 end
 
@@ -423,44 +449,108 @@ class DiffEntry
 
   attr_reader :path
   attr_accessor :in_source, :in_target, :ref
+
+  def unchanged?()
+    return @in_source && @in_target
+  end
+
+  def to_add?()
+    return @in_source && !@in_target
+  end
+
+  def to_remove?()
+    return !@in_source && @in_target
+  end
+end
+
+
+# A set of differences between some source and a target.
+class Diff
+  def initialize()
+    @entries = {}
+  end
+
+  attr_accessor :entries
+
+  def track(path)
+    if @entries.has_key?(path)
+      return @entries[path]
+    end
+
+    entry = DiffEntry.new(path)
+    @entries[path] = entry
+    return entry
+  end
+
+  # Returns a list of entries that are to be added to the target
+  def to_add()
+    return @entries.values.select { |entry| entry.to_add? }
+  end
+
+  # Returns a list of entries that are to be removed to the target
+  def to_remove()
+    return @entries.values.select { |entry| entry.to_remove? }
+  end
+
+  # Returns a list of entries in sorted order.
+  def sorted_entries()
+    return @entries.values.sort { |a, b| a.path.basename <=> b.path.basename }
+  end
 end
 
 
 # Diffs folder groups against the filesystem directories referenced by those
 # folder groups.
 #
-# This performs the diff starting from the directories referenced by the test
-# groups in the project, finding files contained within them. When comparing
-# the files it finds against the project this acts on absolute paths to avoid
-# problems with arbitrary additional groupings in project structure that are
-# standard, e.g. "Supporting Files" or "en.lproj" which either act as aliases
-# for the parent or are folders that are omitted from the project view.
-# Processing the diff this way allows these warts to be tolerated, even if they
-# won't necessarily be recreated if an artifact is added to the filesystem.
+# Folder groups in the project may each refer to an arbitrary path, so
+# traversing from a parent group to a subgroup may jump to a radically
+# different filesystem location or alias a previously processed directory.
+#
+# This class performs a diff by essentially tracking only whether or not a
+# given absolute path has been seen in either the filesystem or the group
+# structure, without paying attention to where in the group structure the file
+# reference actually occurs.
+#
+# This helps ensure that the default arbitrary splits in group structure are
+# preserved. For example, "Supporting Files" is an alias for the same directory
+# as the parent group, and Apple's default project setup hides some files in
+# "Supporting Files". The approach this diff takes preserves this arrangement
+# without understanding specifically which files should be hidden and which
+# should exist in the parent.
+#
+# However, this approach has limitations: removing a file from "Supporting
+# Files" will be handled, but re-adding the file is likely to add it to the
+# group that mirrors the filesystem hierarchy rather than back into its
+# original position. So far this approach has been acceptable because there's
+# nothing of value in these aliasing folders. Should this change we'll have to
+# revisit.
 class GroupDiffer
   def initialize(dir_lister)
     @dir_lister = dir_lister
-
-    @entries = {}
     @dirs = {}
+
+    @diff = Diff.new()
   end
 
-  # Finds all tests on the filesystem contained within the paths of the given
-  # test groups and computes a list of DiffEntries describing the state of the
+  # Finds all files on the filesystem contained within the paths of the given
+  # groups and computes a list of DiffEntries describing the state of the
   # files.
   #
   # Args:
   # - groups: A list of PBXGroup objects representing folder groups within the
-  #   project that contain tests.
+  #   project that contain files of interest.
   #
   # Returns:
-  # A list of DiffEntry objects, one for each test found. If the test exists on
-  # the filesystem, :in_source will be true. If the test exists in the project
-  # :in_target will be true and :ref will be set to the PBXFileReference naming
-  # the file.
-  def diff(groups) groups.each do |group| diff_project_files(group) end
+  # A hash of Pathname to DiffEntry objects, one for each file found. If the
+  # file exists on the filesystem, :in_source will be true. If the file exists
+  # in the project :in_target will be true and :ref will be set to the
+  # PBXFileReference naming the file.
+  def diff(groups)
+    groups.each do |group|
+      diff_project_files(group)
+    end
 
-    return @entries.values.sort { |a, b| a.path.basename <=> b.path.basename }
+    return @diff
   end
 
   private
@@ -475,7 +565,7 @@ class GroupDiffer
 
     group.files.each do |file_ref|
       path = file_ref.real_path
-      entry = track_file(path)
+      entry = @diff.track(path)
       entry.in_target = true
       entry.ref = file_ref
 
@@ -498,19 +588,9 @@ class GroupDiffer
         next
       end
 
-      entry = track_file(path)
+      entry = @diff.track(path)
       entry.in_source = true
     end
-  end
-
-  def track_file(path)
-    if @entries.has_key?(path)
-      return @entries[path]
-    end
-
-    entry = DiffEntry.new(path)
-    @entries[path] = entry
-    return entry
   end
 end
 
