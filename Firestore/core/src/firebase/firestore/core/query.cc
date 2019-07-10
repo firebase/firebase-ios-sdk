@@ -31,10 +31,17 @@ using model::Document;
 using model::DocumentKey;
 using model::ResourcePath;
 
+Query::Query(model::ResourcePath path, std::string collection_group)
+    : path_(std::move(path)),
+      collection_group_(
+          std::make_shared<const std::string>(std::move(collection_group))) {
+}
+
 // MARK: - Accessors
 
 bool Query::IsDocumentQuery() const {
-  return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
+  return model::DocumentKey::IsDocumentKey(path_) && !collection_group_ &&
+         filters_.empty();
 }
 
 // MARK: - Builder methods
@@ -48,7 +55,11 @@ Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
 
   std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
   updated_filters.push_back(std::move(filter));
-  return Query(path_, std::move(updated_filters));
+  return Query(path_, collection_group_, std::move(updated_filters));
+}
+
+Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
+  return Query(path, /*collection_group=*/nullptr, filters_);
 }
 
 // MARK: - Matching
@@ -59,7 +70,7 @@ bool Query::Matches(const Document& doc) const {
 }
 
 bool Query::MatchesPath(const Document& doc) const {
-  ResourcePath doc_path = doc.key().path();
+  const ResourcePath& doc_path = doc.key().path();
   if (DocumentKey::IsDocumentKey(path_)) {
     return path_ == doc_path;
   } else {

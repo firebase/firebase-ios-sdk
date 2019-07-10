@@ -19,6 +19,7 @@
 
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -47,9 +48,14 @@ class Query {
    * Path must currently be empty if this is a collection group query.
    */
   Query(model::ResourcePath path,
+        std::shared_ptr<const std::string> collection_group = nullptr,
         std::vector<std::shared_ptr<core::Filter>> filters = {})
-      : path_(std::move(path)), filters_(std::move(filters)) {
+      : path_(std::move(path)),
+        collection_group_(std::move(collection_group)),
+        filters_(std::move(filters)) {
   }
+
+  Query(model::ResourcePath path, std::string collection_group);
 
   // MARK: - Accessors
 
@@ -58,8 +64,18 @@ class Query {
     return path_;
   }
 
+  /** The collection group of the query, if any. */
+  const std::shared_ptr<const std::string>& collection_group() const {
+    return collection_group_;
+  }
+
   /** Returns true if this Query is for a specific document. */
   bool IsDocumentQuery() const;
+
+  /** Returns true if this Query is a collection group query. */
+  bool IsCollectiongRoupQuery() const {
+    return collection_group_ != nullptr;
+  }
 
   /** The filters on the documents returned by the query. */
   const std::vector<std::shared_ptr<core::Filter>>& filters() const {
@@ -75,6 +91,14 @@ class Query {
 
   // MARK: - Matching
 
+  /**
+   * Converts this collection group query into a collection query at a specific
+   * path. This is used when executing collection group queries, since we have
+   * to split the query into a set of collection queries, one for each
+   * collection in the group.
+   */
+  Query AsCollectionQueryAtPath(model::ResourcePath path) const;
+
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
@@ -85,6 +109,7 @@ class Query {
   bool MatchesBounds(const model::Document& doc) const;
 
   model::ResourcePath path_;
+  std::shared_ptr<const std::string> collection_group_;
 
   // Filters are shared across related Query instance. i.e. when you call
   // Query::Filter(f), a new Query instance is created that contains all of the
