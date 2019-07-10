@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRCoreDiagnosticsConnector.h"
+#import "Private/FIRCoreDiagnosticsConnector.h"
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 
