@@ -18,10 +18,11 @@
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 
-#import "FIRAppInternal.h"
-#import "FIRDiagnosticsData.h"
-#import "FIROptions.h"
-#import "FIROptionsInternal.h"
+#import "Public/FIROptions.h"
+
+#import "Private/FIRAppInternal.h"
+#import "Private/FIRDiagnosticsData.h"
+#import "Private/FIROptionsInternal.h"
 
 // Define the interop class symbol declared as an extern in FIRCoreDiagnosticsInterop.
 Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
