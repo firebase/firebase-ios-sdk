@@ -345,6 +345,15 @@ case "$product-$method-$platform" in
         build
     ;;
 
+  FirebaseCoreDiagnostics-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'gen/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.xcworkspace' \
+        -scheme "FirebaseCoreDiagnostics-$platform-Unit-unit" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    ;;
+
   GoogleDataTransport-xcodebuild-*)
     RunXcodebuild \
         -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
