@@ -199,7 +199,7 @@ def sync_firestore(test_only)
         'INFOPLIST_FILE' =>
             '${SRCROOT}/FuzzTests/Firestore_FuzzTests_iOS-Info.plist',
         'OTHER_CFLAGS' => [
-            '-fsanitize-coverage=trace-pc-guard',
+            '-fsanitize=fuzzer',
         ]
       }
 
