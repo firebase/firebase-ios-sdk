@@ -86,5 +86,4 @@ public extension HashCalculator {
 
     return sha256(data)
   }
-
 }

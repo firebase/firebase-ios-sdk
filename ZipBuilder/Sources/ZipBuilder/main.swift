@@ -56,16 +56,22 @@ do {
   if args.carthage {
     do {
       // Create a copy of the release directory since we'll be modifying it.
-      let carthagePath = location.deletingLastPathComponent().appendingPathComponent("CarthageBuild")
+      let carthagePath =
+        location.deletingLastPathComponent().appendingPathComponent("carthage_build")
       let fileManager = FileManager.default
       fileManager.removeDirectoryIfExists(at: carthagePath)
       try fileManager.copyItem(at: location, to: carthagePath)
 
       // Package the Carthage distribution with the current directory structure.
-      let output = location.deletingLastPathComponent().appendingPathComponent("CarthageOutput")
+      let output = location.deletingLastPathComponent().appendingPathComponent("carthage")
       fileManager.removeDirectoryIfExists(at: output)
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
-      CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath, outputDir: output)
+      CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
+                                            templateDir: args.templateDir,
+                                            outputDir: output)
+
+      // Remove the duplicated Carthage build directory.
+      fileManager.removeDirectoryIfExists(at: carthagePath)
     } catch {
       fatalError("Could not copy output directory for Carthage build: \(error)")
     }
@@ -98,7 +104,7 @@ do {
   }
 
   print("Attempting to Zip the directory...")
-  let zipped = Zip.zipContents(ofDir: location)
+  let zipped = Zip.zipContents(ofDir: location, name: "Firebase.zip")
 
   // If an output directory was specified, copy the Zip file to that directory. Otherwise just print
   // the location for further use.
