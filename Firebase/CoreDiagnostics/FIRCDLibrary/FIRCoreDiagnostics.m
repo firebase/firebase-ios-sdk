@@ -88,7 +88,7 @@ static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKV
 /**
  * The file name to the recent heartbeat date.
  */
-NSString *const kFIRDiagnosticsHeartbeatDateFileName = @"FIREBASE_HEARTBEAT_DATE";
+NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTICS_HEARTBEAT_DATE";
 
 /**
  * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
@@ -172,7 +172,7 @@ NS_ASSUME_NONNULL_END
                                                              target:kGDTTargetCCT];
 
   FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
-      initWithFileURL:[[self class] filePathURLWithName:kFIRDiagnosticsHeartbeatDateFileName]];
+      initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
 }
