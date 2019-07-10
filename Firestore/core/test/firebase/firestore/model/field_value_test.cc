@@ -218,11 +218,13 @@ static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
 TEST(FieldValueTest, Equality) {
+  // Avoid statically dividing by zero; MSVC considers this an error.
+  double zero = 0.0;
   testutil::EqualsTester<FieldValue>()
       .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
       .AddEqualityGroup(FieldValue::False(), Value(false))
       .AddEqualityGroup(FieldValue::True(), Value(true))
-      .AddEqualityGroup(Value(0.0 / 0.0), Value(ToDouble(kCanonicalNanBits)),
+      .AddEqualityGroup(Value(0.0 / zero), Value(ToDouble(kCanonicalNanBits)),
                         Value(ToDouble(kAlternateNanBits)),
                         Value(std::nan("1")), Value(std::nan("2")))
       // -0.0 and 0.0 compareTo the same but are not equal.
