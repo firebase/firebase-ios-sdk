@@ -24,6 +24,8 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 namespace util = firebase::firestore::util;
@@ -38,6 +40,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::RelationFilter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -223,12 +226,12 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  FSTFilter* filter = [FSTFilter filterWithField:field_path
-                                  filterOperator:op
-                                           value:field_value];
+  std::shared_ptr<class Filter> filter =
+      Filter::Create(field_path, op, field_value);
 
-  if ([filter isKindOfClass:[FSTRelationFilter class]]) {
-    ValidateNewRelationFilter(static_cast<FSTRelationFilter*>(filter));
+  if (filter->type() == Filter::Type::kRelationFilter) {
+    ValidateNewRelationFilter(
+        *static_cast<const RelationFilter*>(filter.get()));
   }
 
   return Wrap([query_ queryByAddingFilter:filter]);
@@ -271,22 +274,22 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-void Query::ValidateNewRelationFilter(FSTRelationFilter* filter) const {
-  if ([filter isInequality]) {
+void Query::ValidateNewRelationFilter(const RelationFilter& filter) const {
+  if (filter.IsInequality()) {
     const FieldPath* existingField = [query_ inequalityFilterField];
-    if (existingField && *existingField != filter.field) {
+    if (existingField && *existingField != filter.field()) {
       ThrowInvalidArgument(
           "Invalid Query. All where filters with an inequality (lessThan, "
           "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
           "same field. But you have inequality filters on '%s' and '%s'",
-          existingField->CanonicalString(), filter.field.CanonicalString());
+          existingField->CanonicalString(), filter.field().CanonicalString());
     }
 
     const FieldPath* firstOrderByField = [query_ firstSortOrderField];
     if (firstOrderByField) {
-      ValidateOrderByField(*firstOrderByField, filter.field);
+      ValidateOrderByField(*firstOrderByField, filter.field());
     }
-  } else if (filter.filterOperator == Filter::Operator::ArrayContains) {
+  } else if (filter.op() == Filter::Operator::ArrayContains) {
     if ([query_ hasArrayContainsFilter]) {
       ThrowInvalidArgument(
           "Invalid Query. Queries only support a single arrayContains filter.");

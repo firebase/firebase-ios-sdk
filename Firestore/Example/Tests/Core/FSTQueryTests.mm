@@ -33,6 +33,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentState;
@@ -40,7 +41,10 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::ComparisonResult;
 
+using testutil::Array;
 using testutil::Field;
+using testutil::Filter;
+using testutil::Map;
 using testutil::Value;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -130,17 +134,15 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, DocumentState::kSynced);
 
-  FSTQuery *query = [FSTTestQuery("rooms/eros/messages")
-      queryByAddingFilter:FSTTestFilter("text", @"==", @"msg1")];
+  FSTQuery *query =
+      [FSTTestQuery("rooms/eros/messages") queryByAddingFilter:Filter("text", "==", "msg1")];
   XCTAssertTrue([query matchesDocument:doc1]);
   XCTAssertFalse([query matchesDocument:doc2]);
 }
 
 - (void)testMatchesPrimitiveValuesForFilters {
-  FSTQuery *query1 =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
-  FSTQuery *query2 =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
+  FSTQuery *query1 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", ">=", 2)];
+  FSTQuery *query2 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "<=", 2)];
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @1}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
@@ -165,8 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testArrayContainsFilter {
-  FSTQuery *query = [FSTTestQuery("collection")
-      queryByAddingFilter:FSTTestFilter("array", @"array_contains", @42)];
+  FSTQuery *query =
+      [FSTTestQuery("collection") queryByAddingFilter:Filter("array", "array_contains", 42)];
 
   // not an array.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"array" : @1}, DocumentState::kSynced);
@@ -192,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testArrayContainsFilterWithObjectValue {
   // Search for arrays containing the object { a: [42] }
   FSTQuery *query = [FSTTestQuery("collection")
-      queryByAddingFilter:FSTTestFilter("array", @"array_contains", @{@"a" : @[ @42 ]})];
+      queryByAddingFilter:Filter("array", "array_contains", Map("a", Array(42)))];
 
   // array without element.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
@@ -210,8 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testNullFilter {
-  FSTQuery *query =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];
+  FSTQuery *query = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "==", nullptr)];
   FSTDocument *doc1 =
       FSTTestDoc("collection/1", 0, @{@"sort" : [NSNull null]}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
@@ -227,8 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testNanFilter {
-  FSTQuery *query =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", @(NAN))];
+  FSTQuery *query = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "==", NAN)];
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @(NAN)}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, DocumentState::kSynced);
@@ -243,10 +243,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesNotMatchComplexObjectsForFilters {
-  FSTQuery *query1 =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
-  FSTQuery *query2 =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
+  FSTQuery *query1 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "<=", 2)];
+  FSTQuery *query2 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", ">=", 2)];
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
@@ -303,19 +301,19 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 =
       FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, DocumentState::kSynced);
 
-  NSArray<FSTFilter *> *matchingFilters = @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
+  Query::FilterList matchingFilters = {Filter("tags", "==", Array("foo", 1, true))};
 
-  NSArray<FSTFilter *> *nonMatchingFilters = @[
-    FSTTestFilter("tags", @"==", @"foo"),
-    FSTTestFilter("tags", @"==", @[ @"foo", @1 ]),
-    FSTTestFilter("tags", @"==", @[ @"foo", @YES, @1 ]),
-  ];
+  Query::FilterList nonMatchingFilters = {
+      Filter("tags", "==", "foo"),
+      Filter("tags", "==", Array("foo", 1)),
+      Filter("tags", "==", Array("foo", true, 1)),
+  };
 
-  for (FSTFilter *filter in matchingFilters) {
+  for (const auto &filter : matchingFilters) {
     XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 
-  for (FSTFilter *filter in nonMatchingFilters) {
+  for (const auto &filter : nonMatchingFilters) {
     XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 }
@@ -326,25 +324,19 @@ NS_ASSUME_NONNULL_BEGIN
       "collection/doc", 0, @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
       DocumentState::kSynced);
 
-  NSArray<FSTFilter *> *matchingFilters = @[
-    FSTTestFilter("tags", @"==", @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}),
-    FSTTestFilter("tags", @"==", @{@"b" : @YES, @"a" : @0, @"foo" : @"foo", @"c" : @(NAN)}),
-    FSTTestFilter("tags.foo", @"==", @"foo")
-  ];
+  Query::FilterList matchingFilters = {
+      Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true, "c", NAN)),
+      Filter("tags", "==", Map("b", true, "a", 0, "foo", "foo", "c", NAN)),
+      Filter("tags.foo", "==", "foo")};
 
-  NSArray<FSTFilter *> *nonMatchingFilters = @[
-    FSTTestFilter("tags", @"==", @"foo"), FSTTestFilter("tags", @"==", @{
-      @"foo" : @"foo",
-      @"a" : @0,
-      @"b" : @YES,
-    })
-  ];
+  Query::FilterList nonMatchingFilters = {
+      Filter("tags", "==", "foo"), Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true))};
 
-  for (FSTFilter *filter in matchingFilters) {
+  for (const auto &filter : matchingFilters) {
     XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 
-  for (FSTFilter *filter in nonMatchingFilters) {
+  for (const auto &filter : nonMatchingFilters) {
     XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 }
@@ -445,11 +437,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEquality {
   FSTQuery *q11 = FSTTestQuery("foo");
-  q11 = [q11 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
-  q11 = [q11 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
+  q11 = [q11 queryByAddingFilter:Filter("i1", "<", 2)];
+  q11 = [q11 queryByAddingFilter:Filter("i2", "==", 3)];
   FSTQuery *q12 = FSTTestQuery("foo");
-  q12 = [q12 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
-  q12 = [q12 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
+  q12 = [q12 queryByAddingFilter:Filter("i2", "==", 3)];
+  q12 = [q12 queryByAddingFilter:Filter("i1", "<", 2)];
 
   FSTQuery *q21 = FSTTestQuery("foo");
   FSTQuery *q22 = FSTTestQuery("foo");
@@ -469,12 +461,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQuery *q51 = FSTTestQuery("foo");
   q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
-  q51 = [q51 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
+  q51 = [q51 queryByAddingFilter:Filter("foo", ">", 2)];
   FSTQuery *q52 = FSTTestQuery("foo");
-  q52 = [q52 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
+  q52 = [q52 queryByAddingFilter:Filter("foo", ">", 2)];
   q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
   FSTQuery *q53Diff = FSTTestQuery("foo");
-  q53Diff = [q53Diff queryByAddingFilter:FSTTestFilter("bar", @">", @(2))];
+  q53Diff = [q53Diff queryByAddingFilter:Filter("bar", ">", 2)];
   q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
 
   FSTQuery *q61 = FSTTestQuery("foo");
@@ -510,11 +502,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testUniqueIds {
   FSTQuery *q11 = FSTTestQuery("foo");
-  q11 = [q11 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
-  q11 = [q11 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
+  q11 = [q11 queryByAddingFilter:Filter("i1", "<", 2)];
+  q11 = [q11 queryByAddingFilter:Filter("i2", "==", 3)];
   FSTQuery *q12 = FSTTestQuery("foo");
-  q12 = [q12 queryByAddingFilter:FSTTestFilter("i2", @"==", @(3))];
-  q12 = [q12 queryByAddingFilter:FSTTestFilter("i1", @"<", @(2))];
+  q12 = [q12 queryByAddingFilter:Filter("i2", "==", 3)];
+  q12 = [q12 queryByAddingFilter:Filter("i1", "<", 2)];
 
   FSTQuery *q21 = FSTTestQuery("foo");
   FSTQuery *q22 = FSTTestQuery("foo");
@@ -534,12 +526,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQuery *q51 = FSTTestQuery("foo");
   q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
-  q51 = [q51 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
+  q51 = [q51 queryByAddingFilter:Filter("foo", ">", 2)];
   FSTQuery *q52 = FSTTestQuery("foo");
-  q52 = [q52 queryByAddingFilter:FSTTestFilter("foo", @">", @(2))];
+  q52 = [q52 queryByAddingFilter:Filter("foo", ">", 2)];
   q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
   FSTQuery *q53Diff = FSTTestQuery("foo");
-  q53Diff = [q53Diff queryByAddingFilter:FSTTestFilter("bar", @">", @(2))];
+  q53Diff = [q53Diff queryByAddingFilter:Filter("bar", ">", 2)];
   q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
 
   FSTQuery *q61 = FSTTestQuery("foo");
@@ -603,7 +595,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Inequality filters add order bys
   XCTAssertEqualObjects(
-      [baseQuery queryByAddingFilter:FSTTestFilter("foo", @"<", @5)].sortOrders,
+      [baseQuery queryByAddingFilter:Filter("foo", "<", 5)].sortOrders,
       (@[ FSTTestOrderBy("foo", @"asc"), FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]));
 
   // Descending order by applies to implicit key ordering
@@ -644,11 +636,11 @@ MATCHER_P(HasCanonicalId, expected, "") {
   XC_ASSERT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
 
   FSTQuery *filters = FSTTestQuery("coll");
-  filters = [filters queryByAddingFilter:FSTTestFilter("str", @"==", @"foo")];
+  filters = [filters queryByAddingFilter:Filter("str", "==", "foo")];
   XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
 
   // Inequality filters end up in the order by too
-  filters = [filters queryByAddingFilter:FSTTestFilter("int", @"<", @42)];
+  filters = [filters queryByAddingFilter:Filter("int", "<", 42)];
   XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
 
   FSTQuery *orderBys = FSTTestQuery("coll");

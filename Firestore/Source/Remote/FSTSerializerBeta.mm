@@ -882,14 +882,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Filters
 
-- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(NSArray<FSTFilter *> *)filters {
-  if (filters.count == 0) {
+- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(const Query::FilterList &)filters {
+  if (filters.empty()) {
     return nil;
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
-  for (FSTFilter *filter in filters) {
-    if ([filter isKindOfClass:[FSTRelationFilter class]]) {
-      [protos addObject:[self encodedRelationFilter:(FSTRelationFilter *)filter]];
+  for (const auto &filter : filters) {
+    if (filter->type() == Filter::Type::kRelationFilter) {
+      [protos
+          addObject:[self encodedRelationFilter:std::static_pointer_cast<RelationFilter>(filter)]];
     } else {
       [protos addObject:[self encodedUnaryFilter:filter]];
     }
@@ -938,12 +939,13 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter {
+- (GCFSStructuredQuery_Filter *)encodedRelationFilter:
+    (const std::shared_ptr<RelationFilter> &)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
-  fieldFilter.field = [self encodedFieldPath:filter.field];
-  fieldFilter.op = [self encodedRelationFilterOperator:filter.filterOperator];
-  fieldFilter.value = [self encodedFieldValue:filter.value];
+  fieldFilter.field = [self encodedFieldPath:filter->field()];
+  fieldFilter.op = [self encodedRelationFilterOperator:filter->op()];
+  fieldFilter.value = [self encodedFieldValue:filter->value()];
   return proto;
 }
 
@@ -954,15 +956,15 @@ NS_ASSUME_NONNULL_BEGIN
   return std::make_shared<RelationFilter>(std::move(fieldPath), op, std::move(value));
 }
 
-- (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(FSTFilter *)filter {
+- (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(const std::shared_ptr<Filter> &)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
-  proto.unaryFilter.field = [self encodedFieldPath:filter.field];
-  if ([filter isKindOfClass:[FSTNanFilter class]]) {
+  proto.unaryFilter.field = [self encodedFieldPath:filter->field()];
+  if (filter->type() == Filter::Type::kNanFilter) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
-  } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
+  } else if (filter->type() == Filter::Type::kNullFilter) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
   } else {
-    HARD_FAIL("Unrecognized filter: %s", filter);
+    HARD_FAIL("Unrecognized filter: %s", filter->ToString());
   }
   return proto;
 }
