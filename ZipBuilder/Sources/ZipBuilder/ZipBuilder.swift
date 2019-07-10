@@ -16,8 +16,8 @@
 
 import Foundation
 
-/// Misc. constants used in the script.
-private struct Constants {
+/// Misc. constants used in the build tool.
+public struct Constants {
   /// Constants related to the Xcode project template.
   public struct ProjectPath {
     // Required for building.
@@ -39,8 +39,11 @@ private struct Constants {
     public static let firebaseHeader = "Firebase.h"
     public static let modulemap = "module.modulemap"
 
-    // All required files needed from the Firebase pod.
+    /// All required files needed from the Firebase pod.
     public static let requiredFilesFromFirebasePod: [String] = [firebaseHeader, modulemap]
+
+    /// The dummy Firebase library for Carthage distribution.
+    public static let dummyFirebaseLib = "dummy_Firebase_lib"
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -136,9 +139,7 @@ struct ZipBuilder {
 
     do {
       // Create the directory and all intermediate directories.
-      try FileManager.default.createDirectory(at: projectDir,
-                                              withIntermediateDirectories: true,
-                                              attributes: nil)
+      try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
     } catch {
       // Use `do/catch` instead of `guard let tempDir = try?` so we can print the error thrown.
       fatalError("Cannot create temporary directory at beginning of script: \(error)")
@@ -175,7 +176,7 @@ struct ZipBuilder {
     // Break the `podsToInstall` into a variable since it's helpful when debugging non-cache builds
     // to just install a subset of pods, like the following line:
 //    let podsToInstall: [CocoaPod] = [.core, .analytics, .storage]
-     let podsToInstall = CocoaPod.allCases
+    let podsToInstall = CocoaPod.allCases
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.

@@ -22,7 +22,15 @@ import Foundation
 public enum CarthageUtils {}
 
 public extension CarthageUtils {
-  static func generateCarthageRelease(fromPackagedDir packagedDir: URL, outputDir: URL) {
+  /// Generates all required files for a Carthage release.
+  ///
+  /// - Parameters:
+  ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
+  ///   - templateDir: The template project directory, contains the dummy Firebase library.
+  ///   - outputDir: The directory where all artifacts should be created.
+  static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
+                                      templateDir: URL,
+                                      outputDir: URL) {
     // TODO: Get Firebase version (either parse readme or pass it in, likely pass it in)
 
     let directories: [String]
@@ -32,7 +40,7 @@ public extension CarthageUtils {
       fatalError("Could not get contents of Firebase directory to package Carthage build. \(error)")
     }
 
-    // Loop through each directory available
+    // Loop through each directory available and package it as a separate Zip file.
     for productDir in directories {
       let fullPath = packagedDir.appendingPathComponent(productDir)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
@@ -66,7 +74,8 @@ public extension CarthageUtils {
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
       if productDir == "Analytics" {
-        // TODO: Create a `Firebase` framework to support `import Firebase` and `Firebase.h`.
+        createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
+
         // TODO: Rebuild CoreDiagnostics to include the correct compiler flag.
         //    let builder = FrameworkBuilder(projectDir: <#T##URL#>, carthageBuild: true)
 
@@ -93,13 +102,65 @@ public extension CarthageUtils {
 
       let zipName = "\(productDir)-\(hash).zip"
       let productZip = outputDir.appendingPathComponent(zipName)
-      let zipped = Zip.zipContents(ofDir: fullPath)
+      let zipped = Zip.zipContents(ofDir: fullPath, name: zipName)
       do {
         try FileManager.default.moveItem(at: zipped, to: productZip)
       } catch {
         fatalError("Could not move packaged zip file for \(productDir) during Carthage build. " +
           "\(error)")
       }
+    }
+  }
+
+  /// Creates a fake Firebase.framework to use the module for `import Firebase` compatibility.
+  ///
+  /// - Parameters:
+  ///   - destination: The destination directory for the Firebase framework.
+  ///   - rootDir: The root directory that contains other required files (like the modulemap and
+  ///       Firebase header).
+  ///   - templateDir: The template directory containing the dummy Firebase library.
+  private static func createFirebaseFramework(inDir destination: URL,
+                                              rootDir: URL,
+                                              templateDir: URL) {
+    // Local FileManager for better readability.
+    let fm = FileManager.default
+
+    let frameworkDir = destination.appendingPathComponent("Firebase.framework")
+    let headersDir = frameworkDir.appendingPathComponent("Headers")
+    let modulesDir = frameworkDir.appendingPathComponent("Modules")
+
+    // Create all the required directories.
+    do {
+      try fm.createDirectory(at: headersDir, withIntermediateDirectories: true)
+      try fm.createDirectory(at: modulesDir, withIntermediateDirectories: true)
+    } catch {
+      fatalError("Could not create directories for Firebase framework in Carthage. \(error)")
+    }
+
+    // Copy the Firebase header and modulemap that was created in the Zip file.
+    let header = rootDir.appendingPathComponent(Constants.ProjectPath.firebaseHeader)
+    let modulemap = rootDir.appendingPathComponent(Constants.ProjectPath.modulemap)
+    do {
+      try fm.copyItem(at: header, to: headersDir.appendingPathComponent(header.lastPathComponent))
+      try fm.copyItem(at: modulemap,
+                      to: modulesDir.appendingPathComponent(modulemap.lastPathComponent))
+    } catch {
+      fatalError("Couldn't copy required files for Firebase framework in Carthage. \(error)")
+    }
+
+    // Copy the dummy Firebase library.
+    let dummyLib = templateDir.appendingPathComponent(Constants.ProjectPath.dummyFirebaseLib)
+    do {
+      try fm.copyItem(at: dummyLib, to: frameworkDir.appendingPathComponent("Firebase"))
+    } catch {
+      fatalError("Couldn't copy dummy library for Firebase framework in Carthage. \(error)")
+    }
+
+    // Write the Info.plist.
+    let data = generatePlistContents(forName: "Firebase")
+    do { try data.write(to: frameworkDir.appendingPathComponent("Info.plist")) }
+    catch {
+      fatalError("Could not write the Info.plist for Firebase framework in Carthage. \(error)")
     }
   }
 
