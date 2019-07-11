@@ -48,8 +48,8 @@ class Query {
    * Path must currently be empty if this is a collection group query.
    */
   explicit Query(model::ResourcePath path,
-        std::shared_ptr<const std::string> collection_group = nullptr,
-        std::vector<std::shared_ptr<core::Filter>> filters = {})
+                 std::shared_ptr<const std::string> collection_group = nullptr,
+                 std::vector<std::shared_ptr<core::Filter>> filters = {})
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)) {
