@@ -68,22 +68,42 @@ fi
 
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
+xcresult_dir="build_most_recent_xcresult"
+
+# Finds and cats StandardOutputAndStandardError.txt in $xcresult_dir.
+function FindAndPrintStdOutAndStdError() {
+  find "$xcresult_dir" -name "StandardOutputAndStandardError.txt" \
+  -exec cat '{}' \;
+}
+
+# Deletes the xcresult_dir if it exists.
+function RemoveResultDir() {
+  if [[ -d "$xcresult_dir" ]]; then
+    rm -rf "$xcresult_dir"
+  fi
+}
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+  RemoveResultDir
   echo xcodebuild "$@"
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
+    RemoveResultDir
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
     xcodebuild "$@" | xcpretty; result=$?
   fi
   if [[ $result != 0 ]]; then
+    echo "StandardOutputAndStandardError.txt follows:"
+    FindAndPrintStdOutAndStdError
+    RemoveResultDir
     exit $result
   fi
+  RemoveResultDir
 }
 
 ios_flags=(
@@ -122,6 +142,10 @@ case "$platform" in
     exit 1
     ;;
 esac
+
+xcb_flags+=(
+  -resultBundlePath "$xcresult_dir"
+)
 
 xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
