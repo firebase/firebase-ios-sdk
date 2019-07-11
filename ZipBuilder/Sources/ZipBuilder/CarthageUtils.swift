@@ -27,12 +27,14 @@ public extension CarthageUtils {
   /// - Parameters:
   ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
+  ///   - jsonDir: Location of directory containing all JSON Carthage manifests.
+  ///   - firebaseVersion: The version of the Firebase pod.
   ///   - outputDir: The directory where all artifacts should be created.
   static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
                                       templateDir: URL,
+                                      jsonDir: URL,
+                                      firebaseVersion: String,
                                       outputDir: URL) {
-    // TODO: Get Firebase version (either parse readme or pass it in, likely pass it in)
-
     let directories: [String]
     do {
       directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
@@ -41,19 +43,23 @@ public extension CarthageUtils {
     }
 
     // Loop through each directory available and package it as a separate Zip file.
-    for productDir in directories {
-      let fullPath = packagedDir.appendingPathComponent(productDir)
+    for product in directories {
+      let fullPath = packagedDir.appendingPathComponent(product)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
 
-      // TODO: Get JSON file and parse it.
-      // TODO: Skip this directory if it's already been published.
+      // Parse the JSON file, ensure that we're not trying to overwrite a release.
+      let jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
+      guard jsonManifest[firebaseVersion] == nil else {
+        print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
+        continue
+      }
 
       // Find all the .frameworks in this directory.
       let allContents: [String]
       do {
         allContents = try FileManager.default.contentsOfDirectory(atPath: fullPath.path)
       } catch {
-        fatalError("Could not get contents of \(productDir) for Carthage build in order to add " +
+        fatalError("Could not get contents of \(product) for Carthage build in order to add " +
           "an Info.plist in each framework. \(error)")
       }
 
@@ -73,7 +79,7 @@ public extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if productDir == "Analytics" {
+      if product == "Analytics" {
         createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
 
         // TODO: Rebuild CoreDiagnostics to include the correct compiler flag.
@@ -97,16 +103,16 @@ public extension CarthageUtils {
         let fullHash = try HashCalculator.sha256Contents(ofDir: fullPath)
         hash = String(fullHash.prefix(16))
       } catch {
-        fatalError("Could not hash contents of \(productDir) for Carthage build. \(error)")
+        fatalError("Could not hash contents of \(product) for Carthage build. \(error)")
       }
 
-      let zipName = "\(productDir)-\(hash).zip"
+      let zipName = "\(product)-\(hash).zip"
       let productZip = outputDir.appendingPathComponent(zipName)
       let zipped = Zip.zipContents(ofDir: fullPath, name: zipName)
       do {
         try FileManager.default.moveItem(at: zipped, to: productZip)
       } catch {
-        fatalError("Could not move packaged zip file for \(productDir) during Carthage build. " +
+        fatalError("Could not move packaged zip file for \(product) during Carthage build. " +
           "\(error)")
       }
     }
@@ -181,5 +187,34 @@ public extension CarthageUtils {
     } catch {
       fatalError("Failed to create Info.plist for \(name) during Carthage build: \(error)")
     }
+  }
+
+  /// Parses the JSON manifest for the particular product.
+  ///
+  /// - Parameters:
+  ///   - dir: The directory containing all JSON manifests.
+  ///   - product: The name of the Firebase product.
+  /// - Returns: A dictionary with versions as keys and URLs as values.
+  private static func parseJSONFile(fromDir dir: URL, product: String) -> [String: String] {
+    // Parse the JSON manifest.
+    let jsonFileName = "Firebase\(product)Binary.json"
+    let jsonFile = dir.appendingPathComponent(jsonFileName)
+    guard FileManager.default.fileExists(atPath: jsonFile.path) else {
+      fatalError("Could not find JSON manifest for \(product) during Carthage build. " +
+        "Location: \(jsonFile)")
+    }
+
+    // Get a dictionary out of the file, then ensure it's in the right format.
+    guard let productReleasesDict = NSDictionary(contentsOf: jsonFile) else {
+      fatalError("Could not parse JSON manifest for \(product) during Carthage build. " +
+        "Location: \(jsonFile)")
+    }
+
+    guard let productReleases = productReleasesDict as? [String: String] else {
+      fatalError("Unexpected JSON format for \(product)'s Carthage manifest. Contents: " +
+        "\(productReleasesDict)")
+    }
+
+    return productReleases
   }
 }
