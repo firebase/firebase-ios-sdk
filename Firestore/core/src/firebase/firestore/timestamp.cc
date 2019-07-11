@@ -31,7 +31,7 @@ namespace firebase {
 
 namespace {
 
-constexpr int32_t kNanosPerSecond = 1000000000;
+constexpr int32_t kNanosPerSecond = 1000 * 1000 * 1000;
 
 /**
  * Creates a `Timestamp` from the given non-normalized inputs.

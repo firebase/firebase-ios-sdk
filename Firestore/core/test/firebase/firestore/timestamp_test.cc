@@ -39,7 +39,7 @@ using Ms = std::chrono::milliseconds;
 
 const auto kUpperBound = 253402300800L - 1;
 const auto kLowerBound = -62135596800L;
-constexpr int32_t kNanosPerSecond = 1000000000;
+constexpr int32_t kNanosPerSecond = 1000 * 1000 * 1000;
 
 // For near-bounds tests that use <chrono>, it's important to only run them if
 // system_clock::duration can represent values this large (e.g., on Linux, it's
