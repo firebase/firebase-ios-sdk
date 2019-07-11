@@ -47,7 +47,7 @@ class Query {
    * Initializes a Query with a path and optional additional query constraints.
    * Path must currently be empty if this is a collection group query.
    */
-  Query(model::ResourcePath path,
+  explicit Query(model::ResourcePath path,
         std::shared_ptr<const std::string> collection_group = nullptr,
         std::vector<std::shared_ptr<core::Filter>> filters = {})
       : path_(std::move(path)),
@@ -73,7 +73,7 @@ class Query {
   bool IsDocumentQuery() const;
 
   /** Returns true if this Query is a collection group query. */
-  bool IsCollectiongRoupQuery() const {
+  bool IsCollectionGroupQuery() const {
     return collection_group_ != nullptr;
   }
 

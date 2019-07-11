@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -31,7 +32,7 @@ using model::Document;
 using model::DocumentKey;
 using model::ResourcePath;
 
-Query::Query(model::ResourcePath path, std::string collection_group)
+Query::Query(ResourcePath path, std::string collection_group)
     : path_(std::move(path)),
       collection_group_(
           std::make_shared<const std::string>(std::move(collection_group))) {
@@ -40,7 +41,7 @@ Query::Query(model::ResourcePath path, std::string collection_group)
 // MARK: - Accessors
 
 bool Query::IsDocumentQuery() const {
-  return model::DocumentKey::IsDocumentKey(path_) && !collection_group_ &&
+  return DocumentKey::IsDocumentKey(path_) && !collection_group_ &&
          filters_.empty();
 }
 
@@ -53,7 +54,7 @@ Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
   // TODO(rsgowman): ensure only one inequality field
   // TODO(rsgowman): ensure first orderby must match inequality field
 
-  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
+  auto updated_filters = filters_;
   updated_filters.push_back(std::move(filter));
   return Query(path_, collection_group_, std::move(updated_filters));
 }
@@ -100,7 +101,9 @@ bool operator==(const Query& lhs, const Query& rhs) {
   // TODO(rsgowman): check orderby (once it exists)
   // TODO(rsgowman): check startat (once it exists)
   // TODO(rsgowman): check endat (once it exists)
-  return lhs.path() == rhs.path() && lhs.filters() == rhs.filters();
+  return lhs.path() == rhs.path() &&
+         util::Equals(lhs.collection_group(), rhs.collection_group()) &&
+         lhs.filters() == rhs.filters();
 }
 
 }  // namespace core

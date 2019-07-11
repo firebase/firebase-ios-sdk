@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EQUALITY_H_
 
 #include <memory>
+#include <utility>
 
 namespace firebase {
 namespace firestore {
@@ -27,7 +28,7 @@ namespace util {
  * Checks if the values pointed to by two C++ pointers are equal. Two null
  * pointers are also considered equal.
  */
-template <typename T, typename = typename std::pointer_traits<T>::element_type>
+template <typename T>
 bool Equals(const T& lhs, const T& rhs) {
   return lhs == nullptr ? rhs == nullptr : rhs != nullptr && *lhs == *rhs;
 }
