@@ -38,9 +38,13 @@
   return FIRInstallationsErrorCodeUnknown;
 }
 
-+ (NSDictionary *)userInfoWithHTTPResponse:(NSHTTPURLResponse *)URLResponse
++ (NSDictionary *)userInfoWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                       data:(nullable NSData *)data {
-  return @{};
+  NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  NSString *failureReason = [NSString
+      stringWithFormat:@"The server responded with an error. HTTP response: %@\nResponse body: %@",
+                       HTTPResponse, responseString];
+  return @{NSLocalizedFailureReasonErrorKey : failureReason};
 }
 
 @end

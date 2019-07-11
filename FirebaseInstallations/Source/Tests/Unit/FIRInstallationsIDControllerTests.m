@@ -604,7 +604,8 @@
 
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
-  [rejectedAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
+  [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
   // 3. Don't expect the installation to be removed from the storage.
@@ -622,7 +623,7 @@
   // 6. Wait for operations to complete and check.
   FBLWaitForPromisesWithTimeout(0.5);
 
-  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]);
+  XCTAssertEqualObjects(promise.error, error500);
   XCTAssertTrue(promise.isRejected);
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 }
