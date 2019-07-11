@@ -43,6 +43,7 @@
         // We currently require every document read to also be written.
         // TODO(b/34879758): Fix this check once we drop that requirement.
         XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -115,9 +116,7 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -143,9 +142,7 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -172,9 +169,8 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(dimond): This is probably the wrong error code, but it's what we use today. We
-        // should update the code once the underlying error was fixed.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        // This is the error surfaced by the backend.
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -237,6 +233,8 @@
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
         XCTAssertNotNil(error);
+        // This is the error surfaced by the backend.
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -373,6 +371,7 @@
         // XCTAssertNil(error);
         // XCTAssertEqualObjects(@(16), snapshot[@"count"]);
         XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];
@@ -410,11 +409,47 @@
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
         [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
       }];
   [self awaitExpectations];
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(@(1234.0), snapshot[@"count"]);
+}
+
+- (void)testReadAndUpdateNonExistentDocumentWithExternalWrite {
+  FIRFirestore *firestore = [self firestore];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        // Get and update a document that doesn't exist so that the transaction fails.
+        FIRDocumentReference *doc =
+            [[firestore collectionWithPath:@"nonexistent"] documentWithAutoID];
+        [transaction getDocument:doc error:error];
+        XCTAssertNil(*error);
+        // Do a write outside of the transaction.
+        dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+        [doc setData:@{
+          @"count" : @(1234)
+        }
+            completion:^(NSError *_Nullable error) {
+              dispatch_semaphore_signal(writeSemaphore);
+            }];
+        // We can block on it, because transactions run on a background queue.
+        dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
+        // Now try to update the other doc from within the transaction.
+        // This should fail, because the document didn't exist at the
+        // start of the transaction.
+        [transaction updateData:@{@"count" : @(16)} forDocument:doc];
+        return nil;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+      }];
+  [self awaitExpectations];
 }
 
 - (void)testCannotHaveAGetWithoutMutations {
@@ -433,6 +468,7 @@
         // We currently require every document read to also be written.
         // TODO(b/34879758): Fix this check once we drop that requirement.
         XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
         [expectation fulfill];
       }];
   [self awaitExpectations];

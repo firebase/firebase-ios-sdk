@@ -202,6 +202,17 @@ case "$product-$method-$platform" in
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
 
+      # Run integration tests (not allowed on forks)
+      if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+            "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+        RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "Auth_ApiTests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+      fi
+
       # Test iOS Objective-C static library build
       cd Example
       sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
@@ -316,7 +327,7 @@ case "$product-$method-$platform" in
 
     # Firestore_IntegrationTests_iOS require Swift 4, which needs Xcode 9
     # Other non-iOS platforms don't have swift integration tests yet.
-    if [["$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
+    if [[ "$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
