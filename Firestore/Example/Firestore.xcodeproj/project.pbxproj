@@ -3786,25 +3786,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3812,7 +3799,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Debug;
@@ -3824,7 +3810,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
@@ -3832,18 +3817,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3852,7 +3825,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
-				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Release;
@@ -3865,13 +3837,11 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				INFOPLIST_FILE = "$(SRCROOT)/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3892,14 +3862,12 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = c99;
 				INFOPLIST_FILE = "$(SRCROOT)/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3919,24 +3887,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3956,25 +3911,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3994,21 +3936,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4028,22 +3960,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4063,22 +3985,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -4097,7 +4009,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
@@ -4105,15 +4016,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -4147,13 +4049,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-				);
 				INFOPLIST_FILE = ../Swift/Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -4161,9 +4057,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-SwiftTests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 			};
@@ -4192,22 +4086,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-				);
 				INFOPLIST_FILE = ../Swift/Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-SwiftTests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 			};
@@ -4219,27 +4105,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = Benchmarks/Info.plist;
 				OTHER_CFLAGS = (
@@ -4295,27 +4166,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = Benchmarks/Info.plist;
 				OTHER_CFLAGS = (
@@ -4521,28 +4377,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_CFLAGS = (
@@ -4587,7 +4427,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -4599,28 +4438,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_CFLAGS = (
@@ -4665,7 +4488,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -4677,20 +4499,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
@@ -4710,20 +4524,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
@@ -4744,7 +4550,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -4764,7 +4569,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/App/macOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -4784,7 +4588,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_COMMA = YES;
@@ -4805,7 +4608,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/App/macOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -4824,25 +4626,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (
@@ -4851,8 +4640,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
-				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -4864,25 +4651,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"${PODS_ROOT}/../../..\"",
-					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
-					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (
@@ -4891,8 +4665,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = ../Swift/Tests/BridgingHeader.h;
-				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
