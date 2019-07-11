@@ -51,19 +51,19 @@
 }
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
-  dispatch_async(_queue, ^{
+  dispatch_sync(_queue, ^{
     self->_objects[key] = object;
   });
 }
 
 - (void)removeObjectForKey:(id)key {
-  dispatch_async(_queue, ^{
+  dispatch_sync(_queue, ^{
     [self->_objects removeObjectForKey:key];
   });
 }
 
 - (void)removeAllObjects {
-  dispatch_async(_queue, ^{
+  dispatch_sync(_queue, ^{
     [self->_objects removeAllObjects];
   });
 }

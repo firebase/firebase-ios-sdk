@@ -41,7 +41,7 @@ NSString *kInvalidTokenErrorMessage =
 
 @implementation CustomAuthTests
 
-- (void)testSignInWithValidCustomAuthToken {
+- (void)DISABLE_testSignInWithValidCustomAuthToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -78,7 +78,7 @@ NSString *kInvalidTokenErrorMessage =
   XCTAssertEqualObjects(auth.currentUser.uid, kCustomAuthTestingAccountUserID);
 }
 
-- (void)testSignInWithValidCustomAuthExpiredToken {
+- (void)DISABLE_testSignInWithValidCustomAuthExpiredToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -116,7 +116,7 @@ NSString *kInvalidTokenErrorMessage =
   XCTAssertEqual(apiError.code, FIRAuthErrorCodeInvalidCustomToken);
 }
 
-- (void)testSignInWithInvalidCustomAuthToken {
+- (void)DISABLE_testSignInWithInvalidCustomAuthToken {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -139,7 +139,7 @@ NSString *kInvalidTokenErrorMessage =
                                }];
 }
 
-- (void)testInMemoryUserAfterSignOut {
+- (void)DISABLE_testInMemoryUserAfterSignOut {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");

@@ -20,6 +20,8 @@
 #
 # Run this script after adding/removing tests to keep the project in sync.
 
+require 'cocoapods'
+require 'optparse'
 require 'pathname'
 
 # Note that xcodeproj 1.5.8 appears to be broken
@@ -28,19 +30,40 @@ gem 'xcodeproj', '!= 1.5.8'
 require 'xcodeproj'
 
 
-ROOT_DIR = Pathname.new(File.join(File.dirname(__FILE__), '..')).expand_path()
+ROOT_DIR = Pathname.new(__FILE__).dirname().join('..').expand_path()
+PODFILE_DIR = ROOT_DIR.join('Firestore', 'Example')
 
 
 def main()
+  test_only = false
+  OptionParser.new do |opts|
+    opts.on('--test-only', 'Check diffs without writing') do |v|
+      test_only = v
+    end
+  end.parse!
+
   # Make all filenames relative to the project root.
   Dir.chdir(ROOT_DIR.to_s)
 
-  sync_firestore()
+  changes = sync_firestore(test_only)
+  status = test_only && changes > 0 ? 2 : 0
+  exit(status)
 end
 
 
-def sync_firestore()
+# Make it so that you can "add" hash literals together by merging their
+# contents.
+class Hash
+  def +(other)
+    return merge(other)
+  end
+end
+
+
+def sync_firestore(test_only)
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
+  spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
+  swift_spec = Pod::Spec.from_file('FirebaseFirestoreSwift.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself
@@ -65,7 +88,74 @@ def sync_firestore()
     'SwiftTests',
   ]
 
+  # Copy key settings from the podspec
+  podspec_settings = [
+    'CLANG_CXX_LANGUAGE_STANDARD',
+    'GCC_C_LANGUAGE_STANDARD',
+  ]
+  xcconfig_spec = spec.attributes_hash['pod_target_xcconfig'].dup
+  xcconfig_spec.select! { |k, v| podspec_settings.include?(k) }
+
+  # Settings for all Objective-C/C++ targets
+  xcconfig_objc = xcconfig_spec + {
+    'INFOPLIST_FILE' => '"${SRCROOT}/Tests/Tests-Info.plist"',
+
+    # Duplicate the header search paths from the main podspec because they're
+    # phrased in terms of PODS_TARGET_SRCROOT, which isn't defined for other
+    # targets.
+    'HEADER_SEARCH_PATHS' => [
+      # Include fully qualified from the root of the repo
+      '"${PODS_ROOT}/../../.."',
+
+      # Make public headers available as "FIRQuery.h"
+      '"${PODS_ROOT}/../../../Firestore/Source/Public"',
+
+      # Generated protobuf and nanopb output expects to search relative to the
+      # output path.
+      '"${PODS_ROOT}/../../../Firestore/Protos/cpp"',
+      '"${PODS_ROOT}/../../../Firestore/Protos/nanopb"',
+
+      # Other dependencies that assume #includes are relative to their roots.
+      '"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp"',
+      '"${PODS_ROOT}/GoogleTest/googlemock/include"',
+      '"${PODS_ROOT}/GoogleTest/googletest/include"',
+      '"${PODS_ROOT}/leveldb-library/include"',
+    ],
+
+    'SYSTEM_HEADER_SEARCH_PATHS' => [
+      # Nanopb wants to #include <pb.h>
+      '"${PODS_ROOT}/nanopb"',
+
+      # Protobuf wants to #include <google/protobuf/stubs/common.h>
+      '"${PODS_ROOT}/ProtobufCpp/src"',
+    ]
+  }
+
+  xcconfig_swift = {
+    'SWIFT_OBJC_BRIDGING_HEADER' =>
+        '${PODS_ROOT}/../../../Firestore/Swift/Tests/BridgingHeader.h',
+    'SWIFT_VERSION' => pick_swift_version(swift_spec),
+  }
+
   ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_Example_#{platform}" do |t|
+      t.xcconfig = xcconfig_objc + {
+        # Passing -all_load is required to get all our C++ code into the test
+        # host.
+        #
+        # Normally when running tests, the test target contains only the tests
+        # proper, and links against the test host for the code under test. The
+        # test host doesn't do anything though, so the linker strips C++-only
+        # object code away.
+        #
+        # This is particular to C++ because by default CocoaPods configures the
+        # test host to link with the -ObjC flag. This causes the linker to pull
+        # in all Objective-C object code. -all_load fixes this by forcing the
+        # linker to pull in everything.
+        'OTHER_LDFLAGS' => '-all_load',
+      }
+    end
+
     s.target "Firestore_Tests_#{platform}" do |t|
       t.source_files = [
         'Firestore/Example/Tests/**',
@@ -80,6 +170,7 @@ def sync_firestore()
         # These files are integration tests, handled below
         'Firestore/Example/Tests/Integration/**',
       ]
+      t.xcconfig = xcconfig_objc
     end
   end
 
@@ -94,14 +185,32 @@ def sync_firestore()
         'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
         'Firestore/core/test/firebase/firestore/testutil/**',
       ]
+      t.xcconfig = xcconfig_objc + xcconfig_swift
+    end
+
+    s.target 'Firestore_SwiftTests_iOS' do |t|
+      t.xcconfig = xcconfig_objc + xcconfig_swift
     end
   end
 
-  s.sync()
-  sort_project(project)
-  if project.dirty?
-    project.save()
+  changes = s.sync(test_only)
+  if not test_only
+    sort_project(project)
+    if project.dirty?
+      project.save()
+    end
   end
+  return changes
+end
+
+
+# Picks a swift version to use from a podspec's swift_versions
+def pick_swift_version(spec)
+  versions = spec.attributes_hash['swift_versions']
+  if versions.is_a?(Array)
+    return versions[-1]
+  end
+  return versions
 end
 
 
@@ -131,13 +240,18 @@ end
 class TargetDef
   def initialize(name)
     @name = name
+    @sync_sources = false
     @source_files = PatternList.new()
     @exclude_files = PatternList.new()
+
+    @xcconfig = {}
   end
 
-  attr_reader :name, :source_files, :exclude_files
+  attr_reader :name, :sync_sources, :source_files, :exclude_files
+  attr_accessor :xcconfig
 
   def source_files=(value)
+    @sync_sources = true
     @source_files.patterns.replace(value)
   end
 
@@ -247,10 +361,13 @@ class Syncer
   #  3. The file must be added to a target phase describing how it's built.
   #
   # The Xcodeproj library handles (1) for us automatically if we do (2).
-  def sync()
+  #
+  # Returns the number of changes made during synchronization.
+  def sync(test_only = false)
     # Figure the diff between the filesystem and the group structure
     group_differ = GroupDiffer.new(@finder)
     group_diff = group_differ.diff(@groups)
+    changes = group_diff.changes
     to_remove = group_diff.to_remove
 
     # Add all files first, to ensure they exist for later steps
@@ -262,14 +379,21 @@ class Syncer
       target_def = find_target(target.name)
       next if target_def.nil?
 
-      target_diff = target_def.diff(project_files, target)
+      if target_def.sync_sources
+        target_diff = target_def.diff(project_files, target)
+        target_diff.sorted_entries.each do |entry|
+          changes += sync_target_entry(target, entry)
+        end
+      end
 
-      target_diff.sorted_entries.each do |entry|
-        sync_target_entry(target, entry)
+      if not test_only
+        # Don't sync xcconfig changes in test-only mode.
+        sync_xcconfig(target_def, target)
       end
     end
 
     remove_from_project(to_remove)
+    return changes
   end
 
   private
@@ -333,11 +457,13 @@ class Syncer
     end
   end
 
+  # Syncs a single build file for a given phase. Returns the number of changes
+  # made.
   def sync_target_entry(target, entry)
-    return if entry.unchanged?
+    return 0 if entry.unchanged?
 
     phase = find_phase(target, entry.path)
-    return if phase.nil?
+    return 0 if phase.nil?
 
     mark_change_in_group(target.display_name)
     if entry.to_add?
@@ -347,9 +473,12 @@ class Syncer
       printf("  %s - removed\n", basename(entry.ref))
       phase.remove_file_reference(entry.ref)
     end
+
+    return 1
   end
 
-  # Finds the phase to which the given pathname belongs based on its file extension.
+  # Finds the phase to which the given pathname belongs based on its file
+  # extension.
   #
   # Returns nil if the path does not belong in any phase.
   def find_phase(target, path)
@@ -366,6 +495,32 @@ class Syncer
       #return target.resources_build_phase
       return nil
     end
+  end
+
+  # Syncs build settings to the .xcconfig file for the build configuration,
+  # avoiding any changes to the Xcode project file.
+  def sync_xcconfig(target_def, target)
+    dirty = false
+    target.build_configurations.each do |config|
+      requested = flatten(target_def.xcconfig)
+
+      path = PODFILE_DIR.join(config.base_configuration_reference.path)
+      contents = Xcodeproj::Config.new(path)
+      contents.merge!(requested)
+      contents.save_as(path)
+    end
+  end
+
+  # Converts a hash of lists to a flat hash of strings.
+  def flatten(xcconfig)
+    result = {}
+    xcconfig.each do |key, value|
+      if value.is_a?(Array)
+        value = value.join(' ')
+      end
+      result[key] = value
+    end
+    return result
   end
 end
 
@@ -496,6 +651,10 @@ class Diff
   def sorted_entries()
     return @entries.values.sort { |a, b| a.path.basename <=> b.path.basename }
   end
+
+  def changes()
+    return @entries.values.count { |entry| entry.to_add? || entry.to_remove? }
+  end
 end
 
 
@@ -618,6 +777,8 @@ class DirectoryLister
   # ignoring files that match the global ignore_files patterns.
   def entries(path)
     result = []
+    return result if not path.exist?
+
     path.entries.each do |entry|
       next if ignore_basename?(entry)
 
