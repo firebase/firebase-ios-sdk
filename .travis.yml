@@ -432,4 +432,5 @@ jobs:
 branches:
   only:
     - master
+    - wilhuff/resources
     - wilhuff/swift-integration
