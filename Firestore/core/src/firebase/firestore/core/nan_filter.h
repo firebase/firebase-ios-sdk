@@ -31,6 +31,10 @@ class NanFilter : public Filter {
  public:
   explicit NanFilter(model::FieldPath field);
 
+  Type type() const override {
+    return Type::kNanFilter;
+  }
+
   const model::FieldPath& field() const override {
     return field_;
   }
@@ -38,6 +42,9 @@ class NanFilter : public Filter {
   bool Matches(const model::Document& doc) const override;
   /** A unique ID identifying the filter; used when serializing queries. */
   std::string CanonicalId() const override;
+
+ protected:
+  bool Equals(const Filter& other) const override;
 
  private:
   model::FieldPath field_;

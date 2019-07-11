@@ -37,6 +37,13 @@ std::string NullFilter::CanonicalId() const {
   return field().CanonicalString() + " IS NULL";
 }
 
+bool NullFilter::Equals(const Filter& other) const {
+  if (other.type() != Type::kNullFilter) return false;
+
+  const auto& other_filter = static_cast<const NullFilter&>(other);
+  return field() == other_filter.field();
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

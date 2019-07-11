@@ -109,6 +109,14 @@ std::string RelationFilter::CanonicalId() const {
                       value_rhs_.ToString());
 }
 
+bool RelationFilter::Equals(const Filter& other) const {
+  if (other.type() != Type::kRelationFilter) return false;
+
+  const auto& other_filter = static_cast<const RelationFilter&>(other);
+  return op_ == other_filter.op_ && field_ == other_filter.field_ &&
+         value_rhs_ == other_filter.value_rhs_;
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

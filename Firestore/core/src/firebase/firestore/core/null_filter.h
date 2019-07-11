@@ -31,6 +31,10 @@ class NullFilter : public Filter {
  public:
   explicit NullFilter(model::FieldPath field);
 
+  Type type() const override {
+    return Type::kNullFilter;
+  }
+
   const model::FieldPath& field() const override {
     return field_;
   }
@@ -39,6 +43,9 @@ class NullFilter : public Filter {
 
   /** A unique ID identifying the filter; used when serializing queries. */
   std::string CanonicalId() const override;
+
+ protected:
+  bool Equals(const Filter& other) const override;
 
  private:
   model::FieldPath field_;

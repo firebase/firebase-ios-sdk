@@ -45,11 +45,19 @@ class Filter {
     ArrayContains,
   };
 
+  // For lack of RTTI, all subclasses must identify themselves so that
+  // comparisons properly take type into account.
+  enum class Type {
+    kRelationFilter,
+    kNanFilter,
+    kNullFilter,
+  };
+
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    *
    * Note that if the relational operator is Equal and the value is NullValue or
-   * NaN, then this will return the appropriate NullFilter or NaNFilter class
+   * NaN, then this will return the appropriate NullFilter or NanFilter class
    * instead of a RelationFilter.
    */
   static std::shared_ptr<Filter> Create(model::FieldPath path,
@@ -57,6 +65,8 @@ class Filter {
                                         model::FieldValue value_rhs);
 
   virtual ~Filter() = default;
+
+  virtual Type type() const = 0;
 
   /** Returns the field the Filter operates over. */
   virtual const model::FieldPath& field() const = 0;
@@ -66,7 +76,18 @@ class Filter {
 
   /** A unique ID identifying the filter; used when serializing queries. */
   virtual std::string CanonicalId() const = 0;
+
+  friend bool operator==(const Filter& lhs, const Filter& rhs) {
+    return lhs.Equals(rhs);
+  }
+
+ protected:
+  virtual bool Equals(const Filter& other) const = 0;
 };
+
+inline bool operator!=(const Filter& lhs, const Filter& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace core
 }  // namespace firestore

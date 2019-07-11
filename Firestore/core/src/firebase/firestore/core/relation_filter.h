@@ -54,6 +54,13 @@ class RelationFilter : public Filter {
 
   std::string CanonicalId() const override;
 
+ protected:
+  Type type() const override {
+    return Type::kRelationFilter;
+  }
+
+  bool Equals(const Filter& other) const override;
+
  private:
   bool MatchesValue(const model::FieldValue& other) const;
   bool MatchesComparison(const model::FieldValue& other) const;

@@ -37,6 +37,13 @@ std::string NanFilter::CanonicalId() const {
   return field().CanonicalString() + " IS NaN";
 }
 
+bool NanFilter::Equals(const Filter& other) const {
+  if (other.type() != Type::kNanFilter) return false;
+
+  const auto& other_filter = static_cast<const NanFilter&>(other);
+  return field() == other_filter.field();
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
