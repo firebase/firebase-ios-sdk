@@ -233,14 +233,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installstion) {
         return [self registerInstallationIfNeeded:installstion];
       })
-      .then(^id(FIRInstallationsItem *registeredInstallstion) {
+      .then(^id(FIRInstallationsItem *registeredInstallation) {
         BOOL isTokenExpiredOrExpiresSoon =
-            [registeredInstallstion.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
+            [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self refreshAuthTokenForInstallation:registeredInstallstion];
+          return [self refreshAuthTokenForInstallation:registeredInstallation];
         } else {
-          return registeredInstallstion;
+          return registeredInstallation;
         }
       })
       .catch(^void(NSError *error){
