@@ -127,9 +127,10 @@ struct ZipBuilder {
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
-  /// - Returns: A URL to the folder that should be compressed and distributed.
+  /// - Returns: A URL to the folder that should be compressed and distributed, as well as the
+  ///     Firebase version as a String.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleReleaseDir() throws -> URL {
+  func buildAndAssembleReleaseDir() throws -> (output: URL, firebaseVersion: String) {
     let projectDir = FileManager.default.temporaryDirectory(withName: "project")
 
     // If it exists, remove it before we re-create it. This is simpler than removing all objects.
@@ -199,6 +200,14 @@ struct ZipBuilder {
 
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
+
+    // We need the Firebase pod's version to generate the Carthage release (if needed). Get it here.
+    let firebasePods = installedPods.filter { $0.name == "Firebase" }
+    guard firebasePods.count == 1 else {
+      fatalError("Could not get Firebase pod's version. Pods matching the Firebase name: " +
+        "\(firebasePods.count).")
+    }
+    let firebaseVersion = firebasePods[0].version
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
@@ -325,7 +334,7 @@ struct ZipBuilder {
     }
 
     print("Contents of the Zip file were assembled at: \(zipDir)")
-    return zipDir
+    return (zipDir, firebaseVersion)
   }
 
   // MARK: - Private

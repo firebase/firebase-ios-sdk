@@ -50,12 +50,13 @@ let builder = ZipBuilder(paths: paths,
 
 do {
   // Build the zip file and get the path.
-  let location = try builder.buildAndAssembleReleaseDir()
-  print("Location of directory to be packaged: \(location)")
+  let (location, firebaseVersion) = try builder.buildAndAssembleReleaseDir()
+  print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
   // Package carthage if it's enabled.
-  if args.carthage {
+  if let carthageJSONDir = args.carthageDir {
     do {
+      print("Creating Carthage release...")
       // Create a copy of the release directory since we'll be modifying it.
       let carthagePath =
         location.deletingLastPathComponent().appendingPathComponent("carthage_build")
@@ -69,10 +70,13 @@ do {
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
                                             templateDir: args.templateDir,
+                                            jsonDir: carthageJSONDir,
+                                            firebaseVersion: firebaseVersion,
                                             outputDir: output)
 
       // Remove the duplicated Carthage build directory.
       fileManager.removeDirectoryIfExists(at: carthagePath)
+      print("Done creating Carthage release! Files written to \(output)")
     } catch {
       fatalError("Could not copy output directory for Carthage build: \(error)")
     }

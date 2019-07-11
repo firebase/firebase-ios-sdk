@@ -40,7 +40,7 @@ struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
     case cacheEnabled
-    case carthage
+    case carthageDir
     case customSpecRepos
     case coreDiagnosticsDir
     case deleteCache
@@ -55,8 +55,9 @@ struct LaunchArgs {
       switch self {
       case .cacheEnabled:
         return "A flag to control using the cache for frameworks."
-      case .carthage:
-        return "Enables or disables the Carthage build. Disabled by default."
+      case .carthageDir:
+        return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
+          "the Carthage build."
       case .coreDiagnosticsDir:
         return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
       case .customSpecRepos:
@@ -85,8 +86,9 @@ struct LaunchArgs {
   /// verify expected version numbers.
   let allSDKsPath: URL?
 
-  /// Enables or disables the Carthage build. Disabled by default.
-  let carthage: Bool
+  /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
+  /// build.
+  let carthageDir: URL?
 
   /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
   let coreDiagnosticsDir: URL
@@ -204,8 +206,21 @@ struct LaunchArgs {
       customSpecRepos = nil
     }
 
+    // Parse the Carthage directory key.
+    if let carthagePath = defaults.string(forKey: Key.carthageDir.rawValue) {
+      let url = URL(fileURLWithPath: carthagePath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.outputDir) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(carthagePath)")
+      }
+
+      carthageDir = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      carthageDir = nil
+    }
+
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
-    carthage = defaults.bool(forKey: Key.carthage.rawValue)
 
     // Parse the cache keys. If no value is provided for each, it defaults to `false`.
     cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
