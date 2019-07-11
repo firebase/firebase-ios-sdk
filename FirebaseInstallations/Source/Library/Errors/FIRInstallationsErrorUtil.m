@@ -38,7 +38,7 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
 }
 
 + (NSError *)keyedArchiverErrorWithError:(NSError *)error {
-  NSString *failureReason = [NSString stringWithFormat:@"NSKeyedArchiver error"];
+  NSString *failureReason = [NSString stringWithFormat:@"NSKeyedArchiver error."];
   return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
                             failureReason:failureReason
                           underlyingError:error];
@@ -89,7 +89,7 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
 
 + (NSError *)networkErrorWithError:(NSError *)error {
   return [self installationsErrorWithCode:FIRInstallationsErrorCodeServerUnreachable
-                            failureReason:@"Networt connection error"
+                            failureReason:@"Network connection error."
                           underlyingError:error];
 }
 

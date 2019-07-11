@@ -23,6 +23,7 @@
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsVersion.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
@@ -83,7 +84,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects(body[@"authVersion"], @"FIS_v2");
     XCTAssertEqualObjects(body[@"appId"], installation.appID);
 
-    XCTAssertEqualObjects(body[@"sdkVersion"], @"0.1.0");
+    XCTAssertEqualObjects(body[@"sdkVersion"], [self SDKVersion]);
 
     return YES;
   }];
@@ -433,8 +434,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                            error:&error];
     XCTAssertNotNil(body, @"Error: %@, test: %@", error, self.name);
 
-    // TODO: Find out what the version should we pass and test.
-    XCTAssertEqualObjects(body, @{@"installation" : @{@"sdkVersion" : @"0.1.0"}}, @"%@", self.name);
+    XCTAssertEqualObjects(body,
+                          @{@"installation" : @{@"sdkVersion" : [self SDKVersion]}}, @"%@",
+                          self.name);
 
     return YES;
   }];
@@ -467,6 +469,12 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
     return YES;
   }];
+}
+
+#pragma mark - Helpers
+
+- (NSString *)SDKVersion {
+  return [NSString stringWithUTF8String:FIRInstallationsVersionStr];
 }
 
 @end
