@@ -49,13 +49,12 @@
 
 #if TARGET_OS_OSX
   SecKeychainRef privateKeychain;
-  NSString *keychainPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRSecureStorageTestsKeychain1"];
+  NSString *keychainPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRSecureStorageTestsKeychain3"];
   OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding],
-                                      1, "1", false, [self createAccess:@"FIRSecureStorageTestsKeychainAccess"], &privateKeychain);
+                                      0, "1", false, [self createAccess:@"FIRSecureStorageTestsKeychainAccess"], &privateKeychain);
   XCTAssertEqual(result, errSecSuccess);
   self.privateKeychain = privateKeychain;
-
-
+  self.storage.keychainRef = privateKeychain;
 #endif // TARGET_OSX
 }
 
@@ -80,7 +79,7 @@
                           class:[NSArray class]
                   existsInCache:YES];
 
-  // 2. Override existing object.
+//  // 2. Override existing object.
   [self assertSuccessWriteObject:@{@"key" : @"value"} forKey:@"test-key1"];
   [self assertSuccessReadObject:@{@"key" : @"value"}
                          forKey:@"test-key1"
@@ -154,7 +153,7 @@
   FBLPromise<NSNull *> *setPromise = [self.storage setObject:object forKey:key accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertNil(setPromise.error);
+  XCTAssertNil(setPromise.error, @"%@", self.name);
 
   OCMVerify(self.mockCache);
 
@@ -175,14 +174,14 @@
   FBLPromise<id<NSSecureCoding>> *getPromise =
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
-  XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertEqualObjects(getPromise.value, object);
-  XCTAssertNil(getPromise.error);
+  XCTAssert(FBLWaitForPromisesWithTimeout(1), @"%@", self.name);
+  XCTAssertEqualObjects(getPromise.value, object, @"%@", self.name);
+  XCTAssertNil(getPromise.error, @"%@", self.name);
 
   OCMVerifyAll(self.mockCache);
 
   // Check in-memory cache.
-  XCTAssertEqualObjects([self.cache objectForKey:key], object);
+  XCTAssertEqualObjects([self.cache objectForKey:key], object, @"%@", self.name);
 }
 
 - (void)assertNonExistingObjectForKey:(NSString *)key class:(Class)class {
@@ -192,8 +191,8 @@
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertNil(promise.error);
-  XCTAssertNil(promise.value);
+  XCTAssertNil(promise.error, @"%@", self.name);
+  XCTAssertNil(promise.value, @"%@", self.name);
 
   OCMVerifyAll(self.mockCache);
 }
@@ -209,8 +208,7 @@
 }
 
 #if TARGET_OS_OSX
-- (SecAccessRef)createAccess:(NSString *)accessLabel
-{
+- (SecAccessRef)createAccess:(NSString *)accessLabel {
   OSStatus result;
   SecAccessRef access = nil;
 
@@ -218,11 +216,13 @@
   result = SecTrustedApplicationCreateFromPath(NULL, &myself);
 
   if (result != errSecSuccess)
+    XCTFail(@"Failed to get current app");
     return nil;
 
   result = SecAccessCreate((__bridge CFStringRef)accessLabel,(__bridge CFArrayRef)@[(__bridge id)myself], &access);
 
   if (result != errSecSuccess)
+    XCTFail(@"Failed to get SecAccessRef");
     return nil;
 
   return access;

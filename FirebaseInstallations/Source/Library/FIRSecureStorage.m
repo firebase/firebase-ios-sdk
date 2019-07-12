@@ -50,6 +50,7 @@
         "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
     _inMemoryCache = cache;
+    _keychainRef = nil;
   }
   return self;
 }
@@ -178,6 +179,13 @@
     query[(__bridge NSString *)kSecAttrAccessGroup] = accessGroup;
   }
 
+#if TARGET_OS_OSX
+  if(self.keychainRef) {
+    query[(__bridge NSString *)kSecUseKeychain] = (__bridge id)(self.keychainRef);
+    query[(__bridge NSString *)kSecMatchSearchList] = @[(__bridge id)(self.keychainRef)];
+  }
+#endif // TARGET_OSX
+
   return query;
 }
 
@@ -236,12 +244,6 @@
   mutableQuery[(__bridge id)kSecReturnData] = @YES;
   mutableQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
 
-#if TARGET_OS_OSX
-  if(self.keychainRef) {
-    mutableQuery[(__bridge NSString *)kSecMatchSearchList] = @[(__bridge id)(self.keychainRef)];
-  }
-#endif // TARGET_OSX
-
   CFArrayRef result = NULL;
   OSStatus status =
       SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, (CFTypeRef *)&result);
@@ -278,12 +280,6 @@
   NSMutableDictionary *mutableQuery = [query mutableCopy];
   mutableQuery[(__bridge id)kSecAttrAccessible] =
       (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly;
-
-#if TARGET_OS_OSX
-  if(self.keychainRef) {
-    mutableQuery[(__bridge NSString *)kSecUseKeychain] = (__bridge id)(self.keychainRef);
-  }
-#endif // TARGET_OSX
 
   OSStatus status;
   if (!existingItem) {
