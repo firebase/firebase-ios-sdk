@@ -24,9 +24,12 @@
 #import <Foundation/Foundation.h>
 #endif
 
+#include <memory>
 #include <string>
 
 #include "absl/strings/string_view.h"
+
+CF_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -67,6 +70,13 @@ inline NSString* MakeNSString(const absl::string_view str) {
            encoding:NSUTF8StringEncoding];
 }
 
+// Translates a nullable pointer to string to the equivalent NSString by making
+// a copy.
+inline NSString* _Nullable MakeNSString(
+    const std::shared_ptr<const std::string>& str) {
+  return str ? MakeNSString(*str) : nil;
+}
+
 // Creates an absl::string_view wrapper for the contents of the given
 // NSString.
 inline absl::string_view MakeStringView(NSString* str) {
@@ -80,11 +90,21 @@ inline std::string MakeString(NSString* str) {
   return MakeString(cf_str);
 }
 
+// Creates a nullable shared_ptr pointing to a string for the contents of the
+// given NSString, or nullptr if it's nil.
+inline std::shared_ptr<const std::string> MakeStringPtr(
+    NSString* _Nullable str) {
+  if (!str) return nullptr;
+  return std::make_shared<const std::string>(MakeString(str));
+}
+
 #endif  // defined(__OBJC__)
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+CF_ASSUME_NONNULL_END
 
 #endif  // defined(__APPLE__)
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_APPLE_H_

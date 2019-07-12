@@ -143,7 +143,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
       query.path.empty(),
       "Currently we only support collection group queries at the root.");
 
-  std::string collection_id = MakeString(query.collectionGroup);
+  const std::string& collection_id = *query.collectionGroup;
   std::vector<ResourcePath> parents =
       index_manager_->GetCollectionParents(collection_id);
   DocumentMap results;

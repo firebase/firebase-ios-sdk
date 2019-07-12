@@ -39,6 +39,7 @@ using Ms = std::chrono::milliseconds;
 
 const auto kUpperBound = 253402300800L - 1;
 const auto kLowerBound = -62135596800L;
+constexpr int32_t kNanosPerSecond = 1000 * 1000 * 1000;
 
 // For near-bounds tests that use <chrono>, it's important to only run them if
 // system_clock::duration can represent values this large (e.g., on Linux, it's
@@ -91,7 +92,7 @@ TEST(Timestamp, Now) {
   int64_t seconds_diff = spec.tv_sec - now.seconds();
   int64_t nanos_diff = spec.tv_nsec - now.nanoseconds();
 
-  nanos_diff = std::abs(seconds_diff * 1E9 + nanos_diff);
+  nanos_diff = std::abs(seconds_diff * kNanosPerSecond + nanos_diff);
 
   // Assert that time produced by Timestamp and Abseil are within 10ms of each
   // other. In practice these are only a few microseconds apart, but the
