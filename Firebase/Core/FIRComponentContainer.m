@@ -95,7 +95,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
       // Store the creation block for later usage.
       self.components[protocolName] = component.creationBlock;
 
-      // Queue any protocols that should be eagarly instantiated. Don't instantiate them yet because
+      // Queue any protocols that should be eagerly instantiated. Don't instantiate them yet because
       // they could depend on other components that haven't been added to the components array yet.
       BOOL shouldInstantiateEager =
           (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);

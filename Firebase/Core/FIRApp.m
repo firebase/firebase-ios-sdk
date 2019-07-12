@@ -418,7 +418,7 @@ static NSMutableDictionary *sLibraryVersions;
                                                     userInfo:appInfoDict];
 
   // This is the new way of sending information to SDKs.
-  // TODO: Do we want this on a background thread, maybe?
+  // TODO: Remove this next breaking change.
   @synchronized(self) {
     for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
       [library configureWithApp:app];
