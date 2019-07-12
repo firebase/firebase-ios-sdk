@@ -20,5 +20,5 @@
 
 xcresult_dir_glob="build/xcresults/$PROJECT-$PLATFORM-$METHOD-[0-9]*"
 
-find $xcresult_dir_glob -type f \( -name "*.log" -o -name "*.crash" \) \
+find $xcresult_dir_glob -type f -name "*.crash" \
 -exec sh -c "echo Diagnostics file:{}; cat {}" \;

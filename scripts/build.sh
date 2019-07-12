@@ -75,6 +75,12 @@ function BuildXCResultDir() {
   xcresult_dir="build/xcresults/$PROJECT-$PLATFORM-$METHOD-$calls_to_xcodebuild"
 }
 
+function RemoveXCResultDir() {
+  if [[ -n "$xcresult_dir" ]]; then
+    rm -rf "$xcresult_dir"
+  fi
+}
+
 # Builds the xcb_flags variable for the given combination.
 function BuildXcodebuildArgs() {
   BuildXCResultDir
@@ -140,6 +146,7 @@ function RunXcodebuild() {
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
+    RemoveXCResultDir
 
     xcodebuild "$@" | xcpretty; result=$?
   fi
@@ -202,6 +209,7 @@ fi
 
 # Clean the Derived Data between builds to help reduce flakiness.
 rm -rf ~/Library/Developer/Xcode/DerivedData
+RemoveXCResultDir
 
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
