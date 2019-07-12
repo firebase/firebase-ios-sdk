@@ -118,6 +118,7 @@ def sync_firestore(test_only)
 
       # Other dependencies that assume #includes are relative to their roots.
       '"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp"',
+      '"${PODS_ROOT}/GoogleBenchmark/include"',
       '"${PODS_ROOT}/GoogleTest/googlemock/include"',
       '"${PODS_ROOT}/GoogleTest/googletest/include"',
       '"${PODS_ROOT}/leveldb-library/include"',
@@ -178,14 +179,15 @@ def sync_firestore(test_only)
   ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_IntegrationTests_#{platform}" do |t|
       t.source_files = [
-        'Firestore/Example/Tests/Integration/**',
-        'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
-        'Firestore/Example/Tests/Util/FSTHelpers.mm',
-        'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
-        'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
-        'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
-        'Firestore/Swift/Tests/Integration/**',
-        'Firestore/core/test/firebase/firestore/testutil/**',
+        'Firestore/Example/Tests/**',
+        'Firestore/Protos/cpp/**',
+        'Firestore/Swift/Tests/**',
+        'Firestore/core/test/**',
+        'Firestore/third_party/Immutable/Tests/**',
+      ]
+      t.exclude_files = [
+        # needs to be in project but not in target
+        'Firestore/Example/Tests/Tests-Info.plist',
       ]
       t.xcconfig = xcconfig_objc + xcconfig_swift
     end
