@@ -115,7 +115,6 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
     // cached yet. Ignore the instance coming back since we don't need it.
     __unused id unusedInstance = [self instanceForProtocol:protocol];
   }
-  
 }
 
 #pragma mark - Instance Creation
