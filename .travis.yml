@@ -432,3 +432,4 @@ jobs:
 branches:
   only:
     - master
+    - wilhuff/integration-all
