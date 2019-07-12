@@ -19,6 +19,8 @@ cc_library(
     database_info.h
     direction.cc
     direction.h
+    field_filter.cc
+    field_filter.h
     filter.cc
     filter.h
     listen_options.h
@@ -28,8 +30,6 @@ cc_library(
     null_filter.h
     query.cc
     query.h
-    relation_filter.cc
-    relation_filter.h
     target_id_generator.cc
     target_id_generator.h
     user_data.h

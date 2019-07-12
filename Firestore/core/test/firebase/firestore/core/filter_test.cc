@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/null_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 

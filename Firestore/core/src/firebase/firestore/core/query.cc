@@ -18,7 +18,7 @@
 
 #include <algorithm>
 
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"

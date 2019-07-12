@@ -20,9 +20,9 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/null_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 
 namespace firebase {
 namespace firestore {
