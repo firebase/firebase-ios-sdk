@@ -25,8 +25,7 @@ pod with other Firebase dependencies should build for c99 -
   * The pod's version should be passed in as a #define
 for FIRComponent registration. See examples of setting `GCC_PREPROCESSOR_DEFINITIONS`.
   * All imports (outside of Public headers) should be repo relative -
-    `'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/FirebaseFoo'` TBD whether it should be
-    the root of the repo or the `FirebaseFoo` directory.
+    `'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'`.
 
 * `s.test_spec` should be used for defining all unit and integration test suites.
 
