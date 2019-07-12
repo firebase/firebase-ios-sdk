@@ -69,9 +69,9 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::GeoPoint;
+using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::Query;
-using firebase::firestore::core::RelationFilter;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -888,8 +888,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
   for (const auto &filter : filters) {
-    if (filter->type() == Filter::Type::kRelationFilter) {
-      [protos addObject:[self encodedRelationFilter:static_cast<const RelationFilter &>(*filter)]];
+    if (filter->type() == Filter::Type::kFieldFilter) {
+      [protos addObject:[self encodedFieldFilter:static_cast<const FieldFilter &>(*filter)]];
     } else {
       [protos addObject:[self encodedUnaryFilter:*filter]];
     }
@@ -924,7 +924,7 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_FAIL("Nested composite filters are not supported");
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_FieldFilter:
-        result.push_back([self decodedRelationFilter:filter.fieldFilter]);
+        result.push_back([self decodedFieldFilter:filter.fieldFilter]);
         break;
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_UnaryFilter:
@@ -938,20 +938,20 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSStructuredQuery_Filter *)encodedRelationFilter:(const RelationFilter &)filter {
+- (GCFSStructuredQuery_Filter *)encodedFieldFilter:(const FieldFilter &)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
   fieldFilter.field = [self encodedFieldPath:filter.field()];
-  fieldFilter.op = [self encodedRelationFilterOperator:filter.op()];
+  fieldFilter.op = [self encodedFieldFilterOperator:filter.op()];
   fieldFilter.value = [self encodedFieldValue:filter.value()];
   return proto;
 }
 
-- (std::shared_ptr<RelationFilter>)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (std::shared_ptr<FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
-  Filter::Operator op = [self decodedRelationFilterOperator:proto.op];
+  Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
-  return std::make_shared<RelationFilter>(std::move(fieldPath), op, std::move(value));
+  return std::make_shared<FieldFilter>(std::move(fieldPath), op, std::move(value));
 }
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(const Filter &)filter {
@@ -987,7 +987,7 @@ NS_ASSUME_NONNULL_BEGIN
   return ref;
 }
 
-- (GCFSStructuredQuery_FieldFilter_Operator)encodedRelationFilterOperator:
+- (GCFSStructuredQuery_FieldFilter_Operator)encodedFieldFilterOperator:
     (Filter::Operator)filterOperator {
   switch (filterOperator) {
     case Filter::Operator::LessThan:
@@ -1007,7 +1007,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (Filter::Operator)decodedRelationFilterOperator:
+- (Filter::Operator)decodedFieldFilterOperator:
     (GCFSStructuredQuery_FieldFilter_Operator)filterOperator {
   switch (filterOperator) {
     case GCFSStructuredQuery_FieldFilter_Operator_LessThan:

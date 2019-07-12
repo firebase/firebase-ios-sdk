@@ -29,12 +29,12 @@ namespace firestore {
 namespace core {
 
 /**
- * RelationFilter is a document filter constraint on a query with a single
+ * FieldFilter is a document filter constraint on a query with a single
  * relation operator.
  */
-class RelationFilter : public Filter {
+class FieldFilter : public Filter {
  public:
-  RelationFilter() = default;
+  FieldFilter() = default;
 
   /**
    * Creates a new filter that compares fields and values. Only intended to be
@@ -46,9 +46,7 @@ class RelationFilter : public Filter {
    * @param value_rhs A constant value to compare @a field to. The RHS of the
    *     expression.
    */
-  RelationFilter(model::FieldPath field,
-                 Operator op,
-                 model::FieldValue value_rhs);
+  FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
 
   Type type() const override {
     return Type::kRelationFilter;

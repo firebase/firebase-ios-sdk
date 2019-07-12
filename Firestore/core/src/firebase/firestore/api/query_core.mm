@@ -37,10 +37,10 @@ using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::EventListener;
+using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
-using firebase::firestore::core::RelationFilter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -230,7 +230,7 @@ Query Query::Filter(FieldPath field_path,
       Filter::Create(field_path, op, field_value);
 
   if (filter->type() == Filter::Type::kRelationFilter) {
-    ValidateNewRelationFilter(static_cast<const RelationFilter&>(*filter));
+    ValidateNewFieldFilter(static_cast<const FieldFilter&>(*filter));
   }
 
   return Wrap([query_ queryByAddingFilter:filter]);
@@ -273,7 +273,7 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-void Query::ValidateNewRelationFilter(const RelationFilter& filter) const {
+void Query::ValidateNewFieldFilter(const FieldFilter& filter) const {
   if (filter.IsInequality()) {
     const FieldPath* existing_field = [query_ inequalityFilterField];
     if (existing_field && *existing_field != filter.field()) {

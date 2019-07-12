@@ -49,7 +49,7 @@ class Filter {
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
-    kRelationFilter,
+    kFieldFilter,
     kNanFilter,
     kNullFilter,
   };
@@ -59,7 +59,7 @@ class Filter {
    *
    * Note that if the relational operator is Equal and the value is NullValue or
    * NaN, then this will return the appropriate NullFilter or NanFilter class
-   * instead of a RelationFilter.
+   * instead of a FieldFilter.
    */
   static std::shared_ptr<Filter> Create(model::FieldPath path,
                                         Operator op,

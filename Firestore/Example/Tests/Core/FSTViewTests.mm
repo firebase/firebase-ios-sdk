@@ -39,8 +39,8 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
-using firebase::firestore::core::RelationFilter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
@@ -176,8 +176,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  auto filter = std::make_shared<RelationFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
-                                                 FieldValue::FromDouble(2));
+  auto filter = std::make_shared<FieldFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
+                                              FieldValue::FromDouble(2));
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -213,8 +213,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  auto filter = std::make_shared<RelationFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
-                                                 FieldValue::FromDouble(2));
+  auto filter = std::make_shared<FieldFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
+                                              FieldValue::FromDouble(2));
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];

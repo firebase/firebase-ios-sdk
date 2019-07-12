@@ -50,8 +50,8 @@ std::shared_ptr<Filter> Filter::Create(FieldPath path,
     return std::make_shared<NanFilter>(std::move(path));
 
   } else {
-    return std::make_shared<RelationFilter>(std::move(path), op,
-                                            std::move(value_rhs));
+    return std::make_shared<FieldFilter>(std::move(path), op,
+                                         std::move(value_rhs));
   }
 }
 

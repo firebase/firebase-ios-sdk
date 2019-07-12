@@ -34,21 +34,21 @@ using testutil::Value;
 using Operator = Filter::Operator;
 
 TEST(FilterTest, Equality) {
-  RelationFilter rf(Field("f"), Operator::Equal, Value(1));
-  EXPECT_EQ(rf, RelationFilter(Field("f"), Operator::Equal, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("g"), Operator::Equal, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("f"), Operator::GreaterThan, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("f"), Operator::Equal, Value(2)));
-  EXPECT_NE(rf, NanFilter(Field("f")));
-  EXPECT_NE(rf, NullFilter(Field("f")));
+  FieldFilter filter(Field("f"), Operator::Equal, Value(1));
+  EXPECT_EQ(filter, FieldFilter(Field("f"), Operator::Equal, Value(1)));
+  EXPECT_NE(filter, FieldFilter(Field("g"), Operator::Equal, Value(1)));
+  EXPECT_NE(filter, FieldFilter(Field("f"), Operator::GreaterThan, Value(1)));
+  EXPECT_NE(filter, FieldFilter(Field("f"), Operator::Equal, Value(2)));
+  EXPECT_NE(filter, NanFilter(Field("f")));
+  EXPECT_NE(filter, NullFilter(Field("f")));
 
-  NullFilter nullf(Field("g"));
-  EXPECT_EQ(nullf, NullFilter(Field("g")));
-  EXPECT_NE(nullf, NullFilter(Field("h")));
+  NullFilter null_filter(Field("g"));
+  EXPECT_EQ(null_filter, NullFilter(Field("g")));
+  EXPECT_NE(null_filter, NullFilter(Field("h")));
 
-  NanFilter nanf(Field("g"));
-  EXPECT_EQ(nanf, NanFilter(Field("g")));
-  EXPECT_NE(nanf, NanFilter(Field("h")));
+  NanFilter nan_filter(Field("g"));
+  EXPECT_EQ(nan_filter, NanFilter(Field("g")));
+  EXPECT_NE(nan_filter, NanFilter(Field("h")));
 }
 
 }  // namespace core

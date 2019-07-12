@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query;
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
-- (GCFSStructuredQuery_Filter *)encodedRelationFilter:(const core::RelationFilter &)filter;
+- (GCFSStructuredQuery_Filter *)encodedFieldFilter:(const core::FieldFilter &)filter;
 
 - (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;

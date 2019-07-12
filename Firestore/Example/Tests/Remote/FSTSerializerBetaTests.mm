@@ -64,7 +64,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
-using firebase::firestore::core::RelationFilter;
+using firebase::firestore::core::FieldFilter;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
@@ -528,9 +528,9 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
 }
 
-- (void)testEncodesRelationFilter {
-  auto input = std::static_pointer_cast<RelationFilter>(Filter("item.part.top", "==", "food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
+- (void)testEncodesFieldFilter {
+  auto input = std::static_pointer_cast<FieldFilter>(Filter("item.part.top", "==", "food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedFieldFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -541,9 +541,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesArrayContainsFilter {
-  auto input =
-      std::static_pointer_cast<RelationFilter>(Filter("item.tags", "array_contains", "food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
+  auto input = std::static_pointer_cast<FieldFilter>(Filter("item.tags", "array_contains", "food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedFieldFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;

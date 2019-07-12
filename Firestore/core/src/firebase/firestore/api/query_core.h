@@ -164,7 +164,7 @@ class Query {
   }
 
  private:
-  void ValidateNewRelationFilter(const core::RelationFilter& filter) const;
+  void ValidateNewFieldFilter(const core::FieldFilter& filter) const;
   void ValidateNewOrderByPath(const model::FieldPath& fieldPath) const;
   void ValidateOrderByField(const model::FieldPath& orderByField,
                             const model::FieldPath& inequalityField) const;
