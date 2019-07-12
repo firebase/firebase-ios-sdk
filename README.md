@@ -70,6 +70,12 @@ Instructions for installing binary frameworks via
 
 ## Development
 
+To develop Firebase software in this repository, ensure that you have at least
+the following software:
+
+  * Xcode 10.1 (or later)
+  * CocoaPods 1.7.2 (or later)
+
 Follow the subsequent instructions to develop, debug, unit test, run integration
 tests, and try out reference samples:
 
@@ -194,9 +200,9 @@ To install, add a subset of the following to the Podfile:
 pod 'FirebaseAuth'
 pod 'FirebaseCore'
 pod 'FirebaseDatabase'
-pod 'FirebaseFirestore'  # Only iOS and macOS
+pod 'FirebaseFirestore'
 pod 'FirebaseFunctions'
-pod 'FirebaseMessaging'  # Only iOS and tvOS
+pod 'FirebaseMessaging'
 pod 'FirebaseStorage'
 ```
 

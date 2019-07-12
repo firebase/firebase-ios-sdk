@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -544,8 +545,10 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 @interface FSTQuery () {
   // Cached value of the canonicalID property.
   NSString *_canonicalID;
-  /** The base path of the query. */
+  // The base path of the query.
   ResourcePath _path;
+  // The collection group of the query, if any.
+  std::shared_ptr<const std::string> _collectionGroup;
 }
 
 /** A list of fields given to sort by. This does not include the implicit key sort at the end. */
@@ -561,13 +564,13 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - Constructors
 
 + (instancetype)queryWithPath:(ResourcePath)path {
-  return [FSTQuery queryWithPath:std::move(path) collectionGroup:nil];
+  return [FSTQuery queryWithPath:std::move(path) collectionGroup:nullptr];
 }
 
 + (instancetype)queryWithPath:(ResourcePath)path
-              collectionGroup:(nullable NSString *)collectionGroup {
+              collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
   return [[FSTQuery alloc] initWithPath:std::move(path)
-                        collectionGroup:collectionGroup
+                        collectionGroup:std::move(collectionGroup)
                                filterBy:@[]
                                 orderBy:@[]
                                   limit:Query::kNoLimit
@@ -576,7 +579,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 }
 
 - (instancetype)initWithPath:(ResourcePath)path
-             collectionGroup:(nullable NSString *)collectionGroup
+             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
                     filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(int32_t)limit
@@ -584,7 +587,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
                        endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
     _path = std::move(path);
-    _collectionGroup = collectionGroup;
+    _collectionGroup = std::move(collectionGroup);
     _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
@@ -804,6 +807,10 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   return _path;
 }
 
+- (const std::shared_ptr<const std::string> &)collectionGroup {
+  return _collectionGroup;
+}
+
 #pragma mark - Private properties
 
 - (NSString *)canonicalID {
@@ -815,7 +822,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   [canonicalID appendFormat:@"%s", _path.CanonicalString().c_str()];
 
   if (self.collectionGroup) {
-    [canonicalID appendFormat:@"|cg:%@", self.collectionGroup];
+    [canonicalID appendFormat:@"|cg:%s", self.collectionGroup->c_str()];
   }
 
   // Add filters.
@@ -850,7 +857,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return self.path == other.path && objc::Equals(self.collectionGroup, other.collectionGroup) &&
+  return self.path == other.path && util::Equals(self.collectionGroup, other.collectionGroup) &&
          self.limit == other.limit && objc::Equals(self.filters, other.filters) &&
          objc::Equals(self.sortOrders, other.sortOrders) &&
          objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
@@ -862,7 +869,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   if (self.collectionGroup) {
     // NOTE: self.path is currently always empty since we don't expose Collection Group queries
     // rooted at a document path yet.
-    return document.key.HasCollectionId(util::MakeString(self.collectionGroup)) &&
+    return document.key.HasCollectionId(*self.collectionGroup) &&
            self.path.IsPrefixOf(documentPath);
   } else if (DocumentKey::IsDocumentKey(_path)) {
     // Exact match for document queries.
