@@ -19,6 +19,8 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import <Security/Security.h>
+
 #import "FIRSecureStorage.h"
 
 @interface FIRSecureStorage (Tests)
@@ -30,6 +32,11 @@
 @property(nonatomic, strong) FIRSecureStorage *storage;
 @property(nonatomic, strong) NSCache *cache;
 @property(nonatomic, strong) id mockCache;
+
+#if TARGET_OS_OSX
+@property(nonatomic) SecKeychainRef privateKeychain;
+#endif // TARGET_OSX
+
 @end
 
 @implementation FIRSecureStorageTests
@@ -39,12 +46,30 @@
   self.mockCache = OCMPartialMock(self.cache);
   self.storage = [[FIRSecureStorage alloc] initWithService:@"com.tests.FIRSecureStorageTests"
                                                      cache:self.mockCache];
+
+#if TARGET_OS_OSX
+  SecKeychainRef privateKeychain;
+  NSString *keychainPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRSecureStorageTestsKeychain1"];
+  OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding],
+                                      1, "1", false, [self createAccess:@"FIRSecureStorageTestsKeychainAccess"], &privateKeychain);
+  XCTAssertEqual(result, errSecSuccess);
+  self.privateKeychain = privateKeychain;
+
+
+#endif // TARGET_OSX
 }
 
 - (void)tearDown {
   self.storage = nil;
   self.mockCache = nil;
   self.cache = nil;
+
+#if TARGET_OS_OSX
+  if (self.privateKeychain) {
+    XCTAssertEqual(SecKeychainDelete(self.privateKeychain), errSecSuccess);
+    CFRelease(self.privateKeychain);
+  }
+#endif // TARGET_OSX
 }
 
 - (void)testSetGetObjectForKey {
@@ -84,7 +109,7 @@
 - (void)testGetExistingObjectClassMismatch {
   NSString *key = [NSUUID UUID].UUIDString;
 
-  // Wtite.
+  // Write.
   [self assertSuccessWriteObject:@[ @8 ] forKey:key];
 
   // Read.
@@ -182,5 +207,27 @@
 
   OCMVerifyAll(self.mockCache);
 }
+
+#if TARGET_OS_OSX
+- (SecAccessRef)createAccess:(NSString *)accessLabel
+{
+  OSStatus result;
+  SecAccessRef access = nil;
+
+  SecTrustedApplicationRef myself;
+  result = SecTrustedApplicationCreateFromPath(NULL, &myself);
+
+  if (result != errSecSuccess)
+    return nil;
+
+  result = SecAccessCreate((__bridge CFStringRef)accessLabel,(__bridge CFArrayRef)@[(__bridge id)myself], &access);
+
+  if (result != errSecSuccess)
+    return nil;
+
+  return access;
+}
+
+#endif
 
 @end
