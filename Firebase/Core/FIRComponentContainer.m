@@ -74,6 +74,9 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 }
 
 - (void)populateComponentsFromRegisteredClasses:(NSSet<Class> *)classes forApp:(FIRApp *)app {
+  // Keep track of any components that need to eagerly instantiate after all components are added.
+  NSMutableArray<Protocol *> *protocolsToInstantiate = [[NSMutableArray alloc] init];
+
   // Loop through the verified component registrants and populate the components array.
   for (Class<FIRLibrary> klass in classes) {
     // Loop through all the components being registered and store them as appropriate.
@@ -92,17 +95,27 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
       // Store the creation block for later usage.
       self.components[protocolName] = component.creationBlock;
 
-      // Instantiate the
+      // Queue any protocols that should be eagarly instantiated. Don't instantiate them yet because
+      // they could depend on other components that haven't been added to the components array yet.
       BOOL shouldInstantiateEager =
           (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
       BOOL shouldInstantiateDefaultEager =
           (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
            [app isDefaultApp]);
       if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
-        [self instantiateInstanceForProtocol:component.protocol withBlock:component.creationBlock];
+        [protocolsToInstantiate addObject:component.protocol];
       }
     }
   }
+
+  // After all components are registered, instantiate the ones that are requesting eager
+  // instantiation.
+  for (Protocol *protocol in protocolsToInstantiate) {
+    // Get an instance for the protocol, which will instantiate it since it couldn't have been
+    // cached yet. Ignore the instance coming back since we don't need it.
+    __unused id unusedInstance = [self instanceForProtocol:protocol];
+  }
+  
 }
 
 #pragma mark - Instance Creation
