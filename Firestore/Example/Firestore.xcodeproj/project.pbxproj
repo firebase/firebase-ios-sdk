@@ -368,7 +368,6 @@
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
-		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		60985657831B8DDE2C65AC8B /* FIRFieldsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06A202154D500B64F25 /* FIRFieldsTests.mm */; };
 		60C72F86D2231B1B6592A5E6 /* filesystem_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F51859B394D01C0C507282F1 /* filesystem_test.cc */; };
 		6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
@@ -616,7 +615,6 @@
 		DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		DE03B2D61F2149D600A30B9C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
-		DE03B2DD1F2149D600A30B9C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		DE03B3631F215E1A00A30B9C /* CAcert.pem in Resources */ = {isa = PBXBuildFile; fileRef = DE03B3621F215E1600A30B9C /* CAcert.pem */; };
 		DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF07E1F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m */; };
 		DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0801F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m */; };
@@ -647,12 +645,14 @@
 		EBE4A7B6A57BCE02B389E8A6 /* byte_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */; };
 		EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
 		EC160876D8A42166440E0B53 /* FIRCursorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E070202154D600B64F25 /* FIRCursorTests.mm */; };
+		EC531B460BAEB0FCE40D7C7B /* CAcert.pem in Resources */ = {isa = PBXBuildFile; fileRef = DE03B3621F215E1600A30B9C /* CAcert.pem */; };
 		EC80A217F3D66EB0272B36B0 /* FSTLevelDBSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02C20213FFB00B64F25 /* FSTLevelDBSpecTests.mm */; };
 		ED420D8F49DA5C41EEF93913 /* FIRSnapshotMetadataTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */; };
 		ED4E2AC80CAF2A8FDDAC3DEE /* field_mask_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5320A36E1F00BCEB75 /* field_mask_test.cc */; };
 		EF3518F84255BAF3EBD317F6 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		F1661B1C5F3E30535FB65046 /* FSTArraySortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF07E1F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m */; };
 		F19B749671F2552E964422F7 /* FIRListenerRegistrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06B202154D500B64F25 /* FIRListenerRegistrationTests.mm */; };
+		F255C7CD0EB1970CB6740450 /* CAcert.pem in Resources */ = {isa = PBXBuildFile; fileRef = DE03B3621F215E1600A30B9C /* CAcert.pem */; };
 		F3261CBFC169DB375A0D9492 /* FSTMockDatastore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02D20213FFC00B64F25 /* FSTMockDatastore.mm */; };
 		F3F09BC931A717CEFF4E14B9 /* FIRFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */; };
 		F46394FAA186BC6D19213B59 /* FSTLevelDBLocalStoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */; };
@@ -1069,7 +1069,6 @@
 		DAFF0CFF21E64AC40062958F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DAFF0D0021E64AC40062958F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DAFF0D0221E64AC40062958F /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
-		DAFF0D0721E653460062958F /* roots.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = roots.pem; path = ../../../../etc/roots.pem; sourceTree = "<group>"; };
 		DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE03B3621F215E1600A30B9C /* CAcert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = CAcert.pem; sourceTree = "<group>"; };
 		DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicCompileTests.swift; sourceTree = "<group>"; };
@@ -1751,7 +1750,6 @@
 		DAFF0CF621E64AC30062958F /* macOS */ = {
 			isa = PBXGroup;
 			children = (
-				DAFF0D0621E652FD0062958F /* resources */,
 				DAFF0CF721E64AC30062958F /* AppDelegate.h */,
 				DAFF0CF821E64AC30062958F /* AppDelegate.m */,
 				DAFF0CFA21E64AC40062958F /* Assets.xcassets */,
@@ -1761,14 +1759,6 @@
 				DAFF0D0021E64AC40062958F /* main.m */,
 			);
 			path = macOS;
-			sourceTree = "<group>";
-		};
-		DAFF0D0621E652FD0062958F /* resources */ = {
-			isa = PBXGroup;
-			children = (
-				DAFF0D0721E653460062958F /* roots.pem */,
-			);
-			path = resources;
 			sourceTree = "<group>";
 		};
 		DE2EF06E1F3D07D7003D0CDC /* Immutable */ = {
@@ -2357,6 +2347,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC531B460BAEB0FCE40D7C7B /* CAcert.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2364,6 +2355,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F255C7CD0EB1970CB6740450 /* CAcert.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2397,7 +2389,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */,
 				54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */,
 				54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */,
 				54DA12A81F315EE100DD57A1 /* limbo_spec_test.json in Resources */,
@@ -2437,7 +2428,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE03B3631F215E1A00A30B9C /* CAcert.pem in Resources */,
-				DE03B2DD1F2149D600A30B9C /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
