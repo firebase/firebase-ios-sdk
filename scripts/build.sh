@@ -179,11 +179,13 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-# Clean the Derived Data between builds to help reduce flakiness.
-rm -rf ~/Library/Developer/Xcode/DerivedData
-
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
+    # Coverage collection often cause retries to fail because of partial
+    # pre-existing data.
+    # TODO(paulb777): Find a less blunt solution to this.
+    rm -rf ~/Library/Developer/Xcode/DerivedData
+
     RunXcodebuild \
         -workspace 'Example/Firebase.xcworkspace' \
         -scheme "AllUnitTests_$platform" \
