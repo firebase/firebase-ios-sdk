@@ -157,6 +157,12 @@ static NSString *const kFIRAuthErrorMessageKeychainError = @"An error occurred w
     "keychain. The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo dictionary "
     "will contain more information about the error encountered";
 
+/** @var kFIRAuthErrorMessageMissingClientIdentifier
+    @brief Message for @c FIRAuthErrorCodeMissingClientIdentifier error code.
+ */
+static NSString *const kFIRAuthErrorMessageMissingClientIdentifier = @"The request does not contain "
+    "any client identifier.";
+
 /** @var kFIRAuthErrorMessageUserTokenExpired
     @brief Message for @c FIRAuthErrorCodeTokenExpired error code.
  */
@@ -481,6 +487,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageNetworkError;
     case FIRAuthErrorCodeKeychainError:
       return kFIRAuthErrorMessageKeychainError;
+    case FIRAuthErrorCodeMissingClientIdentifier:
+      return kFIRAuthErrorMessageMissingClientIdentifier;
     case FIRAuthErrorCodeUserTokenExpired:
       return kFIRAuthErrorMessageUserTokenExpired;
     case FIRAuthErrorCodeUserNotFound:
@@ -614,6 +622,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_NETWORK_REQUEST_FAILED";
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
+    case FIRAuthErrorCodeMissingClientIdentifier:
+      return @"ERROR_MISSING_CLIENT_IDENTIFIER";
     case FIRAuthErrorCodeUserTokenExpired:
       return @"ERROR_USER_TOKEN_EXPIRED";
     case FIRAuthErrorCodeUserNotFound:
@@ -1084,6 +1094,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppNotVerified message:message];
+}
+
++ (NSError *)missingClientIdentifierErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingClientIdentifier message:message];
 }
 
 + (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message {
