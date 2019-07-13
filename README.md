@@ -76,19 +76,17 @@ the following software:
   * Xcode 10.1 (or later)
   * CocoaPods 1.7.2 (or later)
 
-Follow the subsequent instructions to develop, debug, unit test, run integration
-tests, and try out reference samples:
+For the pod that you want to develop:
 
-```
-$ git clone git@github.com:firebase/firebase-ios-sdk.git
-$ cd firebase-ios-sdk/Example
-$ pod update
-$ open Firebase.xcworkspace
-```
+`pod gen Firebase{name here}.podspec --local-sources=./ --auto-open`
 
 Firestore and Functions have self contained Xcode projects. See
 [Firestore/README.md](Firestore/README.md) and
 [Functions/README.md](Functions/README.md).
+
+### Adding a New Firebase Pod
+
+See [AddNewPod.md](AddNewPod.md).
 
 ### Code Formatting
 
