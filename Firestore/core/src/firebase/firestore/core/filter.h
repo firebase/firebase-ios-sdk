@@ -91,7 +91,7 @@ class Filter {
     return lhs.Equals(rhs);
   }
 
- protected:
+ private:
   virtual bool Equals(const Filter& other) const = 0;
 };
 

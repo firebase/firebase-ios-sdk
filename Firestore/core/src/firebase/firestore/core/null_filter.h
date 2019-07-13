@@ -41,7 +41,6 @@ class NullFilter : public Filter {
 
   bool Matches(const model::Document& doc) const override;
 
-  /** A unique ID identifying the filter; used when serializing queries. */
   std::string CanonicalId() const override;
 
   std::string ToString() const override;
