@@ -39,6 +39,8 @@ class Query {
  public:
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
+  Query() = default;
+
   static Query Invalid() {
     return Query(model::ResourcePath::Empty());
   }

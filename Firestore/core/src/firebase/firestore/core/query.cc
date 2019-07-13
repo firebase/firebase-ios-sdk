@@ -97,10 +97,6 @@ bool Query::MatchesBounds(const Document&) const {
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
-  // TODO(rsgowman): check limit (once it exists)
-  // TODO(rsgowman): check orderby (once it exists)
-  // TODO(rsgowman): check startat (once it exists)
-  // TODO(rsgowman): check endat (once it exists)
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
          lhs.filters() == rhs.filters();
