@@ -19,6 +19,9 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -28,6 +31,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using api::ThrowInvalidArgument;
 using model::FieldPath;
 using model::FieldValue;
 using util::ComparisonResult;
@@ -54,6 +58,27 @@ const char* Describe(Filter::Operator op) {
 }
 
 }  // namespace
+
+std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
+                                                 Operator op,
+                                                 FieldValue value_rhs) {
+  if (value_rhs.type() == FieldValue::Type::Null) {
+    if (op != Filter::Operator::Equal) {
+      ThrowInvalidArgument(
+          "Invalid Query. Null supports only equality comparisons.");
+    }
+    return std::make_shared<NullFilter>(std::move(path));
+  } else if (value_rhs.is_nan()) {
+    if (op != Filter::Operator::Equal) {
+      ThrowInvalidArgument(
+          "Invalid Query. NaN supports only equality comparisons.");
+    }
+    return std::make_shared<NanFilter>(std::move(path));
+  } else {
+    return std::make_shared<FieldFilter>(std::move(path), op,
+                                         std::move(value_rhs));
+  }
+}
 
 FieldFilter::FieldFilter(FieldPath field, Operator op, FieldValue value_rhs)
     : field_(std::move(field)), op_(op), value_rhs_(std::move(value_rhs)) {

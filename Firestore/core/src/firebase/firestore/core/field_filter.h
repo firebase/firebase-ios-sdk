@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIELD_FILTER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIELD_FILTER_H_
 
+#include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -34,6 +35,13 @@ namespace core {
  */
 class FieldFilter : public Filter {
  public:
+  /**
+   * Creates a Filter instance for the provided path, operator, and value.
+   */
+  static std::shared_ptr<FieldFilter> Create(model::FieldPath path,
+                                             Operator op,
+                                             model::FieldValue value_rhs);
+
   FieldFilter() = default;
 
   /**
@@ -49,7 +57,7 @@ class FieldFilter : public Filter {
   FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
 
   Type type() const override {
-    return Type::kRelationFilter;
+    return Type::kFieldFilter;
   }
 
   const model::FieldPath& field() const override;
@@ -71,10 +79,9 @@ class FieldFilter : public Filter {
 
   bool IsInequality() const override;
 
- protected:
+ private:
   bool Equals(const Filter& other) const override;
 
- private:
   bool MatchesValue(const model::FieldValue& lhs) const;
   bool MatchesComparison(util::ComparisonResult result) const;
 

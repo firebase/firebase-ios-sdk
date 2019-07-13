@@ -280,8 +280,8 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             model::FieldValue value) {
-  return core::Filter::Create(Field(key), OperatorFromString(op),
-                              std::move(value));
+  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
+                                   std::move(value));
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,

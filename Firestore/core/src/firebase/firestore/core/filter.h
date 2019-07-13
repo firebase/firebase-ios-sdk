@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FILTER_H_
 
 #include <iosfwd>
-#include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -53,17 +52,6 @@ class Filter {
     kNanFilter,
     kNullFilter,
   };
-
-  /**
-   * Creates a Filter instance for the provided path, operator, and value.
-   *
-   * Note that if the relational operator is Equal and the value is NullValue or
-   * NaN, then this will return the appropriate NullFilter or NanFilter class
-   * instead of a FieldFilter.
-   */
-  static std::shared_ptr<Filter> Create(model::FieldPath path,
-                                        Operator op,
-                                        model::FieldValue value_rhs);
 
   virtual ~Filter() = default;
 
