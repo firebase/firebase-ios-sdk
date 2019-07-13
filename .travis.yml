@@ -432,4 +432,3 @@ jobs:
 branches:
   only:
     - master
-    - wilhuff/incremental

@@ -790,6 +790,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
   return _query == other->_query && self.limit == other.limit &&
+         objc::Equals(self.filters, other.filters) &&
          objc::Equals(self.sortOrders, other.sortOrders) &&
          objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
 }

@@ -38,16 +38,17 @@ std::shared_ptr<Filter> Filter::Create(FieldPath path,
   if (value_rhs.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
-          "Invalid Query. You can only perform equality comparisons on null "
-          "values.");
+          "Invalid Query. Null supports only equality comparisons.");
     }
     return std::make_shared<NullFilter>(std::move(path));
+
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
-          "Invalid Query. You can only perform equality comparisons on NaN.");
+          "Invalid Query. NaN supports only equality comparisons.");
     }
     return std::make_shared<NanFilter>(std::move(path));
+
   } else {
     return std::make_shared<RelationFilter>(std::move(path), op,
                                             std::move(value_rhs));

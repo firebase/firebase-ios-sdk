@@ -50,6 +50,10 @@ class RelationFilter : public Filter {
                  Operator op,
                  model::FieldValue value_rhs);
 
+  Type type() const override {
+    return Type::kRelationFilter;
+  }
+
   const model::FieldPath& field() const override;
 
   Operator op() const {
@@ -70,10 +74,6 @@ class RelationFilter : public Filter {
   bool IsInequality() const override;
 
  protected:
-  Type type() const override {
-    return Type::kRelationFilter;
-  }
-
   bool Equals(const Filter& other) const override;
 
  private:
