@@ -28,32 +28,29 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-namespace util = firebase::firestore::util;
-using firebase::firestore::api::Firestore;
-using firebase::firestore::api::ListenerRegistration;
-using firebase::firestore::api::SnapshotMetadata;
-using firebase::firestore::api::Source;
-using firebase::firestore::api::ThrowInvalidArgument;
-using firebase::firestore::core::AsyncEventListener;
-using firebase::firestore::core::Direction;
-using firebase::firestore::core::EventListener;
-using firebase::firestore::core::FieldFilter;
-using firebase::firestore::core::Filter;
-using firebase::firestore::core::ListenOptions;
-using firebase::firestore::core::QueryListener;
-using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::ResourcePath;
-using firebase::firestore::util::Status;
-using firebase::firestore::util::StatusOr;
-
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace api {
+
+namespace util = firebase::firestore::util;
+using core::AsyncEventListener;
+using core::Direction;
+using core::EventListener;
+using core::FieldFilter;
+using core::Filter;
+using core::ListenOptions;
+using core::QueryListener;
+using core::ViewSnapshot;
+using model::DocumentKey;
+using model::FieldPath;
+using model::FieldValue;
+using model::ResourcePath;
+using util::Status;
+using util::StatusOr;
+
+using Operator = Filter::Operator;
 
 Query::Query(FSTQuery* query, std::shared_ptr<Firestore> firestore)
     : firestore_{std::move(firestore)}, query_{query} {
@@ -228,10 +225,7 @@ Query Query::Filter(FieldPath field_path,
 
   std::shared_ptr<FieldFilter> filter =
       FieldFilter::Create(field_path, op, field_value);
-
-  if (filter->type() == Filter::Type::kRelationFilter) {
-    ValidateNewFieldFilter(static_cast<const FieldFilter&>(*filter));
-  }
+  ValidateNewFilter(*filter);
 
   return Wrap([query_ queryByAddingFilter:filter]);
 }
@@ -273,27 +267,32 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-void Query::ValidateNewFieldFilter(const FieldFilter& filter) const {
-  if (filter.IsInequality()) {
-    const FieldPath* existing_field = [query_ inequalityFilterField];
-    if (existing_field && *existing_field != filter.field()) {
-      ThrowInvalidArgument(
-          "Invalid Query. All where filters with an inequality (lessThan, "
-          "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
-          "same field. But you have inequality filters on '%s' and '%s'",
-          existing_field->CanonicalString(), filter.field().CanonicalString());
-    }
+void Query::ValidateNewFilter(const Filter& filter) const {
+  if (filter->type() == Filter::Type::kRelationFilter) {
+    const auto& field_filter = static_cast<const FieldFilter&>(*filter);
+    Operator filter_op = field_filter.op();
+    if (field_filter.IsInequality()) {
+      const FieldPath* existing_inequality = [query_ inequalityFilterField];
+      const FieldPath* new_inequality = &filter.field();
 
-    const FieldPath* first_order_by_field = [query_ firstSortOrderField];
-    if (first_order_by_field) {
-      ValidateOrderByField(*first_order_by_field, filter.field());
+      if (existing_inequality && *existing_inequality != *new_inequality) {
+        ThrowInvalidArgument(
+            "Invalid Query. All where filters with an inequality (lessThan, "
+            "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
+            "same field. But you have inequality filters on '%s' and '%s'",
+            existing_inequality->CanonicalString(), new_inequality->CanonicalString());
+      }
+
+      const FieldPath* first_order_by_field = [query_ firstSortOrderField];
+      if (first_order_by_field) {
+        ValidateOrderByField(*first_order_by_field, filter.field());
+      }
+    } else if (filter_op == Operator::ArrayContains) {
+      if ([query_ hasArrayContainsFilter]) {
+        ThrowInvalidArgument(
+            "Invalid Query. Queries only support a single arrayContains filter.");
+      }
     }
-  } else if (filter.op() == Filter::Operator::ArrayContains) {
-    if ([query_ hasArrayContainsFilter]) {
-      ThrowInvalidArgument(
-          "Invalid Query. Queries only support a single arrayContains filter.");
-    }
-  }
 }
 
 void Query::ValidateNewOrderByPath(const FieldPath& fieldPath) const {
