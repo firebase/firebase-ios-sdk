@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_core
   SOURCES
+    array_contains_filter.cc
+    array_contains_filter.h
     database_info.cc
     database_info.h
     direction.cc
