@@ -154,6 +154,10 @@ class BasePath {
     return util::Compare(segments_, rhs.segments_);
   }
 
+  size_t Hash() const {
+    return util::Hash(segments_);
+  }
+
  protected:
   BasePath() = default;
   template <typename IterT>
