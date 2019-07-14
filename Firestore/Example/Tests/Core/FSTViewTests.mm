@@ -50,6 +50,7 @@ using firebase::firestore::model::FieldValue;
 
 using testing::ElementsAre;
 using testutil::Field;
+using testutil::Filter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -176,9 +177,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  auto filter = std::make_shared<FieldFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
-                                              FieldValue::FromDouble(2));
-  query = [query queryByAddingFilter:filter];
+  query = [query queryByAddingFilter:Filter("sort", "<=", 2)];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTDocument *doc1 =
@@ -213,9 +212,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  auto filter = std::make_shared<FieldFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
-                                              FieldValue::FromDouble(2));
-  query = [query queryByAddingFilter:filter];
+  query = [query queryByAddingFilter:Filter("sort", "<=", 2)];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTDocument *doc1 =

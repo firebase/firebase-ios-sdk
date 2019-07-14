@@ -44,18 +44,6 @@ class FieldFilter : public Filter {
 
   FieldFilter() = default;
 
-  /**
-   * Creates a new filter that compares fields and values. Only intended to be
-   * called from Filter::Create().
-   *
-   * @param field A path to a field in the document to filter on. The LHS of the
-   *     expression.
-   * @param op The binary operator to apply.
-   * @param value_rhs A constant value to compare @a field to. The RHS of the
-   *     expression.
-   */
-  FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
-
   Type type() const override {
     return Type::kFieldFilter;
   }
@@ -79,11 +67,25 @@ class FieldFilter : public Filter {
 
   bool IsInequality() const override;
 
+ protected:
+  /**
+   * Creates a new filter that compares fields and values. Only intended to be
+   * called from Filter::Create().
+   *
+   * @param field A path to a field in the document to filter on. The LHS of the
+   *     expression.
+   * @param op The binary operator to apply.
+   * @param value_rhs A constant value to compare @a field to. The RHS of the
+   *     expression.
+   */
+  FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
+
+  bool MatchesComparison(util::ComparisonResult result) const;
+
  private:
   bool Equals(const Filter& other) const override;
 
   bool MatchesValue(const model::FieldValue& lhs) const;
-  bool MatchesComparison(util::ComparisonResult result) const;
 
   /** The left hand side of the relation. A path into a document field. */
   model::FieldPath field_;

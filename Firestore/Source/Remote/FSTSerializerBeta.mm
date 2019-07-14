@@ -951,7 +951,7 @@ NS_ASSUME_NONNULL_BEGIN
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
-  return std::make_shared<FieldFilter>(std::move(fieldPath), op, std::move(value));
+  return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(const Filter &)filter {

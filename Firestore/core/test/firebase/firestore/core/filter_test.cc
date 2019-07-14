@@ -34,21 +34,21 @@ using testutil::Value;
 using Operator = Filter::Operator;
 
 TEST(FilterTest, Equality) {
-  FieldFilter filter(Field("f"), Operator::Equal, Value(1));
-  EXPECT_EQ(filter, FieldFilter(Field("f"), Operator::Equal, Value(1)));
-  EXPECT_NE(filter, FieldFilter(Field("g"), Operator::Equal, Value(1)));
-  EXPECT_NE(filter, FieldFilter(Field("f"), Operator::GreaterThan, Value(1)));
-  EXPECT_NE(filter, FieldFilter(Field("f"), Operator::Equal, Value(2)));
-  EXPECT_NE(filter, NanFilter(Field("f")));
-  EXPECT_NE(filter, NullFilter(Field("f")));
+  auto filter = Filter("f", "==", 1);
+  EXPECT_EQ(*filter, *Filter("f", "==", 1));
+  EXPECT_NE(*filter, *Filter("g", "==", 1));
+  EXPECT_NE(*filter, *Filter("f", ">", 1));
+  EXPECT_NE(*filter, *Filter("f", "==", 2));
+  EXPECT_NE(*filter, *Filter("f", "==", NAN));
+  EXPECT_NE(*filter, *Filter("f", "==", nullptr));
 
-  NullFilter null_filter(Field("g"));
-  EXPECT_EQ(null_filter, NullFilter(Field("g")));
-  EXPECT_NE(null_filter, NullFilter(Field("h")));
+  auto null_filter = Filter("g", "==", nullptr);
+  EXPECT_EQ(*null_filter, *Filter("g", "==", nullptr));
+  EXPECT_NE(*null_filter, *Filter("h", "==", nullptr));
 
-  NanFilter nan_filter(Field("g"));
-  EXPECT_EQ(nan_filter, NanFilter(Field("g")));
-  EXPECT_NE(nan_filter, NanFilter(Field("h")));
+  auto nan_filter = Filter("g", "==", NAN);
+  EXPECT_EQ(*nan_filter, *Filter("g", "==", NAN));
+  EXPECT_NE(*nan_filter, *Filter("h", "==", NAN));
 }
 
 }  // namespace core
