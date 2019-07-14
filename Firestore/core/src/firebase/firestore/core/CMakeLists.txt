@@ -25,6 +25,8 @@ cc_library(
     field_filter.h
     filter.cc
     filter.h
+    key_field_filter.cc
+    key_field_filter.h
     listen_options.h
     nan_filter.cc
     nan_filter.h
