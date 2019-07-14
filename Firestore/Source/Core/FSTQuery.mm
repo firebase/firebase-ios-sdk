@@ -459,12 +459,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable const FieldPath *)inequalityFilterField {
-  for (const auto &filter : self.filters) {
-    if (filter->IsInequality()) {
-      return &filter->field();
-    }
-  }
-  return nullptr;
+  return _query.InequalityFilterField();
 }
 
 - (BOOL)hasArrayContainsFilter {

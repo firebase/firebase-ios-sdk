@@ -28,6 +28,7 @@
 namespace firebase {
 namespace firestore {
 namespace core {
+namespace {
 
 using Operator = Filter::Operator;
 using Type = Filter::Type;
@@ -36,8 +37,6 @@ using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
 using model::ResourcePath;
-
-namespace {
 
 template <typename T>
 util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
@@ -74,9 +73,8 @@ const FieldPath* Query::InequalityFilterField() const {
 bool Query::HasArrayContainsFilter() const {
   for (const auto& filter : filters_) {
     if (filter->type() == Type::kRelationFilter) {
-      const auto& relationFilter =
-          std::static_pointer_cast<RelationFilter>(filter);
-      if (relationFilter->op() == Operator::ArrayContains) {
+      const auto& relation_filter = static_cast<const RelationFilter&>(*filter);
+      if (relation_filter.op() == Operator::ArrayContains) {
         return true;
       }
     }
@@ -116,7 +114,7 @@ bool Query::Matches(const Document& doc) const {
 }
 
 bool Query::MatchesPath(const Document& doc) const {
-  ResourcePath doc_path = doc.key().path();
+  const ResourcePath& doc_path = doc.key().path();
   if (DocumentKey::IsDocumentKey(path_)) {
     return path_ == doc_path;
   } else {

@@ -530,7 +530,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesRelationFilter {
   auto input = std::static_pointer_cast<RelationFilter>(Filter("item.part.top", "==", "food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -543,7 +543,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesArrayContainsFilter {
   auto input =
       std::static_pointer_cast<RelationFilter>(Filter("item.tags", "array_contains", "food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;

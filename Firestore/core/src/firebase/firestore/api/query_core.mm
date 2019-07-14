@@ -230,8 +230,7 @@ Query Query::Filter(FieldPath field_path,
       Filter::Create(field_path, op, field_value);
 
   if (filter->type() == Filter::Type::kRelationFilter) {
-    ValidateNewRelationFilter(
-        *static_cast<const RelationFilter*>(filter.get()));
+    ValidateNewRelationFilter(static_cast<const RelationFilter&>(*filter));
   }
 
   return Wrap([query_ queryByAddingFilter:filter]);
@@ -276,18 +275,18 @@ Query Query::EndAt(FSTBound* bound) const {
 
 void Query::ValidateNewRelationFilter(const RelationFilter& filter) const {
   if (filter.IsInequality()) {
-    const FieldPath* existingField = [query_ inequalityFilterField];
-    if (existingField && *existingField != filter.field()) {
+    const FieldPath* existing_field = [query_ inequalityFilterField];
+    if (existing_field && *existing_field != filter.field()) {
       ThrowInvalidArgument(
           "Invalid Query. All where filters with an inequality (lessThan, "
           "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
           "same field. But you have inequality filters on '%s' and '%s'",
-          existingField->CanonicalString(), filter.field().CanonicalString());
+          existing_field->CanonicalString(), filter.field().CanonicalString());
     }
 
-    const FieldPath* firstOrderByField = [query_ firstSortOrderField];
-    if (firstOrderByField) {
-      ValidateOrderByField(*firstOrderByField, filter.field());
+    const FieldPath* first_order_by_field = [query_ firstSortOrderField];
+    if (first_order_by_field) {
+      ValidateOrderByField(*first_order_by_field, filter.field());
     }
   } else if (filter.op() == Filter::Operator::ArrayContains) {
     if ([query_ hasArrayContainsFilter]) {

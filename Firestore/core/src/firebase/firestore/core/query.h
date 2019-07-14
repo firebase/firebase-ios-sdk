@@ -87,9 +87,6 @@ class Query {
     return filters_;
   }
 
-  /** Returns the first field in an OrderBy constraint, or nullptr if none. */
-  const model::FieldPath* FirstOrderByField() const;
-
   /**
    * Returns the field of the first filter on this Query that's an inequality,
    * or nullptr if there are no inequalities.
