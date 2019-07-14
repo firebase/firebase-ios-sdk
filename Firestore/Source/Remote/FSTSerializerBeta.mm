@@ -43,8 +43,6 @@
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -97,6 +95,8 @@ using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+
+using Operator = Filter::Operator;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -888,10 +888,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
   for (const auto &filter : filters) {
-    if (filter->type() == Filter::Type::kFieldFilter) {
-      [protos addObject:[self encodedFieldFilter:static_cast<const FieldFilter &>(*filter)]];
-    } else {
-      [protos addObject:[self encodedUnaryFilter:*filter]];
+    if (filter->IsFieldFilter()) {
+      [protos addObject:[self encodedUnaryOrFieldFilter:static_cast<const FieldFilter &>(*filter)]];
     }
   }
   if (protos.count == 1) {
@@ -938,8 +936,23 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSStructuredQuery_Filter *)encodedFieldFilter:(const FieldFilter &)filter {
+- (GCFSStructuredQuery_Filter *)encodedUnaryOrFieldFilter:(const FieldFilter &)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
+
+  if (filter.op() == Operator::Equal) {
+    if (filter.value().is_null()) {
+      proto.unaryFilter.field = [self encodedFieldPath:filter.field()];
+      proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
+      return proto;
+    }
+
+    if (filter.value().is_nan()) {
+      proto.unaryFilter.field = [self encodedFieldPath:filter.field()];
+      proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
+      return proto;
+    }
+  }
+
   GCFSStructuredQuery_FieldFilter *fieldFilter = proto.fieldFilter;
   fieldFilter.field = [self encodedFieldPath:filter.field()];
   fieldFilter.op = [self encodedFieldFilterOperator:filter.op()];
@@ -954,27 +967,14 @@ NS_ASSUME_NONNULL_BEGIN
   return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
-- (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(const Filter &)filter {
-  GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
-  proto.unaryFilter.field = [self encodedFieldPath:filter.field()];
-  if (filter.type() == Filter::Type::kNanFilter) {
-    proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNan;
-  } else if (filter.type() == Filter::Type::kNullFilter) {
-    proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
-  } else {
-    HARD_FAIL("Unrecognized filter: %s", filter.ToString());
-  }
-  return proto;
-}
-
 - (std::shared_ptr<Filter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
-      return std::make_shared<core::NanFilter>(std::move(field));
+      return FieldFilter::Create(std::move(field), Operator::Equal, FieldValue::Nan());
 
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
-      return std::make_shared<core::NullFilter>(std::move(field));
+      return FieldFilter::Create(std::move(field), Operator::Equal, FieldValue::Null());
 
     default:
       HARD_FAIL("Unrecognized UnaryFilter.operator %s", proto.op);

@@ -36,6 +36,10 @@ class KeyFieldFilter : public FieldFilter {
                  core::Filter::Operator op,
                  model::FieldValue value);
 
+  Type type() const override {
+    return Type::kKeyFieldFilter;
+  }
+
   bool Matches(const model::Document& doc) const override;
 };
 

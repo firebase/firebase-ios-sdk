@@ -48,6 +48,10 @@ class FieldFilter : public Filter {
     return Type::kFieldFilter;
   }
 
+  bool IsFieldFilter() const override {
+    return true;
+  }
+
   const model::FieldPath& field() const override;
 
   Operator op() const {

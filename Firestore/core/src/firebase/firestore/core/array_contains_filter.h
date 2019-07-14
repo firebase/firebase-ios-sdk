@@ -35,6 +35,10 @@ class ArrayContainsFilter : public FieldFilter {
 
   ArrayContainsFilter(model::FieldPath field, model::FieldValue value);
 
+  Type type() const override {
+    return Type::kArrayContainsFilter;
+  }
+
   bool Matches(const model::Document& doc) const override;
 };
 

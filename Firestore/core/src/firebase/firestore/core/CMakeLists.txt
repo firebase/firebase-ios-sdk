@@ -28,10 +28,6 @@ cc_library(
     key_field_filter.cc
     key_field_filter.h
     listen_options.h
-    nan_filter.cc
-    nan_filter.h
-    null_filter.cc
-    null_filter.h
     query.cc
     query.h
     target_id_generator.cc

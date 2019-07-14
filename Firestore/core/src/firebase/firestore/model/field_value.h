@@ -128,6 +128,10 @@ class FieldValue {
 
   const Map& object_value() const;
 
+  bool is_null() const {
+    return type() == Type::Null;
+  }
+
   bool is_nan() const {
     if (type() != Type::Double) return false;
     return std::isnan(double_value());

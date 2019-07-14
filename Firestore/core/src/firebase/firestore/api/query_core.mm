@@ -267,10 +267,18 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-void Query::ValidateNewFilter(const Filter& filter) const {
-  if (filter->type() == Filter::Type::kRelationFilter) {
-    const auto& field_filter = static_cast<const FieldFilter&>(*filter);
-    Operator filter_op = field_filter.op();
+namespace {
+
+constexpr Operator kArrayOps[] = {
+    Operator::ArrayContains
+};
+
+}
+
+void Query::ValidateNewFilter(const class Filter& filter) const {
+  if (filter.IsFieldFilter()) {
+    const auto& field_filter = static_cast<const FieldFilter&>(filter);
+
     if (field_filter.IsInequality()) {
       const FieldPath* existing_inequality = [query_ inequalityFilterField];
       const FieldPath* new_inequality = &filter.field();
@@ -278,21 +286,30 @@ void Query::ValidateNewFilter(const Filter& filter) const {
       if (existing_inequality && *existing_inequality != *new_inequality) {
         ThrowInvalidArgument(
             "Invalid Query. All where filters with an inequality (lessThan, "
-            "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
+            "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on "
+            "the "
             "same field. But you have inequality filters on '%s' and '%s'",
-            existing_inequality->CanonicalString(), new_inequality->CanonicalString());
+            existing_inequality->CanonicalString(),
+            new_inequality->CanonicalString());
       }
 
       const FieldPath* first_order_by_field = [query_ firstSortOrderField];
       if (first_order_by_field) {
         ValidateOrderByField(*first_order_by_field, filter.field());
       }
-    } else if (filter_op == Operator::ArrayContains) {
-      if ([query_ hasArrayContainsFilter]) {
-        ThrowInvalidArgument(
-            "Invalid Query. Queries only support a single arrayContains filter.");
+
+    } else {
+      // You can have at most 1 disjunctive filter and 1 array filter. Check if
+      // the new filter conflicts with an existing one.
+      Operator filter_op = field_filter.op();
+      bool is_array_op = absl::c_linear_search(kArrayOps, filter_op);
+
+      if (is_array_op && [query_ hasArrayContainsFilter]) {
+        ThrowInvalidArgument("Invalid Query. Queries only support a single "
+                             "arrayContains filter.");
       }
     }
+  }
 }
 
 void Query::ValidateNewOrderByPath(const FieldPath& fieldPath) const {

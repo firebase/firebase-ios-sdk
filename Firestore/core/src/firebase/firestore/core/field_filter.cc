@@ -20,8 +20,8 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
-#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/array_contains_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/key_field_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -62,21 +62,37 @@ const char* Describe(Filter::Operator op) {
 std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
                                                  Operator op,
                                                  FieldValue value_rhs) {
-  if (value_rhs.type() == FieldValue::Type::Null) {
+  if (path.IsKeyFieldPath()) {
+    HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
+                "Comparing on key, but filter value not a Reference.");
+    HARD_ASSERT(op != Filter::Operator::ArrayContains,
+                "arrayContains queries don't make sense on document keys.");
+    return std::make_shared<KeyFieldFilter>(std::move(path), op,
+                                            std::move(value_rhs));
+
+  } else if (value_rhs.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
           "Invalid Query. Null supports only equality comparisons.");
     }
-    return std::make_shared<NullFilter>(std::move(path));
+    FieldFilter filter(std::move(path), op, std::move(value_rhs));
+    return std::make_shared<FieldFilter>(std::move(filter));
+
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
           "Invalid Query. NaN supports only equality comparisons.");
     }
-    return std::make_shared<NanFilter>(std::move(path));
+    FieldFilter filter(std::move(path), op, std::move(value_rhs));
+    return std::make_shared<FieldFilter>(std::move(filter));
+
+  } else if (op == Operator::ArrayContains) {
+    return std::make_shared<ArrayContainsFilter>(std::move(path),
+                                                 std::move(value_rhs));
+
   } else {
-    return std::make_shared<FieldFilter>(std::move(path), op,
-                                         std::move(value_rhs));
+    FieldFilter filter(std::move(path), op, std::move(value_rhs));
+    return std::make_shared<FieldFilter>(std::move(filter));
   }
 }
 
@@ -89,31 +105,14 @@ const FieldPath& FieldFilter::field() const {
 }
 
 bool FieldFilter::Matches(const model::Document& doc) const {
-  if (field_.IsKeyFieldPath()) {
-    HARD_ASSERT(value_rhs_.type() == FieldValue::Type::Reference,
-                "Comparing on key, but filter value not a Reference.");
-    HARD_ASSERT(op_ != Filter::Operator::ArrayContains,
-                "arrayContains queries don't make sense on document keys.");
-    const auto& ref = value_rhs_.reference_value();
-    ComparisonResult comparison = doc.key().CompareTo(ref.key());
-    return MatchesComparison(comparison);
-  } else {
-    absl::optional<FieldValue> doc_field_value = doc.field(field_);
-    return doc_field_value && MatchesValue(doc_field_value.value());
-  }
-}
+  absl::optional<FieldValue> maybe_lhs = doc.field(field_);
+  if (!maybe_lhs) return false;
 
-bool FieldFilter::MatchesValue(const FieldValue& lhs) const {
-  if (op_ == Filter::Operator::ArrayContains) {
-    if (lhs.type() != FieldValue::Type::Array) return false;
+  const FieldValue& lhs = *maybe_lhs;
 
-    const auto& contents = lhs.array_value();
-    return absl::c_linear_search(contents, value_rhs_);
-  } else {
-    // Only compare types with matching backend order (such as double and int).
-    return FieldValue::Comparable(lhs.type(), value_rhs_.type()) &&
-           MatchesComparison(lhs.CompareTo(value_rhs_));
-  }
+  // Only compare types with matching backend order (such as double and int).
+  return FieldValue::Comparable(lhs.type(), value_rhs_.type()) &&
+         MatchesComparison(lhs.CompareTo(value_rhs_));
 }
 
 bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
@@ -130,10 +129,9 @@ bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
              comparison == ComparisonResult::Same;
     case Operator::GreaterThan:
       return comparison == ComparisonResult::Descending;
-    case Operator::ArrayContains:
-      HARD_FAIL("Should have been handled in MatchesValue()");
+    default:
+      HARD_FAIL("Operator %s unsuitable for comparison", op_);
   }
-  UNREACHABLE();
 }
 
 std::string FieldFilter::CanonicalId() const {
@@ -155,7 +153,7 @@ bool FieldFilter::IsInequality() const {
 }
 
 bool FieldFilter::Equals(const Filter& other) const {
-  if (other.type() != Type::kFieldFilter) return false;
+  if (type() != other.type()) return false;
 
   const auto& other_filter = static_cast<const FieldFilter&>(other);
   return op_ == other_filter.op_ && field_ == other_filter.field_ &&

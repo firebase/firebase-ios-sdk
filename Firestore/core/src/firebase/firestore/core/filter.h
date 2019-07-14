@@ -48,14 +48,25 @@ class Filter {
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
+    kArrayContainsFilter,
     kFieldFilter,
-    kNanFilter,
-    kNullFilter,
+    kKeyFieldFilter,
   };
 
   virtual ~Filter() = default;
 
   virtual Type type() const = 0;
+
+  /**
+   * Returns true if this instance is FieldFilter or any derived class.
+   * Equivalent to `instanceof FieldFilter` on other platforms.
+   *
+   * Note this is different than checking `type() == Type::kFieldFilter` which
+   * is only true if the type is exactly FieldFilter.
+   */
+  virtual bool IsFieldFilter() const {
+    return false;
+  }
 
   /** Returns the field the Filter operates over. */
   virtual const model::FieldPath& field() const = 0;

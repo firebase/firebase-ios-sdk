@@ -72,7 +72,7 @@ const FieldPath* Query::InequalityFilterField() const {
 
 bool Query::HasArrayContainsFilter() const {
   for (const auto& filter : filters_) {
-    if (filter->type() == Type::kFieldFilter) {
+    if (filter->IsFieldFilter()) {
       const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
       if (relation_filter.op() == Operator::ArrayContains) {
         return true;
