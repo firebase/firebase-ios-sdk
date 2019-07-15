@@ -24,7 +24,7 @@ Firebase Segmentation enables you to associate your custom application instance 
   s.public_header_files = 'Segmentation/Sources/Public/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.0'
-  s.dependency 'FirebaseInstanceID', '~> 4.1.1'
+  s.dependency 'FirebaseInstanceID', '~> 4.2'
 
 s.user_target_xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(PLATFORM_DIR)/Developer/Library/Frameworks' }
 
