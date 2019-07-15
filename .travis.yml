@@ -82,6 +82,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests
 
+    - stage: test
       env:
         - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
       before_install:

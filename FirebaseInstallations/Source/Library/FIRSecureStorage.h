@@ -60,10 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
                                  accessGroup:(nullable NSString *)accessGroup;
 
-// TODO: May be needed to read write legacy IID keychain items.
-//- (FBLPromise<NSString *> *)getStringForKey:(NSString *)key;
-//- (FBLPromise<id> *)setString:(NSString *)string forKey:(NSString *)key;
-
 #if TARGET_OS_OSX
 /// If not `nil`, then only this keychain will be used to save and read data (see
 /// `kSecMatchSearchList` and `kSecUseKeychain`. It is mostly intended to be used by unit tests.

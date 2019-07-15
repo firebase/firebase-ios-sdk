@@ -27,11 +27,15 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "benchmark/benchmark.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace util = firebase::firestore::util;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
@@ -39,6 +43,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::StringFormat;
+using firebase::firestore::util::Path;
 
 namespace {
 
@@ -53,33 +58,20 @@ std::string UpdatedDocumentData(int64_t documentSize) {
   return std::string(documentSize, 'b');
 }
 
-NSString *LevelDBDir() {
-  NSFileManager *files = [NSFileManager defaultManager];
-  NSString *dir =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
-  if ([files fileExistsAtPath:dir]) {
-    // Delete the directory first to ensure isolation between runs.
-    NSError *error;
-    BOOL success = [files removeItemAtPath:dir error:&error];
-    if (!success) {
-      [NSException raise:NSInternalInconsistencyException
-                  format:@"Failed to clean up leveldb path %@: %@", dir, error];
-    }
-  }
-  return dir;
-}
-
 FSTLevelDB *LevelDBPersistence() {
-  NSString *dir = LevelDBDir();
-  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
+  DatabaseId db_id("p", "d");
+  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:db_id];
   auto serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-  auto db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
 
-  NSError *error;
-  BOOL success = [db start:&error];
-  if (!success) {
+  FSTLevelDB *db;
+  Path path = util::TempDir().AppendUtf8("FSTLevelDBBenchmarkTests");
+  util::Status status = [FSTLevelDB dbWithDirectory:std::move(path)
+                                         serializer:serializer
+                                          lruParams:local::LruParams::Disabled()
+                                                ptr:&db];
+  if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to create leveldb path %@: %@", dir, error];
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
 
   return db;
@@ -94,6 +86,7 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
   void TearDown(benchmark::State &state) override {
+    [db_ shutdown];
     db_ = nil;
   }
 
@@ -133,7 +126,7 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {  // N
   int64_t documentSize = state.range(1);
   int64_t docsToUpdate = state.range(2);
   std::string documentUpdate = UpdatedDocumentData(documentSize);
-  for (const auto &_ : state) {
+  for (auto _ : state) {
     LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
       auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));

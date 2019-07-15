@@ -19,7 +19,9 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -28,6 +30,30 @@ namespace core {
 
 using model::FieldPath;
 using model::FieldValue;
+using util::ComparisonResult;
+
+namespace {
+
+const char* Describe(Filter::Operator op) {
+  switch (op) {
+    case Filter::Operator::LessThan:
+      return "<";
+    case Filter::Operator::LessThanOrEqual:
+      return "<=";
+    case Filter::Operator::Equal:
+      return "==";
+    case Filter::Operator::GreaterThanOrEqual:
+      return ">=";
+    case Filter::Operator::GreaterThan:
+      return ">";
+    case Filter::Operator::ArrayContains:
+      return "array_contains";
+  }
+
+  UNREACHABLE();
+}
+
+}  // namespace
 
 RelationFilter::RelationFilter(FieldPath field,
                                Operator op,
@@ -41,39 +67,46 @@ const FieldPath& RelationFilter::field() const {
 
 bool RelationFilter::Matches(const model::Document& doc) const {
   if (field_.IsKeyFieldPath()) {
-    // TODO(rsgowman): Port this case
-    abort();
+    HARD_ASSERT(value_rhs_.type() == FieldValue::Type::Reference,
+                "Comparing on key, but filter value not a Reference.");
+    HARD_ASSERT(op_ != Filter::Operator::ArrayContains,
+                "arrayContains queries don't make sense on document keys.");
+    const auto& ref = value_rhs_.reference_value();
+    ComparisonResult comparison = doc.key().CompareTo(ref.key());
+    return MatchesComparison(comparison);
   } else {
     absl::optional<FieldValue> doc_field_value = doc.field(field_);
     return doc_field_value && MatchesValue(doc_field_value.value());
   }
 }
 
-bool RelationFilter::MatchesValue(const FieldValue& other) const {
+bool RelationFilter::MatchesValue(const FieldValue& lhs) const {
   if (op_ == Filter::Operator::ArrayContains) {
-    if (other.type() != FieldValue::Type::Array) return false;
+    if (lhs.type() != FieldValue::Type::Array) return false;
 
-    const std::vector<FieldValue>& contents = other.array_value();
+    const auto& contents = lhs.array_value();
     return absl::c_linear_search(contents, value_rhs_);
   } else {
     // Only compare types with matching backend order (such as double and int).
-    return FieldValue::Comparable(other.type(), value_rhs_.type()) &&
-           MatchesComparison(other);
+    return FieldValue::Comparable(lhs.type(), value_rhs_.type()) &&
+           MatchesComparison(lhs.CompareTo(value_rhs_));
   }
 }
 
-bool RelationFilter::MatchesComparison(const FieldValue& other) const {
+bool RelationFilter::MatchesComparison(ComparisonResult comparison) const {
   switch (op_) {
     case Operator::LessThan:
-      return other < value_rhs_;
+      return comparison == ComparisonResult::Ascending;
     case Operator::LessThanOrEqual:
-      return other <= value_rhs_;
+      return comparison == ComparisonResult::Ascending ||
+             comparison == ComparisonResult::Same;
     case Operator::Equal:
-      return other == value_rhs_;
-    case Operator::GreaterThan:
-      return other > value_rhs_;
+      return comparison == ComparisonResult::Same;
     case Operator::GreaterThanOrEqual:
-      return other >= value_rhs_;
+      return comparison == ComparisonResult::Descending ||
+             comparison == ComparisonResult::Same;
+    case Operator::GreaterThan:
+      return comparison == ComparisonResult::Descending;
     case Operator::ArrayContains:
       HARD_FAIL("Should have been handled in MatchesValue()");
   }
@@ -81,8 +114,29 @@ bool RelationFilter::MatchesComparison(const FieldValue& other) const {
 }
 
 std::string RelationFilter::CanonicalId() const {
-  // TODO(rsgowman): Port this
-  abort();
+  return absl::StrCat(field_.CanonicalString(), Describe(op_),
+                      value_rhs_.ToString());
+}
+
+std::string RelationFilter::ToString() const {
+  return util::StringFormat("%s %s %s", field_.CanonicalString(), Describe(op_),
+                            value_rhs_.ToString());
+}
+
+size_t RelationFilter::Hash() const {
+  return util::Hash(field_, static_cast<int>(op_), value_rhs_);
+}
+
+bool RelationFilter::IsInequality() const {
+  return op_ != Operator::Equal && op_ != Operator::ArrayContains;
+}
+
+bool RelationFilter::Equals(const Filter& other) const {
+  if (other.type() != Type::kRelationFilter) return false;
+
+  const auto& other_filter = static_cast<const RelationFilter&>(other);
+  return op_ == other_filter.op_ && field_ == other_filter.field_ &&
+         value_rhs_ == other_filter.value_rhs_;
 }
 
 }  // namespace core
