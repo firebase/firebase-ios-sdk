@@ -11,7 +11,7 @@ stages:
   - name: test
     if: branch == master
   - name: test-fis
-    if: branch IN (master, mm/fis-master)
+    if: branch IN (master, mm/fis-master, mm/keychain-tests)
 
 jobs:
   include:
@@ -406,9 +406,9 @@ jobs:
       before_install:
         - ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries --platforms=ios,tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios,tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
