@@ -16,6 +16,10 @@
 
 #import "FIRInstallationsErrorUtil.h"
 
+NSString *const kFirebaseInstallationsErrorDomain = @"com.firebase.installations";
+// NSString *const kFirebaseInstallationsInternalErrorDomain =
+// @"com.firebase.installations.internal";
+
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   if (pointer != NULL) {
     *pointer = error;
@@ -25,63 +29,83 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
 @implementation FIRInstallationsErrorUtil
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception {
-  // TODO: Form a proper error
-  return [NSError errorWithDomain:@"NSKeyedArchiver" code:-1 userInfo:exception.userInfo];
+  NSString *failureReason = [NSString
+      stringWithFormat:@"NSKeyedArchiver exception with name: %@, reason: %@, userInfo: %@",
+                       exception.name, exception.reason, exception.userInfo];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
+}
+
++ (NSError *)keyedArchiverErrorWithError:(NSError *)error {
+  NSString *failureReason = [NSString stringWithFormat:@"NSKeyedArchiver error."];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:error];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
-  // TODO: Form a proper error
   NSString *failureReason = [NSString stringWithFormat:@"%@ (%li)", keychainFunction, (long)status];
-  return [NSError errorWithDomain:@"FIRInstallationsError"
-                             code:-1
-                         userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : failureReason,
-                         }];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeKeychain
+                            failureReason:failureReason
+                          underlyingError:nil];
 }
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName {
-  // TODO: Form a proper error
   NSString *failureReason =
       [NSString stringWithFormat:@"Installation for appID %@ appName %@ not found", appID, appName];
-  return [NSError errorWithDomain:@"FIRInstallationsError"
-                             code:-1
-                         userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : failureReason,
-                         }];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
 }
 
 + (NSError *)APIErrorWithHTTPCode:(NSUInteger)HTTPCode {
-  // TODO: Form a proper error.
   NSString *failureReason = [NSString
       stringWithFormat:@"Unexpected server response HTTP code: %lu", (unsigned long)HTTPCode];
-  return [NSError errorWithDomain:@"FIRInstallationsError"
-                             code:-1
-                         userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : failureReason,
-                         }];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
 }
 
 + (NSError *)JSONSerializationError:(NSError *)error {
-  // TODO: Form a proper error.
   NSString *failureReason = [NSString stringWithFormat:@"Failed to serialize JSON data."];
-  return [NSError errorWithDomain:@"FIRInstallationsError"
-                             code:-1
-                         userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : failureReason,
-                           NSUnderlyingErrorKey : error,
-                         }];
-  return error;
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
 }
 
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName {
-  // TODO: Form a proper error.
   NSString *failureReason = [NSString
       stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
-  return [NSError errorWithDomain:@"FIRInstallationsError"
-                             code:-1
-                         userInfo:@{
-                           NSLocalizedFailureReasonErrorKey : failureReason,
-                         }];
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:failureReason
+                          underlyingError:nil];
+}
+
++ (NSError *)networkErrorWithError:(NSError *)error {
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeServerUnreachable
+                            failureReason:@"Network connection error."
+                          underlyingError:error];
+}
+
++ (NSError *)publicDomainErrorWithError:(NSError *)error {
+  if ([error.domain isEqualToString:kFirebaseInstallationsErrorDomain]) {
+    return error;
+  }
+
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                            failureReason:nil
+                          underlyingError:error];
+}
+
++ (NSError *)installationsErrorWithCode:(FIRInstallationsErrorCode)code
+                          failureReason:(nullable NSString *)failureReason
+                        underlyingError:(nullable NSError *)underlyingError {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  userInfo[NSUnderlyingErrorKey] = underlyingError;
+  userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
+
+  return [NSError errorWithDomain:kFirebaseInstallationsErrorDomain code:code userInfo:userInfo];
 }
 
 @end

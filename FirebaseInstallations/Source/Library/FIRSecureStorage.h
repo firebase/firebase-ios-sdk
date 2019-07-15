@@ -60,10 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (FBLPromise<NSNull *> *)removeObjectForKey:(NSString *)key
                                  accessGroup:(nullable NSString *)accessGroup;
 
-// TODO: May be needed to read write legacy IID keychain items.
-//- (FBLPromise<NSString *> *)getStringForKey:(NSString *)key;
-//- (FBLPromise<id> *)setString:(NSString *)string forKey:(NSString *)key;
-
 @end
 
 NS_ASSUME_NONNULL_END

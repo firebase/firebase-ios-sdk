@@ -16,6 +16,8 @@
 
 #import "FIRInstallationsAPIService.h"
 
+#import <FirebaseInstallations/FIRInstallationsVersion.h>
+
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
@@ -246,9 +248,8 @@ NS_ASSUME_NONNULL_END
   }];
 }
 
-// TODO: Set proper sdkVersion.
 - (NSString *)SDKVersion {
-  return @"a1.0";
+  return [NSString stringWithUTF8String:FIRInstallationsVersionStr];
 }
 
 #pragma mark - JSON

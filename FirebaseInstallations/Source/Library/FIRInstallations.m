@@ -31,6 +31,7 @@
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
+#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStoredAuthToken.h"
@@ -145,8 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
       })
       .catch(^(NSError *error) {
-        // TODO: Make sure the error is in the public domain and wrap if needed.
-        completion(nil, error);
+        completion(nil, [FIRInstallationsErrorUtil publicDomainErrorWithError:error]);
       });
 }
 
@@ -168,8 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
       })
       .catch(^void(NSError *error) {
-        // TODO: Make sure the error is in the public domain and wrap if needed.
-        completion(nil, error);
+        completion(nil, [FIRInstallationsErrorUtil publicDomainErrorWithError:error]);
       });
 }
 
@@ -180,8 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
       })
       .catch(^void(NSError *error) {
-        // TODO: Make sure the error is in the public domain and wrap if needed.
-        completion(error);
+        completion([FIRInstallationsErrorUtil publicDomainErrorWithError:error]);
       });
 }
 

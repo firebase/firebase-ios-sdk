@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <FirebaseInstallations/FIRInstallationsErrors.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
@@ -23,6 +25,8 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 @interface FIRInstallationsErrorUtil : NSObject
 
 + (NSError *)keyedArchiverErrorWithException:(NSException *)exception;
++ (NSError *)keyedArchiverErrorWithError:(NSError *)error;
+
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
 
 + (NSError *)installationItemNotFoundForAppID:(NSString *)appID appName:(NSString *)appName;
@@ -31,7 +35,15 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)JSONSerializationError:(NSError *)error;
 
++ (NSError *)networkErrorWithError:(NSError *)error;
+
 + (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName;
+
+/**
+ * Returns the passed error if it is already in the public domain or a new error with the passed
+ * error at `NSUnderlyingErrorKey`.
+ */
++ (NSError *)publicDomainErrorWithError:(NSError *)error;
 
 @end
 
