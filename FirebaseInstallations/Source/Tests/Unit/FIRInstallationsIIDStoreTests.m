@@ -18,6 +18,7 @@
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import "FBLPromise+Testing.h"
+#import "FIRTestKeychain.h"
 
 #import "FIRInstallationsIIDStore.h"
 
@@ -28,6 +29,9 @@
 @interface FIRInstallationsIIDStoreTests : XCTestCase
 @property(nonatomic) FIRInstanceID *instanceID;
 @property(nonatomic) FIRInstallationsIIDStore *IIDStore;
+#if TARGET_OS_OSX
+@property(nonatomic) FIRTestKeychain *privateKeychain;
+#endif  // TARGET_OSX
 @end
 
 @implementation FIRInstallationsIIDStoreTests
@@ -35,12 +39,22 @@
 - (void)setUp {
   self.instanceID = [FIRInstanceID instanceIDForTests];
   self.IIDStore = [[FIRInstallationsIIDStore alloc] init];
+
+#if TARGET_OS_OSX
+  self.privateKeychain = [[FIRTestKeychain alloc] init];
+  self.IIDStore.keychainRef = self.privateKeychain.testKeychainRef;
+#endif  // TARGET_OSX
 }
 
 - (void)tearDown {
   self.instanceID = nil;
+#if TARGET_OS_OSX
+  self.privateKeychain = nil;
+#endif  // TARGET_OSX
 }
 
+// TODO: Configure the tests to run on macOS without requesting the keychain password.
+#if !TARGET_OS_OSX
 - (void)testExistingIIDSuccess {
   NSString *existingIID = [self readExistingIID];
 
@@ -71,13 +85,15 @@
   XCTAssertNotNil(IIDPromise.error);
   XCTAssertTrue(IIDPromise.isRejected);
 
-  // 4. Re-instantiate IID instanse to reset its in-memory cache.
+  // 4. Re-instantiate IID instance to reset its in-memory cache.
   self.instanceID = [FIRInstanceID instanceIDForTests];
 
   // 5. Generate a new IID and check it is different.
   NSString *existingIID2 = [self readExistingIID];
   XCTAssertNotEqualObjects(existingIID1, existingIID2);
 }
+
+#endif  // !TARGET_OSX
 
 #pragma mark - Helpers
 

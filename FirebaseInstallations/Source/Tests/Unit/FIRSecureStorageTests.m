@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "FIRTestKeychain.h"
 
 #import "FIRSecureStorage.h"
 
@@ -30,6 +31,11 @@
 @property(nonatomic, strong) FIRSecureStorage *storage;
 @property(nonatomic, strong) NSCache *cache;
 @property(nonatomic, strong) id mockCache;
+
+#if TARGET_OS_OSX
+@property(nonatomic) FIRTestKeychain *privateKeychain;
+#endif  // TARGET_OSX
+
 @end
 
 @implementation FIRSecureStorageTests
@@ -39,12 +45,21 @@
   self.mockCache = OCMPartialMock(self.cache);
   self.storage = [[FIRSecureStorage alloc] initWithService:@"com.tests.FIRSecureStorageTests"
                                                      cache:self.mockCache];
+
+#if TARGET_OS_OSX
+  self.privateKeychain = [[FIRTestKeychain alloc] init];
+  self.storage.keychainRef = self.privateKeychain.testKeychainRef;
+#endif  // TARGET_OSX
 }
 
 - (void)tearDown {
   self.storage = nil;
   self.mockCache = nil;
   self.cache = nil;
+
+#if TARGET_OS_OSX
+  self.privateKeychain = nil;
+#endif  // TARGET_OSX
 }
 
 - (void)testSetGetObjectForKey {
@@ -55,7 +70,7 @@
                           class:[NSArray class]
                   existsInCache:YES];
 
-  // 2. Override existing object.
+  //  // 2. Override existing object.
   [self assertSuccessWriteObject:@{@"key" : @"value"} forKey:@"test-key1"];
   [self assertSuccessReadObject:@{@"key" : @"value"}
                          forKey:@"test-key1"
@@ -84,7 +99,7 @@
 - (void)testGetExistingObjectClassMismatch {
   NSString *key = [NSUUID UUID].UUIDString;
 
-  // Wtite.
+  // Write.
   [self assertSuccessWriteObject:@[ @8 ] forKey:key];
 
   // Read.
@@ -129,7 +144,7 @@
   FBLPromise<NSNull *> *setPromise = [self.storage setObject:object forKey:key accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertNil(setPromise.error);
+  XCTAssertNil(setPromise.error, @"%@", self.name);
 
   OCMVerify(self.mockCache);
 
@@ -150,14 +165,14 @@
   FBLPromise<id<NSSecureCoding>> *getPromise =
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
-  XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertEqualObjects(getPromise.value, object);
-  XCTAssertNil(getPromise.error);
+  XCTAssert(FBLWaitForPromisesWithTimeout(1), @"%@", self.name);
+  XCTAssertEqualObjects(getPromise.value, object, @"%@", self.name);
+  XCTAssertNil(getPromise.error, @"%@", self.name);
 
   OCMVerifyAll(self.mockCache);
 
   // Check in-memory cache.
-  XCTAssertEqualObjects([self.cache objectForKey:key], object);
+  XCTAssertEqualObjects([self.cache objectForKey:key], object, @"%@", self.name);
 }
 
 - (void)assertNonExistingObjectForKey:(NSString *)key class:(Class)class {
@@ -167,8 +182,8 @@
       [self.storage getObjectForKey:key objectClass:class accessGroup:nil];
 
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
-  XCTAssertNil(promise.error);
-  XCTAssertNil(promise.value);
+  XCTAssertNil(promise.error, @"%@", self.name);
+  XCTAssertNil(promise.value, @"%@", self.name);
 
   OCMVerifyAll(self.mockCache);
 }

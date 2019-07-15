@@ -47,7 +47,7 @@
     _keychainQueue = dispatch_queue_create(
         "com.firebase.FIRInstallations.FIRSecureStorage.Keychain", DISPATCH_QUEUE_SERIAL);
     _inMemoryCacheQueue = dispatch_queue_create(
-        "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryChache", DISPATCH_QUEUE_SERIAL);
+        "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
     _inMemoryCache = cache;
   }
@@ -177,6 +177,13 @@
   if (accessGroup) {
     query[(__bridge NSString *)kSecAttrAccessGroup] = accessGroup;
   }
+
+#if TARGET_OS_OSX
+  if (self.keychainRef) {
+    query[(__bridge NSString *)kSecUseKeychain] = (__bridge id)(self.keychainRef);
+    query[(__bridge NSString *)kSecMatchSearchList] = @[ (__bridge id)(self.keychainRef) ];
+  }
+#endif  // TARGET_OSX
 
   return query;
 }

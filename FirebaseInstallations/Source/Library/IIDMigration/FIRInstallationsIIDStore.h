@@ -32,10 +32,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Deletes existing IID if present.
- * @return Returns a promise that is resolved with `[NSNull null]` if the IID was successfuly
+ * @return Returns a promise that is resolved with `[NSNull null]` if the IID was successfully.
  * deleted or was not found. The promise is rejected otherwise.
  */
 - (FBLPromise<NSNull *> *)deleteExistingIID;
+
+#if TARGET_OS_OSX
+/// If not `nil`, then only this keychain will be used to save and read data (see
+/// `kSecMatchSearchList` and `kSecUseKeychain`. It is mostly intended to be used by unit tests.
+@property(nonatomic, nullable) SecKeychainRef keychainRef;
+#endif  // TARGET_OSX
 
 @end
 

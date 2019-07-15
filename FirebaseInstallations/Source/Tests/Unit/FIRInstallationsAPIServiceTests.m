@@ -98,7 +98,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
@@ -156,7 +156,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
@@ -214,7 +214,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
@@ -263,7 +263,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
@@ -309,7 +309,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
@@ -354,7 +354,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 1.3. Create a data task mock.
   id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([mockDataTask resume]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
 
   // 1.4. Expect `dataTaskWithRequest` to be called.
   OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
