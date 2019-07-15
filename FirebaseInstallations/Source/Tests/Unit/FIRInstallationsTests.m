@@ -97,7 +97,7 @@
   [FIRApp resetApps];
 }
 
-#endif // !TARGET_OSX
+#endif  // !TARGET_OSX
 
 - (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
   XCTAssertThrows([FIRInstallations installations]);

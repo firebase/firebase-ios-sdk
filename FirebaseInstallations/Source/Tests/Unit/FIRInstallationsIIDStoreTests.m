@@ -31,7 +31,7 @@
 @property(nonatomic) FIRInstallationsIIDStore *IIDStore;
 #if TARGET_OS_OSX
 @property(nonatomic) FIRTestKeychain *privateKeychain;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 @end
 
 @implementation FIRInstallationsIIDStoreTests
@@ -43,14 +43,14 @@
 #if TARGET_OS_OSX
   self.privateKeychain = [[FIRTestKeychain alloc] init];
   self.IIDStore.keychainRef = self.privateKeychain.testKeychainRef;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 }
 
 - (void)tearDown {
   self.instanceID = nil;
 #if TARGET_OS_OSX
   self.privateKeychain = nil;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 }
 
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
@@ -93,7 +93,7 @@
   XCTAssertNotEqualObjects(existingIID1, existingIID2);
 }
 
-#endif // !TARGET_OSX
+#endif  // !TARGET_OSX
 
 #pragma mark - Helpers
 

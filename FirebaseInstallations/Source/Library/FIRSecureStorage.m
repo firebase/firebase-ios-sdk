@@ -179,11 +179,11 @@
   }
 
 #if TARGET_OS_OSX
-  if(self.keychainRef) {
+  if (self.keychainRef) {
     query[(__bridge NSString *)kSecUseKeychain] = (__bridge id)(self.keychainRef);
-    query[(__bridge NSString *)kSecMatchSearchList] = @[(__bridge id)(self.keychainRef)];
+    query[(__bridge NSString *)kSecMatchSearchList] = @[ (__bridge id)(self.keychainRef) ];
   }
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 
   return query;
 }

@@ -22,7 +22,6 @@
 
 #import "FIRSecureStorage.h"
 
-
 @interface FIRSecureStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
 - (void)resetInMemoryCache;
@@ -35,7 +34,7 @@
 
 #if TARGET_OS_OSX
 @property(nonatomic) FIRTestKeychain *privateKeychain;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 
 @end
 
@@ -50,7 +49,7 @@
 #if TARGET_OS_OSX
   self.privateKeychain = [[FIRTestKeychain alloc] init];
   self.storage.keychainRef = self.privateKeychain.testKeychainRef;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 }
 
 - (void)tearDown {
@@ -60,7 +59,7 @@
 
 #if TARGET_OS_OSX
   self.privateKeychain = nil;
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 }
 
 - (void)testSetGetObjectForKey {
@@ -71,7 +70,7 @@
                           class:[NSArray class]
                   existsInCache:YES];
 
-//  // 2. Override existing object.
+  //  // 2. Override existing object.
   [self assertSuccessWriteObject:@{@"key" : @"value"} forKey:@"test-key1"];
   [self assertSuccessReadObject:@{@"key" : @"value"}
                          forKey:@"test-key1"

@@ -163,10 +163,10 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   }
 
 #if TARGET_OS_OSX
-  if(self.keychainRef) {
-    query[(__bridge NSString *)kSecMatchSearchList] = @[(__bridge id)(self.keychainRef)];
+  if (self.keychainRef) {
+    query[(__bridge NSString *)kSecMatchSearchList] = @[ (__bridge id)(self.keychainRef) ];
   }
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
 
   return query;
 }

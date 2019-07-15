@@ -22,12 +22,12 @@
 
 @implementation FIRTestKeychain
 
-- (nullable instancetype)init
-{
+- (nullable instancetype)init {
   self = [super init];
   if (self) {
     SecKeychainRef privateKeychain;
-    NSString *keychainPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRTestKeychain"];
+    NSString *keychainPath =
+        [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRTestKeychain"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:keychainPath]) {
       NSError *error;
       if (![[NSFileManager defaultManager] removeItemAtPath:keychainPath error:&error]) {
@@ -35,8 +35,8 @@
         return nil;
       }
     }
-    OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding],
-                                        0, "1", false, nil, &privateKeychain);
+    OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding], 0,
+                                        "1", false, nil, &privateKeychain);
     if (result != errSecSuccess) {
       NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:result userInfo:nil];
       NSLog(@"SecKeychainCreate error: %@", error);
@@ -54,11 +54,11 @@
       NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:result userInfo:nil];
       NSLog(@"SecKeychainCreate error: %@", error);
     }
-    
+
     CFRelease(self.testKeychainRef);
   }
 }
 
 @end
 
-#endif // TARGET_OSX
+#endif  // TARGET_OSX
