@@ -16,8 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
+#include <string>
 #include <vector>
+
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -84,10 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::FieldPath &)field;
 
 /** The type of equality/inequality operator to use in the relation. */
-@property(nonatomic, assign, readonly) core::Filter::Operator filterOperator;
+- (core::Filter::Operator)filterOperator;
 
 /** The right hand side of the relation. A constant value to compare to. */
-@property(nonatomic, assign, readonly) const model::FieldValue &value;
+- (const model::FieldValue &)value;
 
 @end
 
@@ -166,12 +170,19 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a query with all of its components directly.
  */
 - (instancetype)initWithPath:(model::ResourcePath)path
-             collectionGroup:(nullable NSString *)collectionGroup
+             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
                     filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(int32_t)limit
                      startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
+                       endAt:(nullable FSTBound *)endAtBound;
+
+- (instancetype)initWithQuery:(core::Query)query
+                     filterBy:(NSArray<FSTFilter *> *)filters
+                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
+                        limit:(int32_t)limit
+                      startAt:(nullable FSTBound *)startAtBound
+                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates and returns a new FSTQuery.
@@ -186,12 +197,12 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param path The path to the location to be queried over. Must currently be
  *     empty in the case of a collection group query.
- * @param collectionGroup The collection group to be queried over. nil if this
+ * @param collectionGroup The collection group to be queried over. nullptr if this
  *     is not a collection group query.
  * @return A new instance of FSTQuery.
  */
 + (instancetype)queryWithPath:(model::ResourcePath)path
-              collectionGroup:(nullable NSString *)collectionGroup;
+              collectionGroup:(std::shared_ptr<const std::string>)collectionGroup;
 
 /**
  * Returns the list of ordering constraints that were explicitly requested on the query by the
@@ -282,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::ResourcePath &)path;
 
 /** The collection group of the query. */
-@property(nonatomic, nullable, strong, readonly) NSString *collectionGroup;
+- (const std::shared_ptr<const std::string> &)collectionGroup;
 
 /** The filters on the documents returned by the query. */
 @property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;

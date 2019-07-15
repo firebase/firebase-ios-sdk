@@ -179,11 +179,13 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-# Clean the Derived Data between builds to help reduce flakiness.
-rm -rf ~/Library/Developer/Xcode/DerivedData
-
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
+    # Coverage collection often cause retries to fail because of partial
+    # pre-existing data.
+    # TODO(paulb777): Find a less blunt solution to this.
+    rm -rf ~/Library/Developer/Xcode/DerivedData
+
     RunXcodebuild \
         -workspace 'Example/Firebase.xcworkspace' \
         -scheme "AllUnitTests_$platform" \
@@ -308,26 +310,18 @@ case "$product-$method-$platform" in
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_Tests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    # Firestore_SwiftTests_iOS require Swift 4, which needs Xcode 9
-    if [[ "$platform" == 'iOS' && "$xcode_major" -ge 9 ]]; then
+    if [[ "$xcode_major" -lt 9 ]]; then
+      # When building and testing for Xcode 8, only test unit tests.
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_SwiftTests_iOS" \
+          -scheme "Firestore_Tests_$platform" \
           "${xcb_flags[@]}" \
           build \
           test
-    fi
 
-    # Firestore_IntegrationTests_iOS require Swift 4, which needs Xcode 9
-    # Other non-iOS platforms don't have swift integration tests yet.
-    if [[ "$platform" != 'iOS' || "$xcode_major" -ge 9 ]]; then
+    else
+      # IntegrationTests run all the tests, including Swift tests, which
+      # require Swift 4.0 and Xcode 9+.
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \

@@ -9,6 +9,17 @@ source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 
+install! 'cocoapods',
+    :generate_multiple_pod_projects => true,
+    :incremental_installation => true,
+    # Disable input/output path checking for generated frameworks to make
+    # incremental builds work properly. Without this, changes to the framework
+    # may not be picked up in between test runs.
+    #
+    # See:
+    #   https://github.com/CocoaPods/CocoaPods/issues/8073
+    #   https://www.ralfebert.de/ios/blog/cocoapods-clean-input-output-files/
+    :disable_input_output_paths => true
 
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
@@ -51,7 +62,9 @@ target 'Firestore_Example_iOS' do
     inherit! :search_paths
 
     pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
@@ -65,7 +78,7 @@ target 'Firestore_Example_iOS' do
     inherit! :search_paths
     platform :ios, '9.0'
 
-    pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec'
+    pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
     pod '!ProtoCompiler'
   end
 end
@@ -93,7 +106,10 @@ target 'Firestore_Example_macOS' do
   target 'Firestore_IntegrationTests_macOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
@@ -123,7 +139,10 @@ target 'Firestore_Example_tvOS' do
   target 'Firestore_IntegrationTests_tvOS' do
     inherit! :search_paths
 
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'

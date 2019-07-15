@@ -183,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
                          collectionID);
   }
 
-  return _firestore->GetCollectionGroup(collectionID);
+  return _firestore->GetCollectionGroup(util::MakeString(collectionID));
 }
 
 - (FIRWriteBatch *)batch {

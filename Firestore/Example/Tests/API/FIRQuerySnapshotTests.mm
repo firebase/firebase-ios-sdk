@@ -32,6 +32,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 

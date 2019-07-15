@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -78,11 +79,7 @@ class vector_of_ptr {
   }
 
   friend bool operator==(const vector_of_ptr& lhs, const vector_of_ptr& rhs) {
-    return absl::c_equal(
-        lhs.values_, rhs.values_, [](const P& left, const P& right) {
-          return left == nullptr ? right == nullptr
-                                 : right != nullptr && *left == *right;
-        });
+    return absl::c_equal(lhs.values_, rhs.values_, Equals<P>);
   }
 
   friend bool operator!=(const vector_of_ptr& lhs, const vector_of_ptr& rhs) {
