@@ -11,7 +11,7 @@ stages:
   - name: test
     if: branch == master
   - name: test-fis
-    if: branch IN (master, mm/fis-master, mm/keychain-tests)
+    if: branch IN (master, mm/fis-master)
 
 jobs:
   include:

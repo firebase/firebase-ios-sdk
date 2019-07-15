@@ -38,7 +38,7 @@ def main(args)
     exit(1)
   end
 
-  command = %w(bundle exec pod lib lint)
+  command = %w(bundle exec pod lib lint --sources=https://cdn.cocoapods.org/)
 
   # Figure out which dependencies are local
   podspec_file = args[0]
