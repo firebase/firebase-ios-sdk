@@ -22,9 +22,11 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
@@ -38,6 +40,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::RelationFilter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -182,7 +185,7 @@ ListenerRegistration Query::AddSnapshotListener(
 
 Query Query::Filter(FieldPath field_path,
                     Filter::Operator op,
-                    FSTFieldValue* field_value,
+                    FieldValue field_value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
     if (op == Filter::Operator::ArrayContains) {
@@ -190,10 +193,8 @@ Query Query::Filter(FieldPath field_path,
           "Invalid query. You can't perform arrayContains queries on document "
           "ID since document IDs are not arrays.");
     }
-    if (field_value.type == FieldValue::Type::String) {
-      const std::string& document_key =
-          static_cast<FSTDelegateValue*>(field_value)
-              .internalValue.string_value();
+    if (field_value.type() == FieldValue::Type::String) {
+      const std::string& document_key = field_value.string_value();
       if (document_key.empty()) {
         ThrowInvalidArgument(
             "Invalid query. When querying by document ID you must provide a "
@@ -216,9 +217,8 @@ Query Query::Filter(FieldPath field_path,
             path.CanonicalString());
       }
       field_value = FieldValue::FromReference(firestore_->database_id(),
-                                              DocumentKey{path})
-                        .Wrap();
-    } else if (field_value.type != FieldValue::Type::Reference) {
+                                              DocumentKey{path});
+    } else if (field_value.type() != FieldValue::Type::Reference) {
       ThrowInvalidArgument(
           "Invalid query. When querying by document ID you must provide a "
           "valid string or DocumentReference, but it was of type: %s",
@@ -226,12 +226,11 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  FSTFilter* filter = [FSTFilter filterWithField:field_path
-                                  filterOperator:op
-                                           value:field_value];
+  std::shared_ptr<class Filter> filter =
+      Filter::Create(field_path, op, field_value);
 
-  if ([filter isKindOfClass:[FSTRelationFilter class]]) {
-    ValidateNewRelationFilter(static_cast<FSTRelationFilter*>(filter));
+  if (filter->type() == Filter::Type::kRelationFilter) {
+    ValidateNewRelationFilter(static_cast<const RelationFilter&>(*filter));
   }
 
   return Wrap([query_ queryByAddingFilter:filter]);
@@ -274,22 +273,22 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-void Query::ValidateNewRelationFilter(FSTRelationFilter* filter) const {
-  if ([filter isInequality]) {
-    const FieldPath* existingField = [query_ inequalityFilterField];
-    if (existingField && *existingField != filter.field) {
+void Query::ValidateNewRelationFilter(const RelationFilter& filter) const {
+  if (filter.IsInequality()) {
+    const FieldPath* existing_field = [query_ inequalityFilterField];
+    if (existing_field && *existing_field != filter.field()) {
       ThrowInvalidArgument(
           "Invalid Query. All where filters with an inequality (lessThan, "
           "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
           "same field. But you have inequality filters on '%s' and '%s'",
-          existingField->CanonicalString(), filter.field.CanonicalString());
+          existing_field->CanonicalString(), filter.field().CanonicalString());
     }
 
-    const FieldPath* firstOrderByField = [query_ firstSortOrderField];
-    if (firstOrderByField) {
-      ValidateOrderByField(*firstOrderByField, filter.field);
+    const FieldPath* first_order_by_field = [query_ firstSortOrderField];
+    if (first_order_by_field) {
+      ValidateOrderByField(*first_order_by_field, filter.field());
     }
-  } else if (filter.filterOperator == Filter::Operator::ArrayContains) {
+  } else if (filter.op() == Filter::Operator::ArrayContains) {
     if ([query_ hasArrayContainsFilter]) {
       ThrowInvalidArgument(
           "Invalid Query. Queries only support a single arrayContains filter.");

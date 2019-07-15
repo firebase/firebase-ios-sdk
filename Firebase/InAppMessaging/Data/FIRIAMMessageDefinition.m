@@ -15,7 +15,6 @@
  */
 
 #import "FIRIAMMessageDefinition.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
 
 @implementation FIRIAMMessageRenderData
 
@@ -60,9 +59,9 @@
   return self.endTime < [[NSDate date] timeIntervalSince1970];
 }
 
-- (BOOL)messageRenderedOnAppForegroundEvent {
+- (BOOL)messageRenderedOnTrigger:(FIRIAMRenderTrigger)trigger {
   for (FIRIAMDisplayTriggerDefinition *nextTrigger in self.renderTriggers) {
-    if (nextTrigger.triggerType == FIRIAMRenderTriggerOnAppForeground) {
+    if (nextTrigger.triggerType == trigger) {
       return YES;
     }
   }

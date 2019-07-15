@@ -37,6 +37,8 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
+using testutil::Filter;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryCacheTests {
@@ -94,8 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
   self.persistence.run("testCanonicalIDCollision", [&]() {
     // Type information is currently lost in our canonicalID implementations so this currently an
     // easy way to force colliding canonicalIDs
-    FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @(1))];
-    FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:FSTTestFilter("foo", @"==", @"1")];
+    FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:Filter("foo", "==", 1)];
+    FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:Filter("foo", "==", "1")];
     XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
 
     FSTQueryData *data1 = [self queryDataWithQuery:q1];

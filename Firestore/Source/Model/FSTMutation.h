@@ -23,14 +23,13 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-
 #include "absl/types/optional.h"
 
 @class FSTDocument;
-@class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FIRTimestamp;
@@ -45,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithVersion:(model::SnapshotVersion)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults
+               transformResults:(absl::optional<std::vector<model::FieldValue>>)transformResults
     NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -64,9 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
  * The resulting fields returned from the backend after a FSTTransformMutation has been committed.
  * Contains one FieldValue for each FieldTransform that was in the mutation.
  *
- * Will be nil if the mutation was not a FSTTransformMutation.
+ * Will be nullopt if the mutation was not a FSTTransformMutation.
  */
-@property(nonatomic, strong, readonly) NSArray<FSTFieldValue *> *_Nullable transformResults;
+// TODO(wilhuff): This seems like I could be a empty vector without harm.
+@property(nonatomic, assign, readonly)
+    const absl::optional<std::vector<model::FieldValue>> &transformResults;
 
 @end
 
@@ -153,19 +154,25 @@ NS_ASSUME_NONNULL_BEGIN
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(const firebase::Timestamp &)localWriteTime;
 
+/**
+ * If this mutation is not idempotent, returns the base value to persist with this mutation.
+ * If a base value is returned, the mutation is always applied to this base value, even if
+ * document has already been updated.
+ *
+ * The base value is a sparse object that consists of only the document fields for which this
+ * mutation contains a non-idempotent transformation (e.g. a numeric increment). The provided
+ * value guarantees consistent behavior for non-idempotent transforms and allow us to return the
+ * same latency-compensated value even if the backend has already applied the mutation. The base
+ * value is empty for idempotent mutations, as they can be re-played even if the backend has
+ * already applied them.
+ *
+ * @return a base value to store along with the mutation, or empty for idempotent mutations.
+ */
+- (absl::optional<model::ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc;
+
 - (const model::DocumentKey &)key;
 
 - (const model::Precondition &)precondition;
-
-/**
- * If applicable, returns the field mask for this mutation. Fields that are not included in this
- * field mask are not modified when this mutation is applied. Mutations that replace all document
- * values return 'nullptr'.
- */
-- (nullable const model::FieldMask *)fieldMask;
-
-/** Returns whether all operations in the mutation are idempotent. */
-@property(nonatomic, readonly) BOOL idempotent;
 
 @end
 
@@ -189,11 +196,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @param precondition The precondition for this mutation.
  */
 - (instancetype)initWithKey:(model::DocumentKey)key
-                      value:(FSTObjectValue *)value
+                      value:(model::ObjectValue)value
                precondition:(model::Precondition)precondition NS_DESIGNATED_INITIALIZER;
 
 /** The object value to use when setting the document. */
-@property(nonatomic, strong, readonly) FSTObjectValue *value;
+@property(nonatomic, assign, readonly) model::ObjectValue value;
 @end
 
 #pragma mark - FSTPatchMutation
@@ -226,7 +233,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithKey:(model::DocumentKey)key
                   fieldMask:(model::FieldMask)fieldMask
-                      value:(FSTObjectValue *)value
+                      value:(model::ObjectValue)value
                precondition:(model::Precondition)precondition NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -236,7 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::FieldMask *)fieldMask;
 
 /** The fields and associated values to use when patching the document. */
-@property(nonatomic, strong, readonly) FSTObjectValue *value;
+@property(nonatomic, assign, readonly) model::ObjectValue value;
 
 @end
 

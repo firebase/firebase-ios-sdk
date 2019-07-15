@@ -18,19 +18,26 @@
 
 #include <utility>
 
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -76,52 +83,53 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTDocument {
-  FSTDocumentState _documentState;
+  DocumentState _documentState;
+  util::DelayedConstructor<ObjectValue> _data;
 }
 
-+ (instancetype)documentWithData:(FSTObjectValue *)data
++ (instancetype)documentWithData:(ObjectValue)data
                              key:(DocumentKey)key
                          version:(SnapshotVersion)version
-                           state:(FSTDocumentState)state {
-  return [[FSTDocument alloc] initWithData:data
+                           state:(DocumentState)state {
+  return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
                                    version:std::move(version)
                                      state:state];
 }
 
-+ (instancetype)documentWithData:(FSTObjectValue *)data
++ (instancetype)documentWithData:(ObjectValue)data
                              key:(DocumentKey)key
                          version:(SnapshotVersion)version
-                           state:(FSTDocumentState)state
+                           state:(DocumentState)state
                            proto:(GCFSDocument *)proto {
-  return [[FSTDocument alloc] initWithData:data
+  return [[FSTDocument alloc] initWithData:std::move(data)
                                        key:std::move(key)
                                    version:std::move(version)
                                      state:state
                                      proto:proto];
 }
 
-- (instancetype)initWithData:(FSTObjectValue *)data
+- (instancetype)initWithData:(ObjectValue)data
                          key:(DocumentKey)key
                      version:(SnapshotVersion)version
-                       state:(FSTDocumentState)state {
+                       state:(DocumentState)state {
   self = [super initWithKey:std::move(key) version:std::move(version)];
   if (self) {
-    _data = data;
+    _data.Init(std::move(data));
     _documentState = state;
     _proto = nil;
   }
   return self;
 }
 
-- (instancetype)initWithData:(FSTObjectValue *)data
+- (instancetype)initWithData:(ObjectValue)data
                          key:(DocumentKey)key
                      version:(SnapshotVersion)version
-                       state:(FSTDocumentState)state
+                       state:(DocumentState)state
                        proto:(GCFSDocument *)proto {
   self = [super initWithKey:std::move(key) version:std::move(version)];
   if (self) {
-    _data = data;
+    _data.Init(std::move(data));
     _documentState = state;
     _proto = proto;
   }
@@ -129,15 +137,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (bool)hasLocalMutations {
-  return _documentState == FSTDocumentStateLocalMutations;
+  return _documentState == DocumentState::kLocalMutations;
 }
 
 - (bool)hasCommittedMutations {
-  return _documentState == FSTDocumentStateCommittedMutations;
+  return _documentState == DocumentState::kCommittedMutations;
 }
 
 - (bool)hasPendingWrites {
   return self.hasLocalMutations || self.hasCommittedMutations;
+}
+
+- (const ObjectValue &)data {
+  return *_data;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -150,26 +162,22 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDocument *otherDoc = other;
   return self.key == otherDoc.key && self.version == otherDoc.version &&
-         _documentState == otherDoc->_documentState && [self.data isEqual:otherDoc.data];
+         _documentState == otherDoc->_documentState && self.data == otherDoc.data;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.key.Hash();
-  result = result * 31 + self.version.Hash();
-  result = result * 31 + [self.data hash];
-  result = result * 31 + _documentState;
-  return result;
+  return util::Hash(self.key, self.version, self.data, static_cast<unsigned long>(_documentState));
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%s documentState:%ld data:%@>",
+  return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%s documentState:%ld data:%s>",
                                     self.key.ToString().c_str(),
                                     self.version.timestamp().ToString().c_str(),
-                                    (long)_documentState, self.data];
+                                    (long)_documentState, self.data.ToString().c_str()];
 }
 
-- (nullable FSTFieldValue *)fieldForPath:(const FieldPath &)path {
-  return [_data valueForPath:path];
+- (absl::optional<FieldValue>)fieldForPath:(const FieldPath &)path {
+  return _data->Get(path);
 }
 
 @end

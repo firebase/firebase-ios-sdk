@@ -19,10 +19,10 @@
 #import "FIRAuthApiTestsBase.h"
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */
-static NSString *const kOldUserEmail = @"olduseremail@iosapitests.com";
+static NSString *const kOldUserEmail = @"iosgcip+user_old_email@gmail.com";
 
 /** The testing email address for testUpdatingUsersEmail. */
-static NSString *const kNewUserEmail = @"newuseremail@iosapitests.com";
+static NSString *const kNewUserEmail = @"iosgcip+user_new_email@gmail.com";
 
 @interface AccountInfoTests : FIRAuthApiTestsBase
 
@@ -30,7 +30,7 @@ static NSString *const kNewUserEmail = @"newuseremail@iosapitests.com";
 
 @implementation AccountInfoTests
 
-- (void)DISABLED_testUpdatingUsersEmail {
+- (void)testUpdatingUsersEmail {
   SKIP_IF_ON_MOBILE_HARNESS
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {

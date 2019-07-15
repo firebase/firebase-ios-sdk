@@ -31,11 +31,7 @@ namespace firebase {
 
 namespace {
 
-// We pass it by value without std::move.
-static_assert(std::is_trivially_copyable<Timestamp>::value,
-              "Timestamp must be trivially copyable");
-
-constexpr int32_t kNanosPerSecond = 1E9;
+constexpr int32_t kNanosPerSecond = 1000 * 1000 * 1000;
 
 /**
  * Creates a `Timestamp` from the given non-normalized inputs.

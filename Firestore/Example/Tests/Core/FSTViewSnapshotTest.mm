@@ -32,6 +32,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::DocumentState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTViewSnapshotTests
 
 - (void)testDocumentChangeConstructor {
-  FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
   DocumentViewChange::Type type = DocumentViewChange::Type::kModified;
   DocumentViewChange change{doc, type};
   XCTAssertEqual(change.document(), doc);
@@ -51,15 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testTrack {
   DocumentViewChangeSet set;
 
-  FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docModified = FSTTestDoc("a/3", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docModified = FSTTestDoc("a/3", 0, @{}, DocumentState::kSynced);
 
-  FSTDocument *docAddedThenModified = FSTTestDoc("b/1", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docAddedThenRemoved = FSTTestDoc("b/2", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docRemovedThenAdded = FSTTestDoc("b/3", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docAddedThenModified = FSTTestDoc("b/1", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docAddedThenRemoved = FSTTestDoc("b/2", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docRemovedThenAdded = FSTTestDoc("b/3", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, DocumentState::kSynced);
+  FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, DocumentState::kSynced);
 
   set.AddChange(DocumentViewChange{docAdded, DocumentViewChange::Type::kAdded});
   set.AddChange(DocumentViewChange{docRemoved, DocumentViewChange::Type::kRemoved});
@@ -104,9 +105,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("a");
   DocumentSet documents = DocumentSet{DocumentComparator::ByKey()};
   DocumentSet oldDocuments = documents;
-  documents = documents.insert(FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced));
+  documents = documents.insert(FSTTestDoc("c/a", 1, @{}, DocumentState::kSynced));
   std::vector<DocumentViewChange> documentChanges{DocumentViewChange{
-      FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced), DocumentViewChange::Type::kAdded}};
+      FSTTestDoc("c/a", 1, @{}, DocumentState::kSynced), DocumentViewChange::Type::kAdded}};
 
   bool fromCache = true;
   DocumentKeySet mutatedKeys;

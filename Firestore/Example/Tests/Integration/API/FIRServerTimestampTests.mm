@@ -171,6 +171,12 @@
 }
 
 - (void)testServerTimestampsWithPreviousValue {
+  // The following test includes an update of the nested map "deep", which updates it to contain
+  // a single ServerTimestamp. This update is split into two mutations: One that sets "deep" to
+  // an empty map and overwrites the previous ServerTimestamp value and a second transform that
+  // writes the new ServerTimestamp. This step in the test verifies that we can still access the
+  // old ServerTimestamp value (from `previousSnapshot`) even though it was removed in an
+  // intermediate step.
   [self writeDocumentRef:_docRef data:_setData];
   [self verifyTimestampsInSnapshot:[_accumulator awaitLocalEvent] fromPreviousSnapshot:nil];
   FIRDocumentSnapshot *remoteSnapshot = [_accumulator awaitRemoteEvent];
@@ -300,10 +306,7 @@
       completion:^(id result, NSError *error) {
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // TODO(b/35201829): This should be NotFound, but right now we retry transactions on any
-        // error and so this turns into Aborted instead.
-        // TODO(mikelehen): Actually it's FailedPrecondition, unlike Android. What do we want???
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
         [expectation fulfill];
       }];
   [self awaitExpectations];

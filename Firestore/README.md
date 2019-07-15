@@ -1,5 +1,6 @@
 ## Usage
 
+  * Install [prerequisite software](//github.com/firebase/firebase-ios-sdk#development)
   * Set up a workspace via CocoaPods
     ```
     $ cd Firestore/Example

@@ -259,18 +259,22 @@ inline std::shared_ptr<model::UnknownDocument> UnknownDoc(absl::string_view key,
   return std::make_shared<model::UnknownDocument>(Key(key), Version(version));
 }
 
-inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
-  if (s == "<")
-    return core::RelationFilter::Operator::LessThan;
-  else if (s == "<=")
-    return core::RelationFilter::Operator::LessThanOrEqual;
-  else if (s == "==")
-    return core::RelationFilter::Operator::Equal;
-  else if (s == ">")
-    return core::RelationFilter::Operator::GreaterThan;
-  else if (s == ">=")
-    return core::RelationFilter::Operator::GreaterThanOrEqual;
-  HARD_FAIL("Unknown operator: %s", s);
+inline core::Filter::Operator OperatorFromString(absl::string_view s) {
+  if (s == "<") {
+    return core::Filter::Operator::LessThan;
+  } else if (s == "<=") {
+    return core::Filter::Operator::LessThanOrEqual;
+  } else if (s == "==") {
+    return core::Filter::Operator::Equal;
+  } else if (s == ">") {
+    return core::Filter::Operator::GreaterThan;
+  } else if (s == ">=") {
+    return core::Filter::Operator::GreaterThanOrEqual;
+  } else if (s == "array_contains") {
+    return core::Filter::Operator::ArrayContains;
+  } else {
+    HARD_FAIL("Unknown operator: %s", s);
+  }
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
@@ -278,6 +282,18 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             model::FieldValue value) {
   return core::Filter::Create(Field(key), OperatorFromString(op),
                               std::move(value));
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            model::FieldValue::Map value) {
+  return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            std::nullptr_t) {
+  return Filter(key, op, model::FieldValue::Null());
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
@@ -299,7 +315,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 }
 
 inline core::Query Query(absl::string_view path) {
-  return core::Query::AtPath(Resource(path));
+  return core::Query(Resource(path));
 }
 
 inline std::unique_ptr<model::SetMutation> SetMutation(

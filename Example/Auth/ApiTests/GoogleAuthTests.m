@@ -64,9 +64,6 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
                                  }
                                }];
   XCTAssertEqualObjects(auth.currentUser.displayName, kGoogleTestAccountName);
-
-  // Clean up the created Firebase/Facebook user for future runs.
-  [self deleteCurrentUser];
 }
 
 /** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google

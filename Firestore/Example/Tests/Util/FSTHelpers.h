@@ -22,6 +22,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -34,21 +35,19 @@
 #include "absl/types/optional.h"
 
 @class FIRGeoPoint;
+@class FIRTimestamp;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
 @class FSTDocument;
 @class FSTDocumentKeyReference;
-@class FSTFieldValue;
-@class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
 @class FSTSetMutation;
 @class FSTSortOrder;
-@class FIRTimestamp;
 @class FSTTransformMutation;
+@class FSTUserDataConverter;
 @class FSTView;
-@class FSTObjectValue;
 
 namespace firebase {
 namespace firestore {
@@ -221,6 +220,9 @@ NSData *FSTTestData(int bytes, ...);
 /** Creates a new GeoPoint from the latitude and longitude values */
 FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 
+/** Creates a user data converter set up for a generic project. */
+FSTUserDataConverter *FSTTestUserDataConverter();
+
 /**
  * Creates a new NSDateComponents from components. Note that year, month, and day are all
  * one-based.
@@ -228,11 +230,11 @@ FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
-/** Wraps a plain value into an FSTFieldValue instance. */
-FSTFieldValue *FSTTestFieldValue(id _Nullable value);
+/** Wraps a plain value into an FieldValue instance. */
+model::FieldValue FSTTestFieldValue(id _Nullable value);
 
 /** Wraps a NSDictionary value into an FSTObjectValue instance. */
-FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
+model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
 firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
@@ -244,7 +246,7 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        FSTDocumentState documentState);
+                        model::DocumentState documentState);
 
 /** A convenience method for creating deleted docs for tests. */
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
@@ -260,12 +262,6 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseI
 
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(const absl::string_view path);
-
-/**
- * A convenience method to create a FSTFilter using a string representation for both field
- * and operator (<, <=, ==, >=, >, array_contains).
- */
-FSTFilter *FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);

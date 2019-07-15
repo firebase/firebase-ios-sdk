@@ -23,15 +23,16 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRQueryTests : XCTestCase
+@interface FIRQueryUnitTests : XCTestCase
 @end
 
-@implementation FIRQueryTests
+@implementation FIRQueryUnitTests
 
 - (void)testEquals {
   std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;

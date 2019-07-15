@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)collectionID {
-  return util::WrapNSString(self.reference.collection_id());
+  return util::MakeNSString(self.reference.collection_id());
 }
 
 - (FIRDocumentReference *_Nullable)parent {
@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)path {
-  return util::WrapNSString(self.reference.path());
+  return util::MakeNSString(self.reference.path());
 }
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {

@@ -1,4 +1,9 @@
 # Unreleased
+- [fixed] Ensure that users don't accidently invoke `Storage()` instead of `Storage.storage()`.
+  If your code calls the constructor of Storage directly, we will throw an assertion failure,
+  instead of crashing the process later as the instance is used (#3282).
+
+# 3.3.0
 - [added] Added `StorageReference.list()` and `StorageReference.listAll()`, which allows developers to list the files and folders under the given StorageReference.
 
 # 3.2.1

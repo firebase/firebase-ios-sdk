@@ -39,6 +39,7 @@ using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -137,7 +138,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, FSTDocumentStateSynced);
+    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, DocumentState::kSynced);
     self.remoteDocumentCache->Add(newDoc);
     XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
   });
@@ -180,8 +181,8 @@ static const int kVersion = 42;
     DocumentMap results = self.remoteDocumentCache->GetMatching(query);
     [self expectMap:results.underlying_map()
         hasDocsInArray:@[
-          FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
-          FSTTestDoc("b/2", kVersion, _kDocData, FSTDocumentStateSynced)
+          FSTTestDoc("b/1", kVersion, _kDocData, DocumentState::kSynced),
+          FSTTestDoc("b/2", kVersion, _kDocData, DocumentState::kSynced)
         ]
                exactly:YES];
   });
@@ -189,7 +190,7 @@ static const int kVersion = 42;
 
 #pragma mark - Helpers
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
-  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
+  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, DocumentState::kSynced);
   self.remoteDocumentCache->Add(doc);
   return doc;
 }

@@ -1,5 +1,16 @@
 # Unreleased
 
+# 1.4.2
+- [fixed] Fixed an internal assertion that was triggered when an update
+   with a `FieldValue.serverTimestamp()` and an update with a
+  `FieldValue.increment()` were pending for the same document.
+- [changed] Failed transactions now return the failure from the last attempt,
+  instead of `ABORTED.`
+
+# 1.4.1
+- [fixed] Fixed certificate loading for non-CocoaPods builds that may not
+  include bundle identifiers in their frameworks or apps (#3184).
+
 # 1.4.0
 - [feature] Added `clearPersistence()`, which clears the persistent storage
   including pending writes and cached documents. This is intended to help

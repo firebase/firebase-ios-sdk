@@ -87,6 +87,20 @@ TEST(FieldValueTest, ExtractsFields) {
   EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
 }
 
+TEST(FieldValueTest, ExtractsFieldMask) {
+  ObjectValue value =
+      WrapObject("a", "b", "map",
+                 Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
+                 "emptymap", Map());
+
+  FieldMask expectedMask =
+      FieldMask({Field("a"), Field("map.a"), Field("map.b"), Field("map.c"),
+                 Field("map.nested.d"), Field("emptymap")});
+  FieldMask actualMask = value.ToFieldMask();
+
+  EXPECT_EQ(expectedMask, actualMask);
+}
+
 TEST(FieldValueTest, OverwritesExistingFields) {
   ObjectValue old = WrapObject("a", "old");
   ObjectValue mod = old.Set(Field("a"), Value("mod"));
@@ -204,11 +218,13 @@ static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
 TEST(FieldValueTest, Equality) {
+  // Avoid statically dividing by zero; MSVC considers this an error.
+  double zero = 0.0;
   testutil::EqualsTester<FieldValue>()
       .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
       .AddEqualityGroup(FieldValue::False(), Value(false))
       .AddEqualityGroup(FieldValue::True(), Value(true))
-      .AddEqualityGroup(Value(0.0 / 0.0), Value(ToDouble(kCanonicalNanBits)),
+      .AddEqualityGroup(Value(0.0 / zero), Value(ToDouble(kCanonicalNanBits)),
                         Value(ToDouble(kAlternateNanBits)),
                         Value(std::nan("1")), Value(std::nan("2")))
       // -0.0 and 0.0 compareTo the same but are not equal.
@@ -422,7 +438,7 @@ TEST(FieldValue, TimestampType) {
   EXPECT_FALSE(a < a);
   const FieldValue c = FieldValue::FromServerTimestamp({100, 0});
   const FieldValue d = FieldValue::FromServerTimestamp(
-      {200, 0}, FieldValue::FromTimestamp({300, 0}).Wrap());
+      {200, 0}, FieldValue::FromTimestamp({300, 0}));
   EXPECT_EQ(Type::ServerTimestamp, c.type());
   EXPECT_EQ(Type::ServerTimestamp, d.type());
   EXPECT_TRUE(c < d);
@@ -575,17 +591,17 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue server_timestamp_value = FieldValue::FromServerTimestamp(
-      {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap());
+      {1, 2}, FieldValue::FromTimestamp({3, 4}));
   clone = server_timestamp_value;
-  EXPECT_EQ(FieldValue::FromServerTimestamp(
-                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
+                                            FieldValue::FromTimestamp({3, 4})),
             clone);
-  EXPECT_EQ(FieldValue::FromServerTimestamp(
-                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
+                                            FieldValue::FromTimestamp({3, 4})),
             server_timestamp_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromServerTimestamp(
-                {1, 2}, FieldValue::FromTimestamp({3, 4}).Wrap()),
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2},
+                                            FieldValue::FromTimestamp({3, 4})),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);

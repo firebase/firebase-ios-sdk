@@ -29,7 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDocumentKey;
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQuery;

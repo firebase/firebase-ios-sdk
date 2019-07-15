@@ -117,11 +117,12 @@ WriteBatch Firestore::GetBatch() {
   return WriteBatch(shared_from_this());
 }
 
-FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
+FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
   FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
-                            collectionGroup:collection_id];
+                            collectionGroup:std::make_shared<const std::string>(
+                                                std::move(collection_id))];
   return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
 }
 

@@ -661,7 +661,8 @@ struct ZipBuilder {
   /// .framework file already).
   private func generateFrameworks(fromPods pods: [CocoaPodUtils.PodInfo],
                                   inProjectDir projectDir: URL,
-                                  useCache: Bool = false) -> [String: [URL]] {
+                                  useCache: Bool = false,
+                                  carthageBuild: Bool = false) -> [String: [URL]] {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 

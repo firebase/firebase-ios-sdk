@@ -80,11 +80,11 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                       "before using Firestore");
   }
-  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::MakeNSString(DatabaseId::kDefault)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::MakeNSString(DatabaseId::kDefault)];
 }
 
 // TODO(b/62410906): make this public
@@ -183,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
                          collectionID);
   }
 
-  return _firestore->GetCollectionGroup(collectionID);
+  return _firestore->GetCollectionGroup(util::MakeString(collectionID));
 }
 
 - (FIRWriteBatch *)batch {

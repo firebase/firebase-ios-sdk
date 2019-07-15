@@ -22,6 +22,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 // TODO(wilhuff) move to first include once this test filename matches
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
@@ -29,6 +30,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::DocumentState;
 using testing::ElementsAre;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,9 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
   [super setUp];
 
   _comp.Init(FSTTestDocComparator("sort"));
-  _doc1 = FSTTestDoc("docs/1", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
-  _doc2 = FSTTestDoc("docs/2", 0, @{@"sort" : @3}, FSTDocumentStateSynced);
-  _doc3 = FSTTestDoc("docs/3", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
+  _doc1 = FSTTestDoc("docs/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
+  _doc2 = FSTTestDoc("docs/2", 0, @{@"sort" : @3}, DocumentState::kSynced);
+  _doc3 = FSTTestDoc("docs/3", 0, @{@"sort" : @1}, DocumentState::kSynced);
 }
 
 - (void)testCount {
@@ -106,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testUpdates {
   DocumentSet set = FSTTestDocSet(*_comp, @[ _doc1, _doc2, _doc3 ]);
 
-  FSTDocument *doc2Prime = FSTTestDoc("docs/2", 0, @{@"sort" : @9}, FSTDocumentStateSynced);
+  FSTDocument *doc2Prime = FSTTestDoc("docs/2", 0, @{@"sort" : @9}, DocumentState::kSynced);
 
   set = set.insert(doc2Prime);
   XCTAssertEqual(set.size(), 3);
@@ -115,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testAddsDocsWithEqualComparisonValues {
-  FSTDocument *doc4 = FSTTestDoc("docs/4", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc4 = FSTTestDoc("docs/4", 0, @{@"sort" : @2}, DocumentState::kSynced);
 
   DocumentSet set = FSTTestDocSet(*_comp, @[ _doc1, doc4 ]);
   XC_ASSERT_THAT(set, ElementsAre(_doc1, doc4));

@@ -19,7 +19,15 @@
 
 import Foundation
 import XCTest
-import Firebase
+
+// The Firebase pod is only available on iOS. On other platforms, import
+// Firestore directly and disable any tests that inspect types at the Firebase
+// level.
+#if os(iOS)
+  import Firebase
+#else
+  import FirebaseFirestore
+#endif
 
 class BasicCompileTests: XCTestCase {
   func testCompiled() {
@@ -211,7 +219,7 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
 }
 
 func addDocument(to collectionRef: CollectionReference) {
-  collectionRef.addDocument(data: ["foo": 42])
+  _ = collectionRef.addDocument(data: ["foo": 42])
   // or
   collectionRef.document().setData(["foo": 42])
 }
@@ -423,10 +431,14 @@ func types() {
   let _: Firestore
   let _: FirestoreSettings
   let _: GeoPoint
-  let _: Firebase.GeoPoint
+  #if os(iOS)
+    let _: Firebase.GeoPoint
+  #endif
   let _: FirebaseFirestore.GeoPoint
   let _: Timestamp
-  let _: Firebase.Timestamp
+  #if os(iOS)
+    let _: Firebase.Timestamp
+  #endif
   let _: FirebaseFirestore.Timestamp
   let _: ListenerRegistration
   let _: Query

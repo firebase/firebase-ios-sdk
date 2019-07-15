@@ -1,3 +1,6 @@
+# 2019-07 -- v4.1.1
+- Fix Xcode 11 tvOS build issue - (#3216)
+
 # 2019-06-18 -- v4.1.0
 - Adding macOS support for Messaging. You can now send push notification to your mac app with Firebase Messaging.(#2880)
 

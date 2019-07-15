@@ -34,13 +34,14 @@ using model::FieldValue;
 using model::ResourcePath;
 using testutil::Doc;
 using testutil::Filter;
+using testutil::Resource;
 
 TEST(QueryTest, MatchesBasedOnDocumentKey) {
   Document doc1 = *Doc("rooms/eros/messages/1");
   Document doc2 = *Doc("rooms/eros/messages/2");
   Document doc3 = *Doc("rooms/other/messages/1");
 
-  Query query = Query::AtPath({"rooms", "eros", "messages", "1"});
+  Query query = Query(Resource("rooms/eros/messages/1"));
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));
   EXPECT_FALSE(query.Matches(doc3));
@@ -52,7 +53,7 @@ TEST(QueryTest, MatchesShallowAncestorQuery) {
   Document doc2 = *Doc("rooms/eros/messages/2");
   Document doc3 = *Doc("rooms/other/messages/1");
 
-  Query query = Query::AtPath({"rooms", "eros", "messages"});
+  Query query = Query(Resource("rooms/eros/messages"));
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc1_meta));
   EXPECT_TRUE(query.Matches(doc2));
@@ -64,17 +65,15 @@ TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
                        {{"text", FieldValue::FromString("msg1")}});
   Document doc2 = *Doc("rooms/eros/messages/2");
 
-  Query query = Query::AtPath({"rooms", "eros", "messages"})
+  Query query = Query(Resource("rooms/eros/messages"))
                     .Filter(Filter("text", "==", "msg1"));
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));
 }
 
 TEST(QueryTest, PrimitiveValueFilter) {
-  Query query1 = Query::AtPath(ResourcePath::FromString("collection"))
-                     .Filter(Filter("sort", ">=", 2));
-  Query query2 = Query::AtPath(ResourcePath::FromString("collection"))
-                     .Filter(Filter("sort", "<=", 2));
+  Query query1 = Query(Resource("collection")).Filter(Filter("sort", ">=", 2));
+  Query query2 = Query(Resource("collection")).Filter(Filter("sort", "<=", 2));
 
   Document doc1 =
       *Doc("collection/1", 0, {{"sort", FieldValue::FromInteger(1)}});
@@ -100,8 +99,7 @@ TEST(QueryTest, PrimitiveValueFilter) {
 }
 
 TEST(QueryTest, NanFilter) {
-  Query query = Query::AtPath(ResourcePath::FromString("collection"))
-                    .Filter(Filter("sort", "==", NAN));
+  Query query = Query(Resource("collection")).Filter(Filter("sort", "==", NAN));
 
   Document doc1 = *Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
   Document doc2 =

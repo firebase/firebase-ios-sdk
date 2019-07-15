@@ -107,15 +107,14 @@
 		405EEF4C2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
+		4061967622B9B1960016A40F /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4061967522B9B1960016A40F /* GoogleAuthTests.m */; };
 		408870AB21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */; };
 		4090ADFD2217948D00547281 /* FIRAuthE2eTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4090ADFC2217948D00547281 /* FIRAuthE2eTestsBase.m */; };
 		4090ADFF2217978300547281 /* BYOAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4090ADFE2217978300547281 /* BYOAuthTests.m */; };
 		409E1130219FA260000E6CFC /* VerifyIOSClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 409E112F219FA260000E6CFC /* VerifyIOSClientTests.m */; };
 		40CC550D221B9B4700032423 /* FIRAuthApiTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5504221B9B4600032423 /* FIRAuthApiTestsBase.m */; };
-		40CC550E221B9B4700032423 /* GoogleAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5505221B9B4700032423 /* GoogleAuthTests.swift */; };
 		40CC550F221B9B4700032423 /* AccountInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5506221B9B4700032423 /* AccountInfoTests.m */; };
 		40CC5510221B9B4700032423 /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5508221B9B4700032423 /* CustomAuthTests.m */; };
-		40CC5511221B9B4700032423 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5509221B9B4700032423 /* GoogleAuthTests.m */; };
 		40CC5512221B9B4700032423 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550A221B9B4700032423 /* AnonymousAuthTests.m */; };
 		40CC5513221B9B4700032423 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550B221B9B4700032423 /* FacebookAuthTests.m */; };
 		40EE3B822256B23200BE59CE /* MainViewController+GameCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */; };
@@ -1071,17 +1070,15 @@
 		0697B1201EC13D8A00542174 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthLifeCycleTests.m; sourceTree = "<group>"; };
+		4061967522B9B1960016A40F /* GoogleAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthTests.m; sourceTree = "<group>"; };
 		408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSignInWithGameCenterTests.m; sourceTree = "<group>"; };
 		4090ADFB2217948D00547281 /* FIRAuthE2eTestsBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAuthE2eTestsBase.h; sourceTree = "<group>"; };
 		4090ADFC2217948D00547281 /* FIRAuthE2eTestsBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTestsBase.m; sourceTree = "<group>"; };
 		4090ADFE2217978300547281 /* BYOAuthTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BYOAuthTests.m; sourceTree = "<group>"; };
 		409E112F219FA260000E6CFC /* VerifyIOSClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VerifyIOSClientTests.m; sourceTree = "<group>"; };
 		40CC5504221B9B4600032423 /* FIRAuthApiTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthApiTestsBase.m; sourceTree = "<group>"; };
-		40CC5505221B9B4700032423 /* GoogleAuthTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleAuthTests.swift; sourceTree = "<group>"; };
 		40CC5506221B9B4700032423 /* AccountInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountInfoTests.m; sourceTree = "<group>"; };
-		40CC5507221B9B4700032423 /* Auth_ApiTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Auth_ApiTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		40CC5508221B9B4700032423 /* CustomAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAuthTests.m; sourceTree = "<group>"; };
-		40CC5509221B9B4700032423 /* GoogleAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthTests.m; sourceTree = "<group>"; };
 		40CC550A221B9B4700032423 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
 		40CC550B221B9B4700032423 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
 		40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
@@ -2257,7 +2254,6 @@
 			children = (
 				40CC5506221B9B4700032423 /* AccountInfoTests.m */,
 				40CC550A221B9B4700032423 /* AnonymousAuthTests.m */,
-				40CC5507221B9B4700032423 /* Auth_ApiTests-Bridging-Header.h */,
 				DE26D1C71F70330A004AE1D3 /* AuthCredentials.h */,
 				DE26D1C81F70330A004AE1D3 /* AuthCredentialsTemplate.h */,
 				40CC5508221B9B4700032423 /* CustomAuthTests.m */,
@@ -2265,8 +2261,7 @@
 				40CC550B221B9B4700032423 /* FacebookAuthTests.m */,
 				40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */,
 				40CC5504221B9B4600032423 /* FIRAuthApiTestsBase.m */,
-				40CC5509221B9B4700032423 /* GoogleAuthTests.m */,
-				40CC5505221B9B4700032423 /* GoogleAuthTests.swift */,
+				4061967522B9B1960016A40F /* GoogleAuthTests.m */,
 				DE26D1CA1F70330A004AE1D3 /* Info.plist */,
 			);
 			path = ApiTests;
@@ -4835,13 +4830,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40CC550E221B9B4700032423 /* GoogleAuthTests.swift in Sources */,
 				40CC5512221B9B4700032423 /* AnonymousAuthTests.m in Sources */,
 				40CC550F221B9B4700032423 /* AccountInfoTests.m in Sources */,
 				40CC5510221B9B4700032423 /* CustomAuthTests.m in Sources */,
 				DE26D2681F704A0C004AE1D3 /* EmailPasswordAuthTests.m in Sources */,
 				40CC5513221B9B4700032423 /* FacebookAuthTests.m in Sources */,
-				40CC5511221B9B4700032423 /* GoogleAuthTests.m in Sources */,
+				4061967622B9B1960016A40F /* GoogleAuthTests.m in Sources */,
 				40CC550D221B9B4700032423 /* FIRAuthApiTestsBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6848,7 +6842,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6882,7 +6876,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;

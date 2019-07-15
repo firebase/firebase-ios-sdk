@@ -14,4 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRAuthApiTestsBase.h"
+public enum FirestoreDecodingError: Error {
+  case decodingIsNotSupported
+}
+
+public enum FirestoreEncodingError: Error {
+  case encodingIsNotSupported
+}

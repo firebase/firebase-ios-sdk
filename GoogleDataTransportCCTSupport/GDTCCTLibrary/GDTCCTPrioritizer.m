@@ -66,11 +66,14 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
       return;
     }
 
+    // If on wifi, upload logs that are ok to send on wifi.
     if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
       logEventsThatWillBeSent = [self logEventsOkToSendOnWifi];
     } else {
       logEventsThatWillBeSent = [self logEventsOkToSendOnMobileData];
     }
+
+    // If it's been > 24h since the last daily upload, upload logs with the daily QoS.
     if (self.timeOfLastDailyUpload) {
       int64_t millisSinceLastUpload =
           [GDTClock snapshot].timeMillis - self.timeOfLastDailyUpload.timeMillis;
@@ -113,11 +116,12 @@ typedef NS_ENUM(NSInteger, GDTCCTQoSTier) {
 FOUNDATION_STATIC_INLINE
 NSNumber *GDTCCTQosTierFromGDTEventQosTier(GDTEventQoS qosTier) {
   switch (qosTier) {
-    case GDTEventQoSTelemetry:
     case GDTEventQoSWifiOnly:
       return @(GDTCCTQoSWifiOnly);
       break;
 
+    case GDTEventQoSTelemetry:
+      // falls through.
     case GDTEventQoSDaily:
       return @(GDTCCTQoSDaily);
       break;
@@ -149,7 +153,8 @@ NSNumber *GDTCCTQosTierFromGDTEventQosTier(GDTEventQoS qosTier) {
   return
       [self.events objectsPassingTest:^BOOL(GDTStoredEvent *_Nonnull event, BOOL *_Nonnull stop) {
         NSNumber *qosTier = GDTCCTQosTierFromGDTEventQosTier(event.qosTier);
-        return [qosTier isEqual:@(GDTCCTQoSDefault)] || [qosTier isEqual:@(GDTCCTQoSWifiOnly)];
+        return [qosTier isEqual:@(GDTCCTQoSDefault)] || [qosTier isEqual:@(GDTCCTQoSWifiOnly)] ||
+               [qosTier isEqual:@(GDTCCTQoSDaily)];
       }];
 }
 

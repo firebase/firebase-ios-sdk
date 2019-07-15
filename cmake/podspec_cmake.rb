@@ -303,8 +303,15 @@ class CMakeGenerator
 
       hmap_dirs.add(File.dirname(source))
     end
-    @target.include_directories('PRIVATE', hmap_dirs.to_a.sort)
+    @target.include_directories('PRIVATE', *hmap_dirs.to_a.sort)
   end
+
+  # Account for differences in dependency names between CocoaPods and CMake.
+  # Keys should be CocoaPod dependency names and values should be the
+  # equivalent CMake library targets.
+  DEP_RENAMES = {
+    'nanopb' => 'protobuf-nanopb-static'
+  }
 
   # Adds Pod::Spec +dependencies+ as target_link_libraries. Only root-specs are
   # added as dependencies because in the CMake build there can be only one
@@ -316,6 +323,8 @@ class CMakeGenerator
       next if dep.name.start_with?(prefix)
 
       name = dep.name.sub(/\/.*/, '')
+      name = DEP_RENAMES.fetch(name, name)
+
       @target.link_libraries('PUBLIC', name)
     end
   end
@@ -345,9 +354,9 @@ class CMakeGenerator
 
     defs = split(xcconfig['GCC_PREPROCESSOR_DEFINITIONS'])
     defs = defs.map { |x| '-D' + x }
-    @target.compile_definitions(type, defs)
+    @target.compile_definitions(type, *defs)
 
-    @target.include_directories(type, split(xcconfig['HEADER_SEARCH_PATHS']))
+    @target.include_directories(type, *split(xcconfig['HEADER_SEARCH_PATHS']))
   end
 
   # Splits a textual value in xcconfig. Always returns an array, but that array

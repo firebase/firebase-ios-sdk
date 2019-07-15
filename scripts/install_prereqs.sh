@@ -26,7 +26,7 @@ function install_secrets() {
   # requests from forks. See
   # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
   if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
-    openssl aes-256-cbc -K $encrypted_d6a88994a5ab_key -iv $encrypted_d6a88994a5ab_iv \
+    openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
@@ -48,9 +48,7 @@ function install_secrets() {
 
 function pod_gen() {
   # Call pod gen with a podspec and additonal optional arguments.
-  # Disabled CDN. See https://github.com/firebase/firebase-ios-sdk/issues/3165
-  # bundle exec pod gen --local-sources=./ --sources=https://cdn.jsdelivr.net/cocoa/ "$@"
-  bundle exec pod gen --local-sources=./ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
 }
 
 case "$PROJECT-$PLATFORM-$METHOD" in
