@@ -23,12 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// The class provides a convenient abstraction on top of the iOS Keychain API to save data.
 @interface FIRSecureStorage : NSObject
 
-#if TARGET_OS_OSX
-/// If not `nil`, then only this keychain will be used to save and read data (see `kSecMatchSearchList` and `kSecUseKeychain`.
-/// It is mostly intended to be used by unit tests.
-@property(nonatomic, nullable) SecKeychainRef keychainRef;
-#endif // TARGET_OSX
-
 /**
  * Get an object by key.
  * @param key The key.
@@ -69,6 +63,12 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: May be needed to read write legacy IID keychain items.
 //- (FBLPromise<NSString *> *)getStringForKey:(NSString *)key;
 //- (FBLPromise<id> *)setString:(NSString *)string forKey:(NSString *)key;
+
+#if TARGET_OS_OSX
+/// If not `nil`, then only this keychain will be used to save and read data (see `kSecMatchSearchList` and `kSecUseKeychain`.
+/// It is mostly intended to be used by unit tests.
+@property(nonatomic, nullable) SecKeychainRef keychainRef;
+#endif // TARGET_OSX
 
 @end
 

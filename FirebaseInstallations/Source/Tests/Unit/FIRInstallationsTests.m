@@ -67,6 +67,8 @@
   [super tearDown];
 }
 
+// TODO: Configure the tests to run on macOS without requesting the keychain password.
+#if !TARGET_OS_OSX
 // TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
 // side effect now (triggers a background task).
 - (void)testInstallationsWithApp {
@@ -94,6 +96,8 @@
 
   [FIRApp resetApps];
 }
+
+#endif // !TARGET_OSX
 
 - (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
   XCTAssertThrows([FIRInstallations installations]);

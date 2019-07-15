@@ -50,7 +50,6 @@
         "com.firebase.FIRInstallations.FIRSecureStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
     _inMemoryCache = cache;
-    _keychainRef = nil;
   }
   return self;
 }

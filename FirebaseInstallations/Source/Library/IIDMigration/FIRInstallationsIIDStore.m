@@ -152,16 +152,23 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (NSDictionary *)keyPairQueryWithTag:(NSString *)tag returnData:(BOOL)shouldReturnData {
-  NSMutableDictionary *queryKey = [NSMutableDictionary dictionary];
+  NSMutableDictionary *query = [NSMutableDictionary dictionary];
   NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
 
-  queryKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
-  queryKey[(__bridge id)kSecAttrApplicationTag] = tagData;
-  queryKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
+  query[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+  query[(__bridge id)kSecAttrApplicationTag] = tagData;
+  query[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
   if (shouldReturnData) {
-    queryKey[(__bridge id)kSecReturnData] = @(YES);
+    query[(__bridge id)kSecReturnData] = @(YES);
   }
-  return queryKey;
+
+#if TARGET_OS_OSX
+  if(self.keychainRef) {
+    query[(__bridge NSString *)kSecMatchSearchList] = @[(__bridge id)(self.keychainRef)];
+  }
+#endif // TARGET_OSX
+
+  return query;
 }
 
 - (NSString *)keychainKeyTagWithPrefix:(NSString *)prefix {

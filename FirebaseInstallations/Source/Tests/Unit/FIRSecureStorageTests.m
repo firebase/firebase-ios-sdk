@@ -18,10 +18,12 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "FIRTestKeychain.h"
 
 #import <Security/Security.h>
 
 #import "FIRSecureStorage.h"
+
 
 @interface FIRSecureStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
@@ -34,7 +36,7 @@
 @property(nonatomic, strong) id mockCache;
 
 #if TARGET_OS_OSX
-@property(nonatomic) SecKeychainRef privateKeychain;
+@property(nonatomic) FIRTestKeychain *privateKeychain;
 #endif // TARGET_OSX
 
 @end
@@ -48,13 +50,8 @@
                                                      cache:self.mockCache];
 
 #if TARGET_OS_OSX
-  SecKeychainRef privateKeychain;
-  NSString *keychainPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"FIRSecureStorageTestsKeychain3"];
-  OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding],
-                                      0, "1", false, [self createAccess:@"FIRSecureStorageTestsKeychainAccess"], &privateKeychain);
-  XCTAssertEqual(result, errSecSuccess);
-  self.privateKeychain = privateKeychain;
-  self.storage.keychainRef = privateKeychain;
+  self.privateKeychain = [[FIRTestKeychain alloc] init];
+  self.storage.keychainRef = self.privateKeychain.testKeychainRef;
 #endif // TARGET_OSX
 }
 
@@ -64,10 +61,7 @@
   self.cache = nil;
 
 #if TARGET_OS_OSX
-  if (self.privateKeychain) {
-    XCTAssertEqual(SecKeychainDelete(self.privateKeychain), errSecSuccess);
-    CFRelease(self.privateKeychain);
-  }
+  self.privateKeychain = nil;
 #endif // TARGET_OSX
 }
 
@@ -206,28 +200,5 @@
 
   OCMVerifyAll(self.mockCache);
 }
-
-#if TARGET_OS_OSX
-- (SecAccessRef)createAccess:(NSString *)accessLabel {
-  OSStatus result;
-  SecAccessRef access = nil;
-
-  SecTrustedApplicationRef myself;
-  result = SecTrustedApplicationCreateFromPath(NULL, &myself);
-
-  if (result != errSecSuccess)
-    XCTFail(@"Failed to get current app");
-    return nil;
-
-  result = SecAccessCreate((__bridge CFStringRef)accessLabel,(__bridge CFArrayRef)@[(__bridge id)myself], &access);
-
-  if (result != errSecSuccess)
-    XCTFail(@"Failed to get SecAccessRef");
-    return nil;
-
-  return access;
-}
-
-#endif
 
 @end
