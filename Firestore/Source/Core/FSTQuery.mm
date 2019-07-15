@@ -28,7 +28,10 @@
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -57,25 +60,6 @@ using firebase::firestore::util::ComparisonResult;
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Filter::Operator functions
-
-NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
-  switch (filterOperator) {
-    case Filter::Operator::LessThan:
-      return @"<";
-    case Filter::Operator::LessThanOrEqual:
-      return @"<=";
-    case Filter::Operator::Equal:
-      return @"==";
-    case Filter::Operator::GreaterThanOrEqual:
-      return @">=";
-    case Filter::Operator::GreaterThan:
-      return @">";
-    case Filter::Operator::ArrayContains:
-      return @"array_contains";
-    default:
-      HARD_FAIL("Unknown Filter::Operator %s", filterOperator);
-  }
-}
 
 @implementation FSTFilter
 
@@ -141,7 +125,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 @end
 
 @implementation FSTRelationFilter {
-  FieldValue _value;
+  core::RelationFilter _filter;
 }
 
 #pragma mark - Constructor methods
@@ -151,9 +135,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
                         value:(FieldValue)value {
   self = [super init];
   if (self) {
-    _field = std::move(field);
-    _filterOperator = filterOperator;
-    _value = value;
+    _filter = core::RelationFilter(std::move(field), filterOperator, std::move(value));
   }
   return self;
 }
@@ -161,192 +143,129 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - Public Methods
 
 - (BOOL)isInequality {
-  return self.filterOperator != Filter::Operator::Equal &&
-         self.filterOperator != Filter::Operator::ArrayContains;
+  return _filter.IsInequality();
 }
 
-- (const firebase::firestore::model::FieldPath &)field {
-  return _field;
+- (const model::FieldPath &)field {
+  return _filter.field();
+}
+
+- (core::Filter::Operator)filterOperator {
+  return _filter.op();
+}
+
+- (const model::FieldValue &)value {
+  return _filter.value();
 }
 
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"%s %@ %s", _field.CanonicalString().c_str(),
-                                    FSTStringFromQueryRelationOperator(self.filterOperator),
-                                    self.value.ToString().c_str()];
+  return util::MakeNSString(_filter.ToString());
 }
 
 - (BOOL)isEqual:(id)other {
-  if (self == other) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTRelationFilter class]]) {
-    return NO;
-  }
-  return [self isEqualToFilter:(FSTRelationFilter *)other];
+  if (self == other) return YES;
+  if (![other isKindOfClass:[FSTRelationFilter class]]) return NO;
+
+  return _filter == ((FSTRelationFilter *)other)->_filter;
 }
 
 #pragma mark - Private methods
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  if (_field.IsKeyFieldPath()) {
-    HARD_ASSERT(self.value.type() == FieldValue::Type::Reference,
-                "Comparing on key, but filter value not a Reference.");
-    HARD_ASSERT(self.filterOperator != Filter::Operator::ArrayContains,
-                "arrayContains queries don't make sense on document keys.");
-    const auto &ref = self.value.reference_value();
-    ComparisonResult comparison = document.key.CompareTo(ref.key());
-    return [self matchesComparison:comparison];
-  } else {
-    auto value = [document fieldForPath:self.field];
-    if (!value) return false;
-
-    return [self matchesValue:*value];
-  }
+  model::Document converted(document);
+  return _filter.Matches(converted);
 }
 
 - (NSString *)canonicalID {
-  // TODO(b/37283291): This should be collision robust and avoid relying on |description| methods.
-  return [NSString stringWithFormat:@"%s%@%s", _field.CanonicalString().c_str(),
-                                    FSTStringFromQueryRelationOperator(self.filterOperator),
-                                    self.value.ToString().c_str()];
-}
-
-- (BOOL)isEqualToFilter:(FSTRelationFilter *)other {
-  if (self.filterOperator != other.filterOperator) {
-    return NO;
-  }
-  if (_field != other.field) {
-    return NO;
-  }
-  return self.value == other.value;
-}
-
-/** Returns YES if receiver is true with the given value as its LHS. */
-- (BOOL)matchesValue:(const FieldValue &)other {
-  if (self.filterOperator == Filter::Operator::ArrayContains) {
-    if (other.type() == FieldValue::Type::Array) {
-      const auto &array = other.array_value();
-      auto found = absl::c_find(array, self.value);
-      return found != array.end();
-    } else {
-      return false;
-    }
-  } else {
-    // Only perform comparison queries on types with matching backend order (such as double and
-    // int).
-    return FieldValue::Comparable(self.value.type(), other.type()) &&
-           [self matchesComparison:other.CompareTo(self.value)];
-  }
-}
-
-- (BOOL)matchesComparison:(util::ComparisonResult)comparison {
-  switch (self.filterOperator) {
-    case Filter::Operator::LessThan:
-      return comparison == ComparisonResult::Ascending;
-    case Filter::Operator::LessThanOrEqual:
-      return comparison == ComparisonResult::Ascending || comparison == ComparisonResult::Same;
-    case Filter::Operator::Equal:
-      return comparison == ComparisonResult::Same;
-    case Filter::Operator::GreaterThanOrEqual:
-      return comparison == ComparisonResult::Descending || comparison == ComparisonResult::Same;
-    case Filter::Operator::GreaterThan:
-      return comparison == ComparisonResult::Descending;
-    default:
-      HARD_FAIL("Unknown operator: %s", self.filterOperator);
-  }
+  return util::MakeNSString(_filter.CanonicalId());
 }
 
 @end
 
 #pragma mark - FSTNullFilter
 
-@interface FSTNullFilter () {
-  FieldPath _field;
+@implementation FSTNullFilter {
+  core::NullFilter _filter;
 }
-@end
 
-@implementation FSTNullFilter
 - (instancetype)initWithField:(FieldPath)field {
   if (self = [super init]) {
-    _field = std::move(field);
+    _filter = core::NullFilter(std::move(field));
   }
   return self;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  absl::optional<FieldValue> fieldValue = [document fieldForPath:self.field];
-  return fieldValue && fieldValue->type() == FieldValue::Type::Null;
+  model::Document converted(document);
+  return _filter.Matches(converted);
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%s IS NULL", _field.CanonicalString().c_str()];
+  return util::MakeNSString(_filter.CanonicalId());
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
-  return _field;
+  return _filter.field();
 }
 
 - (NSString *)description {
-  return [self canonicalID];
+  return util::MakeNSString(_filter.ToString());
 }
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return _field == ((FSTNullFilter *)other)->_field;
+  return _filter == ((FSTNullFilter *)other)->_filter;
 }
 
 - (NSUInteger)hash {
-  return util::Hash(_field);
+  return _filter.Hash();
 }
 
 @end
 
 #pragma mark - FSTNanFilter
 
-@interface FSTNanFilter () {
-  FieldPath _field;
+@implementation FSTNanFilter {
+  core::NanFilter _filter;
 }
-@end
-
-@implementation FSTNanFilter
 
 - (instancetype)initWithField:(FieldPath)field {
   if (self = [super init]) {
-    _field = std::move(field);
+    _filter = core::NanFilter(field);
   }
   return self;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  absl::optional<FieldValue> fieldValue = [document fieldForPath:self.field];
-  return fieldValue && fieldValue->is_nan();
+  model::Document converted(document);
+  return _filter.Matches(converted);
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%s IS NaN", _field.CanonicalString().c_str()];
+  return util::MakeNSString(_filter.CanonicalId());
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
-  return _field;
+  return _filter.field();
 }
 
 - (NSString *)description {
-  return [self canonicalID];
+  return util::MakeNSString(_filter.ToString());
 }
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return _field == ((FSTNanFilter *)other)->_field;
+  return _filter == ((FSTNanFilter *)other)->_filter;
 }
 
 - (NSUInteger)hash {
-  return util::Hash(_field);
+  return _filter.Hash();
 }
 @end
 
