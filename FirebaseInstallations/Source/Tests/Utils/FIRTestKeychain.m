@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_OSX
+
 #import "FIRTestKeychain.h"
 
 #import <XCTest/XCTest.h>
@@ -58,3 +60,5 @@
 }
 
 @end
+
+#endif // TARGET_OSX
