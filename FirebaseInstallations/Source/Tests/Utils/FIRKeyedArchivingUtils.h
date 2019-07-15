@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRKeydArchivingUtils : NSObject
+@interface FIRKeyedArchivingUtils : NSObject
 
 + (nullable NSData *)archivedDataWithRootObject:(id)object error:(NSError **)outError;
 + (nullable id)unarchivedObjectOfClass:(Class)class

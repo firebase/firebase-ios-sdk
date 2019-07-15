@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRKeydArchivingUtils.h"
+#import "FIRKeyedArchivingUtils.h"
 
-@implementation FIRKeydArchivingUtils
+@implementation FIRKeyedArchivingUtils
 
 + (nullable NSData *)archivedDataWithRootObject:(id)object error:(NSError **)outError {
   NSData *archivedData;
@@ -37,7 +37,7 @@
     } @catch (NSException *exception) {
       if (outError) {
         NSString *failureReason = [NSString stringWithFormat:@"Exception: %@", exception];
-        *outError = [NSError errorWithDomain:@"FIRKeydArchivingUtils"
+        *outError = [NSError errorWithDomain:@"FIRKeyedArchivingUtils"
                                         code:-1
                                     userInfo:@{
                                       NSLocalizedFailureReasonErrorKey : failureReason,
@@ -64,7 +64,7 @@
     } @catch (NSException *exception) {
       if (outError) {
         NSString *failureReason = [NSString stringWithFormat:@"Exception: %@", exception];
-        *outError = [NSError errorWithDomain:@"FIRKeydArchivingUtils"
+        *outError = [NSError errorWithDomain:@"FIRKeyedArchivingUtils"
                                         code:-1
                                     userInfo:@{
                                       NSLocalizedFailureReasonErrorKey : failureReason,

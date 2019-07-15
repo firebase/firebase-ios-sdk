@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 #import "FIRInstallationsHTTPError.h"
+#import "FIRKeyedArchivingUtils.h"
 
 @interface FIRInstallationsHTTPErrorTests : XCTestCase
 
@@ -67,6 +68,44 @@
   NSData *responseData = [NSJSONSerialization dataWithJSONObject:response options:0 error:nil];
   XCTAssertNotNil(responseData);
   return responseData;
+}
+
+- (void)testCopying {
+  NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
+  NSData *responseData = [self createResponseData];
+  FIRInstallationsHTTPError *error =
+      [[FIRInstallationsHTTPError alloc] initWithHTTPResponse:HTTPResponse data:responseData];
+
+  FIRInstallationsHTTPError *clone = [error copy];
+
+  XCTAssertEqualObjects(error, clone);
+  XCTAssertEqualObjects(error.HTTPResponse, clone.HTTPResponse);
+  XCTAssertEqualObjects(error.data, clone.data);
+}
+
+- (void)testCoding {
+  NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
+  NSData *responseData = [self createResponseData];
+  FIRInstallationsHTTPError *error =
+      [[FIRInstallationsHTTPError alloc] initWithHTTPResponse:HTTPResponse data:responseData];
+
+  NSError *codingError;
+  NSData *archive = [FIRKeyedArchivingUtils archivedDataWithRootObject:error error:&codingError];
+  XCTAssertNotNil(archive, @"Error: %@", codingError);
+
+  FIRInstallationsHTTPError *unarchivedError =
+      [FIRKeyedArchivingUtils unarchivedObjectOfClass:[FIRInstallationsHTTPError class]
+                                             fromData:archive
+                                                error:&codingError];
+  XCTAssertNotNil(unarchivedError, @"Error: %@", codingError);
+
+  // The error will not be equal because two different instances of NSHTTPURLResponse with the same
+  // content are not equal. Let's check the content below.
+  XCTAssertEqual(error.HTTPResponse.statusCode, unarchivedError.HTTPResponse.statusCode);
+  XCTAssertEqualObjects(error.HTTPResponse.allHeaderFields,
+                        unarchivedError.HTTPResponse.allHeaderFields);
+  XCTAssertEqualObjects(error.HTTPResponse.URL, unarchivedError.HTTPResponse.URL);
+  XCTAssertEqualObjects(error.data, unarchivedError.data);
 }
 
 @end

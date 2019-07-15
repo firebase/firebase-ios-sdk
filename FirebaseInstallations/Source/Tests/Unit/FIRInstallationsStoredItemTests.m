@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRKeydArchivingUtils.h"
+#import "FIRKeyedArchivingUtils.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsStoredItem.h"
@@ -40,13 +40,13 @@
   item.registrationStatus = FIRInstallationStatusRegistered;
 
   NSError *error;
-  NSData *archivedItem = [FIRKeydArchivingUtils archivedDataWithRootObject:item error:&error];
+  NSData *archivedItem = [FIRKeyedArchivingUtils archivedDataWithRootObject:item error:&error];
   XCTAssertNotNil(archivedItem, @"Error: %@", error);
 
   FIRInstallationsStoredItem *unarchivedItem =
-      [FIRKeydArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredItem class]
-                                            fromData:archivedItem
-                                               error:&error];
+      [FIRKeyedArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredItem class]
+                                             fromData:archivedItem
+                                                error:&error];
   XCTAssertNotNil(unarchivedItem, @"Error: %@", error);
 
   XCTAssertEqualObjects(unarchivedItem.firebaseInstallationID, item.firebaseInstallationID);

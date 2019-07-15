@@ -47,4 +47,32 @@
   return @{NSLocalizedFailureReasonErrorKey : failureReason};
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {
+  return [[FIRInstallationsHTTPError alloc] initWithHTTPResponse:self.HTTPResponse data:self.data];
+}
+
+#pragma mark - NSSecureCoding
+
+- (nullable instancetype)initWithCoder:(NSCoder *)coder {
+  NSHTTPURLResponse *HTTPResponse = [coder decodeObjectOfClass:[NSHTTPURLResponse class]
+                                                        forKey:@"HTTPResponse"];
+  if (!HTTPResponse) {
+    return nil;
+  }
+  NSData *data = [coder decodeObjectOfClass:[NSData class] forKey:@"data"];
+
+  return [self initWithHTTPResponse:HTTPResponse data:data];
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+  [coder encodeObject:self.HTTPResponse forKey:@"HTTPResponse"];
+  [coder encodeObject:self.data forKey:@"data"];
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
 @end

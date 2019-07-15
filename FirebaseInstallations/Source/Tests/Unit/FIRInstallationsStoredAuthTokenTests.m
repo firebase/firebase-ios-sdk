@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRKeydArchivingUtils.h"
+#import "FIRKeyedArchivingUtils.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 
@@ -33,13 +33,13 @@
   token.status = FIRInstallationsAuthTokenStatusTokenReceived;
 
   NSError *error;
-  NSData *archivedToken = [FIRKeydArchivingUtils archivedDataWithRootObject:token error:&error];
+  NSData *archivedToken = [FIRKeyedArchivingUtils archivedDataWithRootObject:token error:&error];
   XCTAssertNotNil(archivedToken, @"Error: %@", error);
 
   FIRInstallationsStoredAuthToken *unarchivedToken =
-      [FIRKeydArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredAuthToken class]
-                                            fromData:archivedToken
-                                               error:&error];
+      [FIRKeyedArchivingUtils unarchivedObjectOfClass:[FIRInstallationsStoredAuthToken class]
+                                             fromData:archivedToken
+                                                error:&error];
   XCTAssertNotNil(unarchivedToken, @"Error: %@", error);
 
   XCTAssertEqualObjects(token.token, unarchivedToken.token);
