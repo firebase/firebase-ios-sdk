@@ -222,6 +222,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
   return queryItems;
 }
 
+// TODO: Replace keyPair by FID.
 - (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair {
   NSMutableArray<FIRInstanceIDURLQueryItem *> *items = [NSMutableArray arrayWithCapacity:3];
   // appid=
