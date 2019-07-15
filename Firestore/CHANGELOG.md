@@ -1,4 +1,6 @@
 # Unreleased
+
+# 1.4.2
 - [fixed] Fixed an internal assertion that was triggered when an update
    with a `FieldValue.serverTimestamp()` and an update with a
   `FieldValue.increment()` were pending for the same document.
