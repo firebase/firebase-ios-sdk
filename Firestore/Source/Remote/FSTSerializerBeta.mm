@@ -786,7 +786,7 @@ NS_ASSUME_NONNULL_BEGIN
                 "Collection group queries should be within a document path or root.");
     queryTarget.parent = [self encodedQueryPath:path];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
-    from.collectionId = query.collectionGroup;
+    from.collectionId = util::MakeNSString(query.collectionGroup);
     from.allDescendants = YES;
     [queryTarget.structuredQuery.fromArray addObject:from];
   } else {
@@ -827,7 +827,7 @@ NS_ASSUME_NONNULL_BEGIN
   ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
-  NSString *collectionGroup;
+  std::shared_ptr<const std::string> collectionGroup;
   NSUInteger fromCount = query.fromArray_Count;
   if (fromCount > 0) {
     HARD_ASSERT(fromCount == 1,
@@ -835,7 +835,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     GCFSStructuredQuery_CollectionSelector *from = query.fromArray[0];
     if (from.allDescendants) {
-      collectionGroup = from.collectionId;
+      collectionGroup = util::MakeStringPtr(from.collectionId);
     } else {
       path = path.Append(util::MakeString(from.collectionId));
     }

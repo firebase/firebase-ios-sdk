@@ -1,5 +1,11 @@
-# Unreleased
+# 6.2.3
+- Revert "Fix `GULMutableDictionary` thread-safety." (#3322)
+
+# 6.2.2
 - Add explicit Foundation import for headers.
+- Fix headers import. (#3277)
+- Fix README. (#3305)
+- Fix `GULMutableDictionary` thread-safety. (#3322)
 
 # 6.2.1
 - Fix Xcode 11 build warning. (#3133)

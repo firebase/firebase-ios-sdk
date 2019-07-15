@@ -15,8 +15,6 @@
  */
 
 #import "AppDelegate.h"
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseFirestore/FirebaseFirestore.h>
 
 @interface AppDelegate ()
 

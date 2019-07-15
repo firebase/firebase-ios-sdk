@@ -128,8 +128,8 @@ class Transaction {
   bool committed_ = false;
 
   /**
-   * An error that may have occurred as a consequence of a write. If set, needs
-   * to be raised in the callback instead of trying to commit.
+   * A deferred usage error that occurred previously in this transaction that
+   * will cause the transaction to fail once it actually commits.
    */
   util::Status last_write_error_;
 

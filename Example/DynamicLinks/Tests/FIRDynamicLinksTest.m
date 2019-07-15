@@ -90,7 +90,8 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
 }
 
 + (instancetype)resolverWithBlock:(FakeShortLinkResolverHandler)resolverHandler {
-  FakeShortLinkResolver *resolver = [[self alloc] init];
+  // The parameters don't matter since they aren't validated or used here.
+  FakeShortLinkResolver *resolver = [[self alloc] initWithAPIKey:@"" clientID:@"" URLScheme:@""];
   resolver->_resolverHandler = [resolverHandler copy];
   return resolver;
 }

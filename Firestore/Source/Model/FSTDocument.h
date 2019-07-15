@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -25,6 +24,16 @@
 
 @class GCFSDocument;
 @class FSTObjectValue;
+
+namespace firebase {
+namespace firestore {
+namespace model {
+
+enum class DocumentState;
+
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
 
 namespace model = firebase::firestore::model;
 
@@ -63,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (bool)hasCommittedMutations;
 
 @property(nonatomic, assign, readonly) const model::ObjectValue &data;
+@property(nonatomic, assign, readonly) model::DocumentState documentState;
 
 /**
  * Memoized serialized form of the document for optimization purposes (avoids repeated

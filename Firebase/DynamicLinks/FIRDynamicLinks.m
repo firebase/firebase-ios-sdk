@@ -194,7 +194,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                                                        reason:errorDescription];
   }
   if (error) {
-    [app sendLogsWithServiceName:kFIRServiceDynamicLinks version:kFIRDLVersion error:error];
     NSString *message = nil;
     if (options.usingOptionsFromDefaultPlist) {
       // Configured using plist file

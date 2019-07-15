@@ -19,6 +19,8 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <map>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -176,7 +178,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
     ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
-    NSString *_Nullable collectionGroup = queryDict[@"collectionGroup"];
+    std::shared_ptr<const std::string> collectionGroup =
+        util::MakeStringPtr(queryDict[@"collectionGroup"]);
     __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
                                       collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
