@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,6 +38,8 @@ namespace core {
  */
 class Query {
  public:
+  using FilterList = util::vector_of_ptr<std::shared_ptr<class Filter>>;
+
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
@@ -51,7 +54,7 @@ class Query {
    */
   explicit Query(model::ResourcePath path,
                  std::shared_ptr<const std::string> collection_group = nullptr,
-                 std::vector<std::shared_ptr<core::Filter>> filters = {})
+                 FilterList filters = {})
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)) {
@@ -80,9 +83,18 @@ class Query {
   }
 
   /** The filters on the documents returned by the query. */
-  const std::vector<std::shared_ptr<core::Filter>>& filters() const {
+  const FilterList& filters() const {
     return filters_;
   }
+
+  /**
+   * Returns the field of the first filter on this Query that's an inequality,
+   * or nullptr if there are no inequalities.
+   */
+  const model::FieldPath* InequalityFilterField() const;
+
+  /** Returns true if this Query has an array-contains filter already. */
+  bool HasArrayContainsFilter() const;
 
   // MARK: - Builder methods
 
@@ -117,7 +129,7 @@ class Query {
   // Query::Filter(f), a new Query instance is created that contains all of the
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
-  std::vector<std::shared_ptr<core::Filter>> filters_;
+  FilterList filters_;
 
   // TODO(rsgowman): Port collection group queries logic.
 };

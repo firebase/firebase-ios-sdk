@@ -29,6 +29,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -39,13 +40,16 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::RelationFilter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
+
 using testing::ElementsAre;
+using testutil::Field;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -172,9 +176,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
-                                                  filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:FieldValue::FromDouble(2)];
+  auto filter = std::make_shared<RelationFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
+                                                 FieldValue::FromDouble(2));
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -210,9 +213,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
-                                                  filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:FieldValue::FromDouble(2)];
+  auto filter = std::make_shared<RelationFilter>(Field("sort"), Filter::Operator::LessThanOrEqual,
+                                                 FieldValue::FromDouble(2));
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -289,7 +291,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
   FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("num")
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("num")
                                                                    ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -427,9 +429,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testReturnsNeedsRefillOnReorderInLimitQuery {
   FSTQuery *query = [self queryForMessages];
-  query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
-                                                               ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
+                                                                   ascending:YES]];
   query = [query queryBySettingLimit:2];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
@@ -464,9 +465,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntNeedRefillOnReorderWithinLimit {
   FSTQuery *query = [self queryForMessages];
-  query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
-                                                               ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
+                                                                   ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
@@ -499,9 +499,8 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntNeedRefillOnReorderAfterLimitQuery {
   FSTQuery *query = [self queryForMessages];
-  query =
-      [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
-                                                               ascending:YES]];
+  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
+                                                                   ascending:YES]];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
