@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #import <Foundation/Foundation.h>
+#import <Security/Security.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

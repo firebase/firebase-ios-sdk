@@ -20,8 +20,6 @@
 #import "FBLPromise+Testing.h"
 #import "FIRTestKeychain.h"
 
-#import <Security/Security.h>
-
 #import "FIRSecureStorage.h"
 
 
