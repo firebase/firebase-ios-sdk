@@ -20,11 +20,15 @@ Firebase Segmentation enables you to associate your custom application instance 
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Segmentation/Sources/**/*'
-  s.public_header_files = 'Segmentation/Sources/Public/*.h'
+  s.source_files = 'FirebaseSegmentation/Sources/**/*'
+  s.public_header_files = 'FirebaseSegmentation/Public/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'FirebaseInstanceID', '~> 4.2'
+
+   header_search_paths = {
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+  }
 
 s.user_target_xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(PLATFORM_DIR)/Developer/Library/Frameworks' }
 
@@ -34,7 +38,7 @@ s.user_target_xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(PLATFORM_DIR)/Develope
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Segmentation/Tests/Unit/*.[mh]'
+    unit_tests.source_files = 'FirebaseSegmentation/Tests/Unit/*.[mh]'
     unit_tests.dependency 'OCMock'
   end
 
