@@ -17,6 +17,7 @@
 #import "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 
 #include <string>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
