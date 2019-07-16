@@ -7,11 +7,11 @@ cache:
 
 stages:
   - name: checks
-    if: branch IN (master, mm/fis-master)
+    if: branch IN (master, mm/fis-master,  mm/iid-with-fis)
   - name: test
-    if: branch == master
+    if: branch IN (master, mm/iid-with-fis)
   - name: test-fis
-    if: branch IN (master, mm/fis-master)
+    if: branch IN (master, mm/fis-master,  mm/iid-with-fis)
 
 jobs:
   include:
