@@ -171,6 +171,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   std::vector<FSTMutationBatch*> matchingBatches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
+  results = AddMissingBaseDocument(matchingBatches, results);
+
   for (FSTMutationBatch* batch : matchingBatches) {
     for (FSTMutation* mutation : [batch mutations]) {
       // Only process documents belonging to the collection.
@@ -213,6 +215,38 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   }
 
   return results;
+}
+
+// It is possible that a `PatchMutation` can make a document match a query, even
+// if the version in the `RemoteDocumentCache` is not a match yet (waiting for
+// server to ack). To handle this, we find all document keys affected by the
+// `PatchMutation`s that are not in `existingDocs` yet, and back fill them via
+// `remoteDocumentCache.getAll`, otherwise those `PatchMutation`s will be
+// ignored because no base document can be found, and lead to missing results
+// for the query.
+DocumentMap LocalDocumentsView::AddMissingBaseDocument(
+    const std::vector<FSTMutationBatch*>& matchingBatches,
+    const DocumentMap& existingDocs) {
+  DocumentKeySet missingDocKeys;
+  for (FSTMutationBatch* batch : matchingBatches) {
+    for (FSTMutation* mutation : [batch mutations]) {
+      if ([mutation isKindOfClass:[FSTPatchMutation class]] &&
+          existingDocs.underlying_map().find([mutation key]) ==
+              existingDocs.underlying_map().end()) {
+        missingDocKeys = missingDocKeys.insert([mutation key]);
+      }
+    }
+  }
+
+  DocumentMap mergedDocs = existingDocs;
+  MaybeDocumentMap missingDocs = remote_document_cache_->GetAll(missingDocKeys);
+  for (const auto& kv : missingDocs) {
+    if (kv.second != nil && [kv.second isKindOfClass:[FSTDocument class]]) {
+      mergedDocs = mergedDocs.insert(kv.first, (FSTDocument*)kv.second);
+    }
+  }
+
+  return mergedDocs;
 }
 
 }  // namespace local

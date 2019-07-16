@@ -103,6 +103,15 @@ class LocalDocumentsView {
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(FSTQuery* query);
 
+  /**
+   * Find all `PatchMutation`s, and if their base documents are not in
+   * `existingDocs` add them to the returning `DocumentMap`. The returned map
+   * also has every document in `existingDocs`.
+   */
+  model::DocumentMap AddMissingBaseDocument(
+      const std::vector<FSTMutationBatch*>& matchingBatches,
+      const model::DocumentMap& existingDocs);
+
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
   IndexManager* index_manager_;
