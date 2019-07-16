@@ -47,11 +47,11 @@ several extern variables are expected to be implemented.
 
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 0.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
-  s.dependency 'GoogleUtilities/Logger', '~> 6.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.2'
+  s.dependency 'GoogleUtilities/Logger', '~> 6.2'
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
     unit_tests.requires_app_host = false
