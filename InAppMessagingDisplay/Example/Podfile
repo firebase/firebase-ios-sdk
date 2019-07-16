@@ -3,6 +3,7 @@ source 'https://cdn.cocoapods.org/'
 use_frameworks!
 
 pod 'FirebaseCore', :path => '../..'
+pod 'FirebaseInstallations', :path => '../..'
 
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'
