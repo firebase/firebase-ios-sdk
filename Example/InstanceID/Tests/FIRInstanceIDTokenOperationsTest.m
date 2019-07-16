@@ -40,9 +40,6 @@ static NSString *kAuthorizedEntity = @"sender-1234567";
 static NSString *kScope = @"fcm";
 static NSString *kRegistrationToken = @"token-12345";
 
-static NSString *const kPrivateKeyPairTag = @"com.iid.regclient.test.private";
-static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
-
 @interface FIRInstanceIDTokenOperation (ExposedForTest)
 - (void)performTokenOperation;
 @end
