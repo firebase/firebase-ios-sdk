@@ -72,7 +72,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockTokenManager;
-@property(nonatomic, readwrite, strong) id mockKeyPairStore;
+@property(nonatomic, readwrite, strong) id mockInstallations;
 @property(nonatomic, readwrite, strong) id mockAuthService;
 @property(nonatomic, readwrite, strong) id<NSObject> tokenRefreshNotificationObserver;
 
@@ -85,6 +85,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)setUp {
   [super setUp];
+
+  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get `FIRInstallations` default instance. Need to stub it before.
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+
   _instanceID = [[FIRInstanceID alloc] initPrivately];
   [_instanceID start];
   if (!sTokenInfo) {
@@ -100,9 +105,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)tearDown {
   [[NSNotificationCenter defaultCenter] removeObserver:self.tokenRefreshNotificationObserver];
+  self.mockInstanceID = nil;
   self.instanceID = nil;
   self.mockTokenManager = nil;
-  self.mockInstanceID = nil;
+  self.mockInstallations = nil;
   [super tearDown];
 }
 
@@ -118,11 +124,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   self.mockTokenManager = OCMClassMock([FIRInstanceIDTokenManager class]);
   [[[self.mockTokenManager stub] andReturn:self.mockAuthService] authService];
 
-  self.mockKeyPairStore = OCMClassMock([FIRInstanceIDKeyPairStore class]);
   _instanceID.fcmSenderID = kAuthorizedEntity;
   self.mockInstanceID = OCMPartialMock(_instanceID);
   [self.mockInstanceID setTokenManager:self.mockTokenManager];
-  [self.mockInstanceID setKeyPairStore:self.mockKeyPairStore];
 
   id instanceIDClassMock = OCMClassMock([FIRInstanceID class]);
   OCMStub(ClassMethod([instanceIDClassMock minIntervalForDefaultTokenRetry])).andReturn(2);
@@ -204,6 +208,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTestExpectation *tokenExpectation = [self
       expectationWithDescription:@"Token is refreshed when getID is called to avoid IID conflict."];
   NSError *error = nil;
+
+
+
   [[[self.mockKeyPairStore stub] andReturn:kFakeIID] appIdentityWithError:[OCMArg setTo:error]];
 
   [self.mockInstanceID getIDWithHandler:^(NSString *identity, NSError *error) {
@@ -1265,6 +1272,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   }] fetchCheckinInfoWithHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
        return (checkinHandler = obj) != nil;
      }]];
+}
+
+- (void)expectInstallationsInstallationIDWithFID:(NSString *)FID error:(NSError *)error {
+//  [self.mockInstallations sta]
+  OCMExpect(self.mockInstallations)
 }
 
 @end

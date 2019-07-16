@@ -347,7 +347,7 @@ static FIRInstanceID *gInstanceID;
     }
 
     FIRInstanceID_WEAKIFY(self);
-    [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+    [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
       FIRInstanceID_STRONGIFY(self);
 
       if (error) {
@@ -414,7 +414,7 @@ static FIRInstanceID *gInstanceID;
         }
 
         FIRInstanceID_WEAKIFY(self);
-        [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+        [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
           FIRInstanceID_STRONGIFY(self);
           if (error) {
             NSError *newError =
@@ -487,7 +487,7 @@ static FIRInstanceID *gInstanceID;
     }];
   };
 
-  [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
     FIRInstanceID_STRONGIFY(self);
     if (error) {
       NSError *newError =
@@ -948,7 +948,7 @@ static FIRInstanceID *gInstanceID;
   if (invalidatedTokens.count > 0) {
     FIRInstanceID_WEAKIFY(self);
 
-    [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+    [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
       FIRInstanceID_STRONGIFY(self);
 
       NSMutableDictionary *tokenOptions = [@{
