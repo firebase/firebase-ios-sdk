@@ -355,7 +355,7 @@
   objc_disposeClassPair(generatedClass);
 }
 
-- (void)testMultySwizzling {
+- (void)testMultiSwizzling {
   NSObject *object = [[NSObject alloc] init];
 
   NSInteger swizzleCount = 10;
