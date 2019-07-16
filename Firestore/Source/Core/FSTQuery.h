@@ -51,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::FieldPath &)field;
 
 /** The direction of the sort. */
-@property(nonatomic, assign, readonly, getter=isAscending) BOOL ascending;
+- (BOOL)ascending;
+- (BOOL)isAscending;
 
 @end
 

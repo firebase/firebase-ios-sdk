@@ -27,8 +27,10 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -46,7 +48,9 @@ namespace core = firebase::firestore::core;
 namespace objc = firebase::firestore::objc;
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
@@ -61,12 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTSortOrder
 
 @interface FSTSortOrder () {
-  /** The field to sort by. */
-  FieldPath _field;
+  OrderBy _orderBy;
 }
 
 /** Creates a new sort order with the given field and direction. */
-- (instancetype)initWithFieldPath:(FieldPath)fieldPath ascending:(BOOL)ascending;
+- (instancetype)initWithOrderBy:(OrderBy)orderBy;
 
 - (NSString *)canonicalID;
 
@@ -77,27 +80,35 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Constructor methods
 
 + (instancetype)sortOrderWithFieldPath:(FieldPath)fieldPath ascending:(BOOL)ascending {
-  return [[FSTSortOrder alloc] initWithFieldPath:std::move(fieldPath) ascending:ascending];
+  return [[FSTSortOrder alloc]
+      initWithOrderBy:OrderBy(std::move(fieldPath), Direction::FromDescending(!ascending))];
 }
 
-- (instancetype)initWithFieldPath:(FieldPath)fieldPath ascending:(BOOL)ascending {
+- (instancetype)initWithOrderBy:(OrderBy)orderBy {
   self = [super init];
   if (self) {
-    _field = std::move(fieldPath);
-    _ascending = ascending;
+    _orderBy = std::move(orderBy);
   }
   return self;
 }
 
 - (const FieldPath &)field {
-  return _field;
+  return _orderBy.field();
+}
+
+- (BOOL)ascending {
+  return _orderBy.ascending();
+}
+
+- (BOOL)isAscending {
+  return _orderBy.ascending();
 }
 
 #pragma mark - Public methods
 
 - (ComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
   ComparisonResult result;
-  if (_field == FieldPath::KeyFieldPath()) {
+  if (self.field == FieldPath::KeyFieldPath()) {
     result = util::Compare(document1.key, document2.key);
   } else {
     absl::optional<FieldValue> value1 = [document1 fieldForPath:self.field];
@@ -106,27 +117,24 @@ NS_ASSUME_NONNULL_BEGIN
                 "Trying to compare documents on fields that don't exist.");
     result = value1->CompareTo(*value2);
   }
-  if (!self.isAscending) {
-    result = util::ReverseOrder(result);
-  }
-  return result;
+  return _orderBy.direction().ApplyTo(result);
 }
 
 - (NSString *)canonicalID {
-  return [NSString stringWithFormat:@"%s%@", _field.CanonicalString().c_str(),
+  return [NSString stringWithFormat:@"%s%@", self.field.CanonicalString().c_str(),
                                     self.isAscending ? @"asc" : @"desc"];
 }
 
 - (BOOL)isEqualToSortOrder:(FSTSortOrder *)other {
-  return _field == other->_field && self.isAscending == other.isAscending;
+  return self.field == other.field && self.isAscending == other.isAscending;
 }
 
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSortOrder: path:%s dir:%@>",
-                                    _field.CanonicalString().c_str(),
-                                    self.ascending ? @"asc" : @"desc"];
+  return [NSString stringWithFormat:@"<FSTSortOrder: path:%s dir:%s>",
+                                    self.field.CanonicalString().c_str(),
+                                    _orderBy.direction().CanonicalId().c_str()];
 }
 
 - (BOOL)isEqual:(NSObject *)other {
