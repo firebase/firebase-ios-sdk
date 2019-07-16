@@ -37,7 +37,7 @@
 }
 
 - (NSString *)appInstanceID:(NSError **)error {
-//  return [self.keyPairStore appIdentityWithError:error];
+  //  return [self.keyPairStore appIdentityWithError:error];
   // TODO: Implement
   return @"";
 }

@@ -86,7 +86,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)setUp {
   [super setUp];
 
-  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get `FIRInstallations` default instance. Need to stub it before.
+  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+  // `FIRInstallations` default instance. Need to stub it before.
   self.mockInstallations = OCMClassMock([FIRInstallations class]);
   OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
 
@@ -247,7 +248,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  NSDictionary *options = (NSDictionary *)obj;
                                  XCTAssertTrue([options[APNSKey] isEqual:fakeAPNSDeviceToken]);
@@ -305,7 +306,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -358,7 +359,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -394,7 +395,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation){
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  NSDictionary *options = (NSDictionary *)obj;
                                  XCTAssertTrue([options[APNSKey] hasPrefix:@"p_"]);
@@ -428,7 +429,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(nil, someError);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:tokenOptions
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -468,7 +469,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 #pragma clang diagnostic pop
   }] deleteTokenWithAuthorizedEntity:kAuthorizedEntity
                                scope:kScope
-                             IID:[OCMArg any]
+                                 IID:[OCMArg any]
                              handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                self.deleteTokenCompletion = obj;
                                return obj != nil;
@@ -502,7 +503,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.deleteTokenCompletion(someError);
   }] deleteTokenWithAuthorizedEntity:kAuthorizedEntity
                                scope:kScope
-                             IID:[OCMArg any]
+                                 IID:[OCMArg any]
                              handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                self.deleteTokenCompletion = obj;
                                return obj != nil;
@@ -584,7 +585,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -654,7 +655,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -729,7 +730,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     }
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -797,7 +798,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     XCTAssertEqual(newTokenFetchCount, 1);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -864,7 +865,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     }
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -896,7 +897,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     [fetchNewTokenExpectation fulfill];
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg any]];
 
@@ -953,7 +954,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg any]];
 
@@ -1018,7 +1019,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg any]];
 
@@ -1067,7 +1068,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTestExpectation *tokenExpectation =
       [self expectationWithDescription:@"New token handler invoked."];
 
-
   [self mockAuthServiceToAlwaysReturnValidCheckin];
 
   // Simulate keypair fetch/generation failure.
@@ -1076,7 +1076,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [[self.mockTokenManager reject] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                               scope:kScope
-                                                            IID:[OCMArg any]
+                                                                IID:[OCMArg any]
                                                             options:[OCMArg any]
                                                             handler:[OCMArg any]];
 
@@ -1118,7 +1118,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kScope
-                               IID:[OCMArg any]
+                                   IID:[OCMArg any]
                                options:[OCMArg any]
                                handler:[OCMArg checkWithBlock:^BOOL(id obj) {
                                  self.newTokenCompletion = obj;
@@ -1241,8 +1241,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 #pragma mark - Private Helpers
 
 - (void)stubInstallationsToReturnValidID {
-//  [[[self.mockKeyPairStore stub] andReturn:[self createValidMockKeypair]]
-//   loadKeyPairWithError:[OCMArg anyObjectRef]];
+  //  [[[self.mockKeyPairStore stub] andReturn:[self createValidMockKeypair]]
+  //   loadKeyPairWithError:[OCMArg anyObjectRef]];
   [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
 }
 
@@ -1270,11 +1270,14 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
      }]];
 }
 
-- (void)stubInstallationsInstallationIDWithFID:(nullable NSString *)FID error:(nullable NSError *)error {
-  OCMStub([self.mockInstallations installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
-    completion(FID, error);
-    return YES;
-  }]]);
+- (void)stubInstallationsInstallationIDWithFID:(nullable NSString *)FID
+                                         error:(nullable NSError *)error {
+  OCMStub([self.mockInstallations
+      installationIDWithCompletion:[OCMArg
+                                       checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
+                                         completion(FID, error);
+                                         return YES;
+                                       }]]);
 }
 
 @end

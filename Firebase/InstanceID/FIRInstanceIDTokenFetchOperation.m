@@ -40,13 +40,13 @@ NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                 IID:(NSString *)instanceID {
+                                     IID:(NSString *)instanceID {
   self = [super initWithAction:FIRInstanceIDTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:checkinPreferences
-                       IID:instanceID];
+                           IID:instanceID];
   if (self) {
   }
   return self;

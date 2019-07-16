@@ -36,7 +36,7 @@
                          scope:scope
                        options:nil
             checkinPreferences:checkinPreferences
-                       IID:instanceID];
+                           IID:instanceID];
   if (self) {
   }
   return self;

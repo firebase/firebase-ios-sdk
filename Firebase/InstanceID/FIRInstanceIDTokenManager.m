@@ -81,7 +81,7 @@
       [self createFetchOperationWithAuthorizedEntity:authorizedEntity
                                                scope:scope
                                              options:options
-                                             IID:instanceID];
+                                                 IID:instanceID];
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDTokenOperationCompletion completion =
       ^(FIRInstanceIDTokenOperationResult result, NSString *_Nullable token,
@@ -143,7 +143,7 @@
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
-                                IID:(NSString *)instanceID
+                                    IID:(NSString *)instanceID
                                 handler:(FIRInstanceIDDeleteTokenHandler)handler {
   if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
@@ -169,8 +169,7 @@
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithIID:(NSString *)instanceID
-                           handler:(FIRInstanceIDDeleteHandler)handler {
+- (void)deleteAllTokensWithIID:(NSString *)instanceID handler:(FIRInstanceIDDeleteHandler)handler {
   // delete all tokens
   FIRInstanceIDCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {
@@ -245,14 +244,14 @@
     createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                        scope:(NSString *)scope
                                      options:(NSDictionary<NSString *, NSString *> *)options
-                                          IID:(NSString *)instanceID {
+                                         IID:(NSString *)instanceID {
   FIRInstanceIDCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   FIRInstanceIDTokenFetchOperation *operation =
       [[FIRInstanceIDTokenFetchOperation alloc] initWithAuthorizedEntity:authorizedEntity
                                                                    scope:scope
                                                                  options:options
                                                       checkinPreferences:checkinPreferences
-                                                                 IID:instanceID];
+                                                                     IID:instanceID];
   return operation;
 }
 

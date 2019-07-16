@@ -321,50 +321,50 @@ static FIRInstanceID *gInstanceID;
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDAuthService *authService = self.tokenManager.authService;
   [authService
-   fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
-    FIRInstanceID_STRONGIFY(self);
-    if (error) {
-      newHandler(nil, error);
-      return;
-    }
+      fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
+        FIRInstanceID_STRONGIFY(self);
+        if (error) {
+          newHandler(nil, error);
+          return;
+        }
 
-    // Only use the token in the cache if the APNSInfo matches what the request's options has.
-    // It's possible for the request to be with a newer APNs device token, which should be
-    // honored.
-    FIRInstanceIDTokenInfo *cachedTokenInfo =
-    [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-    if (cachedTokenInfo) {
-      // Ensure that the cached token matches APNs data before returning it.
-      FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-      [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-      // If either the APNs info is missing in both, or if they are an exact match, then we can
-      // use this cached token.
-      if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-          [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-        newHandler(cachedTokenInfo.token, nil);
-        return;
-      }
-    }
+        // Only use the token in the cache if the APNSInfo matches what the request's options has.
+        // It's possible for the request to be with a newer APNs device token, which should be
+        // honored.
+        FIRInstanceIDTokenInfo *cachedTokenInfo =
+            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+        if (cachedTokenInfo) {
+          // Ensure that the cached token matches APNs data before returning it.
+          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+          // If either the APNs info is missing in both, or if they are an exact match, then we can
+          // use this cached token.
+          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+            newHandler(cachedTokenInfo.token, nil);
+            return;
+          }
+        }
 
-    FIRInstanceID_WEAKIFY(self);
-    [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-      FIRInstanceID_STRONGIFY(self);
+        FIRInstanceID_WEAKIFY(self);
+        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                           NSError *_Nullable error) {
+          FIRInstanceID_STRONGIFY(self);
 
-      if (error) {
-        NSError *newError =
-        [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-        newHandler(nil, newError);
+          if (error) {
+            NSError *newError =
+                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+            newHandler(nil, newError);
 
-      } else {
-        [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                                       scope:[scope copy]
-                                                         IID:identifier
-                                                     options:tokenOptions
-                                                     handler:newHandler];
-      }
-    }];
-
-  }];
+          } else {
+            [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                           scope:[scope copy]
+                                                             IID:identifier
+                                                         options:tokenOptions
+                                                         handler:newHandler];
+          }
+        }];
+      }];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -414,11 +414,12 @@ static FIRInstanceID *gInstanceID;
         }
 
         FIRInstanceID_WEAKIFY(self);
-        [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                           NSError *_Nullable error) {
           FIRInstanceID_STRONGIFY(self);
           if (error) {
             NSError *newError =
-            [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
             newHandler(newError);
 
           } else {
@@ -441,15 +442,16 @@ static FIRInstanceID *gInstanceID;
   }
 
   FIRInstanceID_WEAKIFY(self);
-  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    FIRInstanceID_STRONGIFY(self);
-    // When getID is explicitly called, trigger getToken to make sure token always exists.
-    // This is to avoid ID conflict (ID is not checked for conflict until we generate a token)
-    if (identifier) {
-      [self token];
-    }
-    handler(identifier, error);
-  }];
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        FIRInstanceID_STRONGIFY(self);
+        // When getID is explicitly called, trigger getToken to make sure token always exists.
+        // This is to avoid ID conflict (ID is not checked for conflict until we generate a token)
+        if (identifier) {
+          [self token];
+        }
+        handler(identifier, error);
+      }];
 }
 
 - (void)deleteIDWithHandler:(FIRInstanceIDDeleteHandler)handler {
@@ -487,16 +489,17 @@ static FIRInstanceID *gInstanceID;
     }];
   };
 
-  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    FIRInstanceID_STRONGIFY(self);
-    if (error) {
-      NSError *newError =
-          [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-      callHandlerOnMainThread(newError);
-    } else {
-      [self.tokenManager deleteAllTokensWithIID:identifier handler:deleteTokensHandler];
-    }
-  }];
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        FIRInstanceID_STRONGIFY(self);
+        if (error) {
+          NSError *newError =
+              [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+          callHandlerOnMainThread(newError);
+        } else {
+          [self.tokenManager deleteAllTokensWithIID:identifier handler:deleteTokensHandler];
+        }
+      }];
 }
 
 - (void)notifyIdentityReset {
@@ -517,9 +520,8 @@ static FIRInstanceID *gInstanceID;
     }
 
     // Delete Instance ID.
-    [self.installations deleteWithCompletion:^(NSError * _Nullable error) {
-      [self.tokenManager.authService
-       resetCheckinWithHandler:^(NSError *error) {
+    [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
+      [self.tokenManager.authService resetCheckinWithHandler:^(NSError *error) {
         if (error) {
           if (handler) {
             handler(error);
@@ -531,11 +533,10 @@ static FIRInstanceID *gInstanceID;
         if ([self isFCMAutoInitEnabled]) {
           // Deletion succeeds! Requesting new checkin, IID and token.
           // TODO(chliangGoogle) see if dispatch_after is necessary
-          dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                       (int64_t)(0.5 * NSEC_PER_SEC)),
+          dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
                          dispatch_get_main_queue(), ^{
-            [self defaultTokenWithHandler:nil];
-          });
+                           [self defaultTokenWithHandler:nil];
+                         });
         }
         if (handler) {
           handler(nil);
@@ -948,34 +949,35 @@ static FIRInstanceID *gInstanceID;
   if (invalidatedTokens.count > 0) {
     FIRInstanceID_WEAKIFY(self);
 
-    [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-      FIRInstanceID_STRONGIFY(self);
+    [self.installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+          FIRInstanceID_STRONGIFY(self);
 
-      NSMutableDictionary *tokenOptions = [@{
-        kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
-        kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
-      } mutableCopy];
-      if (self.firebaseAppID) {
-        tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
-      }
+          NSMutableDictionary *tokenOptions = [@{
+            kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
+            kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
+          } mutableCopy];
+          if (self.firebaseAppID) {
+            tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+          }
 
-      for (FIRInstanceIDTokenInfo *tokenInfo in invalidatedTokens) {
-        if ([tokenInfo.token isEqualToString:self.defaultFCMToken]) {
-          // We will perform a special fetch for the default FCM token, so that the delegate methods
-          // are called. For all others, we will do an internal re-fetch.
-          [self defaultTokenWithHandler:nil];
-        } else {
-          [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
-                                                         scope:tokenInfo.scope
-                                                           IID:identifier
-                                                       options:tokenOptions
-                                                       handler:^(NSString *_Nullable token,
-                                                                 NSError *_Nullable error){
+          for (FIRInstanceIDTokenInfo *tokenInfo in invalidatedTokens) {
+            if ([tokenInfo.token isEqualToString:self.defaultFCMToken]) {
+              // We will perform a special fetch for the default FCM token, so that the delegate
+              // methods are called. For all others, we will do an internal re-fetch.
+              [self defaultTokenWithHandler:nil];
+            } else {
+              [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
+                                                             scope:tokenInfo.scope
+                                                               IID:identifier
+                                                           options:tokenOptions
+                                                           handler:^(NSString *_Nullable token,
+                                                                     NSError *_Nullable error){
 
-          }];
-        }
-      }
-    }];
+                                                           }];
+            }
+          }
+        }];
   }
 }
 

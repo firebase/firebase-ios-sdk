@@ -99,8 +99,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  *                 a nil error; else we pass in an appropriate error. This should be non-nil
  *                 and be called asynchronously.
  */
-- (void)deleteAllTokensWithIID:(NSString *)instanceID
-                   handler:(FIRInstanceIDDeleteHandler)handler;
+- (void)deleteAllTokensWithIID:(NSString *)instanceID handler:(FIRInstanceIDDeleteHandler)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.

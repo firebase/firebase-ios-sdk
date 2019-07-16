@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                       IID:(NSString *)instanceID;
+                           IID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString;

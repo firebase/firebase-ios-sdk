@@ -57,10 +57,10 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
  *  which makes it easier to unit test different behaviours.
  */
 - (FIRInstanceIDTokenFetchOperation *)
-createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
-scope:(NSString *)scope
-options:(NSDictionary<NSString *, NSString *> *)options
-IID:(NSString *)instanceID;
+    createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
+                                       scope:(NSString *)scope
+                                     options:(NSDictionary<NSString *, NSString *> *)options
+                                         IID:(NSString *)instanceID;
 
 /**
  *  Create a delete operation. This method can be stubbed to return a particular operation instance,
@@ -70,7 +70,7 @@ IID:(NSString *)instanceID;
     createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                         scope:(NSString *)scope
                            checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                      IID:(NSString *)instanceID
+                                          IID:(NSString *)instanceID
                                        action:(FIRInstanceIDTokenAction)action;
 @end
 
@@ -152,7 +152,7 @@ IID:(NSString *)instanceID;
                                                                    scope:kScope
                                                                  options:tokenOptions
                                                       checkinPreferences:self.fakeCheckin
-                                                                 IID:[OCMArg any]];
+                                                                     IID:[OCMArg any]];
   id mockOperation = OCMPartialMock(operation);
   [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
     [invocation.target finishWithResult:FIRInstanceIDTokenOperationSucceeded
@@ -171,11 +171,11 @@ IID:(NSString *)instanceID;
       createFetchOperationWithAuthorizedEntity:[OCMArg any]
                                          scope:[OCMArg any]
                                        options:[OCMArg any]
-                                       IID:[OCMArg any]];
+                                           IID:[OCMArg any]];
 
   [self.tokenManager fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                  scope:kScope
-                                               IID:[OCMArg any]
+                                                   IID:[OCMArg any]
                                                options:tokenOptions
                                                handler:^(NSString *token, NSError *error) {
                                                  XCTAssertNotNil(token);
@@ -210,7 +210,7 @@ IID:(NSString *)instanceID;
                                                                    scope:kScope
                                                                  options:tokenOptions
                                                       checkinPreferences:self.fakeCheckin
-                                                                 IID:[OCMArg any]];
+                                                                     IID:[OCMArg any]];
   id mockOperation = OCMPartialMock(operation);
   [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
     [invocation.target finishWithResult:FIRInstanceIDTokenOperationSucceeded
@@ -229,11 +229,11 @@ IID:(NSString *)instanceID;
       createFetchOperationWithAuthorizedEntity:[OCMArg any]
                                          scope:[OCMArg any]
                                        options:[OCMArg any]
-                                       IID:[OCMArg any]];
+                                           IID:[OCMArg any]];
 
   [self.tokenManager fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                  scope:kScope
-                                               IID:[OCMArg any]
+                                                   IID:[OCMArg any]
                                                options:tokenOptions
                                                handler:^(NSString *token, NSError *error) {
                                                  XCTAssertNil(token);
@@ -265,7 +265,7 @@ IID:(NSString *)instanceID;
                                                                    scope:kScope
                                                                  options:tokenOptions
                                                       checkinPreferences:self.fakeCheckin
-                                                                 IID:[OCMArg any]];
+                                                                     IID:[OCMArg any]];
   id mockOperation = OCMPartialMock(operation);
   [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
     NSError *someError = [[NSError alloc] initWithDomain:@"InstanceIDUnitTest" code:0 userInfo:nil];
@@ -283,11 +283,11 @@ IID:(NSString *)instanceID;
       createFetchOperationWithAuthorizedEntity:[OCMArg any]
                                          scope:[OCMArg any]
                                        options:[OCMArg any]
-                                       IID:[OCMArg any]];
+                                           IID:[OCMArg any]];
 
   [self.tokenManager fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                  scope:kScope
-                                               IID:[OCMArg any]
+                                                   IID:[OCMArg any]
                                                options:tokenOptions
                                                handler:^(NSString *token, NSError *error) {
                                                  XCTAssertNil(token);
@@ -315,7 +315,7 @@ IID:(NSString *)instanceID;
       initWithAuthorizedEntity:kAuthorizedEntity
                          scope:kScope
             checkinPreferences:self.fakeCheckin
-                       IID:[OCMArg any]
+                           IID:[OCMArg any]
                         action:FIRInstanceIDTokenActionDeleteToken];
   id mockOperation = OCMPartialMock(operation);
   [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
@@ -333,12 +333,12 @@ IID:(NSString *)instanceID;
       createDeleteOperationWithAuthorizedEntity:[OCMArg any]
                                           scope:[OCMArg any]
                              checkinPreferences:[OCMArg any]
-                                        IID:[OCMArg any]
+                                            IID:[OCMArg any]
                                          action:FIRInstanceIDTokenActionDeleteToken];
 
   [self.tokenManager deleteTokenWithAuthorizedEntity:kAuthorizedEntity
                                                scope:kScope
-                                             IID:[OCMArg any]
+                                                 IID:[OCMArg any]
                                              handler:^(NSError *error) {
                                                XCTAssertNil(error);
                                                [deleteExpectation fulfill];
@@ -364,7 +364,7 @@ IID:(NSString *)instanceID;
       initWithAuthorizedEntity:kAuthorizedEntity
                          scope:kScope
             checkinPreferences:self.fakeCheckin
-                       IID:[OCMArg any]
+                           IID:[OCMArg any]
                         action:FIRInstanceIDTokenActionDeleteToken];
   id mockOperation = OCMPartialMock(operation);
   [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
@@ -383,12 +383,12 @@ IID:(NSString *)instanceID;
       createDeleteOperationWithAuthorizedEntity:[OCMArg any]
                                           scope:[OCMArg any]
                              checkinPreferences:[OCMArg any]
-                                        IID:[OCMArg any]
+                                            IID:[OCMArg any]
                                          action:FIRInstanceIDTokenActionDeleteToken];
 
   [self.tokenManager deleteTokenWithAuthorizedEntity:kAuthorizedEntity
                                                scope:kScope
-                                             IID:[OCMArg any]
+                                                 IID:[OCMArg any]
                                              handler:^(NSError *error) {
                                                XCTAssertNotNil(error);
                                                [deleteExpectation fulfill];
