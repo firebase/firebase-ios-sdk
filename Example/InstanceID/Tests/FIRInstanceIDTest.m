@@ -208,7 +208,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTestExpectation *tokenExpectation = [self
       expectationWithDescription:@"Token is refreshed when getID is called to avoid IID conflict."];
 
-  [self expectInstallationsInstallationIDWithFID:kFakeIID error:nil];
+  [self stubInstallationsInstallationIDWithFID:kFakeIID error:nil];
 
   [self.mockInstanceID getIDWithHandler:^(NSString *identity, NSError *error) {
     XCTAssertNotNil(identity);
@@ -421,6 +421,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   NSDictionary *tokenOptions = [NSDictionary dictionary];
 
   [self mockAuthServiceToAlwaysReturnValidCheckin];
+  [self stubInstallationsToReturnValidID];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
     NSError *someError = [[NSError alloc] initWithDomain:@"InstanceIDUnitTest" code:0 userInfo:nil];
@@ -493,6 +494,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTestExpectation *deleteExpectation =
       [self expectationWithDescription:@"Delete handler invoked."];
 
+  [self stubInstallationsToReturnValidID];
   [self mockAuthServiceToAlwaysReturnValidCheckin];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
@@ -1070,7 +1072,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Simulate keypair fetch/generation failure.
   NSError *installationIDError = [NSError errorWithDomain:@"Test" code:-1 userInfo:nil];
-  [self expectInstallationsInstallationIDWithFID:nil error:installationIDError];
+  [self stubInstallationsInstallationIDWithFID:nil error:installationIDError];
 
   [[self.mockTokenManager reject] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                                               scope:kScope
@@ -1209,7 +1211,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Simulate keypair fetch/generation failure.
   NSError *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-  [self expectInstallationsInstallationIDWithFID:nil error:error];
+  [self stubInstallationsInstallationIDWithFID:nil error:error];
 
   [self.instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
     XCTAssertNil(identity);
@@ -1226,7 +1228,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Simulate keypair fetch/generation failure.
   NSError *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-  [self expectInstallationsInstallationIDWithFID:nil error:error];
+  [self stubInstallationsInstallationIDWithFID:nil error:error];
 
   [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
@@ -1241,7 +1243,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)stubInstallationsToReturnValidID {
 //  [[[self.mockKeyPairStore stub] andReturn:[self createValidMockKeypair]]
 //   loadKeyPairWithError:[OCMArg anyObjectRef]];
-  [self expectInstallationsInstallationIDWithFID:@"validID" error:nil];
+  [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
 }
 
 - (FIRInstanceIDCheckinPreferences *)validCheckinPreferences {
@@ -1268,8 +1270,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
      }]];
 }
 
-- (void)expectInstallationsInstallationIDWithFID:(nullable NSString *)FID error:(nullable NSError *)error {
-  OCMExpect([self.mockInstallations installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
+- (void)stubInstallationsInstallationIDWithFID:(nullable NSString *)FID error:(nullable NSError *)error {
+  OCMStub([self.mockInstallations installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
     completion(FID, error);
     return YES;
   }]]);
