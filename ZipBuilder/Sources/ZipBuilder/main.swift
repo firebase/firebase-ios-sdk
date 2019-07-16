@@ -64,8 +64,12 @@ do {
       try fileManager.copyItem(at: location, to: carthagePath)
 
       // Package the Carthage distribution with the current directory structure.
-      let output = location.deletingLastPathComponent().appendingPathComponent("carthage")
-      fileManager.removeDirectoryIfExists(at: output)
+      let carthageRoot = location.deletingLastPathComponent().appendingPathComponent("carthage")
+      fileManager.removeDirectoryIfExists(at: carthageRoot)
+      var output = carthageRoot.appendingPathComponent(firebaseVersion)
+      if let rcNumber = args.rcNumber {
+        output.appendPathComponent("rc\(rcNumber)")
+      }
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
                                             templateDir: args.templateDir,
@@ -108,13 +112,23 @@ do {
   }
 
   print("Attempting to Zip the directory...")
-  let zipped = Zip.zipContents(ofDir: location, name: "Firebase.zip")
+  var candidateName = "Firebase-\(firebaseVersion)"
+  if let rcNumber = args.rcNumber {
+    candidateName += "-rc\(rcNumber)"
+  }
+  candidateName += ".zip"
+  let zipped = Zip.zipContents(ofDir: location, name: candidateName)
 
   // If an output directory was specified, copy the Zip file to that directory. Otherwise just print
   // the location for further use.
   if let outputDir = args.outputDir {
     do {
-      let destination = outputDir.appendingPathComponent(zipped.lastPathComponent)
+      // We want the output to be in the X_Y_Z directory.
+      let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")
+      let versionedOutputDir = outputDir.appendingPathComponent(underscoredVersion)
+      try FileManager.default.createDirectory(at: versionedOutputDir,
+                                              withIntermediateDirectories: true)
+      let destination = versionedOutputDir.appendingPathComponent(zipped.lastPathComponent)
       try FileManager.default.copyItem(at: zipped, to: destination)
     } catch {
       fatalError("Could not copy Zip file to output directory: \(error)")

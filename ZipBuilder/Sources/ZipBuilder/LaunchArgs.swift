@@ -46,6 +46,7 @@ struct LaunchArgs {
     case existingVersions
     case outputDir
     case releasingSDKs
+    case rc
     case templateDir
     case updatePodRepo
 
@@ -67,6 +68,8 @@ struct LaunchArgs {
           "of type `ZipBuilder_FirebaseSDKs`."
       case .outputDir:
         return "The directory to copy the built Zip file to."
+      case .rc:
+        return "The release candidate number, zero indexed."
       case .releasingSDKs:
         return "The file path to a textproto file containing all the releasing SDKs, of type " +
           "`ZipBuilder_Release`."
@@ -108,6 +111,9 @@ struct LaunchArgs {
 
   /// A flag to delete the cache from the cache directory.
   let deleteCache: Bool
+
+  /// The release candidate number, zero indexed.
+  let rcNumber: Int?
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
@@ -172,6 +178,25 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       outputDir = nil
+    }
+
+    // Parse the release candidate number. This should only be used in conjunction with the other
+    // release related flags.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue) {
+      guard let parsedFlag = Int(rcFlag) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.rc) key: value passed in is not " +
+          "an integer. Value: \(rcFlag)")
+      }
+
+      rcNumber = parsedFlag
+    } else {
+      // Check if we have other release related flags. If so, fail since we need an RC number.
+      guard currentReleasePath == nil else {
+        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed in " +
+          "when specifiying \(Key.releasingSDKs).")
+      }
+
+      rcNumber = nil
     }
 
     // Parse the custom specs key.
