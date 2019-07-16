@@ -4,6 +4,9 @@
 - [fixed] Fixed an internal assertion that was triggered when an update
    with a `FieldValue.serverTimestamp()` and an update with a
   `FieldValue.increment()` were pending for the same document.
+- [fixed] Fixed the `oldIndex` and `newIndex` values in `DocumentChange` to
+  actually be `NSNotFound` when documents are added or removed, respectively
+  (#3298).
 - [changed] Failed transactions now return the failure from the last attempt,
   instead of `ABORTED.`
 
