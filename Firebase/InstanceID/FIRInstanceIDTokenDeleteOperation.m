@@ -29,14 +29,14 @@
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                 keyPair:(FIRInstanceIDKeyPair *)keyPair
+                                     IID:(NSString *)instanceID
                                   action:(FIRInstanceIDTokenAction)action {
   self = [super initWithAction:action
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:nil
             checkinPreferences:checkinPreferences
-                       keyPair:keyPair];
+                       IID:instanceID];
   if (self) {
   }
   return self;
@@ -62,8 +62,8 @@
   }
   // Typically we include our public key-signed url items, but in some cases (like deleting all FCM
   // tokens), we don't.
-  if (self.keyPair != nil) {
-    [queryItems addObjectsFromArray:[self queryItemsWithKeyPair:self.keyPair]];
+  if (self.instanceID.length > 0) {
+    [queryItems addObjectsFromArray:[self queryItemsWithIID:self.instanceID]];
   }
 
   NSString *content = FIRInstanceIDQueryFromQueryItems(queryItems);

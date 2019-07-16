@@ -16,6 +16,8 @@
 
 #import "FIRInstanceID.h"
 
+#import <FirebaseInstallations/FIRInstallations.h>
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -117,7 +119,8 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(nonatomic, readwrite, copy) NSString *defaultFCMToken;
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
-@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+//@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+@property(nonatomic, readwrite, strong) FIRInstallations *installations;
 
 // backoff and retry for default token
 @property(nonatomic, readwrite, assign) NSInteger retryCountForDefaultToken;
@@ -296,8 +299,8 @@ static FIRInstanceID *gInstanceID;
     errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
   } else if (![scope length]) {
     errorCode = kFIRInstanceIDErrorCodeInvalidScope;
-  } else if (!self.keyPairStore) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+//  } else if (!self.keyPairStore) {
+//    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
@@ -322,49 +325,50 @@ static FIRInstanceID *gInstanceID;
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDAuthService *authService = self.tokenManager.authService;
   [authService
-      fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
-        FIRInstanceID_STRONGIFY(self);
-        if (error) {
-          newHandler(nil, error);
-          return;
-        }
+   fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
+    FIRInstanceID_STRONGIFY(self);
+    if (error) {
+      newHandler(nil, error);
+      return;
+    }
 
-        // Only use the token in the cache if the APNSInfo matches what the request's options has.
-        // It's possible for the request to be with a newer APNs device token, which should be
-        // honored.
-        FIRInstanceIDTokenInfo *cachedTokenInfo =
-            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-        if (cachedTokenInfo) {
-          // Ensure that the cached token matches APNs data before returning it.
-          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-          // If either the APNs info is missing in both, or if they are an exact match, then we can
-          // use this cached token.
-          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-            newHandler(cachedTokenInfo.token, nil);
-            return;
-          }
-        }
+    // Only use the token in the cache if the APNSInfo matches what the request's options has.
+    // It's possible for the request to be with a newer APNs device token, which should be
+    // honored.
+    FIRInstanceIDTokenInfo *cachedTokenInfo =
+    [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+    if (cachedTokenInfo) {
+      // Ensure that the cached token matches APNs data before returning it.
+      FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+      [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+      // If either the APNs info is missing in both, or if they are an exact match, then we can
+      // use this cached token.
+      if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+          [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+        newHandler(cachedTokenInfo.token, nil);
+        return;
+      }
+    }
 
-        FIRInstanceID_WEAKIFY(self);
-        [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
-          FIRInstanceID_STRONGIFY(self);
+    FIRInstanceID_WEAKIFY(self);
+    [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
+      FIRInstanceID_STRONGIFY(self);
 
-          if (error) {
-            NSError *newError =
-                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-            newHandler(nil, newError);
+      if (error) {
+        NSError *newError =
+        [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+        newHandler(nil, newError);
 
-          } else {
-            [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                                           scope:[scope copy]
-                                                         keyPair:keyPair
-                                                         options:tokenOptions
-                                                         handler:newHandler];
-          }
-        }];
-      }];
+      } else {
+        [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                       scope:[scope copy]
+                                                         IID:identifier
+                                                     options:tokenOptions
+                                                     handler:newHandler];
+      }
+    }];
+
+  }];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -383,8 +387,8 @@ static FIRInstanceID *gInstanceID;
     errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
   } else if (![scope length]) {
     errorCode = kFIRInstanceIDErrorCodeInvalidScope;
-  } else if (!self.keyPairStore) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+//  } else if (!self.keyPairStore) {
+//    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
   }
 
   FIRInstanceIDDeleteTokenHandler newHandler = ^(NSError *error) {
@@ -414,50 +418,50 @@ static FIRInstanceID *gInstanceID;
         }
 
         FIRInstanceID_WEAKIFY(self);
-        [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
+        [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
           FIRInstanceID_STRONGIFY(self);
           if (error) {
             NSError *newError =
-                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+            [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
             newHandler(newError);
 
           } else {
             [self.tokenManager deleteTokenWithAuthorizedEntity:authorizedEntity
                                                          scope:scope
-                                                       keyPair:keyPair
+                                                           IID:identifier
                                                        handler:newHandler];
           }
         }];
       }];
 }
 
-- (void)asyncLoadKeyPairWithHandler:(FIRInstanceIDKeyPairHandler)handler {
-  FIRInstanceID_WEAKIFY(self);
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    FIRInstanceID_STRONGIFY(self);
-
-    NSError *error = nil;
-    FIRInstanceIDKeyPair *keyPair = [self.keyPairStore loadKeyPairWithError:&error];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (error) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID002,
-                                 @"Failed to retreieve keyPair %@", error);
-        if (handler) {
-          handler(nil, error);
-        }
-      } else if (!keyPair && !error) {
-        if (handler) {
-          handler(nil,
-                  [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair]);
-        }
-      } else {
-        if (handler) {
-          handler(keyPair, nil);
-        }
-      }
-    });
-  });
-}
+//- (void)asyncLoadKeyPairWithHandler:(FIRInstanceIDKeyPairHandler)handler {
+//  FIRInstanceID_WEAKIFY(self);
+//  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//    FIRInstanceID_STRONGIFY(self);
+//
+//    NSError *error = nil;
+//    FIRInstanceIDKeyPair *keyPair = [self.keyPairStore loadKeyPairWithError:&error];
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//      if (error) {
+//        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID002,
+//                                 @"Failed to retreieve keyPair %@", error);
+//        if (handler) {
+//          handler(nil, error);
+//        }
+//      } else if (!keyPair && !error) {
+//        if (handler) {
+//          handler(nil,
+//                  [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair]);
+//        }
+//      } else {
+//        if (handler) {
+//          handler(keyPair, nil);
+//        }
+//      }
+//    });
+//  });
+//}
 
 #pragma mark - Identity
 
@@ -468,30 +472,16 @@ static FIRInstanceID *gInstanceID;
     return;
   }
 
-  void (^callHandlerOnMainThread)(NSString *, NSError *) = ^(NSString *identity, NSError *error) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      handler(identity, error);
-    });
-  };
-
-  if (!self.keyPairStore) {
-    NSError *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidStart];
-    callHandlerOnMainThread(nil, error);
-    return;
-  }
-
   FIRInstanceID_WEAKIFY(self);
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+  [self.installations installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
     FIRInstanceID_STRONGIFY(self);
-    NSError *error;
-    NSString *appIdentity = [self.keyPairStore appIdentityWithError:&error];
     // When getID is explicitly called, trigger getToken to make sure token always exists.
     // This is to avoid ID conflict (ID is not checked for conflict until we generate a token)
-    if (appIdentity) {
+    if (identifier) {
       [self token];
     }
-    callHandlerOnMainThread(appIdentity, error);
-  });
+    handler(identifier, error);
+  }];
 }
 
 - (void)deleteIDWithHandler:(FIRInstanceIDDeleteHandler)handler {
@@ -511,7 +501,7 @@ static FIRInstanceID *gInstanceID;
     });
   };
 
-  if (!self.keyPairStore) {
+  if (!self.installations) {
     FIRInstanceIDErrorCode error = kFIRInstanceIDErrorCodeInvalidStart;
     callHandlerOnMainThread([NSError errorWithFIRInstanceIDErrorCode:error]);
     return;
@@ -529,14 +519,14 @@ static FIRInstanceID *gInstanceID;
     }];
   };
 
-  [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
+  [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
     FIRInstanceID_STRONGIFY(self);
     if (error) {
       NSError *newError =
           [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
       callHandlerOnMainThread(newError);
     } else {
-      [self.tokenManager deleteAllTokensWithKeyPair:keyPair handler:deleteTokensHandler];
+      [self.tokenManager deleteAllTokensWithIID:identifier handler:deleteTokensHandler];
     }
   }];
 }
@@ -559,52 +549,31 @@ static FIRInstanceID *gInstanceID;
     }
 
     // Delete Instance ID.
-    [self.keyPairStore
-        deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
-                              handler:^(NSError *error) {
-                                NSError *deletePlistError;
-                                [self.keyPairStore
-                                    removeKeyPairCreationTimePlistWithError:&deletePlistError];
-                                if (error || deletePlistError) {
-                                  if (handler) {
-                                    // Prefer to use the delete Instance ID error.
-                                    error = [NSError
-                                        errorWithFIRInstanceIDErrorCode:
-                                            kFIRInstanceIDErrorCodeUnknown
-                                                               userInfo:@{
-                                                                 NSUnderlyingErrorKey : error
-                                                                     ? error
-                                                                     : deletePlistError
-                                                               }];
-                                    handler(error);
-                                  }
-                                  return;
-                                }
-                                // Delete checkin.
-                                [self.tokenManager.authService
-                                    resetCheckinWithHandler:^(NSError *error) {
-                                      if (error) {
-                                        if (handler) {
-                                          handler(error);
-                                        }
-                                        return;
-                                      }
-                                      // Only request new token if FCM auto initialization is
-                                      // enabled.
-                                      if ([self isFCMAutoInitEnabled]) {
-                                        // Deletion succeeds! Requesting new checkin, IID and token.
-                                        // TODO(chliangGoogle) see if dispatch_after is necessary
-                                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                                                     (int64_t)(0.5 * NSEC_PER_SEC)),
-                                                       dispatch_get_main_queue(), ^{
-                                                         [self defaultTokenWithHandler:nil];
-                                                       });
-                                      }
-                                      if (handler) {
-                                        handler(nil);
-                                      }
-                                    }];
-                              }];
+    [self.installations deleteWithCompletion:^(NSError * _Nullable error) {
+      [self.tokenManager.authService
+       resetCheckinWithHandler:^(NSError *error) {
+        if (error) {
+          if (handler) {
+            handler(error);
+          }
+          return;
+        }
+        // Only request new token if FCM auto initialization is
+        // enabled.
+        if ([self isFCMAutoInitEnabled]) {
+          // Deletion succeeds! Requesting new checkin, IID and token.
+          // TODO(chliangGoogle) see if dispatch_after is necessary
+          dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
+                                       (int64_t)(0.5 * NSEC_PER_SEC)),
+                         dispatch_get_main_queue(), ^{
+            [self defaultTokenWithHandler:nil];
+          });
+        }
+        if (handler) {
+          handler(nil);
+        }
+      }];
+    }];
   }];
 }
 
@@ -768,7 +737,7 @@ static FIRInstanceID *gInstanceID;
   }
 
   [self setupTokenManager];
-  [self setupKeyPairManager];
+  self.installations = [FIRInstallations installations];
   [self setupNotificationListeners];
 }
 
@@ -779,17 +748,17 @@ static FIRInstanceID *gInstanceID;
 
 // Creates a key pair manager, which stores the public/private keys needed to generate an
 // application instance ID.
-- (void)setupKeyPairManager {
-  self.keyPairStore = [[FIRInstanceIDKeyPairStore alloc] init];
-  if ([self.keyPairStore invalidateKeyPairsIfNeeded]) {
-    // Reset tokens right away when keypair is deleted, otherwise async call can make first query
-    // of token happens before reset old tokens during app start.
-    // TODO(chliangGoogle): Delete all tokens on server too, using
-    // deleteAllTokensWithKeyPair:handler:. This requires actually retrieving the invalid keypair
-    // from Keychain, which is something that the key pair store does not currently do.
-    [self.tokenManager deleteAllTokensLocallyWithHandler:nil];
-  }
-}
+//- (void)setupKeyPairManager {
+//  self.keyPairStore = [[FIRInstanceIDKeyPairStore alloc] init];
+//  if ([self.keyPairStore invalidateKeyPairsIfNeeded]) {
+//    // Reset tokens right away when keypair is deleted, otherwise async call can make first query
+//    // of token happens before reset old tokens during app start.
+//    // TODO(chliangGoogle): Delete all tokens on server too, using
+//    // deleteAllTokensWithKeyPair:handler:. This requires actually retrieving the invalid keypair
+//    // from Keychain, which is something that the key pair store does not currently do.
+//    [self.tokenManager deleteAllTokensLocallyWithHandler:nil];
+//  }
+//}
 
 - (void)setupNotificationListeners {
   // To prevent double notifications remove observer from all events during setup.
@@ -1010,7 +979,8 @@ static FIRInstanceID *gInstanceID;
   // they are up-to-date.
   if (invalidatedTokens.count > 0) {
     FIRInstanceID_WEAKIFY(self);
-    [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
+
+    [[FIRInstallations installations] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
       FIRInstanceID_STRONGIFY(self);
 
       NSMutableDictionary *tokenOptions = [@{
@@ -1029,12 +999,12 @@ static FIRInstanceID *gInstanceID;
         } else {
           [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                                          scope:tokenInfo.scope
-                                                       keyPair:keyPair
+                                                           IID:identifier
                                                        options:tokenOptions
                                                        handler:^(NSString *_Nullable token,
                                                                  NSError *_Nullable error){
 
-                                                       }];
+          }];
         }
       }
     }];

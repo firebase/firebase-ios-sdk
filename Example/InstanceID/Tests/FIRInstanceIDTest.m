@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstallations/FIRInstallations.h>
+
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
@@ -48,7 +50,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @interface FIRInstanceID (ExposedForTest)
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
-@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+@property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 
 - (NSInteger)retryIntervalToFetchDefaultToken;

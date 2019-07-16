@@ -61,16 +61,16 @@ extern NSString *const kFIRInstanceIDKeychainErrorDomain;
  */
 - (void)addItemWithQuery:(NSDictionary *)keychainQuery handler:(void (^)(NSError *))handler;
 
-#pragma mark - Keypair
-/**
- *  Generate a public/private key pair given their tags.
- *
- *  @param privateTag        The private tag associated with the private key.
- *  @param publicTag         The public tag associated with the public key.
- *
- *  @return                  A new FIRInstanceIDKeyPair object.
- */
-- (FIRInstanceIDKeyPair *)generateKeyPairWithPrivateTag:(NSString *)privateTag
-                                              publicTag:(NSString *)publicTag;
+//#pragma mark - Keypair
+///**
+// *  Generate a public/private key pair given their tags.
+// *
+// *  @param privateTag        The private tag associated with the private key.
+// *  @param publicTag         The public tag associated with the public key.
+// *
+// *  @return                  A new FIRInstanceIDKeyPair object.
+// */
+//- (FIRInstanceIDKeyPair *)generateKeyPairWithPrivateTag:(NSString *)privateTag
+//                                              publicTag:(NSString *)publicTag;
 
 @end

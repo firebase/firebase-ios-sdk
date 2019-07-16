@@ -35,18 +35,26 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSURLSession *)sharedURLSession;
 
 #pragma mark - Initialization
+//- (instancetype)initWithAction:(FIRInstanceIDTokenAction)action
+//           forAuthorizedEntity:(nullable NSString *)authorizedEntity
+//                         scope:(NSString *)scope
+//                       options:(nullable NSDictionary<NSString *, NSString *> *)options
+//            checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
+//                       keyPair:(FIRInstanceIDKeyPair *)keyPair;
+
 - (instancetype)initWithAction:(FIRInstanceIDTokenAction)action
            forAuthorizedEntity:(nullable NSString *)authorizedEntity
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                       keyPair:(FIRInstanceIDKeyPair *)keyPair;
+                       IID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString;
 + (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope;
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair;
+//- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair;
+- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithIID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
 /**

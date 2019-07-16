@@ -40,13 +40,13 @@ NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                 keyPair:(FIRInstanceIDKeyPair *)keyPair {
+                                 IID:(NSString *)instanceID {
   self = [super initWithAction:FIRInstanceIDTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:checkinPreferences
-                       keyPair:keyPair];
+                       IID:instanceID];
   if (self) {
   }
   return self;
@@ -70,7 +70,7 @@ NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
   [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"X-subtype"
                                                                value:self.authorizedEntity]];
 
-  [queryItems addObjectsFromArray:[self queryItemsWithKeyPair:self.keyPair]];
+  [queryItems addObjectsFromArray:[self queryItemsWithIID:self.instanceID]];
 
   // Create query items from passed-in options
   id apnsTokenData = self.options[kFIRInstanceIDTokenOptionsAPNSKey];

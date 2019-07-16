@@ -23,7 +23,7 @@
 @interface FIRInstanceID ()
 
 @property(nonatomic, readonly, strong) FIRInstanceIDTokenManager *tokenManager;
-@property(nonatomic, readonly, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+//@property(nonatomic, readonly, strong) FIRInstanceIDKeyPairStore *keyPairStore;
 
 @end
 
@@ -36,7 +36,9 @@
 }
 
 - (NSString *)appInstanceID:(NSError **)error {
-  return [self.keyPairStore appIdentityWithError:error];
+//  return [self.keyPairStore appIdentityWithError:error];
+  // TODO: Implement
+  return @"";
 }
 
 @end
