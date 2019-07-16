@@ -33,8 +33,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -79,8 +77,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-modular-headers --skip-tests
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
       env:
         - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
@@ -100,8 +96,6 @@ jobs:
         # Run both build.sh and pod lib lint tests to get multi iOS version test coverage
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -114,8 +108,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -134,8 +126,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -144,8 +134,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -164,7 +152,6 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec
 
@@ -196,8 +183,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-modular-headers
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseCoreDiagnosticsInterop.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
@@ -234,20 +219,6 @@ jobs:
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
-    # FirebaseCoreDiagnostics unit tests and pod linting using the default Xcode version.
-    - stage: test
-      env:
-        - PROJECT=FirebaseCoreDiagnostics PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --use-modular-headers
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
-
     # GoogleDataTransport unit tests and pod linting using the default Xcode version.
     - stage: test
       env:
@@ -257,10 +228,6 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --use-modular-headers
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     # GoogleDataTransport integration tests using the default Xcode version.
     - stage: test
@@ -270,8 +237,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
     - stage: test
@@ -282,10 +247,6 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --use-modular-headers
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
@@ -296,8 +257,6 @@ jobs:
         - ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     # Alternative platforms
     - stage: test
@@ -307,8 +266,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     - stage: test
@@ -319,8 +276,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     # Community-supported platforms
 
@@ -331,8 +286,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -341,8 +294,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -351,8 +302,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -361,8 +310,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM
 
     # Firestore sanitizers
 
@@ -373,8 +320,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -383,8 +328,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-      after_failure:
-        - ./scripts/print_failures.sh $PROJECT $PLATFORM $METHOD
 
     # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
     # linkage (it works if enabled together with ASan, but it's supposed to be

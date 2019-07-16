@@ -68,85 +68,16 @@ fi
 
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
-calls_to_xcodebuild=0
-
-# Builds the xcresult_dir variable for the given combination.
-function BuildXCResultDir() {
-  xcresult_dir="build/xcresults/$PROJECT-$PLATFORM-$METHOD-$calls_to_xcodebuild"
-}
-
-function RemoveXCResultDir() {
-  if [[ -n "$xcresult_dir" ]]; then
-    rm -rf "$xcresult_dir"
-  fi
-}
-
-# Builds the xcb_flags variable for the given combination.
-function BuildXcodebuildArgs() {
-  BuildXCResultDir
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 7'
-  )
-  macos_flags=(
-    -sdk 'macosx'
-    -destination 'platform=OS X,arch=x86_64'
-  )
-  tvos_flags=(
-    -sdk "appletvsimulator"
-    -destination 'platform=tvOS Simulator,name=Apple TV'
-  )
-
-  # Compute standard flags for all platforms
-  case "$platform" in
-    iOS)
-      xcb_flags=("${ios_flags[@]}")
-      ;;
-
-    macOS)
-      xcb_flags=("${macos_flags[@]}")
-      ;;
-
-    tvOS)
-      xcb_flags=("${tvos_flags[@]}")
-      ;;
-
-    all)
-      xcb_flags=()
-      ;;
-
-    *)
-      echo "Unknown platform '$platform'" 1>&2
-      exit 1
-      ;;
-  esac
-
-  xcb_flags+=(
-    -resultBundlePath "$xcresult_dir"
-  )
-
-  xcb_flags+=(
-    ONLY_ACTIVE_ARCH=YES
-    CODE_SIGNING_REQUIRED=NO
-    CODE_SIGNING_ALLOWED=YES
-    COMPILER_INDEX_STORE_ENABLE=NO
-  )
-}
-
-BuildXcodebuildArgs
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  calls_to_xcodebuild=$((calls_to_xcodebuild + 1))
-  BuildXcodebuildArgs
   echo xcodebuild "$@"
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
-    RemoveXCResultDir
 
     xcodebuild "$@" | xcpretty; result=$?
   fi
@@ -154,6 +85,50 @@ function RunXcodebuild() {
     exit $result
   fi
 }
+
+ios_flags=(
+  -sdk 'iphonesimulator'
+  -destination 'platform=iOS Simulator,name=iPhone 7'
+)
+macos_flags=(
+  -sdk 'macosx'
+  -destination 'platform=OS X,arch=x86_64'
+)
+tvos_flags=(
+  -sdk "appletvsimulator"
+  -destination 'platform=tvOS Simulator,name=Apple TV'
+)
+
+# Compute standard flags for all platforms
+case "$platform" in
+  iOS)
+    xcb_flags=("${ios_flags[@]}")
+    ;;
+
+  macOS)
+    xcb_flags=("${macos_flags[@]}")
+    ;;
+
+  tvOS)
+    xcb_flags=("${tvos_flags[@]}")
+    ;;
+
+  all)
+    xcb_flags=()
+    ;;
+
+  *)
+    echo "Unknown platform '$platform'" 1>&2
+    exit 1
+    ;;
+esac
+
+xcb_flags+=(
+  ONLY_ACTIVE_ARCH=YES
+  CODE_SIGNING_REQUIRED=NO
+  CODE_SIGNING_ALLOWED=YES
+  COMPILER_INDEX_STORE_ENABLE=NO
+)
 
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our
@@ -170,7 +145,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
     case "$sanitizer" in
       asan)
-        BuildXcodebuildArgs
         xcb_flags+=(
           -enableAddressSanitizer YES
         )
@@ -180,7 +154,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         ;;
 
       tsan)
-        BuildXcodebuildArgs
         xcb_flags+=(
           -enableThreadSanitizer YES
         )
@@ -190,7 +163,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         ;;
 
       ubsan)
-        BuildXcodebuildArgs
         xcb_flags+=(
           -enableUndefinedBehaviorSanitizer YES
         )
@@ -209,7 +181,6 @@ fi
 
 # Clean the Derived Data between builds to help reduce flakiness.
 rm -rf ~/Library/Developer/Xcode/DerivedData
-RemoveXCResultDir
 
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
@@ -383,15 +354,6 @@ case "$product-$method-$platform" in
         -scheme "SymbolCollisionTest" \
         "${xcb_flags[@]}" \
         build
-    ;;
-
-  FirebaseCoreDiagnostics-xcodebuild-*)
-    RunXcodebuild \
-        -workspace 'gen/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.xcworkspace' \
-        -scheme "FirebaseCoreDiagnostics-$platform-Unit-unit" \
-        "${xcb_flags[@]}" \
-        build \
-        test
     ;;
 
   GoogleDataTransport-xcodebuild-*)
