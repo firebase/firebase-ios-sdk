@@ -1,5 +1,5 @@
 # 2019-07-23 -- v0.15.2
-- Fix bug with body text color for card messages (#3286).
+- Fixed bug with body text color for card messages (#3286).
 
 # 2019-06-04 -- v0.15.0
 - Added support for card in-app messages (#2947).
