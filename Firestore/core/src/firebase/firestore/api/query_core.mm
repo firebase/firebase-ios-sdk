@@ -270,7 +270,7 @@ Query Query::EndAt(FSTBound* bound) const {
 namespace {
 
 constexpr Operator kArrayOps[] = {
-    Operator::ArrayContains
+    Operator::ArrayContains,
 };
 
 }
