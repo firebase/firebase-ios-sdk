@@ -1,3 +1,6 @@
+# 2019-07-23 -- v0.15.2
+- Fixed issue with messages to be triggered on app launch (#3237).
+
 # 2019-06-04 -- v0.15.0
 - Added support for card in-app messages (#2947).
 - Added direct triggering (via FIAM SDK) of in-app messages (#3081).
