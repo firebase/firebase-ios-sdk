@@ -22,6 +22,7 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRInstanceID.h"
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 
@@ -42,8 +43,9 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 - (void)setUp {
   [super setUp];
 
+  id mockInstanceID = OCMClassMock([FIRInstanceID class]);
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
 }
 
 - (void)tearDown {

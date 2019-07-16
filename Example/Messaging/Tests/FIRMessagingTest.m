@@ -57,14 +57,15 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 - (void)setUp {
   [super setUp];
 
+  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
-
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
+  
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
-  _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }

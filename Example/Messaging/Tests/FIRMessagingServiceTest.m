@@ -24,6 +24,7 @@
 #import "FIRMessagingTopicsCommon.h"
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "FIRInstanceID.h"
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
@@ -55,8 +56,10 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
+
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  id mockInstanceID = OCMClassMock([FIRInstanceID class]);
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];

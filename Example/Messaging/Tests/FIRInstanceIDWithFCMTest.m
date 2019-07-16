@@ -35,7 +35,7 @@
 
 @interface FIRInstanceIDTest : XCTestCase
 
-@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+@property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 
 @end
@@ -44,14 +44,13 @@
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [[FIRInstanceID alloc] initPrivately];
-  [_instanceID start];
+  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
 }
 
 - (void)tearDown {
-  self.instanceID = nil;
+  self.mockInstanceID = nil;
   [_mockFirebaseApp stopMocking];
   [super tearDown];
 }
@@ -59,22 +58,22 @@
 - (void)testFCMAutoInitEnabled {
   NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
-  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   messaging.autoInitEnabled = YES;
   XCTAssertTrue(
-      [_instanceID isFCMAutoInitEnabled],
+      [_mockInstanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");
 
   messaging.autoInitEnabled = NO;
   XCTAssertFalse(
-      [_instanceID isFCMAutoInitEnabled],
+      [_mockInstanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");
 
   messaging.autoInitEnabled = YES;
-  XCTAssertTrue([_instanceID isFCMAutoInitEnabled]);
+  XCTAssertTrue([_mockInstanceID isFCMAutoInitEnabled]);
   [classMock stopMocking];
 }
 
