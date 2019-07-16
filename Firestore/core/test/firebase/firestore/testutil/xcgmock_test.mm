@@ -16,6 +16,7 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
+#import "FIRGeoPoint.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -42,10 +43,11 @@ TEST(XcGmockTest, DISABLED_NSStringPrints) {
   EXPECT_EQ("value", testing::PrintToString(@"value"));
 }
 
-TEST(XcGmockTest, FSTNullFilterPrints) {
-  FSTNullFilter* filter =
-      [[FSTNullFilter alloc] initWithField:model::FieldPath({"field"})];
-  EXPECT_EQ("field IS NULL", testing::PrintToString(filter));
+TEST(XcGmockTest, FIRGeoPointPrints) {
+  FIRGeoPoint* geoPoint = [[FIRGeoPoint alloc] initWithLatitude:37.7749
+                                                      longitude:122.4194];
+  EXPECT_EQ("<FIRGeoPoint: (37.774900, 122.419400)>",
+            testing::PrintToString(geoPoint));
 }
 
 TEST(XcGmockTest, StatusPrints) {

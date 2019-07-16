@@ -9,6 +9,16 @@ source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 
+install! 'cocoapods',
+    :generate_multiple_pod_projects => true,
+    # Disable input/output path checking for generated frameworks to make
+    # incremental builds work properly. Without this, changes to the framework
+    # may not be picked up in between test runs.
+    #
+    # See:
+    #   https://github.com/CocoaPods/CocoaPods/issues/8073
+    #   https://www.ralfebert.de/ios/blog/cocoapods-clean-input-output-files/
+    :disable_input_output_paths => true
 
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')

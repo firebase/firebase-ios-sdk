@@ -25,6 +25,18 @@ using firebase::firestore::api::DocumentChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace {
+
+/**
+ * Converts from C++ document change indexes to Objective-C document change
+ * indexes. Objective-C's NSNotFound is signed NSIntegerMax, not unsigned -1.
+ */
+constexpr NSUInteger MakeIndex(size_t index) {
+  return index == DocumentChange::npos ? NSNotFound : index;
+}
+
+}  // namespace
+
 @implementation FIRDocumentChange {
   DocumentChange _documentChange;
 }
@@ -66,11 +78,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)oldIndex {
-  return _documentChange.old_index();
+  return MakeIndex(_documentChange.old_index());
 }
 
 - (NSUInteger)newIndex {
-  return _documentChange.new_index();
+  return MakeIndex(_documentChange.new_index());
 }
 
 @end

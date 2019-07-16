@@ -392,18 +392,18 @@
 
 - (void)testNonEqualityQueriesOnNullOrNaNFail {
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil],
-                  @"Invalid Query. Nil and NSNull only support equality comparisons.");
+                  @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
-                  @"Invalid Query. Nil and NSNull only support equality comparisons.");
+                  @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil],
-                  @"Invalid Query. Nil and NSNull only support equality comparisons.");
+                  @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
-                  @"Invalid Query. Nil and NSNull only support equality comparisons.");
+                  @"Invalid Query. Null supports only equality comparisons.");
 
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
-                  @"Invalid Query. NaN only supports equality comparisons.");
+                  @"Invalid Query. NaN supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)],
-                  @"Invalid Query. NaN only supports equality comparisons.");
+                  @"Invalid Query. NaN supports only equality comparisons.");
 }
 
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {

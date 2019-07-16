@@ -60,6 +60,10 @@ class vector_of_ptr {
     return values_.size();
   }
 
+  bool empty() const {
+    return values_.empty();
+  }
+
   void push_back(P value) {
     values_.push_back(std::move(value));
   }

@@ -27,6 +27,7 @@
 		036F975093414351FE952F08 /* index_manager_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73F1F73B2210F3D800E1F692 /* index_manager_test.mm */; };
 		041CF73F67F6A22BF317625A /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */; };
 		0455FC6E2A281BD755FD933A /* precondition_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5520A36E1F00BCEB75 /* precondition_test.cc */; };
+		047F5209AB055A884D795B8A /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		0500A324CEC854C5B0CF364C /* FIRCollectionReferenceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E045202154AA00B64F25 /* FIRCollectionReferenceTests.mm */; };
 		051D3E20184AF195266EF678 /* no_document_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB6B908720322E8800CC290A /* no_document_test.cc */; };
 		0535C1B65DADAE1CE47FA3CA /* string_format_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CFD366B783AE27B9E79EE7A /* string_format_apple_test.mm */; };
@@ -51,6 +52,7 @@
 		0A6FBE65A7FE048BAD562A15 /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
 		0A800CA749750B01E36A6787 /* field_value_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6D0EE49C1D5AF75664D0EBE4 /* field_value_benchmark.cc */; };
 		0AE084A7886BC11B8C305122 /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CFC201A2EE200D97691 /* string_util_test.cc */; };
+		0B071E9044CEEF666D829354 /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		0B4D2668C1E81DF6D62BA9BF /* field_value_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6D0EE49C1D5AF75664D0EBE4 /* field_value_benchmark.cc */; };
 		0B7B24194E2131F5C325FE0E /* async_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB467B208E9A8200554BA2 /* async_queue_test.cc */; };
 		0B9BD73418289EFF91917934 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
@@ -270,6 +272,7 @@
 		3FD3DC939514674C9F07958A /* FSTLevelDBMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */; };
 		3FFFC1FE083D8BE9C4D9A148 /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CFC201A2EE200D97691 /* string_util_test.cc */; };
 		4008AF7585844F12207FC2F5 /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D9342023966E000A432D /* credentials_provider_test.cc */; };
+		401BBE4D4572EEBAA80E0B89 /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		40431BF2A368D0C891229F6E /* FSTMemorySpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02F20213FFC00B64F25 /* FSTMemorySpecTests.mm */; };
 		4061DCDB57DF1015629669B8 /* leveldb_index_manager_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */; };
 		406939B62E5A6A22ADAB6FE6 /* FSTTreeSortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0841F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m */; };
@@ -570,6 +573,7 @@
 		62DA31B79FE97A90EEF28B0B /* delayed_constructor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */; };
 		62F86BBE7DDA5B295B57C8DA /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
 		6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
+		6369DE4E258556FE3382DD78 /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		63B91FC476F3915A44F00796 /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D621C2DDC800EFB9CC /* query.pb.cc */; };
 		63BB61B6366E7F80C348419D /* FSTLevelDBTransactionTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */; };
 		65FC1A102890C02EF1A65213 /* database_info_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D92E20235D22000A432D /* database_info_test.cc */; };
@@ -759,6 +763,7 @@
 		96552D8E218F68DDCFE210A0 /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		9664E5831CE35D515CDBC12A /* FSTRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */; };
 		974FF09E6AFD24D5A39B898B /* local_serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F8043813A5D16963EC02B182 /* local_serializer_test.cc */; };
+		97729B53698C0E52EB165003 /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		9774A6C2AA02A12D80B34C3C /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		9783FAEA4CF758E8C4C2D76E /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
 		9794E074439ABE5457E60F35 /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
@@ -1052,6 +1057,7 @@
 		DE435F33CE563E238868D318 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
 		DE8C47B973526A20D88F785D /* token_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABC1D7DF2023A3EF00BA84F0 /* token_test.cc */; };
 		DEF036EA1ECEECD8E3ECC362 /* FSTImmutableSortedSet+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0821F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m */; };
+		DF27137C8EA7D095D68851B4 /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */; };
 		E07668A892EABDDE5B24095A /* FSTArraySortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF07E1F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m */; };
 		E08297B35E12106105F448EB /* ordered_code_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */; };
 		E084921EFB7CF8CB1E950D6C /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
@@ -1556,6 +1562,7 @@
 		DF148C0D5EEC4A2CD9FA484C /* Pods-Firestore_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		E42355285B9EF55ABD785792 /* Pods_Firestore_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = filter_test.cc; sourceTree = "<group>"; };
 		ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED4B3E3EA0EBF3ED19A07060 /* grpc_stream_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = grpc_stream_tester.h; sourceTree = "<group>"; };
 		F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -2199,6 +2206,7 @@
 			isa = PBXGroup;
 			children = (
 				AB38D92E20235D22000A432D /* database_info_test.cc */,
+				E8551D6C6FB0B1BACE9E5BAD /* filter_test.cc */,
 				B9C261C26C5D311E1E3C0CB9 /* query_test.cc */,
 				AB380CF82019382300D97691 /* target_id_generator_test.cc */,
 			);
@@ -2944,20 +2952,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-tvOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-tvOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-tvOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2970,26 +2967,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3002,26 +2982,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-tvOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-c3f74682/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-tvOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3056,20 +3019,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-iOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-iOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-iOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-iOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3082,12 +3034,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Benchmarks_iOS/Pods-Firestore_Benchmarks_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-iOS/GoogleBenchmark.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3144,26 +3093,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-1338e9d8/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3211,14 +3143,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS9.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/LibFuzzer/LibFuzzer.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LibFuzzer.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3231,32 +3158,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-tvOS/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-tvOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-tvOS/nanopb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-tvOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-tvOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-tvOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3287,20 +3191,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-macOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-macOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-macOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-macOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3411,32 +3304,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-iOS/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-iOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-iOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-iOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-iOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3467,32 +3337,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-macOS/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark-macOS/GoogleBenchmark.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest-macOS/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock-macOS/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-macOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3523,26 +3370,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-iOS/openssl_grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-ef02d4f5/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++-iOS/grpcpp.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3645,6 +3475,7 @@
 				C591407ABE1394B4042AB7CA /* field_value_benchmark.cc in Sources */,
 				9D0E720F5A6DBD48FF325016 /* field_value_test.cc in Sources */,
 				60C72F86D2231B1B6592A5E6 /* filesystem_test.cc in Sources */,
+				401BBE4D4572EEBAA80E0B89 /* filter_test.cc in Sources */,
 				A61AE3D94C975A87EFA82ADA /* firebase_credentials_provider_test.mm in Sources */,
 				C5655568EC2A9F6B5E6F9141 /* firestore.pb.cc in Sources */,
 				B8062EBDB8E5B680E46A6DD1 /* geo_point_test.cc in Sources */,
@@ -3821,6 +3652,7 @@
 				0EF74A344612147DE4261A4B /* field_value_benchmark.cc in Sources */,
 				E4EEF6AAFCD33303CE9E5408 /* field_value_test.cc in Sources */,
 				AAF2F02E77A80C9CDE2C0C7A /* filesystem_test.cc in Sources */,
+				6369DE4E258556FE3382DD78 /* filter_test.cc in Sources */,
 				DAC43DD1FDFBAB1FE1AD6BE5 /* firebase_credentials_provider_test.mm in Sources */,
 				8683BBC3AC7B01937606A83B /* firestore.pb.cc in Sources */,
 				F7718C43D3A8FCCDB4BB0071 /* geo_point_test.cc in Sources */,
@@ -4008,6 +3840,7 @@
 				0B4D2668C1E81DF6D62BA9BF /* field_value_benchmark.cc in Sources */,
 				DDBC6DB41D1A43CFF01288A2 /* field_value_test.cc in Sources */,
 				D6486C7FFA8BE6F9C7D2F4C4 /* filesystem_test.cc in Sources */,
+				DF27137C8EA7D095D68851B4 /* filter_test.cc in Sources */,
 				3DF1AB74036BD8AEF4430FA6 /* firebase_credentials_provider_test.mm in Sources */,
 				8C602DAD4E8296AB5EFB962A /* firestore.pb.cc in Sources */,
 				6ABB82D43C0728EB095947AF /* geo_point_test.cc in Sources */,
@@ -4195,6 +4028,7 @@
 				0A800CA749750B01E36A6787 /* field_value_benchmark.cc in Sources */,
 				2D3401180516B739494C7EFC /* field_value_test.cc in Sources */,
 				199B778D5820495797E0BE02 /* filesystem_test.cc in Sources */,
+				0B071E9044CEEF666D829354 /* filter_test.cc in Sources */,
 				D148475D7F26BFEE6E05CCDA /* firebase_credentials_provider_test.mm in Sources */,
 				D756A1A63E626572EE8DF592 /* firestore.pb.cc in Sources */,
 				8B31F63673F3B5238DE95AFB /* geo_point_test.cc in Sources */,
@@ -4393,6 +4227,7 @@
 				85D301119D7175F82E12892E /* field_value_benchmark.cc in Sources */,
 				AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */,
 				D94A1862B8FB778225DB54A1 /* filesystem_test.cc in Sources */,
+				047F5209AB055A884D795B8A /* filter_test.cc in Sources */,
 				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
 				544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */,
 				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
@@ -4599,6 +4434,7 @@
 				D541EA6C61FBB8913BA5C3C3 /* field_value_benchmark.cc in Sources */,
 				DA9FA01D1A4D7EC7ACA14DAB /* field_value_test.cc in Sources */,
 				280A282BE9AF4DCF4E855EAB /* filesystem_test.cc in Sources */,
+				97729B53698C0E52EB165003 /* filter_test.cc in Sources */,
 				D085EA576C763E4146C9988E /* firebase_credentials_provider_test.mm in Sources */,
 				920B6ABF76FDB3547F1CCD84 /* firestore.pb.cc in Sources */,
 				5FE84472E5369DA866193C45 /* geo_point_test.cc in Sources */,
@@ -4777,7 +4613,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -4802,7 +4637,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -4828,7 +4662,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				INFOPLIST_FILE = "$(SRCROOT)/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -4854,7 +4687,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_FILE = "$(SRCROOT)/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -4878,7 +4710,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4903,7 +4734,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4927,7 +4757,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4952,7 +4781,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4976,7 +4804,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -5001,7 +4828,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -5034,7 +4860,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = ../Swift/Tests/Info.plist;
@@ -5071,7 +4896,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = ../Swift/Tests/Info.plist;
@@ -5143,6 +4967,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -5439,7 +5264,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -5478,7 +5302,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;

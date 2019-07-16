@@ -22,6 +22,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 // TODO(wilhuff) move to first include once this test filename matches
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"

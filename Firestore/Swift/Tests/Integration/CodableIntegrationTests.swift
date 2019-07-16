@@ -55,11 +55,11 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
           if let merge = merge {
-            try transaction.setData(from: value, forDocument: doc, merge: merge)
+            _ = try transaction.setData(from: value, forDocument: doc, merge: merge)
           } else if let mergeFields = mergeFields {
-            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
+            _ = try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
-            try transaction.setData(from: value, forDocument: doc)
+            _ = try transaction.setData(from: value, forDocument: doc)
           }
         } catch {
           XCTFail("setData with transation failed.")

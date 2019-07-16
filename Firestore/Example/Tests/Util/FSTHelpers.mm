@@ -193,30 +193,6 @@ FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:testutil::Resource(path)];
 }
 
-FSTFilter *FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
-  const FieldPath path = testutil::Field(field);
-  Filter::Operator op;
-  if ([opString isEqualToString:@"<"]) {
-    op = Filter::Operator::LessThan;
-  } else if ([opString isEqualToString:@"<="]) {
-    op = Filter::Operator::LessThanOrEqual;
-  } else if ([opString isEqualToString:@"=="]) {
-    op = Filter::Operator::Equal;
-  } else if ([opString isEqualToString:@">="]) {
-    op = Filter::Operator::GreaterThanOrEqual;
-  } else if ([opString isEqualToString:@">"]) {
-    op = Filter::Operator::GreaterThan;
-  } else if ([opString isEqualToString:@"array_contains"]) {
-    op = Filter::Operator::ArrayContains;
-  } else {
-    HARD_FAIL("Unsupported operator type: %s", opString);
-  }
-
-  FieldValue data = FSTTestFieldValue(value);
-
-  return [FSTFilter filterWithField:path filterOperator:op value:data];
-}
-
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
   const FieldPath path = testutil::Field(field);
   BOOL ascending;

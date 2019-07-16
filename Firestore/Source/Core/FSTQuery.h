@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -33,78 +34,6 @@ namespace model = firebase::firestore::model;
 namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** Interface used for all query filters. */
-@interface FSTFilter : NSObject
-
-/**
- * Creates a filter for the provided path, operator, and value.
- *
- * Note that if the relational operator is Filter::Operator::Equal and the
- * value is FieldValue::Null() or FieldValue::Nan(), this will return the
- * appropriate FSTNullFilter or FSTNanFilter class instead of a
- * FSTRelationFilter.
- */
-+ (instancetype)filterWithField:(const model::FieldPath &)field
-                 filterOperator:(core::Filter::Operator)op
-                          value:(model::FieldValue)value;
-
-/** Returns the field the Filter operates over. Abstract method. */
-- (const model::FieldPath &)field;
-
-/** Returns true if a document matches the filter. Abstract method. */
-- (BOOL)matchesDocument:(FSTDocument *)document;
-
-/** A unique ID identifying the filter; used when serializing queries. Abstract method. */
-- (NSString *)canonicalID;
-
-@end
-
-/**
- * FSTRelationFilter is a document filter constraint on a query with a single relation operator.
- * It is similar to NSComparisonPredicate, except customized for Firestore semantics.
- */
-@interface FSTRelationFilter : FSTFilter
-
-/**
- * Creates a new constraint for filtering documents.
- *
- * @param field A path to a field in the document to filter on. The LHS of the expression.
- * @param filterOperator The binary operator to apply.
- * @param value A constant value to compare @a field to. The RHS of the expression.
- * @return A new instance of FSTRelationFilter.
- */
-- (instancetype)initWithField:(model::FieldPath)field
-               filterOperator:(core::Filter::Operator)filterOperator
-                        value:(model::FieldValue)value;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/** Returns YES if the receiver is not an equality relation. */
-- (BOOL)isInequality;
-
-/** The left hand side of the relation. A path into a document field. */
-- (const model::FieldPath &)field;
-
-/** The type of equality/inequality operator to use in the relation. */
-@property(nonatomic, assign, readonly) core::Filter::Operator filterOperator;
-
-/** The right hand side of the relation. A constant value to compare to. */
-@property(nonatomic, assign, readonly) const model::FieldValue &value;
-
-@end
-
-/** Filter that matches NULL values. */
-@interface FSTNullFilter : FSTFilter
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithField:(model::FieldPath)field NS_DESIGNATED_INITIALIZER;
-@end
-
-/** Filter that matches NAN values. */
-@interface FSTNanFilter : FSTFilter
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithField:(model::FieldPath)field NS_DESIGNATED_INITIALIZER;
-@end
 
 /** FSTSortOrder is a field and direction to order query results by. */
 @interface FSTSortOrder : NSObject <NSCopying>
@@ -168,13 +97,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a query with all of its components directly.
  */
-- (instancetype)initWithPath:(model::ResourcePath)path
-             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
-                    filterBy:(NSArray<FSTFilter *> *)filters
-                     orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(int32_t)limit
-                     startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQuery:(core::Query)query
+                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
+                        limit:(int32_t)limit
+                      startAt:(nullable FSTBound *)startAtBound
+                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates and returns a new FSTQuery.
@@ -218,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filter The predicate to filter by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingFilter:(FSTFilter *)filter;
+- (instancetype)queryByAddingFilter:(std::shared_ptr<core::Filter>)filter;
 
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
@@ -288,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const std::shared_ptr<const std::string> &)collectionGroup;
 
 /** The filters on the documents returned by the query. */
-@property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;
+- (const core::Query::FilterList &)filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
 @property(nonatomic, assign, readonly) int32_t limit;

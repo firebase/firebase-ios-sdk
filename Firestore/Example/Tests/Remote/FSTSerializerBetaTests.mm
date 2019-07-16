@@ -46,6 +46,8 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -62,6 +64,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::core::RelationFilter;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
@@ -79,6 +82,9 @@ using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
+
+using testutil::Filter;
+using testutil::Value;
 
 namespace {
 
@@ -523,8 +529,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesRelationFilter {
-  FSTRelationFilter *input = (FSTRelationFilter *)FSTTestFilter("item.part.top", @"==", @"food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+  auto input = std::static_pointer_cast<RelationFilter>(Filter("item.part.top", "==", "food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -535,9 +541,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesArrayContainsFilter {
-  FSTRelationFilter *input =
-      (FSTRelationFilter *)FSTTestFilter("item.tags", @"array_contains", @"food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+  auto input =
+      std::static_pointer_cast<RelationFilter>(Filter("item.tags", "array_contains", "food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -593,7 +599,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"<", @(42))];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:Filter("prop", "<", 42)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -617,9 +623,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
   FSTQuery *q = [[[FSTTestQuery("rooms/1/messages/10/attachments")
-      queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")]
-      queryByAddingFilter:FSTTestFilter("tags", @"array_contains", @"pending")];
+      queryByAddingFilter:Filter("prop", ">=", 42)]
+      queryByAddingFilter:Filter("author", "==", "dimond")]
+      queryByAddingFilter:Filter("tags", "array_contains", "pending")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -663,18 +669,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNullFilter {
-  [self unaryFilterTestWithValue:[NSNull null]
+  [self unaryFilterTestWithValue:Value(nullptr)
            expectedUnaryOperator:GCFSStructuredQuery_UnaryFilter_Operator_IsNull];
 }
 
 - (void)testEncodesNanFilter {
-  [self unaryFilterTestWithValue:@(NAN)
+  [self unaryFilterTestWithValue:Value(NAN)
            expectedUnaryOperator:GCFSStructuredQuery_UnaryFilter_Operator_IsNan];
 }
 
-- (void)unaryFilterTestWithValue:(id)value
+- (void)unaryFilterTestWithValue:(FieldValue)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
-  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"==", value)];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:Filter("prop", "==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];

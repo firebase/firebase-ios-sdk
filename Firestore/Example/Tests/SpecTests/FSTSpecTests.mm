@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -64,6 +65,7 @@ using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -76,6 +78,8 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
+
+using testutil::Filter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -188,11 +192,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       query = [query queryBySettingLimit:limit];
     }
     if (queryDict[@"filters"]) {
+      FSTUserDataConverter *converter = FSTTestUserDataConverter();
       NSArray *filters = queryDict[@"filters"];
       [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
                                             BOOL *_Nonnull stop) {
-        query = [query
-            queryByAddingFilter:FSTTestFilter(util::MakeString(filter[0]), filter[1], filter[2])];
+        FieldValue value = [converter parsedQueryValue:filter[2]];
+        query = [query queryByAddingFilter:Filter(util::MakeString(filter[0]),
+                                                  util::MakeString(filter[1]), value)];
       }];
     }
     if (queryDict[@"orderBys"]) {
