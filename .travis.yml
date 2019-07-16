@@ -117,6 +117,18 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos --use-modular-headers
+ 
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=Segmentation PLATFORM=all METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --use-modular-headers
+>>>>>>> d7d320072... Create Segmentation SDK structure for source and unit tests. (#3214)
 
     - stage: test
       env:
@@ -438,3 +450,4 @@ jobs:
 branches:
   only:
     - master
+    - md-floc-master
