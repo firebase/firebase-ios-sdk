@@ -30,7 +30,6 @@
 #import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDKeyPairStore.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDStore.h"
 #import "FIRInstanceIDTokenInfo.h"
@@ -81,8 +80,6 @@ static NSString *const kFIRIIDServiceInstanceID = @"InstanceID";
 
 static NSInteger const kFIRIIDErrorCodeInstanceIDFailed = -121;
 
-typedef void (^FIRInstanceIDKeyPairHandler)(FIRInstanceIDKeyPair *keyPair, NSError *error);
-
 /**
  *  The APNS token type for the app. If the token type is set to `UNKNOWN`
  *  InstanceID will implicitly try to figure out what the actual token type
@@ -119,7 +116,6 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(nonatomic, readwrite, copy) NSString *defaultFCMToken;
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
-//@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 
 // backoff and retry for default token
@@ -434,34 +430,6 @@ static FIRInstanceID *gInstanceID;
         }];
       }];
 }
-
-//- (void)asyncLoadKeyPairWithHandler:(FIRInstanceIDKeyPairHandler)handler {
-//  FIRInstanceID_WEAKIFY(self);
-//  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//    FIRInstanceID_STRONGIFY(self);
-//
-//    NSError *error = nil;
-//    FIRInstanceIDKeyPair *keyPair = [self.keyPairStore loadKeyPairWithError:&error];
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//      if (error) {
-//        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID002,
-//                                 @"Failed to retreieve keyPair %@", error);
-//        if (handler) {
-//          handler(nil, error);
-//        }
-//      } else if (!keyPair && !error) {
-//        if (handler) {
-//          handler(nil,
-//                  [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair]);
-//        }
-//      } else {
-//        if (handler) {
-//          handler(keyPair, nil);
-//        }
-//      }
-//    });
-//  });
-//}
 
 #pragma mark - Identity
 

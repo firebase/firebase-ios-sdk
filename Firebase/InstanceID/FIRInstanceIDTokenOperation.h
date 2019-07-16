@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRInstanceIDKeyPair;
 @class FIRInstanceIDCheckinPreferences;
 
 NS_ASSUME_NONNULL_BEGIN

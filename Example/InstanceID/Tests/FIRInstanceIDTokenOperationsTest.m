@@ -21,8 +21,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
-#import "Firebase/InstanceID/FIRInstanceIDKeyPair.h"
-#import "Firebase/InstanceID/FIRInstanceIDKeyPairStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenDeleteOperation.h"
@@ -45,12 +43,6 @@ static NSString *kRegistrationToken = @"token-12345";
 static NSString *const kPrivateKeyPairTag = @"com.iid.regclient.test.private";
 static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
 
-@interface FIRInstanceIDKeyPairStore (ExposedForTest)
-+ (void)deleteKeyPairWithPrivateTag:(NSString *)privateTag
-                          publicTag:(NSString *)publicTag
-                            handler:(void (^)(NSError *))handler;
-@end
-
 @interface FIRInstanceIDTokenOperation (ExposedForTest)
 - (void)performTokenOperation;
 @end
@@ -64,7 +56,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
 @property(strong, readonly, nonatomic) FIRInstanceIDCheckinService *checkinService;
 @property(strong, readonly, nonatomic) id mockCheckinService;
 
-@property(strong, readonly, nonatomic) FIRInstanceIDKeyPair *keyPair;
+@property(strong, readonly, nonatomic) NSString *instanceID;
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
 

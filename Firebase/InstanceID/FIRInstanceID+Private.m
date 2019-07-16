@@ -17,13 +17,14 @@
 #import "FIRInstanceID+Private.h"
 
 #import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDKeyPairStore.h"
 #import "FIRInstanceIDTokenManager.h"
+
+@class FIRInstallations;
 
 @interface FIRInstanceID ()
 
 @property(nonatomic, readonly, strong) FIRInstanceIDTokenManager *tokenManager;
-//@property(nonatomic, readonly, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+@property(nonatomic, readonly, strong) FIRInstallations *keyPairStore;
 
 @end
 

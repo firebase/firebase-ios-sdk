@@ -17,8 +17,6 @@
 #import "FIRInstanceIDTokenOperation.h"
 
 #import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDKeyPair.h"
-#import "FIRInstanceIDKeyPairUtilities.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
@@ -221,16 +219,6 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
 
   return queryItems;
 }
-
-// TODO: Replace keyPair by FID.
-//- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair {
-//  NSMutableArray<FIRInstanceIDURLQueryItem *> *items = [NSMutableArray arrayWithCapacity:3];
-//  // appid=
-//  NSString *instanceID = FIRInstanceIDAppIdentity(keyPair);
-//  [items addObject:[FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
-//                                                          value:instanceID]];
-//  return items;
-//}
 
 - (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithIID:(NSString *)instanceID {
   return @[ [FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID

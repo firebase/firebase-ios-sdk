@@ -52,26 +52,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 - (BOOL)checkForTokenRefreshPolicy;
 - (void)updateToAPNSDeviceToken:(NSData *)deviceToken isSandbox:(BOOL)isSandbox;
-/**
- *  Create a fetch operation. This method can be stubbed to return a particular operation instance,
- *  which makes it easier to unit test different behaviors.
- */
-- (FIRInstanceIDTokenFetchOperation *)
-    createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
-                                       scope:(NSString *)scope
-                                     options:(NSDictionary<NSString *, NSString *> *)options
-                                     keyPair:(FIRInstanceIDKeyPair *)keyPair;
 
-/**
- *  Create a delete operation. This method can be stubbed to return a particular operation instance,
- *  which makes it easier to unit test different behaviors.
- */
-- (FIRInstanceIDTokenDeleteOperation *)
-    createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
-                                        scope:(NSString *)scope
-                           checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                      keyPair:(FIRInstanceIDKeyPair *)keyPair
-                                       action:(FIRInstanceIDTokenAction)action;
 @end
 
 @interface FIRInstanceIDTokenManagerTest : XCTestCase
