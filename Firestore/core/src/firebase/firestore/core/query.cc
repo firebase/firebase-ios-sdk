@@ -82,6 +82,63 @@ bool Query::HasArrayContainsFilter() const {
   return false;
 }
 
+const Query::OrderByList& Query::order_bys() const {
+  if (memoized_order_bys_.empty()) {
+    const FieldPath* inequality_field = InequalityFilterField();
+    const FieldPath* first_order_by_field = FirstOrderByField();
+    if (inequality_field && !first_order_by_field) {
+      // In order to implicitly add key ordering, we must also add the
+      // inequality filter field for it to be a valid query. Note that the
+      // default inequality field and key ordering is ascending.
+      if (inequality_field->IsKeyFieldPath()) {
+        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
+                                         Direction::Ascending);
+      } else {
+        memoized_order_bys_.emplace_back(*inequality_field,
+                                         Direction::Ascending);
+        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
+                                         Direction::Ascending);
+      }
+    } else {
+      HARD_ASSERT(
+          !inequality_field || *inequality_field == *first_order_by_field,
+          "First orderBy %s should match inequality field %s.",
+          first_order_by_field->CanonicalString(),
+          inequality_field->CanonicalString());
+
+      bool found_key_order = false;
+
+      Query::OrderByList result;
+      for (const OrderBy& order_by : explicit_order_bys_) {
+        result.push_back(order_by);
+        if (order_by.field().IsKeyFieldPath()) {
+          found_key_order = true;
+        }
+      }
+
+      if (!found_key_order) {
+        // The direction of the implicit key ordering always matches the
+        // direction of the last explicit sort order
+        Direction last_direction = explicit_order_bys_.size() > 0
+                                       ? explicit_order_bys_.back().direction()
+                                       : Direction::Ascending;
+        result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
+      }
+
+      memoized_order_bys_ = std::move(result);
+    }
+  }
+  return memoized_order_bys_;
+}
+
+const FieldPath* Query::FirstOrderByField() const {
+  if (explicit_order_bys_.empty()) {
+    return nullptr;
+  }
+
+  return &explicit_order_bys_.front().field();
+}
+
 // MARK: - Builder methods
 
 Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
@@ -99,11 +156,25 @@ Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   // TODO(rsgowman): ensure first orderby must match inequality field
 
   return Query(path_, collection_group_,
-               AppendingTo(filters_, std::move(filter)));
+               AppendingTo(filters_, std::move(filter)), explicit_order_bys_);
+}
+
+Query Query::AddingOrderBy(OrderBy order_by) const {
+  HARD_ASSERT(!IsDocumentQuery(), "No ordering is allowed for document query");
+
+  if (explicit_order_bys_.empty()) {
+    const FieldPath* inequality = InequalityFilterField();
+    HARD_ASSERT(inequality == nullptr || *inequality == order_by.field(),
+                "First OrderBy must match inequality field.");
+  }
+
+  return Query(path_, collection_group_, filters_,
+               AppendingTo(explicit_order_bys_, std::move(order_by)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
-  return Query(path, /*collection_group=*/nullptr, filters_);
+  return Query(path, /*collection_group=*/nullptr, filters_,
+               explicit_order_bys_);
 }
 
 // MARK: - Matching

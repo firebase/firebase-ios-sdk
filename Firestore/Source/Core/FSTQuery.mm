@@ -190,29 +190,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder {
-  HARD_ASSERT(_position.size() <= sortOrder.count,
+             usingSortOrder:(const Query::OrderByList &)sortOrder {
+  HARD_ASSERT(_position.size() <= sortOrder.size(),
               "FSTIndexPosition has more components than provided sort order.");
   ComparisonResult result = ComparisonResult::Same;
   for (size_t idx = 0; idx < _position.size(); ++idx) {
     const FieldValue &fieldValue = _position[idx];
 
-    FSTSortOrder *sortOrderComponent = sortOrder[idx];
+    const OrderBy &sortOrderComponent = sortOrder[idx];
     ComparisonResult comparison;
-    if (sortOrderComponent.field == FieldPath::KeyFieldPath()) {
+    if (sortOrderComponent.field() == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(fieldValue.type() == FieldValue::Type::Reference,
                   "FSTBound has a non-key value where the key path is being used %s",
                   fieldValue.ToString());
       const auto &ref = fieldValue.reference_value();
       comparison = ref.key().CompareTo(document.key);
     } else {
-      absl::optional<FieldValue> docValue = [document fieldForPath:sortOrderComponent.field];
+      absl::optional<FieldValue> docValue = [document fieldForPath:sortOrderComponent.field()];
       HARD_ASSERT(docValue.has_value(),
                   "Field should exist since document matched the orderBy already.");
       comparison = fieldValue.CompareTo(*docValue);
     }
 
-    if (!sortOrderComponent.isAscending) {
+    if (!sortOrderComponent.ascending()) {
       comparison = util::ReverseOrder(comparison);
     }
 
@@ -266,12 +266,6 @@ NS_ASSUME_NONNULL_BEGIN
   Query _query;
 }
 
-/** A list of fields given to sort by. This does not include the implicit key sort at the end. */
-@property(nonatomic, strong, readonly) NSArray<FSTSortOrder *> *explicitSortOrders;
-
-/** The memoized list of sort orders */
-@property(nonatomic, nullable, strong, readwrite) NSArray<FSTSortOrder *> *memoizedSortOrders;
-
 @end
 
 @implementation FSTQuery
@@ -285,20 +279,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)queryWithPath:(ResourcePath)path
               collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
   return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
-                             orderBy:@[]
                                limit:Query::kNoLimit
                              startAt:nil
                                endAt:nil];
 }
 
 - (instancetype)initWithQuery:(core::Query)query
-                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit
                       startAt:(nullable FSTBound *)startAtBound
                         endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
     _query = std::move(query);
-    _explicitSortOrders = sortOrders;
     _limit = limit;
     _startAt = startAtBound;
     _endAt = endAtBound;
@@ -336,99 +327,45 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.filters();
 }
 
-- (NSArray *)sortOrders {
-  if (self.memoizedSortOrders == nil) {
-    const FieldPath *inequalityField = [self inequalityFilterField];
-    const FieldPath *firstSortOrderField = [self firstSortOrderField];
-    if (inequalityField && !firstSortOrderField) {
-      // In order to implicitly add key ordering, we must also add the inequality filter field for
-      // it to be a valid query. Note that the default inequality field and key ordering is
-      // ascending.
-      if (inequalityField->IsKeyFieldPath()) {
-        self.memoizedSortOrders = @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath()
-                                                                ascending:YES] ];
-      } else {
-        self.memoizedSortOrders = @[
-          [FSTSortOrder sortOrderWithFieldPath:*inequalityField ascending:YES],
-          [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath() ascending:YES]
-        ];
-      }
-    } else {
-      HARD_ASSERT(!inequalityField || *inequalityField == *firstSortOrderField,
-                  "First orderBy %s should match inequality field %s.",
-                  firstSortOrderField->CanonicalString(), inequalityField->CanonicalString());
+- (const core::Query::OrderByList &)explicitSortOrders {
+  return _query.explicit_order_bys();
+}
 
-      __block BOOL foundKeyOrder = NO;
-
-      NSMutableArray *result = [NSMutableArray array];
-      for (FSTSortOrder *sortOrder in self.explicitSortOrders) {
-        [result addObject:sortOrder];
-        if (sortOrder.field == FieldPath::KeyFieldPath()) {
-          foundKeyOrder = YES;
-        }
-      }
-
-      if (!foundKeyOrder) {
-        // The direction of the implicit key ordering always matches the direction of the last
-        // explicit sort order
-        BOOL lastIsAscending =
-            self.explicitSortOrders.count > 0 ? self.explicitSortOrders.lastObject.ascending : YES;
-        [result addObject:[FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath()
-                                                     ascending:lastIsAscending]];
-      }
-
-      self.memoizedSortOrders = result;
-    }
-  }
-  return self.memoizedSortOrders;
+- (const Query::OrderByList &)sortOrders {
+  return _query.order_bys();
 }
 
 - (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
   return [[FSTQuery alloc] initWithQuery:_query.AddingFilter(std::move(filter))
-                                 orderBy:self.explicitSortOrders
                                    limit:self.limit
                                  startAt:self.startAt
                                    endAt:self.endAt];
 }
 
-- (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
+- (instancetype)queryByAddingSortOrder:(OrderBy)orderBy {
   HARD_ASSERT(![self isDocumentQuery], "No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
-  return [[FSTQuery alloc] initWithQuery:_query
-                                 orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
+  return [[FSTQuery alloc] initWithQuery:_query.AddingOrderBy(std::move(orderBy))
                                    limit:self.limit
                                  startAt:self.startAt
                                    endAt:self.endAt];
 }
 
 - (instancetype)queryBySettingLimit:(int32_t)limit {
-  return [[FSTQuery alloc] initWithQuery:_query
-                                 orderBy:self.explicitSortOrders
-                                   limit:limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query limit:limit startAt:self.startAt endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingStartAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query
-                                 orderBy:self.explicitSortOrders
-                                   limit:self.limit
-                                 startAt:bound
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:bound endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query
-                                 orderBy:self.explicitSortOrders
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:bound];
+  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:self.startAt endAt:bound];
 }
 
 - (instancetype)collectionQueryAtPath:(ResourcePath)path {
   return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))
-                                 orderBy:self.explicitSortOrders
                                    limit:self.limit
                                  startAt:self.startAt
                                    endAt:self.endAt];
@@ -449,15 +386,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentComparator)comparator {
-  NSArray<FSTSortOrder *> *sortOrders = self.sortOrders;
+  Query::OrderByList sortOrders = self.sortOrders;
 
-  return DocumentComparator([sortOrders](id document1, id document2) {
+  return DocumentComparator([sortOrders](FSTDocument *document1, FSTDocument *document2) {
     bool didCompareOnKeyField = false;
-    for (FSTSortOrder *orderBy in sortOrders) {
-      ComparisonResult comp = [orderBy compareDocument:document1 toDocument:document2];
+    Document convertedDoc1(document1);
+    Document converetdDoc2(document2);
+    for (const OrderBy &orderBy : sortOrders) {
+      ComparisonResult comp = orderBy.Compare(convertedDoc1, converetdDoc2);
       if (!util::Same(comp)) return comp;
 
-      didCompareOnKeyField = didCompareOnKeyField || orderBy.field == FieldPath::KeyFieldPath();
+      didCompareOnKeyField = didCompareOnKeyField || orderBy.field() == FieldPath::KeyFieldPath();
     }
     HARD_ASSERT(didCompareOnKeyField, "sortOrder of query did not include key ordering");
     return ComparisonResult::Same;
@@ -473,10 +412,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable const FieldPath *)firstSortOrderField {
-  if (self.explicitSortOrders.count > 0) {
-    return &self.explicitSortOrders.firstObject.field;
-  }
-  return nullptr;
+  return _query.FirstOrderByField();
 }
 
 /** The base path of the query. */
@@ -510,8 +446,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add order by.
   [canonicalID appendString:@"|ob:"];
-  for (FSTSortOrder *orderBy in self.sortOrders) {
-    [canonicalID appendString:orderBy.canonicalID];
+  for (const OrderBy &orderBy : self.sortOrders) {
+    [canonicalID appendFormat:@"%s", orderBy.CanonicalId().c_str()];
   }
 
   // Add limit.
@@ -535,8 +471,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
   return _query == other->_query && self.limit == other.limit &&
-         objc::Equals(self.sortOrders, other.sortOrders) &&
-         objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
+         self.sortOrders == other.sortOrders && objc::Equals(self.startAt, other.startAt) &&
+         objc::Equals(self.endAt, other.endAt);
 }
 
 /* Returns YES if the document matches the path and collection group for the receiver. */
@@ -560,8 +496,8 @@ NS_ASSUME_NONNULL_BEGIN
  * A document must have a value for every ordering clause in order to show up in the results.
  */
 - (BOOL)orderByMatchesDocument:(FSTDocument *)document {
-  for (FSTSortOrder *orderBy in self.explicitSortOrders) {
-    const FieldPath &fieldPath = orderBy.field;
+  for (const OrderBy &orderBy : self.explicitSortOrders) {
+    const FieldPath &fieldPath = orderBy.field();
     // order by key always matches
     if (fieldPath != FieldPath::KeyFieldPath() &&
         [document fieldForPath:fieldPath] == absl::nullopt) {

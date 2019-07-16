@@ -55,7 +55,9 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
@@ -209,8 +211,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
 
 DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
-                                                        ascending:YES]];
+      queryByAddingSortOrder:OrderBy(testutil::Field(fieldPath), Direction::Ascending)];
   return [query comparator];
 }
 

@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
@@ -37,26 +38,35 @@ namespace core {
  */
 class Query {
  public:
+  using CollectionGroupId = std::shared_ptr<const std::string>;
   using FilterList = std::vector<std::shared_ptr<Filter>>;
+  using OrderByList = std::vector<OrderBy>;
 
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
 
   static Query Invalid() {
-    return Query(model::ResourcePath::Empty());
+    return Query();
+  }
+
+  explicit Query(model::ResourcePath path,
+                 CollectionGroupId collection_group = nullptr)
+      : Query(path, collection_group, {}, {}) {
   }
 
   /**
    * Initializes a Query with a path and optional additional query constraints.
    * Path must currently be empty if this is a collection group query.
    */
-  explicit Query(model::ResourcePath path,
-                 std::shared_ptr<const std::string> collection_group = nullptr,
-                 FilterList filters = {})
+  Query(model::ResourcePath path,
+        CollectionGroupId collection_group,
+        FilterList filters,
+        OrderByList explicit_order_bys)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
-        filters_(std::move(filters)) {
+        filters_(std::move(filters)),
+        explicit_order_bys_(std::move(explicit_order_bys)) {
   }
 
   Query(model::ResourcePath path, std::string collection_group);
@@ -95,12 +105,39 @@ class Query {
   /** Returns true if this Query has an array-contains filter already. */
   bool HasArrayContainsFilter() const;
 
+  /**
+   * Returns the list of ordering constraints that were explicitly requested on
+   * the query by the user.
+   *
+   * Note that the actual query performed might add additional sort orders to
+   * match the behavior of the backend.
+   */
+  const OrderByList& explicit_order_bys() const {
+    return explicit_order_bys_;
+  }
+
+  /**
+   * Returns the full list of ordering constraints on the query.
+   *
+   * This might include additional sort orders added implicitly to match the
+   * backend behavior.
+   */
+  const OrderByList& order_bys() const;
+
+  /** Returns the first field in an order-by constraint, or nullptr if none. */
+  const model::FieldPath* FirstOrderByField() const;
+
   // MARK: - Builder methods
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
   Query AddingFilter(std::shared_ptr<Filter> filter) const;
+
+  /**
+   * Returns a copy of this Query object with the additional specified order by.
+   */
+  Query AddingOrderBy(OrderBy order_by) const;
 
   // MARK: - Matching
 
@@ -129,6 +166,13 @@ class Query {
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
   FilterList filters_;
+
+  // A list of fields given to sort by. This does not include the implicit key
+  // sort at the end.
+  OrderByList explicit_order_bys_;
+
+  // The memoized list of sort orders.
+  mutable OrderByList memoized_order_bys_;
 
   // TODO(rsgowman): Port collection group queries logic.
 };

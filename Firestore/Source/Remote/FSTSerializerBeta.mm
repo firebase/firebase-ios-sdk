@@ -67,8 +67,10 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::GeoPoint;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -850,11 +852,9 @@ NS_ASSUME_NONNULL_BEGIN
     filterBy = [self decodedFilters:query.where];
   }
 
-  NSArray<FSTSortOrder *> *orderBy;
+  Query::OrderByList orderBy;
   if (query.orderByArray_Count > 0) {
     orderBy = [self decodedSortOrders:query.orderByArray];
-  } else {
-    orderBy = @[];
   }
 
   int32_t limit = Query::kNoLimit;
@@ -872,12 +872,8 @@ NS_ASSUME_NONNULL_BEGIN
     endAt = [self decodedBound:query.endAt];
   }
 
-  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy));
-  return [[FSTQuery alloc] initWithQuery:std::move(inner)
-                                 orderBy:orderBy
-                                   limit:limit
-                                 startAt:startAt
-                                   endAt:endAt];
+  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy));
+  return [[FSTQuery alloc] initWithQuery:std::move(inner) limit:limit startAt:startAt endAt:endAt];
 }
 
 #pragma mark Filters
@@ -1029,26 +1025,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Property Orders
 
-- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(NSArray<FSTSortOrder *> *)orders {
+- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(const Query::OrderByList &)orders {
   NSMutableArray<GCFSStructuredQuery_Order *> *protos = [NSMutableArray array];
-  for (FSTSortOrder *order in orders) {
+  for (const OrderBy &order : orders) {
     [protos addObject:[self encodedSortOrder:order]];
   }
   return protos;
 }
 
-- (NSArray<FSTSortOrder *> *)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
-  NSMutableArray<FSTSortOrder *> *result = [NSMutableArray arrayWithCapacity:protos.count];
+- (Query::OrderByList)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
+  Query::OrderByList result;
+  result.reserve(protos.count);
   for (GCFSStructuredQuery_Order *orderProto in protos) {
-    [result addObject:[self decodedSortOrder:orderProto]];
+    result.push_back([self decodedSortOrder:orderProto]);
   }
   return result;
 }
 
-- (GCFSStructuredQuery_Order *)encodedSortOrder:(FSTSortOrder *)sortOrder {
+- (GCFSStructuredQuery_Order *)encodedSortOrder:(const OrderBy &)sortOrder {
   GCFSStructuredQuery_Order *proto = [GCFSStructuredQuery_Order message];
-  proto.field = [self encodedFieldPath:sortOrder.field];
-  if (sortOrder.ascending) {
+  proto.field = [self encodedFieldPath:sortOrder.field()];
+  if (sortOrder.ascending()) {
     proto.direction = GCFSStructuredQuery_Direction_Ascending;
   } else {
     proto.direction = GCFSStructuredQuery_Direction_Descending;
@@ -1056,20 +1053,20 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
+- (OrderBy)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
-  BOOL ascending;
+  Direction direction;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:
-      ascending = YES;
+      direction = Direction::Ascending;
       break;
     case GCFSStructuredQuery_Direction_Descending:
-      ascending = NO;
+      direction = Direction::Descending;
       break;
     default:
       HARD_FAIL("Unrecognized GCFSStructuredQuery_Direction %s", proto.direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:fieldPath ascending:ascending];
+  return OrderBy(std::move(fieldPath), direction);
 }
 
 #pragma mark - Bounds/Cursors
