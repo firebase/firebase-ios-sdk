@@ -1,4 +1,8 @@
 # Unreleased
+
+# 1.4.2
+- [fixed] Fixed an issue where query results were temporarily missing documents
+  that previously had not matched but had been updated to now match the query.
 - [fixed] Fixed an internal assertion that was triggered when an update
    with a `FieldValue.serverTimestamp()` and an update with a
   `FieldValue.increment()` were pending for the same document.

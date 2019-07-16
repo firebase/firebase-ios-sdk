@@ -171,7 +171,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   std::vector<FSTMutationBatch*> matchingBatches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
-  results = AddMissingBaseDocument(matchingBatches, results);
+  results = AddMissingBaseDocuments(matchingBatches, std::move(results));
 
   for (FSTMutationBatch* batch : matchingBatches) {
     for (FSTMutation* mutation : [batch mutations]) {
@@ -217,36 +217,31 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   return results;
 }
 
-// It is possible that a `PatchMutation` can make a document match a query, even
-// if the version in the `RemoteDocumentCache` is not a match yet (waiting for
-// server to ack). To handle this, we find all document keys affected by the
-// `PatchMutation`s that are not in `existingDocs` yet, and back fill them via
-// `remoteDocumentCache.getAll`, otherwise those `PatchMutation`s will be
-// ignored because no base document can be found, and lead to missing results
-// for the query.
-DocumentMap LocalDocumentsView::AddMissingBaseDocument(
-    const std::vector<FSTMutationBatch*>& matchingBatches,
-    const DocumentMap& existingDocs) {
-  DocumentKeySet missingDocKeys;
-  for (FSTMutationBatch* batch : matchingBatches) {
+DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
+    const std::vector<FSTMutationBatch*>& matching_batches,
+    DocumentMap existing_docs) {
+  DocumentKeySet missing_doc_keys;
+  for (FSTMutationBatch* batch : matching_batches) {
     for (FSTMutation* mutation : [batch mutations]) {
       if ([mutation isKindOfClass:[FSTPatchMutation class]] &&
-          existingDocs.underlying_map().find([mutation key]) ==
-              existingDocs.underlying_map().end()) {
-        missingDocKeys = missingDocKeys.insert([mutation key]);
+          existing_docs.underlying_map().find([mutation key]) ==
+              existing_docs.underlying_map().end()) {
+        missing_doc_keys = missing_doc_keys.insert([mutation key]);
       }
     }
   }
 
-  DocumentMap mergedDocs = existingDocs;
-  MaybeDocumentMap missingDocs = remote_document_cache_->GetAll(missingDocKeys);
-  for (const auto& kv : missingDocs) {
-    if (kv.second != nil && [kv.second isKindOfClass:[FSTDocument class]]) {
-      mergedDocs = mergedDocs.insert(kv.first, (FSTDocument*)kv.second);
+  MaybeDocumentMap missing_docs =
+      remote_document_cache_->GetAll(missing_doc_keys);
+  for (const auto& kv : missing_docs) {
+    FSTMaybeDocument* maybe_doc = kv.second;
+    if (maybe_doc != nil && [maybe_doc isKindOfClass:[FSTDocument class]]) {
+      existing_docs =
+          existing_docs.insert(kv.first, static_cast<FSTDocument*>(maybe_doc));
     }
   }
 
-  return mergedDocs;
+  return existing_docs;
 }
 
 }  // namespace local
