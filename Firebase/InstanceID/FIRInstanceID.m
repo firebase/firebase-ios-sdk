@@ -295,8 +295,8 @@ static FIRInstanceID *gInstanceID;
     errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
   } else if (![scope length]) {
     errorCode = kFIRInstanceIDErrorCodeInvalidScope;
-//  } else if (!self.keyPairStore) {
-//    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+  } else if (!self.installations) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
@@ -383,8 +383,8 @@ static FIRInstanceID *gInstanceID;
     errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
   } else if (![scope length]) {
     errorCode = kFIRInstanceIDErrorCodeInvalidScope;
-//  } else if (!self.keyPairStore) {
-//    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+  } else if (!self.installations) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
   }
 
   FIRInstanceIDDeleteTokenHandler newHandler = ^(NSError *error) {
