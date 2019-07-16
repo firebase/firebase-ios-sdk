@@ -71,7 +71,7 @@ NS_SWIFT_NAME(Installations)
 /**
  * The method creates or retrieves an installation ID. The installation ID is a stable identifier
  * that uniquely identifies the app instance. NOTE: If the application already has an existing
- * FirebaseInstanceID then the InstanceID ideintifier will be used.
+ * FirebaseInstanceID then the InstanceID identifier will be used.
  * @param completion A completion handler which is invoked when the operation completes. See
  * `InstallationsIDHandler` for additional details.
  */
