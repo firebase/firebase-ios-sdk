@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
 #import "FIRInstallationsStatus.h"
@@ -32,23 +31,50 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsItem : NSObject <NSCopying>
 
+/// A `FirebaseApp` identifier.
 @property(nonatomic, readonly) NSString *appID;
+/// A `FirebaseApp` name.
 @property(nonatomic, readonly) NSString *firebaseAppName;
+///  A stable identifier that uniquely identifies the app instance.
 @property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
 /// The `refreshToken` is used to authorize the auth token requests.
 @property(nonatomic, copy, nullable) NSString *refreshToken;
+
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
 
 - (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName;
 
+/**
+ * Populates `FIRInstallationsItem` properties with data from `FIRInstallationsStoredItem`.
+ * @param item An instance of `FIRInstallationsStoredItem` to get data from.
+ */
 - (void)updateWithStoredItem:(FIRInstallationsStoredItem *)item;
+
+/**
+ * Creates a stored item with data from the object.
+ * @return Returns a `FIRInstallationsStoredItem` instance with the data from the object.
+ */
 - (FIRInstallationsStoredItem *)storedItem;
 
+/**
+ * The installation identifier.
+ * @returns Returns a string uniquely identifying the installation.
+ */
 - (NSString *)identifier;
 
+/**
+ * The installation identifier.
+ * @param appID A `FirebaseApp` identifier.
+ * @param appName A `FirebaseApp` name.
+ * @returns Returns a string uniquely identifying the installation.
+ */
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName;
 
+/**
+ * Generate a new Firebase Installation Identifier.
+ * @return Returns a 22 characters long globally unique string created based on UUID.
+ */
 + (NSString *)generateFID;
 
 @end
