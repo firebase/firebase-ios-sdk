@@ -706,7 +706,10 @@ struct ZipBuilder {
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir)
-        
+        let modulemap: String
+        do {
+          modulemap = try CocoaPodUtils.createModulemap(for: pod)
+        } catch {}
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
                                                moduleMapContents: "FIX ME",

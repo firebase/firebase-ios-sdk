@@ -131,7 +131,8 @@ struct FrameworkBuilder {
         "\(cachedFrameworkDir)")
       return cachedFrameworkDir
     } else {
-      let frameworkDir = compileFrameworkAndResources(withName: podName)
+      let frameworkDir = compileFrameworkAndResources(withName: podName,
+                                                      modulemapContents: moduleMapContents)
       do {
         // Remove the previously cached framework, if it exists, otherwise the `moveItem` call will
         // fail.

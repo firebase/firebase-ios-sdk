@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import CommonCrypto
 import Foundation
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
@@ -195,7 +196,7 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func createModulemap(for pod: CocoaPod, sources: [String] = []) throws -> String {
+  public static func createModulemap(for pod: PodInfo, sources: [String] = []) throws -> String {
     // We'll need to find the podspec for this pod.
     // 1. Find the local paths to all the repos.
     // 2. Using the `sources`, search for the pod with that version in order (as that's how
@@ -203,10 +204,159 @@ public enum CocoaPodUtils {
     // 3. Search `master` using the appropriate prefix. Take the pod name, MD5 hash it, then use the
     //    first three characters as directory names.
     // 4. Run the podspec contents through the Ruby script to generate the modulemap.
+    let allRepos = installedRepos()
 
-    
+    // Map each source to a repo, if we can.
+    let orderedRepos: [PodRepo] = sources.map { source in
+      guard let sourceURL = URL(string: source) else {
+        fatalError("Could not create URL from source when generating a modulemap for \(pod.name) " +
+          "\(source) is not a valid URL.")
+      }
+
+      let repo = allRepos.filter { $0.url == sourceURL }
+      guard !repo.isEmpty else {
+        var error = "Could not find a matching repo for specified source \(source) when " +
+          "generating a modulemap for \(pod.name). Repos:"
+        for repo in allRepos {
+          error += "\nName: \(repo.name). Source: \(repo.url)"
+        }
+        fatalError(error)
+      }
+
+      // Return the first one, since there should only be one and we've already guarded against it
+      // being empty.
+      return repo.first!
+    }
+
+    // Search for the pod in the master repo now, since it may not have been specified.
+    // Search for the podspec from the ordered repos we have.
+    for repo in orderedRepos {
+      guard let podspec = findPodspec(for: pod, in: repo) else {
+        print("Did not find \(pod.name) \(pod.version) in \(repo.name), continuing the search.")
+        continue
+      }
+
+      // Podspec found! Use it to generate the modulemap.
+      Shell.executeCommandFromScript("do something \(podspec.path)")
+    }
 
     return ""
+  }
+
+  // MARK: - Modulemap Generation
+
+  /// A CocoaPods repo that has been added to the developer's system.
+  private struct PodRepo {
+    /// An error while creating the PodRepo instance.
+    enum InitializationError: Error {
+      case failed(String)
+    }
+
+    /// Name of the repo.
+    let name: String
+
+    /// URL of the repo.
+    let url: URL
+
+    /// Local path to the repo.
+    let path: URL
+
+    /// Initializes an instance of PodRepo from the output of `pod repo list`. This expects 4 lines
+    /// that encompass the name, URL, Path, and Type (although Type is ignored).
+    init(repoListOutput: String) throws {
+      let lines = repoListOutput.components(separatedBy: .newlines)
+      guard lines.count == 4 else {
+        throw InitializationError.failed("String passed in is \(lines.count) lines long, not 4.")
+      }
+
+      // Get the name of the repo.
+      name = lines[0]
+
+      // Parse the URL.
+      guard let urlLine = lines.filter({ $0.hasPrefix("- URL:") }).first else {
+        throw InitializationError.failed("Could not find the URL line in \(repoListOutput).")
+      }
+
+      // Force unwrap since it's not empty.
+      let urlContents = urlLine.components(separatedBy: .whitespaces).last!
+      guard let url = URL(string: urlContents) else {
+        throw InitializationError.failed("URL parameter isn't a URL: \(urlContents).")
+      }
+
+      self.url = url
+
+      // Parse the path.
+      guard let pathLine = lines.filter({ $0.hasPrefix("- Path:") }).first else {
+        throw InitializationError.failed("Could not find the Path line in \(repoListOutput).")
+      }
+      let pathContents = pathLine.components(separatedBy: .whitespaces).last!
+      guard let path = URL(string: pathContents) else {
+        throw InitializationError.failed("Path contents isn't a URL: \(pathContents).")
+      }
+
+      self.path = path
+    }
+  }
+
+  private static func installedRepos() -> [PodRepo] {
+    let listPodsCommand = "pod repo list"
+    let result = Shell.executeCommandFromScript(listPodsCommand)
+    switch result {
+    case let .success(output):
+      // Parse the output. The `pod repo list` command prints each repo across 4 lines, then a blank
+      // newline between each entry. Since there's a blank line between entries, searching for two
+      // newlines in a row will let us split by repo entries. One to get to a new line, the other to
+      // create an empty line.
+      let splitOutput = output.components(separatedBy: "\n\n")
+
+      // Only interested in 4 line long items, an actual repo list.
+      let sources = splitOutput.filter { $0.components(separatedBy: .newlines).count == 4 }
+
+      let repos: [PodRepo]
+      do {
+        repos = try sources.map { try PodRepo(repoListOutput: $0) }
+      } catch {
+        fatalError("Couldn't parse Pod Repo from \(listPodsCommand): \(error)")
+      }
+
+      return repos
+    case let .error(code, output):
+      fatalError("Could not get repos installed on machine. \(listPodsCommand) exited with " +
+        "\(code). \(output).")
+    }
+  }
+
+  private static func findPodspec(for pod: PodInfo, in repo: PodRepo) -> URL? {
+    // For the master repo, CocoaPods shards the directory structure using an MD5 hash of the pod
+    // name, and use the first three characters as directories. For all other repos, use the
+    // standard structure of `RepoURL/Specs/PodName/Version/PodName.podspec`.
+
+    // Build the full podspec path throughout the function.
+    var podspecPath = repo.path
+    switch repo.name {
+    case "master":
+      // Calculate the sharding location for the master repo.
+      guard let hash = md5(pod.name) else {
+        fatalError("Could not calculate MD5 hash for \(pod.name) while generating its modulemap.")
+      }
+
+      // Map the first three characters to a String so we can use it to generate the right path.
+      let first3 = hash.prefix(3).map { String($0) }
+      podspecPath = podspecPath.appendingPathComponents(first3)
+    default:
+      // No prefix needed.
+      break
+    }
+
+    let podspecName = pod.name + ".podspec"
+    podspecPath = podspecPath.appendingPathComponents(["Specs", pod.name, pod.version, podspecName])
+
+    // If the podspec isn't in this repo, ignore it.
+    guard FileManager.default.fileExists(atPath: podspecPath.path) else {
+      return nil
+    }
+
+    return podspecPath
   }
 
   // MARK: - Private Helpers
@@ -354,6 +504,19 @@ public enum CocoaPodUtils {
 
     podfile += "end"
     return podfile
+  }
+
+  private static func md5(_ text: String) -> String? {
+    // If we can't get UTF8 bytes out, return nil.
+    guard let data = text.data(using: .utf8) else { return nil }
+
+    var digest = [UInt8].init(repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+    data.withUnsafeBytes {
+      CC_MD5($0.baseAddress, UInt32(data.count), &digest)
+    }
+
+    let characters = digest.map { String(format: "%02x", $0) }
+    return characters.joined()
   }
 
   /// Parse the output from Pods Cache
