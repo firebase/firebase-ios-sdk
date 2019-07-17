@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
   /// An initial status or an undefined value.
   FIRInstallationsAuthTokenStatusUnknown,
-  /// The auth token has been requested from the server but the response has not been received yet.
-  FIRInstallationsAuthTokenRequestInProgress,
   /// The auth token has been received from the server.
   FIRInstallationsAuthTokenStatusTokenReceived
 };
