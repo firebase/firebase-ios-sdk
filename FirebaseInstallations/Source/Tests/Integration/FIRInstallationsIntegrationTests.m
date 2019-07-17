@@ -184,10 +184,9 @@
 #pragma mark - Helpers
 
 - (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
-  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
-    @"GOOGLE_APP_ID" : @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
-    @"GCM_SENDER_ID" : @"valid_sender_id"
-  }];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                  GCMSenderID:@"valid_sender_id"];
   [FIRApp configureWithName:name options:options];
 
   return [FIRApp appNamed:name];
