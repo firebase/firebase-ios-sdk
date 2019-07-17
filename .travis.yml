@@ -6,12 +6,8 @@ cache:
   - cocoapods
 
 stages:
-  - name: checks
-    if: branch IN (master, mm/fis-master)
-  - name: test
-    if: branch == master
-  - name: test-fis
-    if: branch IN (master, mm/fis-master)
+  - checks
+  - test
 
 jobs:
   include:
@@ -401,7 +397,7 @@ jobs:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     # FIS
-    - stage: test-fis
+    - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
@@ -447,7 +443,6 @@ jobs:
   # before reporting the results.
   # fast_finish: true
 
-# branches:
-#   only:
-#     - master
-
+branches:
+  only:
+    - master
