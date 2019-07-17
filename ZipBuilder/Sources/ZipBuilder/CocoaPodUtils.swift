@@ -207,7 +207,7 @@ public enum CocoaPodUtils {
     let allRepos = installedRepos()
 
     // Map each source to a repo, if we can.
-    let orderedRepos: [PodRepo] = sources.map { source in
+    var orderedRepos: [PodRepo] = sources.map { source in
       let repo = allRepos.filter { $0.url == source }
       guard !repo.isEmpty else {
         var error = "Could not find a matching repo for specified source \(source) when " +
@@ -223,6 +223,11 @@ public enum CocoaPodUtils {
       return repo.first!
     }
 
+    // Append master repo to the end, since we always want to fall back to master.
+    if let master = allRepos.filter({ $0.name == "master" }).first  {
+      orderedRepos.append(master)
+    }
+
     // Search for the pod in the master repo now, since it may not have been specified.
     // Search for the podspec from the ordered repos we have.
     for repo in orderedRepos {
@@ -232,16 +237,20 @@ public enum CocoaPodUtils {
       }
 
       // Podspec found! Use it to generate the modulemap.
+      // TODO: Use the ruby script here to generate the modulemap.
       let result = Shell.executeCommandFromScript("echo \(podspec.path)")
       switch result {
-      case .success(let output):
-        print("Great success")
+      case .success(_):
+        return "TODO: Get the text from the modulemap."
       case let .error(code, output):
-        print("Uh oh: \(code), \(output)")
+        fatalError("Could not generate modulemap for \(pod.name), script exited with \(code). " +
+          "\(output)")
       }
     }
 
-    return ""
+    // No podspec was found in all repos, including master. Time to fail!
+    fatalError("No podspecs were found locally while searching for \(pod.name) \(pod.version) in " +
+      "all repos.")
   }
 
   // MARK: - Modulemap Generation
