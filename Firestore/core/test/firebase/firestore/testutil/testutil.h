@@ -270,7 +270,7 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
     return core::Filter::Operator::GreaterThanOrEqual;
-  } else if (s == "array_contains") {
+  } else if (s == "array_contains" || s == "array-contains") {
     return core::Filter::Operator::ArrayContains;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
