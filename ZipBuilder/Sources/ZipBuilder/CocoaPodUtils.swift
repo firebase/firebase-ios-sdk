@@ -342,7 +342,7 @@ public enum CocoaPodUtils {
     // standard structure of `RepoURL/Specs/PodName/Version/PodName.podspec`.
 
     // Build the full podspec path throughout the function.
-    var podspecPath = repo.path
+    var podspecPath = repo.path.appendingPathComponent("Specs")
     switch repo.name {
     case "master":
       // Calculate the sharding location for the master repo.
@@ -359,7 +359,7 @@ public enum CocoaPodUtils {
     }
 
     let podspecName = pod.name + ".podspec.json"
-    podspecPath = podspecPath.appendingPathComponents(["Specs", pod.name, pod.version, podspecName])
+    podspecPath = podspecPath.appendingPathComponents([pod.name, pod.version, podspecName])
 
     // If the podspec isn't in this repo, ignore it.
     guard FileManager.default.fileExists(atPath: podspecPath.path) else {
