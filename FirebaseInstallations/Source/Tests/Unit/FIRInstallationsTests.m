@@ -24,6 +24,7 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
+#import "FIRInstallations+Tests.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
@@ -31,17 +32,6 @@
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStoredAuthToken.h"
-
-@interface FIRInstallations (Tests)
-@property(nonatomic, readwrite, strong) FIROptions *appOptions;
-@property(nonatomic, readwrite, strong) NSString *appName;
-
-- (instancetype)initWithAppOptions:(FIROptions *)appOptions
-                           appName:(NSString *)appName
-         installationsIDController:(FIRInstallationsIDController *)installationsIDController
-                 prefetchAuthToken:(BOOL)prefetchAuthToken;
-
-@end
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
@@ -68,38 +58,6 @@
   self.mockIDController = nil;
   [super tearDown];
 }
-
-// TODO: Configure the tests to run on macOS without requesting the keychain password.
-#if !TARGET_OS_OSX
-// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
-// side effect now (triggers a background task).
-- (void)testInstallationsWithApp {
-  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
-  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
-
-  // Wait for finishing all background operations.
-  FBLWaitForPromisesWithTimeout(10);
-
-  [FIRApp resetApps];
-}
-
-// TODO: Consider moving to the integration tests because [FIRInstallations installations] has a
-// side effect now (triggers a background task).
-- (void)testDefaultAppInstallation {
-  FIRApp *defaultApp = [self createAndConfigureAppWithName:kFIRDefaultAppName];
-  FIRInstallations *installations = [FIRInstallations installations];
-
-  XCTAssertNotNil(installations);
-  XCTAssertEqualObjects(installations.appOptions.googleAppID, defaultApp.options.googleAppID);
-  XCTAssertEqualObjects(installations.appName, defaultApp.name);
-
-  // Wait for finishing all background operations.
-  FBLWaitForPromisesWithTimeout(10);
-
-  [FIRApp resetApps];
-}
-
-#endif  // !TARGET_OSX
 
 - (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
   XCTAssertThrows([FIRInstallations installations]);
@@ -272,31 +230,6 @@
   }];
 
   [self waitForExpectations:@[ deleteExpectation ] timeout:0.5];
-}
-
-#pragma mark - Common
-
-- (FIRInstallations *)assertInstallationsWithAppNamed:(NSString *)appName {
-  FIRApp *app = [self createAndConfigureAppWithName:appName];
-  FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
-
-  XCTAssertNotNil(installations);
-  XCTAssertEqualObjects(installations.appOptions.googleAppID, app.options.googleAppID);
-  XCTAssertEqualObjects(installations.appName, app.name);
-
-  return installations;
-}
-
-#pragma mark - Helpers
-
-- (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
-  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
-    @"GOOGLE_APP_ID" : @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
-    @"GCM_SENDER_ID" : @"valid_sender_id"
-  }];
-  [FIRApp configureWithName:name options:options];
-
-  return [FIRApp appNamed:name];
 }
 
 @end

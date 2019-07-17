@@ -17,7 +17,11 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
+
 #import "FBLPromise+Testing.h"
+#import "FIRInstallationsItem+Tests.h"
+#import "FIRInstallations+Tests.h"
 
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
@@ -47,9 +51,9 @@
   FBLWaitForPromisesWithTimeout(10);
 }
 
-// TODO: Enable the test once Travis configurred.
+// TODO: Enable the test once Travis configured.
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
-// So far, lets run the tests locally.
+// So far, let's run the tests locally.
 - (void)disabled_testGetFID {
   NSString *FID1 = [self getFID];
   NSString *FID2 = [self getFID];
@@ -93,6 +97,31 @@
   XCTAssertNotEqualObjects(authTokenBefore.authToken, authTokenAfter.authToken);
   XCTAssertNotEqualObjects(authTokenBefore.expirationDate, authTokenAfter.expirationDate);
 }
+
+// TODO: Configure the tests to run on macOS without requesting the keychain password.
+#if !TARGET_OS_OSX
+- (void)testInstallationsWithApp {
+  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
+  [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
+
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
+
+  [FIRApp resetApps];
+}
+
+- (void)testDefaultAppInstallation {
+  XCTAssertNotNil(self.installations);
+  XCTAssertEqualObjects(self.installations.appOptions.googleAppID, [FIRApp defaultApp].options.googleAppID);
+  XCTAssertEqualObjects(self.installations.appName, [FIRApp defaultApp].name);
+
+  // Wait for finishing all background operations.
+  FBLWaitForPromisesWithTimeout(10);
+
+  [FIRApp resetApps];
+}
+
+#endif // !TARGET_OS_OSX
 
 #pragma mark - Helpers
 
@@ -138,6 +167,29 @@
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 
   return retreivedTokenResult;
+}
+
+- (FIRInstallations *)assertInstallationsWithAppNamed:(NSString *)appName {
+  FIRApp *app = [self createAndConfigureAppWithName:appName];
+  FIRInstallations *installations = [FIRInstallations installationsWithApp:app];
+
+  XCTAssertNotNil(installations);
+  XCTAssertEqualObjects(installations.appOptions.googleAppID, app.options.googleAppID);
+  XCTAssertEqualObjects(installations.appName, app.name);
+
+  return installations;
+}
+
+#pragma mark - Helpers
+
+- (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    @"GOOGLE_APP_ID" : @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
+    @"GCM_SENDER_ID" : @"valid_sender_id"
+  }];
+  [FIRApp configureWithName:name options:options];
+
+  return [FIRApp appNamed:name];
 }
 
 @end
