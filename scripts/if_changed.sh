@@ -129,6 +129,10 @@ else
       check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;
 
+    Installations-*)
+      check_changes '^(Firebase/Core|GoogleUtilities|FirebaseInstallations|FirebaseInstallations.podspec)'
+      ;;
+
     *)
       echo "Unknown project-method combo" 1>&2
       echo "  PROJECT=$PROJECT" 1>&2
