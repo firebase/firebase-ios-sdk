@@ -83,6 +83,7 @@ struct FrameworkBuilder {
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
   public func buildFramework(withName podName: String,
                              version: String,
+                             moduleMapContents: String,
                              cacheKey: String?,
                              cacheEnabled: Bool = false,
                              logsOutputDir: URL? = nil) -> URL {
@@ -266,83 +267,15 @@ struct FrameworkBuilder {
     }
   }
 
-  // Extract the framework and library dependencies for a framework from
-  // Pods/Target Support Files/{framework}/{framework}.xcconfig.
-  private func getModuleDependencies(forFramework framework: String) ->
-    (frameworks: [String], libraries: [String]) {
-    let xcconfigFile = podsDir.appendingPathComponents(["Target Support Files",
-                                                        framework,
-                                                        "\(framework).xcconfig"])
-    do {
-      let text = try String(contentsOf: xcconfigFile)
-      let lines = text.components(separatedBy: .newlines)
-      for line in lines {
-        if line.hasPrefix("OTHER_LDFLAGS =") {
-          var dependencyFrameworks: [String] = []
-          var dependencyLibraries: [String] = []
-          let tokens = line.components(separatedBy: " ")
-          var addNext = false
-          for token in tokens {
-            if addNext {
-              dependencyFrameworks.append(token)
-              addNext = false
-            } else if token == "-framework" {
-              addNext = true
-            } else if token.hasPrefix("-l") {
-              let index = token.index(token.startIndex, offsetBy: 2)
-              dependencyLibraries.append(String(token[index...]))
-            }
-          }
-
-          return (dependencyFrameworks, dependencyLibraries)
-        }
-      }
-    } catch {
-      fatalError("Failed to open \(xcconfigFile): \(error)")
-    }
-    return ([], [])
-  }
-
-  private func makeModuleMap(baseDir: URL, framework: String, dir: URL) {
-    let dependencies = getModuleDependencies(forFramework: framework)
-    let moduleDir = dir.appendingPathComponent("Modules")
-    do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create Modules directory for framework: \(framework). \(error)")
-    }
-
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    // The base of the module map. The empty line at the end is intentional, do not remove it.
-    var content = """
-    framework module \(framework) {
-    umbrella header "\(framework).h"
-    export *
-    module * { export * }
-
-    """
-    for framework in dependencies.frameworks {
-      content += "  link framework " + framework + "\n"
-    }
-    for library in dependencies.libraries {
-      content += "  link " + library + "\n"
-    }
-    content += "}\n"
-
-    do {
-      try content.write(to: modulemap, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Could not write modulemap to disk for \(framework): \(error)")
-    }
-  }
-
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
   /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter modulemapContents: Contents of the modulemap for the framework to compile.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
   private func compileFrameworkAndResources(withName framework: String,
+                                            modulemapContents: String,
                                             logsOutputDir: URL? = nil) -> URL {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
@@ -450,7 +383,14 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
+    // Copy the modulemap.
+    do {
+      let modulemap = frameworkDir.appendingPathComponent("module.modulemap")
+      try modulemapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+    } catch {
+      fatalError("Could not write modulemap when creating \(framework): \(error)")
+    }
+
     return frameworkDir
   }
 

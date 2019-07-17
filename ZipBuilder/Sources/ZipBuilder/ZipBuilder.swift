@@ -706,8 +706,10 @@ struct ZipBuilder {
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir)
+        
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
+                                               moduleMapContents: "FIX ME",
                                                cacheKey: pod.cacheKey,
                                                cacheEnabled: useCache,
                                                logsOutputDir: paths.logsOutputDir)

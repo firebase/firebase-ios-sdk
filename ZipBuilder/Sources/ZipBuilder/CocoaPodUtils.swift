@@ -195,6 +195,20 @@ public enum CocoaPodUtils {
     }
   }
 
+  public static func createModulemap(for pod: CocoaPod, sources: [String] = []) throws -> String {
+    // We'll need to find the podspec for this pod.
+    // 1. Find the local paths to all the repos.
+    // 2. Using the `sources`, search for the pod with that version in order (as that's how
+    //    CocoaPods does it). Use the first one we find. If `sources` is empty, just search master.
+    // 3. Search `master` using the appropriate prefix. Take the pod name, MD5 hash it, then use the
+    //    first three characters as directory names.
+    // 4. Run the podspec contents through the Ruby script to generate the modulemap.
+
+    
+
+    return ""
+  }
+
   // MARK: - Private Helpers
 
   // Tests the input to see if it matches a CocoaPod framework and its version.
