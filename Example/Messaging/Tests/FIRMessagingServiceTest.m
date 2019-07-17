@@ -69,9 +69,9 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)tearDown {
-  [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
   _messaging = nil;
   [_mockPubSub stopMocking];
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName] removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
   [super tearDown];
 }
 
