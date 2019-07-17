@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
@@ -60,8 +61,8 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   _mockInstanceID = OCMClassMock([FIRInstanceID class]);
 
   // Create the messaging instance with all the necessary dependencies.
-  NSUserDefaults *defaults =
-      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+  GULUserDefaults *defaults =
+      [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
   
   _mockFirebaseApp = OCMClassMock([FIRApp class]);

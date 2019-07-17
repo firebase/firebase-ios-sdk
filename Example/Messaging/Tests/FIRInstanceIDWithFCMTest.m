@@ -22,6 +22,7 @@
 #import "FIRMessaging_Private.h"
 #import "FIRMessaging.h"
 #import "FIRMessagingTestUtilities.h"
+#import <GoogleUtilities/GULUserDefaults.h>
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
@@ -57,7 +58,7 @@
 
 - (void)testFCMAutoInitEnabled {
   NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
   FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);

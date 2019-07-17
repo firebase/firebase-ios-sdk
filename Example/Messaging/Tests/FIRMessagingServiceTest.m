@@ -17,6 +17,8 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingPubSub.h"
@@ -57,7 +59,7 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 
 - (void)setUp {
 
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
+  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
   id mockInstanceID = OCMClassMock([FIRInstanceID class]);
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
   _messaging.defaultFcmToken = kFakeToken;

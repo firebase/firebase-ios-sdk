@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
@@ -44,7 +45,7 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   [super setUp];
 
   id mockInstanceID = OCMClassMock([FIRInstanceID class]);
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
+  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
 }
 
