@@ -1,3 +1,6 @@
+# v6.2.1
+- Add new client error MISSING_CLIENT_IDENTIFIER. (#3341)
+
 # v6.2.0
 - Expose `secret` of OAuth credential in public header. (#3089)
 - Fix a keychain issue where API key is incorrectly set. (#3239)

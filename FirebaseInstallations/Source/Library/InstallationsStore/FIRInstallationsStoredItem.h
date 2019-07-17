@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
 #import "FIRInstallationsStatus.h"
@@ -25,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The class is supposed to be used by `FIRInstallationsStore` only. It is required to
- * serealize/deserialize the installation data into/from `NSData` to be stored in Keychain.
+ * serialize/deserialize the installation data into/from `NSData` to be stored in Keychain.
  *
  * WARNING: Modification of the class properties can lead to incompatibility with the stored data
  * encoded by the previous class versions. Any modification must be evaluated and, if it is really
@@ -33,9 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsStoredItem : NSObject <NSSecureCoding>
 
+///  A stable identifier that uniquely identifies the app instance.
 @property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
 /// The `refreshToken` is used to authorize the auth token requests.
 @property(nonatomic, copy, nullable) NSString *refreshToken;
+
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic) FIRInstallationsStatus registrationStatus;
 

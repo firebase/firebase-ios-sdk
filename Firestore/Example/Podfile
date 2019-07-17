@@ -11,7 +11,6 @@ use_frameworks!
 
 install! 'cocoapods',
     :generate_multiple_pod_projects => true,
-    :incremental_installation => true,
     # Disable input/output path checking for generated frameworks to make
     # incremental builds work properly. Without this, changes to the framework
     # may not be picked up in between test runs.

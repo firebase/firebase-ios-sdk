@@ -215,7 +215,6 @@ NS_ASSUME_NONNULL_END
 }
 
 - (FBLPromise<FIRInstallationsURLSessionResponse *> *)sendURLRequest:(NSURLRequest *)request {
-  // TODO: Consider supporting cancellation.
   return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
     NSLog(@"Sending request: %@, body:%@, headers: %@", request,
           [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding],

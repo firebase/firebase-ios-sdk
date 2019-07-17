@@ -377,7 +377,6 @@
                         responseInstallation.authToken.expirationDate);
 }
 
-// TODO: Add error tests.
 - (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndSucceeds {
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =

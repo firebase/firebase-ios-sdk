@@ -582,7 +582,7 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 0,
+              "version": 1000,
               "value": {
                 "key": "a"
               },
@@ -620,7 +620,7 @@
             "added": [
               {
                 "key": "collection/a",
-                "version": 0,
+                "version": 1000,
                 "value": {
                   "key": "a"
                 },
@@ -648,7 +648,7 @@
             "removed": [
               {
                 "key": "collection/a",
-                "version": 0,
+                "version": 1000,
                 "value": {
                   "key": "a"
                 },

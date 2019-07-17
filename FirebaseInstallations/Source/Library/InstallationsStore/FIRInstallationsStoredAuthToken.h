@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: Add short docs to the undocumented API.
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
   /// An initial status or an undefined value.
   FIRInstallationsAuthTokenStatusUnknown,
-  /// The auth token has been requested from the server but the response has not been received yet.
-  FIRInstallationsAuthTokenRequestInProgress,
   /// The auth token has been received from the server.
   FIRInstallationsAuthTokenStatusTokenReceived
 };
@@ -48,7 +45,9 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 @interface FIRInstallationsStoredAuthToken : NSObject <NSSecureCoding, NSCopying>
 @property FIRInstallationsAuthTokenStatus status;
 
+/// The token that can be used to authorize requests to Firebase backend.
 @property(nullable, copy) NSString *token;
+/// The date when the auth token expires.
 @property(nullable, copy) NSDate *expirationDate;
 
 /// The version of local storage.
