@@ -76,10 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
   return @[ installationsProvider ];
 }
 
-- (void)appWillBeDeleted:(nonnull FIRApp *)app {
-  // TODO: Handle
-}
-
 - (instancetype)initWithApp:(FIRApp *)app {
   return [self initWitAppOptions:app.options appName:app.name];
 }
