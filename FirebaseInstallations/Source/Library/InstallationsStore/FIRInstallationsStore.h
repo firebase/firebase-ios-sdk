@@ -36,7 +36,6 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
 - (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
                           accessGroup:(nullable NSString *)accessGroup;
 
-// TODO: Consider combining appID and appName to something like FIRInstallationsAppID
 /**
  * Retrieves existing installation ID if there is.
  * @param appID The Firebase(Google) Application ID.
@@ -51,7 +50,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
                                                      appName:(NSString *)appName;
 
 /**
- * Saves the given instalation.
+ * Saves the given installation.
  *
  * @param installationItem The installation data.
  * @return Returns a promise that is resolved with `[NSNull null]` on success.

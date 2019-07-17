@@ -126,11 +126,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 - (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
       [self getStoredInstallation].recover(^id(NSError *error) {
-        // TODO: Are the cases when we should not create a new FID?
         return [self createAndSaveFID];
       });
 
-  // Initiate registration process on success if needed, but return the instalation without waiting
+  // Initiate registration process on success if needed, but return the installation without waiting
   // for it.
   installationItemPromise.then(^id(FIRInstallationsItem *installation) {
     [self getAuthTokenForcingRefresh:NO];
