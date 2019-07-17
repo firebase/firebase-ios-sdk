@@ -5,9 +5,8 @@ Pod::Spec.new do |s|
 
   s.description      = <<-DESC
 Firebase Core Diagnostics collects diagnostic data to help improve and provide Firebase services.
-This SDK is integrated using a 'soft-link' mechanism and can be omitted by having the environment
-variable FIREBASE_DIAGNOSTICS set to 0. Core Diagnostics cannot be built without FirebaseCore, as
-several extern variables are expected to be implemented.
+This SDK is integrated using a 'soft-link' mechanism and the bits be omitted by using a
+non-Cocoapod integration. This library also respects the Firebase global data collection flag.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

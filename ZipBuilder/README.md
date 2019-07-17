@@ -40,6 +40,8 @@ These arguments assume you're running the command from the `ZipBuilder` director
 **Required** arguments:
 - `-templateDir $(pwd)/Template`
   - This should always be the same.
+- `-coreDiagnosticsDir <PATH_TO_FirebaseCoreDiagnostics.framework>`
+  - Needed to overwrite the existing Core Diagnostics framework.
 
 Optional comon arguments:
 - `-updatePodRepo false`
@@ -57,6 +59,7 @@ Putting them all together, here's a common command to build a releaseable Zip fi
 
 ```
 swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
+-coreDiagnosticsDir /private/tmp/tmpUqBxKN/FirebaseCoreDiagnostics.framework \
 -releasingSDKs <PATH_TO_current.textproto> \
 -existingVersions <PATH_TO_all_firebase_ios_sdks.textproto> \
 -customSpecRepos sso://cpdc-internal/firebase
