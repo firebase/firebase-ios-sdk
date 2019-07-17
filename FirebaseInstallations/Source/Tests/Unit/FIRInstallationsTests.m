@@ -87,7 +87,8 @@
 - (void)testInstallationIDError {
   // Stub get installation.
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
-  [errorPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"test" status:-1]];
+  NSError *privateError = [NSError errorWithDomain:@"TestsError" code:-1 userInfo:nil];
+  [errorPromise reject:privateError];
 
   OCMExpect([self.mockIDController getInstallationItem]).andReturn(errorPromise);
 
@@ -97,8 +98,8 @@
         XCTAssertNil(identifier);
         XCTAssertNotNil(error);
 
-        // TODO: the error must be in the public domain.
-        XCTAssertEqualObjects(error, errorPromise.error);
+        XCTAssertEqualObjects(error.domain, kFirebaseInstallationsErrorDomain);
+        XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], errorPromise.error);
 
         [idExpectation fulfill];
       }];
