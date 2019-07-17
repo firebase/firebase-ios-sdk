@@ -19,12 +19,14 @@
 
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
 
 namespace firebase {
 namespace firestore {
@@ -36,51 +38,83 @@ namespace core {
  */
 class Query {
  public:
+  using FilterList = util::vector_of_ptr<std::shared_ptr<class Filter>>;
+
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
-  /**
-   * Creates and returns a new Query.
-   *
-   * @param path The path to the collection to be queried over.
-   * @return A new instance of Query.
-   */
-  static Query AtPath(model::ResourcePath path) {
-    return Query(std::move(path), {});
-  }
+  Query() = default;
 
   static Query Invalid() {
-    return Query::AtPath(model::ResourcePath::Empty());
+    return Query(model::ResourcePath::Empty());
   }
 
-  /** Initializes a query with all of its components directly. */
-  Query(model::ResourcePath path,
-        std::vector<std::shared_ptr<core::Filter>>
-            filters /* TODO(rsgowman): other params */)
-      : path_(std::move(path)), filters_(std::move(filters)) {
+  /**
+   * Initializes a Query with a path and optional additional query constraints.
+   * Path must currently be empty if this is a collection group query.
+   */
+  explicit Query(model::ResourcePath path,
+                 std::shared_ptr<const std::string> collection_group = nullptr,
+                 FilterList filters = {})
+      : path_(std::move(path)),
+        collection_group_(std::move(collection_group)),
+        filters_(std::move(filters)) {
   }
+
+  Query(model::ResourcePath path, std::string collection_group);
+
+  // MARK: - Accessors
 
   /** The base path of the query. */
   const model::ResourcePath& path() const {
     return path_;
   }
 
+  /** The collection group of the query, if any. */
+  const std::shared_ptr<const std::string>& collection_group() const {
+    return collection_group_;
+  }
+
+  /** Returns true if this Query is for a specific document. */
+  bool IsDocumentQuery() const;
+
+  /** Returns true if this Query is a collection group query. */
+  bool IsCollectionGroupQuery() const {
+    return collection_group_ != nullptr;
+  }
+
   /** The filters on the documents returned by the query. */
-  const std::vector<std::shared_ptr<core::Filter>>& filters() const {
+  const FilterList& filters() const {
     return filters_;
   }
 
-  /** Returns true if the document matches the constraints of this query. */
-  bool Matches(const model::Document& doc) const;
+  /**
+   * Returns the field of the first filter on this Query that's an inequality,
+   * or nullptr if there are no inequalities.
+   */
+  const model::FieldPath* InequalityFilterField() const;
 
-  /** Returns true if this Query is for a specific document. */
-  bool IsDocumentQuery() const {
-    return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
-  }
+  /** Returns true if this Query has an array-contains filter already. */
+  bool HasArrayContainsFilter() const;
+
+  // MARK: - Builder methods
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
   Query Filter(std::shared_ptr<core::Filter> filter) const;
+
+  // MARK: - Matching
+
+  /**
+   * Converts this collection group query into a collection query at a specific
+   * path. This is used when executing collection group queries, since we have
+   * to split the query into a set of collection queries, one for each
+   * collection in the group.
+   */
+  Query AsCollectionQueryAtPath(model::ResourcePath path) const;
+
+  /** Returns true if the document matches the constraints of this query. */
+  bool Matches(const model::Document& doc) const;
 
  private:
   bool MatchesPath(const model::Document& doc) const;
@@ -89,23 +123,18 @@ class Query {
   bool MatchesBounds(const model::Document& doc) const;
 
   model::ResourcePath path_;
+  std::shared_ptr<const std::string> collection_group_;
 
   // Filters are shared across related Query instance. i.e. when you call
   // Query::Filter(f), a new Query instance is created that contains all of the
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
-  std::vector<std::shared_ptr<core::Filter>> filters_;
+  FilterList filters_;
 
   // TODO(rsgowman): Port collection group queries logic.
 };
 
-inline bool operator==(const Query& lhs, const Query& rhs) {
-  // TODO(rsgowman): check limit (once it exists)
-  // TODO(rsgowman): check orderby (once it exists)
-  // TODO(rsgowman): check startat (once it exists)
-  // TODO(rsgowman): check endat (once it exists)
-  return lhs.path() == rhs.path() && lhs.filters() == rhs.filters();
-}
+bool operator==(const Query& lhs, const Query& rhs);
 
 inline bool operator!=(const Query& lhs, const Query& rhs) {
   return !(lhs == rhs);

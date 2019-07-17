@@ -92,6 +92,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeKeychainError =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeKeychainError,
 
+  /** @var FIRAuthInternalErrorCodeMissingClientIdentifier
+      @brief Indicates an error for when the client identifier is missing.
+   */
+  FIRAuthInternalErrorCodeMissingClientIdentifier =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingClientIdentifier,
+
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.
       @remarks This value is here for consistency. It's also used to make the implementation of

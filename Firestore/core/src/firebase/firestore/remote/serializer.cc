@@ -797,7 +797,7 @@ Query Serializer::DecodeQueryTarget(
   // TODO(rsgowman): Dencode the startat.
   // TODO(rsgowman): Dencode the endat.
 
-  return Query(path, {});
+  return Query(path);
 }
 
 std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {

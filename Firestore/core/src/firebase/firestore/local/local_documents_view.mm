@@ -17,6 +17,7 @@
 #import "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 
 #include <string>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -143,7 +144,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
       query.path.empty(),
       "Currently we only support collection group queries at the root.");
 
-  std::string collection_id = MakeString(query.collectionGroup);
+  const std::string& collection_id = *query.collectionGroup;
   std::vector<ResourcePath> parents =
       index_manager_->GetCollectionParents(collection_id);
   DocumentMap results;
@@ -170,6 +171,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   // Get locally persisted mutation batches.
   std::vector<FSTMutationBatch*> matchingBatches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);
+
+  results = AddMissingBaseDocuments(matchingBatches, std::move(results));
 
   for (FSTMutationBatch* batch : matchingBatches) {
     for (FSTMutation* mutation : [batch mutations]) {
@@ -213,6 +216,33 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   }
 
   return results;
+}
+
+DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
+    const std::vector<FSTMutationBatch*>& matching_batches,
+    DocumentMap existing_docs) {
+  DocumentKeySet missing_doc_keys;
+  for (FSTMutationBatch* batch : matching_batches) {
+    for (FSTMutation* mutation : [batch mutations]) {
+      if ([mutation isKindOfClass:[FSTPatchMutation class]] &&
+          existing_docs.underlying_map().find([mutation key]) ==
+              existing_docs.underlying_map().end()) {
+        missing_doc_keys = missing_doc_keys.insert([mutation key]);
+      }
+    }
+  }
+
+  MaybeDocumentMap missing_docs =
+      remote_document_cache_->GetAll(missing_doc_keys);
+  for (const auto& kv : missing_docs) {
+    FSTMaybeDocument* maybe_doc = kv.second;
+    if (maybe_doc != nil && [maybe_doc isKindOfClass:[FSTDocument class]]) {
+      existing_docs =
+          existing_docs.insert(kv.first, static_cast<FSTDocument*>(maybe_doc));
+    }
+  }
+
+  return existing_docs;
 }
 
 }  // namespace local

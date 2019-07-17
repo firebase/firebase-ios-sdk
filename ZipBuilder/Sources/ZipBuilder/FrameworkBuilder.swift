@@ -219,6 +219,7 @@ struct FrameworkBuilder {
                          logRoot: URL) -> URL {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
+    let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let standardOptions = ["build",
                            "-configuration", "release",
                            "-workspace", workspacePath,
@@ -226,9 +227,9 @@ struct FrameworkBuilder {
                            "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
                            "ARCHS=\(arch.rawValue)",
                            "BUILD_DIR=\(buildDir.path)",
-                           "-sdk", platform.rawValue]
-    let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
-    let args = standardOptions + platform.extraArguments() + [distributionFlag]
+                           "-sdk", platform.rawValue,
+                           "OTHER_CFLAGS=$(value) \(distributionFlag)"]
+    let args = standardOptions + platform.extraArguments()
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))

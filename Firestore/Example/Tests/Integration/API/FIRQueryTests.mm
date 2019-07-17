@@ -252,6 +252,35 @@
   [registration remove];
 }
 
+- (void)testDocumentChangesUseNSNotFound {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  id<FIRListenerRegistration> registration =
+      [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
+
+  FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqual(querySnap.documentChanges.count, 1);
+
+  FIRDocumentChange *change = querySnap.documentChanges[0];
+  XCTAssertEqual(change.oldIndex, NSNotFound);
+  XCTAssertEqual(change.newIndex, 0);
+
+  FIRDocumentReference *doc = change.document.reference;
+  [self deleteDocumentRef:doc];
+
+  querySnap = [self.eventAccumulator awaitEventWithName:@"delete"];
+  XCTAssertEqual(querySnap.documentChanges.count, 1);
+
+  change = querySnap.documentChanges[0];
+  XCTAssertEqual(change.oldIndex, 0);
+  XCTAssertEqual(change.newIndex, NSNotFound);
+
+  [registration remove];
+}
+
 - (void)testCanHaveMultipleMutationsWhileOffline {
   FIRCollectionReference *col = [self collectionRef];
 

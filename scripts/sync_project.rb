@@ -74,6 +74,7 @@ def sync_firestore(test_only)
   # Files on the filesystem that should be ignored.
   s.ignore_files = [
     'CMakeLists.txt',
+    'README.md',
     'InfoPlist.strings',
     '*.orig',
     '*.plist',
@@ -117,6 +118,7 @@ def sync_firestore(test_only)
 
       # Other dependencies that assume #includes are relative to their roots.
       '"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp"',
+      '"${PODS_ROOT}/GoogleBenchmark/include"',
       '"${PODS_ROOT}/GoogleTest/googlemock/include"',
       '"${PODS_ROOT}/GoogleTest/googletest/include"',
       '"${PODS_ROOT}/leveldb-library/include"',
@@ -177,15 +179,34 @@ def sync_firestore(test_only)
   ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_IntegrationTests_#{platform}" do |t|
       t.source_files = [
-        'Firestore/Example/Tests/Integration/**',
-        'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
-        'Firestore/Example/Tests/Util/FSTHelpers.mm',
-        'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
-        'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
-        'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
-        'Firestore/core/test/firebase/firestore/testutil/**',
+        'Firestore/Example/Tests/**',
+        'Firestore/Protos/cpp/**',
+        'Firestore/Swift/Tests/**',
+        'Firestore/core/test/**',
+        'Firestore/third_party/Immutable/Tests/**',
+      ]
+      t.exclude_files = [
+        # needs to be in project but not in target
+        'Firestore/Example/Tests/Tests-Info.plist',
       ]
       t.xcconfig = xcconfig_objc + xcconfig_swift
+    end
+
+    s.target 'Firestore_Benchmarks_iOS' do |t|
+      t.xcconfig = xcconfig_objc + {
+        'INFOPLIST_FILE' => '${SRCROOT}/Benchmarks/Info.plist',
+      }
+    end
+
+    s.target 'Firestore_FuzzTests_iOS' do |t|
+      t.xcconfig = xcconfig_objc + {
+        'INFOPLIST_FILE' =>
+            '${SRCROOT}/FuzzTests/Firestore_FuzzTests_iOS-Info.plist',
+        'OTHER_CFLAGS' => [
+            '-fsanitize=fuzzer',
+        ]
+      }
+
     end
 
     s.target 'Firestore_SwiftTests_iOS' do |t|
@@ -288,9 +309,18 @@ class TargetDef
     return diff
   end
 
+  # We're only managing synchronization of files in these phases.
+  INTERESTING_PHASES = [
+    Xcodeproj::Project::Object::PBXHeadersBuildPhase,
+    Xcodeproj::Project::Object::PBXSourcesBuildPhase,
+    Xcodeproj::Project::Object::PBXResourcesBuildPhase,
+  ]
+
   # Finds all the files referred to by any phase in a target
   def each_target_file(target)
     target.build_phases.each do |phase|
+      next if not INTERESTING_PHASES.include?(phase.class)
+
       phase.files.each do |build_file|
         yield build_file.file_ref
       end
@@ -301,7 +331,7 @@ end
 
 class Syncer
   HEADERS = %w{.h}
-  SOURCES = %w{.c .cc .m .mm}
+  SOURCES = %w{.c .cc .m .mm .swift}
 
   def initialize(project, root_dir)
     @project = project
@@ -410,6 +440,10 @@ class Syncer
 
       next if remove_paths.include?(file_ref.real_path)
 
+      path = file_ref.real_path
+      next if @finder.ignore_basename?(path.basename)
+      next if @finder.ignore_pathname?(path)
+
       result.push(file_ref)
     end
     return result
@@ -491,9 +525,7 @@ class Syncer
       #return target.headers_build_phase
       return nil
     else
-      # TODO(wilhuff): sync resources (including JSON files for spec tests).
-      #return target.resources_build_phase
-      return nil
+      return target.resources_build_phase
     end
   end
 
@@ -790,7 +822,6 @@ class DirectoryLister
     return result
   end
 
-  private
   def ignore_basename?(basename)
     @ignore_basenames.each do |ignore|
       if basename.fnmatch(ignore)

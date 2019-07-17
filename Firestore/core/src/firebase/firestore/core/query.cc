@@ -18,18 +18,95 @@
 
 #include <algorithm>
 
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
+namespace {
+
+using Operator = Filter::Operator;
+using Type = Filter::Type;
 
 using model::Document;
 using model::DocumentKey;
+using model::FieldPath;
 using model::ResourcePath;
+
+template <typename T>
+util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
+                                   T&& value) {
+  util::vector_of_ptr<T> updated = vector;
+  updated.push_back(std::forward<T>(value));
+  return updated;
+}
+
+}  // namespace
+
+Query::Query(ResourcePath path, std::string collection_group)
+    : path_(std::move(path)),
+      collection_group_(
+          std::make_shared<const std::string>(std::move(collection_group))) {
+}
+
+// MARK: - Accessors
+
+bool Query::IsDocumentQuery() const {
+  return DocumentKey::IsDocumentKey(path_) && !collection_group_ &&
+         filters_.empty();
+}
+
+const FieldPath* Query::InequalityFilterField() const {
+  for (const auto& filter : filters_) {
+    if (filter->IsInequality()) {
+      return &filter->field();
+    }
+  }
+  return nullptr;
+}
+
+bool Query::HasArrayContainsFilter() const {
+  for (const auto& filter : filters_) {
+    if (filter->type() == Type::kRelationFilter) {
+      const auto& relation_filter = static_cast<const RelationFilter&>(*filter);
+      if (relation_filter.op() == Operator::ArrayContains) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// MARK: - Builder methods
+
+Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
+  HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
+
+  const FieldPath* new_inequality_field = nullptr;
+  if (filter->IsInequality()) {
+    new_inequality_field = &filter->field();
+  }
+  const FieldPath* query_inequality_field = InequalityFilterField();
+  HARD_ASSERT(!query_inequality_field || !new_inequality_field ||
+                  *query_inequality_field == *new_inequality_field,
+              "Query must only have one inequality field.");
+
+  // TODO(rsgowman): ensure first orderby must match inequality field
+
+  return Query(path_, collection_group_,
+               AppendingTo(filters_, std::move(filter)));
+}
+
+Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
+  return Query(path, /*collection_group=*/nullptr, filters_);
+}
+
+// MARK: - Matching
 
 bool Query::Matches(const Document& doc) const {
   return MatchesPath(doc) && MatchesOrderBy(doc) && MatchesFilters(doc) &&
@@ -37,7 +114,7 @@ bool Query::Matches(const Document& doc) const {
 }
 
 bool Query::MatchesPath(const Document& doc) const {
-  ResourcePath doc_path = doc.key().path();
+  const ResourcePath& doc_path = doc.key().path();
   if (DocumentKey::IsDocumentKey(path_)) {
     return path_ == doc_path;
   } else {
@@ -62,16 +139,10 @@ bool Query::MatchesBounds(const Document&) const {
   return true;
 }
 
-Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
-  HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
-              "No filter is allowed for document query");
-
-  // TODO(rsgowman): ensure only one inequality field
-  // TODO(rsgowman): ensure first orderby must match inequality field
-
-  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
-  updated_filters.push_back(std::move(filter));
-  return Query(path_, std::move(updated_filters));
+bool operator==(const Query& lhs, const Query& rhs) {
+  return lhs.path() == rhs.path() &&
+         util::Equals(lhs.collection_group(), rhs.collection_group()) &&
+         lhs.filters() == rhs.filters();
 }
 
 }  // namespace core

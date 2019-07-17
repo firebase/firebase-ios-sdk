@@ -26,9 +26,13 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "gtest/gtest.h"
+
+// Include this to validate that it does not cause ambiguity.
+#include "Firestore/core/src/firebase/firestore/util/equality.h"
 
 namespace firebase {
 namespace firestore {
