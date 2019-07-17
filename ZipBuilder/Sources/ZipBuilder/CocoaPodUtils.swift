@@ -142,7 +142,7 @@ public enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod _1.5.3_ install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -237,7 +237,13 @@ public enum CocoaPodUtils {
       }
 
       // Podspec found! Use it to generate the modulemap.
-      Shell.executeCommandFromScript("do something \(podspec.path)")
+      let result = Shell.executeCommandFromScript("echo \(podspec.path)")
+      switch result {
+      case .success(let output):
+        print("Great success")
+      case let .error(code, output):
+        print("Uh oh: \(code), \(output)")
+      }
     }
 
     return ""
