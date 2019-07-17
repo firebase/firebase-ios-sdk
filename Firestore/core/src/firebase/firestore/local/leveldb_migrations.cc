@@ -316,6 +316,9 @@ LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
   if (status.IsNotFound()) {
     return 0;
   } else {
+    HARD_ASSERT(status.ok(),
+                "Failed to read version string from LevelDB, error: '%s'",
+                status.ToString());
     return stoi(version_string);
   }
 }

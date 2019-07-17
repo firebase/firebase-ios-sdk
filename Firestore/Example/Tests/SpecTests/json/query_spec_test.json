@@ -1166,5 +1166,208 @@
         ]
       }
     ]
+  },
+  "Latency-compensated updates are included in query results": {
+    "describeName": "Queries:",
+    "itName": "Latency-compensated updates are included in query results",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true,
+      "numClients": 1
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "version": 1000,
+              "value": {
+                "match": false
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "collection/a",
+                "version": 1000,
+                "value": {
+                  "match": false
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/a",
+          {
+            "match": true
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "modified": [
+              {
+                "key": "collection/a",
+                "version": 1000,
+                "value": {
+                  "match": true
+                },
+                "options": {
+                  "hasLocalMutations": true,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection",
+            "filters": [
+              [
+                "match",
+                "==",
+                true
+              ]
+            ],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection",
+                "filters": [
+                  [
+                    "match",
+                    "==",
+                    true
+                  ]
+                ],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [
+                [
+                  "match",
+                  "==",
+                  true
+                ]
+              ],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "collection/a",
+                "version": 1000,
+                "value": {
+                  "match": true
+                },
+                "options": {
+                  "hasLocalMutations": true,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      }
+    ]
   }
 }

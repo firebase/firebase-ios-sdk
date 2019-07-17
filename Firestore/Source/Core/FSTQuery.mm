@@ -50,6 +50,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::Query;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -59,221 +60,11 @@ using firebase::firestore::util::ComparisonResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Filter::Operator functions
-
-@implementation FSTFilter
-
-+ (instancetype)filterWithField:(const FieldPath &)field
-                 filterOperator:(Filter::Operator)op
-                          value:(FieldValue)value {
-  if (value.type() == FieldValue::Type::Null) {
-    if (op != Filter::Operator::Equal) {
-      ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
-    }
-    return [[FSTNullFilter alloc] initWithField:field];
-  } else if (value.is_nan()) {
-    if (op != Filter::Operator::Equal) {
-      ThrowInvalidArgument("Invalid Query. NaN only supports equality comparisons.");
-    }
-    return [[FSTNanFilter alloc] initWithField:field];
-  } else {
-    return [[FSTRelationFilter alloc] initWithField:field filterOperator:op value:value];
-  }
-}
-
-- (const FieldPath &)field {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (BOOL)matchesDocument:(FSTDocument *)document {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (NSString *)canonicalID {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-@end
-
-#pragma mark - FSTRelationFilter
-
-@interface FSTRelationFilter () {
-  /** The left hand side of the relation. A path into a document field. */
-  firebase::firestore::model::FieldPath _field;
-}
-
-/**
- * Initializes the receiver relation filter.
- *
- * @param field A path to a field in the document to filter on. The LHS of the expression.
- * @param filterOperator The binary operator to apply.
- * @param value A constant value to compare @a field to. The RHS of the expression.
- */
-- (instancetype)initWithField:(FieldPath)field
-               filterOperator:(Filter::Operator)filterOperator
-                        value:(FieldValue)value NS_DESIGNATED_INITIALIZER;
-
-/** Returns YES if @a document matches the receiver's constraint. */
-- (BOOL)matchesDocument:(FSTDocument *)document;
-
-/**
- * A canonical string identifying the filter. Two different instances of equivalent filters will
- * return the same canonicalID.
- */
-- (NSString *)canonicalID;
-
-@end
-
-@implementation FSTRelationFilter {
-  core::RelationFilter _filter;
-}
-
-#pragma mark - Constructor methods
-
-- (instancetype)initWithField:(FieldPath)field
-               filterOperator:(Filter::Operator)filterOperator
-                        value:(FieldValue)value {
-  self = [super init];
-  if (self) {
-    _filter = core::RelationFilter(std::move(field), filterOperator, std::move(value));
-  }
-  return self;
-}
-
-#pragma mark - Public Methods
-
-- (BOOL)isInequality {
-  return _filter.IsInequality();
-}
-
-- (const model::FieldPath &)field {
-  return _filter.field();
-}
-
-- (core::Filter::Operator)filterOperator {
-  return _filter.op();
-}
-
-- (const model::FieldValue &)value {
-  return _filter.value();
-}
-
-#pragma mark - NSObject methods
-
-- (NSString *)description {
-  return util::MakeNSString(_filter.ToString());
-}
-
-- (BOOL)isEqual:(id)other {
-  if (self == other) return YES;
-  if (![other isKindOfClass:[FSTRelationFilter class]]) return NO;
-
-  return _filter == ((FSTRelationFilter *)other)->_filter;
-}
-
-#pragma mark - Private methods
-
-- (BOOL)matchesDocument:(FSTDocument *)document {
-  model::Document converted(document);
-  return _filter.Matches(converted);
-}
-
-- (NSString *)canonicalID {
-  return util::MakeNSString(_filter.CanonicalId());
-}
-
-@end
-
-#pragma mark - FSTNullFilter
-
-@implementation FSTNullFilter {
-  core::NullFilter _filter;
-}
-
-- (instancetype)initWithField:(FieldPath)field {
-  if (self = [super init]) {
-    _filter = core::NullFilter(std::move(field));
-  }
-  return self;
-}
-
-- (BOOL)matchesDocument:(FSTDocument *)document {
-  model::Document converted(document);
-  return _filter.Matches(converted);
-}
-
-- (NSString *)canonicalID {
-  return util::MakeNSString(_filter.CanonicalId());
-}
-
-- (const firebase::firestore::model::FieldPath &)field {
-  return _filter.field();
-}
-
-- (NSString *)description {
-  return util::MakeNSString(_filter.ToString());
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
-
-  return _filter == ((FSTNullFilter *)other)->_filter;
-}
-
-- (NSUInteger)hash {
-  return _filter.Hash();
-}
-
-@end
-
-#pragma mark - FSTNanFilter
-
-@implementation FSTNanFilter {
-  core::NanFilter _filter;
-}
-
-- (instancetype)initWithField:(FieldPath)field {
-  if (self = [super init]) {
-    _filter = core::NanFilter(field);
-  }
-  return self;
-}
-
-- (BOOL)matchesDocument:(FSTDocument *)document {
-  model::Document converted(document);
-  return _filter.Matches(converted);
-}
-
-- (NSString *)canonicalID {
-  return util::MakeNSString(_filter.CanonicalId());
-}
-
-- (const firebase::firestore::model::FieldPath &)field {
-  return _filter.field();
-}
-
-- (NSString *)description {
-  return util::MakeNSString(_filter.ToString());
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
-
-  return _filter == ((FSTNanFilter *)other)->_filter;
-}
-
-- (NSUInteger)hash {
-  return _filter.Hash();
-}
-@end
-
 #pragma mark - FSTSortOrder
 
 @interface FSTSortOrder () {
   /** The field to sort by. */
-  firebase::firestore::model::FieldPath _field;
+  FieldPath _field;
 }
 
 /** Creates a new sort order with the given field and direction. */
@@ -300,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (const firebase::firestore::model::FieldPath &)field {
+- (const FieldPath &)field {
   return _field;
 }
 
@@ -487,40 +278,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)queryWithPath:(ResourcePath)path
               collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
-  return [[FSTQuery alloc] initWithPath:std::move(path)
-                        collectionGroup:std::move(collectionGroup)
-                               filterBy:@[]
-                                orderBy:@[]
-                                  limit:Query::kNoLimit
-                                startAt:nil
-                                  endAt:nil];
-}
-
-- (instancetype)initWithPath:(ResourcePath)path
-             collectionGroup:(std::shared_ptr<const std::string>)collectionGroup
-                    filterBy:(NSArray<FSTFilter *> *)filters
-                     orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(int32_t)limit
-                     startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound {
-  Query query(std::move(path), std::move(collectionGroup));
-  return [self initWithQuery:std::move(query)
-                    filterBy:filters
-                     orderBy:sortOrders
-                       limit:limit
-                     startAt:startAtBound
-                       endAt:endAtBound];
+  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
+                             orderBy:@[]
+                               limit:Query::kNoLimit
+                             startAt:nil
+                               endAt:nil];
 }
 
 - (instancetype)initWithQuery:(core::Query)query
-                     filterBy:(NSArray<FSTFilter *> *)filters
                       orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit
                       startAt:(nullable FSTBound *)startAtBound
                         endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
     _query = std::move(query);
-    _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
     _startAt = startAtBound;
@@ -554,6 +325,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #pragma mark - Public methods
+
+- (const Query::FilterList &)filters {
+  return _query.filters();
+}
 
 - (NSArray *)sortOrders {
   if (self.memoizedSortOrders == nil) {
@@ -602,83 +377,59 @@ NS_ASSUME_NONNULL_BEGIN
   return self.memoizedSortOrders;
 }
 
-- (instancetype)queryByAddingFilter:(FSTFilter *)filter {
-  HARD_ASSERT(![self isDocumentQuery], "No filtering allowed for document query");
-
-  const FieldPath *newInequalityField = nullptr;
-  if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-      [((FSTRelationFilter *)filter) isInequality]) {
-    newInequalityField = &filter.field;
-  }
-  const FieldPath *queryInequalityField = [self inequalityFilterField];
-  HARD_ASSERT(
-      !queryInequalityField || !newInequalityField || *queryInequalityField == *newInequalityField,
-      "Query must only have one inequality field.");
-
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:[self.filters arrayByAddingObject:filter]
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+- (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
+  return [[FSTQuery alloc] initWithQuery:_query.Filter(std::move(filter))
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
   HARD_ASSERT(![self isDocumentQuery], "No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryBySettingLimit:(int32_t)limit {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingStartAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:bound
-                                  endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:bound
+                                   endAt:self.endAt];
 }
 
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithPath:self.path
-                        collectionGroup:self.collectionGroup
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:bound];
+  return [[FSTQuery alloc] initWithQuery:_query
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:bound];
 }
 
-- (instancetype)collectionQueryAtPath:(firebase::firestore::model::ResourcePath)path {
-  return [[FSTQuery alloc] initWithPath:path
-                        collectionGroup:nil
-                               filterBy:self.filters
-                                orderBy:self.explicitSortOrders
-                                  limit:self.limit
-                                startAt:self.startAt
-                                  endAt:self.endAt];
+- (instancetype)collectionQueryAtPath:(ResourcePath)path {
+  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))
+                                 orderBy:self.explicitSortOrders
+                                   limit:self.limit
+                                 startAt:self.startAt
+                                   endAt:self.endAt];
 }
 
 - (BOOL)isDocumentQuery {
-  return DocumentKey::IsDocumentKey(self.path) && !self.collectionGroup && self.filters.count == 0;
+  return _query.IsDocumentQuery();
 }
 
 - (BOOL)isCollectionGroupQuery {
@@ -708,23 +459,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable const FieldPath *)inequalityFilterField {
-  for (FSTFilter *filter in self.filters) {
-    if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-        ((FSTRelationFilter *)filter).isInequality) {
-      return &filter.field;
-    }
-  }
-  return nullptr;
+  return _query.InequalityFilterField();
 }
 
 - (BOOL)hasArrayContainsFilter {
-  for (FSTFilter *filter in self.filters) {
-    if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-        ((FSTRelationFilter *)filter).filterOperator == Filter::Operator::ArrayContains) {
-      return YES;
-    }
-  }
-  return NO;
+  return _query.HasArrayContainsFilter();
 }
 
 - (nullable const FieldPath *)firstSortOrderField {
@@ -735,7 +474,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** The base path of the query. */
-- (const firebase::firestore::model::ResourcePath &)path {
+- (const ResourcePath &)path {
   return _query.path();
 }
 
@@ -759,8 +498,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add filters.
   [canonicalID appendString:@"|f:"];
-  for (FSTFilter *predicate in self.filters) {
-    [canonicalID appendFormat:@"%@", [predicate canonicalID]];
+  for (const auto &filter : self.filters) {
+    [canonicalID appendFormat:@"%s", filter->CanonicalId().c_str()];
   }
 
   // Add order by.
@@ -790,7 +529,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
   return _query == other->_query && self.limit == other.limit &&
-         objc::Equals(self.filters, other.filters) &&
          objc::Equals(self.sortOrders, other.sortOrders) &&
          objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
 }
@@ -829,8 +567,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns YES if the document matches all of the filters in the receiver. */
 - (BOOL)filtersMatchDocument:(FSTDocument *)document {
-  for (FSTFilter *filter in self.filters) {
-    if (![filter matchesDocument:document]) {
+  Document converted(document);
+
+  for (const auto &filter : self.filters) {
+    if (!filter->Matches(converted)) {
       return NO;
     }
   }

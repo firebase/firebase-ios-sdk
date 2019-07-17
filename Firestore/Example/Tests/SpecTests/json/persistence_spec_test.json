@@ -1236,5 +1236,68 @@
         "clientIndex": 0
       }
     ]
+  },
+  "clearPersistence() shuts down other clients": {
+    "describeName": "Persistence:",
+    "itName": "clearPersistence() shuts down other clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 3
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "shutdown": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        },
+        "clientIndex": 0
+      },
+      {
+        "clearPersistence": true,
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "expectIsShutdown": true,
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "expectIsShutdown": true,
+        "clientIndex": 2
+      }
+    ]
   }
 }
