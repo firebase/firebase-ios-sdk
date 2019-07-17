@@ -47,7 +47,7 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 
 /// The token that can be used to authorize requests to Firebase backend.
 @property(nullable, copy) NSString *token;
-/// The date when the auth token becomes expired.
+/// The date when the auth token expires.
 @property(nullable, copy) NSDate *expirationDate;
 
 /// The version of local storage.
