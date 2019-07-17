@@ -708,11 +708,14 @@ struct ZipBuilder {
         let builder = FrameworkBuilder(projectDir: projectDir)
         let modulemap: String
         do {
-          modulemap = try CocoaPodUtils.createModulemap(for: pod)
-        } catch {}
+          modulemap = try CocoaPodUtils.createModulemap(for: pod, sources: customSpecRepos ?? [])
+        } catch {
+          fatalError("Could not generate modulemap before compiling \(pod.name): \(error)")
+        }
+
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
-                                               moduleMapContents: "FIX ME",
+                                               moduleMapContents: modulemap,
                                                cacheKey: pod.cacheKey,
                                                cacheEnabled: useCache,
                                                logsOutputDir: paths.logsOutputDir)

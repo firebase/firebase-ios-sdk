@@ -196,7 +196,7 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func createModulemap(for pod: PodInfo, sources: [String] = []) throws -> String {
+  public static func createModulemap(for pod: PodInfo, sources: [URL] = []) throws -> String {
     // We'll need to find the podspec for this pod.
     // 1. Find the local paths to all the repos.
     // 2. Using the `sources`, search for the pod with that version in order (as that's how
@@ -208,12 +208,7 @@ public enum CocoaPodUtils {
 
     // Map each source to a repo, if we can.
     let orderedRepos: [PodRepo] = sources.map { source in
-      guard let sourceURL = URL(string: source) else {
-        fatalError("Could not create URL from source when generating a modulemap for \(pod.name) " +
-          "\(source) is not a valid URL.")
-      }
-
-      let repo = allRepos.filter { $0.url == sourceURL }
+      let repo = allRepos.filter { $0.url == source }
       guard !repo.isEmpty else {
         var error = "Could not find a matching repo for specified source \(source) when " +
           "generating a modulemap for \(pod.name). Repos:"
@@ -306,7 +301,7 @@ public enum CocoaPodUtils {
 
   private static func installedRepos() -> [PodRepo] {
     let listPodsCommand = "pod repo list"
-    let result = Shell.executeCommandFromScript(listPodsCommand)
+    let result = Shell.executeCommandFromScript(listPodsCommand, outputToConsole: false)
     switch result {
     case let .success(output):
       // Parse the output. The `pod repo list` command prints each repo across 4 lines, then a blank
@@ -354,7 +349,7 @@ public enum CocoaPodUtils {
       break
     }
 
-    let podspecName = pod.name + ".podspec"
+    let podspecName = pod.name + ".podspec.json"
     podspecPath = podspecPath.appendingPathComponents(["Specs", pod.name, pod.version, podspecName])
 
     // If the podspec isn't in this repo, ignore it.
