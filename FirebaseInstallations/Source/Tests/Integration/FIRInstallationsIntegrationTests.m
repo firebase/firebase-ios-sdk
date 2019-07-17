@@ -20,8 +20,8 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 
 #import "FBLPromise+Testing.h"
-#import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallations+Tests.h"
+#import "FIRInstallationsItem+Tests.h"
 
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
@@ -112,7 +112,8 @@
 
 - (void)testDefaultAppInstallation {
   XCTAssertNotNil(self.installations);
-  XCTAssertEqualObjects(self.installations.appOptions.googleAppID, [FIRApp defaultApp].options.googleAppID);
+  XCTAssertEqualObjects(self.installations.appOptions.googleAppID,
+                        [FIRApp defaultApp].options.googleAppID);
   XCTAssertEqualObjects(self.installations.appName, [FIRApp defaultApp].name);
 
   // Wait for finishing all background operations.
@@ -121,7 +122,7 @@
   [FIRApp resetApps];
 }
 
-#endif // !TARGET_OS_OSX
+#endif  // !TARGET_OS_OSX
 
 #pragma mark - Helpers
 
