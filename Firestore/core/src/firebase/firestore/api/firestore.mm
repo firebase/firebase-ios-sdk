@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -120,9 +121,9 @@ WriteBatch Firestore::GetBatch() {
 FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
-  FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
-                            collectionGroup:std::make_shared<const std::string>(
-                                                std::move(collection_id))];
+  FSTQuery* query = [FSTQuery
+        queryWithPath:ResourcePath::Empty()
+      collectionGroup:core::Query::CollectionGroupId(std::move(collection_id))];
   return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
 }
 

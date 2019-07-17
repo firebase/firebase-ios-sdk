@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -39,9 +38,8 @@ using model::FieldPath;
 using model::ResourcePath;
 
 template <typename T>
-util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
-                                   T&& value) {
-  util::vector_of_ptr<T> updated = vector;
+std::vector<T> AppendingTo(const std::vector<T>& vector, T&& value) {
+  std::vector<T> updated = vector;
   updated.push_back(std::forward<T>(value));
   return updated;
 }
@@ -49,15 +47,13 @@ util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
 }  // namespace
 
 Query::Query(ResourcePath path, std::string collection_group)
-    : path_(std::move(path)),
-      collection_group_(
-          std::make_shared<const std::string>(std::move(collection_group))) {
+    : path_(std::move(path)), collection_group_(std::move(collection_group)) {
 }
 
 // MARK: - Accessors
 
 bool Query::IsDocumentQuery() const {
-  return DocumentKey::IsDocumentKey(path_) && !collection_group_ &&
+  return DocumentKey::IsDocumentKey(path_) && !collection_group_.has_value() &&
          filters_.empty();
 }
 
@@ -84,7 +80,7 @@ bool Query::HasArrayContainsFilter() const {
 
 // MARK: - Builder methods
 
-Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
+Query Query::AddingFilter(util::shared_value<Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
@@ -124,7 +120,7 @@ bool Query::MatchesPath(const Document& doc) const {
 
 bool Query::MatchesFilters(const Document& doc) const {
   return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<Filter>& filter) {
+                     [&](const util::shared_value<Filter>& filter) {
                        return filter->Matches(doc);
                      });
 }
@@ -141,7 +137,7 @@ bool Query::MatchesBounds(const Document&) const {
 
 bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.path() == rhs.path() &&
-         util::Equals(lhs.collection_group(), rhs.collection_group()) &&
+         lhs.collection_group() == rhs.collection_group() &&
          lhs.filters() == rhs.filters();
 }
 

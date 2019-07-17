@@ -31,9 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "gtest/gtest.h"
 
-// Include this to validate that it does not cause ambiguity.
-#include "Firestore/core/src/firebase/firestore/util/equality.h"
-
 namespace firebase {
 namespace firestore {
 namespace objc {

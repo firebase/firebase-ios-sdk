@@ -259,11 +259,11 @@ cc_library(
     ordered_code.h
     range.h
     sanitizers.h
+    shared_value.h
     string_util.cc
     string_util.h
     to_string.h
     type_traits.h
-    vector_of_ptr.h
     warnings.h
   DEPENDS
     absl_base

@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/shared_value.h"
 
 @class FSTMaybeDocument;
 @class FSTMutation;
@@ -58,6 +59,7 @@
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -123,8 +125,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryOrFieldFilter:(const core::FieldFilter &)filter;
-- (std::shared_ptr<core::FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
-- (std::shared_ptr<core::FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
+- (util::shared_value<core::FieldFilter>)decodedFieldFilter:
+    (GCFSStructuredQuery_FieldFilter *)proto;
+- (util::shared_value<core::FieldFilter>)decodedUnaryFilter:
+    (GCFSStructuredQuery_UnaryFilter *)proto;
 
 - (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;

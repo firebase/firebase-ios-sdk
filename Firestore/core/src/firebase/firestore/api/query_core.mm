@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -223,7 +224,7 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  std::shared_ptr<FieldFilter> filter =
+  util::shared_value<FieldFilter> filter =
       FieldFilter::Create(field_path, op, field_value);
   ValidateNewFilter(*filter);
 

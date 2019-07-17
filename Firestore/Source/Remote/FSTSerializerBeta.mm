@@ -831,7 +831,7 @@ NS_ASSUME_NONNULL_BEGIN
   ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
-  std::shared_ptr<const std::string> collectionGroup;
+  Query::CollectionGroupId collectionGroup;
   NSUInteger fromCount = query.fromArray_Count;
   if (fromCount > 0) {
     HARD_ASSERT(fromCount == 1,
@@ -960,14 +960,14 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (std::shared_ptr<FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (util::shared_value<FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
   return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
-- (std::shared_ptr<FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (util::shared_value<FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:

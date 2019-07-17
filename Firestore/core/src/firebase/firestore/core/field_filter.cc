@@ -35,6 +35,7 @@ using api::ThrowInvalidArgument;
 using model::FieldPath;
 using model::FieldValue;
 using util::ComparisonResult;
+using util::shared_value;
 
 namespace {
 
@@ -59,16 +60,16 @@ const char* Describe(Filter::Operator op) {
 
 }  // namespace
 
-std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
-                                                 Operator op,
-                                                 FieldValue value_rhs) {
+shared_value<FieldFilter> FieldFilter::Create(FieldPath path,
+                                              Operator op,
+                                              FieldValue value_rhs) {
   if (path.IsKeyFieldPath()) {
     HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
                 "Comparing on key, but filter value not a Reference.");
     HARD_ASSERT(op != Filter::Operator::ArrayContains,
                 "arrayContains queries don't make sense on document keys.");
-    return std::make_shared<KeyFieldFilter>(std::move(path), op,
-                                            std::move(value_rhs));
+    return util::make_shared_value<KeyFieldFilter>(std::move(path), op,
+                                                   std::move(value_rhs));
 
   } else if (value_rhs.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
@@ -76,7 +77,7 @@ std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
           "Invalid Query. Null supports only equality comparisons.");
     }
     FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    return shared_value<FieldFilter>(std::move(filter));
 
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal) {
@@ -84,15 +85,15 @@ std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
           "Invalid Query. NaN supports only equality comparisons.");
     }
     FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    return shared_value<FieldFilter>(std::move(filter));
 
   } else if (op == Operator::ArrayContains) {
-    return std::make_shared<ArrayContainsFilter>(std::move(path),
-                                                 std::move(value_rhs));
+    return util::make_shared_value<ArrayContainsFilter>(std::move(path),
+                                                        std::move(value_rhs));
 
   } else {
     FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    return shared_value<FieldFilter>(std::move(filter));
   }
 }
 

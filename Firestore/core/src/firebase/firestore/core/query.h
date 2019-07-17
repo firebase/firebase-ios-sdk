@@ -26,7 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
+#include "Firestore/core/src/firebase/firestore/util/shared_value.h"
 
 namespace firebase {
 namespace firestore {
@@ -38,7 +38,8 @@ namespace core {
  */
 class Query {
  public:
-  using FilterList = util::vector_of_ptr<std::shared_ptr<Filter>>;
+  using CollectionGroupId = util::shared_value<const std::string>;
+  using FilterList = std::vector<util::shared_value<Filter>>;
 
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
@@ -53,7 +54,7 @@ class Query {
    * Path must currently be empty if this is a collection group query.
    */
   explicit Query(model::ResourcePath path,
-                 std::shared_ptr<const std::string> collection_group = nullptr,
+                 CollectionGroupId collection_group = nullptr,
                  FilterList filters = {})
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
@@ -70,7 +71,7 @@ class Query {
   }
 
   /** The collection group of the query, if any. */
-  const std::shared_ptr<const std::string>& collection_group() const {
+  const CollectionGroupId& collection_group() const {
     return collection_group_;
   }
 
@@ -101,7 +102,7 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query AddingFilter(std::shared_ptr<Filter> filter) const;
+  Query AddingFilter(util::shared_value<Filter> filter) const;
 
   // MARK: - Matching
 
@@ -123,7 +124,7 @@ class Query {
   bool MatchesBounds(const model::Document& doc) const;
 
   model::ResourcePath path_;
-  std::shared_ptr<const std::string> collection_group_;
+  CollectionGroupId collection_group_;
 
   // Filters are shared across related Query instance. i.e. when you call
   // Query::Filter(f), a new Query instance is created that contains all of the

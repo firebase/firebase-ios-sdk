@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/shared_value.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
@@ -280,40 +281,39 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   }
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 model::FieldValue value) {
+inline util::shared_value<core::FieldFilter> Filter(absl::string_view key,
+                                                    absl::string_view op,
+                                                    model::FieldValue value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
                                    std::move(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 model::FieldValue::Map value) {
+inline util::shared_value<core::FieldFilter> Filter(
+    absl::string_view key, absl::string_view op, model::FieldValue::Map value) {
   return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 std::nullptr_t) {
+inline util::shared_value<core::FieldFilter> Filter(absl::string_view key,
+                                                    absl::string_view op,
+                                                    std::nullptr_t) {
   return Filter(key, op, model::FieldValue::Null());
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 const std::string& value) {
+inline util::shared_value<core::FieldFilter> Filter(absl::string_view key,
+                                                    absl::string_view op,
+                                                    const std::string& value) {
   return Filter(key, op, model::FieldValue::FromString(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 int value) {
+inline util::shared_value<core::FieldFilter> Filter(absl::string_view key,
+                                                    absl::string_view op,
+                                                    int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 double value) {
+inline util::shared_value<core::FieldFilter> Filter(absl::string_view key,
+                                                    absl::string_view op,
+                                                    double value) {
   return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 

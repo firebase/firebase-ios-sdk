@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/shared_value.h"
 #include "absl/strings/string_view.h"
 
 CF_ASSUME_NONNULL_BEGIN
@@ -73,7 +74,7 @@ inline NSString* MakeNSString(const absl::string_view str) {
 // Translates a nullable pointer to string to the equivalent NSString by making
 // a copy.
 inline NSString* _Nullable MakeNSString(
-    const std::shared_ptr<const std::string>& str) {
+    const util::shared_value<const std::string>& str) {
   return str ? MakeNSString(*str) : nil;
 }
 

@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/shared_value.h"
 
 namespace firebase {
 namespace firestore {
@@ -38,9 +39,9 @@ class FieldFilter : public Filter {
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
-  static std::shared_ptr<FieldFilter> Create(model::FieldPath path,
-                                             Operator op,
-                                             model::FieldValue value_rhs);
+  static util::shared_value<FieldFilter> Create(model::FieldPath path,
+                                                Operator op,
+                                                model::FieldValue value_rhs);
 
   Type type() const override {
     return Type::kFieldFilter;

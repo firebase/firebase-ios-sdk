@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A new instance of FSTQuery.
  */
 + (instancetype)queryWithPath:(model::ResourcePath)path
-              collectionGroup:(std::shared_ptr<const std::string>)collectionGroup;
+              collectionGroup:(core::Query::CollectionGroupId)collectionGroup;
 
 /**
  * Returns the list of ordering constraints that were explicitly requested on the query by the
@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filter The predicate to filter by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingFilter:(std::shared_ptr<core::Filter>)filter;
+- (instancetype)queryByAddingFilter:(util::shared_value<core::Filter>)filter;
 
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
@@ -212,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const model::ResourcePath &)path;
 
 /** The collection group of the query. */
-- (const std::shared_ptr<const std::string> &)collectionGroup;
+- (const core::Query::CollectionGroupId &)collectionGroup;
 
 /** The filters on the documents returned by the query. */
 - (const core::Query::FilterList &)filters;

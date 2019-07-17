@@ -36,7 +36,6 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -275,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)queryWithPath:(ResourcePath)path
-              collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
+              collectionGroup:(Query::CollectionGroupId)collectionGroup {
   return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
                              orderBy:@[]
                                limit:Query::kNoLimit
@@ -375,7 +374,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self.memoizedSortOrders;
 }
 
-- (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
+- (instancetype)queryByAddingFilter:(util::shared_value<Filter>)filter {
   return [[FSTQuery alloc] initWithQuery:_query.AddingFilter(std::move(filter))
                                  orderBy:self.explicitSortOrders
                                    limit:self.limit
@@ -476,7 +475,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.path();
 }
 
-- (const std::shared_ptr<const std::string> &)collectionGroup {
+- (const Query::CollectionGroupId &)collectionGroup {
   return _query.collection_group();
 }
 
