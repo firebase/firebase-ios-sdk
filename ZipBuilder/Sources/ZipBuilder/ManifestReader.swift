@@ -30,7 +30,9 @@ extension ManifestReader {
       let protoText = try String(contentsOf: textproto, encoding: .utf8)
       // Internally the `build_flags` field is named `blaze_flags`. Replace it.
       let blazelessText = protoText.replacingOccurrences(of: "blaze_flags", with: "build_flags")
-      let proto = try ZipBuilder_FirebaseSDKs(textFormatString: blazelessText)
+      var proto = try ZipBuilder_FirebaseSDKs(textFormatString: blazelessText)
+      // Remove any SDKs that don't have a public version.
+      proto.sdk.removeAll(where: { $0.publicVersion.isEmpty })
       return proto
     } catch {
       fatalError("Could not create proto from file containing all released SDKs: \(error)")
