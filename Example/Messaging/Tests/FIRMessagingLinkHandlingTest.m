@@ -50,8 +50,8 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 }
 
 - (void)tearDown {
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   _messaging = nil;
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName] removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   [super tearDown];
 }
 
