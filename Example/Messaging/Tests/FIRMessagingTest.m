@@ -18,14 +18,14 @@
 
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessaging_Private.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRMessaging_Private.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
@@ -63,10 +63,11 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   // Create the messaging instance with all the necessary dependencies.
   GULUserDefaults *defaults =
       [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
-  
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
+                                                             mockInstanceID:_mockInstanceID];
+
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
-   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
@@ -79,7 +80,8 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
-  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain] removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
+      removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   [super tearDown];
 }
 
@@ -138,8 +140,8 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 // Should connect with valid token and application in foreground
 - (void)testDoesAutomaticallyConnectIfTokenAvailableAndForegrounded {
   // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
-    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
+      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
   self.messaging.shouldEstablishDirectChannel = YES;
@@ -156,8 +158,8 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 // Should not connect if application is active, but token is empty
 - (void)testDoesNotAutomaticallyConnectIfTokenIsEmpty {
   // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
-    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
+      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
   self.messaging.shouldEstablishDirectChannel = YES;
@@ -173,8 +175,8 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 // Should not connect if token valid but application isn't active
 - (void)testDoesNotAutomaticallyConnectIfApplicationNotActive {
   // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation) {
-    // Doing nothing on purpose, when -updateAutomaticClientConnection is called
+  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
+      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
   }] updateAutomaticClientConnection];
   // Set direct channel to be established after disabling connection attempt
   self.messaging.shouldEstablishDirectChannel = YES;
@@ -205,9 +207,10 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     }
   }] tokenWithAuthorizedEntity:OCMOCK_ANY scope:OCMOCK_ANY options:OCMOCK_ANY handler:OCMOCK_ANY];
   self.messaging.instanceID = self.mockInstanceID;
-  [self.messaging retrieveFCMTokenForSenderID:@"123456"
-                                   completion:^(NSString * _Nullable FCMToken,
-                                                NSError * _Nullable error) {}];
+  [self.messaging
+      retrieveFCMTokenForSenderID:@"123456"
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                       }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
@@ -222,9 +225,10 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [expectation fulfill];
     }
   }] tokenWithAuthorizedEntity:OCMOCK_ANY scope:OCMOCK_ANY options:OCMOCK_ANY handler:OCMOCK_ANY];
-  [self.messaging retrieveFCMTokenForSenderID:@"123456"
-                                   completion:^(NSString * _Nullable FCMToken,
-                                                NSError * _Nullable error) {}];
+  [self.messaging
+      retrieveFCMTokenForSenderID:@"123456"
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                       }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
@@ -233,13 +237,13 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  [self.messaging retrieveFCMTokenForSenderID:nil
-                                  completion:
-      ^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-    if (error != nil) {
-      [expectation fulfill];
-    }
-  }];
+  [self.messaging
+      retrieveFCMTokenForSenderID:nil
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                         if (error != nil) {
+                           [expectation fulfill];
+                         }
+                       }];
 #pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
@@ -247,13 +251,13 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 - (void)testReturnsErrorWhenFetchingTokenWithEmptySenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token with empty Sender ID"];
-  [self.messaging retrieveFCMTokenForSenderID:@""
-                                  completion:
-      ^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-    if (error != nil) {
-      [expectation fulfill];
-    }
-  }];
+  [self.messaging
+      retrieveFCMTokenForSenderID:@""
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                         if (error != nil) {
+                           [expectation fulfill];
+                         }
+                       }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
@@ -262,23 +266,25 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Returned an error deleting token without Sender ID"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  [self.messaging deleteFCMTokenForSenderID:nil completion:^(NSError * _Nullable error) {
-    if (error != nil) {
-      [expectation fulfill];
-    }
-  }];
+  [self.messaging deleteFCMTokenForSenderID:nil
+                                 completion:^(NSError *_Nullable error) {
+                                   if (error != nil) {
+                                     [expectation fulfill];
+                                   }
+                                 }];
 #pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
 - (void)testReturnsErrorWhenDeletingTokenWithEmptySenderID {
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Returned an error deleting token with empty Sender ID"];
-  [self.messaging deleteFCMTokenForSenderID:@"" completion:^(NSError * _Nullable error) {
-    if (error != nil) {
-      [expectation fulfill];
-    }
-  }];
+      [self expectationWithDescription:@"Returned an error deleting token with empty Sender ID"];
+  [self.messaging deleteFCMTokenForSenderID:@""
+                                 completion:^(NSError *_Nullable error) {
+                                   if (error != nil) {
+                                     [expectation fulfill];
+                                   }
+                                 }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 

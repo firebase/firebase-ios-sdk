@@ -47,7 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRMessagingTestUtilities
 
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults mockInstanceID:(id)mockInstanceID {
++ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults
+                                     mockInstanceID:(id)mockInstanceID {
   // Create the messaging instance and call `start`.
   FIRMessaging *messaging = [[FIRMessaging alloc] initWithAnalytics:nil
                                                      withInstanceID:mockInstanceID

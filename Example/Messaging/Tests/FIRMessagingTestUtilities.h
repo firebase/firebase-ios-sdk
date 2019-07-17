@@ -39,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param userDefaults The user defaults to be used for Messaging.
  @return An instance of FIRMessaging with everything initialized.
  */
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults mockInstanceID:(id)mockInstanceID;
++ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults
+                                     mockInstanceID:(id)mockInstanceID;
 
 @end
 

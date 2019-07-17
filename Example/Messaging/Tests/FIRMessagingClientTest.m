@@ -94,13 +94,12 @@ static NSString *const kSecretToken = @"56789";
 
 - (void)setUp {
   [super setUp];
-  _mockClientDelegate =
-      OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
+  _mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
   _mockReachability = OCMClassMock([GULReachabilityChecker class]);
   _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
-                                   reachability:_mockReachability
-                                    rmq2Manager:_mockRmqManager];
+                                            reachability:_mockReachability
+                                             rmq2Manager:_mockRmqManager];
   _mockClient = OCMPartialMock(_client);
   _mockDataMessageManager = OCMClassMock([FIRMessagingDataMessageManager class]);
   [_mockClient setDataMessageManager:_mockDataMessageManager];

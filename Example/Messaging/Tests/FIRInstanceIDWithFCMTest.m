@@ -19,12 +19,12 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <OCMock/OCMock.h>
-#import "FIRMessaging_Private.h"
 #import "FIRMessaging.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRMessaging_Private.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <FirebaseInstallations/FIRInstallations.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
@@ -69,8 +69,11 @@
 
 - (void)testFCMAutoInitEnabled {
   NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
-  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
-  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_instanceID];
+  GULUserDefaults *defaults =
+      [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  FIRMessaging *messaging =
+      [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
+                                                    mockInstanceID:_instanceID];
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
