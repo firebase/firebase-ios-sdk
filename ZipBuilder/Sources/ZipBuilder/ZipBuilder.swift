@@ -42,6 +42,9 @@ private struct Constants {
     // All required files needed from the Firebase pod.
     public static let requiredFilesFromFirebasePod: [String] = [firebaseHeader, modulemap]
 
+    /// The name of the script that can generate modulemaps from Podspecs.
+    public static let modulemapScript = "module_map.rb"
+
     // Make the struct un-initializable.
     @available(*, unavailable)
     init() { fatalError() }
@@ -706,13 +709,14 @@ struct ZipBuilder {
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir)
-        let modulemap: String
-        do {
-          modulemap = try CocoaPodUtils.createModulemap(for: pod, sources: customSpecRepos ?? [])
-        } catch {
-          fatalError("Could not generate modulemap before compiling \(pod.name): \(error)")
-        }
 
+        // Generate the modulemap using the external script that builds the modulemap from the
+        // Podspec.
+        let modulemapScript =
+          paths.templateDir.appendingPathComponent(Constants.ProjectPath.modulemapScript)
+        let modulemap = CocoaPodUtils.createModulemap(for: pod,
+                                                      script: modulemapScript,
+                                                      sources: customSpecRepos ?? [])
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
                                                moduleMapContents: modulemap,

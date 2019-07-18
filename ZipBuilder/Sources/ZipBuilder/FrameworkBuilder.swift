@@ -384,9 +384,11 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    // Copy the modulemap.
+    // Copy the modulemap to the Modules directory.
     do {
-      let modulemap = frameworkDir.appendingPathComponent("module.modulemap")
+      let modulesDir = frameworkDir.appendingPathComponent("Modules")
+      try FileManager.default.createDirectory(at: modulesDir, withIntermediateDirectories: false)
+      let modulemap = modulesDir.appendingPathComponent("module.modulemap")
       try modulemapContents.write(to: modulemap, atomically: true, encoding: .utf8)
     } catch {
       fatalError("Could not write modulemap when creating \(framework): \(error)")

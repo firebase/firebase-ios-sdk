@@ -196,7 +196,16 @@ public enum CocoaPodUtils {
     }
   }
 
-  public static func createModulemap(for pod: PodInfo, sources: [URL] = []) throws -> String {
+  /// Creates the contents of a modulemap for an installed pod using the script given.
+  ///
+  /// - Parameters:
+  ///   - pod: The installed pod to generate the modulemap for.
+  ///   - script: The location of the script to use for generation.
+  ///   - sources: All CocoaPods sources used in the Podfile.
+  /// - Returns: A String that contains the contents of the modulemap.
+  public static func createModulemap(for pod: PodInfo,
+                                     script: URL,
+                                     sources: [URL] = []) -> String {
     // We'll need to find the podspec for this pod.
     // 1. Find the local paths to all the repos.
     // 2. Using the `sources`, search for the pod with that version in order (as that's how
@@ -236,19 +245,34 @@ public enum CocoaPodUtils {
         continue
       }
 
+      let tempModulemap: URL
+      do {
+        let cache = try FileManager.default.firebaseCacheDirectory()
+        tempModulemap = cache.appendingPathComponent("generated.modulemap")
+      } catch {
+        fatalError("Could not create cache directory when generating modulemap: \(error)")
+      }
+
       // Podspec found! Use it to generate the modulemap.
-      // TODO: Use the ruby script here to generate the modulemap.
-      let result = Shell.executeCommandFromScript("echo \(podspec.path)")
+      let command = "ruby \(script.path) \(podspec.path) \(tempModulemap.path)"
+      let result = Shell.executeCommandFromScript(command)
       switch result {
       case .success(_):
-        return "TODO: Get the text from the modulemap."
+        // Read the contents of the output and remove it.
+        do {
+          let contents = try String(contentsOf: tempModulemap)
+          try FileManager.default.removeItem(at: tempModulemap)
+          return contents
+        } catch {
+          fatalError("Could not fetch contents of modulemap for \(pod.name): \(error)")
+        }
       case let .error(code, output):
         fatalError("Could not generate modulemap for \(pod.name), script exited with \(code). " +
           "\(output)")
       }
     }
 
-    // No podspec was found in all repos, including master. Time to fail!
+    // No podspec was found in all repos, including master. Nothing can be done at this point.
     fatalError("No podspecs were found locally while searching for \(pod.name) \(pod.version) in " +
       "all repos.")
   }
