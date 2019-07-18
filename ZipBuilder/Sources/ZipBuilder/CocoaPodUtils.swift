@@ -332,6 +332,9 @@ public enum CocoaPodUtils {
     }
   }
 
+  /// Gets the list of CocoaPod repos that are installed on the current machine.
+  ///
+  /// - Returns: An array of all CocoaPods repos installed.
   private static func installedRepos() -> [PodRepo] {
     let listPodsCommand = "pod repo list"
     let result = Shell.executeCommandFromScript(listPodsCommand, outputToConsole: false)
@@ -360,6 +363,12 @@ public enum CocoaPodUtils {
     }
   }
 
+  /// Finds the Podspec file for the given pod in the repo provided.
+  ///
+  /// - Parameters:
+  ///   - pod: Information regarding the installed pod.
+  ///   - repo: The repo to search in.
+  /// - Returns: A URL to the matching Podspec, or nil if it can't be found.
   private static func findPodspec(for pod: PodInfo, in repo: PodRepo) -> URL? {
     // For the master repo, CocoaPods shards the directory structure using an MD5 hash of the pod
     // name, and use the first three characters as directories. For all other repos, use the
@@ -540,12 +549,16 @@ public enum CocoaPodUtils {
     return podfile
   }
 
+  /// Calculates the MD5 hash of the given text.
+  ///
+  /// - Parameter text: UTF8 encoded text to hash.
+  /// - Returns: The MD5 hash for the input, or `nil` if the text isn't UTF8 encoded.
   private static func md5(_ text: String) -> String? {
     // If we can't get UTF8 bytes out, return nil.
     guard let data = text.data(using: .utf8) else { return nil }
 
     var digest = [UInt8].init(repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
-    data.withUnsafeBytes {
+    _ = data.withUnsafeBytes {
       CC_MD5($0.baseAddress, UInt32(data.count), &digest)
     }
 
