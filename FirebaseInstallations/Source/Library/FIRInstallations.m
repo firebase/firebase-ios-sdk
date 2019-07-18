@@ -27,7 +27,7 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 

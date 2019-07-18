@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Saves the given object by the given key.
  * @param object The object to store.
  * @param key The key to store the object. If there is an existing object by the key, it will be
- * overriden.
+ * overridden.
  * @param accessGroup The Keychain Access Group.
  *
  * @return Returns which is resolved with `[NSNull null]` on success.
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Removes the object by the given key.
  * @param key The key to store the object. If there is an existing object by the key, it will be
- * overriden.
+ * overridden.
  * @param accessGroup The Keychain Access Group.
  *
  * @return Returns which is resolved with `[NSNull null]` on success.

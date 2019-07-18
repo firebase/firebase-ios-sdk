@@ -4,6 +4,10 @@ use_frameworks!
 
 pod 'FirebaseCore', :path => '../..'
 pod 'FirebaseInstallations', :path => '../..'
+pod 'FirebaseCoreDiagnostics', :path => '../..'
+pod 'FirebaseCoreDiagnosticsInterop', :path => '../..'
+pod 'GoogleDataTransport', :path => '../..'
+pod 'GoogleDataTransportCCTSupport', :path => '../..'
 
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'

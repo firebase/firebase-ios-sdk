@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The installation identifier.
- * @returns Returns a string uniquely identifying the installation.
+ * @return Returns a string uniquely identifying the installation.
  */
 - (NSString *)identifier;
 
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The installation identifier.
  * @param appID A `FirebaseApp` identifier.
  * @param appName A `FirebaseApp` name.
- * @returns Returns a string uniquely identifying the installation.
+ * @return Returns a string uniquely identifying the installation.
  */
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName;
 

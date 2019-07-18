@@ -173,7 +173,7 @@ def run_protoc(args, cmd):
       env['PYTHONPATH'] += os.pathsep + old_path
     kwargs['env'] = env
 
-  try: 
+  try:
     print(subprocess.check_output(cmd, stderr=subprocess.STDOUT, **kwargs))
   except subprocess.CalledProcessError as error:
     print('command failed: ', ' '.join(cmd), '\nerror: ', error.output)
@@ -262,8 +262,8 @@ def nanopb_rename_delete(lines):
 
 
 def nanopb_use_module_import(lines):
-  """Changes #include <pb.h> to #include <nanopb/pb.h>"""
-  return [line.replace('#include <pb.h>', '#include <nanopb/pb.h>') for line in lines]
+  """Changes #include <pb.h> to include <nanopb/pb.h>""" # Don't let Copybara alter these lines.
+  return [line.replace('#include <pb.h>', '{}include <nanopb/pb.h>'.format("#")) for line in lines]
 
 
 def strip_trailing_whitespace(lines):
@@ -277,7 +277,7 @@ def objc_flatten_imports(lines):
   long_import = re.compile(r'#import ".*/')
   return [long_import.sub('#import "', line) for line in lines]
 
-  
+
 def objc_strip_extension_registry(lines):
   """Removes extensionRegistry methods from the classes."""
   skip = False

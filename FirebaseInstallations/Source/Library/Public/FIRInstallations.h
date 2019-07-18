@@ -102,7 +102,7 @@ NS_SWIFT_NAME(Installations)
                      completion:(FIRInstallationsTokenHandler)completion;
 
 /**
- * Deletes all the installation data including the unique indentifier, auth tokens and
+ * Deletes all the installation data including the unique identifier, auth tokens and
  * all related data on the server side. A network connection is required for the method to
  * succeed. If fails, the existing installation data remains untouched.
  * @param completion A completion handler which is invoked when the operation completes. `error ==

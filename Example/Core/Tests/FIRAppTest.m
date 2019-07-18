@@ -15,6 +15,9 @@
 #import "FIRTestCase.h"
 #import "FIRTestComponents.h"
 
+#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
@@ -262,7 +265,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testErrorForSubspecConfigurationFailure {
   NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
                                                                errorCode:-38
-                                                                 service:kFIRServiceAuth
+                                                                 service:@"Auth"
                                                                   reason:@"some reason"];
   XCTAssertNotNil(error);
   XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);
@@ -631,9 +634,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   // Ensure configure doesn't fire a notification.
   [FIRApp configure];
-
-  NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
-  [app sendLogsWithServiceName:@"Service" version:@"Version" error:error];
 
   // The observer mock is strict and will raise an exception when an unexpected notification is
   // received.
