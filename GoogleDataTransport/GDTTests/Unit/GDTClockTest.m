@@ -64,4 +64,12 @@
   XCTAssertTrue([clock2 isAfter:clock1]);
 }
 
+/** Tests creating a snapshot in the future and comparing using isAfter: */
+- (void)testIsAfter {
+  GDTClock *clock1 = [GDTClock clockSnapshotInTheFuture:123456];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+  GDTClock *clock2 = [GDTClock snapshot];
+  XCTAssertFalse([clock2 isAfter:clock1]);
+}
+
 @end
