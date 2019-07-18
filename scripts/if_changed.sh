@@ -49,10 +49,10 @@ else
       check_changes '^(Firebase/Auth|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
-'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
-'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
-'InAppMessaging|Firebase/InAppMessaging|'\
+'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
+'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
+'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|'\
+'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
@@ -61,9 +61,9 @@ else
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
-'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
-'FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
+'FirebaseCore.podspec|FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
+'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
+'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
     Core-*)
@@ -107,6 +107,11 @@ else
 
     Firestore-cmake)
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
+      ;;
+
+    FirebaseCoreDiagnostics-*)
+      check_changes '^(Firebase/CoreDiagnostics|FirebaseCoreDiagnosticsInterop|'\
+'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     GoogleDataTransport-*)

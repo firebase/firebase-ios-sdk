@@ -16,11 +16,11 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -127,7 +127,7 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
   gdt_cct_ClientInfo clientInfo = gdt_cct_ClientInfo_init_default;
   clientInfo.client_type = gdt_cct_ClientInfo_ClientType_IOS_FIREBASE;
   clientInfo.has_client_type = 1;
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   clientInfo.ios_client_info = GDTCCTConstructiOSClientInfo();
   clientInfo.has_ios_client_info = 1;
 #elif TARGET_OS_OSX
@@ -138,7 +138,7 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
 
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   UIDevice *device = [UIDevice currentDevice];
   NSBundle *bundle = [NSBundle mainBundle];
   NSLocale *locale = [NSLocale currentLocale];
@@ -165,8 +165,9 @@ gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data, NSError **error) {
   gdt_cct_LogResponse response = gdt_cct_LogResponse_init_default;
   pb_istream_t istream = pb_istream_from_buffer([data bytes], [data length]);
   if (!pb_decode(&istream, gdt_cct_LogResponse_fields, &response)) {
-    NSCAssert(NO, @"Error in nanopb decoding for bytes: %s", PB_GET_ERROR(&istream));
-    *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil];
+    NSString *nanopb_error = [NSString stringWithFormat:@"%s", PB_GET_ERROR(&istream)];
+    NSDictionary *userInfo = @{@"nanopb error:" : nanopb_error};
+    *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:userInfo];
     response = (gdt_cct_LogResponse)gdt_cct_LogResponse_init_default;
   }
   return response;

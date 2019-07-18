@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GDTClock.h>
 
-#import "GDTStorage_Private.h"
+#import "GDTLibrary/Private/GDTStorage_Private.h"
 
 @implementation GDTStoredEvent
 
