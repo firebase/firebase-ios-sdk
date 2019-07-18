@@ -1,4 +1,7 @@
-# 2019-07 -- 4.2.1
+# 2019-07 -- 4.2.2
+- Removed a call to a deprecated logging method (#3333).
+
+# 2019-07-09 -- 4.2.1
 - Fixed an issue where fetching an instance ID wouldn't invoke the callback handler if the instance ID had not changed. (#3229)
 
 # 2019-06-18 -- 4.2.0
