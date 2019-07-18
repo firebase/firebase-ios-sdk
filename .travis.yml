@@ -6,12 +6,8 @@ cache:
   - cocoapods
 
 stages:
-  - name: checks
-    if: branch IN (master, mm/fis-master,  mm/iid-with-fis)
-  - name: test
-    if: branch IN (master, mm/iid-with-fis)
-  - name: test-fis
-    if: branch IN (master, mm/fis-master,  mm/iid-with-fis)
+  - checks
+  - test
 
 jobs:
   include:
@@ -450,3 +446,5 @@ jobs:
 branches:
   only:
     - master
+    - mm/fis-integration-master
+    - mm/iid-with-fis
