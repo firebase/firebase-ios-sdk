@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+// Uncomment to enable integration tests.
+//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
+
+#ifdef FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
+
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
@@ -130,28 +135,28 @@
   XCTestExpectation *expectation =
       [self expectationWithDescription:[NSString stringWithFormat:@"FID %@", self.name]];
 
-  __block NSString *retreivedID;
+  __block NSString *retrievedID;
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         XCTAssertNotNil(identifier);
         XCTAssertNil(error);
         XCTAssertEqual(identifier.length, 22);
 
-        retreivedID = identifier;
+        retrievedID = identifier;
 
         [expectation fulfill];
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:2];
 
-  return retreivedID;
+  return retrievedID;
 }
 
 - (FIRInstallationsAuthTokenResult *)getAuthToken {
   XCTestExpectation *authTokenExpectation =
       [self expectationWithDescription:@"authTokenExpectation"];
 
-  __block FIRInstallationsAuthTokenResult *retreivedTokenResult;
+  __block FIRInstallationsAuthTokenResult *retrievedTokenResult;
   [self.installations
       authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                 NSError *_Nullable error) {
@@ -160,14 +165,14 @@
         XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
         XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
 
-        retreivedTokenResult = tokenResult;
+        retrievedTokenResult = tokenResult;
 
         [authTokenExpectation fulfill];
       }];
 
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 
-  return retreivedTokenResult;
+  return retrievedTokenResult;
 }
 
 - (FIRInstallations *)assertInstallationsWithAppNamed:(NSString *)appName {
@@ -193,3 +198,5 @@
 }
 
 @end
+
+#endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
