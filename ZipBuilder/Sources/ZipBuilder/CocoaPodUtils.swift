@@ -233,7 +233,7 @@ public enum CocoaPodUtils {
     }
 
     // Append master repo to the end, since we always want to fall back to master.
-    if let master = allRepos.filter({ $0.name == "master" }).first  {
+    if let master = allRepos.filter({ $0.name == "master" }).first {
       orderedRepos.append(master)
     }
 
@@ -257,7 +257,7 @@ public enum CocoaPodUtils {
       let command = "ruby \(script.path) \(podspec.path) \(tempModulemap.path)"
       let result = Shell.executeCommandFromScript(command)
       switch result {
-      case .success(_):
+      case .success:
         // Read the contents of the output and remove it.
         do {
           let contents = try String(contentsOf: tempModulemap)

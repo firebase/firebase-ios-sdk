@@ -177,7 +177,7 @@ struct ZipBuilder {
 
     // Break the `podsToInstall` into a variable since it's helpful when debugging non-cache builds
     // to just install a subset of pods, like the following line:
-     let podsToInstall: [CocoaPod] = [.core, .analytics, .storage]
+    let podsToInstall: [CocoaPod] = [.core, .analytics, .storage]
 //    let podsToInstall = CocoaPod.allCases
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
