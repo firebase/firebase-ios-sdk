@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+// Uncomment to enable integration tests.
+//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
+
+#ifdef FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
+
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
@@ -193,3 +198,5 @@
 }
 
 @end
+
+#endif // FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
