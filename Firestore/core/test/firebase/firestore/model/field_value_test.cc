@@ -256,9 +256,9 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
                         FieldValue::FromReference(DbId(), Key("coll/doc1")))
       .AddEqualityGroup(
-          FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
+          FieldValue::FromReference(DbId("project/bar"), Key("coll/doc2")))
       .AddEqualityGroup(
-          FieldValue::FromReference(DbId("project", "baz"), Key("coll/doc2")))
+          FieldValue::FromReference(DbId("project/baz"), Key("coll/doc2")))
       .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
       .AddEqualityGroup(Array("foo", "bar", "baz"))
       .AddEqualityGroup(Array("foo"))

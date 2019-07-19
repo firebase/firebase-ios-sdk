@@ -84,6 +84,7 @@ using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
 using testutil::Filter;
+using testutil::Ref;
 using testutil::Value;
 
 namespace {
@@ -528,8 +529,22 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
 }
 
+- (void)testEncodesUnaryFilter {
+  auto input = Filter("item", "==", nullptr);
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_UnaryFilter *prop = expected.unaryFilter;
+  prop.field.fieldPath = @"item";
+  prop.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedUnaryFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
 - (void)testEncodesFieldFilter {
-  auto input = std::static_pointer_cast<FieldFilter>(Filter("item.part.top", "==", "food"));
+  auto input = Filter("item.part.top", "==", "food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -538,10 +553,13 @@ NS_ASSUME_NONNULL_BEGIN
   prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
   prop.value.stringValue = @"food";
   XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
 }
 
 - (void)testEncodesArrayContainsFilter {
-  auto input = std::static_pointer_cast<FieldFilter>(Filter("item.tags", "array_contains", "food"));
+  auto input = Filter("item.tags", "array_contains", "food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -550,6 +568,24 @@ NS_ASSUME_NONNULL_BEGIN
   prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
   prop.value.stringValue = @"food";
   XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
+- (void)testEncodesKeyFieldFilter {
+  auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"__name__";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
+  prop.value.referenceValue = @"projects/p/databases/d/documents/coll/doc";
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
 }
 
 #pragma mark - encodedQuery

@@ -44,6 +44,8 @@
 @class GCFSDocumentTransform_FieldTransform;
 @class GCFSListenResponse;
 @class GCFSStructuredQuery_Filter;
+@class GCFSStructuredQuery_FieldFilter;
+@class GCFSStructuredQuery_UnaryFilter;
 @class GCFSTarget;
 @class GCFSTarget_DocumentsTarget;
 @class GCFSTarget_QueryTarget;
@@ -121,6 +123,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryOrFieldFilter:(const core::FieldFilter &)filter;
+- (std::shared_ptr<core::FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
+- (std::shared_ptr<core::FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
 
 - (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;
