@@ -102,6 +102,9 @@
  * @param conditions The set of upload conditions.
  */
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTUploadConditions)conditions {
+  if ((conditions & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
+    return;
+  }
   dispatch_async(_coordinationQueue, ^{
     for (NSNumber *target in targets) {
       // Don't trigger uploads for targets that have an in-flight package already.
