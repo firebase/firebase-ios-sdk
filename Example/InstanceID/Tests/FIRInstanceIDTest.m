@@ -22,6 +22,7 @@
 #import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
+#import "FIRInstanceID+Private.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
@@ -157,6 +158,23 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Reset the default app for the next test.
   [FIRApp resetApps];
+}
+
+- (void)testSyncAppInstanceIDSuccess {
+  [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
+
+  NSError *error;
+  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"validID");
+  XCTAssertNil(error);
+}
+
+- (void)testSyncAppInstanceIDError {
+  NSError *expectedError = [NSError errorWithDomain:@"Tests" code:-1 userInfo:nil];
+  [self stubInstallationsInstallationIDWithFID:nil error:expectedError];
+
+  NSError *error;
+  XCTAssertNil([self.instanceID appInstanceID:&error]);
+  XCTAssertEqualObjects(error, expectedError);
 }
 
 - (void)testFCMAutoInitEnabled {
