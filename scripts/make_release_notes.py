@@ -18,12 +18,8 @@
 """
 
 import argparse
-import mistune
 import re
 import subprocess
-import textwrap
-
-from pprint import pprint as pp
 
 
 def main():
@@ -37,130 +33,43 @@ def main():
   args = parser.parse_args()
 
   renderer = Renderer(args.repo)
+  translator = Translator(renderer)
 
-  inline = ChangelogInlineLexer(renderer)
-  inline.enable_changelog()
-
-  md = mistune.Markdown(renderer=renderer, inline=inline)
-  process_changelog(md, args.changelog)
+  process_changelog(translator, args.changelog)
 
 
 def find_local_repo():
   url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'])
 
-  # ssh style URL
-  m = re.match(r'^git@github.com:(.*)\.git$', url)
-  if m:
-    return m.group(1)
-
-  # https style URL
-  m = re.match(r'^https://github.com/(.*).git$')
+  # ssh or https style URL
+  m = re.match(r'^(?:git@github\.com:|https://github\.com/)(.*)\.git$', url)
   if m:
     return m.group(1)
 
   raise LookupError('Can\'t figure local repo from remote URL %s' % url)
 
 
-class ChangelogInlineLexer(mistune.InlineLexer):
-  """Recognizes certain additional patterns within the changelog.
-
-  This extends Mistune's lexer for inline elements (those within a block) to add
-  the following lexical elements:
-
-    - support for change-type tags "[fixed]", "[changed]", etc.
-    - support for expanding short issue references "(#2987)".
-
-  These are translated to the equivalent form for docsite.
-  """
-
-  def enable_changelog(self):
-    self.rules.change_type = re.compile(
-        r'\['           # opening square bracket
-        r'(\w+)'        # tag word (like "feature" or "changed"
-        r'\]'           # closing square bracket
-        r'(?!\()'       # not followed by opening paren (that would be a link)
-    )
-    self.default_rules.insert(0, 'change_type')
-
-    self.rules.issue_link = re.compile(
-        r'\('           # opening paren
-        r'(#\d+)'       # hash and issue number
-        r'\)'           # closing paren
-    )
-    self.default_rules.insert(0, 'issue_link')
-
-    # Adjust the text rule to stop at open parentheses so that the issue_link
-    # rule can trigger. Without this, issue_link would only match if it were the
-    # first thing on the line.
-    self.rules.text = re.compile(
-        r'^[\s\S]+?(?=[\(\\<!\[_*`~]|https?://| {2,}\n|$)'
-    )
-
-  def output_change_type(self, m):
-    """Translates change types like [fixed] into {{fixed}}."""
-    tag = m.group(1)
-    return self.renderer.change_type(tag)
-
-  def output_issue_link(self, m):
-    return (self.renderer.text('(') +
-            self.renderer.autolink(m.group(1), False) +
-            self.renderer.text(')'))
-
-
-class Renderer(mistune.Renderer):
+class Renderer(object):
 
   def __init__(self, local_repo):
-    super(Renderer, self).__init__()
     self.local_repo = local_repo
 
-  def header(self, text, level, raw=None):
-    return '%s %s\n' % ('#' * level, text)
+  def bullet(self, spacing):
+    """Renders a bullet in a list.
 
-  def list(self, body, ordered=True):
-    if 'nested list' in body:
-      pp(body)
-    return '%s\n' % body
+    All bulleted lists in devsite are '*' style.
+    """
+    return '%s* ' + spacing
 
-  def list_item(self, text):
-    wrapper = textwrap.TextWrapper(
-        initial_indent='* ', subsequent_indent='  ', width=79,
-        break_long_words=False, break_on_hyphens=False)
-    text = wrapper.fill(text)
+  def change_type(self, tag):
+    """Renders a change type tag as the appropriate double-braced macro.
 
-    return '%s\n' % text
+    That is "[fixed]" is rendered as "{{fixed}}".
+    """
+    return '{{%s}}' % tag
 
-  def paragraph(self, text):
-    return '%s\n\n' % text
-
-  def double_emphasis(self, text):
-    return '__%s__' % text
-
-  def emphasis(self, text):
-    return '_%s_' % text
-
-  def codespan(self, text):
-    return '`%s`' % text
-
-  def linebreak(self):
-    raise NotImplementedError('linebreak')
-
-  def text(self, text):
-    return text
-
-  def escape(self, text):
-    raise NotImplementedError('escape %s' % text)
-
-  def autolink(self, link, is_email=False):
-    return self.link(link, None, link)
-
-  def link(self, link, title, text):
-    link, text = self._adjust_link(link, text)
-    if title is not None:
-      link = '%s "%s"' % (link, title)
-    return '[%s](%s)' % (text, link)
-
-  def _adjust_link(self, link, text):
-    m = re.match(r'^(?:https:)?(//github.com/(.*)/issues/(\d+))$', link)
+  def url(self, url):
+    m = re.match(r'^(?:https:)?(//github.com/(.*)/issues/(\d+))$', url)
     if m:
       link = m.group(1)
       repo = m.group(2)
@@ -171,31 +80,91 @@ class Renderer(mistune.Renderer):
       else:
         text = repo + '#' + issue
 
-      return link, text
+      return '[%s](%s)' % (text, link)
 
-    m = re.match(r'^#(\d+)$', link)
-    if m:
-      issue = m.group(1)
-      link = '//github.com/%s/issues/%s' % (self.local_repo, issue)
-      return link, text
+    return url
 
-    return link, text
+  def local_issue_link(self, issue):
+    """Renders a local issue link as a proper markdown URL.
 
-  def newline(self):
-    return '\n'
-
-  def change_type(self, tag):
-    """Renders a change type in double curly braces.
-
-    Renders [fixed] as {{fixed}}.
+    Transforms (#1234) into
+    ([#1234](//github.com/firebase/firebase-ios-sdk/issues/1234)).
     """
-    return '{{%s}}' % tag
+    link = '//github.com/%s/issues/%s' % (self.local_repo, issue)
+    return '([#%s](%s))' % (issue, link)
+
+  def text(self, text):
+    """Passes through any other text."""
+    return text
 
 
-def process_changelog(md, filename):
+class Translator(object):
+  def __init__(self, renderer):
+    self.renderer = renderer
+
+  def translate(self, text):
+    result = ''
+    while text:
+      for key in self.rules:
+        rule = getattr(self, key)
+        m = rule.match(text)
+        if not m:
+          continue
+
+        callback = getattr(self, 'parse_' + key)
+        callback_result = callback(m)
+        result += callback_result
+
+        text = text[len(m.group(0)):]
+        break
+
+    return result
+
+  bullet = re.compile(
+      r'^(\s*)[*+-] '
+  )
+
+  def parse_bullet(self, m):
+    return self.renderer.bullet(m.group(1))
+
+  change_type = re.compile(
+      r'\['           # opening square bracket
+      r'(\w+)'        # tag word (like "feature" or "changed"
+      r'\]'           # closing square bracket
+      r'(?!\()'       # not followed by opening paren (that would be a link)
+  )
+
+  def parse_change_type(self, m):
+    return self.renderer.change_type(m.group(1))
+
+  url = re.compile(r'^(https?://[^\s<]+[^<.,:;"\')\]\s])')
+
+  def parse_url(self, m):
+    return self.renderer.url(m.group(1))
+
+  local_issue_link = re.compile(
+      r'\('           # opening paren
+      r'#(\d+)'       # hash and issue number
+      r'\)'           # closing paren
+  )
+
+  def parse_local_issue_link(self, m):
+    return self.renderer.local_issue_link(m.group(1))
+
+  text = re.compile(
+      r'^[\s\S]+?(?=[(\[]|https?://|$)'
+  )
+
+  def parse_text(self, m):
+    return self.renderer.text(m.group(0))
+
+  rules = ['bullet', 'change_type', 'url', 'local_issue_link', 'text']
+
+
+def process_changelog(translator, filename):
   with open(filename, 'r') as fd:
     text = fd.read()
-    result = md(text)
+    result = translator.translate(text)
     print(result)
 
 
