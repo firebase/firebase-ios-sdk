@@ -22,9 +22,12 @@ import re
 import subprocess
 
 
+NO_HEADING = 'PRODUCT HAS NO HEADING'
+
+
 PRODUCTS = {
     'Firebase/Auth/CHANGELOG.md': '{{auth}}',
-    'Firebase/Core/CHANGELOG.md': '{{core}}',
+    'Firebase/Core/CHANGELOG.md': NO_HEADING,
     'Firebase/Database/CHANGELOG.md': '{{database}}',
     'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
     'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
@@ -34,12 +37,9 @@ PRODUCTS = {
     'Firestore/CHANGELOG.md': '{{firestore}}',
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
 
-    # 'Firebase/CoreDiagnostics/CHANGELOG.md': '?',
     # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
     # 'GoogleDataTransport/CHANGELOG.md': '?',
     # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
-    # 'GoogleUtilities/CHANGELOG.md': '?',
-    # 'Interop/CoreDiagnostics/CHANGELOG.md': '?',
 }
 
 
@@ -84,6 +84,11 @@ def find_local_repo():
   raise LookupError('Can\'t figure local repo from remote URL %s' % url)
 
 
+CHANGE_TYPE_MAPPING = {
+    'added': 'feature'
+}
+
+
 class Renderer(object):
 
   def __init__(self, local_repo, product):
@@ -92,7 +97,10 @@ class Renderer(object):
 
   def heading(self, heading):
     if self.product:
-      return '### %s\n' % self.product
+      if self.product == NO_HEADING:
+        return ''
+      else:
+        return '### %s\n' % self.product
 
     return heading
 
@@ -108,6 +116,7 @@ class Renderer(object):
 
     That is "[fixed]" is rendered as "{{fixed}}".
     """
+    tag = CHANGE_TYPE_MAPPING.get(tag, tag)
     return '{{%s}}' % tag
 
   def url(self, url):
