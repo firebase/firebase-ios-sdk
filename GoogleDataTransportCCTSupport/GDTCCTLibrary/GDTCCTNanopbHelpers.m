@@ -167,7 +167,9 @@ gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data, NSError **error) {
   if (!pb_decode(&istream, gdt_cct_LogResponse_fields, &response)) {
     NSString *nanopb_error = [NSString stringWithFormat:@"%s", PB_GET_ERROR(&istream)];
     NSDictionary *userInfo = @{@"nanopb error:" : nanopb_error};
-    *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:userInfo];
+    if (error != NULL) {
+      *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:userInfo];
+    }
     response = (gdt_cct_LogResponse)gdt_cct_LogResponse_init_default;
   }
   return response;
