@@ -23,23 +23,23 @@ import subprocess
 
 
 PRODUCTS = {
-  'Firebase/Auth/CHANGELOG.md': '{{auth}}',
-  'Firebase/Core/CHANGELOG.md': '{{core}}',
-  'Firebase/Database/CHANGELOG.md': '{{database}}',
-  'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
-  'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
-  'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
-  'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
-  'Firebase/Storage/CHANGELOG.md': '{{storage}}',
-  'Firestore/CHANGELOG.md': '{{firestore}}',
-  'Functions/CHANGELOG.md': '{{cloud_functions}}',
+    'Firebase/Auth/CHANGELOG.md': '{{auth}}',
+    'Firebase/Core/CHANGELOG.md': '{{core}}',
+    'Firebase/Database/CHANGELOG.md': '{{database}}',
+    'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
+    'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
+    'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
+    'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
+    'Firebase/Storage/CHANGELOG.md': '{{storage}}',
+    'Firestore/CHANGELOG.md': '{{firestore}}',
+    'Functions/CHANGELOG.md': '{{cloud_functions}}',
 
-  # 'Firebase/CoreDiagnostics/CHANGELOG.md': '?',
-  # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
-  # 'GoogleDataTransport/CHANGELOG.md': '?',
-  # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
-  # 'GoogleUtilities/CHANGELOG.md': '?',
-  # 'Interop/CoreDiagnostics/CHANGELOG.md': '?',
+    # 'Firebase/CoreDiagnostics/CHANGELOG.md': '?',
+    # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
+    # 'GoogleDataTransport/CHANGELOG.md': '?',
+    # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
+    # 'GoogleUtilities/CHANGELOG.md': '?',
+    # 'Interop/CoreDiagnostics/CHANGELOG.md': '?',
 }
 
 
@@ -207,7 +207,9 @@ class Translator(object):
   def parse_text(self, m):
     return self.renderer.text(m.group(0))
 
-  rules = ['heading', 'bullet', 'change_type', 'url', 'local_issue_link', 'text']
+  rules = [
+      'heading', 'bullet', 'change_type', 'url', 'local_issue_link', 'text'
+  ]
 
 
 def read_file(filename):
