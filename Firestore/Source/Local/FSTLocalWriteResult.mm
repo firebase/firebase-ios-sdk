@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTLocalWriteResult.h"
-
+#include <memory>
 #include <utility>
+
+#import "Firestore/Source/Local/FSTLocalWriteResult.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "absl/memory/memory.h"
 
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::local::LocalWriteResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,11 +33,15 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTLocalWriteResult {
-  MaybeDocumentMap _changes;
+  std::unique_ptr<LocalWriteResult> _write_result;
 }
 
-- (const MaybeDocumentMap &)changes {
-  return _changes;
+- (BatchId)batchID {
+  return _write_result->GetBatchId();
+}
+
+- (const model::MaybeDocumentMap &)changes {
+  return _write_result->GetChanges();
 }
 
 + (instancetype)resultForBatchID:(BatchId)batchID changes:(MaybeDocumentMap &&)changes {
@@ -43,8 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithBatchID:(BatchId)batchID changes:(MaybeDocumentMap &&)changes {
   self = [super init];
   if (self) {
-    _batchID = batchID;
-    _changes = std::move(changes);
+    _write_result = absl::make_unique<LocalWriteResult>(batchID, std::move(changes));
   }
   return self;
 }
