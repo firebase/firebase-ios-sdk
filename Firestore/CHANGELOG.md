@@ -5,13 +5,13 @@
   that previously had not matched but had been updated to now match the query
   (https://github.com/firebase/firebase-android-sdk/issues/155).
 - [fixed] Fixed an internal assertion that was triggered when an update
-   with a `FieldValue.serverTimestamp()` and an update with a
+  with a `FieldValue.serverTimestamp()` and an update with a
   `FieldValue.increment()` were pending for the same document.
 - [fixed] Fixed the `oldIndex` and `newIndex` values in `DocumentChange` to
   actually be `NSNotFound` when documents are added or removed, respectively
   (#3298).
 - [changed] Failed transactions now return the failure from the last attempt,
-  instead of `ABORTED.`
+  instead of `ABORTED`.
 
 # 1.4.1
 - [fixed] Fixed certificate loading for non-CocoaPods builds that may not
