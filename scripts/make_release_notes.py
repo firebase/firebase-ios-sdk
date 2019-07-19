@@ -22,20 +22,55 @@ import re
 import subprocess
 
 
+PRODUCTS = {
+  'Firebase/Auth/CHANGELOG.md': '{{auth}}',
+  'Firebase/Core/CHANGELOG.md': '{{core}}',
+  'Firebase/Database/CHANGELOG.md': '{{database}}',
+  'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
+  'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
+  'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
+  'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
+  'Firebase/Storage/CHANGELOG.md': '{{storage}}',
+  'Firestore/CHANGELOG.md': '{{firestore}}',
+  'Functions/CHANGELOG.md': '{{cloud_functions}}',
+
+  # 'Firebase/CoreDiagnostics/CHANGELOG.md': '?',
+  # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
+  # 'GoogleDataTransport/CHANGELOG.md': '?',
+  # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
+  # 'GoogleUtilities/CHANGELOG.md': '?',
+  # 'Interop/CoreDiagnostics/CHANGELOG.md': '?',
+}
+
+
 def main():
   local_repo = find_local_repo()
 
   parser = argparse.ArgumentParser(description='Create release notes.')
   parser.add_argument('--repo', '-r', default=local_repo,
                       help='Specify which GitHub repo is local.')
+  parser.add_argument('--only', metavar='VERSION',
+                      help='Convert only a specific version')
+  parser.add_argument('--all', action='store_true',
+                      help='Emits entries for all versions')
   parser.add_argument('changelog',
                       help='The CHANGELOG.md file to parse')
   args = parser.parse_args()
 
-  renderer = Renderer(args.repo)
+  if args.all:
+    text = read_file(args.changelog)
+  else:
+    text = read_changelog_section(args.changelog, args.only)
+
+  product = None
+  if not args.all:
+    product = PRODUCTS.get(args.changelog)
+
+  renderer = Renderer(args.repo, product)
   translator = Translator(renderer)
 
-  process_changelog(translator, args.changelog)
+  result = translator.translate(text)
+  print(result)
 
 
 def find_local_repo():
@@ -51,15 +86,22 @@ def find_local_repo():
 
 class Renderer(object):
 
-  def __init__(self, local_repo):
+  def __init__(self, local_repo, product):
     self.local_repo = local_repo
+    self.product = product
+
+  def heading(self, heading):
+    if self.product:
+      return '### %s\n' % self.product
+
+    return heading
 
   def bullet(self, spacing):
     """Renders a bullet in a list.
 
     All bulleted lists in devsite are '*' style.
     """
-    return '%s* ' + spacing
+    return '%s* ' % spacing
 
   def change_type(self, tag):
     """Renders a change type tag as the appropriate double-braced macro.
@@ -120,6 +162,13 @@ class Translator(object):
 
     return result
 
+  heading = re.compile(
+      r'^#.*'
+  )
+
+  def parse_heading(self, m):
+    return self.renderer.heading(m.group(0))
+
   bullet = re.compile(
       r'^(\s*)[*+-] '
   )
@@ -152,25 +201,63 @@ class Translator(object):
     return self.renderer.local_issue_link(m.group(1))
 
   text = re.compile(
-      r'^[\s\S]+?(?=[(\[]|https?://|$)'
+      r'^[\s\S]+?(?=[(\[\n]|https?://|$)'
   )
 
   def parse_text(self, m):
     return self.renderer.text(m.group(0))
 
-  rules = ['bullet', 'change_type', 'url', 'local_issue_link', 'text']
+  rules = ['heading', 'bullet', 'change_type', 'url', 'local_issue_link', 'text']
 
 
-def process_changelog(translator, filename):
+def read_file(filename):
+  """Reads the contents of the file as a single string."""
   with open(filename, 'r') as fd:
-    text = fd.read()
-    result = translator.translate(text)
-    print(result)
+    return fd.read()
 
 
-def read_lines(filename):
+def read_changelog_section(filename, single_version=None):
+  """Reads a single section of the changelog from the given filename.
+
+  If single_version is None, reads the first section with a number in its
+  heading. Otherwise, reads the first section with single_version in its
+  heading.
+
+  Args:
+    - single_version: specifies a string to look for in headings.
+
+  Returns:
+    A string containing the heading and contents of the heading.
+  """
   with open(filename, 'r') as fd:
-    return [line.rstrip() for line in fd.readlines()]
+    # Discard all lines until we see a heading that either has the version the
+    # user asked for or any version.
+    if single_version:
+      initial_heading = re.compile(r'^#.*%s' % re.escape(single_version))
+    else:
+      initial_heading = re.compile(r'^#([^\d]*)\d')
+
+    heading = re.compile(r'^#')
+
+    initial = True
+    result = []
+    for line in fd:
+      if initial:
+        if initial_heading.match(line):
+          initial = False
+          result.append(line)
+
+      else:
+        if heading.match(line):
+          break
+
+        result.append(line)
+
+    # Prune extra newlines
+    while result and result[-1] == '\n':
+      result.pop()
+
+    return ''.join(result)
 
 
 if __name__ == '__main__':
