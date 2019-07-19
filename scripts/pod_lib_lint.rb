@@ -52,10 +52,11 @@ def main(args)
   # to the pod command.
   script_args = {}
   pod_args = []
+  local_specs_to_ignore_arg = ""
   args.each do |arg|
     case arg
     when /--ignore-local-specs=*/
-      then script_args[:ignored_local_specs] = arg.split("=")[1]
+      then local_specs_to_ignore_arg = arg.split("=")[1]
     else
       pod_args.append arg
     end
@@ -63,7 +64,7 @@ def main(args)
 
   # Figure out which dependencies are local
   podspec_file = args[0]
-  local_specs_to_ignore = script_args[:ignored_local_specs].split(",")
+  local_specs_to_ignore = local_specs_to_ignore_arg.split(",")
   deps = find_local_deps(podspec_file, local_specs_to_ignore.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
