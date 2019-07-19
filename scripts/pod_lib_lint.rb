@@ -29,6 +29,12 @@ def usage()
   podspec is the podspec to lint
 
   options can be any options for pod spec lint
+
+  script options:
+    --ignore-local-specs: list of podspecs that should not be added to
+      "--include-podspecs" list. If not sepcified, then all podspec
+      dependencies will be passed to "--include-podspecs."
+      Example: --ignore-local-specs=FirebaseInstanceID.podspec,GoogleDataTransport.podspec
   EOF
 end
 
@@ -42,13 +48,27 @@ def main(args)
 
   command = %w(bundle exec pod lib lint --sources=https://cdn.cocoapods.org/)
 
+  # Split arguments that need to be processed by the script itself and passed
+  # to the pod command.
+  script_args = {}
+  pod_args = []
+  args.each do |arg|
+    case arg
+    when /--ignore-local-specs=*/
+      then script_args[:ignored_local_specs] = arg.split("=")[1]
+    else
+      pod_args.append arg
+    end
+  end
+
   # Figure out which dependencies are local
   podspec_file = args[0]
-  deps = find_local_deps(podspec_file)
+  local_specs_to_ignore = script_args[:ignored_local_specs].split(",")
+  deps = find_local_deps(podspec_file, local_specs_to_ignore.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
 
-  command.push(*args)
+  command.push(*pod_args)
   puts command.join(' ')
 
   # Run the lib lint command in a thread.

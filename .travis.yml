@@ -403,11 +403,13 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --allow-warnings # TODO: Fix FBLPromises warnings for macOS.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios,tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=macos --allow-warnings # TODO: Fix FBLPromises warnings for macOS.
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos --ignore-local-specs=FirebaseInstanceID.podspec
+        # TODO: Fix FBLPromises warnings for macOS.
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --allow-warnings --ignore-local-specs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-libraries --ignore-local-specs=FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=ios,tvos --ignore-local-specs=FirebaseInstanceID.podspec
+        # TODO: Fix FBLPromises warnings for macOS.
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --use-modular-headers --platforms=macos --allow-warnings --ignore-local-specs=FirebaseInstanceID.podspec
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
