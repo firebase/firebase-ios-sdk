@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 
 namespace firebase {
@@ -22,7 +24,7 @@ namespace local {
 
 LocalWriteResult::LocalWriteResult(model::BatchId batchId,
                                    model::MaybeDocumentMap&& changes)
-    : batchId_(batchId), changes_(changes) {
+    : batchId_(batchId), changes_(std::move(changes)) {
 }
 
 model::BatchId LocalWriteResult::GetBatchId() {

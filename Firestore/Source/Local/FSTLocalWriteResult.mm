@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include <memory>
 #include <utility>
 
-#import "Firestore/Source/Local/FSTLocalWriteResult.h"
+#include "Firestore/Source/Local/FSTLocalWriteResult.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
-#include "absl/memory/memory.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::local::LocalWriteResult;
+using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTLocalWriteResult {
-  std::unique_ptr<LocalWriteResult> _write_result;
+  DelayedConstructor<LocalWriteResult> _write_result;
 }
 
 - (BatchId)batchID {
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithBatchID:(BatchId)batchID changes:(MaybeDocumentMap &&)changes {
   self = [super init];
   if (self) {
-    _write_result = absl::make_unique<LocalWriteResult>(batchID, std::move(changes));
+    _write_result.Init(LocalWriteResult{batchID, std::move(changes)});
   }
   return self;
 }

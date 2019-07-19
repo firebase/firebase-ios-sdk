@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_WRITE_RESULT_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_WRITE_RESULT_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_WRITE_RESULT_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_WRITE_RESULT_H_
 
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -27,20 +27,22 @@ namespace local {
 /** The result of a write to the local store. */
 class LocalWriteResult {
  public:
-  LocalWriteResult(model::BatchId batchID,
-                            model::MaybeDocumentMap&& changes);
+  LocalWriteResult(model::BatchId batchID, model::MaybeDocumentMap&& changes);
+
+  /** The batch ID of the local write. */
   model::BatchId GetBatchId();
 
+  /** The document changes resulting from the local write. */
   const model::MaybeDocumentMap& GetChanges();
 
  private:
   model::BatchId batchId_;
 
-  model::MaybeDocumentMap& changes_;
+  model::MaybeDocumentMap changes_;
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MUTATION_QUEUE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_WRITE_RESULT_H_
