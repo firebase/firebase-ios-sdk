@@ -102,10 +102,10 @@
  * @param conditions The set of upload conditions.
  */
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTUploadConditions)conditions {
-  if ((conditions & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
-    return;
-  }
   dispatch_async(_coordinationQueue, ^{
+    if ((conditions & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
+      return;
+    }
     for (NSNumber *target in targets) {
       // Don't trigger uploads for targets that have an in-flight package already.
       if (self->_targetToInFlightPackages[target]) {
@@ -116,8 +116,12 @@
       if ([uploader readyToUploadWithConditions:conditions]) {
         id<GDTPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
         GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
-        self->_targetToInFlightPackages[target] = package;
-        [uploader uploadPackage:package];
+        if (package.events.count) {
+          self->_targetToInFlightPackages[target] = package;
+          [uploader uploadPackage:package];
+        } else {
+          [package completeDelivery];
+        }
       }
     }
   });
