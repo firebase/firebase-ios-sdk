@@ -16,9 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 
-#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -34,21 +32,21 @@ using testutil::Value;
 using Operator = Filter::Operator;
 
 TEST(FilterTest, Equality) {
-  RelationFilter rf(Field("f"), Operator::Equal, Value(1));
-  EXPECT_EQ(rf, RelationFilter(Field("f"), Operator::Equal, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("g"), Operator::Equal, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("f"), Operator::GreaterThan, Value(1)));
-  EXPECT_NE(rf, RelationFilter(Field("f"), Operator::Equal, Value(2)));
-  EXPECT_NE(rf, NanFilter(Field("f")));
-  EXPECT_NE(rf, NullFilter(Field("f")));
+  auto filter = Filter("f", "==", 1);
+  EXPECT_EQ(*filter, *Filter("f", "==", 1));
+  EXPECT_NE(*filter, *Filter("g", "==", 1));
+  EXPECT_NE(*filter, *Filter("f", ">", 1));
+  EXPECT_NE(*filter, *Filter("f", "==", 2));
+  EXPECT_NE(*filter, *Filter("f", "==", NAN));
+  EXPECT_NE(*filter, *Filter("f", "==", nullptr));
 
-  NullFilter nullf(Field("g"));
-  EXPECT_EQ(nullf, NullFilter(Field("g")));
-  EXPECT_NE(nullf, NullFilter(Field("h")));
+  auto null_filter = Filter("g", "==", nullptr);
+  EXPECT_EQ(*null_filter, *Filter("g", "==", nullptr));
+  EXPECT_NE(*null_filter, *Filter("h", "==", nullptr));
 
-  NanFilter nanf(Field("g"));
-  EXPECT_EQ(nanf, NanFilter(Field("g")));
-  EXPECT_NE(nanf, NanFilter(Field("h")));
+  auto nan_filter = Filter("g", "==", NAN);
+  EXPECT_EQ(*nan_filter, *Filter("g", "==", NAN));
+  EXPECT_NE(*nan_filter, *Filter("h", "==", NAN));
 }
 
 }  // namespace core
