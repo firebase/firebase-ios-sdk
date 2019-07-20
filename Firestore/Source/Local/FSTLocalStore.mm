@@ -26,7 +26,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
-#import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -38,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
@@ -55,6 +55,7 @@ using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LocalDocumentsView;
+using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::QueryCache;
@@ -175,14 +176,14 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (FSTLocalWriteResult *)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
+- (LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
   Timestamp localWriteTime = Timestamp::Now();
   DocumentKeySet keys;
   for (FSTMutation *mutation : mutations) {
     keys = keys.insert(mutation.key);
   }
 
-  return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
+  return self.persistence.run("Locally write mutations", [&]() -> LocalWriteResult {
     // Load and apply all existing mutations. This lets us compute the current base state for
     // all non-idempotent transforms before applying any additional user-provided writes.
     MaybeDocumentMap existingDocuments = _localDocuments->GetDocuments(keys);
@@ -211,7 +212,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(
         localWriteTime, std::move(baseMutations), std::move(mutations));
     MaybeDocumentMap changedDocuments = [batch applyToLocalDocumentSet:existingDocuments];
-    return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
+    return LocalWriteResult{batch.batchID, std::move(changedDocuments)};
   });
 }
 
@@ -417,9 +418,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return _localDocuments->GetDocument(key);
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return _localDocuments->GetDocument(key);
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

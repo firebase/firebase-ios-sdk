@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_WRITE_RESULT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_WRITE_RESULT_H_
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -24,21 +26,29 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using model::BatchId;
+using model::MaybeDocumentMap;
+
 /** The result of a write to the local store. */
 class LocalWriteResult {
  public:
-  LocalWriteResult(model::BatchId batchID, model::MaybeDocumentMap&& changes);
+  LocalWriteResult(BatchId batch_id, MaybeDocumentMap&& changes)
+      : batch_id_(batch_id), changes_(std::move(changes)) {
+  }
 
   /** The batch ID of the local write. */
-  model::BatchId GetBatchId();
+  BatchId batch_id() const {
+    return batch_id_;
+  }
 
   /** The document changes resulting from the local write. */
-  const model::MaybeDocumentMap& GetChanges();
+  const MaybeDocumentMap& changes() const {
+    return changes_;
+  }
 
  private:
-  model::BatchId batchId_;
-
-  model::MaybeDocumentMap changes_;
+  BatchId batch_id_;
+  MaybeDocumentMap changes_;
 };
 
 }  // namespace local
