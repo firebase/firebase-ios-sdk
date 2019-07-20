@@ -123,19 +123,24 @@
 }
 
 - (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
-  __block BOOL result;
+  __block BOOL result = NO;
   dispatch_sync(_uploaderQueue, ^{
     if (self->_currentUploadPackage) {
       result = NO;
       return;
     }
+    if (self->_currentTask) {
+      result = NO;
+      return;
+    }
     if ((conditions & GDTUploadConditionHighPriority) == GDTUploadConditionHighPriority) {
-      result = self.currentTask == nil;
+      result = YES;
       return;
     } else if (self->_nextUploadTime) {
       result = [[GDTClock snapshot] isAfter:self->_nextUploadTime];
+      return;
     }
-    result = result && !self->_currentTask;
+    result = YES;
   });
   return result;
 }

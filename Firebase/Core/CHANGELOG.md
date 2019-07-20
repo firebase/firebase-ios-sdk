@@ -1,7 +1,11 @@
-# v6.0.1 -- M48
+# v6.1.0 -- M52
+- [added] `FIROptions.appGroupID` property added to configure the App Group identifier required to share
+  data between the application and the application extensions. (#3293)
+
+# 2019-05-21 -- v6.0.1 -- M48
 - [changed] Allowed `FirebaseApp` name to accept any alpha-numeric character instead of only ASCII. (#2609)
 
-# v6.0.0 -- M47
+# 2019-05-07 -- v6.0.0 -- M47
 - [changed] Added support for CocoaPods 1.7.x `:generate_multiple_pod_projects` feature. (#2751)
 - [removed] Remove FIRAnalyticsConfiguration from Public header. Use from FirebaseAnalytics. (#2728)
 - [changed] Remove runtime warning for missing analytics in favor of one at build time. (#2734)

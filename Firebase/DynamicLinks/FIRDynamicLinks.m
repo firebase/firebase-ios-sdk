@@ -190,7 +190,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     error =
         [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
                                                     errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:kFIRServiceDynamicLinks
+                                                      service:@"DynamicLinks"
                                                        reason:errorDescription];
   }
   if (error) {

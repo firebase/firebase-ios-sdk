@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '0.1.3'
+  s.version          = '0.2.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -12,7 +12,7 @@ Shared library for iOS SDK data transport needs.
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'GoogleDataTransport-' + s.version.to_s
+    :tag => 'DataTransport-' + s.version.to_s
   }
 
   s.ios.deployment_target = '8.0'

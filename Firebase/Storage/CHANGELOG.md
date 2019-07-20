@@ -1,4 +1,4 @@
-# Unreleased
+# 3.4.0
 - [fixed] Ensure that users don't accidently invoke `Storage()` instead of `Storage.storage()`.
   If your code calls the constructor of Storage directly, we will throw an assertion failure,
   instead of crashing the process later as the instance is used (#3282).

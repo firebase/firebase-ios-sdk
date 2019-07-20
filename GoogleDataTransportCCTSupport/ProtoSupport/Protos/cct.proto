@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
- 
+
 syntax = "proto2";
 
 package gdt_cct;
 
 message LogEvent {
   optional int64 event_time_ms = 1;
-  
+
   optional int32 event_code = 11;
 
   optional int64 event_uptime_ms = 17;
@@ -172,7 +172,7 @@ message QosTierConfiguration {
   }
 
   optional QosTier qos_tier = 2;
-  
+
   optional int32 log_source = 3 [default = 0];
 }
 
