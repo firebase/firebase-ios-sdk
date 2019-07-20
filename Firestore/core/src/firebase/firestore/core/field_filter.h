@@ -42,13 +42,11 @@ class FieldFilter : public Filter {
                                              Operator op,
                                              model::FieldValue value_rhs);
 
-  FieldFilter() = default;
-
   Type type() const override {
     return Type::kFieldFilter;
   }
 
-  bool IsFieldFilter() const override {
+  bool IsAFieldFilter() const override {
     return true;
   }
 
@@ -79,7 +77,7 @@ class FieldFilter : public Filter {
    * @param field A path to a field in the document to filter on. The LHS of the
    *     expression.
    * @param op The binary operator to apply.
-   * @param value_rhs A constant value to compare @a field to. The RHS of the
+   * @param value_rhs A constant value to compare `field` to. The RHS of the
    *     expression.
    */
   FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);

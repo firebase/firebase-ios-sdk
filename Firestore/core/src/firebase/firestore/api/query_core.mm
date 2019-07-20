@@ -276,7 +276,7 @@ constexpr Operator kArrayOps[] = {
 }
 
 void Query::ValidateNewFilter(const class Filter& filter) const {
-  if (filter.IsFieldFilter()) {
+  if (filter.IsAFieldFilter()) {
     const auto& field_filter = static_cast<const FieldFilter&>(filter);
 
     if (field_filter.IsInequality()) {
@@ -287,8 +287,7 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
         ThrowInvalidArgument(
             "Invalid Query. All where filters with an inequality (lessThan, "
             "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on "
-            "the "
-            "same field. But you have inequality filters on '%s' and '%s'",
+            "the same field. But you have inequality filters on '%s' and '%s'",
             existing_inequality->CanonicalString(),
             new_inequality->CanonicalString());
       }

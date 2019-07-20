@@ -64,7 +64,7 @@ class Filter {
    * Note this is different than checking `type() == Type::kFieldFilter` which
    * is only true if the type is exactly FieldFilter.
    */
-  virtual bool IsFieldFilter() const {
+  virtual bool IsAFieldFilter() const {
     return false;
   }
 

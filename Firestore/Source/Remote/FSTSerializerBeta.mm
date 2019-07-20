@@ -888,7 +888,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
   for (const auto &filter : filters) {
-    if (filter->IsFieldFilter()) {
+    if (filter->IsAFieldFilter()) {
       [protos addObject:[self encodedUnaryOrFieldFilter:static_cast<const FieldFilter &>(*filter)]];
     }
   }
@@ -970,11 +970,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (std::shared_ptr<FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
-    case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
-      return FieldFilter::Create(std::move(field), Operator::Equal, FieldValue::Nan());
-
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
       return FieldFilter::Create(std::move(field), Operator::Equal, FieldValue::Null());
+
+    case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
+      return FieldFilter::Create(std::move(field), Operator::Equal, FieldValue::Nan());
 
     default:
       HARD_FAIL("Unrecognized UnaryFilter.operator %s", proto.op);
