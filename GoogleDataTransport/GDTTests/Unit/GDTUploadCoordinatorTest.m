@@ -86,9 +86,8 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
+  self.prioritizer.uploadPackageWithConditionsBlock = ^{
     numberOfTimesCalled++;
-    [package completeDelivery];
   };
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     // Timer should fire 1 times a second.
