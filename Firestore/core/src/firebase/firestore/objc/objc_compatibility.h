@@ -26,6 +26,8 @@
 #include <type_traits>
 #include <unordered_map>
 
+#import "Firestore/Source/Model/FSTDocument.h"
+
 #include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
