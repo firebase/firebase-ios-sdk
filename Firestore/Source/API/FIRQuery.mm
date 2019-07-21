@@ -33,7 +33,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
