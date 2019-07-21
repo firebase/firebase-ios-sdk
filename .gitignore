@@ -88,6 +88,9 @@ Ninja
 # Visual Studio Code
 /.vscode
 
+# clangd support file
+compile_commands.json
+
 # CocoaPods generate
 gen/
 
