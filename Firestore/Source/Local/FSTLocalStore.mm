@@ -418,8 +418,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {	  return self.persistence.run(
-    return _localDocuments->GetDocument(key);	      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+    return _localDocuments->GetDocument(key);
   });
 }
 
