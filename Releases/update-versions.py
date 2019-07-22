@@ -174,6 +174,27 @@ def UpdateTags(version_data, firebase_version, first=False):
     LogOrRun("git push origin '{}'".format(tag))
 
 
+def CheckVersions(version_data):
+  """Ensure that versions do not already exist as tags.
+
+  Args:
+    version_data: dictionary of versions to be updated.
+  """
+  error = False
+  for pod, version in version_data.items():
+    name = pod[len('Firebase'):]
+    tag = '{}-{}'.format(name, version)
+    find = subprocess.Popen(
+      ['git', 'tag', '-l', tag],
+      stdout=subprocess.PIPE).communicate()[0].rstrip()
+    if tag == find:
+      print "{} tag already exists".format(tag)
+      error = True
+  if error:
+    print "Aborting: Remove pre-existing tags and retry"
+    exit()
+
+
 def GetCpdcInternal():
   """Find the firebase repo.
 
@@ -234,6 +255,7 @@ def UpdateVersions():
       UpdateTags(version_data, args.version)
       return
 
+    CheckVersions(version_data)
     release_branch = 'release-{}'.format(args.version)
     CreateReleaseBranch(release_branch, args.base_branch)
     UpdatePodSpecs(git_root, version_data, args.version)
