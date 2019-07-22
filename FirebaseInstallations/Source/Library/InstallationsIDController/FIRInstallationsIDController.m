@@ -26,6 +26,7 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsItem.h"
+#import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredAuthToken.h"
@@ -124,6 +125,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
+  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault, @"%s",
+              __PRETTY_FUNCTION__);
+
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
       [self getStoredInstallation].recover(^id(NSError *error) {
         return [self createAndSaveFID];
@@ -205,10 +209,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   }
 
   return [self.APIService registerInstallation:installation]
-      .then(^id(FIRInstallationsItem *registredInstallation) {
-        // Expected successful result: @[FIRInstallationsItem *registredInstallation, NSNull]
+      .then(^id(FIRInstallationsItem *registeredInstallation) {
+        // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
         return [FBLPromise all:@[
-          registredInstallation, [self.installationsStore saveInstallation:registredInstallation]
+          registeredInstallation, [self.installationsStore saveInstallation:registeredInstallation]
         ]];
       })
       .then(^FIRInstallationsItem *(NSArray *result) {
@@ -228,9 +232,13 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 - (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:
     (BOOL)forceRefresh {
+  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+              @"-[FIRInstallationsIDController installationWithValidAuthTokenForcingRefresh:%@]",
+              @(forceRefresh));
+
   return [self getInstallationItem]
-      .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installstion) {
-        return [self registerInstallationIfNeeded:installstion];
+      .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installation) {
+        return [self registerInstallationIfNeeded:installation];
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
         BOOL isTokenExpiredOrExpiresSoon =
@@ -266,6 +274,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<NSNull *> *)createDeleteInstallationPromise {
+  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault, @"%s",
+              __PRETTY_FUNCTION__);
+
   // Check for ongoing requests first, if there is no a request, then check local storage for
   // existing installation.
   FBLPromise<FIRInstallationsItem *> *currentInstallationPromise =

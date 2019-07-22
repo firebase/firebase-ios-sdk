@@ -48,8 +48,11 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
-  if (storageVersion != kFIRInstallationsStoredAuthTokenStorageVersion) {
-    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault, @"FIRInstallationsStoredAuthToken was encoded by a newer coder version %ld. Current coder version is %ld. Some auth token data may be lost.", (long)storageVersion, (long)kFIRInstallationsStoredAuthTokenStorageVersion);
+  if (storageVersion > kFIRInstallationsStoredAuthTokenStorageVersion) {
+    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+                  @"FIRInstallationsStoredAuthToken was encoded by a newer coder version %ld. "
+                  @"Current coder version is %ld. Some auth token data may be lost.",
+                  (long)storageVersion, (long)kFIRInstallationsStoredAuthTokenStorageVersion);
   }
 
   FIRInstallationsStoredAuthToken *object = [[FIRInstallationsStoredAuthToken alloc] init];
