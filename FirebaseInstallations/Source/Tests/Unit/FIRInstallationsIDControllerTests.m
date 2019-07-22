@@ -459,7 +459,7 @@
       [FIRInstallationsItem createRegisteredInstallationItem];
 
   FBLPromise *storagePendingPromise = [FBLPromise pendingPromise];
-  // Expect the instalation to be requested only once.
+  // Expect the installation to be requested only once.
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(storagePendingPromise);
 
@@ -531,6 +531,14 @@
   }
 }
 
+- (void)testGetAuthToken_WhenInstallationUnregistered_ThenRegister {
+  // 1.1. Expect installation to be requested from the store.
+    FIRInstallationsItem *storedInstallation =
+        [FIRInstallationsItem createUnregisteredInstallationItem];
+    OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+        .andReturn([FBLPromise resolvedWith:storedInstallation]);
+}
+
 #pragma mark - FID Deletion
 
 - (void)testDeleteRegisteredInstallation {
@@ -566,7 +574,7 @@
 
 - (void)testDeleteUnregisteredInstallation {
   // 1. Expect installation to be requested from the store.
-  FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
                                                       appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:installation]);
