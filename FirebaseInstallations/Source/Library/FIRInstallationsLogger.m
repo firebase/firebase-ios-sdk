@@ -18,4 +18,24 @@
 
 FIRLoggerService kFIRLoggerInstallations = @"[Firebase/Installations]";
 
-NSString *const kFIRInstallationsMessageCodeDefault = @"I-FIS001000";
+// FIRInstallationsAPIService.m
+NSString *const kFIRInstallationsMessageCodeSendAPIRequest = @"I-FIS001001";
+NSString *const kFIRInstallationsMessageCodeAPIRequestNetworkError = @"I-FIS001002";
+NSString *const kFIRInstallationsMessageCodeAPIRequestResponse = @"I-FIS001003";
+NSString *const kFIRInstallationsMessageCodeUnexpectedAPIRequestResponse = @"I-FIS001004";
+NSString *const kFIRInstallationsMessageCodeParsingAPIResponse = @"I-FIS001005";
+NSString *const kFIRInstallationsMessageCodeAPIResponseParsingInstallationFailed = @"I-FIS001006";
+NSString *const kFIRInstallationsMessageCodeAPIResponseParsingInstallationSucceed = @"I-FIS001007";
+NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenFailed = @"I-FIS001008";
+NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed = @"I-FIS001009";
+
+// FIRInstallationsIDController.m
+NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated = @"I-FIS002000";
+NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated = @"I-FIS002001";
+NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated = @"I-FIS002002";
+
+// FIRInstallationsStoredItem.m
+NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch = @"I-FIS003000";
+
+// FIRInstallationsStoredAuthToken.m
+NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch = @"I-FIS004000";

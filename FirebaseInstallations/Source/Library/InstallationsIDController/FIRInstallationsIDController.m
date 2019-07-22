@@ -125,8 +125,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createGetInstallationItemPromise {
-  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault, @"%s",
-              __PRETTY_FUNCTION__);
+  FIRLogDebug(kFIRLoggerInstallations,
+              kFIRInstallationsMessageCodeNewGetInstallationOperationCreated, @"%s, appName: %@",
+              __PRETTY_FUNCTION__, self.appName);
 
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
       [self getStoredInstallation].recover(^id(NSError *error) {
@@ -232,9 +233,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 - (FBLPromise<FIRInstallationsItem *> *)installationWithValidAuthTokenForcingRefresh:
     (BOOL)forceRefresh {
-  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
-              @"-[FIRInstallationsIDController installationWithValidAuthTokenForcingRefresh:%@]",
-              @(forceRefresh));
+  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated,
+              @"-[FIRInstallationsIDController installationWithValidAuthTokenForcingRefresh:%@], "
+              @"appName: %@",
+              @(forceRefresh), self.appName);
 
   return [self getInstallationItem]
       .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installation) {
@@ -274,8 +276,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<NSNull *> *)createDeleteInstallationPromise {
-  FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault, @"%s",
-              __PRETTY_FUNCTION__);
+  FIRLogDebug(kFIRLoggerInstallations,
+              kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated, @"%s, appName: %@",
+              __PRETTY_FUNCTION__, self.appName);
 
   // Check for ongoing requests first, if there is no a request, then check local storage for
   // existing installation.

@@ -43,7 +43,8 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
   if (storageVersion > kFIRInstallationsStoredItemStorageVersion) {
-    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeInstallationCoderVersionMismatch,
                   @"FIRInstallationsStoredItem was encoded by a newer coder version %ld. Current "
                   @"coder version is %ld. Some installation data may be lost.",
                   (long)storageVersion, (long)kFIRInstallationsStoredItemStorageVersion);

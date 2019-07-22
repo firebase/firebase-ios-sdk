@@ -49,7 +49,8 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
   if (storageVersion > kFIRInstallationsStoredAuthTokenStorageVersion) {
-    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch,
                   @"FIRInstallationsStoredAuthToken was encoded by a newer coder version %ld. "
                   @"Current coder version is %ld. Some auth token data may be lost.",
                   (long)storageVersion, (long)kFIRInstallationsStoredAuthTokenStorageVersion);

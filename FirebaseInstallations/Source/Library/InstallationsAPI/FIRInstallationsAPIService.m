@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_END
     registeredInstallationWithInstallation:(FIRInstallationsItem *)installation
                             serverResponse:(FIRInstallationsURLSessionResponse *)response {
   return [self validateHTTPResponseStatusCode:response].then(^id(id result) {
-    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeParsingAPIResponse,
                 @"Parsing server response for %@.", response.HTTPResponse.URL);
     NSError *error;
     FIRInstallationsItem *registeredInstallation =
@@ -148,12 +148,14 @@ NS_ASSUME_NONNULL_END
                                                     date:[NSDate date]
                                                    error:&error];
     if (registeredInstallation == nil) {
-      FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+      FIRLogDebug(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeAPIResponseParsingInstallationFailed,
                   @"Failed to parse FIRInstallationsItem: %@.", error);
       return error;
     }
 
-    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogDebug(kFIRLoggerInstallations,
+                kFIRInstallationsMessageCodeAPIResponseParsingInstallationSucceed,
                 @"FIRInstallationsItem parsed successfully.");
     return registeredInstallation;
   });
@@ -178,7 +180,7 @@ NS_ASSUME_NONNULL_END
 - (FBLPromise<FIRInstallationsStoredAuthToken *> *)authTokenWithServerResponse:
     (FIRInstallationsURLSessionResponse *)response {
   return [self validateHTTPResponseStatusCode:response].then(^id(id result) {
-    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeParsingAPIResponse,
                 @"Parsing server response for %@.", response.HTTPResponse.URL);
     NSError *error;
     FIRInstallationsStoredAuthToken *token =
@@ -186,12 +188,14 @@ NS_ASSUME_NONNULL_END
                                                                date:[NSDate date]
                                                               error:&error];
     if (token == nil) {
-      FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+      FIRLogDebug(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenFailed,
                   @"Failed to parse FIRInstallationsStoredAuthToken: %@.", error);
       return error;
     }
 
-    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogDebug(kFIRLoggerInstallations,
+                kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed,
                 @"FIRInstallationsStoredAuthToken parsed successfully.");
     return token;
   });
@@ -229,7 +233,7 @@ NS_ASSUME_NONNULL_END
 
 - (FBLPromise<FIRInstallationsURLSessionResponse *> *)sendURLRequest:(NSURLRequest *)request {
   return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
-    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+    FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeSendAPIRequest,
                 @"Sending request: %@, body:%@, headers: %@.", request,
                 [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding],
                 request.allHTTPHeaderFields);
@@ -238,11 +242,12 @@ NS_ASSUME_NONNULL_END
           completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                               NSError *_Nullable error) {
             if (error) {
-              FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+              FIRLogDebug(kFIRLoggerInstallations,
+                          kFIRInstallationsMessageCodeAPIRequestNetworkError,
                           @"Request failed: %@, error: %@.", request, error);
               reject(error);
             } else {
-              FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+              FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeAPIRequestResponse,
                           @"Request response received: %@, error: %@, body: %@.", request, error,
                           [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
               fulfill([[FIRInstallationsURLSessionResponse alloc]
@@ -258,7 +263,7 @@ NS_ASSUME_NONNULL_END
   NSInteger statusCode = response.HTTPResponse.statusCode;
   return [FBLPromise do:^id _Nullable {
     if (statusCode < 200 || statusCode >= 300) {
-      FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeDefault,
+      FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeUnexpectedAPIRequestResponse,
                   @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
                   [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
       return [FIRInstallationsErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse

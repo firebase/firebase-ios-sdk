@@ -20,4 +20,24 @@
 
 extern FIRLoggerService kFIRLoggerInstallations;
 
-extern NSString *const kFIRInstallationsMessageCodeDefault;
+// FIRInstallationsAPIService.m
+extern NSString *const kFIRInstallationsMessageCodeSendAPIRequest;
+extern NSString *const kFIRInstallationsMessageCodeAPIRequestNetworkError;
+extern NSString *const kFIRInstallationsMessageCodeAPIRequestResponse;
+extern NSString *const kFIRInstallationsMessageCodeUnexpectedAPIRequestResponse;
+extern NSString *const kFIRInstallationsMessageCodeParsingAPIResponse;
+extern NSString *const kFIRInstallationsMessageCodeAPIResponseParsingInstallationFailed;
+extern NSString *const kFIRInstallationsMessageCodeAPIResponseParsingInstallationSucceed;
+extern NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenFailed;
+extern NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed;
+
+// FIRInstallationsIDController.m
+extern NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated;
+extern NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated;
+extern NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated;
+
+// FIRInstallationsStoredItem.m
+extern NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch;
+
+// FIRInstallationsStoredAuthToken.m
+extern NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch;
