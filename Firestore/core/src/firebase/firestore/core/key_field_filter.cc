@@ -14,42 +14,33 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/key_field_filter.h"
 
 #include <utility>
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Document;
+using model::DocumentKey;
 using model::FieldPath;
 using model::FieldValue;
 
-NanFilter::NanFilter(FieldPath field) : field_(std::move(field)) {
+using Operator = Filter::Operator;
+
+KeyFieldFilter::KeyFieldFilter(FieldPath field, Operator op, FieldValue value)
+    : FieldFilter(std::move(field), op, std::move(value)) {
 }
 
-bool NanFilter::Matches(const model::Document& doc) const {
-  absl::optional<FieldValue> doc_field_value = doc.field(field_);
-  return doc_field_value && doc_field_value->is_nan();
-}
+bool KeyFieldFilter::Matches(const Document& doc) const {
+  const DocumentKey& lhs_key = doc.key();
+  const DocumentKey& rhs_key = value().reference_value().key();
 
-std::string NanFilter::CanonicalId() const {
-  return field().CanonicalString() + " IS NaN";
-}
-
-std::string NanFilter::ToString() const {
-  return CanonicalId();
-}
-
-size_t NanFilter::Hash() const {
-  return field_.Hash();
-}
-
-bool NanFilter::Equals(const Filter& other) const {
-  if (other.type() != Type::kNanFilter) return false;
-
-  const auto& other_filter = static_cast<const NanFilter&>(other);
-  return field() == other_filter.field();
+  return MatchesComparison(lhs_key.CompareTo(rhs_key));
 }
 
 }  // namespace core

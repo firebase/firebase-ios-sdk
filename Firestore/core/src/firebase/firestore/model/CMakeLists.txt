@@ -50,7 +50,7 @@ cc_library(
     snapshot_version.cc
     snapshot_version.h
     transform_operations.h
-    transform_operations.mm
+    transform_operations.cc
     types.h
     unknown_document.cc
     unknown_document.h

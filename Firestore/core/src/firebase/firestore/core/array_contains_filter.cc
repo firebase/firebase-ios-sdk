@@ -14,42 +14,35 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/array_contains_filter.h"
 
 #include <utility>
+
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Document;
 using model::FieldPath;
 using model::FieldValue;
 
-NullFilter::NullFilter(FieldPath field) : field_(std::move(field)) {
+using Operator = Filter::Operator;
+
+ArrayContainsFilter::ArrayContainsFilter(FieldPath field, FieldValue value)
+    : FieldFilter(std::move(field), Operator::ArrayContains, std::move(value)) {
 }
 
-bool NullFilter::Matches(const model::Document& doc) const {
-  absl::optional<FieldValue> doc_field_value = doc.field(field_);
-  return doc_field_value && doc_field_value->type() == FieldValue::Type::Null;
-}
+bool ArrayContainsFilter::Matches(const Document& doc) const {
+  absl::optional<FieldValue> maybe_lhs = doc.field(field());
+  if (!maybe_lhs) return false;
 
-std::string NullFilter::CanonicalId() const {
-  return field().CanonicalString() + " IS NULL";
-}
+  const FieldValue& lhs = *maybe_lhs;
+  if (lhs.type() != FieldValue::Type::Array) return false;
 
-std::string NullFilter::ToString() const {
-  return CanonicalId();
-}
-
-size_t NullFilter::Hash() const {
-  return field_.Hash();
-}
-
-bool NullFilter::Equals(const Filter& other) const {
-  if (other.type() != Type::kNullFilter) return false;
-
-  const auto& other_filter = static_cast<const NullFilter&>(other);
-  return field() == other_filter.field();
+  const FieldValue::Array& contents = lhs.array_value();
+  return absl::c_linear_search(contents, value());
 }
 
 }  // namespace core

@@ -21,7 +21,6 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"

@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -108,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (model::MaybeDocumentMap)userDidChange:(const auth::User &)user;
 
 /** Accepts locally generated Mutations and commits them to storage. */
-- (FSTLocalWriteResult *)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations;
+- (local::LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations;
 
 /** Returns the current value of a document with a given key, or nil if not found. */
 - (nullable FSTMaybeDocument *)readDocument:(const model::DocumentKey &)key;

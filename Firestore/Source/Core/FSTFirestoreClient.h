@@ -42,7 +42,6 @@
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
-@class FSTDocument;
 @class FSTMutation;
 @class FSTQuery;
 @class FSTTransaction;

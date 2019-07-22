@@ -27,8 +27,8 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -210,16 +210,19 @@ inline model::FieldPath Field(absl::string_view field) {
   return model::FieldPath::FromServerFormat(field);
 }
 
-inline model::DatabaseId DbId(std::string project, std::string database) {
-  return model::DatabaseId(std::move(project), std::move(database));
+inline model::DatabaseId DbId(std::string project = "project/(default)") {
+  size_t slash = project.find('/');
+  if (slash == std::string::npos) {
+    return model::DatabaseId(std::move(project), model::DatabaseId::kDefault);
+  } else {
+    std::string database_id = project.substr(slash + 1);
+    project = project.substr(0, slash);
+    return model::DatabaseId(std::move(project), std::move(database_id));
+  }
 }
 
-inline model::DatabaseId DbId(std::string project) {
-  return model::DatabaseId(std::move(project), model::DatabaseId::kDefault);
-}
-
-inline model::DatabaseId DbId() {
-  return model::DatabaseId("project", model::DatabaseId::kDefault);
+inline model::FieldValue Ref(std::string project, absl::string_view path) {
+  return model::FieldValue::FromReference(DbId(std::move(project)), Key(path));
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {
@@ -270,47 +273,47 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
     return core::Filter::Operator::GreaterThanOrEqual;
-  } else if (s == "array_contains") {
+  } else if (s == "array_contains" || s == "array-contains") {
     return core::Filter::Operator::ArrayContains;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            model::FieldValue value) {
-  return core::Filter::Create(Field(key), OperatorFromString(op),
-                              std::move(value));
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 model::FieldValue value) {
+  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
+                                   std::move(value));
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            model::FieldValue::Map value) {
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 model::FieldValue::Map value) {
   return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            std::nullptr_t) {
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 std::nullptr_t) {
   return Filter(key, op, model::FieldValue::Null());
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            const std::string& value) {
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 const std::string& value) {
   return Filter(key, op, model::FieldValue::FromString(value));
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            int value) {
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
-inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
-                                            absl::string_view op,
-                                            double value) {
+inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
+                                                 absl::string_view op,
+                                                 double value) {
   return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 

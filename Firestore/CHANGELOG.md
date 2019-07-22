@@ -1,28 +1,28 @@
 # Unreleased
 
-# 1.4.2
+# v1.4.2
 - [fixed] Fixed an issue where query results were temporarily missing documents
   that previously had not matched but had been updated to now match the query
   (https://github.com/firebase/firebase-android-sdk/issues/155).
 - [fixed] Fixed an internal assertion that was triggered when an update
-   with a `FieldValue.serverTimestamp()` and an update with a
+  with a `FieldValue.serverTimestamp()` and an update with a
   `FieldValue.increment()` were pending for the same document.
 - [fixed] Fixed the `oldIndex` and `newIndex` values in `DocumentChange` to
   actually be `NSNotFound` when documents are added or removed, respectively
   (#3298).
 - [changed] Failed transactions now return the failure from the last attempt,
-  instead of `ABORTED.`
+  instead of `ABORTED`.
 
-# 1.4.1
+# v1.4.1
 - [fixed] Fixed certificate loading for non-CocoaPods builds that may not
   include bundle identifiers in their frameworks or apps (#3184).
 
-# 1.4.0
+# v1.4.0
 - [feature] Added `clearPersistence()`, which clears the persistent storage
   including pending writes and cached documents. This is intended to help
   write reliable tests (https://github.com/firebase/firebase-js-sdk/issues/449).
 
-# 1.3.2
+# v1.3.2
 - [fixed] Firestore should now recover its connection to the server more
   quickly after being on a network suffering from total packet loss (#2987).
 - [fixed] Changed gRPC-C++ dependency to 0.0.9 which adds support for using it
@@ -30,7 +30,7 @@
   errors you might encounter when trying to use Firestore and other Google
   Cloud Objective-C APIs in the same project.
 
-# 1.3.1
+# v1.3.1
 - [fixed] Disabling garbage collection now avoids even scheduling the
   collection process. This can be used to prevent crashes in the background when
   using `NSFileProtectionComplete`. Note that Firestore does not support
@@ -38,20 +38,20 @@
   protection is enabled. This change just prevents a crash when Firestore is
   idle (#2846).
 
-# 1.3.0
+# v1.3.0
 - [feature] You can now query across all collections in your database with a
   given collection ID using the `Firestore.collectionGroup()` method.
 - [feature] Added community support for tvOS.
 
-# 1.2.1
+# v1.2.1
 - [fixed] Fixed a use-after-free bug that could be observed when using snapshot
   listeners on temporary document references (#2682).
 
-# 1.2.0
+# v1.2.0
 - [feature] Added community support for macOS (#434).
 - [fixed] Fixed the way gRPC certificates are loaded on macOS (#2604).
 
-# 1.1.0
+# v1.1.0
 - [feature] Added `FieldValue.increment()`, which can be used in
   `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
   field values safely without transactions.

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_RELATION_FILTER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_RELATION_FILTER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIELD_FILTER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIELD_FILTER_H_
 
+#include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -29,29 +30,24 @@ namespace firestore {
 namespace core {
 
 /**
- * RelationFilter is a document filter constraint on a query with a single
+ * FieldFilter is a document filter constraint on a query with a single
  * relation operator.
  */
-class RelationFilter : public Filter {
+class FieldFilter : public Filter {
  public:
-  RelationFilter() = default;
-
   /**
-   * Creates a new filter that compares fields and values. Only intended to be
-   * called from Filter::Create().
-   *
-   * @param field A path to a field in the document to filter on. The LHS of the
-   *     expression.
-   * @param op The binary operator to apply.
-   * @param value_rhs A constant value to compare @a field to. The RHS of the
-   *     expression.
+   * Creates a Filter instance for the provided path, operator, and value.
    */
-  RelationFilter(model::FieldPath field,
-                 Operator op,
-                 model::FieldValue value_rhs);
+  static std::shared_ptr<FieldFilter> Create(model::FieldPath path,
+                                             Operator op,
+                                             model::FieldValue value_rhs);
 
   Type type() const override {
-    return Type::kRelationFilter;
+    return Type::kFieldFilter;
+  }
+
+  bool IsAFieldFilter() const override {
+    return true;
   }
 
   const model::FieldPath& field() const override;
@@ -74,11 +70,24 @@ class RelationFilter : public Filter {
   bool IsInequality() const override;
 
  protected:
-  bool Equals(const Filter& other) const override;
+  /**
+   * Creates a new filter that compares fields and values. Only intended to be
+   * called from Filter::Create().
+   *
+   * @param field A path to a field in the document to filter on. The LHS of the
+   *     expression.
+   * @param op The binary operator to apply.
+   * @param value_rhs A constant value to compare `field` to. The RHS of the
+   *     expression.
+   */
+  FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
+
+  bool MatchesComparison(util::ComparisonResult result) const;
 
  private:
+  bool Equals(const Filter& other) const override;
+
   bool MatchesValue(const model::FieldValue& lhs) const;
-  bool MatchesComparison(util::ComparisonResult result) const;
 
   /** The left hand side of the relation. A path into a document field. */
   model::FieldPath field_;
@@ -94,4 +103,4 @@ class RelationFilter : public Filter {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_RELATION_FILTER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIELD_FILTER_H_

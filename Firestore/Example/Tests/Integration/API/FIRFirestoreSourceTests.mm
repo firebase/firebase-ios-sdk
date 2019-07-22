@@ -20,7 +20,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase
 @end

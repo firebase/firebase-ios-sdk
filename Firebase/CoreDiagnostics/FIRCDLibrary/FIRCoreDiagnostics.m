@@ -330,7 +330,7 @@ logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringT
 void FIRPopulateProtoWithInfoFromUserInfoParams(logs_proto_mobilesdk_ios_ICoreConfiguration *config,
                                                 NSDictionary<NSString *, id> *diagnosticObjects) {
   NSNumber *configurationType = diagnosticObjects[kFIRCDConfigurationTypeKey];
-  if (configurationType) {
+  if (configurationType != nil) {
     switch (configurationType.integerValue) {
       case logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_CORE:
         config->configuration_type =
@@ -391,7 +391,7 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
   }
 
   NSNumber *usingOptionsFromDefaultPlist = diagnosticObjects[kFIRCDUsingOptionsFromDefaultPlistKey];
-  if (usingOptionsFromDefaultPlist) {
+  if (usingOptionsFromDefaultPlist != nil) {
     config->use_default_app = [usingOptionsFromDefaultPlist boolValue];
     config->has_use_default_app = 1;
   }
