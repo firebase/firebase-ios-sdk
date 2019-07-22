@@ -26,29 +26,26 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using model::BatchId;
-using model::MaybeDocumentMap;
-
 /** The result of a write to the local store. */
 class LocalWriteResult {
  public:
-  LocalWriteResult(BatchId batch_id, MaybeDocumentMap&& changes)
+  LocalWriteResult(model::BatchId batch_id, model::MaybeDocumentMap&& changes)
       : batch_id_(batch_id), changes_(std::move(changes)) {
   }
 
   /** The batch ID of the local write. */
-  BatchId batch_id() const {
+  model::BatchId batch_id() const {
     return batch_id_;
   }
 
   /** The document changes resulting from the local write. */
-  const MaybeDocumentMap& changes() const {
+  const model::MaybeDocumentMap& changes() const {
     return changes_;
   }
 
  private:
-  BatchId batch_id_;
-  MaybeDocumentMap changes_;
+  model::BatchId batch_id_;
+  model::MaybeDocumentMap changes_;
 };
 
 }  // namespace local
