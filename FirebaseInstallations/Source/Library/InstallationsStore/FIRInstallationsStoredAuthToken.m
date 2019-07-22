@@ -16,6 +16,8 @@
 
 #import "FIRInstallationsStoredAuthToken.h"
 
+#import "FIRInstallationsLogger.h"
+
 NSString *const kFIRInstallationsStoredAuthTokenStatusKey = @"status";
 NSString *const kFIRInstallationsStoredAuthTokenTokenKey = @"token";
 NSString *const kFIRInstallationsStoredAuthTokenExpirationDateKey = @"expirationDate";
@@ -46,9 +48,12 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
-  if (storageVersion != kFIRInstallationsStoredAuthTokenStorageVersion) {
-    // TODO: Log a warning about the future version of the storage to a console.
-    // This is the first version, so we cannot do any migration yet.
+  if (storageVersion > kFIRInstallationsStoredAuthTokenStorageVersion) {
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch,
+                  @"FIRInstallationsStoredAuthToken was encoded by a newer coder version %ld. "
+                  @"Current coder version is %ld. Some auth token data may be lost.",
+                  (long)storageVersion, (long)kFIRInstallationsStoredAuthTokenStorageVersion);
   }
 
   FIRInstallationsStoredAuthToken *object = [[FIRInstallationsStoredAuthToken alloc] init];
