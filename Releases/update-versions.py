@@ -151,6 +151,23 @@ def UpdatePodfiles(git_root, version):
   os.system(sed_command.format(version, collision_podfile))
 
 
+def GenerateTag(pod, version):
+  """ Generate a tag from a pod and a version.
+
+  Args:
+    pod: name of the pod for which to generate the tag.
+    version: version of the pod to tag.
+
+  Returns:
+    Tag.
+  """
+  if pod.startswith("Firebase"):
+    return '{}-{}'.format(pod[len('Firebase'):], version)
+  if pod.startswith("Google"):
+    return '{}-{}'.format(pod[len('Google'):], version)
+  sys.exit("Script does not support generating a tag for {}".format(pod))
+
+
 def UpdateTags(version_data, firebase_version, first=False):
   """Update tags.
 
@@ -165,13 +182,31 @@ def UpdateTags(version_data, firebase_version, first=False):
   LogOrRun("git tag '{}'".format(firebase_version))
   LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
-    name = pod[len('Firebase'):]
-    tag = '{}-{}'.format(name, version)
+    tag = GenerateTag(pod, version)
     if not first:
       LogOrRun("git push --delete origin '{}'".format(tag))
       LogOrRun("git tag --delete  '{}'".format(tag))
     LogOrRun("git tag '{}'".format(tag))
     LogOrRun("git push origin '{}'".format(tag))
+
+
+def CheckVersions(version_data):
+  """Ensure that versions do not already exist as tags.
+
+  Args:
+    version_data: dictionary of versions to be updated.
+  """
+  error = False
+  for pod, version in version_data.items():
+    tag = GenerateTag(pod, version)
+    find = subprocess.Popen(
+      ['git', 'tag', '-l', tag],
+      stdout=subprocess.PIPE).communicate()[0].rstrip()
+    if tag == find:
+      print "{} tag already exists".format(tag)
+      error = True
+  if error:
+    sys.exit("Aborting: Remove pre-existing tags and retry")
 
 
 def GetCpdcInternal():
@@ -234,6 +269,7 @@ def UpdateVersions():
       UpdateTags(version_data, args.version)
       return
 
+    CheckVersions(version_data)
     release_branch = 'release-{}'.format(args.version)
     CreateReleaseBranch(release_branch, args.base_branch)
     UpdatePodSpecs(git_root, version_data, args.version)
