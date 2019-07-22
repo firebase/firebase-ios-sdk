@@ -151,6 +151,23 @@ def UpdatePodfiles(git_root, version):
   os.system(sed_command.format(version, collision_podfile))
 
 
+def GenerateTag(pod, version):
+  """ Generate a tag from a pod and a version.
+
+  Args:
+    pod: name of the pod for which to generate the tag.
+    version: version of the pod to tag.
+
+  Returns:
+    Tag.
+  """
+  if pod.startswith("Firebase"):
+    return '{}-{}'.format(pod[len('Firebase'):], version)
+  if pod.startswith("Google"):
+    return '{}-{}'.format(pod[len('Google'):], version)
+  sys.exit("Script does not support generating a tag for {}".format(pod))
+
+
 def UpdateTags(version_data, firebase_version, first=False):
   """Update tags.
 
@@ -165,8 +182,7 @@ def UpdateTags(version_data, firebase_version, first=False):
   LogOrRun("git tag '{}'".format(firebase_version))
   LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
-    name = pod[len('Firebase'):]
-    tag = '{}-{}'.format(name, version)
+    tag = GenerateTag(pod, version)
     if not first:
       LogOrRun("git push --delete origin '{}'".format(tag))
       LogOrRun("git tag --delete  '{}'".format(tag))
@@ -182,8 +198,7 @@ def CheckVersions(version_data):
   """
   error = False
   for pod, version in version_data.items():
-    name = pod[len('Firebase'):]
-    tag = '{}-{}'.format(name, version)
+    tag = GenerateTag(pod, version)
     find = subprocess.Popen(
       ['git', 'tag', '-l', tag],
       stdout=subprocess.PIPE).communicate()[0].rstrip()
@@ -191,8 +206,7 @@ def CheckVersions(version_data):
       print "{} tag already exists".format(tag)
       error = True
   if error:
-    print "Aborting: Remove pre-existing tags and retry"
-    exit()
+    sys.exit("Aborting: Remove pre-existing tags and retry")
 
 
 def GetCpdcInternal():
