@@ -248,9 +248,9 @@
 
   // 3. Request installation n times
   NSInteger requestCount = 10;
-  NSMutableArray *instllationPromises = [NSMutableArray arrayWithCapacity:requestCount];
+  NSMutableArray *installationPromises = [NSMutableArray arrayWithCapacity:requestCount];
   for (NSInteger i = 0; i < requestCount; i++) {
-    [instllationPromises addObject:[self.controller getInstallationItem]];
+    [installationPromises addObject:[self.controller getInstallationItem]];
   }
 
   // 4. Resolve store promise.
@@ -259,7 +259,7 @@
   // 5. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
-  for (FBLPromise<FIRInstallationsItem *> *installationPromise in instllationPromises) {
+  for (FBLPromise<FIRInstallationsItem *> *installationPromise in installationPromises) {
     XCTAssertNil(installationPromise.error);
     XCTAssertEqual(installationPromise.value, storedInstallation1);
   }
@@ -267,7 +267,7 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 
-  // 6. Check that a new request is performed once prevoius finished.
+  // 6. Check that a new request is performed once previous finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
