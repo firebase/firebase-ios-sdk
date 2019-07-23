@@ -164,7 +164,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
 
   NSError *error;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"validID");
+#pragma clang diagnostic pop
   XCTAssertNil(error);
 }
 
@@ -173,7 +177,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self stubInstallationsInstallationIDWithFID:nil error:expectedError];
 
   NSError *error;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertNil([self.instanceID appInstanceID:&error]);
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(error, expectedError);
 }
 
