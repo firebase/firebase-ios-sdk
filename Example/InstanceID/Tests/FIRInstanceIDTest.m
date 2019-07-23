@@ -1240,13 +1240,41 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testInstanceIDDeleteSuccess {
+  XCTestExpectation *tokenExpectation =
+      [self expectationWithDescription:@"InstanceID deleteID handler invoked."];
+
+  NSString *instanceID = @"validID";
+  [self stubInstallationsInstallationIDWithFID:instanceID error:nil];
+  [self expectTokenManagerDeleteAllTokensWithIID:instanceID completeWithError:nil];
+  [self expectTokenManagerDeleteAllTokensLocallyWithError:nil];
+  [self expectInstallationsDeleteWithError:nil];
+  [self expectAuthServiceResetCheckinWithError:nil];
+
+  [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [tokenExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:1 handler:nil];
+
+  OCMVerifyAll(self.mockInstallations);
+  OCMVerifyAll(self.mockTokenManager);
+}
+
 - (void)testInstanceIDDelete_keyChainError {
   XCTestExpectation *tokenExpectation =
       [self expectationWithDescription:@"InstanceID deleteID handler invoked."];
 
-  // Simulate keypair fetch/generation failure.
+  NSString *instanceID = @"validID";
+  [self stubInstallationsInstallationIDWithFID:instanceID error:nil];
+  [self expectTokenManagerDeleteAllTokensWithIID:instanceID completeWithError:nil];
+  [self expectTokenManagerDeleteAllTokensLocallyWithError:nil];
+  [self expectAuthServiceResetCheckinWithError:nil];
+
+  // Simulate keychain fetch/generation failure.
   NSError *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-  [self stubInstallationsInstallationIDWithFID:nil error:error];
+  [self expectInstallationsDeleteWithError:error];
 
   [self.instanceID deleteIDWithHandler:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
@@ -1254,14 +1282,20 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   }];
 
   [self waitForExpectationsWithTimeout:1 handler:nil];
+
+  OCMVerifyAll(self.mockInstallations);
+  OCMVerifyAll(self.mockTokenManager);
 }
 
 #pragma mark - Private Helpers
 
 - (void)stubInstallationsToReturnValidID {
-  //  [[[self.mockKeyPairStore stub] andReturn:[self createValidMockKeypair]]
-  //   loadKeyPairWithError:[OCMArg anyObjectRef]];
-  [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
+  OCMStub([self.mockInstallations
+      installationIDWithCompletion:[OCMArg
+                                       checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
+                                         completion(@"validID", nil);
+                                         return YES;
+                                       }]]);
 }
 
 - (FIRInstanceIDCheckinPreferences *)validCheckinPreferences {
@@ -1290,12 +1324,41 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)stubInstallationsInstallationIDWithFID:(nullable NSString *)FID
                                          error:(nullable NSError *)error {
-  OCMStub([self.mockInstallations
+  OCMExpect([self.mockInstallations
       installationIDWithCompletion:[OCMArg
                                        checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
                                          completion(FID, error);
                                          return YES;
                                        }]]);
+}
+
+- (void)expectInstallationsDeleteWithError:(nullable NSError *)deletionError {
+  OCMExpect([self.mockInstallations
+      deleteWithCompletion:[self errorCompletionOCMArgCompletingWithError:deletionError]]);
+}
+
+- (void)expectTokenManagerDeleteAllTokensWithIID:(NSString *)identifier
+                               completeWithError:(nullable NSError *)error {
+  OCMExpect([self.mockTokenManager
+      deleteAllTokensWithIID:identifier
+                     handler:[self errorCompletionOCMArgCompletingWithError:error]]);
+}
+
+- (void)expectTokenManagerDeleteAllTokensLocallyWithError:(nullable NSError *)error {
+  OCMExpect([self.mockTokenManager
+      deleteAllTokensLocallyWithHandler:[self errorCompletionOCMArgCompletingWithError:error]]);
+}
+
+- (void)expectAuthServiceResetCheckinWithError:(NSError *)error {
+  OCMStub([self.mockAuthService
+      resetCheckinWithHandler:[self errorCompletionOCMArgCompletingWithError:error]]);
+}
+
+- (id)errorCompletionOCMArgCompletingWithError:(NSError *)errorToComplete {
+  return [OCMArg checkWithBlock:^BOOL(void (^completion)(NSError *)) {
+    completion(errorToComplete);
+    return YES;
+  }];
 }
 
 @end

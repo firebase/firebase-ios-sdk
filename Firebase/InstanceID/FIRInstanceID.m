@@ -489,7 +489,6 @@ static FIRInstanceID *gInstanceID;
     }];
   };
 
-  ..Delete, not request!
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         FIRInstanceID_STRONGIFY(self);
@@ -522,6 +521,13 @@ static FIRInstanceID *gInstanceID;
 
     // Delete Instance ID.
     [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
+      if (error) {
+        if (handler) {
+          handler(error);
+        }
+        return;
+      }
+
       [self.tokenManager.authService resetCheckinWithHandler:^(NSError *error) {
         if (error) {
           if (handler) {
