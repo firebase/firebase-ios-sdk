@@ -39,9 +39,6 @@
     return nil;
   }
 
-  NSString *installationID = [FIRInstallationsItem validStringOrNilForKey:@"fid"
-                                                                 fromDict:responseJSON];
-
   NSDictionary *authTokenDict = responseJSON[@"authToken"];
   if (![authTokenDict isKindOfClass:[NSDictionary class]]) {
     FIRInstallationsItemSetErrorToPointer(
@@ -58,6 +55,8 @@
 
   FIRInstallationsItem *installation =
       [[FIRInstallationsItem alloc] initWithAppID:self.appID firebaseAppName:self.firebaseAppName];
+  NSString *installationID = [FIRInstallationsItem validStringOrNilForKey:@"fid"
+                                                                 fromDict:responseJSON];
   installation.firebaseInstallationID = installationID ?: self.firebaseInstallationID;
   installation.refreshToken = refreshToken;
   installation.authToken = authToken;
