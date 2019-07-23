@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FILTER_H_
 
 #include <iosfwd>
-#include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -49,25 +48,25 @@ class Filter {
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
-    kRelationFilter,
-    kNanFilter,
-    kNullFilter,
+    kArrayContainsFilter,
+    kFieldFilter,
+    kKeyFieldFilter,
   };
-
-  /**
-   * Creates a Filter instance for the provided path, operator, and value.
-   *
-   * Note that if the relational operator is Equal and the value is NullValue or
-   * NaN, then this will return the appropriate NullFilter or NanFilter class
-   * instead of a RelationFilter.
-   */
-  static std::shared_ptr<Filter> Create(model::FieldPath path,
-                                        Operator op,
-                                        model::FieldValue value_rhs);
 
   virtual ~Filter() = default;
 
   virtual Type type() const = 0;
+
+  /**
+   * Returns true if this instance is FieldFilter or any derived class.
+   * Equivalent to `instanceof FieldFilter` on other platforms.
+   *
+   * Note this is different than checking `type() == Type::kFieldFilter` which
+   * is only true if the type is exactly FieldFilter.
+   */
+  virtual bool IsAFieldFilter() const {
+    return false;
+  }
 
   /** Returns the field the Filter operates over. */
   virtual const model::FieldPath& field() const = 0;

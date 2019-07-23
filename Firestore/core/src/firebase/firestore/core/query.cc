@@ -18,7 +18,7 @@
 
 #include <algorithm>
 
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -72,8 +72,8 @@ const FieldPath* Query::InequalityFilterField() const {
 
 bool Query::HasArrayContainsFilter() const {
   for (const auto& filter : filters_) {
-    if (filter->type() == Type::kRelationFilter) {
-      const auto& relation_filter = static_cast<const RelationFilter&>(*filter);
+    if (filter->IsAFieldFilter()) {
+      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
       if (relation_filter.op() == Operator::ArrayContains) {
         return true;
       }

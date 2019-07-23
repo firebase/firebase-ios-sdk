@@ -14,50 +14,36 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NULL_FILTER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NULL_FILTER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_ARRAY_CONTAINS_FILTER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_ARRAY_CONTAINS_FILTER_H_
 
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-/** Filter that matches NaN (not-a-number) values. */
-class NullFilter : public Filter {
+/**
+ * A Filter that implements the array-contains operator.
+ */
+class ArrayContainsFilter : public FieldFilter {
  public:
-  NullFilter() = default;
+  ArrayContainsFilter() = default;
 
-  explicit NullFilter(model::FieldPath field);
+  ArrayContainsFilter(model::FieldPath field, model::FieldValue value);
 
   Type type() const override {
-    return Type::kNullFilter;
-  }
-
-  const model::FieldPath& field() const override {
-    return field_;
+    return Type::kArrayContainsFilter;
   }
 
   bool Matches(const model::Document& doc) const override;
-
-  std::string CanonicalId() const override;
-
-  std::string ToString() const override;
-
-  size_t Hash() const override;
-
- protected:
-  bool Equals(const Filter& other) const override;
-
- private:
-  model::FieldPath field_;
 };
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NULL_FILTER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_ARRAY_CONTAINS_FILTER_H_

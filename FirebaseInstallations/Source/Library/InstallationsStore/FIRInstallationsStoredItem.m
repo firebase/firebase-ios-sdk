@@ -15,6 +15,8 @@
  */
 
 #import "FIRInstallationsStoredItem.h"
+
+#import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
 NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebaseInstallationID";
@@ -40,9 +42,12 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
-  if (storageVersion != kFIRInstallationsStoredItemStorageVersion) {
-    // TODO: Log a warning about the future version of the storage to a console.
-    // This is the first version, so we cannot do any migration yet.
+  if (storageVersion > kFIRInstallationsStoredItemStorageVersion) {
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeInstallationCoderVersionMismatch,
+                  @"FIRInstallationsStoredItem was encoded by a newer coder version %ld. Current "
+                  @"coder version is %ld. Some installation data may be lost.",
+                  (long)storageVersion, (long)kFIRInstallationsStoredItemStorageVersion);
   }
 
   FIRInstallationsStoredItem *item = [[FIRInstallationsStoredItem alloc] init];

@@ -14,50 +14,37 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NAN_FILTER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NAN_FILTER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_FILTER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_FILTER_H_
 
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-/** Filter that matches NaN (not-a-number) values. */
-class NanFilter : public Filter {
+/**
+ * A Filter that matches on key fields (i.e. '__name__').
+ */
+class KeyFieldFilter : public FieldFilter {
  public:
-  NanFilter() = default;
+  KeyFieldFilter() = default;
 
-  explicit NanFilter(model::FieldPath field);
+  KeyFieldFilter(model::FieldPath field,
+                 core::Filter::Operator op,
+                 model::FieldValue value);
 
   Type type() const override {
-    return Type::kNanFilter;
-  }
-
-  const model::FieldPath& field() const override {
-    return field_;
+    return Type::kKeyFieldFilter;
   }
 
   bool Matches(const model::Document& doc) const override;
-
-  std::string CanonicalId() const override;
-
-  std::string ToString() const override;
-
-  size_t Hash() const override;
-
- protected:
-  bool Equals(const Filter& other) const override;
-
- private:
-  model::FieldPath field_;
 };
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_NAN_FILTER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_FILTER_H_

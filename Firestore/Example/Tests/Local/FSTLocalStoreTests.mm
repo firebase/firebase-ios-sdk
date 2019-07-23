@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -39,6 +38,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
@@ -49,6 +49,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
@@ -135,13 +136,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations {
   auto mutationsCopy = mutations;
-  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
-  XCTAssertNotNil(result);
-  [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
+  LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
+  [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batch_id()
                                                      localWriteTime:Timestamp::Now()
                                                       baseMutations:{}
                                                           mutations:std::move(mutations)]];
-  _lastChanges = result.changes;
+  _lastChanges = result.changes();
 }
 
 - (void)applyRemoteEvent:(const RemoteEvent &)event {
