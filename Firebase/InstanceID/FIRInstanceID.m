@@ -489,6 +489,7 @@ static FIRInstanceID *gInstanceID;
     }];
   };
 
+  ..Delete, not request!
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         FIRInstanceID_STRONGIFY(self);
