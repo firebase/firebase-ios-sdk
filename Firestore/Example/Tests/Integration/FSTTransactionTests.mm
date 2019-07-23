@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
+#import "Firestore/Source/Util/FSTClasses.h"
 
 #import <XCTest/XCTest.h>
 #include <libkern/OSAtomic.h>
@@ -22,9 +23,319 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
+- (void)assertExistsWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
+- (void)assertDoesNotExistWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
+- (void)assertNilErrorWithMessage:(NSString *)message error:(NSError *)error;
+- (void)assertErrorWithMessage:(NSString *)message error:(NSError *)error;
+- (void)assertEqualsObjectWithSnapshot:(FIRDocumentSnapshot *)snapshot
+                              expected:(NSObject *)expected
+                                 error:(NSError *)error;
+@end
+
+typedef void (^TransactionStage)(FIRTransaction *, FIRDocumentReference *);
+
+/**
+ * The transaction stages that follow are postfixed by numbers to indicate the
+ * calling order. For example, calling set1 followed by set2 should
+ * result in the document being set to the value specified by set2.
+ */
+TransactionStage delete1 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction deleteDocument:doc];
+};
+
+TransactionStage update1 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction updateData:@{@"foo" : @"bar1"} forDocument:doc];
+};
+
+TransactionStage update2 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction updateData:@{@"foo" : @"bar2"} forDocument:doc];
+};
+
+TransactionStage set1 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction setData:@{@"foo" : @"bar1"} forDocument:doc];
+};
+
+TransactionStage set2 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction setData:@{@"foo" : @"bar2"} forDocument:doc];
+};
+
+TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  NSError *error = nil;
+  [transaction getDocument:doc error:&error];
+};
+
+@interface FSTTransactionTester : NSObject
+- (FSTTransactionTester *)withExistingDoc;
+- (FSTTransactionTester *)withNonexistentDoc;
+- (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages;
+- (void)expectDoc:(NSObject *)expected;
+- (void)expectNoDoc;
+- (void)expectError:(FIRFirestoreErrorCode)expected;
+@end
+
+/**
+ * Used for testing that all possible combinations of executing transactions
+ * result in the desired document value or error.
+ *
+ * run, withExistingDoc, and withNonexistentDoc don't actually do
+ * anything except assign variables into the TransactionTester.
+ *
+ * expectDoc, expectNoDoc, and expectError will trigger the
+ * transaction to run and assert that the end result matches the input.
+ */
+@implementation FSTTransactionTester {
+  FIRFirestore *_db;
+  FIRDocumentReference *_docRef;
+  boolean_t _fromExistingDoc;
+  NSArray<TransactionStage> *_stages;
+  FSTTransactionTests *_testCase;
+  NSMutableArray<XCTestExpectation *> *_testExpectations;
+}
+- (instancetype)initWithDb:(FIRFirestore *)db testCase:(FSTTransactionTests *)testCase {
+  self = [super init];
+  if (self) {
+    _db = db;
+    _stages = [NSArray array];
+    _testCase = testCase;
+    _testExpectations = [NSMutableArray array];
+  }
+  return self;
+}
+
+- (FSTTransactionTester *)withExistingDoc {
+  _fromExistingDoc = true;
+  return self;
+}
+
+- (FSTTransactionTester *)withNonexistentDoc {
+  _fromExistingDoc = false;
+  return self;
+}
+
+- (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages {
+  _stages = stages;
+  return self;
+}
+
+- (void)expectDoc:(NSObject *)expected {
+  [self prepareDoc];
+  [self runSuccessfulTransaction];
+
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"get"];
+  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    [self->_testCase assertEqualsObjectWithSnapshot:snapshot expected:expected error:error];
+    [expectation fulfill];
+  }];
+  [_testCase awaitExpectations];
+
+  [self cleanupTester];
+}
+
+- (void)expectNoDoc {
+  [self prepareDoc];
+  [self runSuccessfulTransaction];
+
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"get"];
+  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    [self->_testCase assertDoesNotExistWithSnapshot:snapshot error:error];
+    [expectation fulfill];
+  }];
+  [_testCase awaitExpectations];
+
+  [self cleanupTester];
+}
+
+- (void)expectError:(FIRFirestoreErrorCode)expected {
+  [self prepareDoc];
+  [self runFailingTransaction:expected];
+
+  [self cleanupTester];
+}
+
+- (void)prepareDoc {
+  _docRef = [[self->_db collectionWithPath:@"nonexistent"] documentWithAutoID];
+  if (_fromExistingDoc) {
+    [_docRef setData:@{@"foo" : @"bar"}];
+
+    XCTestExpectation *expectation = [_testCase expectationWithDescription:@"get"];
+
+    [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      [self->_testCase assertExistsWithSnapshot:snapshot error:error];
+      [expectation fulfill];
+    }];
+
+    [_testCase awaitExpectations];
+  }
+}
+
+- (void)runSuccessfulTransaction {
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"runTransaction"];
+  [_db
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        for (TransactionStage stage in self->_stages) {
+          stage(transaction, self->_docRef);
+        }
+        return @YES;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        [expectation fulfill];
+        NSString *message =
+            [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %ld.",
+                                       [self listStages], [error code]];
+        [self->_testCase assertNilErrorWithMessage:message error:error];
+      }];
+
+  [_testCase awaitExpectations];
+}
+
+- (void)runFailingTransaction:(FIRFirestoreErrorCode)expected {
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"runTransaction"];
+  [_db
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        for (TransactionStage stage in self->_stages) {
+          stage(transaction, self->_docRef);
+        }
+        return @YES;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        [expectation fulfill];
+        NSString *message =
+            [NSString stringWithFormat:@"Expected the sequence (%@), to fail, but it didn't.",
+                                       [self listStages]];
+        [self->_testCase assertErrorWithMessage:message error:error];
+      }];
+
+  [_testCase awaitExpectations];
+}
+
+- (void)cleanupTester {
+  _stages = [NSArray array];
+  // Set the docRef to something else to lose the original reference.
+  _docRef = [[self->_db collectionWithPath:@"reset"] documentWithAutoID];
+}
+
+- (NSString *)listStages {
+  NSMutableArray<NSString *> *seqList = [NSMutableArray array];
+  for (TransactionStage stage in _stages) {
+    if (stage == delete1) {
+      [seqList addObject:@"delete"];
+    } else if (stage == update1 || stage == update2) {
+      [seqList addObject:@"update"];
+    } else if (stage == set1 || stage == set2) {
+      [seqList addObject:@"set"];
+    } else if (stage == get) {
+      [seqList addObject:@"get"];
+    }
+  }
+  return [seqList description];
+}
+
 @end
 
 @implementation FSTTransactionTests
+- (void)assertExistsWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error {
+  XCTAssertNil(error);
+  XCTAssertTrue(snapshot.exists);
+}
+
+- (void)assertDoesNotExistWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error {
+  XCTAssertNil(error);
+  XCTAssertFalse(snapshot.exists);
+}
+
+- (void)assertNilErrorWithMessage:(NSString *)message error:(NSError *)error {
+  XCTAssertNil(error, @"%@", message);
+}
+
+- (void)assertErrorWithMessage:(NSString *)message error:(NSError *)error {
+  XCTAssertNotNil(error, @"%@", message);
+}
+
+- (void)assertEqualsObjectWithSnapshot:(FIRDocumentSnapshot *)snapshot
+                              expected:(NSObject *)expected
+                                 error:(NSError *)error {
+  XCTAssertNil(error);
+  XCTAssertTrue(snapshot.exists);
+  XCTAssertEqualObjects(expected, snapshot.data);
+}
+
+- (void)testRunsTransactionsAfterGettingExistingDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withExistingDoc] runWithStages:@[ get, delete1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ get, delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withExistingDoc] runWithStages:@[ get, delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withExistingDoc] runWithStages:@[ get, update1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ get, update1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ get, update1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withExistingDoc] runWithStages:@[ get, set1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ get, set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
+- (void)testRunsTransactionsAfterGettingNonexistentDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ get, delete1, delete1 ]] expectNoDoc];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ get, update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ get, set1, delete1 ]] expectNoDoc];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withNonexistentDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
+- (void)testRunsTransactionOnExistingDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withExistingDoc] runWithStages:@[ delete1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withExistingDoc] runWithStages:@[ delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withExistingDoc] runWithStages:@[ update1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ update1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ update1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withExistingDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
+  [[[tt withExistingDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
+- (void)testRunsTransactionsOnNonexistentDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ delete1, delete1 ]] expectNoDoc];
+  [[[tt withNonexistentDoc] runWithStages:@[ delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withNonexistentDoc] runWithStages:@[ delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withNonexistentDoc] runWithStages:@[ update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withNonexistentDoc] runWithStages:@[ update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+
+  [[[tt withNonexistentDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
+  [[[tt withNonexistentDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withNonexistentDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
 
 - (void)testGetDocuments {
   FIRFirestore *firestore = [self firestore];
@@ -49,155 +360,6 @@
   [self awaitExpectations];
 }
 
-- (void)testDeleteDocument {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@"bar", snapshot[@"foo"]);
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        [transaction deleteDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@YES, result);
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-
-  snapshot = [self readDocumentForRef:doc];
-  XCTAssertFalse(snapshot.exists);
-}
-
-- (void)testGetNonexistentDocumentThenCreate {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        XCTAssertNotNil(snapshot);
-        XCTAssertFalse(snapshot.exists);
-        [transaction setData:@{@"foo" : @"bar"} forDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@YES, result);
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertTrue(snapshot.exists);
-  XCTAssertEqualObjects(@"bar", snapshot[@"foo"]);
-}
-
-- (void)testGetNonexistentDocumentThenFailPatch {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        XCTAssertFalse(snapshot.exists);
-        [transaction updateData:@{@"foo" : @"bar"} forDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-}
-
-- (void)testDeleteDocumentAndPatch {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        XCTAssertTrue(snapshot.exists);
-        [transaction deleteDocument:doc];
-        // Since we deleted the doc, the update will fail
-        [transaction updateData:@{@"foo" : @"bar"} forDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-}
-
-- (void)testDeleteDocumentAndSet {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **error) {
-        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
-        XCTAssertNil(*error);
-        XCTAssertTrue(snapshot.exists);
-        [transaction deleteDocument:doc];
-        // TODO(dimond): In theory this should work, but it's complex to make it work, so instead we
-        // just let the transaction fail and verify it's unsupported for now
-        [transaction setData:@{@"foo" : @"new-bar"} forDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-        // This is the error surfaced by the backend.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-}
-
-- (void)testWriteDocumentTwice {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **error) {
-        [transaction setData:@{@"a" : @"b"} forDocument:doc];
-        [transaction setData:@{@"c" : @"d"} forDocument:doc];
-        return @YES;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertEqualObjects(@YES, result);
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(snapshot.data, @{@"c" : @"d"});
-}
-
 - (void)testSetDocumentWithMerge {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
@@ -219,28 +381,6 @@
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(snapshot.data,
                         (@{@"a" : @"b", @"c" : @"d", @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
-}
-
-- (void)testCannotUpdateNonExistentDocument {
-  FIRFirestore *firestore = [self firestore];
-  FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        [transaction updateData:@{@"foo" : @"bar"} forDocument:doc];
-        return nil;
-      }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
-        XCTAssertNotNil(error);
-        // This is the error surfaced by the backend.
-        XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
-        [expectation fulfill];
-      }];
-  [self awaitExpectations];
-
-  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
-  XCTAssertFalse(result.exists);
 }
 
 - (void)testIncrementTransactionally {
