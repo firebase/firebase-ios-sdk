@@ -812,12 +812,16 @@
 }
 
 - (XCTestExpectation *)installationIDDidChangeNotificationExpectation {
-  XCTestExpectation *notificationExpectation =
-      [self expectationForNotification:FIRInstallationIDDidChangeNotification
-                                object:nil
-                               handler:^BOOL(NSNotification *_Nonnull notification) {
-                                 return YES;
-                               }];
+  XCTestExpectation *notificationExpectation = [self
+      expectationForNotification:FIRInstallationIDDidChangeNotification
+                          object:nil
+                         handler:^BOOL(NSNotification *_Nonnull notification) {
+                           XCTAssertEqualObjects(
+                               notification
+                                   .userInfo[kFIRInstallationIDDidChangeNotificationAppNameKey],
+                               self.appName);
+                           return YES;
+                         }];
   return notificationExpectation;
 }
 

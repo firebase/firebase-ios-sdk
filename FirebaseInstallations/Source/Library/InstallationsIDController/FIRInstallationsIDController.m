@@ -34,6 +34,9 @@
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";
+NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
+    @"FIRInstallationIDDidChangeNotification";
+
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
 @interface FIRInstallationsIDController ()
@@ -338,9 +341,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 #pragma mark - Notifications
 
 - (void)postFIDDidChangeNotification {
-  // TODO: Consider passing additional info like FIRApp ID or maybe even FIRInstallationsItem
-  [[NSNotificationCenter defaultCenter] postNotificationName:FIRInstallationIDDidChangeNotification
-                                                      object:nil];
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRInstallationIDDidChangeNotification
+                    object:nil
+                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : self.appName}];
 }
 
 @end
