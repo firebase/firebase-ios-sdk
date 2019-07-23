@@ -79,7 +79,7 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                           underlyingError:nil];
 }
 
-+ (NSError *)FIDRegestrationErrorWithResponseMissingField:(NSString *)missingFieldName {
++ (NSError *)FIDRegistrationErrorWithResponseMissingField:(NSString *)missingFieldName {
   NSString *failureReason = [NSString
       stringWithFormat:@"A required response field with name %@ is missing", missingFieldName];
   return [self installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
