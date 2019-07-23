@@ -31,10 +31,10 @@ def usage()
   options can be any options for pod spec lint
 
   script options:
-    --ignore-local-specs: list of podspecs that should not be added to
+    --ignore-local-podspecs: list of podspecs that should not be added to
       "--include-podspecs" list. If not specified, then all podspec
       dependencies will be passed to "--include-podspecs."
-      Example: --ignore-local-specs=FirebaseInstanceID.podspec,GoogleDataTransport.podspec
+      Example: --ignore-local-podspecs=FirebaseInstanceID.podspec,GoogleDataTransport.podspec
   EOF
 end
 
@@ -50,22 +50,19 @@ def main(args)
 
   # Split arguments that need to be processed by the script itself and passed
   # to the pod command.
-  script_args = {}
   pod_args = []
-  local_specs_to_ignore_arg = ""
+  ignore_local_podspecs = []
   args.each do |arg|
-    case arg
-    when /--ignore-local-specs=*/
-      then local_specs_to_ignore_arg = arg.split("=")[1]
+    if arg =~ /--ignore-local-podspecs=(.*)/
+      ignore_local_podspecs = $1.split(',')
     else
-      pod_args.append arg
+      pod_args.push(arg)
     end
   end
 
   # Figure out which dependencies are local
   podspec_file = args[0]
-  local_specs_to_ignore = local_specs_to_ignore_arg.split(",")
-  deps = find_local_deps(podspec_file, local_specs_to_ignore.to_set)
+  deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
 
