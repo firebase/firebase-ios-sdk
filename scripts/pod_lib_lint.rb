@@ -61,7 +61,7 @@ def main(args)
   end
 
   # Figure out which dependencies are local
-  podspec_file = args[0]
+  podspec_file = pod_args[0]
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
