@@ -60,8 +60,12 @@ def main(args)
     end
   end
 
-  # Figure out which dependencies are local
   podspec_file = pod_args[0]
+  # Validating of the social URL can be very flaky (see #3416).
+  # Remove it from spec to let the acutual tests pass.
+  remove_social_url_from_podspec(podspec_file)
+
+  # Figure out which dependencies are local
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
@@ -166,6 +170,12 @@ def trace(*args)
   return if not $DEBUG
 
   STDERR.puts(args.join(' '))
+end
+
+def remove_social_url_from_podspec(spec)
+  podspec_content = File.read(spec)
+  updated_podspec_content = podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
+  File.open(spec, "w") { |file| file.puts updated_podspec_content }
 end
 
 main(ARGV)
