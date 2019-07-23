@@ -62,7 +62,7 @@ def main(args)
 
   podspec_file = pod_args[0]
   # Validating of the social URL can be very flaky (see #3416).
-  # Remove it from spec to let the acutual tests pass.
+  # Remove it from spec to let the actual tests pass.
   remove_social_url_from_podspec(podspec_file)
 
   # Figure out which dependencies are local
