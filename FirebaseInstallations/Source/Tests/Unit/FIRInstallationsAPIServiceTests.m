@@ -474,7 +474,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 #pragma mark - Helpers
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithUTF8String:FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
 }
 
 @end
