@@ -51,9 +51,9 @@
 - (void)setUp {
   self.appID = @"appID";
   self.appName = @"appName";
-  self.mockInstallationsStore = OCMClassMock([FIRInstallationsStore class]);
-  self.mockAPIService = OCMClassMock([FIRInstallationsAPIService class]);
-  self.mockIIDStore = OCMClassMock([FIRInstallationsIIDStore class]);
+  self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
+  self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
+  self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
@@ -532,11 +532,6 @@
 }
 
 - (void)testGetAuthToken_WhenInstallationUnregistered_ThenRegister {
-  // 1.1. Expect installation to be requested from the store.
-    FIRInstallationsItem *storedInstallation =
-        [FIRInstallationsItem createUnregisteredInstallationItem];
-    OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-        .andReturn([FBLPromise resolvedWith:storedInstallation]);
 }
 
 #pragma mark - FID Deletion
@@ -755,6 +750,44 @@
 
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testRegisterInstallation_WhenServerRespondsWithDifferentFID_ThenFIDDidChangeNotification {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createUnregisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect register FID to be called.
+  FIRInstallationsItem *receivedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  receivedInstallation.firebaseInstallationID =
+      [storedInstallation.firebaseInstallationID stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
+      .andReturn([FBLPromise resolvedWith:receivedInstallation]);
+
+  // 1.3. Expect the received installation to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:receivedInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 2. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
+
+  // 3. Request Auth Token.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 4. Check.
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+  XCTAssertEqualObjects(promise.value.firebaseInstallationID,
+                        receivedInstallation.firebaseInstallationID);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 }
 

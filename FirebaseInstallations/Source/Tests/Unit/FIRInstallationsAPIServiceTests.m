@@ -128,7 +128,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   XCTAssertNotEqual(promise.value, installation);
   XCTAssertEqualObjects(promise.value.appID, installation.appID);
   XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
-  
+
   // Server may respond with a different FID if the sent FID cannot be accepted.
   XCTAssertEqualObjects(promise.value.firebaseInstallationID, @"aaaaaaaaaaaaaaaaaaaaaa");
   XCTAssertEqualObjects(promise.value.refreshToken, @"aaaaaaabbbbbbbbcccccccccdddddddd00000000");
