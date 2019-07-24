@@ -44,8 +44,8 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
   s.framework = 'Foundation'
 
-  s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 0.2'
+  s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 1.0'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 1.0'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/Logger', '~> 6.2'
 
