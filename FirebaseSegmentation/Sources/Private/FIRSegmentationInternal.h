@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#include "FIRErrorCode.h"
+NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const kFirebaseErrorDomain;
-extern NSString *const kFirebaseConfigErrorDomain;
-extern NSString *const kFirebaseCoreErrorDomain;
-extern NSString *const kFirebasePerfErrorDomain;
-extern NSString *const kFirebaseSegmentationErrorDomain;
+@class FIRApp;
+
+NS_SWIFT_NAME(Segmentation)
+@interface FIRSegmentation : NSObject
+
+/// Initialize a Segmentation instance with all the required parameters directly.
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options;
+@end
+
+NS_ASSUME_NONNULL_END
