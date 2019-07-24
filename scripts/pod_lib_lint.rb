@@ -74,7 +74,7 @@ def main(args)
   t = Thread.new do
     with_removed_social_media_url(podspec_file) do
       system(*command)
-      pod_lint_status = $?
+      pod_lint_status = $?.exitstatus
     end
   end
 
@@ -88,7 +88,7 @@ def main(args)
     end
   end
 
-  exit(pod_lint_status.exitstatus)
+  exit(pod_lint_status)
 end
 
 # Loads all the specs (inclusing subspecs) from the given podspec file.
@@ -174,7 +174,7 @@ end
 # pass.
 def with_removed_social_media_url(spec)
   podspec_content = File.read(spec)
-  updated_podspec_content = 
+  updated_podspec_content =
       podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
   write_file(spec, updated_podspec_content)
   yield
