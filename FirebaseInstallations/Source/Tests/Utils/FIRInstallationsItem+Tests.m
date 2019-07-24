@@ -19,11 +19,10 @@
 
 @implementation FIRInstallationsItem (Tests)
 
-+ (FIRInstallationsItem *)createValidInstallationItem {
++ (FIRInstallationsItem *)createUnregisteredInstallationItem {
   FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
                                                            firebaseAppName:@"appName"];
   item.firebaseInstallationID = @"firebaseInstallationID";
-  item.refreshToken = @"refreshToken";
   item.registrationStatus = FIRInstallationStatusUnregistered;
 
   return item;
