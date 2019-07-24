@@ -61,10 +61,6 @@ def main(args)
   end
 
   podspec_file = pod_args[0]
-  # Validating of the social URL can be very flaky (see #3416).
-  # Remove it from spec to let the actual tests pass.
-  remove_social_url_from_podspec(podspec_file)
-
   # Figure out which dependencies are local
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
@@ -76,8 +72,10 @@ def main(args)
   # Run the lib lint command in a thread.
   pod_lint_status = 1
   t = Thread.new do
-    system(*command)
-    pod_lint_status = $?
+    with_removed_social_media_url(podspec_file) do
+      system(*command)
+      pod_lint_status = $?
+    end
   end
 
   # Print every minute since linting can run for >10m without output.
@@ -170,12 +168,25 @@ def trace(*args)
   STDERR.puts(args.join(' '))
 end
 
-def remove_social_url_from_podspec(spec)
+# Edits the given podspec file to remove the social_media_url, yields, then
+# restores the file to its original condition.  Validating of the social URL
+# can be very flaky (see #3416). Remove it from spec to let the actual tests
+# pass.
+def with_removed_social_media_url(spec)
   podspec_content = File.read(spec)
   updated_podspec_content = 
       podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
-  File.open(spec, "w") do |file|
-     file.write(updated_podspec_content)
+  write_file(spec, updated_podspec_content)
+  yield
+
+ensure
+  write_file(spec, podspec_content)
+end
+
+# Writes the text in +contents+ to the file named by +filename+.
+def write_file(filename, contents)
+  File.open(filename, "w") do |file|
+    file.write(contents)
   end
 end
 
