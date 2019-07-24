@@ -15,13 +15,16 @@
  */
 
 #import "FIRInstallationsItem+Tests.h"
+
+#import <FirebaseCore/FIRAppInternal.h>
+
 #import "FIRInstallationsStoredAuthToken.h"
 
 @implementation FIRInstallationsItem (Tests)
 
 + (FIRInstallationsItem *)createUnregisteredInstallationItem {
   FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
-                                                           firebaseAppName:@"appName"];
+                                                           firebaseAppName:kFIRDefaultAppName];
   item.firebaseInstallationID = @"firebaseInstallationID";
   item.registrationStatus = FIRInstallationStatusUnregistered;
 
@@ -30,9 +33,8 @@
 
 + (FIRInstallationsItem *)createRegisteredInstallationItem {
   FIRInstallationsItem *item = [self createRegisteredInstallationItemWithAppID:@"appID"
-                                                                       appName:@"appName"];
+                                                                       appName:kFIRDefaultAppName];
   item.firebaseInstallationID = @"firebaseInstallationID";
-  item.refreshToken = @"refreshToken";
   item.registrationStatus = FIRInstallationStatusRegistered;
 
   return item;

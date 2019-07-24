@@ -17,6 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
+
+#import <FirebaseCore/FIRAppInternal.h>
+
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
@@ -49,18 +52,22 @@
 @implementation FIRInstallationsIDControllerTests
 
 - (void)setUp {
+  [self setUpWithAppName:kFIRDefaultAppName];
+}
+
+- (void)setUpWithAppName:(NSString *)appName {
   self.appID = @"appID";
-  self.appName = @"appName";
+  self.appName = appName;
   self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
 
   self.controller =
-      [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
-                                                        appName:self.appName
-                                             installationsStore:self.mockInstallationsStore
-                                                     APIService:self.mockAPIService
-                                                       IIDStore:self.mockIIDStore];
+  [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
+                                                    appName:self.appName
+                                         installationsStore:self.mockInstallationsStore
+                                                 APIService:self.mockAPIService
+                                                   IIDStore:self.mockIIDStore];
 }
 
 - (void)tearDown {
@@ -531,9 +538,6 @@
   }
 }
 
-- (void)testGetAuthToken_WhenInstallationUnregistered_ThenRegister {
-}
-
 #pragma mark - FID Deletion
 
 - (void)testDeleteRegisteredInstallation {
@@ -547,9 +551,13 @@
   OCMExpect([self.mockAPIService deleteInstallation:installation])
       .andReturn([FBLPromise resolvedWith:installation]);
 
-  // 3. Expect the installation to be removed from the storage.
+  // 3.1. Expect the installation to be removed from the storage.
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
                                                             appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.2. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
@@ -565,6 +573,10 @@
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 - (void)testDeleteUnregisteredInstallation {
@@ -577,9 +589,13 @@
   // 2. Don't expect API request to delete installation.
   OCMReject([self.mockAPIService deleteInstallation:[OCMArg any]]);
 
-  // 3. Expect the installation to be removed from the storage.
+  // 3.1. Expect the installation to be removed from the storage.
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
                                                             appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.2. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
@@ -595,6 +611,10 @@
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 - (void)testDeleteRegisteredInstallation_WhenAPIRequestFails_ThenFailsAndInstallationIsNotRemoved {
@@ -610,9 +630,11 @@
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
-  // 3. Don't expect the installation to be removed from the storage.
+  // 3.1. Don't expect the installation to be removed from the storage.
   OCMReject([self.mockInstallationsStore removeInstallationForAppID:[OCMArg any]
                                                             appName:[OCMArg any]]);
+  // 3.2. Don't expect IID to be deleted.
+  OCMReject([self.mockIIDStore deleteExistingIID]);
 
   // 4. Don't expect FIRInstallationIDDidChangeNotification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -628,6 +650,10 @@
   XCTAssertEqualObjects(promise.error, error500);
   XCTAssertTrue(promise.isRejected);
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 - (void)testDeleteRegisteredInstallation_WhenAPIFailsWithNotFound_ThenInstallationIsRemoved {
@@ -646,6 +672,9 @@
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
                                                             appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 3.2. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -660,6 +689,10 @@
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 - (void)testDeleteInstallation_WhenThereIsOngoingAuthTokenRequest_ThenUsesItsResult {
@@ -701,6 +734,10 @@
                                    appName:responseInstallation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
+  // 3.4. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   // 3.4. Call delete installation.
   FBLPromise<NSNull *> *deletePromise = [self.controller deleteInstallation];
 
@@ -712,6 +749,52 @@
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
+}
+
+- (void)testDeleteInstallation_WhenNotDefaultApp_ThenIIDIsNotDeleted {
+  // 0. Configure controller for not default app.
+  NSString *appName = @"appName";
+  [self setUpWithAppName:appName];
+
+  // 1. Expect installation to be requested from the store.
+    FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appID appName:appName];
+    OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                        appName:installation.firebaseAppName])
+        .andReturn([FBLPromise resolvedWith:installation]);
+
+    // 2. Expect API request to delete installation.
+    OCMExpect([self.mockAPIService deleteInstallation:installation])
+        .andReturn([FBLPromise resolvedWith:installation]);
+
+    // 3.1. Expect the installation to be removed from the storage.
+    OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                              appName:installation.firebaseAppName])
+        .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.2. Don't expect IID to be deleted, because it is not a default app.
+  OCMReject([self.mockIIDStore deleteExistingIID]);
+
+    // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+    XCTestExpectation *notificationExpectation =
+        [self installationIDDidChangeNotificationExpectation];
+
+    // 5. Call delete installation.
+    FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+
+    // 6. Wait for operations to complete and check.
+    FBLWaitForPromisesWithTimeout(0.5);
+
+    XCTAssertNil(promise.error);
+    XCTAssertTrue(promise.isFulfilled);
+    [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+    OCMVerifyAll(self.mockInstallationsStore);
+    OCMVerifyAll(self.mockAPIService);
+    OCMVerifyAll(self.mockIIDStore);
 }
 
 // TODO: Test a single delete installation request at a time.
