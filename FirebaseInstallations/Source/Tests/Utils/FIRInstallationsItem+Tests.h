@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsItem (Tests)
 
-+ (FIRInstallationsItem *)createValidInstallationItem;
++ (FIRInstallationsItem *)createUnregisteredInstallationItem;
 + (FIRInstallationsItem *)createRegisteredInstallationItem;
 
 + (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID

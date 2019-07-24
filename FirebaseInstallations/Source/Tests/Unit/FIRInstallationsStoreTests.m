@@ -127,7 +127,7 @@
 }
 
 - (void)testSaveInstallationWhenKeychainSucceds {
-  FIRInstallationsItem *item = [FIRInstallationsItem createValidInstallationItem];
+  FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
   [self.userDefaults removeObjectForKey:itemID];
@@ -155,7 +155,7 @@
 }
 
 - (void)testSaveInstallationWhenKeychainFails {
-  FIRInstallationsItem *item = [FIRInstallationsItem createValidInstallationItem];
+  FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
   [self.userDefaults removeObjectForKey:itemID];

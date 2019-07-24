@@ -51,9 +51,9 @@
 - (void)setUp {
   self.appID = @"appID";
   self.appName = @"appName";
-  self.mockInstallationsStore = OCMClassMock([FIRInstallationsStore class]);
-  self.mockAPIService = OCMClassMock([FIRInstallationsAPIService class]);
-  self.mockIIDStore = OCMClassMock([FIRInstallationsIIDStore class]);
+  self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
+  self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
+  self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
@@ -248,9 +248,9 @@
 
   // 3. Request installation n times
   NSInteger requestCount = 10;
-  NSMutableArray *instllationPromises = [NSMutableArray arrayWithCapacity:requestCount];
+  NSMutableArray *installationPromises = [NSMutableArray arrayWithCapacity:requestCount];
   for (NSInteger i = 0; i < requestCount; i++) {
-    [instllationPromises addObject:[self.controller getInstallationItem]];
+    [installationPromises addObject:[self.controller getInstallationItem]];
   }
 
   // 4. Resolve store promise.
@@ -259,7 +259,7 @@
   // 5. Wait for operation to be completed and check.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
-  for (FBLPromise<FIRInstallationsItem *> *installationPromise in instllationPromises) {
+  for (FBLPromise<FIRInstallationsItem *> *installationPromise in installationPromises) {
     XCTAssertNil(installationPromise.error);
     XCTAssertEqual(installationPromise.value, storedInstallation1);
   }
@@ -267,7 +267,7 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 
-  // 6. Check that a new request is performed once prevoius finished.
+  // 6. Check that a new request is performed once previous finished.
   FIRInstallationsItem *storedInstallation2 =
       [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
@@ -459,7 +459,7 @@
       [FIRInstallationsItem createRegisteredInstallationItem];
 
   FBLPromise *storagePendingPromise = [FBLPromise pendingPromise];
-  // Expect the instalation to be requested only once.
+  // Expect the installation to be requested only once.
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn(storagePendingPromise);
 
@@ -531,6 +531,9 @@
   }
 }
 
+- (void)testGetAuthToken_WhenInstallationUnregistered_ThenRegister {
+}
+
 #pragma mark - FID Deletion
 
 - (void)testDeleteRegisteredInstallation {
@@ -566,7 +569,7 @@
 
 - (void)testDeleteUnregisteredInstallation {
   // 1. Expect installation to be requested from the store.
-  FIRInstallationsItem *installation = [FIRInstallationsItem createValidInstallationItem];
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
                                                       appName:installation.firebaseAppName])
       .andReturn([FBLPromise resolvedWith:installation]);
@@ -750,6 +753,44 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
+- (void)testRegisterInstallation_WhenServerRespondsWithDifferentFID_ThenFIDDidChangeNotification {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createUnregisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Expect register FID to be called.
+  FIRInstallationsItem *receivedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  receivedInstallation.firebaseInstallationID =
+      [storedInstallation.firebaseInstallationID stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
+      .andReturn([FBLPromise resolvedWith:receivedInstallation]);
+
+  // 1.3. Expect the received installation to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:receivedInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 2. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
+
+  // 3. Request Auth Token.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 4. Check.
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+  XCTAssertEqualObjects(promise.value.firebaseInstallationID,
+                        receivedInstallation.firebaseInstallationID);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
 #pragma mark - Helpers
 
 - (void)expectInstallationsStoreGetInstallationNotFound {
@@ -771,12 +812,16 @@
 }
 
 - (XCTestExpectation *)installationIDDidChangeNotificationExpectation {
-  XCTestExpectation *notificationExpectation =
-      [self expectationForNotification:FIRInstallationIDDidChangeNotification
-                                object:nil
-                               handler:^BOOL(NSNotification *_Nonnull notification) {
-                                 return YES;
-                               }];
+  XCTestExpectation *notificationExpectation = [self
+      expectationForNotification:FIRInstallationIDDidChangeNotification
+                          object:nil
+                         handler:^BOOL(NSNotification *_Nonnull notification) {
+                           XCTAssertEqualObjects(
+                               notification
+                                   .userInfo[kFIRInstallationIDDidChangeNotificationAppNameKey],
+                               self.appName);
+                           return YES;
+                         }];
   return notificationExpectation;
 }
 

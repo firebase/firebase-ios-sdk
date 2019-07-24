@@ -34,7 +34,7 @@
                                                                fromDict:responseJSON];
   if (refreshToken == nil) {
     FIRInstallationsItemSetErrorToPointer(
-        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"refreshToken"],
+        [FIRInstallationsErrorUtil FIDRegistrationErrorWithResponseMissingField:@"refreshToken"],
         outError);
     return nil;
   }
@@ -42,7 +42,7 @@
   NSDictionary *authTokenDict = responseJSON[@"authToken"];
   if (![authTokenDict isKindOfClass:[NSDictionary class]]) {
     FIRInstallationsItemSetErrorToPointer(
-        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken"],
+        [FIRInstallationsErrorUtil FIDRegistrationErrorWithResponseMissingField:@"authToken"],
         outError);
     return nil;
   }
@@ -55,7 +55,9 @@
 
   FIRInstallationsItem *installation =
       [[FIRInstallationsItem alloc] initWithAppID:self.appID firebaseAppName:self.firebaseAppName];
-  installation.firebaseInstallationID = self.firebaseInstallationID;
+  NSString *installationID = [FIRInstallationsItem validStringOrNilForKey:@"fid"
+                                                                 fromDict:responseJSON];
+  installation.firebaseInstallationID = installationID ?: self.firebaseInstallationID;
   installation.refreshToken = refreshToken;
   installation.authToken = authToken;
   installation.registrationStatus = FIRInstallationStatusRegistered;
@@ -84,7 +86,7 @@
   NSString *token = [self validStringOrNilForKey:@"token" fromDict:dict];
   if (token == nil) {
     FIRInstallationsItemSetErrorToPointer(
-        [FIRInstallationsErrorUtil FIDRegestrationErrorWithResponseMissingField:@"authToken.token"],
+        [FIRInstallationsErrorUtil FIDRegistrationErrorWithResponseMissingField:@"authToken.token"],
         outError);
     return nil;
   }
@@ -93,7 +95,7 @@
   if (expiresInString == nil) {
     FIRInstallationsItemSetErrorToPointer(
         [FIRInstallationsErrorUtil
-            FIDRegestrationErrorWithResponseMissingField:@"authToken.expiresIn"],
+            FIDRegistrationErrorWithResponseMissingField:@"authToken.expiresIn"],
         outError);
     return nil;
   }
@@ -103,12 +105,12 @@
   // Just drop the last character and parse a number from string.
   NSString *expiresInSeconds = [expiresInString substringToIndex:expiresInString.length - 1];
   NSTimeInterval expiresIn = [expiresInSeconds doubleValue];
-  NSDate *experationDate = [date dateByAddingTimeInterval:expiresIn];
+  NSDate *expirationDate = [date dateByAddingTimeInterval:expiresIn];
 
   FIRInstallationsStoredAuthToken *authToken = [[FIRInstallationsStoredAuthToken alloc] init];
   authToken.status = FIRInstallationsAuthTokenStatusTokenReceived;
   authToken.token = token;
-  authToken.expirationDate = experationDate;
+  authToken.expirationDate = expirationDate;
 
   return authToken;
 }
