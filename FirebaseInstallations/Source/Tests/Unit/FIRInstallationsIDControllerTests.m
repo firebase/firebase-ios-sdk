@@ -63,11 +63,11 @@
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
 
   self.controller =
-  [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
-                                                    appName:self.appName
-                                         installationsStore:self.mockInstallationsStore
-                                                 APIService:self.mockAPIService
-                                                   IIDStore:self.mockIIDStore];
+      [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
+                                                        appName:self.appName
+                                             installationsStore:self.mockInstallationsStore
+                                                     APIService:self.mockAPIService
+                                                       IIDStore:self.mockIIDStore];
 }
 
 - (void)tearDown {
@@ -189,13 +189,13 @@
   __block FIRInstallationsItem *createdInstallation;
 
   OCMExpect([self.mockInstallationsStore
-                  saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
-                    [self assertValidCreatedInstallation:obj];
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
 
-                    createdInstallation = obj;
-                    return YES;
-                  }]])
-        .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 4. Stub API register installation.
   // 4.1. Verify installation to be registered.
@@ -834,40 +834,41 @@
   [self setUpWithAppName:appName];
 
   // 1. Expect installation to be requested from the store.
-    FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appID appName:appName];
-    OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
-                                                        appName:installation.firebaseAppName])
-        .andReturn([FBLPromise resolvedWith:installation]);
+  FIRInstallationsItem *installation =
+      [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appID appName:appName];
+  OCMExpect([self.mockInstallationsStore installationForAppID:installation.appID
+                                                      appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:installation]);
 
-    // 2. Expect API request to delete installation.
-    OCMExpect([self.mockAPIService deleteInstallation:installation])
-        .andReturn([FBLPromise resolvedWith:installation]);
+  // 2. Expect API request to delete installation.
+  OCMExpect([self.mockAPIService deleteInstallation:installation])
+      .andReturn([FBLPromise resolvedWith:installation]);
 
-    // 3.1. Expect the installation to be removed from the storage.
-    OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
-                                                              appName:installation.firebaseAppName])
-        .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 3.1. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 3.2. Don't expect IID to be deleted, because it is not a default app.
   OCMReject([self.mockIIDStore deleteExistingIID]);
 
-    // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
-    XCTestExpectation *notificationExpectation =
-        [self installationIDDidChangeNotificationExpectation];
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
 
-    // 5. Call delete installation.
-    FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
+  // 5. Call delete installation.
+  FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
-    // 6. Wait for operations to complete and check.
-    FBLWaitForPromisesWithTimeout(0.5);
+  // 6. Wait for operations to complete and check.
+  FBLWaitForPromisesWithTimeout(0.5);
 
-    XCTAssertNil(promise.error);
-    XCTAssertTrue(promise.isFulfilled);
-    [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
+  XCTAssertNil(promise.error);
+  XCTAssertTrue(promise.isFulfilled);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.5];
 
-    OCMVerifyAll(self.mockInstallationsStore);
-    OCMVerifyAll(self.mockAPIService);
-    OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockIIDStore);
 }
 
 // TODO: Test a single delete installation request at a time.
