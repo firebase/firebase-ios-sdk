@@ -22,6 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <FirebaseCore/FIRAppInternal.h>
+
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsIIDStore.h"
@@ -189,6 +191,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 }
 
 - (FBLPromise<NSString *> *)migrateOrGenerateFID {
+  if (![self isDefaultApp]) {
+    // Existing IID should be used only for default FirebaseApp.
+    return [FBLPromise resolvedWith:[FIRInstallationsItem generateFID]];
+  }
+
   return [self.IIDStore existingIID].recover(^NSString *(NSError *error) {
     return [FIRInstallationsItem generateFID];
   });
@@ -300,6 +307,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         return [self.installationsStore removeInstallationForAppID:installation.appID
                                                            appName:installation.firebaseAppName];
       })
+      .then(^FBLPromise<NSNull *> *(NSNull *result) {
+        return [self deleteExistingIIDIfNeeded];
+      })
       .then(^NSNull *(NSNull *result) {
         [self postFIDDidChangeNotification];
         return result;
@@ -332,6 +342,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   });
 }
 
+- (FBLPromise<NSNull *> *)deleteExistingIIDIfNeeded {
+  if ([self isDefaultApp]) {
+    return [self.IIDStore deleteExistingIID];
+  } else {
+    return [FBLPromise resolvedWith:[NSNull null]];
+  }
+}
+
 - (nullable FBLPromise<FIRInstallationsItem *> *)mostRecentInstallationOperation {
   return [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
              ?: [self.authTokenPromiseCache getExistingPendingPromise]
@@ -345,6 +363,12 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       postNotificationName:FIRInstallationIDDidChangeNotification
                     object:nil
                   userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : self.appName}];
+}
+
+#pragma mark - Default App
+
+- (BOOL)isDefaultApp {
+  return [self.appName isEqualToString:kFIRDefaultAppName];
 }
 
 @end

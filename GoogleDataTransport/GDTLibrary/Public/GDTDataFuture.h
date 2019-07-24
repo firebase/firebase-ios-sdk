@@ -35,14 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param fileURL The fileURL containing the data to return in -data.
  * @return An instance of this class.
  */
-- (instancetype)initWithFileURL:(NSURL *)fileURL NS_DESIGNATED_INITIALIZER;
-
-/** Initializes an instance with the given data.
- *
- * @param data The data to return from -data.
- * @return An instance of this class.
- */
-- (instancetype)initWithData:(NSData *)data NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFileURL:(NSURL *)fileURL;
 
 @end
 

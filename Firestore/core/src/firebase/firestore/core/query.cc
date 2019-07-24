@@ -84,7 +84,7 @@ bool Query::HasArrayContainsFilter() const {
 
 // MARK: - Builder methods
 
-Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
+Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
@@ -124,7 +124,7 @@ bool Query::MatchesPath(const Document& doc) const {
 
 bool Query::MatchesFilters(const Document& doc) const {
   return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<core::Filter>& filter) {
+                     [&](const std::shared_ptr<Filter>& filter) {
                        return filter->Matches(doc);
                      });
 }
