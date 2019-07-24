@@ -350,6 +350,14 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - stage: test
+      env:
+        - PROJECT=FirestoreFuzzing PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # Validate Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
     # Validate Cocoapods 1.7.0 compatibility

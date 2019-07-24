@@ -27,6 +27,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  FirestoreFuzzing
   InAppMessaging
   SymbolCollision
 
@@ -340,6 +341,17 @@ case "$product-$method-$platform" in
     cpus=$(sysctl -n hw.ncpu)
     (cd build; env make -j $cpus all generate_protos)
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+    ;;
+
+  FirestoreFuzzing-cmake-macOS)
+    test -d build || mkdir build
+    echo "Preparing cmake build ..."
+    (cd build; cmake -DWITH_ASAN=ON -DFUZZING=ON "${cmake_options[@]}" ..)
+
+    echo "Building cmake build ..."
+    cpus=$(sysctl -n hw.ncpu)
+    (cd build; env make -j $cpus all generate_protos)
+    # Don't run the tests, only make sure the target builds.
     ;;
 
   SymbolCollision-xcodebuild-*)
