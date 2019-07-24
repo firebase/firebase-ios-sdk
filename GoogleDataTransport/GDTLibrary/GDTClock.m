@@ -103,7 +103,9 @@ static int64_t UptimeInNanoseconds() {
 - (BOOL)isAfter:(GDTClock *)otherClock {
   // These clocks are trivially comparable when they share a kernel boot time.
   if (_kernelBootTime == otherClock->_kernelBootTime) {
-    return _uptime > otherClock->_uptime;
+    int64_t timeDiff = (_timeMillis + _timezoneOffsetSeconds) -
+                       (otherClock->_timeMillis + otherClock->_timezoneOffsetSeconds);
+    return timeDiff > 0;
   } else {
     int64_t kernelBootTimeDiff = otherClock->_kernelBootTime - _kernelBootTime;
     // This isn't a great solution, but essentially, if the other clock's boot time is 'later', NO
