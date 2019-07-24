@@ -18,36 +18,12 @@
 
 @implementation GDTDataFuture
 
-- (instancetype)init {
-  self = [self initWithData:[NSData data]];
-  return self;
-}
-
 - (instancetype)initWithFileURL:(NSURL *)fileURL {
   self = [super init];
   if (self) {
     _fileURL = fileURL;
   }
   return self;
-}
-
-- (instancetype)initWithData:(NSData *)data {
-  self = [super init];
-  if (self) {
-    _originalData = data;
-  }
-  return self;
-}
-
-- (nullable NSData *)data {
-  if (_fileURL) {
-    NSAssert([[NSFileManager defaultManager] fileExistsAtPath:_fileURL.path isDirectory:NULL],
-             @"A file should exist for this future at the given URL: %@", _fileURL);
-    return [NSData dataWithContentsOfURL:_fileURL];
-  } else if (_originalData) {
-    return _originalData;
-  }
-  return nil;
 }
 
 - (BOOL)isEqual:(id)object {
