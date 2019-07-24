@@ -15,12 +15,12 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #import <XCTest/XCTest.h>
 #include <libkern/OSAtomic.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/Util/FSTClasses.h"
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
 - (void)assertExistsWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
