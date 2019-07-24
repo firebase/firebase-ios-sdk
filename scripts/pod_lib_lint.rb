@@ -172,8 +172,11 @@ end
 
 def remove_social_url_from_podspec(spec)
   podspec_content = File.read(spec)
-  updated_podspec_content = podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
-  File.open(spec, "w") { |file| file.puts updated_podspec_content }
+  updated_podspec_content = 
+      podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
+  File.open(spec, "w") do |file|
+     file.write(updated_podspec_content)
+  end
 end
 
 main(ARGV)
