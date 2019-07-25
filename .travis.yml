@@ -189,7 +189,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
-    # Split from previous stage to avoid overflowing 45 minute sub-job limit.
+    # Part 2: Split from previous stage to avoid overflowing 45 minute sub-job limit.
     - stage: test
       if: type = cron
       env:
@@ -203,6 +203,15 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=macos
+
+    # Part 3: Split from previous stage to avoid overflowing 45 minute sub-job limit.
+    - stage: test
+      if: type = cron
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/install_prereqs.sh
+      script:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
