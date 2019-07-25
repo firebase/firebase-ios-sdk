@@ -817,7 +817,10 @@ static NSMutableDictionary *sLibraryVersions;
   NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
 #endif
 
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:notificationName object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appDidBecomeActive:)
+                                               name:notificationName
+                                             object:nil];
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {

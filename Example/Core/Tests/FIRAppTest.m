@@ -17,8 +17,8 @@
 
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FIRCoreDiagnosticsConnector.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -743,7 +743,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   [self expectCoreDiagnosticsDataLogWithOptions:app.options];
 
-  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName] object:nil];
+  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
+                                         object:nil];
 
   OCMVerifyAll(self.mockCoreDiagnosticsConnector);
 }
@@ -768,23 +769,24 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)expectCoreDiagnosticsDataLogWithOptions:(nullable FIROptions *)expectedOptions {
-  OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector logConfigureCoreWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
-    if (!expectedOptions) {
-      return YES;
-    }
-    return [options.googleAppID isEqualToString:expectedOptions.googleAppID] &&
-    [options.GCMSenderID isEqualToString:expectedOptions.GCMSenderID];
-  }]]));
+  OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
+      logConfigureCoreWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
+        if (!expectedOptions) {
+          return YES;
+        }
+        return [options.googleAppID isEqualToString:expectedOptions.googleAppID] &&
+               [options.GCMSenderID isEqualToString:expectedOptions.GCMSenderID];
+      }]]));
 }
 
 - (NSNotificationName)appDidBecomeActiveNotificationName {
-  #if TARGET_OS_IOS || TARGET_OS_TV
-    return UIApplicationDidBecomeActiveNotification;
-  #endif
+#if TARGET_OS_IOS || TARGET_OS_TV
+  return UIApplicationDidBecomeActiveNotification;
+#endif
 
-  #if TARGET_OS_OSX
-    return NSApplicationDidBecomeActiveNotification;
-  #endif
+#if TARGET_OS_OSX
+  return NSApplicationDidBecomeActiveNotification;
+#endif
 }
 
 - (FIRApp *)createConfiguredAppWithName:(NSString *)name {
@@ -794,8 +796,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (FIROptions *)appOptions {
-  return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                      GCMSenderID:kGCMSenderID];
+  return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
 }
 
 @end
