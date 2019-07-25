@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -59,6 +60,7 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -324,7 +326,7 @@ firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEventWithLimboTarget
     const std::vector<firebase::firestore::model::TargetId> &limboTargets);
 
 /** Creates a test view changes. */
-FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId targetID,
+local::LocalViewChanges TestViewChanges(firebase::firestore::model::TargetId targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
 

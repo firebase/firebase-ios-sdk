@@ -27,7 +27,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -56,6 +56,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
@@ -492,7 +493,7 @@ class LimboResolution {
                                            remoteEvent:(const absl::optional<RemoteEvent> &)
                                                            maybeRemoteEvent {
   __block std::vector<ViewSnapshot> newSnapshots;
-  NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
+  __block std::vector<LocalViewChanges> documentChangesInAllViews;
 
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
@@ -523,15 +524,14 @@ class LimboResolution {
 
         if (viewChange.snapshot.has_value()) {
           newSnapshots.push_back(viewChange.snapshot.value());
-          FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot.value()
-                                             withTargetID:queryView.targetID];
-          [documentChangesInAllViews addObject:docChanges];
+          LocalViewChanges docChanges =
+              LocalViewChanges::MakeChanges(viewChange.snapshot.value(), queryView.targetID);
+          documentChangesInAllViews.push_back(docChanges);
         }
       }];
 
   [self.syncEngineDelegate handleViewSnapshots:std::move(newSnapshots)];
-  [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
+  [self.localStore notifyLocalViewChanges:std::move(documentChangesInAllViews)];
 }
 
 /** Updates the limbo document state for the given targetID. */
