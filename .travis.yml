@@ -128,7 +128,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --use-modular-headers
->>>>>>> d7d320072... Create Segmentation SDK structure for source and unit tests. (#3214)
 
     - stage: test
       env:
