@@ -163,7 +163,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)testSyncAppInstanceIDSuccess {
   [self stubInstallationsInstallationIDWithFID:@"validID" error:nil];
 
-  NSError *error;
+  NSError *error = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
