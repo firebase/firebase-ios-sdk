@@ -30,7 +30,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
 
-LocalViewChanges LocalViewChanges::MakeChanges(
+LocalViewChanges LocalViewChanges::FromViewSnapshot(
     const core::ViewSnapshot& snapshot, model::TargetId target_id) {
   DocumentKeySet added_keys;
   DocumentKeySet removed_keys;

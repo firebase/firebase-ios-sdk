@@ -36,8 +36,8 @@ namespace local {
  */
 class LocalViewChanges {
  public:
-  static LocalViewChanges MakeChanges(const core::ViewSnapshot& snapshot,
-                                      model::TargetId target_id);
+  static LocalViewChanges FromViewSnapshot(const core::ViewSnapshot& snapshot,
+                                           model::TargetId target_id);
 
   LocalViewChanges(model::TargetId target_id,
                    model::DocumentKeySet added_keys,

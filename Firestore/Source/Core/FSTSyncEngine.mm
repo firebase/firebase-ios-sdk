@@ -525,13 +525,13 @@ class LimboResolution {
         if (viewChange.snapshot.has_value()) {
           newSnapshots.push_back(viewChange.snapshot.value());
           LocalViewChanges docChanges =
-              LocalViewChanges::MakeChanges(viewChange.snapshot.value(), queryView.targetID);
-          documentChangesInAllViews.push_back(docChanges);
+              LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
+          documentChangesInAllViews.push_back(std::move(docChanges));
         }
       }];
 
   [self.syncEngineDelegate handleViewSnapshots:std::move(newSnapshots)];
-  [self.localStore notifyLocalViewChanges:std::move(documentChangesInAllViews)];
+  [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
 }
 
 /** Updates the limbo document state for the given targetID. */

@@ -398,9 +398,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   return changes > 0;
 }
 
-- (void)notifyLocalViewChanges:(std::vector<LocalViewChanges> &&)viewChanges {
+- (void)notifyLocalViewChanges:(const std::vector<LocalViewChanges> &)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
-    for (LocalViewChanges viewChange : viewChanges) {
+    for (const LocalViewChanges &viewChange : viewChanges) {
       for (const DocumentKey &key : viewChange.removed_keys()) {
         [self->_persistence.referenceDelegate removeReference:key];
       }

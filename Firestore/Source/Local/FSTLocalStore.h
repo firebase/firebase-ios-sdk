@@ -182,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (model::DocumentMap)executeQuery:(FSTQuery *)query;
 
 /** Notify the local store of the changed views to locally pin / unpin documents. */
-- (void)notifyLocalViewChanges:(std::vector<local::LocalViewChanges> &&)viewChanges;
+- (void)notifyLocalViewChanges:(const std::vector<local::LocalViewChanges> &)viewChanges;
 
 /**
  * Gets the mutation batch after the passed in batchId in the mutation queue or nil if empty.

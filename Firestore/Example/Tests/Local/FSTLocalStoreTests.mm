@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)notifyLocalViewChanges:(LocalViewChanges)changes {
-  [self.localStore notifyLocalViewChanges:std::vector<LocalViewChanges>{changes}];
+  [self.localStore notifyLocalViewChanges:std::vector<LocalViewChanges>{std::move(changes)}];
 }
 
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion
