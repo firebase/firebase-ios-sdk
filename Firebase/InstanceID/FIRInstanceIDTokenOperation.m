@@ -66,7 +66,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
                          scope:(NSString *)scope
                        options:(NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                           instanceID:(NSString *)instanceID {
+                    instanceID:(NSString *)instanceID {
   self = [super init];
   if (self) {
     _action = action;

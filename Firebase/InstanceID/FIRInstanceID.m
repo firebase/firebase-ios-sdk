@@ -359,7 +359,7 @@ static FIRInstanceID *gInstanceID;
           } else {
             [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
                                                            scope:[scope copy]
-                                                             instanceID:identifier
+                                                      instanceID:identifier
                                                          options:tokenOptions
                                                          handler:newHandler];
           }
@@ -425,7 +425,7 @@ static FIRInstanceID *gInstanceID;
           } else {
             [self.tokenManager deleteTokenWithAuthorizedEntity:authorizedEntity
                                                          scope:scope
-                                                           instanceID:identifier
+                                                    instanceID:identifier
                                                        handler:newHandler];
           }
         }];
@@ -962,7 +962,7 @@ static FIRInstanceID *gInstanceID;
             } else {
               [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                                              scope:tokenInfo.scope
-                                                               instanceID:identifier
+                                                        instanceID:identifier
                                                            options:tokenOptions
                                                            handler:^(NSString *_Nullable token,
                                                                      NSError *_Nullable error){

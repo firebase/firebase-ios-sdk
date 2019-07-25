@@ -29,14 +29,14 @@
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                     instanceID:(NSString *)instanceID
+                              instanceID:(NSString *)instanceID
                                   action:(FIRInstanceIDTokenAction)action {
   self = [super initWithAction:action
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:nil
             checkinPreferences:checkinPreferences
-                           instanceID:instanceID];
+                    instanceID:instanceID];
   if (self) {
   }
   return self;
