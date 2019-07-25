@@ -18,7 +18,7 @@
 
 #include <algorithm>
 
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -72,8 +72,8 @@ const FieldPath* Query::InequalityFilterField() const {
 
 bool Query::HasArrayContainsFilter() const {
   for (const auto& filter : filters_) {
-    if (filter->type() == Type::kRelationFilter) {
-      const auto& relation_filter = static_cast<const RelationFilter&>(*filter);
+    if (filter->IsAFieldFilter()) {
+      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
       if (relation_filter.op() == Operator::ArrayContains) {
         return true;
       }
@@ -84,7 +84,7 @@ bool Query::HasArrayContainsFilter() const {
 
 // MARK: - Builder methods
 
-Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
+Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
@@ -124,7 +124,7 @@ bool Query::MatchesPath(const Document& doc) const {
 
 bool Query::MatchesFilters(const Document& doc) const {
   return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<core::Filter>& filter) {
+                     [&](const std::shared_ptr<Filter>& filter) {
                        return filter->Matches(doc);
                      });
 }

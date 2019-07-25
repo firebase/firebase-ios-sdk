@@ -28,7 +28,6 @@
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
-#import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -38,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -56,6 +56,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -264,10 +265,10 @@ class LimboResolution {
             completion:(FSTVoidErrorBlock)completion {
   [self assertDelegateExistsForSelector:_cmd];
 
-  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutations)];
-  [self addMutationCompletionBlock:completion batchID:result.batchID];
+  LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutations)];
+  [self addMutationCompletionBlock:completion batchID:result.batch_id()];
 
-  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:absl::nullopt];
+  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes() remoteEvent:absl::nullopt];
   _remoteStore->FillWritePipeline();
 }
 

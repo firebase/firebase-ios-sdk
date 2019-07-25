@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++."
-#endif  // !defined(__OBJC__)
-
 #include <utility>
 #include <vector>
 

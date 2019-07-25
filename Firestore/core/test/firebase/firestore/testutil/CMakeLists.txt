@@ -20,6 +20,10 @@ cc_library(
     xcgmock.h
   DEPENDS
     FirebaseCore
+    FirebaseCoreDiagnostics
+    FirebaseCoreDiagnosticsInterop
+    GoogleDataTransport
+    GoogleDataTransportCCTSupport
     GoogleUtilities
     absl_strings
   EXCLUDE_FROM_ALL

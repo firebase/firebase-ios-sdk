@@ -27,11 +27,9 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/nan_filter.h"
-#include "Firestore/core/src/firebase/firestore/core/null_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -378,7 +376,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
-  return [[FSTQuery alloc] initWithQuery:_query.Filter(std::move(filter))
+  return [[FSTQuery alloc] initWithQuery:_query.AddingFilter(std::move(filter))
                                  orderBy:self.explicitSortOrders
                                    limit:self.limit
                                  startAt:self.startAt

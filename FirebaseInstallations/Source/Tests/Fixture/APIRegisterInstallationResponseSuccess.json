@@ -1,0 +1,9 @@
+{
+    "name": "projects/project-id/installations/eapzYQai_g8flVQyfKoGs7",
+    "refreshToken": "aaaaaaabbbbbbbbcccccccccdddddddd00000000",
+    "fid": "aaaaaaaaaaaaaaaaaaaaaa",
+    "authToken": {
+      "token": "aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc",
+      "expiresIn": "604800s"
+    }
+  }

@@ -37,8 +37,8 @@ contents should be in the `FirebaseFoo` directory.
 
 * FirebaseFoo/Sources - All source. Directory structure is up to the library owner. Any code from a
 non-Google open source project should be nested under a `third_party` directory.
-* FirebaseFoo/Public - Public Headers.
-* FirebaseFoo/Private - Private Headers (headers not part of public API, but available for
+* FirebaseFoo/Sources/Public - Public Headers.
+* FirebaseFoo/Sources/Private - Private Headers (headers not part of public API, but available for
 explicit import by other Firebase pods)
 * FirebaseFoo/Tests/Unit - Required (If the library only has unit tests, `Unit` can be omitted.)
 * FirebaseFoo/Tests/Integration - Encouraged

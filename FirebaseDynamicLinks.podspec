@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '4.0.0'
+  s.version          = '4.0.1'
   s.summary          = 'Firebase DynamicLinks for iOS'
 
   s.description      = <<-DESC
@@ -43,7 +43,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
                            # Supply plist for custom domain testing.
                            'Example/DynamicLinks/App/DL-Info.plist'
     unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'GoogleUtilities/MethodSwizzler'
-    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers'
+    unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 6.2'
+    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 6.2'
   end
 end

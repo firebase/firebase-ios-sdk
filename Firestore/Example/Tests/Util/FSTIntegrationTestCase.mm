@@ -46,7 +46,6 @@
 #include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"

@@ -20,6 +20,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -132,6 +133,14 @@ class Transaction {
    * will cause the transaction to fail once it actually commits.
    */
   util::Status last_write_error_;
+
+  /**
+   * Set of documents that have been written in the transaction.
+   *
+   * When there's more than one write to the same key in a transaction, any
+   * writes after the first are handled differently.
+   */
+  std::unordered_set<model::DocumentKey, model::DocumentKeyHash> written_docs_;
 
   std::unordered_map<model::DocumentKey,
                      model::SnapshotVersion,

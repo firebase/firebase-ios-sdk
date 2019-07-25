@@ -21,8 +21,6 @@
 
 #import "Firestore/core/src/firebase/firestore/util/warnings.h"
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRFieldsTests : FSTIntegrationTestCase

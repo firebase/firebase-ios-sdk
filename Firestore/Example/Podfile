@@ -32,11 +32,15 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '6.4.0'
+  pod 'Firebase/CoreOnly', '6.5.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
+  pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
@@ -88,8 +92,12 @@ target 'Firestore_Example_macOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
   target 'Firestore_Tests_macOS' do
     inherit! :search_paths
@@ -123,6 +131,8 @@ target 'Firestore_Example_tvOS' do
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do
     inherit! :search_paths

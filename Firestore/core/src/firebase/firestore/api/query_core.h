@@ -28,7 +28,6 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
-#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
@@ -164,7 +163,7 @@ class Query {
   }
 
  private:
-  void ValidateNewRelationFilter(const core::RelationFilter& filter) const;
+  void ValidateNewFilter(const core::Filter& filter) const;
   void ValidateNewOrderByPath(const model::FieldPath& fieldPath) const;
   void ValidateOrderByField(const model::FieldPath& orderByField,
                             const model::FieldPath& inequalityField) const;
