@@ -59,8 +59,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=InstanceID PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos
@@ -81,8 +79,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
@@ -113,8 +109,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-libraries
@@ -139,8 +133,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=GoogleUtilities PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
@@ -148,8 +140,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
@@ -159,8 +149,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
@@ -171,8 +159,6 @@ jobs:
 #      if: type = cron
       env:
         - PROJECT=FirebasePllCron1 PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/install_prereqs.sh
       script:
         # TODO investigate why macos tests hang for FirebaseAuth - keychain related?
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=ios,tvos
@@ -194,8 +180,6 @@ jobs:
 #      if: type = cron
       env:
         - PROJECT=FirebasePllCron2 PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
@@ -209,8 +193,6 @@ jobs:
 #      if: type = cron
       env:
         - PROJECT=FirebasePllCron3 PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/install_prereqs.sh
       script:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
@@ -222,8 +204,6 @@ jobs:
       if: type = cron
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/install_prereqs.sh
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
@@ -409,8 +389,6 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
         # TODO: Fix FBLPromises warnings for macOS.
