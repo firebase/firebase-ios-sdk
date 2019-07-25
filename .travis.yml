@@ -168,9 +168,9 @@ jobs:
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=FirebasePllCron1 PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/install_prereqs.sh
       script:
@@ -191,9 +191,9 @@ jobs:
 
     # Part 2: Split from previous stage to avoid overflowing 45 minute sub-job limit.
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=FirebasePllCron2 PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/install_prereqs.sh
       script:
@@ -206,9 +206,9 @@ jobs:
 
     # Part 3: Split from previous stage to avoid overflowing 45 minute sub-job limit.
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=FirebasePllCron3 PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/install_prereqs.sh
       script:
