@@ -87,7 +87,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-modular-headers
-
       env:
         - PROJECT=Segmentation PLATFORM=all METHOD=pod-lib-lint
       before_install:
