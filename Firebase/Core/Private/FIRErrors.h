@@ -22,4 +22,3 @@ extern NSString *const kFirebaseErrorDomain;
 extern NSString *const kFirebaseConfigErrorDomain;
 extern NSString *const kFirebaseCoreErrorDomain;
 extern NSString *const kFirebasePerfErrorDomain;
-extern NSString *const kFirebaseSegmentationErrorDomain;

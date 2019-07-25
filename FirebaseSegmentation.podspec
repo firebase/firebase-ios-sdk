@@ -23,7 +23,7 @@ Firebase Segmentation enables you to associate your custom application instance 
   s.source_files = 'FirebaseSegmentation/Sources/**/*'
   s.public_header_files = 'FirebaseSegmentation/Sources/Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.1'
   s.dependency 'FirebaseInstanceID', '~> 4.2'
 
    header_search_paths = {

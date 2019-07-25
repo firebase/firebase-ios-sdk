@@ -19,4 +19,3 @@ NSString *const kFirebaseConfigErrorDomain = @"com.firebase.config";
 NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
 NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 NSString *const kFirebaseStorageErrorDomain = @"com.firebase.storage";
-NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";

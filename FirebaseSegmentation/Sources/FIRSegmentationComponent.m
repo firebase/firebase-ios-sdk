@@ -1,10 +1,9 @@
 #import "FIRSegmentationComponent.h"
 
-#import "FIRAppInternal.h"
-#import "FIRComponentContainer.h"
-#import "FIROptionsInternal.h"
-#import "FIRSegmentationInternal.h"
-
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h>
 
 #ifndef FIRSegmentation_VERSION
 #error "FIRSegmentation_VERSION is not defined: \
@@ -14,11 +13,12 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
+NSString *const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
+
 @implementation FIRSegmentationComponent
 
 /// Default method for retrieving a Segmentation instance, or creating one if it doesn't exist.
 - (FIRSegmentation *)segmentation {
-
   // Validate the required information is available.
   FIROptions *options = self.app.options;
   NSString *errorPropertyName;
@@ -29,18 +29,20 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
   }
 
   if (errorPropertyName) {
-    [NSException raise:kFirebaseSegmentationErrorDomain
-                format:@"%@", [NSString stringWithFormat:
-                               @"Firebase Segmentation is missing the required %@ property from the "
-                               @"configured FirebaseApp and will not be able to function properly. Please "
-                               @"fix this issue to ensure that Firebase is correctly configured.",
-                               errorPropertyName]];
+    [NSException
+         raise:kFirebaseSegmentationErrorDomain
+        format:@"%@",
+               [NSString
+                   stringWithFormat:
+                       @"Firebase Segmentation is missing the required %@ property from the "
+                       @"configured FirebaseApp and will not be able to function properly. Please "
+                       @"fix this issue to ensure that Firebase is correctly configured.",
+                       errorPropertyName]];
   }
 
   FIRSegmentation *instance = self.segmentationInstance;
   if (!instance) {
-    instance = [[FIRSegmentation alloc] initWithAppName:self.app.name
-                                             FIROptions:self.app.options];
+    instance = [[FIRSegmentation alloc] initWithAppName:self.app.name FIROptions:self.app.options];
     self.segmentationInstance = instance;
   }
 
@@ -70,17 +72,18 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
 #pragma mark - Interoperability
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRComponent *segProvider =
-  [FIRComponent componentWithProtocol:@protocol(FIRSegmentationProvider)
-                  instantiationTiming:FIRInstantiationTimingAlwaysEager
-                         dependencies:@[]
-                        creationBlock:^id _Nullable(FIRComponentContainer *container,
-                                                    BOOL *isCacheable) {
-                          // Cache the component so instances of Segmentation are cached.
-                          *isCacheable = YES;
-                          return [[FIRSegmentationComponent alloc] initWithApp:container.app];
-                        }];
+  FIRComponent *segProvider = [FIRComponent
+      componentWithProtocol:@protocol(FIRSegmentationProvider)
+        instantiationTiming:FIRInstantiationTimingAlwaysEager
+               dependencies:@[]
+              creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+                // Cache the component so instances of Segmentation are cached.
+                *isCacheable = YES;
+                return [[FIRSegmentationComponent alloc] initWithApp:container.app];
+              }];
   return @[ segProvider ];
 }
+
+@synthesize instances;
 
 @end

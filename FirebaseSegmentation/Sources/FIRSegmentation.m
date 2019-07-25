@@ -14,11 +14,11 @@
 
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
-#import "FIRAppInternal.h"
-#import "FIRComponentContainer.h"
-#import "FIROptionsInternal.h"
-#import "FIRLogger.h"
-#import "FIRSegmentationComponent.h"
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h>
 
 FIRLoggerService kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
 
@@ -28,8 +28,7 @@ FIRLoggerService kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
 
 + (nonnull FIRSegmentation *)segmentation {
   if (![FIRApp isDefaultAppConfigured]) {
-    FIRLogError(kFIRLoggerSegmentation,
-                @"I-SEG000001",
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000001",
                 @"FIRApp not configured. Please make sure you have called [FIRApp configure]");
   }
 
@@ -39,19 +38,17 @@ FIRLoggerService kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
 + (nonnull FIRSegmentation *)segmentationWithApp:(nonnull FIRApp *)firebaseApp {
   // Use the provider to generate and return instances of FIRRemoteConfig for this specific app and
   // namespace. This will ensure the app is configured before Remote Config can return an instance.
-  id<FIRSegmentationProvider> provider = FIR_COMPONENT(FIRSegmentationProvider,
-                                                       firebaseApp.container);
+  id<FIRSegmentationProvider> provider =
+      FIR_COMPONENT(FIRSegmentationProvider, firebaseApp.container);
   return [provider segmentation];
 }
 
 - (void)setCustomInstallationID:(NSString *)customInstallationID
                      completion:(void (^)(NSError *))completionHandler {
-
 }
 
 /// Designated initializer
-- (instancetype)initWithAppName:(NSString *)appName
-                     FIROptions:(FIROptions *)options {
+- (instancetype)initWithAppName:(NSString *)appName FIROptions:(FIROptions *)options {
   self = [super init];
   if (self) {
     _appName = appName;
