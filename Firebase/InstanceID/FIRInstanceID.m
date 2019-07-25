@@ -359,7 +359,7 @@ static FIRInstanceID *gInstanceID;
           } else {
             [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
                                                            scope:[scope copy]
-                                                             IID:identifier
+                                                             instanceID:identifier
                                                          options:tokenOptions
                                                          handler:newHandler];
           }
@@ -425,7 +425,7 @@ static FIRInstanceID *gInstanceID;
           } else {
             [self.tokenManager deleteTokenWithAuthorizedEntity:authorizedEntity
                                                          scope:scope
-                                                           IID:identifier
+                                                           instanceID:identifier
                                                        handler:newHandler];
           }
         }];
@@ -497,7 +497,7 @@ static FIRInstanceID *gInstanceID;
               [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
           callHandlerOnMainThread(newError);
         } else {
-          [self.tokenManager deleteAllTokensWithIID:identifier handler:deleteTokensHandler];
+          [self.tokenManager deleteAllTokensWithInstanceID:identifier handler:deleteTokensHandler];
         }
       }];
 }
@@ -721,20 +721,6 @@ static FIRInstanceID *gInstanceID;
 - (void)setupTokenManager {
   self.tokenManager = [[FIRInstanceIDTokenManager alloc] init];
 }
-
-// Creates a key pair manager, which stores the public/private keys needed to generate an
-// application instance ID.
-//- (void)setupKeyPairManager {
-//  self.keyPairStore = [[FIRInstanceIDKeyPairStore alloc] init];
-//  if ([self.keyPairStore invalidateKeyPairsIfNeeded]) {
-//    // Reset tokens right away when keypair is deleted, otherwise async call can make first query
-//    // of token happens before reset old tokens during app start.
-//    // TODO(chliangGoogle): Delete all tokens on server too, using
-//    // deleteAllTokensWithKeyPair:handler:. This requires actually retrieving the invalid keypair
-//    // from Keychain, which is something that the key pair store does not currently do.
-//    [self.tokenManager deleteAllTokensLocallyWithHandler:nil];
-//  }
-//}
 
 - (void)setupNotificationListeners {
   // To prevent double notifications remove observer from all events during setup.
@@ -976,7 +962,7 @@ static FIRInstanceID *gInstanceID;
             } else {
               [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                                              scope:tokenInfo.scope
-                                                               IID:identifier
+                                                               instanceID:identifier
                                                            options:tokenOptions
                                                            handler:^(NSString *_Nullable token,
                                                                      NSError *_Nullable error){

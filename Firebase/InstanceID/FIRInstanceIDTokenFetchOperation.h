@@ -26,7 +26,7 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDFirebaseUserAgentKey;
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                     IID:(NSString *)instanceID;
+                                     instanceID:(NSString *)instanceID;
 
 @end
 NS_ASSUME_NONNULL_END

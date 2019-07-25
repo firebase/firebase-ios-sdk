@@ -66,7 +66,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
                          scope:(NSString *)scope
                        options:(NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                           IID:(NSString *)instanceID {
+                           instanceID:(NSString *)instanceID {
   self = [super init];
   if (self) {
     _action = action;
@@ -220,7 +220,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
   return queryItems;
 }
 
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithIID:(NSString *)instanceID {
+- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID {
   return @[ [FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
                                                    value:instanceID] ];
 }

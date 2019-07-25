@@ -85,7 +85,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkin
-                                                                     IID:self.instanceID];
+                                                                     instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSDictionary<NSString *, NSString *> *headers = request.allHTTPHeaderFields;
@@ -127,7 +127,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                     scope:kScope
                                                   options:nil
                                        checkinPreferences:emptyCheckinPreferences
-                                                      IID:self.instanceID];
+                                                      instanceID:self.instanceID];
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     [failedExpectation fulfill];
@@ -165,7 +165,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                     scope:kScope
                                                   options:nil
                                        checkinPreferences:checkinPreferences
-                                                      IID:self.instanceID];
+                                                      instanceID:self.instanceID];
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     if (result == FIRInstanceIDTokenOperationCancelled) {
@@ -211,7 +211,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                    scope:kScope
                                                                  options:options
                                                       checkinPreferences:checkinPreferences
-                                                                     IID:self.instanceID];
+                                                                     instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *query = [[NSString alloc] initWithData:request.HTTPBody
@@ -259,7 +259,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkinPreferences
-                                                                     IID:self.instanceID];
+                                                                     instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         // Return a response with Error=RST
@@ -311,7 +311,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkinPreferences
-                                                                     IID:self.instanceID];
+                                                                     instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];

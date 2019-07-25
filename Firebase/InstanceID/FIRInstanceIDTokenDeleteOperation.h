@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
                                    scope:(nullable NSString *)scope
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                     IID:(nullable NSString *)instanceID
+                                     instanceID:(nullable NSString *)instanceID
                                   action:(FIRInstanceIDTokenAction)action;
 
 @end

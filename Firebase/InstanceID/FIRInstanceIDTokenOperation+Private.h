@@ -39,13 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                           IID:(NSString *)instanceID;
+                           instanceID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString;
 + (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope;
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithIID:(NSString *)instanceID;
+- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
 /**

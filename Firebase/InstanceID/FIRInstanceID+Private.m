@@ -15,10 +15,10 @@
  */
 
 #import "FIRInstanceID+Private.h"
-#import "FIRInstanceID_Private.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
+#import "FIRInstanceID_Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDTokenManager.h"
 

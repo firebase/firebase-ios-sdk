@@ -54,7 +54,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  */
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                     scope:(NSString *)scope
-                                      IID:(NSString *)instanceID
+                                      instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
                                   handler:(FIRInstanceIDTokenHandler)handler;
 
@@ -86,7 +86,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  */
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
-                                    IID:(NSString *)instanceID
+                                    instanceID:(NSString *)instanceID
                                 handler:(FIRInstanceIDDeleteTokenHandler)handler;
 
 /**
@@ -99,7 +99,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  *                 a nil error; else we pass in an appropriate error. This should be non-nil
  *                 and be called asynchronously.
  */
-- (void)deleteAllTokensWithIID:(NSString *)instanceID handler:(FIRInstanceIDDeleteHandler)handler;
+- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID handler:(FIRInstanceIDDeleteHandler)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.
