@@ -35,8 +35,8 @@
 - (void)assertNilError:(NSError *)error message:(NSString *)message;
 - (void)assertError:(NSError *)error message:(NSString *)message;
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
-                              equalsObject:(NSObject *)expected
-                                 error:(NSError *)error;
+          equalsObject:(NSObject *)expected
+                 error:(NSError *)error;
 @end
 
 @implementation FSTTransactionTests (Assertions)
@@ -59,8 +59,8 @@
 }
 
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
-                              equalsObject:(NSObject *)expected
-                                 error:(NSError *)error {
+          equalsObject:(NSObject *)expected
+                 error:(NSError *)error {
   XCTAssertNil(error);
   XCTAssertTrue(snapshot.exists);
   XCTAssertEqualObjects(expected, snapshot.data);
@@ -205,19 +205,22 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   }
 }
 
-- (NSError *)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
+- (NSError *)writeDocumentRef:(FIRDocumentReference *)ref
+                         data:(NSDictionary<NSString *, id> *)data {
   __block NSError *errorResult;
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:set"];
-  [_docRef setData:data completion:^(NSError *error) {
-    errorResult = error;
-    [expectation fulfill];
-  }];
+  [_docRef setData:data
+        completion:^(NSError *error) {
+          errorResult = error;
+          [expectation fulfill];
+        }];
   [_testCase awaitExpectations];
   return errorResult;
 }
 
 - (void)runSuccessfulTransaction {
-  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"runSuccessfulTransaction"];
+  XCTestExpectation *expectation =
+      [_testCase expectationWithDescription:@"runSuccessfulTransaction"];
   [_db
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         for (TransactionStage stage in self->_stages) {
@@ -237,8 +240,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)runFailingTransactionWithError:(FIRFirestoreErrorCode)expected {
-  XCTestExpectation *expectation = [_testCase
-                                    expectationWithDescription:@"runFailingTransactionWithError"];
+  XCTestExpectation *expectation =
+      [_testCase expectationWithDescription:@"runFailingTransactionWithError"];
   [_db
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         for (TransactionStage stage in self->_stages) {
