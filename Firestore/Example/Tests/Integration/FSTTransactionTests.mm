@@ -121,7 +121,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 @implementation FSTTransactionTester {
   FIRFirestore *_db;
   FIRDocumentReference *_docRef;
-  boolean_t _fromExistingDoc;
+  BOOL _fromExistingDoc;
   NSArray<TransactionStage> *_stages;
   FSTTransactionTests *_testCase;
   NSMutableArray<XCTestExpectation *> *_testExpectations;
@@ -138,12 +138,12 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (FSTTransactionTester *)withExistingDoc {
-  _fromExistingDoc = true;
+  _fromExistingDoc = YES;
   return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
-  _fromExistingDoc = false;
+  _fromExistingDoc = NO;
   return self;
 }
 
