@@ -352,7 +352,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=FirestoreFuzzing PLATFORM=macOS METHOD=cmake
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake2
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
