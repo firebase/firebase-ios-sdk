@@ -3,7 +3,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h>
+#import "FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h"
 
 #ifndef FIRSegmentation_VERSION
 #error "FIRSegmentation_VERSION is not defined: \
