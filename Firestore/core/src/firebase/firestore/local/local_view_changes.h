@@ -28,8 +28,8 @@ namespace firestore {
 namespace local {
 
 /**
- * Represents changes applying to the local view of a given query, including what
- * documents are currently in view and out of view.
+ * Represents changes applying to the local view of a given query, including
+ * what documents are currently in view and out of view.
  *
  * Example usage: these changes are sent to the LocalStore by the View (via the
  * SyncEngine) and are used to pin / unpin documents as appropriate.
