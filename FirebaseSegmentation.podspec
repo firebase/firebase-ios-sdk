@@ -42,5 +42,4 @@ s.user_target_xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(PLATFORM_DIR)/Develope
     unit_tests.dependency 'OCMock'
     unit_tests.requires_app_host = true
   end
-
 end
