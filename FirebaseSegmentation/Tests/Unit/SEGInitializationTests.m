@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 #import "FIRApp.h"
+#import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
 @interface SEGInitializationTests : XCTestCase
 

@@ -24,8 +24,7 @@ NS_SWIFT_NAME(Segmentation)
 @interface FIRSegmentation : NSObject
 
 /// Initialize a Segmentation instance with all the required parameters directly.
-- (instancetype)initWithAppName:(NSString *)appName
-                     FIROptions:(FIROptions *)options;
+- (instancetype)initWithAppName:(NSString *)appName FIROptions:(FIROptions *)options;
 @end
 
 NS_ASSUME_NONNULL_END

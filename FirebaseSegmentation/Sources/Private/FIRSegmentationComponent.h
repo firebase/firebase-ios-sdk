@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, readonly) FIRApp *app;
 
 /// Cached instances of Segmentation objects.
-@property(nonatomic, strong) FIRSegmentation * segmentationInstance;
+@property(nonatomic, strong) FIRSegmentation *segmentationInstance;
 
 /// Default method for retrieving a Segmentation instance, or creating one if it doesn't exist.
 - (FIRSegmentation *)segmentation;
