@@ -161,10 +161,10 @@ jobs:
         - PROJECT=FirebasePllCron1 PLATFORM=iOS METHOD=pod-lib-lint
       script:
         # TODO investigate why macos tests hang for FirebaseAuth - keychain related?
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=ios,tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=ios,tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=macos --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=macos --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=ios,tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=ios,tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries --platforms=macos --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-modular-headers --platforms=macos --skip-tests
 
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-modular-headers
@@ -181,12 +181,12 @@ jobs:
       env:
         - PROJECT=FirebasePllCron2 PLATFORM=iOS METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=macos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-libraries --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --use-modular-headers --platforms=macos
 
     # Part 3: Split from previous stage to avoid overflowing 45 minute sub-job limit.
     - stage: test
@@ -195,10 +195,10 @@ jobs:
         - PROJECT=FirebasePllCron3 PLATFORM=iOS METHOD=pod-lib-lint
       script:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
 
     - stage: test
       if: type = cron
