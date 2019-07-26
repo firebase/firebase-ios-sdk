@@ -66,6 +66,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
+  OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreDataWithOptions:[OCMArg any]]))
+  .andDo(^(NSInvocation *invocation){});
+
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
   //       inject instead of using defaultCenter.
   _notificationCenter = [NSNotificationCenter defaultCenter];
@@ -769,6 +772,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)expectCoreDiagnosticsDataLogWithOptions:(nullable FIROptions *)expectedOptions {
+  [self.mockCoreDiagnosticsConnector stopMocking];
+  self.mockCoreDiagnosticsConnector = nil;
+  self.mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
+
   OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
       logCoreDataWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
         if (!expectedOptions) {
