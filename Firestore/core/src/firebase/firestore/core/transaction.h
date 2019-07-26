@@ -102,7 +102,7 @@ class Transaction {
   /**
    * Checks if the transaction is permanently failed.
    */
-  bool IsPermanentlyFailed();
+  bool IsPermanentlyFailed() const;
 
  private:
   /**

@@ -310,14 +310,14 @@ class LimboResolution {
           if (!maybe_result.ok()) {
             if (retries > 0 && [self isRetryableTransactionError:maybe_result.status()] &&
                 !transaction->IsPermanentlyFailed()) {
-              workerQueue->VerifyIsCurrentQueue();
               return [self transactionWithRetries:(retries - 1)
                                       workerQueue:workerQueue
                                    updateCallback:updateCallback
                                    resultCallback:resultCallback];
+            } else {
+              resultCallback(std::move(maybe_result));
+              return;
             }
-            resultCallback(std::move(maybe_result));
-            return;
           }
 
           transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
