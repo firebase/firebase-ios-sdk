@@ -67,7 +67,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreDataWithOptions:[OCMArg any]]))
-  .andDo(^(NSInvocation *invocation){});
+      .andDo(^(NSInvocation *invocation){
+      });
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
   //       inject instead of using defaultCenter.
