@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingAlwaysEager
+                      instantiationTiming:FIRInstantiationTimingLazy
                              dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
