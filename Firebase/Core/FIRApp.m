@@ -299,7 +299,7 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  [self logDiagnostics];
+  [self logDiagnosticsIfEnabled];
 
 #if TARGET_OS_IOS
   // Initialize the Analytics once there is a valid options under default app. Analytics should
@@ -824,12 +824,12 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
-  [self logDiagnostics];
+  [self logDiagnosticsIfEnabled];
 }
 
-- (void)logDiagnostics {
+- (void)logDiagnosticsIfEnabled {
   if ([self isDataCollectionDefaultEnabled]) {
-    [FIRCoreDiagnosticsConnector logConfigureCoreWithOptions:_options];
+    [FIRCoreDiagnosticsConnector logCoreDataWithOptions:_options];
   }
 }
 

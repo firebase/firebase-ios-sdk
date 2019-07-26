@@ -770,7 +770,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)expectCoreDiagnosticsDataLogWithOptions:(nullable FIROptions *)expectedOptions {
   OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
-      logConfigureCoreWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
+      logCoreDataWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
         if (!expectedOptions) {
           return YES;
         }
