@@ -316,28 +316,26 @@ class LimboResolution {
                                    resultCallback:resultCallback];
             } else {
               resultCallback(std::move(maybe_result));
-              return;
             }
+          } else {
+            transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
+                                 maybe_result, transaction](Status status) {
+              if (status.ok()) {
+                resultCallback(std::move(maybe_result));
+                return;
+              }
+
+              if (retries > 0 && [self isRetryableTransactionError:status] &&
+                  !transaction->IsPermanentlyFailed()) {
+                workerQueue->VerifyIsCurrentQueue();
+                return [self transactionWithRetries:(retries - 1)
+                                        workerQueue:workerQueue
+                                     updateCallback:updateCallback
+                                     resultCallback:resultCallback];
+              }
+              resultCallback(std::move(status));
+            });
           }
-
-          transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
-                               maybe_result, transaction](Status status) {
-            if (status.ok()) {
-              resultCallback(std::move(maybe_result));
-              return;
-            }
-
-            if (retries > 0 && [self isRetryableTransactionError:status] &&
-                !transaction->IsPermanentlyFailed()) {
-              workerQueue->VerifyIsCurrentQueue();
-              return [self transactionWithRetries:(retries - 1)
-                                      workerQueue:workerQueue
-                                   updateCallback:updateCallback
-                                   resultCallback:resultCallback];
-            }
-            resultCallback(std::move(status));
-            return;
-          });
         });
   });
 }

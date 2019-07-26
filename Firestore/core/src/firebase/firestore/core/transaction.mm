@@ -213,7 +213,7 @@ void Transaction::MarkPermanentlyFailed() {
   permanentError_ = true;
 }
 
-bool Transaction::IsPermanentlyFailed() {
+bool Transaction::IsPermanentlyFailed() const {
   return permanentError_;
 }
 
