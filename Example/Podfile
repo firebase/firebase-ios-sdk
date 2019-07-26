@@ -9,6 +9,7 @@ use_frameworks!
 pod 'FirebaseAnalyticsInterop', :path => '../'
 pod 'FirebaseAuthInterop', :path => '../'
 pod 'FirebaseCore', :path => '../'
+pod 'FirebaseInstallations', :path => '../'
 pod 'FirebaseCoreDiagnostics', :path => '../'
 pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
 pod 'GoogleDataTransport', :path => '../'

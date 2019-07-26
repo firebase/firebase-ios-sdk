@@ -18,6 +18,8 @@
 
 #import "FIRMessaging.h"
 
+@class GULUserDefaults;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessaging (TestUtilities)
@@ -37,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param userDefaults The user defaults to be used for Messaging.
  @return An instance of FIRMessaging with everything initialized.
  */
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(NSUserDefaults *)userDefaults;
++ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults
+                                     mockInstanceID:(id)mockInstanceID;
 
 @end
 

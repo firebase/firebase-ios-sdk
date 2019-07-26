@@ -19,9 +19,12 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <OCMock/OCMock.h>
-#import "FIRMessaging_Private.h"
 #import "FIRMessaging.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRMessaging_Private.h"
+
+#import <FirebaseInstallations/FIRInstallations.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
@@ -37,6 +40,7 @@
 
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
+@property(nonatomic, readwrite, strong) id mockInstallations;
 
 @end
 
@@ -44,22 +48,32 @@
 
 - (void)setUp {
   [super setUp];
+
+  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+  // `FIRInstallations` default instance. Need to stub it before.
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
   _instanceID = [[FIRInstanceID alloc] initPrivately];
   [_instanceID start];
+
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
 }
 
 - (void)tearDown {
+  self.mockFirebaseApp = nil;
   self.instanceID = nil;
-  [_mockFirebaseApp stopMocking];
+  self.mockInstallations = nil;
   [super tearDown];
 }
 
 - (void)testFCMAutoInitEnabled {
   NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
-  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  GULUserDefaults *defaults =
+      [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  FIRMessaging *messaging =
+      [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
+                                                    mockInstanceID:_instanceID];
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);

@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRInstanceIDKeyPair;
 @class FIRInstanceIDCheckinPreferences;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -60,7 +59,7 @@ typedef void (^FIRInstanceIDTokenOperationCompletion)(FIRInstanceIDTokenOperatio
 @property(nonatomic, readonly, nullable) NSString *scope;
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *options;
 @property(nonatomic, readonly, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
-@property(nonatomic, readonly, strong) FIRInstanceIDKeyPair *keyPair;
+@property(nonatomic, readonly, strong) NSString *instanceID;
 
 @property(nonatomic, readonly) FIRInstanceIDTokenOperationResult result;
 

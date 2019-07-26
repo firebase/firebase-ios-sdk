@@ -16,14 +16,17 @@
 
 #import "FIRInstanceID+Private.h"
 
+#import <FirebaseInstallations/FirebaseInstallations.h>
+
 #import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDKeyPairStore.h"
 #import "FIRInstanceIDTokenManager.h"
+#import "FIRInstanceID_Private.h"
+
+@class FIRInstallations;
 
 @interface FIRInstanceID ()
 
 @property(nonatomic, readonly, strong) FIRInstanceIDTokenManager *tokenManager;
-@property(nonatomic, readonly, strong) FIRInstanceIDKeyPairStore *keyPairStore;
 
 @end
 
@@ -35,8 +38,23 @@
   [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
 }
 
-- (NSString *)appInstanceID:(NSError **)error {
-  return [self.keyPairStore appIdentityWithError:error];
+- (NSString *)appInstanceID:(NSError **)outError {
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  __block NSString *instanceID;
+  __block NSError *error;
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                     NSError *_Nullable installationIDError) {
+    instanceID = identifier;
+    error = installationIDError;
+    dispatch_semaphore_signal(semaphore);
+  }];
+
+  dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+  if (error && outError) {
+    *outError = error;
+  }
+
+  return instanceID;
 }
 
 @end

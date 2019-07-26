@@ -21,8 +21,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
-#import "Firebase/InstanceID/FIRInstanceIDKeyPair.h"
-#import "Firebase/InstanceID/FIRInstanceIDKeyPairStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenDeleteOperation.h"
@@ -42,15 +40,6 @@ static NSString *kAuthorizedEntity = @"sender-1234567";
 static NSString *kScope = @"fcm";
 static NSString *kRegistrationToken = @"token-12345";
 
-static NSString *const kPrivateKeyPairTag = @"com.iid.regclient.test.private";
-static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
-
-@interface FIRInstanceIDKeyPairStore (ExposedForTest)
-+ (void)deleteKeyPairWithPrivateTag:(NSString *)privateTag
-                          publicTag:(NSString *)publicTag
-                            handler:(void (^)(NSError *))handler;
-@end
-
 @interface FIRInstanceIDTokenOperation (ExposedForTest)
 - (void)performTokenOperation;
 @end
@@ -64,7 +53,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
 @property(strong, readonly, nonatomic) FIRInstanceIDCheckinService *checkinService;
 @property(strong, readonly, nonatomic) id mockCheckinService;
 
-@property(strong, readonly, nonatomic) FIRInstanceIDKeyPair *keyPair;
+@property(strong, readonly, nonatomic) NSString *instanceID;
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
 
@@ -80,16 +69,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
   _authService = [[FIRInstanceIDAuthService alloc] initWithCheckinService:_mockCheckinService
                                                                     store:_mockStore];
   // Create a temporary keypair in Keychain
-  _keyPair =
-      [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:kPrivateKeyPairTag
-                                                                  publicTag:kPublicKeyPairTag];
-}
-
-- (void)tearDown {
-  [FIRInstanceIDKeyPairStore deleteKeyPairWithPrivateTag:kPrivateKeyPairTag
-                                               publicTag:kPublicKeyPairTag
-                                                 handler:nil];
-  [super tearDown];
+  _instanceID = @"instanceID";
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -105,7 +85,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkin
-                                                                 keyPair:self.keyPair];
+                                                              instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSDictionary<NSString *, NSString *> *headers = request.allHTTPHeaderFields;
@@ -147,7 +127,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                     scope:kScope
                                                   options:nil
                                        checkinPreferences:emptyCheckinPreferences
-                                                  keyPair:self.keyPair];
+                                               instanceID:self.instanceID];
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     [failedExpectation fulfill];
@@ -185,7 +165,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                     scope:kScope
                                                   options:nil
                                        checkinPreferences:checkinPreferences
-                                                  keyPair:self.keyPair];
+                                               instanceID:self.instanceID];
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     if (result == FIRInstanceIDTokenOperationCancelled) {
@@ -231,7 +211,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                                    scope:kScope
                                                                  options:options
                                                       checkinPreferences:checkinPreferences
-                                                                 keyPair:self.keyPair];
+                                                              instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *query = [[NSString alloc] initWithData:request.HTTPBody
@@ -279,7 +259,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkinPreferences
-                                                                 keyPair:self.keyPair];
+                                                              instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         // Return a response with Error=RST
@@ -331,7 +311,7 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
                                                                    scope:kScope
                                                                  options:nil
                                                       checkinPreferences:checkinPreferences
-                                                                 keyPair:self.keyPair];
+                                                              instanceID:self.instanceID];
   operation.testBlock =
       ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
         NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];

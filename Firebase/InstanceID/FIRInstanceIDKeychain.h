@@ -19,8 +19,6 @@
 /* The Keychain error domain */
 extern NSString *const kFIRInstanceIDKeychainErrorDomain;
 
-@class FIRInstanceIDKeyPair;
-
 /*
  * Wrapping the keychain operations in a serialize queue. This is to avoid keychain operation
  * blocking main queue.
@@ -60,17 +58,5 @@ extern NSString *const kFIRInstanceIDKeychainErrorDomain;
  *                          complete, with an error if there is any.
  */
 - (void)addItemWithQuery:(NSDictionary *)keychainQuery handler:(void (^)(NSError *))handler;
-
-#pragma mark - Keypair
-/**
- *  Generate a public/private key pair given their tags.
- *
- *  @param privateTag        The private tag associated with the private key.
- *  @param publicTag         The public tag associated with the public key.
- *
- *  @return                  A new FIRInstanceIDKeyPair object.
- */
-- (FIRInstanceIDKeyPair *)generateKeyPairWithPrivateTag:(NSString *)privateTag
-                                              publicTag:(NSString *)publicTag;
 
 @end

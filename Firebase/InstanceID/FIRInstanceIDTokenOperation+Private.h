@@ -18,7 +18,6 @@
 
 #import "FIRInstanceIDUtilities.h"
 
-@class FIRInstanceIDKeyPair;
 @class FIRInstanceIDURLQueryItem;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,13 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                       keyPair:(FIRInstanceIDKeyPair *)keyPair;
+                    instanceID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString;
 + (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope;
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair;
+- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
 /**

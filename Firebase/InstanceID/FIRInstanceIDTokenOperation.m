@@ -17,8 +17,6 @@
 #import "FIRInstanceIDTokenOperation.h"
 
 #import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDKeyPair.h"
-#import "FIRInstanceIDKeyPairUtilities.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
@@ -38,7 +36,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
 }
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
-@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPair *keyPair;
+@property(nonatomic, readwrite, strong) NSString *instanceID;
 
 @property(atomic, strong) NSURLSessionDataTask *dataTask;
 @property(readonly, strong)
@@ -68,7 +66,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
                          scope:(NSString *)scope
                        options:(NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                       keyPair:(FIRInstanceIDKeyPair *)keyPair {
+                    instanceID:(NSString *)instanceID {
   self = [super init];
   if (self) {
     _action = action;
@@ -76,7 +74,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
     _scope = [scope copy];
     _options = [options copy];
     _checkinPreferences = checkinPreferences;
-    _keyPair = keyPair;
+    _instanceID = instanceID;
     _completionHandlers = [NSMutableArray array];
 
     _isExecuting = NO;
@@ -91,7 +89,7 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
   _scope = nil;
   _options = nil;
   _checkinPreferences = nil;
-  _keyPair = nil;
+  _instanceID = nil;
   [_completionHandlers removeAllObjects];
   _completionHandlers = nil;
 }
@@ -222,13 +220,9 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
   return queryItems;
 }
 
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithKeyPair:(FIRInstanceIDKeyPair *)keyPair {
-  NSMutableArray<FIRInstanceIDURLQueryItem *> *items = [NSMutableArray arrayWithCapacity:3];
-  // appid=
-  NSString *instanceID = FIRInstanceIDAppIdentity(keyPair);
-  [items addObject:[FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
-                                                          value:instanceID]];
-  return items;
+- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID {
+  return @[ [FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
+                                                   value:instanceID] ];
 }
 
 #pragma mark - HTTP Header
