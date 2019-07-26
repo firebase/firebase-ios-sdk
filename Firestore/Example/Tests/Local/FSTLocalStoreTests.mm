@@ -38,6 +38,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -49,6 +50,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -148,8 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
   _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 
-- (void)notifyLocalViewChanges:(FSTLocalViewChanges *)changes {
-  [self.localStore notifyLocalViewChanges:@[ changes ]];
+- (void)notifyLocalViewChanges:(LocalViewChanges)changes {
+  [self.localStore notifyLocalViewChanges:std::vector<LocalViewChanges>{std::move(changes)}];
 }
 
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion
@@ -828,7 +830,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
   FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, DocumentState::kLocalMutations));
 
-  [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[ @"foo/bar", @"foo/baz" ], @[])];
+  [self notifyLocalViewChanges:TestViewChanges(targetID, @[ @"foo/bar", @"foo/baz" ], @[])];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
                              FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced),
@@ -842,7 +844,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, DocumentState::kSynced));
 
-  [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
+  [self notifyLocalViewChanges:TestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self.localStore releaseQuery:query];
 
   FSTAssertNotContains(@"foo/bar");
