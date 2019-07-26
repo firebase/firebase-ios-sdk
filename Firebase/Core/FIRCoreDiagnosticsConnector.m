@@ -43,7 +43,7 @@ Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
   }
 }
 
-+ (void)logCoreDataWithOptions:(FIROptions *)options {
++ (void)logCoreTelemetryWithOptions:(FIROptions *)options {
   if (FIRCoreDiagnosticsImplementation) {
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
     [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];

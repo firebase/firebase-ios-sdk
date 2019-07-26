@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param options The options object containing data to log.
  */
-+ (void)logCoreDataWithOptions:(FIROptions *)options;
++ (void)logCoreTelemetryWithOptions:(FIROptions *)options;
 
 @end
 

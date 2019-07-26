@@ -66,7 +66,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
-  OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreDataWithOptions:[OCMArg any]]))
+  OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
       });
 
@@ -778,7 +778,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   self.mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
   OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
-      logCoreDataWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
+      logCoreTelemetryWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
         if (!expectedOptions) {
           return YES;
         }
