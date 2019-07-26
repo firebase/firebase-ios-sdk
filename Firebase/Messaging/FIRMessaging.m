@@ -756,9 +756,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            @"subscribeToTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  __weak FIRMessaging *weakSelf = self;
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
-    if (!result.token || error) {
+    if (error) {
       FIRMessagingLoggerError(
           kFIRMessagingMessageCodeMessaging010,
           @"The subscription operation failed due to an error getting the FCM token: %@.", error);
@@ -767,16 +768,17 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       }
       return;
     }
-    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    FIRMessaging *strongSelf = weakSelf;
+    NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
     if (normalizeTopic.length) {
-    [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
-    return;
-  }
-  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
+      [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
+      return;
+    }
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                           @"Cannot parse topic name %@. Will not subscribe.", topic);
-  if (completion) {
-    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
-  }
+    if (completion) {
+      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+    }
   }];
 }
 
@@ -792,10 +794,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            @"unsubscribeFromTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+   __weak FIRMessaging *weakSelf = self;
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
-    if (!result.token || error) {
-      FIRMessagingLoggerWarn(
+    if (!error) {
+      FIRMessagingLoggerError(
           kFIRMessagingMessageCodeMessaging012,
           @"The unsubscription operation failed due to an error getting the FCM token: %@.", error);
       if (completion) {
@@ -803,16 +806,17 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       }
       return;
     }
-    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    FIRMessaging *strongSelf = weakSelf;
+    NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
     if (normalizeTopic.length) {
-	    [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
-	    return;
-	  }
-	  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-				  @"Cannot parse topic name %@. Will not unsubscribe.", topic);
-	  if (completion) {
-	    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
-	  }
+      [strongSelf.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
+      return;
+    }
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
+			  @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+    if (completion) {
+      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+    }
   }];
 }
 
