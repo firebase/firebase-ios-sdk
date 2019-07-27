@@ -68,6 +68,7 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
@@ -307,27 +308,34 @@ class LimboResolution {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateCallback, resultCallback, transaction, maybe_result] {
           if (!maybe_result.ok()) {
-            resultCallback(std::move(maybe_result));
-            return;
-          }
-
-          transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
-                               maybe_result](Status status) {
-            if (status.ok()) {
+            if (retries > 0 && [self isRetryableTransactionError:maybe_result.status()] &&
+                !transaction->IsPermanentlyFailed()) {
+              return [self transactionWithRetries:(retries - 1)
+                                      workerQueue:workerQueue
+                                   updateCallback:updateCallback
+                                   resultCallback:resultCallback];
+            } else {
               resultCallback(std::move(maybe_result));
-              return;
             }
-            // TODO(b/35201829): Only retry on real transaction failures.
-            if (retries == 0) {
+          } else {
+            transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
+                                 maybe_result, transaction](Status status) {
+              if (status.ok()) {
+                resultCallback(std::move(maybe_result));
+                return;
+              }
+
+              if (retries > 0 && [self isRetryableTransactionError:status] &&
+                  !transaction->IsPermanentlyFailed()) {
+                workerQueue->VerifyIsCurrentQueue();
+                return [self transactionWithRetries:(retries - 1)
+                                        workerQueue:workerQueue
+                                     updateCallback:updateCallback
+                                     resultCallback:resultCallback];
+              }
               resultCallback(std::move(status));
-              return;
-            }
-            workerQueue->VerifyIsCurrentQueue();
-            return [self transactionWithRetries:(retries - 1)
-                                    workerQueue:workerQueue
-                                 updateCallback:updateCallback
-                                 resultCallback:resultCallback];
-          });
+            });
+          }
         });
   });
 }
@@ -635,6 +643,14 @@ class LimboResolution {
   }
 
   return NO;
+}
+
+- (BOOL)isRetryableTransactionError:(const Status &)error {
+  // In transactions, the backend will fail outdated reads with FAILED_PRECONDITION and
+  // non-matching document versions with ABORTED. These errors should be retried.
+  FirestoreErrorCode code = error.code();
+  return code == FirestoreErrorCode::Aborted || code == FirestoreErrorCode::FailedPrecondition ||
+         !Datastore::IsPermanentError(error);
 }
 
 @end

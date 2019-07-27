@@ -208,8 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  std::shared_ptr<core::Transaction> internalTransaction,
                                  core::TransactionResultCallback internalCallback) {
     FIRTransaction *transaction =
-        [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
-                                                 firestore:self];
+        [FIRTransaction transactionWithInternalTransaction:internalTransaction firestore:self];
 
     dispatch_async(queue, ^{
       NSError *_Nullable error = nil;
@@ -217,6 +216,10 @@ NS_ASSUME_NONNULL_BEGIN
 
       // If the user set an error, disregard the result.
       if (error) {
+        // If the error is a user error, set flag to not retry the transaction.
+        if (error.domain != FIRFirestoreErrorDomain) {
+          internalTransaction->MarkPermanentlyFailed();
+        }
         internalCallback(util::Status::FromNSError(error));
       } else {
         internalCallback(absl::make_any<id>(result));

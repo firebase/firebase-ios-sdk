@@ -209,6 +209,14 @@ void Transaction::Commit(util::StatusCallback&& callback) {
   }
 }
 
+void Transaction::MarkPermanentlyFailed() {
+  permanentError_ = true;
+}
+
+bool Transaction::IsPermanentlyFailed() const {
+  return permanentError_;
+}
+
 void Transaction::EnsureCommitNotCalled() {
   HARD_ASSERT(!committed_, "A transaction object cannot be used after its "
                            "update callback has been invoked.");

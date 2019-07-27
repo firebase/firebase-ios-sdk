@@ -93,6 +93,17 @@ class Transaction {
    */
   void Commit(util::StatusCallback&& callback);
 
+  /**
+   * Marks the transaction as permanently failed, so the transaction will not
+   * retry.
+   */
+  void MarkPermanentlyFailed();
+
+  /**
+   * Checks if the transaction is permanently failed.
+   */
+  bool IsPermanentlyFailed() const;
+
  private:
   /**
    * Every time a document is read, this should be called to record its version.
@@ -127,6 +138,7 @@ class Transaction {
 
   std::vector<FSTMutation*> mutations_;
   bool committed_ = false;
+  bool permanentError_ = false;
 
   /**
    * A deferred usage error that occurred previously in this transaction that
