@@ -287,9 +287,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  return [self pathAndCollectionGroupMatchDocument:document] &&
-         [self orderByMatchesDocument:document] && [self filtersMatchDocument:document] &&
-         [self boundsMatchDocument:document];
+  Document converted(document);
+  return _query.Matches(converted) && [self boundsMatchDocument:document];
 }
 
 - (DocumentComparator)comparator {
@@ -379,50 +378,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
   return _query == other->_query && self.limit == other.limit &&
          objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
-}
-
-/* Returns YES if the document matches the path and collection group for the receiver. */
-- (BOOL)pathAndCollectionGroupMatchDocument:(FSTDocument *)document {
-  const ResourcePath &documentPath = document.key.path();
-  if (self.collectionGroup) {
-    // NOTE: self.path is currently always empty since we don't expose Collection Group queries
-    // rooted at a document path yet.
-    return document.key.HasCollectionId(*self.collectionGroup) &&
-           self.path.IsPrefixOf(documentPath);
-  } else if (DocumentKey::IsDocumentKey(self.path)) {
-    // Exact match for document queries.
-    return self.path == documentPath;
-  } else {
-    // Shallow ancestor queries by default.
-    return self.path.IsPrefixOf(documentPath) && self.path.size() == documentPath.size() - 1;
-  }
-}
-
-/**
- * A document must have a value for every ordering clause in order to show up in the results.
- */
-- (BOOL)orderByMatchesDocument:(FSTDocument *)document {
-  for (const OrderBy &orderBy : self.explicitSortOrders) {
-    const FieldPath &fieldPath = orderBy.field();
-    // order by key always matches
-    if (fieldPath != FieldPath::KeyFieldPath() &&
-        [document fieldForPath:fieldPath] == absl::nullopt) {
-      return NO;
-    }
-  }
-  return YES;
-}
-
-/** Returns YES if the document matches all of the filters in the receiver. */
-- (BOOL)filtersMatchDocument:(FSTDocument *)document {
-  Document converted(document);
-
-  for (const auto &filter : self.filters) {
-    if (!filter->Matches(converted)) {
-      return NO;
-    }
-  }
-  return YES;
 }
 
 - (BOOL)boundsMatchDocument:(FSTDocument *)document {
