@@ -214,7 +214,8 @@ bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
          absl::c_equal(lhs.filters(), rhs.filters(),
-                       util::Equals<std::shared_ptr<const Filter>>);
+                       util::Equals<std::shared_ptr<const Filter>>) &&
+         lhs.order_bys() == rhs.order_bys();
 }
 
 }  // namespace core
