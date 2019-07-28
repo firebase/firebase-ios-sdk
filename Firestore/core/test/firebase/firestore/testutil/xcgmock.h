@@ -144,7 +144,6 @@ OBJC_PRINT_TO(FIRWriteBatch);
 OBJC_PRINT_TO(FSTArrayRemoveFieldValue);
 OBJC_PRINT_TO(FSTArrayUnionFieldValue);
 OBJC_PRINT_TO(FSTArrayValue);
-OBJC_PRINT_TO(FSTBound);
 OBJC_PRINT_TO(FSTDelegateValue);
 OBJC_PRINT_TO(FSTDeleteFieldValue);
 OBJC_PRINT_TO(FSTDeleteMutation);

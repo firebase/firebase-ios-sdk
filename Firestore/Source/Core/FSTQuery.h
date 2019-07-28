@@ -37,40 +37,6 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * FSTBound represents a bound of a query.
- *
- * The bound is specified with the given components representing a position and whether it's just
- * before or just after the position (relative to whatever the query order is).
- *
- * The position represents a logical index position for a query. It's a prefix of values for
- * the (potentially implicit) order by clauses of a query.
- *
- * FSTBound provides a function to determine whether a document comes before or after a bound.
- * This is influenced by whether the position is just before or just after the provided values.
- */
-@interface FSTBound : NSObject <NSCopying>
-
-/**
- * Creates a new bound.
- *
- * @param position The position relative to the sort order.
- * @param isBefore Whether this bound is just before or just after the position.
- */
-+ (instancetype)boundWithPosition:(std::vector<model::FieldValue>)position isBefore:(bool)isBefore;
-
-/** Whether this bound is just before or just after the provided position */
-@property(nonatomic, assign, readonly, getter=isBefore) bool before;
-
-/** The index position of this bound represented as an array of field values. */
-@property(nonatomic, assign, readonly) const std::vector<model::FieldValue> &position;
-
-/** Returns true if a document comes before a bound using the provided sort order. */
-- (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(const core::Query::OrderByList &)sortOrder;
-
-@end
-
 /** FSTQuery represents the internal structure of a Firestore query. */
 @interface FSTQuery : NSObject <NSCopying>
 
@@ -205,10 +171,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) NSString *canonicalID;
 
 /** An optional bound to start the query at. */
-- (const std::shared_ptr<Bound> &)startAt;
+- (const std::shared_ptr<core::Bound> &)startAt;
 
 /** An optional bound to end the query at. */
-- (const std::shared_ptr<Bound> &)endAt;
+- (const std::shared_ptr<core::Bound> &)endAt;
 
 @end
 

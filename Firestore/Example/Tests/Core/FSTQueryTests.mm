@@ -35,6 +35,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
@@ -644,10 +645,8 @@ MATCHER_P(HasCanonicalId, expected, "") {
   FSTQuery *bounds = FSTTestQuery("airports");
   bounds = [bounds queryByAddingSortBy:"name" ascending:YES];
   bounds = [bounds queryByAddingSortBy:"score" ascending:NO];
-  bounds = [bounds queryByAddingStartAt:[FSTBound boundWithPosition:{Value("OAK"), Value(1000)}
-                                                           isBefore:true]];
-  bounds = [bounds queryByAddingEndAt:[FSTBound boundWithPosition:{Value("SFO"), Value(2000)}
-                                                         isBefore:false]];
+  bounds = [bounds queryByAddingStartAt:Bound({Value("OAK"), Value(1000)}, /* is_before= */ true)];
+  bounds = [bounds queryByAddingEndAt:Bound({Value("SFO"), Value(2000)}, /* is_before= */ false)];
   XC_ASSERT_THAT(
       bounds,
       HasCanonicalId("airports|f:|ob:nameascscoredesc__name__desc|lb:b:OAK1000|ub:a:SFO2000"));

@@ -64,105 +64,6 @@ using firebase::firestore::util::ComparisonResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTBound
-
-@implementation FSTBound {
-  Bound _bound;
-}
-
-- (instancetype)initWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
-  if (self = [super init]) {
-    _bound = std::move(position);
-    _before = isBefore;
-  }
-  return self;
-}
-
-+ (instancetype)boundWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
-  return [[FSTBound alloc] initWithPosition:position isBefore:isBefore];
-}
-
-- (NSString *)canonicalString {
-  // TODO(b/29183165): Make this collision robust.
-  NSMutableString *string = [NSMutableString string];
-  if (self.isBefore) {
-    [string appendString:@"b:"];
-  } else {
-    [string appendString:@"a:"];
-  }
-  for (const FieldValue &component : _position) {
-    [string appendFormat:@"%s", component.ToString().c_str()];
-  }
-  return string;
-}
-
-- (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(const Query::OrderByList &)sortOrder {
-  HARD_ASSERT(_position.size() <= sortOrder.size(),
-              "FSTIndexPosition has more components than provided sort order.");
-  ComparisonResult result = ComparisonResult::Same;
-  for (size_t idx = 0; idx < _position.size(); ++idx) {
-    const FieldValue &fieldValue = _position[idx];
-
-    const OrderBy &sortOrderComponent = sortOrder[idx];
-    ComparisonResult comparison;
-    if (sortOrderComponent.field() == FieldPath::KeyFieldPath()) {
-      HARD_ASSERT(fieldValue.type() == FieldValue::Type::Reference,
-                  "FSTBound has a non-key value where the key path is being used %s",
-                  fieldValue.ToString());
-      const auto &ref = fieldValue.reference_value();
-      comparison = ref.key().CompareTo(document.key);
-    } else {
-      absl::optional<FieldValue> docValue = [document fieldForPath:sortOrderComponent.field()];
-      HARD_ASSERT(docValue.has_value(),
-                  "Field should exist since document matched the orderBy already.");
-      comparison = fieldValue.CompareTo(*docValue);
-    }
-
-    if (!sortOrderComponent.ascending()) {
-      comparison = util::ReverseOrder(comparison);
-    }
-
-    if (!util::Same(comparison)) {
-      result = comparison;
-      break;
-    }
-  }
-
-  return self.isBefore ? result <= ComparisonResult::Same : result < ComparisonResult::Same;
-}
-
-#pragma mark - NSObject methods
-
-- (NSString *)description {
-  return
-      [NSString stringWithFormat:@"<FSTBound: position:%s before:%@>",
-                                 util::ToString(_position).c_str(), self.isBefore ? @"YES" : @"NO"];
-}
-
-- (BOOL)isEqual:(NSObject *)other {
-  if (self == other) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTBound class]]) {
-    return NO;
-  }
-
-  FSTBound *otherBound = (FSTBound *)other;
-
-  return _position == otherBound->_position && self.isBefore == otherBound.isBefore;
-}
-
-- (NSUInteger)hash {
-  return util::Hash(self.position, self.isBefore);
-}
-
-- (instancetype)copyWithZone:(nullable NSZone *)zone {
-  return self;
-}
-
-@end
-
 #pragma mark - FSTQuery
 
 @interface FSTQuery () {
@@ -284,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   Document converted(document);
-  return _query.Matches(converted) && [self boundsMatchDocument:document];
+  return _query.Matches(converted);
 }
 
 - (DocumentComparator)comparator {
@@ -358,11 +259,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (self.startAt) {
-    [canonicalID appendFormat:@"|lb:%@", self.startAt.CanonicalId()];
+    [canonicalID appendFormat:@"|lb:%s", self.startAt->CanonicalId().c_str()];
   }
 
   if (self.endAt) {
-    [canonicalID appendFormat:@"|ub:%@", self.endAt.CanonicalId()];
+    [canonicalID appendFormat:@"|ub:%s", self.endAt->CanonicalId().c_str()];
   }
 
   _canonicalID = canonicalID;
@@ -372,18 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return _query == other->_query && self.limit == other.limit &&
-         objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
-}
-
-- (BOOL)boundsMatchDocument:(FSTDocument *)document {
-  if (self.startAt && ![self.startAt sortsBeforeDocument:document usingSortOrder:self.sortOrders]) {
-    return NO;
-  }
-  if (self.endAt && [self.endAt sortsBeforeDocument:document usingSortOrder:self.sortOrders]) {
-    return NO;
-  }
-  return YES;
+  return _query == other->_query;
 }
 
 @end

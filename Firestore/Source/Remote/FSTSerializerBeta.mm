@@ -41,6 +41,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -67,6 +68,7 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::Error;
 using firebase::firestore::GeoPoint;
+using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
@@ -819,11 +821,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (query.startAt) {
-    queryTarget.structuredQuery.startAt = [self encodedBound:query.startAt];
+    queryTarget.structuredQuery.startAt = [self encodedBound:*query.startAt];
   }
 
   if (query.endAt) {
-    queryTarget.structuredQuery.endAt = [self encodedBound:query.endAt];
+    queryTarget.structuredQuery.endAt = [self encodedBound:*query.endAt];
   }
 
   return queryTarget;
@@ -862,18 +864,19 @@ NS_ASSUME_NONNULL_BEGIN
     limit = query.limit.value;
   }
 
-  FSTBound *_Nullable startAt;
+  std::shared_ptr<Bound> startAt;
   if (query.hasStartAt) {
     startAt = [self decodedBound:query.startAt];
   }
 
-  FSTBound *_Nullable endAt;
+  std::shared_ptr<Bound> endAt;
   if (query.hasEndAt) {
     endAt = [self decodedBound:query.endAt];
   }
 
-  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy));
-  return [[FSTQuery alloc] initWithQuery:std::move(inner) limit:limit startAt:startAt endAt:endAt];
+  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy),
+              limit, std::move(startAt), std::move(endAt));
+  return [[FSTQuery alloc] initWithQuery:std::move(inner)];
 }
 
 #pragma mark Filters
@@ -1071,17 +1074,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Bounds/Cursors
 
-- (GCFSCursor *)encodedBound:(FSTBound *)bound {
+- (GCFSCursor *)encodedBound:(const Bound &)bound {
   GCFSCursor *proto = [GCFSCursor message];
-  proto.before = bound.isBefore;
-  for (const FieldValue &fieldValue : bound.position) {
+  proto.before = bound.before();
+  for (const FieldValue &fieldValue : bound.position()) {
     GCFSValue *value = [self encodedFieldValue:fieldValue];
     [proto.valuesArray addObject:value];
   }
   return proto;
 }
 
-- (FSTBound *)decodedBound:(GCFSCursor *)proto {
+- (std::shared_ptr<Bound>)decodedBound:(GCFSCursor *)proto {
   std::vector<FieldValue> indexComponents;
 
   for (GCFSValue *valueProto in proto.valuesArray) {
@@ -1089,7 +1092,7 @@ NS_ASSUME_NONNULL_BEGIN
     indexComponents.push_back(std::move(value));
   }
 
-  return [FSTBound boundWithPosition:std::move(indexComponents) isBefore:proto.before];
+  return std::make_shared<Bound>(std::move(indexComponents), proto.before);
 }
 
 #pragma mark - WatchChange <= GCFSListenResponse proto
