@@ -156,7 +156,8 @@ Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   // TODO(rsgowman): ensure first orderby must match inequality field
 
   return Query(path_, collection_group_,
-               AppendingTo(filters_, std::move(filter)), explicit_order_bys_);
+               AppendingTo(filters_, std::move(filter)), explicit_order_bys_,
+               limit_, start_at_, end_at_);
 }
 
 Query Query::AddingOrderBy(OrderBy order_by) const {
@@ -169,12 +170,28 @@ Query Query::AddingOrderBy(OrderBy order_by) const {
   }
 
   return Query(path_, collection_group_, filters_,
-               AppendingTo(explicit_order_bys_, std::move(order_by)));
+               AppendingTo(explicit_order_bys_, std::move(order_by)), limit_,
+               start_at_, end_at_);
+}
+
+Query Query::WithLimit(int32_t limit) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
+               start_at_, end_at_);
+}
+
+Query Query::StartingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               std::make_shared<Bound>(std::move(bound)), end_at_);
+}
+
+Query Query::EndingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               start_at_, std::make_shared<Bound>(std::move(bound)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
   return Query(path, /*collection_group=*/nullptr, filters_,
-               explicit_order_bys_);
+               explicit_order_bys_, limit_, start_at_, end_at_);
 }
 
 // MARK: - Matching

@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -78,10 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a query with all of its components directly.
  */
-- (instancetype)initWithQuery:(core::Query)query
-                        limit:(int32_t)limit
-                      startAt:(nullable FSTBound *)startAtBound
-                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQuery:(core::Query)query NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates and returns a new FSTQuery.
@@ -149,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param bound The bound to start this query at.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingStartAt:(FSTBound *)bound;
+- (instancetype)queryByAddingStartAt:(core::Bound)bound;
 
 /**
  * Creates a new FSTQuery ending at the provided bound.
@@ -157,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param bound The bound to end this query at.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingEndAt:(FSTBound *)bound;
+- (instancetype)queryByAddingEndAt:(core::Bound)bound;
 
 /**
  * Helper to convert a collection group query into a collection query at a specific path. This is
@@ -198,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const core::Query::FilterList &)filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
-@property(nonatomic, assign, readonly) int32_t limit;
+- (int32_t)limit;
 
 /**
  * A canonical string identifying the query. Two different instances of equivalent queries will
@@ -207,10 +205,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) NSString *canonicalID;
 
 /** An optional bound to start the query at. */
-@property(nonatomic, nullable, strong, readonly) FSTBound *startAt;
+- (const std::shared_ptr<Bound> &)startAt;
 
 /** An optional bound to end the query at. */
-@property(nonatomic, nullable, strong, readonly) FSTBound *endAt;
+- (const std::shared_ptr<Bound> &)endAt;
 
 @end
 

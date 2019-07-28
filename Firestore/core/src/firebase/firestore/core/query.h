@@ -23,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -52,7 +53,7 @@ class Query {
 
   explicit Query(model::ResourcePath path,
                  CollectionGroupId collection_group = nullptr)
-      : Query(path, collection_group, {}, {}) {
+      : path_(std::move(path)), collection_group_(std::move(collection_group)) {
   }
 
   /**
@@ -62,11 +63,17 @@ class Query {
   Query(model::ResourcePath path,
         CollectionGroupId collection_group,
         FilterList filters,
-        OrderByList explicit_order_bys)
+        OrderByList explicit_order_bys,
+        int32_t limit,
+        std::shared_ptr<Bound> start_at,
+        std::shared_ptr<Bound> end_at)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)),
-        explicit_order_bys_(std::move(explicit_order_bys)) {
+        explicit_order_bys_(std::move(explicit_order_bys)),
+        limit_(limit),
+        start_at_(std::move(start_at)),
+        end_at_(std::move(end_at)) {
   }
 
   Query(model::ResourcePath path, std::string collection_group);
@@ -127,6 +134,18 @@ class Query {
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
 
+  int32_t limit() const {
+    return limit_;
+  }
+
+  const std::shared_ptr<Bound>& start_at() const {
+    return start_at_;
+  }
+
+  const std::shared_ptr<Bound>& end_at() const {
+    return end_at_;
+  }
+
   // MARK: - Builder methods
 
   /**
@@ -138,6 +157,26 @@ class Query {
    * Returns a copy of this Query object with the additional specified order by.
    */
   Query AddingOrderBy(OrderBy order_by) const;
+
+  /**
+   * Returns a copy of this Query with the given limit on how many results can
+   * be returned.
+   *
+   * @param limit The maximum number of results to return. If
+   *     `limit == kNoLimit`, then no limit is applied. Otherwise, if
+   *     `limit <= 0`, behavior is unspecified.
+   */
+  Query WithLimit(int32_t limit) const;
+
+  /**
+   * Returns a copy of this Query starting at the provided bound.
+   */
+  Query StartingAt(Bound bound) const;
+
+  /**
+   * Returns a copy of this Query ending at the provided bound.
+   */
+  Query EndingAt(Bound bound) const;
 
   // MARK: - Matching
 
@@ -174,7 +213,9 @@ class Query {
   // The memoized list of sort orders.
   mutable OrderByList memoized_order_bys_;
 
-  // TODO(rsgowman): Port collection group queries logic.
+  int32_t limit_ = kNoLimit;
+  std::shared_ptr<Bound> start_at_;
+  std::shared_ptr<Bound> end_at_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

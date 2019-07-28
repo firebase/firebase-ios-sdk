@@ -27,6 +27,7 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -48,6 +49,7 @@ namespace core = firebase::firestore::core;
 namespace objc = firebase::firestore::objc;
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::OrderBy;
@@ -65,12 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTBound
 
 @implementation FSTBound {
-  std::vector<FieldValue> _position;
+  Bound _bound;
 }
 
 - (instancetype)initWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
   if (self = [super init]) {
-    _position = std::move(position);
+    _bound = std::move(position);
     _before = isBefore;
   }
   return self;
@@ -183,21 +185,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)queryWithPath:(ResourcePath)path
               collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
-  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
-                               limit:Query::kNoLimit
-                             startAt:nil
-                               endAt:nil];
+  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))];
 }
 
-- (instancetype)initWithQuery:(core::Query)query
-                        limit:(int32_t)limit
-                      startAt:(nullable FSTBound *)startAtBound
-                        endAt:(nullable FSTBound *)endAtBound {
+- (instancetype)initWithQuery:(core::Query)query {
   if (self = [super init]) {
     _query = std::move(query);
-    _limit = limit;
-    _startAt = startAtBound;
-    _endAt = endAtBound;
   }
   return self;
 }
@@ -240,12 +233,21 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.order_bys();
 }
 
+- (int32_t)limit {
+  return _query.limit();
+}
+
+- (const std::shared_ptr<Bound> &)startAt {
+  return _query.start_at();
+}
+
+- (const std::shared_ptr<Bound> &)endAt {
+  return _query.end_at();
+}
+
 - (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
   Query modified = _query.AddingFilter(std::move(filter));
-  return [[FSTQuery alloc] initWithQuery:std::move(modified)
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)];
 }
 
 - (instancetype)queryByAddingSortOrder:(OrderBy)orderBy {
@@ -253,29 +255,23 @@ NS_ASSUME_NONNULL_BEGIN
 
   // TODO(klimt): Validate that the same key isn't added twice.
   Query modified = _query.AddingOrderBy(std::move(orderBy));
-  return [[FSTQuery alloc] initWithQuery:std::move(modified)
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)];
 }
 
 - (instancetype)queryBySettingLimit:(int32_t)limit {
-  return [[FSTQuery alloc] initWithQuery:_query limit:limit startAt:self.startAt endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query.WithLimit(limit)];
 }
 
-- (instancetype)queryByAddingStartAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:bound endAt:self.endAt];
+- (instancetype)queryByAddingStartAt:(Bound)bound {
+  return [[FSTQuery alloc] initWithQuery:_query.StartingAt(std::move(bound))];
 }
 
-- (instancetype)queryByAddingEndAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:self.startAt endAt:bound];
+- (instancetype)queryByAddingEndAt:(Bound)bound {
+  return [[FSTQuery alloc] initWithQuery:_query.EndingAt(std::move(bound))];
 }
 
 - (instancetype)collectionQueryAtPath:(ResourcePath)path {
-  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))];
 }
 
 - (BOOL)isDocumentQuery {
@@ -362,11 +358,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (self.startAt) {
-    [canonicalID appendFormat:@"|lb:%@", self.startAt.canonicalString];
+    [canonicalID appendFormat:@"|lb:%@", self.startAt.CanonicalId()];
   }
 
   if (self.endAt) {
-    [canonicalID appendFormat:@"|ub:%@", self.endAt.canonicalString];
+    [canonicalID appendFormat:@"|ub:%@", self.endAt.CanonicalId()];
   }
 
   _canonicalID = canonicalID;
