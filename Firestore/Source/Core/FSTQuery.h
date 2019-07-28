@@ -36,27 +36,6 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** FSTSortOrder is a field and direction to order query results by. */
-@interface FSTSortOrder : NSObject <NSCopying>
-
-/** Creates a new sort order with the given field and direction. */
-+ (instancetype)sortOrderWithFieldPath:(model::FieldPath)fieldPath ascending:(BOOL)ascending;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/** Compares two documents based on the field and direction of this sort order. */
-- (util::ComparisonResult)compareDocument:(FSTDocument *)document1
-                               toDocument:(FSTDocument *)document2;
-
-/** The field to sort by. */
-- (const model::FieldPath &)field;
-
-/** The direction of the sort. */
-- (BOOL)ascending;
-- (BOOL)isAscending;
-
-@end
-
 /**
  * FSTBound represents a bound of a query.
  *
