@@ -607,7 +607,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 MATCHER_P(HasCanonicalId, expected, "") {
-  std::string actual = util::MakeString([arg canonicalID]);
+  const std::string &actual = [arg canonicalID];
   *result_listener << "which has canonicalID " << actual;
   return actual == expected;
 }

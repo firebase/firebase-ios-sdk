@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
     // easy way to force colliding canonicalIDs
     FSTQuery *q1 = [FSTTestQuery("a") queryByAddingFilter:Filter("foo", "==", 1)];
     FSTQuery *q2 = [FSTTestQuery("a") queryByAddingFilter:Filter("foo", "==", "1")];
-    XCTAssertEqualObjects(q1.canonicalID, q2.canonicalID);
+    XCTAssertEqual(q1.canonicalID, q2.canonicalID);
 
     FSTQueryData *data1 = [self queryDataWithQuery:q1];
     self.queryCache->AddTarget(data1);

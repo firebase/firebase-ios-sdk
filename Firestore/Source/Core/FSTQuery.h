@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A canonical string identifying the query. Two different instances of equivalent queries will
  * return the same canonicalID.
  */
-@property(nonatomic, strong, readonly) NSString *canonicalID;
+- (const std::string &)canonicalID;
 
 /** An optional bound to start the query at. */
 - (const std::shared_ptr<core::Bound> &)startAt;

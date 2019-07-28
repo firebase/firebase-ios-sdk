@@ -191,6 +191,8 @@ class Query {
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
+  const std::string& CanonicalId() const;
+
  private:
   bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
@@ -216,6 +218,8 @@ class Query {
   int32_t limit_ = kNoLimit;
   std::shared_ptr<Bound> start_at_;
   std::shared_ptr<Bound> end_at_;
+
+  mutable std::string canonical_id_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
