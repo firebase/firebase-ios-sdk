@@ -938,7 +938,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 expirationDate:expDate
                                       authDate:authDate
                                   issuedAtDate:issuedDate
-                                signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
+                                signInProvider:tokenPayloadDictionary[@"firebase"][@"sign_in_provider"]
                                         claims:tokenPayloadDictionary];
   return result;
 }
