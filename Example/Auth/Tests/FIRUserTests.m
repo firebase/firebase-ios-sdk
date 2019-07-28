@@ -1072,6 +1072,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
       XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
       XCTAssertTrue(tokenResult.expirationDate &&
           [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+      XCTAssertEqualObjects(tokenResult.signInProvider, @"password");
       XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
       [expectation fulfill];
     }];
