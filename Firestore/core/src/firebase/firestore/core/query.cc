@@ -201,14 +201,21 @@ bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
 }
 
 bool Query::MatchesFilters(const Document& doc) const {
-  return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<Filter>& filter) {
-                       return filter->Matches(doc);
-                     });
+  for (const auto& filter : filters_) {
+    if (!filter->Matches(doc)) return false;
+  }
+  return true;
 }
 
-bool Query::MatchesOrderBy(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
+bool Query::MatchesOrderBy(const Document& doc) const {
+  for (const OrderBy& order_by : explicit_order_bys_) {
+    const FieldPath& field_path = order_by.field();
+    // order by key always matches
+    if (field_path != FieldPath::KeyFieldPath() &&
+        doc.field(field_path) == absl::nullopt) {
+      return false;
+    }
+  }
   return true;
 }
 
