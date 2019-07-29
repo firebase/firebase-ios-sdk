@@ -98,6 +98,6 @@ typedef NS_ENUM(NSInteger, FIRFirestoreErrorCode) {
 
   /** The request does not have valid authentication credentials for the operation. */
   FIRFirestoreErrorCodeUnauthenticated = 16
-} NS_SWIFT_NAME(Error);
+} NS_SWIFT_NAME(FirestoreErrorCode);
 
 NS_ASSUME_NONNULL_END

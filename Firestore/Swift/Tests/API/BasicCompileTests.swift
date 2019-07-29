@@ -249,7 +249,7 @@ func readDocument(at docRef: DocumentReference) {
       // TODO(mikelehen): There may be a better way to do this, but it at least demonstrates
       // the swift error domain / enum codes are renamed appropriately.
       if let errorCode = error.flatMap({
-        ($0._domain == FirestoreErrorDomain) ? Error(rawValue: $0._code) : nil
+        ($0._domain == FirestoreErrorDomain) ? FirestoreErrorCode(rawValue: $0._code) : nil
       }) {
         switch errorCode {
         case .unavailable:

@@ -33,7 +33,7 @@ extension DocumentReference {
   ///                 immediately.
   public func setData<T: Encodable>(from value: T,
                                     encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Swift.Error?) -> Void)? = nil) throws {
+                                    completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), completion: completion)
   }
 
@@ -56,7 +56,7 @@ extension DocumentReference {
   public func setData<T: Encodable>(from value: T,
                                     merge: Bool,
                                     encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Swift.Error?) -> Void)? = nil) throws {
+                                    completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), merge: merge, completion: completion)
   }
 
@@ -83,7 +83,7 @@ extension DocumentReference {
   public func setData<T: Encodable>(from value: T,
                                     mergeFields: [Any],
                                     encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Swift.Error?) -> Void)? = nil) throws {
+                                    completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), mergeFields: mergeFields, completion: completion)
   }
 }

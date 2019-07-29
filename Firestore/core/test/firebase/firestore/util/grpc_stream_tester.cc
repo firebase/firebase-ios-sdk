@@ -82,7 +82,7 @@ std::string GetGrpcErrorCodeName(grpc::StatusCode error) {
   }
 }
 
-std::string GetErrorName(Error error) {
+std::string GetErrorName(enum Error error) {
   return GetGrpcErrorCodeName(static_cast<grpc::StatusCode>(error));
 }
 
