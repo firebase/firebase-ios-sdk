@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <string>
 
@@ -73,9 +74,9 @@ class DocumentKey : public util::Comparable<DocumentKey> {
     return util::Hash(ToString());
   }
 
-  std::string ToString() const {
-    return path().CanonicalString();
-  }
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const DocumentKey& key);
 
   /** The path to the document. */
   const ResourcePath& path() const {
