@@ -66,7 +66,7 @@ NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
   grpc::Status status = buffer.Dump(&slices);
   if (!status.ok()) {
     *out_error =
-        MakeNSError(Status{FirestoreErrorCode::Internal,
+        MakeNSError(Status{Error::Internal,
                            "Trying to convert an invalid grpc::ByteBuffer"});
     return nil;
   }
@@ -108,7 +108,7 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
                    "Received value: %s\n",
                    error, [Proto class], ToHexString(message));
 
-  *out_status = {FirestoreErrorCode::Internal, error_description};
+  *out_status = {Error::Internal, error_description};
   return nil;
 }
 

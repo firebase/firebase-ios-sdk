@@ -264,7 +264,7 @@ void GrpcConnection::RegisterConnectivityMonitor() {
         auto calls = active_calls_;
         for (GrpcCall* call : calls) {
           // This will trigger the observers.
-          call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable,
+          call->FinishAndNotify(Status{Error::Unavailable,
                                        "Network connectivity changed"});
         }
         // The old channel may hang for a long time trying to reestablish

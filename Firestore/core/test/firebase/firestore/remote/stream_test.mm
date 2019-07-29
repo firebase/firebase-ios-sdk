@@ -46,7 +46,7 @@ using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CreateNoOpConnectivityMonitor;
-using util::GetFirestoreErrorCodeName;
+using util::GetErrorName;
 using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
@@ -118,14 +118,14 @@ class TestStream : public Stream {
       // The parent stream will issue a finish operation and block until it's
       // completed, so asynchronously polling gRPC queue is necessary.
       tester_->KeepPollingGrpcQueue();
-      return util::Status{FirestoreErrorCode::Internal, ""};
+      return util::Status{Error::Internal, ""};
     }
     return util::Status::OK();
   }
 
   void NotifyStreamClose(const util::Status& status) override {
     observed_states_.push_back(std::string{"NotifyStreamClose("} +
-                               GetFirestoreErrorCodeName(status.code()) + ")");
+                               GetErrorName(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {

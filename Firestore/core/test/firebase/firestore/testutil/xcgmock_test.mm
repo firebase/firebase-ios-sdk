@@ -51,7 +51,7 @@ TEST(XcGmockTest, FIRGeoPointPrints) {
 }
 
 TEST(XcGmockTest, StatusPrints) {
-  util::Status status(FirestoreErrorCode::NotFound, "missing foo");
+  util::Status status(Error::NotFound, "missing foo");
   EXPECT_EQ("Not found: missing foo", testing::PrintToString(status));
 }
 

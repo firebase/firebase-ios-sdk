@@ -26,7 +26,7 @@ namespace firestore {
  * The codes are in sync with the Firestore iOS client SDK header file
  * FIRFirestoreErrors.h.
  */
-enum FirestoreErrorCode {
+enum Error {
   /**
    * The operation completed successfully. NSError objects will never have a
    * code with this value.
@@ -111,7 +111,7 @@ enum FirestoreErrorCode {
 
 // TODO(zxu123): decide whether we actually want an Error class or just use
 // enum.
-using Error = FirestoreErrorCode;
+using Error = Error;
 
 }  // namespace firestore
 }  // namespace firebase

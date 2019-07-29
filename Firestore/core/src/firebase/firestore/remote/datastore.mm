@@ -287,7 +287,7 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
 }
 
 void Datastore::HandleCallStatus(const Status& status) {
-  if (status.code() == FirestoreErrorCode::Unauthenticated) {
+  if (status.code() == Error::Unauthenticated) {
     credentials_->InvalidateToken();
   }
 }
@@ -302,35 +302,35 @@ void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
 }
 
 bool Datastore::IsAbortedError(const Status& error) {
-  return error.code() == FirestoreErrorCode::Aborted;
+  return error.code() == Error::Aborted;
 }
 
 bool Datastore::IsPermanentError(const Status& error) {
   switch (error.code()) {
-    case FirestoreErrorCode::Ok:
+    case Error::Ok:
       HARD_FAIL("Treated status OK as error");
-    case FirestoreErrorCode::Cancelled:
-    case FirestoreErrorCode::Unknown:
-    case FirestoreErrorCode::DeadlineExceeded:
-    case FirestoreErrorCode::ResourceExhausted:
-    case FirestoreErrorCode::Internal:
-    case FirestoreErrorCode::Unavailable:
+    case Error::Cancelled:
+    case Error::Unknown:
+    case Error::DeadlineExceeded:
+    case Error::ResourceExhausted:
+    case Error::Internal:
+    case Error::Unavailable:
       // Unauthenticated means something went wrong with our token and we need
       // to retry with new credentials which will happen automatically.
-    case FirestoreErrorCode::Unauthenticated:
+    case Error::Unauthenticated:
       return false;
-    case FirestoreErrorCode::InvalidArgument:
-    case FirestoreErrorCode::NotFound:
-    case FirestoreErrorCode::AlreadyExists:
-    case FirestoreErrorCode::PermissionDenied:
-    case FirestoreErrorCode::FailedPrecondition:
-    case FirestoreErrorCode::Aborted:
+    case Error::InvalidArgument:
+    case Error::NotFound:
+    case Error::AlreadyExists:
+    case Error::PermissionDenied:
+    case Error::FailedPrecondition:
+    case Error::Aborted:
       // Aborted might be retried in some scenarios, but that is dependant on
       // the context and should handled individually by the calling code.
       // See https://cloud.google.com/apis/design/errors
-    case FirestoreErrorCode::OutOfRange:
-    case FirestoreErrorCode::Unimplemented:
-    case FirestoreErrorCode::DataLoss:
+    case Error::OutOfRange:
+    case Error::Unimplemented:
+    case Error::DataLoss:
       return true;
   }
 

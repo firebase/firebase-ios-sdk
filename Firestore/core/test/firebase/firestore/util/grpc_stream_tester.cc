@@ -82,7 +82,7 @@ std::string GetGrpcErrorCodeName(grpc::StatusCode error) {
   }
 }
 
-std::string GetFirestoreErrorCodeName(FirestoreErrorCode error) {
+std::string GetErrorName(Error error) {
   return GetGrpcErrorCodeName(static_cast<grpc::StatusCode>(error));
 }
 

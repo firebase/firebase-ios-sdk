@@ -59,7 +59,7 @@
 //
 //  StatusOr<Foo*> FooFactory::MakeNewFoo(int arg) {
 //    if (arg <= 0) {
-//      return Status(FirestoreErrorCode::InvalidArgument,
+//      return Status(Error::InvalidArgument,
 //                    "Arg must be positive");
 //    } else {
 //      return new Foo(arg);
@@ -150,7 +150,7 @@ class ABSL_MUST_USE_RESULT StatusOr
   //
   // REQUIRES: !status.ok(). This requirement is DCHECKed.
   // In optimized builds, passing Status::OK() here will have the effect
-  // of passing FirestoreErrorCode::Internal as a fallback.
+  // of passing Error::Internal as a fallback.
   StatusOr(const Status& status);  // NOLINT: allow non-explicit 1-param ctor
   StatusOr& operator=(const Status& status);
 
@@ -214,7 +214,7 @@ class ABSL_MUST_USE_RESULT StatusOr
 // Implementation details for StatusOr<T>
 
 template <typename T>
-StatusOr<T>::StatusOr() : Base(Status(FirestoreErrorCode::Unknown, "")) {
+StatusOr<T>::StatusOr() : Base(Status(Error::Unknown, "")) {
 }
 
 template <typename T>

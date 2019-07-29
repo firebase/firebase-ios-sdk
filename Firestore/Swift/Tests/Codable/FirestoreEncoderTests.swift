@@ -117,7 +117,7 @@ class FirestoreEncoderTests: XCTestCase {
         case timestamp
       }
 
-      private enum DecodingError: Error {
+      private enum DecodingError: Swift.Error {
         case decoding(String)
       }
 
