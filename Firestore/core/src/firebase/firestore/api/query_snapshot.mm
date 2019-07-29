@@ -131,6 +131,7 @@ void QuerySnapshot::ForEachChange(
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),
                               DocumentChange::npos, index++));
+      last_document = doc;
     }
 
   } else {
