@@ -794,10 +794,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            @"unsubscribeFromTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
-   __weak FIRMessaging *weakSelf = self;
+  __weak FIRMessaging *weakSelf = self;
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
-    if (!error) {
+    if (error) {
       FIRMessagingLoggerError(
           kFIRMessagingMessageCodeMessaging012,
           @"The unsubscription operation failed due to an error getting the FCM token: %@.", error);
