@@ -16,7 +16,7 @@
 - [changed] Clean up code. Remove extra layer of class. (#2853)
 
 # 2019-05-07 -- v4.0.0
-- [fremovedixed] Remove deprecated `useMessagingDelegateForDirectChannel` property.(#2711) All direct channels (non-APNS) messages will be handled by `messaging:didReceiveMessage:`. Previously in iOS 9 and below, the direct channel messages are handled in `application:didReceiveRemoteNotification:fetchCompletionHandler:` and this behavior can be changed by setting `useMessagingDelegateForDirectChannel` to true. Now that all messages by default are handled in `messaging:didReceiveMessage:`. This boolean value is no longer needed. If you already have set useMessagingDelegateForDirectChannel to YES, or handle all your direct channel messages in `messaging:didReceiveMessage:`. This change should not affect you.
+- [removed] Remove deprecated `useMessagingDelegateForDirectChannel` property.(#2711) All direct channels (non-APNS) messages will be handled by `messaging:didReceiveMessage:`. Previously in iOS 9 and below, the direct channel messages are handled in `application:didReceiveRemoteNotification:fetchCompletionHandler:` and this behavior can be changed by setting `useMessagingDelegateForDirectChannel` to true. Now that all messages by default are handled in `messaging:didReceiveMessage:`. This boolean value is no longer needed. If you already have set useMessagingDelegateForDirectChannel to YES, or handle all your direct channel messages in `messaging:didReceiveMessage:`. This change should not affect you.
 - [removed] Remove deprecated API to connect direct channel. (#2717) Should use `shouldEstablishDirectChannel` property instead.
 - [changed] `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2683)
 
