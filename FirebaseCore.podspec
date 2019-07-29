@@ -28,6 +28,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.public_header_files = 'Firebase/Core/Public/*.h', 'Firebase/Core/Private/*.h'
   s.private_header_files = 'Firebase/Core/Private/*.h'
   s.framework = 'Foundation'
+  s.osx.framework = 'AppKit'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/Logger', '~> 6.2'
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 0.1'
