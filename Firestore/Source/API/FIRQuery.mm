@@ -69,6 +69,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::OrderBy;
+using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
@@ -499,7 +500,7 @@ FIRQuery *Wrap(Query &&query) {
 /** Converts a list of field values to an Bound. */
 - (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
   // Use explicit sort order because it has to match the query the user made
-  const core::Query::OrderByList &explicitSortOrders = self.query.explicitSortOrders;
+  const OrderByList &explicitSortOrders = self.query.explicitSortOrders;
   if (fieldValues.count > explicitSortOrders.size()) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using more values "
                          "than were specified in the order by.");

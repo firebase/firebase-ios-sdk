@@ -37,6 +37,8 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
+using firebase::firestore::core::FilterList;
+using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
@@ -305,9 +307,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 =
       FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, DocumentState::kSynced);
 
-  Query::FilterList matchingFilters = {Filter("tags", "==", Array("foo", 1, true))};
+  FilterList matchingFilters = {Filter("tags", "==", Array("foo", 1, true))};
 
-  Query::FilterList nonMatchingFilters = {
+  FilterList nonMatchingFilters = {
       Filter("tags", "==", "foo"),
       Filter("tags", "==", Array("foo", 1)),
       Filter("tags", "==", Array("foo", true, 1)),
@@ -328,13 +330,13 @@ NS_ASSUME_NONNULL_BEGIN
       "collection/doc", 0, @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
       DocumentState::kSynced);
 
-  Query::FilterList matchingFilters = {
+  FilterList matchingFilters = {
       Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true, "c", NAN)),
       Filter("tags", "==", Map("b", true, "a", 0, "foo", "foo", "c", NAN)),
       Filter("tags.foo", "==", "foo")};
 
-  Query::FilterList nonMatchingFilters = {
-      Filter("tags", "==", "foo"), Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true))};
+  FilterList nonMatchingFilters = {Filter("tags", "==", "foo"),
+                                   Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true))};
 
   for (const auto &filter : matchingFilters) {
     XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
@@ -567,43 +569,51 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testImplicitOrderBy {
   FSTQuery *baseQuery = FSTTestQuery("foo");
   // Default is ascending
-  XCTAssertEqual(baseQuery.sortOrders, Vector(OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+  XCTAssertEqual(baseQuery.sortOrders, OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
 
   // Explicit key ordering is respected
   XCTAssertEqual(
       [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")].sortOrders,
-      Vector(OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
   XCTAssertEqual(
       [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")].sortOrders,
-      Vector(OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "desc")});
 
   XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
                      queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")]
                      .sortOrders,
-                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+                 (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
-  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
-                     queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")]
-                     .sortOrders,
-                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+  XCTAssertEqual(
+      [[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
+          queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")]
+          .sortOrders,
+      (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
 
   // Inequality filters add order bys
   XCTAssertEqual([baseQuery queryByAddingFilter:Filter("foo", "<", 5)].sortOrders,
-                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+                 (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   // Descending order by applies to implicit key ordering
-  XCTAssertEqual([baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")].sortOrders,
-                 Vector(OrderBy("foo", "desc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+  XCTAssertEqual(
+      [baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")].sortOrders,
+      (OrderByList{OrderBy("foo", "desc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
   XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
                      queryByAddingSortOrder:OrderBy("bar", "desc")]
                      .sortOrders,
-                 Vector(OrderBy("foo", "asc"), OrderBy("bar", "desc"),
-                        OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+                 (OrderByList{
+                     OrderBy("foo", "asc"),
+                     OrderBy("bar", "desc"),
+                     OrderBy(FieldPath::kDocumentKeyPath, "desc"),
+                 }));
   XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")]
                      queryByAddingSortOrder:OrderBy("bar", "asc")]
                      .sortOrders,
-                 Vector(OrderBy("foo", "desc"), OrderBy("bar", "asc"),
-                        OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+                 (OrderByList{
+                     OrderBy("foo", "desc"),
+                     OrderBy("bar", "asc"),
+                     OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+                 }));
 }
 
 MATCHER_P(HasCanonicalId, expected, "") {

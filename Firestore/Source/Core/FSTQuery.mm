@@ -52,7 +52,9 @@ using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderBy;
+using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
@@ -119,15 +121,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public methods
 
-- (const Query::FilterList &)filters {
+- (const FilterList &)filters {
   return _query.filters();
 }
 
-- (const core::Query::OrderByList &)explicitSortOrders {
+- (const OrderByList &)explicitSortOrders {
   return _query.explicit_order_bys();
 }
 
-- (const Query::OrderByList &)sortOrders {
+- (const OrderByList &)sortOrders {
   return _query.order_bys();
 }
 

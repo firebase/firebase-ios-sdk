@@ -73,7 +73,7 @@ class Bound {
    * Returns true if the given document comes before this bound using the
    * provided sort order.
    */
-  bool SortsBeforeDocument(const std::vector<OrderBy>& order_by,
+  bool SortsBeforeDocument(const OrderByList& order_by,
                            const model::Document& document) const;
 
   std::string CanonicalId() const;
