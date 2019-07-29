@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
@@ -37,11 +38,20 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-class DocumentComparator : public util::FunctionComparator<FSTDocument*> {
+class DocumentComparator : public util::FunctionComparator<Document> {
  public:
-  using FunctionComparator<FSTDocument*>::FunctionComparator;
+  using FunctionComparator<Document>::FunctionComparator;
 
   static DocumentComparator ByKey();
+
+#if __OBJC__
+  util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
+    Document converted_lhs(lhs);
+    Document converted_rhs(rhs);
+    return util::FunctionComparator<Document>::Compare(converted_lhs,
+                                                       converted_rhs);
+  }
+#endif
 };
 
 /**

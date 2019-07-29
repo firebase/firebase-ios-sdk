@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 namespace firebase {
@@ -190,6 +191,12 @@ class Query {
 
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
+
+  /**
+   * Returns a comparator that will sort documents according to the order by
+   * clauses in this query.
+   */
+  model::DocumentComparator Comparator() const;
 
   const std::string& CanonicalId() const;
 

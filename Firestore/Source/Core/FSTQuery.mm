@@ -186,21 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentComparator)comparator {
-  Query::OrderByList sortOrders = self.sortOrders;
-
-  return DocumentComparator([sortOrders](FSTDocument *document1, FSTDocument *document2) {
-    bool didCompareOnKeyField = false;
-    Document convertedDoc1(document1);
-    Document converetdDoc2(document2);
-    for (const OrderBy &orderBy : sortOrders) {
-      ComparisonResult comp = orderBy.Compare(convertedDoc1, converetdDoc2);
-      if (!util::Same(comp)) return comp;
-
-      didCompareOnKeyField = didCompareOnKeyField || orderBy.field() == FieldPath::KeyFieldPath();
-    }
-    HARD_ASSERT(didCompareOnKeyField, "sortOrder of query did not include key ordering");
-    return ComparisonResult::Same;
-  });
+  return _query.Comparator();
 }
 
 - (nullable const FieldPath *)inequalityFilterField {
