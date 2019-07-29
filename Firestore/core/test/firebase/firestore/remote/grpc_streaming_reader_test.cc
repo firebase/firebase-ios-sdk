@@ -37,7 +37,7 @@ using util::CompletionEndState;
 using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
-using util::GetErrorName;
+using util::GetFirestoreErrorName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;

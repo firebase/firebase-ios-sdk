@@ -445,15 +445,13 @@ static const char *kReservedPathComponent = "firestore";
 + (Status)ensureDirectory:(const Path &)directory {
   Status status = util::RecursivelyCreateDir(directory);
   if (!status.ok()) {
-    return Status{Error::Internal, "Failed to create persistence directory"}.CausedBy(
-        status);
+    return Status{Error::Internal, "Failed to create persistence directory"}.CausedBy(status);
   }
 
   NSURL *dirURL = [NSURL fileURLWithPath:directory.ToNSString()];
   NSError *localError = nil;
   if (![dirURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&localError]) {
-    return Status{Error::Internal,
-                  "Failed to mark persistence directory as excluded from backups"}
+    return Status{Error::Internal, "Failed to mark persistence directory as excluded from backups"}
         .CausedBy(Status::FromNSError(localError));
   }
 

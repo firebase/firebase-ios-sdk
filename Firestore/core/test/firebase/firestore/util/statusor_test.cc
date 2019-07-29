@@ -79,8 +79,7 @@ TEST(StatusOr, ElementType) {
 
 TEST(StatusOr, TestNoDefaultConstructorInitialization) {
   // Explicitly initialize it with an error code.
-  StatusOr<NoDefaultConstructor> statusor(
-      Status(Error::Cancelled, ""));
+  StatusOr<NoDefaultConstructor> statusor(Status(Error::Cancelled, ""));
   EXPECT_FALSE(statusor.ok());
   EXPECT_EQ(statusor.status().code(), Error::Cancelled);
 
@@ -103,8 +102,7 @@ TEST(StatusOr, TestMoveOnlyInitialization) {
 }
 
 TEST(StatusOr, TestMoveOnlyStatusCtr) {
-  StatusOr<std::unique_ptr<int>> thing(
-      Status(Error::Cancelled, ""));
+  StatusOr<std::unique_ptr<int>> thing(Status(Error::Cancelled, ""));
   ASSERT_FALSE(thing.ok());
 }
 
@@ -425,8 +423,7 @@ TEST(StatusOrDeathTest, TestPointerValueNotOk) {
 }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOkConst) {
-  const StatusOr<int*> thing(
-      Status(Error::Cancelled, "cancelled"));
+  const StatusOr<int*> thing(Status(Error::Cancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 

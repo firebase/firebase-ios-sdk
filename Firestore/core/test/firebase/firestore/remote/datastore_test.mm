@@ -358,32 +358,25 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
 // Error classification
 
 TEST_F(DatastoreTest, IsPermanentError) {
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Cancelled, ""}));
   EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{Error::Cancelled, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{Error::ResourceExhausted, ""}));
-  EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{Error::Unavailable, ""}));
+      Datastore::IsPermanentError(Status{Error::ResourceExhausted, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unavailable, ""}));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
       Status{Error::Unavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{Error::Unauthenticated, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unauthenticated, ""}));
 
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{Error::DataLoss, ""}));
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{Error::Aborted, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::DataLoss, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::Aborted, ""}));
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(
-      Status{Error::Unauthenticated, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentWriteError(
-      Status{Error::DataLoss, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(
-      Status{Error::Aborted, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentWriteError(Status{Error::Unauthenticated, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentWriteError(Status{Error::DataLoss, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(Status{Error::Aborted, ""}));
 }
 
 }  // namespace remote

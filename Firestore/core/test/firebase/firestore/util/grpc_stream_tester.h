@@ -45,7 +45,7 @@ namespace firestore {
 namespace util {
 
 std::string GetGrpcErrorCodeName(grpc::StatusCode error);
-std::string GetErrorName(Error error);
+std::string GetFirestoreErrorName(Error error);
 std::string ByteBufferToString(const grpc::ByteBuffer& buffer);
 grpc::ByteBuffer MakeByteBuffer(const std::string& str);
 

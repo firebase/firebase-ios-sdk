@@ -65,9 +65,8 @@ NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
   if (!status.ok()) {
-    *out_error =
-        MakeNSError(Status{Error::Internal,
-                           "Trying to convert an invalid grpc::ByteBuffer"});
+    *out_error = MakeNSError(Status{
+        Error::Internal, "Trying to convert an invalid grpc::ByteBuffer"});
     return nil;
   }
 

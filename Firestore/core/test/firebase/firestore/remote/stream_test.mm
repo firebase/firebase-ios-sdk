@@ -46,7 +46,7 @@ using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CreateNoOpConnectivityMonitor;
-using util::GetErrorName;
+using util::GetFirestoreErrorName;
 using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
@@ -125,7 +125,7 @@ class TestStream : public Stream {
 
   void NotifyStreamClose(const util::Status& status) override {
     observed_states_.push_back(std::string{"NotifyStreamClose("} +
-                               GetErrorName(status.code()) + ")");
+                               GetFirestoreErrorName(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {

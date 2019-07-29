@@ -82,7 +82,7 @@ std::string GetGrpcErrorCodeName(grpc::StatusCode error) {
   }
 }
 
-std::string GetErrorName(enum Error error) {
+std::string GetFirestoreErrorName(enum Error error) {
   return GetGrpcErrorCodeName(static_cast<grpc::StatusCode>(error));
 }
 

@@ -369,10 +369,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                                         /*from_cache=*/true,
                                         /*has_pending_writes=*/false};
     } else {
-      maybe_snapshot = Status{Error::Unavailable,
-                              "Failed to get document from cache. (However, this document "
-                              "may exist on the server. Run again without setting source to "
-                              "FirestoreSourceCache to attempt to retrieve the document "};
+      maybe_snapshot =
+          Status{Error::Unavailable, "Failed to get document from cache. (However, this document "
+                                     "may exist on the server. Run again without setting source to "
+                                     "FirestoreSourceCache to attempt to retrieve the document "};
     }
 
     if (shared_callback) {
