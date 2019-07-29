@@ -64,9 +64,10 @@ swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
 
 ## Carthage
 
-Carthage binaries can also be built at the same time as the zip file by passing in `-carthage true`
-as a command line argument. This will result in a folder called "CarthageOutput" at the root where
-the zip directory exists containing all the zip files necessary for distribution.
+Carthage binaries can also be built at the same time as the zip file by passing in `-carthagePath
+<path_to_json_files>` as a command line argument. This directory should contain JSON files describing versions
+and download locations for each product. This will result in a folder called "carthage" at the root where the zip
+directory exists containing all the zip files and JSON files necessary for distribution.
 
 ## Debugging
 
