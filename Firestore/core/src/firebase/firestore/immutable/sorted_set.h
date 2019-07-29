@@ -77,6 +77,10 @@ class SortedSet : public SortedContainer {
     return map_.size();
   }
 
+  const C& comparator() const {
+    return map_.comparator();
+  }
+
   ABSL_MUST_USE_RESULT SortedSet insert(const K& key) const {
     return SortedSet{map_.insert(key, {})};
   }

@@ -90,6 +90,10 @@ class DocumentSet : public immutable::SortedContainer {
   /** Returns true if this set contains a document with the given key. */
   bool ContainsKey(const DocumentKey& key) const;
 
+  const DocumentComparator& comparator() const {
+    return sorted_set_.comparator();
+  }
+
   SetType::const_iterator begin() const {
     return sorted_set_.begin();
   }
