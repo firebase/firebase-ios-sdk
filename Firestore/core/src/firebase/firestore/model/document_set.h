@@ -44,6 +44,8 @@ class DocumentComparator : public util::FunctionComparator<Document> {
 
   static DocumentComparator ByKey();
 
+  using FunctionComparator<Document>::Compare;
+
 #if __OBJC__
   util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
     Document converted_lhs(lhs);

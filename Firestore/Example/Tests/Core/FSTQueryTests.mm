@@ -16,11 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -40,6 +35,7 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderByList;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldPath;
@@ -49,11 +45,14 @@ using firebase::firestore::util::ComparisonResult;
 using testing::Not;
 using testutil::Array;
 using testutil::CollectionGroupQuery;
+using testutil::DbId;
+using testutil::Doc;
 using testutil::Field;
 using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
+using testutil::Ref;
 using testutil::Value;
 using testutil::Vector;
 
@@ -93,16 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqual(query.explicit_order_bys().size(), 1);
   XCTAssertEqual(query.explicit_order_bys()[0].field().CanonicalString(), "length");
-  XCTAssertEqual(query.explicit_order_bys()[0].ascending(), NO);
+  XCTAssertEqual(query.explicit_order_bys()[0].ascending(), false);
 }
 
 - (void)testMatchesBasedOnDocumentKey {
-  FSTDocument *doc1 =
-      FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, DocumentState::kSynced);
-  FSTDocument *doc2 =
-      FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, DocumentState::kSynced);
-  FSTDocument *doc3 =
-      FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, DocumentState::kSynced);
+  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
   // document query
   core::Query query = Query("rooms/eros/messages/1");
@@ -112,14 +108,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testMatchesCorrectlyForShallowAncestorQuery {
-  FSTDocument *doc1 =
-      FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, DocumentState::kSynced);
-  FSTDocument *doc1Meta =
-      FSTTestDoc("rooms/eros/messages/1/meta/1", 0, @{@"meta" : @"mv"}, DocumentState::kSynced);
-  FSTDocument *doc2 =
-      FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, DocumentState::kSynced);
-  FSTDocument *doc3 =
-      FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, DocumentState::kSynced);
+  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc1Meta = *Doc("rooms/eros/messages/1/meta/1", 0, Map("meta", "mv"));
+  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
   // shallow ancestor query
   core::Query query = Query("rooms/eros/messages");
@@ -130,9 +122,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEmptyFieldsAreAllowedForQueries {
-  FSTDocument *doc1 =
-      FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, DocumentState::kSynced);
+  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map());
 
   core::Query query = Query("rooms/eros/messages").AddingFilter(Filter("text", "==", "msg1"));
   XC_ASSERT_THAT(query, Matches(doc1));
@@ -143,12 +134,12 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query1 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
   core::Query query2 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @1}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @3}, DocumentState::kSynced);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, DocumentState::kSynced);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
-  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/1", 0, Map("sort", 1));
+  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = *Doc("collection/3", 0, Map("sort", 3));
+  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
+  auto doc6 = *Doc("collection/6", 0, Map());
 
   XC_ASSERT_THAT(query1, Not(Matches(doc1)));
   XC_ASSERT_THAT(query1, Matches(doc2));
@@ -169,23 +160,20 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("collection").AddingFilter(Filter("array", "array_contains", 42));
 
   // not an array.
-  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"array" : @1}, DocumentState::kSynced);
+  auto doc = *Doc("collection/1", 0, Map("array", 1));
   XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // empty array.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[]}, DocumentState::kSynced);
+  doc = *Doc("collection/1", 0, Map("array", Array()));
   XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array without element (and make sure it doesn't match in a nested field or a different field).
-  doc = FSTTestDoc(
-      "collection/1", 0,
-      @{@"array" : @[ @41, @"42", @{@"a" : @42, @"b" : @[ @42 ]} ], @"different" : @[ @42 ]},
-      DocumentState::kSynced);
+  doc = *Doc("collection/1", 0,
+             Map("array", Array(41, "42", Map("a", 42, "b", Array(42))), "different", Array(42)));
   XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @1} ]},
-                   DocumentState::kSynced);
+  doc = *Doc("collection/1", 0, Map("array", Array(1, "2", 42, Map("a", 1))));
   XC_ASSERT_THAT(query, Matches(doc));
 }
 
@@ -195,28 +183,23 @@ NS_ASSUME_NONNULL_BEGIN
       Query("collection").AddingFilter(Filter("array", "array_contains", Map("a", Array(42))));
 
   // array without element.
-  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
-    @"array" : @[
-      @{@"a" : @42}, @{@"a" : @[ @42, @43 ]}, @{@"b" : @[ @42 ]}, @{@"a" : @[ @42 ], @"b" : @42}
-    ]
-  },
-                                DocumentState::kSynced);
+  auto doc = *Doc("collection/1", 0,
+                  Map("array", Array(Map("a", 42), Map("a", Array(42, 43)), Map("b", Array(42)),
+                                     Map("a", Array(42), "b", 42))));
   XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @[ @42 ]} ]},
-                   DocumentState::kSynced);
+  doc = *Doc("collection/1", 0, Map("array", Array(1, "2", 42, Map("a", Array(42)))));
   XC_ASSERT_THAT(query, Matches(doc));
 }
 
 - (void)testNullFilter {
   core::Query query = Query("collection").AddingFilter(Filter("sort", "==", nullptr));
-  FSTDocument *doc1 =
-      FSTTestDoc("collection/1", 0, @{@"sort" : [NSNull null]}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
-  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, DocumentState::kSynced);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, DocumentState::kSynced);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/1", 0, Map("sort", nullptr));
+  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = *Doc("collection/2", 0, Map("sort", 3.1));
+  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
 
   XC_ASSERT_THAT(query, Matches(doc1));
   XC_ASSERT_THAT(query, Not(Matches(doc2)));
@@ -227,11 +210,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testNanFilter {
   core::Query query = Query("collection").AddingFilter(Filter("sort", "==", NAN));
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @(NAN)}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
-  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, DocumentState::kSynced);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, DocumentState::kSynced);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/1", 0, Map("sort", (NAN)));
+  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = *Doc("collection/2", 0, Map("sort", 3.1));
+  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
 
   XC_ASSERT_THAT(query, Matches(doc1));
   XC_ASSERT_THAT(query, Not(Matches(doc2)));
@@ -244,17 +227,13 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query1 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
   core::Query query2 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, DocumentState::kSynced);
-  FSTDocument *doc4 =
-      FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, DocumentState::kSynced);
-  FSTDocument *doc5 =
-      FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, DocumentState::kSynced);
-  FSTDocument *doc6 =
-      FSTTestDoc("collection/6", 0, @{@"sort" : @{}}, DocumentState::kSynced);  // no sort field
-  FSTDocument *doc7 =
-      FSTTestDoc("collection/7", 0, @{@"sort" : @[ @3, @1 ]}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
+  auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
+  auto doc3 = *Doc("collection/3", 0, Map("sort", Array(1)));
+  auto doc4 = *Doc("collection/4", 0, Map("sort", Map("foo", 2)));
+  auto doc5 = *Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
+  auto doc6 = *Doc("collection/6", 0, Map("sort", Map()));  // no sort field
+  auto doc7 = *Doc("collection/7", 0, Map("sort", Array(3, 1)));
 
   XC_ASSERT_THAT(query1, Matches(doc1));
   XC_ASSERT_THAT(query1, Not(Matches(doc2)));
@@ -276,14 +255,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
   core::Query query1 = Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, DocumentState::kSynced);
-  FSTDocument *doc4 =
-      FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, DocumentState::kSynced);
-  FSTDocument *doc5 =
-      FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, DocumentState::kSynced);
-  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
+  auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
+  auto doc3 = *Doc("collection/3", 0, Map("sort", Array(1)));
+  auto doc4 = *Doc("collection/4", 0, Map("sort", Map("foo", 2)));
+  auto doc5 = *Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
+  auto doc6 = *Doc("collection/6", 0, Map());
 
   XC_ASSERT_THAT(query1, Matches(doc1));
   XC_ASSERT_THAT(query1, Matches(doc2));
@@ -295,8 +272,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnArrayValue {
   core::Query baseQuery = Query("collection");
-  FSTDocument *doc1 =
-      FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, DocumentState::kSynced);
+  auto doc1 = *Doc("collection/doc", 0, Map("tags", Array("foo", 1, true)));
 
   FilterList matchingFilters = {Filter("tags", "==", Array("foo", 1, true))};
 
@@ -317,9 +293,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnObjectValue {
   core::Query baseQuery = Query("collection");
-  FSTDocument *doc1 = FSTTestDoc(
-      "collection/doc", 0, @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
-      DocumentState::kSynced);
+  auto doc1 =
+      *Doc("collection/doc", 0, Map("tags", Map("foo", "foo", "a", 0, "b", true, "c", NAN)));
 
   FilterList matchingFilters = {
       Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true, "c", NAN)),
@@ -342,39 +317,40 @@ NS_ASSUME_NONNULL_BEGIN
  * Checks that an ordered array of elements yields the correct pair-wise comparison result for the
  * supplied comparator.
  */
-- (void)assertCorrectComparisonsWithArray:(NSArray *)array
+- (void)assertCorrectComparisonsWithArray:(std::vector<Document>)array
                                comparator:(const DocumentComparator &)comp {
-  [array enumerateObjectsUsingBlock:^(id iObj, NSUInteger i, BOOL *outerStop) {
-    [array enumerateObjectsUsingBlock:^(id _Nonnull jObj, NSUInteger j, BOOL *innerStop) {
+  for (size_t i = 0; i < array.size(); i++) {
+    for (size_t j = 0; j < array.size(); j++) {
+      const Document &iDoc = array[i];
+      const Document &jDoc = array[j];
       ComparisonResult expected = util::Compare(i, j);
-      ComparisonResult actual = comp.Compare(iObj, jObj);
-      XCTAssertEqual(actual, expected, @"Compared %@ to %@ at (%lu, %lu).", iObj, jObj,
-                     (unsigned long)i, (unsigned long)j);
-    }];
-  }];
+      ComparisonResult actual = comp.Compare(iDoc, jDoc);
+      XCTAssertEqual(actual, expected, @"Compared %@ to %@ at (%lu, %lu).", iDoc.ToDocument(),
+                     jDoc.ToDocument(), (unsigned long)i, (unsigned long)j);
+    }
+  }
 }
 
 - (void)testSortsDocumentsInTheCorrectOrder {
   core::Query query = Query("collection").AddingOrderBy(OrderBy("sort"));
 
   // clang-format off
-  NSArray<FSTDocument *> *docs = @[
-      FSTTestDoc("collection/1", 0, @{@"sort": [NSNull null]}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @NO}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @YES}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @1}, DocumentState::kSynced),
-      FSTTestDoc("collection/2", 0, @{@"sort": @1}, DocumentState::kSynced),  // by key
-      FSTTestDoc("collection/3", 0, @{@"sort": @1}, DocumentState::kSynced),  // by key
-      FSTTestDoc("collection/1", 0, @{@"sort": @1.9}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @2}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @2.1}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @""}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @"a"}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @"ab"}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort": @"b"}, DocumentState::kSynced),
-      FSTTestDoc("collection/1", 0, @{@"sort":
-          FSTTestRef("project", DatabaseId::kDefault, @"collection/id1")}, DocumentState::kSynced),
-  ];
+  std::vector<Document> docs = {
+      *Doc("collection/1", 0, Map("sort", nullptr)),
+      *Doc("collection/1", 0, Map("sort", false)),
+      *Doc("collection/1", 0, Map("sort", true)),
+      *Doc("collection/1", 0, Map("sort", 1)),
+      *Doc("collection/2", 0, Map("sort", 1)),  // by key
+      *Doc("collection/3", 0, Map("sort", 1)),  // by key
+      *Doc("collection/1", 0, Map("sort", 1.9)),
+      *Doc("collection/1", 0, Map("sort", 2)),
+      *Doc("collection/1", 0, Map("sort", 2.1)),
+      *Doc("collection/1", 0, Map("sort", "")),
+      *Doc("collection/1", 0, Map("sort", "a")),
+      *Doc("collection/1", 0, Map("sort", "ab")),
+      *Doc("collection/1", 0, Map("sort", "b")),
+      *Doc("collection/1", 0, Map("sort", Ref("project", "collection/id1"))),
+  };
   // clang-format on
 
   [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
@@ -385,18 +361,18 @@ NS_ASSUME_NONNULL_BEGIN
       Query("collection").AddingOrderBy(OrderBy("sort1")).AddingOrderBy(OrderBy("sort2"));
 
   // clang-format off
-  NSArray<FSTDocument *> *docs =
-      @[FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @1}, DocumentState::kSynced),
-        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),
-        FSTTestDoc("collection/2", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/3", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @3}, DocumentState::kSynced),
-        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @1}, DocumentState::kSynced),
-        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),
-        FSTTestDoc("collection/2", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/3", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @3}, DocumentState::kSynced),
-        ];
+  std::vector<Document> docs = {
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),
+      *Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      *Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),
+      *Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      *Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
+  };
   // clang-format on
 
   [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
@@ -408,18 +384,18 @@ NS_ASSUME_NONNULL_BEGIN
                           .AddingOrderBy(OrderBy("sort2", "desc"));
 
   // clang-format off
-  NSArray<FSTDocument *> *docs =
-      @[FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @3}, DocumentState::kSynced),
-        FSTTestDoc("collection/3", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),
-        FSTTestDoc("collection/2", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @2, @"sort2": @1}, DocumentState::kSynced),
-        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @3}, DocumentState::kSynced),
-        FSTTestDoc("collection/3", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),
-        FSTTestDoc("collection/2", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @2}, DocumentState::kSynced),  // by key
-        FSTTestDoc("collection/1", 0, @{@"sort1": @1, @"sort2": @1}, DocumentState::kSynced),
-        ];
+  std::vector<Document> docs = {
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
+      *Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),
+      *Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
+      *Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),
+      *Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
+  };
   // clang-format on
 
   [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
