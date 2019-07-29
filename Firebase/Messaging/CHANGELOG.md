@@ -1,5 +1,5 @@
 # 2019-08-08 -- v4.1.2
-# Fix hang when token is not available before topic subscription and unsubscription. (#3438)
+- Fix hang when token is not available before topic subscription and unsubscription. (#3438)
 
 # 2019-07-18 -- v4.1.1
 - Fix Xcode 11 tvOS build issue - (#3216)
