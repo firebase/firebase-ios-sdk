@@ -38,7 +38,7 @@ class FieldPath : public impl::BasePath<FieldPath>,
                   public util::Comparable<FieldPath> {
  public:
   /** The field path string that represents the document's key. */
-  static constexpr const char* kDocumentKeyPath = "__name__";
+  static constexpr char kDocumentKeyPath[] = "__name__";
 
   // Note: Xcode 8.2 requires explicit specification of the constructor.
   FieldPath() : impl::BasePath<FieldPath>() {
