@@ -418,7 +418,7 @@ struct FrameworkBuilder {
 
     // Verify Firebase headers include an explicit umbrella header for Firebase.h.
     let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase") {
+    if framework.hasPrefix("Firebase") && framework != "FirebaseCoreDiagnostics" {
       let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
       guard fileManager.fileExists(atPath: frameworkHeader.path) else {
         fatalError("Missing explicit umbrella header for \(framework).")

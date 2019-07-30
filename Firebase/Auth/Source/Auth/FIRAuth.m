@@ -928,7 +928,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           return;
         }
         FIRAdditionalUserInfo *additionalUserInfo =
-          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:nil
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:YES];
