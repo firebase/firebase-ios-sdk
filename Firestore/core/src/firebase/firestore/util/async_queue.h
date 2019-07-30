@@ -21,7 +21,7 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 
