@@ -234,7 +234,8 @@ static bool runningAgainstEmulator = false;
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:std::move(credentials_provider)
                                    workerQueue:std::move(workerQueue)
-                                   firebaseApp:app];
+                                   firebaseApp:app
+                              instanceRegistry:nil];
 
   firestore.settings = [FSTIntegrationTestCase settings];
   [_firestores addObject:firestore];

@@ -34,6 +34,12 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol FSTFirestoreInstanceRegistry
+
+- (void)removeInstance:(NSString *)database;
+
+@end
+
 @interface FIRFirestore (/* Init */)
 
 /**
@@ -44,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
-                       firebaseApp:(FIRApp *)app;
+                       firebaseApp:(FIRApp *)app
+                  instanceRegistry:(id<FSTFirestoreInstanceRegistry>)registry;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
@@ -63,6 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
+
+- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 

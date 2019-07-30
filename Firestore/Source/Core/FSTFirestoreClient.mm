@@ -99,8 +99,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:
-                     (CredentialsProvider *)credentialsProvider  // no passing ownership
+                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
+                                         credentialsProvider  // no passing ownership
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)queue NS_DESIGNATED_INITIALIZER;
 
@@ -109,9 +109,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-
-// Does not own the CredentialsProvider instance.
-@property(nonatomic, assign, readonly) CredentialsProvider *credentialsProvider;
 
 @end
 
@@ -127,10 +124,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::unique_ptr<RemoteStore> _remoteStore;
 
   std::shared_ptr<Executor> _userExecutor;
+  std::shared_ptr<CredentialsProvider> _credentialsProvider;
   std::chrono::milliseconds _initialGcDelay;
   std::chrono::milliseconds _regularGcDelay;
   bool _gcHasRun;
-  std::atomic<bool> _isShutdown;
   _Nullable id<FSTLRUDelegate> _lruDelegate;
   DelayedOperation _lruCallback;
 }
@@ -144,35 +141,36 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (bool)isShutdown {
-  return _isShutdown;
+  // Technically, the asyncQueue is still running, but only accepting tasks related to shutdown
+  // or supposed to be run after shutdown. It is effectively shut down to the eyes of users.
+  return _workerQueue->is_shutting_down();
 }
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                               settings:(const Settings &)settings
-                   credentialsProvider:
-                       (CredentialsProvider *)credentialsProvider  // no passing ownership
+                   credentialsProvider:(std::shared_ptr<CredentialsProvider>)
+                                           credentialsProvider  // no passing ownership
                           userExecutor:(std::shared_ptr<Executor>)userExecutor
                            workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                                  settings:settings
-                                      credentialsProvider:credentialsProvider
+                                      credentialsProvider:std::move(credentialsProvider)
                                              userExecutor:std::move(userExecutor)
                                               workerQueue:std::move(workerQueue)];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:
-                     (CredentialsProvider *)credentialsProvider  // no passing ownership
+                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
+                                         credentialsProvider  // no passing ownership
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    _credentialsProvider = credentialsProvider;
+    _credentialsProvider = std::move(credentialsProvider);
     _userExecutor = std::move(userExecutor);
     _workerQueue = std::move(workerQueue);
     _gcHasRun = false;
-    _isShutdown = false;
     _initialGcDelay = FSTLruGcInitialDelay;
     _regularGcDelay = FSTLruGcRegularDelay;
 
@@ -248,7 +246,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   auto datastore =
-      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider);
+      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider.get());
 
   _remoteStore = absl::make_unique<RemoteStore>(
       _localStore, std::move(datastore), _workerQueue,
@@ -310,18 +308,21 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)shutdownWithCallback:(util::StatusCallback)callback {
-  _workerQueue->Enqueue([self, callback] {
-    if (!_isShutdown) {
-      self->_credentialsProvider->SetCredentialChangeListener(nullptr);
+  _workerQueue->EnqueueAndInitializeShutdown([self, callback] {
+    self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
-      // If we've scheduled LRU garbage collection, cancel it.
-      if (self->_lruCallback) {
-        self->_lruCallback.Cancel();
-      }
-      _remoteStore->Shutdown();
-      [self.persistence shutdown];
-      self->_isShutdown = true;
+    // If we've scheduled LRU garbage collection, cancel it.
+    if (self->_lruCallback) {
+      self->_lruCallback.Cancel();
     }
+    _remoteStore->Shutdown();
+    [self.persistence shutdown];
+  });
+  // This separate enqueue ensures if shutdown is called multiple times
+  // every time the callback is triggered. If it is in the previous
+  // enqueue, it might not get executed because after first shutdown
+  // all operations are not executed.
+  _workerQueue->EnqueueEvenAfterShutdown([self, callback] {
     if (callback) {
       self->_userExecutor->Execute([=] { callback(Status::OK()); });
     }
@@ -329,7 +330,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)verifyNotShutdown {
-  if (_isShutdown) {
+  if (self.isShutdown) {
     ThrowIllegalState("The client has already been shutdown.");
   }
 }
@@ -412,9 +413,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
               callback:(util::StatusCallback)callback {
+  [self verifyNotShutdown];
   // TODO(c++14): move `mutations` into lambda (C++14).
   _workerQueue->Enqueue([self, mutations, callback]() mutable {
-    [self verifyNotShutdown];
     if (mutations.empty()) {
       if (callback) {
         self->_userExecutor->Execute([=] { callback(Status::OK()); });
@@ -435,9 +436,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 - (void)transactionWithRetries:(int)retries
                 updateCallback:(core::TransactionUpdateCallback)update_callback
                 resultCallback:(core::TransactionResultCallback)resultCallback {
+  [self verifyNotShutdown];
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [self, resultCallback](util::StatusOr<absl::any> maybe_value) {
-    [self verifyNotShutdown];
     if (resultCallback) {
       self->_userExecutor->Execute([=] { resultCallback(std::move(maybe_value)); });
     }

@@ -70,6 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (NSString *)keyForDatabase:(NSString *)database {
+  return [NSString stringWithFormat:@"%@|%@", self.app.name, database];
+}
+
 #pragma mark - FSTInstanceProvider Conformance
 
 - (FIRFirestore *)firestoreForDatabase:(NSString *)database {
@@ -77,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Database identifier may not be nil.");
   }
 
-  NSString *key = [NSString stringWithFormat:@"%@|%@", self.app.name, database];
+  NSString *key = [self keyForDatabase:database];
 
   // Get the component from the container.
   @synchronized(self.instances) {
@@ -102,11 +106,18 @@ NS_ASSUME_NONNULL_BEGIN
                                             persistenceKey:std::move(persistenceKey)
                                        credentialsProvider:std::move(credentialsProvider)
                                                workerQueue:std::move(workerQueue)
-                                               firebaseApp:self.app];
+                                               firebaseApp:self.app
+                                          instanceRegistry:self];
       _instances[key] = firestore;
     }
-
     return firestore;
+  }
+}
+
+- (void)removeInstance:(NSString *)database {
+  @synchronized(self.instances) {
+    NSString *key = [self keyForDatabase:database];
+    [_instances removeObjectForKey:key];
   }
 }
 
@@ -115,6 +126,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)appWillBeDeleted:(FIRApp *)app {
   // Stop any actions and clean up resources since instances of Firestore associated with this app
   // will be removed. Currently does not do anything.
+  for (NSString *key in _instances) {
+    [_instances[key] shutdownInternalWithCompletion:nil];
+  }
+  [_instances removeAllObjects];
 }
 
 #pragma mark - Object Lifecycle
