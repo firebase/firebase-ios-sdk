@@ -22,6 +22,27 @@ GIT
       ruby-macho (~> 1.4)
       xcodeproj (>= 1.10.0, < 2.0)
 
+GIT
+  remote: https://github.com/CocoaPods/Core.git
+  revision: 9ae4051d5fedf5869b603b1ac409a384537abdf4
+  specs:
+    cocoapods-core (1.7.5)
+      activesupport (>= 4.0.2, < 6)
+      algoliasearch (~> 1.0)
+      fuzzy_match (~> 2.0.4)
+      nap (~> 1.0)
+
+GIT
+  remote: https://github.com/CocoaPods/xcodeproj.git
+  revision: 5b4e8ef7bf54b5d5cbd8970b92cbb9d99f58a942
+  specs:
+    xcodeproj (1.11.0)
+      CFPropertyList (>= 2.3.3, < 4.0)
+      atomos (~> 0.1.3)
+      claide (>= 1.0.2, < 2.0)
+      colored2 (~> 3.1)
+      nanaimo (~> 0.2.6)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -31,12 +52,11 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    algoliasearch (1.26.0)
+      httpclient (~> 2.8, >= 2.8.3)
+      json (>= 1.5.1)
     atomos (0.1.3)
     claide (1.0.2)
-    cocoapods-core (1.7.5)
-      activesupport (>= 4.0.2, < 6)
-      fuzzy_match (~> 2.0.4)
-      nap (~> 1.0)
     cocoapods-deintegrate (1.0.4)
     cocoapods-disable-podfile-validations (0.1.1)
     cocoapods-downloader (1.2.2)
@@ -56,8 +76,10 @@ GEM
     fourflusher (2.3.1)
     fuzzy_match (2.0.4)
     gh_inspector (1.1.3)
+    httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
+    json (2.2.0)
     minitest (5.11.3)
     molinillo (0.6.6)
     nanaimo (0.2.6)
@@ -67,19 +89,15 @@ GEM
     thread_safe (0.3.6)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    xcodeproj (1.11.0)
-      CFPropertyList (>= 2.3.3, < 4.0)
-      atomos (~> 0.1.3)
-      claide (>= 1.0.2, < 2.0)
-      colored2 (~> 3.1)
-      nanaimo (~> 0.2.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   cocoapods!
+  cocoapods-core!
   cocoapods-generate (= 1.5.0)
+  xcodeproj!
 
 BUNDLED WITH
    1.17.3
