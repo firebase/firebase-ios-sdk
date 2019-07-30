@@ -263,7 +263,6 @@ cc_library(
     string_util.h
     to_string.h
     type_traits.h
-    vector_of_ptr.h
     warnings.h
   DEPENDS
     absl_base
