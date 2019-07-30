@@ -78,7 +78,11 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'ISASwizzler' do |iss|
     iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    iss.public_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
     iss.private_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
+
+    # Disable ARC for GULSwizzledObject.
+    iss.requires_arc = ['GoogleUtilities/Common/*.h', 'GoogleUtilities/ISASwizzler/GULObjectSwizzler*.[mh]']
   end
 
   s.subspec 'MethodSwizzler' do |mss|

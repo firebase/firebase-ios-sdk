@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/GULObjectSwizzler.h"
+#import <GoogleUtilities/GULObjectSwizzler.h>
 
 #import <objc/runtime.h>
 
@@ -81,8 +81,8 @@
     if (swizzledObject) {
       _swizzledObject = swizzledObject;
       _originalClass = object_getClass(object);
-      NSString *newClassName = [NSString
-          stringWithFormat:@"fir_%p_%@", swizzledObject, NSStringFromClass(_originalClass)];
+      NSString *newClassName = [NSString stringWithFormat:@"fir_%@_%@", [[NSUUID UUID] UUIDString],
+                                                          NSStringFromClass(_originalClass)];
       _generatedClass = objc_allocateClassPair(_originalClass, newClassName.UTF8String, 0);
       NSAssert(_generatedClass, @"Wasn't able to allocate the class pair.");
     } else {
@@ -150,8 +150,17 @@
   }
 }
 
-- (void)dealloc {
-  objc_disposeClassPair(_generatedClass);
+- (void)swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:(BOOL)isInstanceOfGeneratedSubclass {
+  // If the swizzled object had a different class, it most likely indicates that the object was
+  // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
+  // will have to keep it to prevent a crash.
+
+  // TODO: Consider adding a flag that can be set by the host application to dispose the class pair
+  // unconditionally. It may be used by apps that use ISA Swizzling themself and are confident in
+  // disposing their subclasses.
+  if (isInstanceOfGeneratedSubclass) {
+    objc_disposeClassPair(_generatedClass);
+  }
 }
 
 - (BOOL)isSwizzlingProxyObject {
