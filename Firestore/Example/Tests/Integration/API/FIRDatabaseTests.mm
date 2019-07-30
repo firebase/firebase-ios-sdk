@@ -1369,22 +1369,8 @@ using firebase::firestore::util::TimerId;
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown1"]];
-  [self awaitExpectations];
-  XCTAssertThrowsSpecific(
-      {
-        [firestore disableNetworkWithCompletion:^(NSError *error){
-        }];
-      },
-      NSException, @"The client has already been shutdown.");
 
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown2"]];
-  [self awaitExpectations];
-  XCTAssertThrowsSpecific(
-      {
-        [firestore enableNetworkWithCompletion:^(NSError *error){
-        }];
-      },
-      NSException, @"The client has already been shutdown.");
 }
 
 @end

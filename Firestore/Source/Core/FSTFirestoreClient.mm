@@ -99,8 +99,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                         credentialsProvider  // no passing ownership
+                 credentialsProvider:
+                     (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)queue NS_DESIGNATED_INITIALIZER;
 
@@ -109,6 +109,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
+
+// Does not own the CredentialsProvider instance.
+@property(nonatomic, assign, readonly) CredentialsProvider *credentialsProvider;
 
 @end
 
@@ -124,7 +127,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::unique_ptr<RemoteStore> _remoteStore;
 
   std::shared_ptr<Executor> _userExecutor;
-  std::shared_ptr<CredentialsProvider> _credentialsProvider;
   std::chrono::milliseconds _initialGcDelay;
   std::chrono::milliseconds _regularGcDelay;
   bool _gcHasRun;
@@ -148,26 +150,26 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                               settings:(const Settings &)settings
-                   credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                           credentialsProvider  // no passing ownership
+                   credentialsProvider:
+                       (CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::shared_ptr<Executor>)userExecutor
                            workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                                  settings:settings
-                                      credentialsProvider:std::move(credentialsProvider)
+                                      credentialsProvider:credentialsProvider
                                              userExecutor:std::move(userExecutor)
                                               workerQueue:std::move(workerQueue)];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                         credentialsProvider  // no passing ownership
+                 credentialsProvider:
+                     (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    _credentialsProvider = std::move(credentialsProvider);
+    _credentialsProvider = credentialsProvider;
     _userExecutor = std::move(userExecutor);
     _workerQueue = std::move(workerQueue);
     _gcHasRun = false;
@@ -246,7 +248,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   auto datastore =
-      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider.get());
+      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider);
 
   _remoteStore = absl::make_unique<RemoteStore>(
       _localStore, std::move(datastore), _workerQueue,

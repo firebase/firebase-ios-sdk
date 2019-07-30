@@ -180,12 +180,12 @@ void Firestore::EnsureClientConfigured() {
 
   if (!client_) {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
-    client_ = [FSTFirestoreClient
-        clientWithDatabaseInfo:MakeDatabaseInfo()
-                      settings:settings_
-           credentialsProvider:std::move(credentials_provider_)
-                  userExecutor:user_executor_
-                   workerQueue:worker_queue_];
+    client_ =
+        [FSTFirestoreClient clientWithDatabaseInfo:MakeDatabaseInfo()
+                                          settings:settings_
+                               credentialsProvider:credentials_provider_.get()
+                                      userExecutor:user_executor_
+                                       workerQueue:worker_queue_];
   }
 }
 
