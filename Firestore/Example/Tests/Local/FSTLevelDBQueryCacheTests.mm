@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
@@ -39,6 +38,7 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::Path;
+using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion lastVersion(Timestamp(1, 2));
 
   db1.run("add query data", [&]() {
-    FSTQuery *query = [FSTQuery queryWithPath:ResourcePath{"some", "path"}];
+    core::Query query = Query("some/path");
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:lastTargetId
                                              listenSequenceNumber:minimumSequenceNumber

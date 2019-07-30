@@ -18,12 +18,11 @@
 
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
-
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -31,10 +30,11 @@ using firebase::firestore::model::TargetId;
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryData {
+  Query _query;
   SnapshotVersion _snapshotVersion;
 }
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
          listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                   resumeToken:(NSData *)resumeToken {
   self = [super init];
   if (self) {
-    _query = query;
+    _query = std::move(query);
     _targetID = targetID;
     _sequenceNumber = sequenceNumber;
     _purpose = purpose;
@@ -52,16 +52,20 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
          listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose {
-  return [self initWithQuery:query
+  return [self initWithQuery:std::move(query)
                     targetID:targetID
         listenSequenceNumber:sequenceNumber
                      purpose:purpose
              snapshotVersion:SnapshotVersion::None()
                  resumeToken:[NSData data]];
+}
+
+- (const Query &)query {
+  return _query;
 }
 
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion {
@@ -77,22 +81,22 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTQueryData *other = (FSTQueryData *)object;
-  return [self.query isEqual:other.query] && self.targetID == other.targetID &&
+  return self.query == other.query && self.targetID == other.targetID &&
          self.sequenceNumber == other.sequenceNumber && self.purpose == other.purpose &&
          self.snapshotVersion == other.snapshotVersion &&
          [self.resumeToken isEqual:other.resumeToken];
 }
 
 - (NSUInteger)hash {
-  return util::Hash([self.query hash], self.targetID, self.sequenceNumber,
+  return util::Hash(self.query, self.targetID, self.sequenceNumber,
                     static_cast<NSInteger>(self.purpose), self.snapshotVersion.Hash(),
                     [self.resumeToken hash]);
 }
 
 - (NSString *)description {
   return [NSString
-      stringWithFormat:@"<FSTQueryData: query:%@ target:%d purpose:%lu version:%s resumeToken:%@)>",
-                       self.query, self.targetID, (unsigned long)self.purpose,
+      stringWithFormat:@"<FSTQueryData: query:%s target:%d purpose:%lu version:%s resumeToken:%@)>",
+                       self.query.ToString().c_str(), self.targetID, (unsigned long)self.purpose,
                        self.snapshotVersion.timestamp().ToString().c_str(), self.resumeToken];
 }
 

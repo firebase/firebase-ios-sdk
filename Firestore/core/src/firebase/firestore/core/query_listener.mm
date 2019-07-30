@@ -25,8 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -36,16 +34,12 @@ using model::TargetId;
 using util::MakeStatus;
 using util::Status;
 
-QueryListener::QueryListener(FSTQuery* query,
+QueryListener::QueryListener(Query query,
                              ListenOptions options,
                              ViewSnapshot::SharedListener&& listener)
-    : query_(query),
+    : query_(std::move(query)),
       options_(std::move(options)),
       listener_(std::move(listener)) {
-}
-
-FSTQuery* QueryListener::query() const {
-  return query_;
 }
 
 void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
@@ -155,5 +149,3 @@ void QueryListener::RaiseInitialEvent(const ViewSnapshot& snapshot) {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

@@ -33,7 +33,6 @@
 @class FSTMaybeDocument;
 @class FSTMemoryLRUReferenceDelegate;
 @class FSTMemoryPersistence;
-@class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +49,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
 
   FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) override;
   model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::DocumentMap GetMatching(FSTQuery* query) override;
+  model::DocumentMap GetMatching(const core::Query& query) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       FSTMemoryLRUReferenceDelegate* reference_delegate,

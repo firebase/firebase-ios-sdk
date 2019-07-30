@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 
+#include <iosfwd>
 #include <limits>
 #include <memory>
 #include <string>
@@ -30,6 +31,10 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+#if __OBJC__
+@class FSTDocument;
+#endif
 
 namespace firebase {
 namespace firestore {
@@ -191,6 +196,13 @@ class Query {
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
+#if __OBJC__
+  bool Matches(FSTDocument* doc) const {
+    model::Document converted(doc);
+    return Matches(converted);
+  }
+#endif  // __OBJC__s
+
   /**
    * Returns a comparator that will sort documents according to the order by
    * clauses in this query.
@@ -198,6 +210,12 @@ class Query {
   model::DocumentComparator Comparator() const;
 
   const std::string& CanonicalId() const;
+
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Query& query);
+
+  size_t Hash() const;
 
  private:
   bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
@@ -237,5 +255,16 @@ inline bool operator!=(const Query& lhs, const Query& rhs) {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+namespace std {
+
+template <>
+struct hash<firebase::firestore::core::Query> {
+  size_t operator()(const firebase::firestore::core::Query& query) const {
+    return query.Hash();
+  }
+};
+
+}  // namespace std
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_

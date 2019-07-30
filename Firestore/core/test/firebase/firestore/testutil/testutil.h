@@ -342,6 +342,11 @@ inline core::Query Query(absl::string_view path) {
   return core::Query(Resource(path));
 }
 
+inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
+  return core::Query(model::ResourcePath::Empty(),
+                     std::make_shared<const std::string>(collection_id));
+}
+
 inline std::unique_ptr<model::SetMutation> SetMutation(
     absl::string_view path,
     const model::FieldValue::Map& values = model::FieldValue::Map()) {

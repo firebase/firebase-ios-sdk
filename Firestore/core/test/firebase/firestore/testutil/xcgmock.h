@@ -175,7 +175,6 @@ OBJC_PRINT_TO(FSTMutationResult);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
 OBJC_PRINT_TO(FSTObjectValue);
 OBJC_PRINT_TO(FSTPatchMutation);
-OBJC_PRINT_TO(FSTQuery);
 OBJC_PRINT_TO(FSTQueryData);
 OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);

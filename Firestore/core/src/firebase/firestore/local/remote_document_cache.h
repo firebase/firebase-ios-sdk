@@ -23,13 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTMaybeDocument;
-@class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -92,7 +92,7 @@ class RemoteDocumentCache {
    * @param query The query to match documents against.
    * @return The set of matching documents.
    */
-  virtual model::DocumentMap GetMatching(FSTQuery* query) = 0;
+  virtual model::DocumentMap GetMatching(const core::Query& query) = 0;
 };
 
 }  // namespace local

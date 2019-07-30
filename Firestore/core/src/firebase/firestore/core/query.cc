@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 
 #include <algorithm>
+#include <ostream>
 
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -24,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
 
@@ -300,6 +302,18 @@ const std::string& Query::CanonicalId() const {
 
   canonical_id_ = std::move(result);
   return canonical_id_;
+}
+
+size_t Query::Hash() const {
+  return util::Hash(CanonicalId());
+}
+
+std::string Query::ToString() const {
+  return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const Query& query) {
+  return os << query.ToString();
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {

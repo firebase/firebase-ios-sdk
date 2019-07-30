@@ -26,12 +26,12 @@
 #include <functional>
 #include <unordered_map>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTQuery;
 @class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +50,7 @@ using TargetCallback = std::function<void(FSTQueryData*)>;
  * both a mapping between targets and the documents that matched them according
  * to the server, but also metadata about the targets.
  *
- * The cache is keyed by FSTQuery and entries in the cache are FSTQueryData
+ * The cache is keyed by Query and entries in the cache are FSTQueryData
  * instances.
  */
 class QueryCache {
@@ -91,7 +91,7 @@ class QueryCache {
    * @return The cached FSTQueryData entry, or nil if the cache has no entry for
    * the query.
    */
-  virtual FSTQueryData* _Nullable GetTarget(FSTQuery* query) = 0;
+  virtual FSTQueryData* _Nullable GetTarget(const core::Query& query) = 0;
 
   virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 

@@ -23,7 +23,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
@@ -196,7 +195,7 @@ void DocumentReference::GetDocument(Source source,
 
 ListenerRegistration DocumentReference::AddSnapshotListener(
     ListenOptions options, DocumentSnapshot::Listener&& user_listener) {
-  FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
+  core::Query query(key_.path());
 
   // Convert from ViewSnapshots to DocumentSnapshots.
   class Converter : public EventListener<ViewSnapshot> {

@@ -60,6 +60,8 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
+using testutil::Query;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLRUGarbageCollectorTests {
@@ -155,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQueryData *)nextTestQuery {
   TargetId targetID = ++_previousTargetID;
   ListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
-  FSTQuery *query = FSTTestQuery(absl::StrCat("path", targetID));
+  core::Query query = Query(absl::StrCat("path", targetID));
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:targetID
                         listenSequenceNumber:listenSequenceNumber
