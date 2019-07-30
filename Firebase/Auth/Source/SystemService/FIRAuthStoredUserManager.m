@@ -39,8 +39,8 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 - (instancetype)initWithServiceName:(NSString *)serviceName {
   self = [super init];
   if (self) {
-    _keychain = [[FIRAuthKeychain alloc] initWithService:serviceName];
-    _userDefaults = [[FIRAuthUserDefaultsStorage alloc] initWithService:serviceName];
+    _keychainServices = [[FIRAuthKeychainServices alloc] initWithService:serviceName];
+    _userDefaults = [[FIRAuthUserDefaults alloc] initWithService:serviceName];
   }
   return self;
 }
@@ -81,7 +81,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
-  NSData *data = [self.keychain getItemWithQuery:query error:outError];
+  NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
   NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
   FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
 
@@ -105,7 +105,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   [archiver encodeObject:user forKey:kStoredUserCoderKey];
   [archiver finishEncoding];
 
-  return [self.keychain setItem:data withQuery:query error:outError];
+  return [self.keychainServices setItem:data withQuery:query error:outError];
 }
 
 - (BOOL)removeStoredUserForAccessGroup:(NSString *)accessGroup
@@ -119,7 +119,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
-  return [self.keychain removeItemWithQuery:query error:outError];
+  return [self.keychainServices removeItemWithQuery:query error:outError];
 }
 
 @end

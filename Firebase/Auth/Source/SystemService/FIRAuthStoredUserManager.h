@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRUser.h"
-#import "FIRAuthKeychain.h"
-#import "FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthKeychainServices.h"
+#import "FIRAuthUserDefaults.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,12 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** @property keychain
     @brief The mediator object to access to the system Keychain services.
  */
-@property (readonly, nonatomic, strong) FIRAuthKeychain *keychain;
+@property (readonly, nonatomic, strong) FIRAuthKeychainServices *keychainServices;
 
 /** @property userDefaults
     @brief The mediator object to access to the system User Defaults services.
  */
-@property (readonly, nonatomic, strong) FIRAuthUserDefaultsStorage *userDefaults;
+@property (readonly, nonatomic, strong) FIRAuthUserDefaults *userDefaults;
 
 /** @fn init
     @brief The default initializer is disabled.
