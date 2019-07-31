@@ -17,7 +17,7 @@
 #import <Security/Security.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthKeychain.h"
+#import "FIRAuthKeychainServices.h"
 
 /** @var kAccountPrefix
     @brief The keychain account prefix assumed by the tests.
@@ -98,7 +98,7 @@ static NSError *fakeError() {
 - (void)testReadNonexisting {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:nil account:kKey service:nil];  // legacy form
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
   XCTAssertNil([keychain dataForKey:kKey error:&error]);
   XCTAssertNil(error);
@@ -109,7 +109,7 @@ static NSError *fakeError() {
  */
 - (void)testReadExisting {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
   XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
   XCTAssertNil(error);
@@ -122,7 +122,7 @@ static NSError *fakeError() {
 - (void)testNotReadOtherService {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:kData account:accountFromKey(kKey) service:kOtherService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
   XCTAssertNil([keychain dataForKey:kKey error:&error]);
   XCTAssertNil(error);
@@ -134,7 +134,7 @@ static NSError *fakeError() {
  */
 - (void)testWriteNonexisting {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   XCTAssertTrue([keychain setData:dataFromString(kData) forKey:kKey error:NULL]);
   XCTAssertEqualObjects([self passwordWithAccount:accountFromKey(kKey) service:kService], kData);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
@@ -145,7 +145,7 @@ static NSError *fakeError() {
  */
 - (void)testWriteExisting {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   XCTAssertTrue([keychain setData:dataFromString(kOtherData) forKey:kKey error:NULL]);
   XCTAssertEqualObjects([self passwordWithAccount:accountFromKey(kKey) service:kService],
                         kOtherData);
@@ -157,7 +157,7 @@ static NSError *fakeError() {
  */
 - (void)testDeleteNonexisting {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   XCTAssertTrue([keychain removeDataForKey:kKey error:NULL]);
   XCTAssertNil([self passwordWithAccount:accountFromKey(kKey) service:kService]);
 }
@@ -167,7 +167,7 @@ static NSError *fakeError() {
  */
 - (void)testDeleteExisting {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   XCTAssertTrue([keychain removeDataForKey:kKey error:NULL]);
   XCTAssertNil([self passwordWithAccount:accountFromKey(kKey) service:kService]);
 }
@@ -178,7 +178,7 @@ static NSError *fakeError() {
 - (void)testReadLegacy {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:kData account:kKey service:nil];  // legacy form
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
   XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
   XCTAssertNil(error);
@@ -194,7 +194,7 @@ static NSError *fakeError() {
 - (void)testNotReadLegacy {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
   [self setPassword:kOtherData account:kKey service:nil];  // legacy form
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
   XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
   XCTAssertNil(error);
@@ -211,7 +211,7 @@ static NSError *fakeError() {
 - (void)testRemoveLegacy {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
   [self setPassword:kOtherData account:kKey service:nil];  // legacy form
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   XCTAssertTrue([keychain removeDataForKey:kKey error:NULL]);
   XCTAssertNil([self passwordWithAccount:accountFromKey(kKey) service:kService]);
   XCTAssertNil([self passwordWithAccount:kKey service:nil]);
@@ -221,7 +221,7 @@ static NSError *fakeError() {
     @brief Tests that 'NULL' can be safely passed in.
  */
 - (void)testNullErrorParameter {
-  FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   [keychain dataForKey:kKey error:NULL];
   [keychain setData:dataFromString(kData) forKey:kKey error:NULL];
   [keychain removeDataForKey:kKey error:NULL];
