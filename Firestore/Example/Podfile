@@ -22,7 +22,7 @@ install! 'cocoapods',
 
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
-  system(sync.to_s)
+  system('ruby', sync.to_s)
 end
 
 
