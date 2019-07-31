@@ -9,5 +9,6 @@
   "FirebaseFirestore":"1.4.3",
   "FirebaseInAppMessaging":"0.15.3",
   "FirebaseInAppMessagingDisplay":"0.15.3",
+  "FirebaseInstanceID":"4.2.3",
   "FirebaseMessaging":"4.1.2"
 }
