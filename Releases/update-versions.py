@@ -229,7 +229,6 @@ def PushPodspecs(version_data):
     version_data: dictionary of versions to be updated.
   """
   pods = version_data.keys()
-  pods.insert(0, pods.pop(pods.index('FirebaseCore')))  # Core should be first
   tmp_dir = tempfile.mkdtemp()
   for pod in pods:
     LogOrRun('pod cache clean {} --all'.format(pod))
