@@ -246,7 +246,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   auto datastore =
-      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider.get());
+      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider);
 
   _remoteStore = absl::make_unique<RemoteStore>(
       _localStore, std::move(datastore), _workerQueue,

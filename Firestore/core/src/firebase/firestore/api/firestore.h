@@ -56,7 +56,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   Firestore(model::DatabaseId database_id,
             std::string persistence_key,
-            std::unique_ptr<auth::CredentialsProvider> credentials_provider,
+            std::shared_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
             void* extension);
 
@@ -100,7 +100,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   core::DatabaseInfo MakeDatabaseInfo() const;
 
   model::DatabaseId database_id_;
-  std::unique_ptr<auth::CredentialsProvider> credentials_provider_;
+  std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
   objc::Handle<FSTFirestoreClient> client_;
 

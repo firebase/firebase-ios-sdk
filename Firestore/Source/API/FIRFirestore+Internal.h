@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
                        firebaseApp:(FIRApp *)app
                   instanceRegistry:(id<FSTFirestoreInstanceRegistry>)registry;

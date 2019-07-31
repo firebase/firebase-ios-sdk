@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
       auto workerQueue = absl::make_unique<AsyncQueue>(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
-      auto credentialsProvider = absl::make_unique<FirebaseCredentialsProvider>(self.app, auth);
+      auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);
 
       model::DatabaseId databaseID{util::MakeString(self.app.options.projectID),
                                    util::MakeString(database)};

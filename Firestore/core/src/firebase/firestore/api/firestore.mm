@@ -55,7 +55,7 @@ using util::Status;
 
 Firestore::Firestore(model::DatabaseId database_id,
                      std::string persistence_key,
-                     std::unique_ptr<CredentialsProvider> credentials_provider,
+                     std::shared_ptr<CredentialsProvider> credentials_provider,
                      std::shared_ptr<AsyncQueue> worker_queue,
                      void* extension)
     : database_id_{std::move(database_id)},

@@ -71,7 +71,8 @@ class MockWatchStream : public WatchStream {
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WatchStream{worker_queue, std::shared_ptr<CredentialsProvider>(credentials_provider),
+                    serializer, grpc_connection, callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -162,7 +163,8 @@ class MockWriteStream : public WriteStream {
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WriteStream{worker_queue, std::shared_ptr<CredentialsProvider>(credentials_provider),
+                    serializer, grpc_connection, callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -241,7 +243,8 @@ class MockWriteStream : public WriteStream {
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
                              auth::CredentialsProvider* credentials)
-    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
+    : Datastore{database_info, worker_queue, std::shared_ptr<CredentialsProvider>(credentials),
+                CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {
