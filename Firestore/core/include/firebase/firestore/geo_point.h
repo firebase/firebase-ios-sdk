@@ -33,27 +33,15 @@ namespace firestore {
 class GeoPoint {
  public:
   /** Creates a `GeoPoint` with both latitude and longitude set to 0. */
-  GeoPoint();
+  GeoPoint() = default;
 
   /**
    * Creates a `GeoPoint` from the provided latitude and longitude values.
    *
-   * @param latitude The latitude as number between -90 and 90.
-   * @param longitude The longitude as number between -180 and 180.
+   * @param latitude The latitude as number of degrees between -90 and 90.
+   * @param longitude The longitude as number of degrees between -180 and 180.
    */
   GeoPoint(double latitude, double longitude);
-
-  /** Copy constructor, `GeoPoint` is trivially copyable. */
-  GeoPoint(const GeoPoint& other) = default;
-
-  /** Move constructor, equivalent to copying. */
-  GeoPoint(GeoPoint&& other) = default;
-
-  /** Copy assignment operator, `GeoPoint` is trivially copyable. */
-  GeoPoint& operator=(const GeoPoint& other) = default;
-
-  /** Move assignment operator, equivalent to copying. */
-  GeoPoint& operator=(GeoPoint&& other) = default;
 
   /** Returns the latitude value of this `GeoPoint`. */
   double latitude() const {
@@ -82,8 +70,8 @@ class GeoPoint {
   friend std::ostream& operator<<(std::ostream& out, const GeoPoint& geo_point);
 
  private:
-  double latitude_;
-  double longitude_;
+  double latitude_ = 0.0;
+  double longitude_ = 0.0;
 };
 
 /** Checks whether `lhs` and `rhs` are in ascending order. */
