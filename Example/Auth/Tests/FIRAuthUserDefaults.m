@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthUserDefaults.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,22 +62,22 @@ static NSError *fakeError() {
   return [NSError errorWithDomain:@"ERROR" code:-1 userInfo:nil];
 }
 
-/** @class FIRAuthUserDefaultsStorageTests
-    @brief Tests for @c FIRAuthUserDefaultsStorage .
+/** @class FIRAuthUserDefaultsTests
+    @brief Tests for @c FIRAuthUserDefaults.
  */
-@interface FIRAuthUserDefaultsStorageTests : XCTestCase
+@interface FIRAuthUserDefaultsTests : XCTestCase
 @end
 
-@implementation FIRAuthUserDefaultsStorageTests {
+@implementation FIRAuthUserDefaultsTests {
   /** @var _storage
-      @brief The @c FIRAuthUserDefaultsStorage object under test.
+      @brief The @c FIRAuthUserDefaults object under test.
    */
-  FIRAuthUserDefaultsStorage *_storage;
+  FIRAuthUserDefaults *_storage;
 }
 
 - (void)setUp {
   [super setUp];
-  _storage = [[FIRAuthUserDefaultsStorage alloc] initWithService:kService];
+  _storage = [[FIRAuthUserDefaults alloc] initWithService:kService];
   [_storage clear];
 }
 
@@ -127,14 +127,14 @@ static NSError *fakeError() {
  */
 - (void)testServices {
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
-  _storage = [[FIRAuthUserDefaultsStorage alloc] initWithService:kOtherService];
+  _storage = [[FIRAuthUserDefaults alloc] initWithService:kOtherService];
   NSError *error = fakeError();
   XCTAssertNil([_storage dataForKey:kKey error:&error]);
   XCTAssertNil(error);
 }
 
 /** @fn testStandardUserDefaults
-    @brief Tests standard user defaults are not affected by FIRAuthUserDefaultsStorage operations,
+    @brief Tests standard user defaults are not affected by FIRAuthUserDefaults operations,
  */
 - (void)testStandardUserDefaults {
   NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
