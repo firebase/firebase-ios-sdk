@@ -39,8 +39,7 @@ if args.updatePodRepo {
   cocoaPodsUpdateMessage = "CocoaPods took \(-buildStart.timeIntervalSinceNow) seconds to update."
 }
 
-var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir,
-                                       coreDiagnosticsDir: args.coreDiagnosticsDir)
+var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir)
 paths.allSDKsPath = args.allSDKsPath
 paths.currentReleasePath = args.currentReleasePath
 paths.logsOutputDir = args.outputDir?.appendingPathComponent("build_logs")

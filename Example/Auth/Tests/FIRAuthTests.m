@@ -1468,6 +1468,12 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserAnonymous:result.user];
     XCTAssertNil(error);
+    FIRAdditionalUserInfo *userInfo = result.additionalUserInfo;
+    XCTAssertNotNil(userInfo);
+    XCTAssertTrue(userInfo.isNewUser);
+    XCTAssertNil(userInfo.username);
+    XCTAssertNil(userInfo.profile);
+    XCTAssertNil(userInfo.providerID);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

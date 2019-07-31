@@ -14,7 +14,7 @@
 
 #import <objc/runtime.h>
 
-#import "Private/GULObjectSwizzler.h"
+#import "GULObjectSwizzler+Internal.h"
 #import "Private/GULSwizzledObject.h"
 
 NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
@@ -28,6 +28,7 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 + (void)copyDonorSelectorsUsingObjectSwizzler:(GULObjectSwizzler *)objectSwizzler {
   [objectSwizzler copySelector:@selector(gul_objectSwizzler) fromClass:self isClassSelector:NO];
   [objectSwizzler copySelector:@selector(gul_class) fromClass:self isClassSelector:NO];
+  [objectSwizzler copySelector:@selector(dealloc) fromClass:self isClassSelector:NO];
 
   // This is needed because NSProxy objects usually override -[NSObjectProtocol respondsToSelector:]
   // and ask this question to the underlying object. Since we don't swizzle the underlying object
@@ -59,6 +60,29 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 - (BOOL)respondsToSelector:(SEL)aSelector {
   Class gulClass = [[self gul_objectSwizzler] generatedClass];
   return [gulClass instancesRespondToSelector:aSelector] || [super respondsToSelector:aSelector];
+}
+
+- (void)dealloc {
+  // We need to make sure the swizzler is deallocated after the swizzled object to do the clean up
+  // only when the swizzled object is not used.
+  GULObjectSwizzler *swizzler = nil;
+  BOOL isInstanceOfGeneratedClass = NO;
+
+  @autoreleasepool {
+    Class generatedClass = [self gul_class];
+    isInstanceOfGeneratedClass = object_getClass(self) == generatedClass;
+
+    swizzler = [[self gul_objectSwizzler] retain];
+    [GULObjectSwizzler setAssociatedObject:self
+                                       key:kSwizzlerAssociatedObjectKey
+                                     value:nil
+                               association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
+  }
+
+  [super dealloc];
+
+  [swizzler swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:isInstanceOfGeneratedClass];
+  [swizzler release];
 }
 
 @end

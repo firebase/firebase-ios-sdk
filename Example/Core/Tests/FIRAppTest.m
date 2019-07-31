@@ -15,11 +15,9 @@
 #import "FIRTestCase.h"
 #import "FIRTestComponents.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRCoreDiagnosticsConnector.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
@@ -53,6 +51,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 @property(nonatomic) id appClassMock;
 @property(nonatomic) id observerMock;
+@property(nonatomic) id mockCoreDiagnosticsConnector;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 
 @end
@@ -65,6 +64,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp resetApps];
   _appClassMock = OCMClassMock([FIRApp class]);
   _observerMock = OCMObserverMock();
+  _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
+
+  OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
+      .andDo(^(NSInvocation *invocation){
+      });
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
   //       inject instead of using defaultCenter.
@@ -76,6 +80,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [_notificationCenter removeObserver:_observerMock];
   _observerMock = nil;
   _notificationCenter = nil;
+  _mockCoreDiagnosticsConnector = nil;
 
   [super tearDown];
 }
@@ -730,6 +735,24 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
+#pragma mark - Core Diagnostics
+
+- (void)testCoreDiagnosticsLoggedWhenFIRAppIsConfigured {
+  [self expectCoreDiagnosticsDataLogWithOptions:[self appOptions]];
+  [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
+  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
+}
+
+- (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
+  FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
+  [self expectCoreDiagnosticsDataLogWithOptions:app.options];
+
+  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
+                                         object:nil];
+
+  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
+}
+
 #pragma mark - private
 
 - (void)expectNotificationForObserver:(id)observer
@@ -747,6 +770,41 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
     kFIRAppIsDefaultAppKey : [NSNumber numberWithBool:isDefaultApp],
     kFIRGoogleAppIDKey : kGoogleAppID
   };
+}
+
+- (void)expectCoreDiagnosticsDataLogWithOptions:(nullable FIROptions *)expectedOptions {
+  [self.mockCoreDiagnosticsConnector stopMocking];
+  self.mockCoreDiagnosticsConnector = nil;
+  self.mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
+
+  OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
+      logCoreTelemetryWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
+        if (!expectedOptions) {
+          return YES;
+        }
+        return [options.googleAppID isEqualToString:expectedOptions.googleAppID] &&
+               [options.GCMSenderID isEqualToString:expectedOptions.GCMSenderID];
+      }]]));
+}
+
+- (NSNotificationName)appDidBecomeActiveNotificationName {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  return UIApplicationDidBecomeActiveNotification;
+#endif
+
+#if TARGET_OS_OSX
+  return NSApplicationDidBecomeActiveNotification;
+#endif
+}
+
+- (FIRApp *)createConfiguredAppWithName:(NSString *)name {
+  FIROptions *options = [self appOptions];
+  [FIRApp configureWithName:name options:options];
+  return [FIRApp appNamed:name];
+}
+
+- (FIROptions *)appOptions {
+  return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
 }
 
 @end
