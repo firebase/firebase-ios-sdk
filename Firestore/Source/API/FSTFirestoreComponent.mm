@@ -124,8 +124,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRComponentLifecycleMaintainer
 
 - (void)appWillBeDeleted:(FIRApp *)app {
-  // Stop any actions and clean up resources since instances of Firestore associated with this app
-  // will be removed. Currently does not do anything.
   for (NSString *key in _instances) {
     [_instances[key] shutdownInternalWithCompletion:nil];
   }
