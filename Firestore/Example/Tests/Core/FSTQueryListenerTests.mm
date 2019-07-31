@@ -40,7 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::DocumentViewChange;
@@ -149,7 +149,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
     accum.push_back(maybe_snapshot.status());
   });
 
-  Status testError{FirestoreErrorCode::Unauthenticated, "Some info"};
+  Status testError{Error::Unauthenticated, "Some info"};
   listener->OnError(testError);
 
   XC_ASSERT_THAT(accum, ElementsAre(testError));

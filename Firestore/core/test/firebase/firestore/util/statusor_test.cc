@@ -79,15 +79,14 @@ TEST(StatusOr, ElementType) {
 
 TEST(StatusOr, TestNoDefaultConstructorInitialization) {
   // Explicitly initialize it with an error code.
-  StatusOr<NoDefaultConstructor> statusor(
-      Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<NoDefaultConstructor> statusor(Status(Error::Cancelled, ""));
   EXPECT_FALSE(statusor.ok());
-  EXPECT_EQ(statusor.status().code(), FirestoreErrorCode::Cancelled);
+  EXPECT_EQ(statusor.status().code(), Error::Cancelled);
 
   // Default construction of StatusOr initializes it with an UNKNOWN error code.
   StatusOr<NoDefaultConstructor> statusor2;
   EXPECT_FALSE(statusor2.ok());
-  EXPECT_EQ(statusor2.status().code(), FirestoreErrorCode::Unknown);
+  EXPECT_EQ(statusor2.status().code(), Error::Unknown);
 }
 
 TEST(StatusOr, TestMoveOnlyInitialization) {
@@ -103,8 +102,7 @@ TEST(StatusOr, TestMoveOnlyInitialization) {
 }
 
 TEST(StatusOr, TestMoveOnlyStatusCtr) {
-  StatusOr<std::unique_ptr<int>> thing(
-      Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<std::unique_ptr<int>> thing(Status(Error::Cancelled, ""));
   ASSERT_FALSE(thing.ok());
 }
 
@@ -139,15 +137,15 @@ TEST(StatusOr, TestMoveOnlyVector) {
   vec.resize(2);
   auto another_vec = std::move(vec);
   EXPECT_EQ(0, *another_vec[0].ValueOrDie());
-  EXPECT_EQ(FirestoreErrorCode::Unknown, another_vec[1].status().code());
+  EXPECT_EQ(Error::Unknown, another_vec[1].status().code());
 }
 
 TEST(StatusOr, TestMoveWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(FirestoreErrorCode::Unknown, "error1"));
-  StatusOr<string> error2(Status(FirestoreErrorCode::Unknown, "error2"));
+  StatusOr<string> error1(Status(Error::Unknown, "error1"));
+  StatusOr<string> error2(Status(Error::Unknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -177,8 +175,8 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(FirestoreErrorCode::Unknown, "error1"));
-  StatusOr<string> error2(Status(FirestoreErrorCode::Unknown, "error2"));
+  StatusOr<string> error1(Status(Error::Unknown, "error1"));
+  StatusOr<string> error2(Status(Error::Unknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -213,7 +211,7 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
 TEST(StatusOr, TestDefaultCtor) {
   StatusOr<int> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Unknown);
+  EXPECT_EQ(thing.status().code(), Error::Unknown);
 }
 
 TEST(StatusOrDeathTest, TestDefaultCtorValue) {
@@ -225,9 +223,9 @@ TEST(StatusOrDeathTest, TestDefaultCtorValue) {
 }
 
 TEST(StatusOr, TestStatusCtor) {
-  StatusOr<int> thing(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int> thing(Status(Error::Cancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Cancelled);
+  EXPECT_EQ(thing.status().code(), Error::Cancelled);
 }
 
 TEST(StatusOr, TestValueCtor) {
@@ -246,7 +244,7 @@ TEST(StatusOr, TestCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOk) {
-  StatusOr<int> original(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int> original(Status(Error::Cancelled, ""));
   StatusOr<int> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -269,7 +267,7 @@ TEST(StatusOr, TestCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOkConverting) {
-  StatusOr<int> original(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int> original(Status(Error::Cancelled, ""));
   StatusOr<double> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -284,7 +282,7 @@ TEST(StatusOr, TestAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestAssignmentStatusNotOk) {
-  StatusOr<int> source(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int> source(Status(Error::Cancelled, ""));
   StatusOr<int> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -293,9 +291,9 @@ TEST(StatusOr, TestAssignmentStatusNotOk) {
 TEST(StatusOr, TestStatus) {
   StatusOr<int> good(4);
   EXPECT_TRUE(good.ok());
-  StatusOr<int> bad(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int> bad(Status(Error::Cancelled, ""));
   EXPECT_FALSE(bad.ok());
-  EXPECT_EQ(bad.status(), Status(FirestoreErrorCode::Cancelled, ""));
+  EXPECT_EQ(bad.status(), Status(Error::Cancelled, ""));
 }
 
 TEST(StatusOr, TestValue) {
@@ -311,19 +309,19 @@ TEST(StatusOr, TestValueConst) {
 }
 
 TEST(StatusOrDeathTest, TestValueNotOk) {
-  StatusOr<int> thing(Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  StatusOr<int> thing(Status(Error::Cancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestValueNotOkConst) {
-  const StatusOr<int> thing(Status(FirestoreErrorCode::Unknown, ""));
+  const StatusOr<int> thing(Status(Error::Unknown, ""));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOr, TestPointerDefaultCtor) {
   StatusOr<int*> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), FirestoreErrorCode::Unknown);
+  EXPECT_EQ(thing.status().code(), Error::Unknown);
 }
 
 TEST(StatusOrDeathTest, TestPointerDefaultCtorValue) {
@@ -332,9 +330,9 @@ TEST(StatusOrDeathTest, TestPointerDefaultCtorValue) {
 }
 
 TEST(StatusOr, TestPointerStatusCtor) {
-  StatusOr<int*> thing(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int*> thing(Status(Error::Cancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status(), Status(FirestoreErrorCode::Cancelled, ""));
+  EXPECT_EQ(thing.status(), Status(Error::Cancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValueCtor) {
@@ -353,7 +351,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOk) {
-  StatusOr<int*> original(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int*> original(Status(Error::Cancelled, ""));
   StatusOr<int*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -368,7 +366,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOkConverting) {
-  StatusOr<Derived*> original(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<Derived*> original(Status(Error::Cancelled, ""));
   StatusOr<Base2*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -383,7 +381,7 @@ TEST(StatusOr, TestPointerAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestPointerAssignmentStatusNotOk) {
-  StatusOr<int*> source(Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<int*> source(Status(Error::Cancelled, ""));
   StatusOr<int*> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -393,8 +391,8 @@ TEST(StatusOr, TestPointerStatus) {
   const int kI = 0;
   StatusOr<const int*> good(&kI);
   EXPECT_TRUE(good.ok());
-  StatusOr<const int*> bad(Status(FirestoreErrorCode::Cancelled, ""));
-  EXPECT_EQ(bad.status(), Status(FirestoreErrorCode::Cancelled, ""));
+  StatusOr<const int*> bad(Status(Error::Cancelled, ""));
+  EXPECT_EQ(bad.status(), Status(Error::Cancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValue) {
@@ -420,13 +418,12 @@ TEST(StatusOr, TestPointerValueConst) {
 // }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOk) {
-  StatusOr<int*> thing(Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  StatusOr<int*> thing(Status(Error::Cancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOkConst) {
-  const StatusOr<int*> thing(
-      Status(FirestoreErrorCode::Cancelled, "cancelled"));
+  const StatusOr<int*> thing(Status(Error::Cancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 

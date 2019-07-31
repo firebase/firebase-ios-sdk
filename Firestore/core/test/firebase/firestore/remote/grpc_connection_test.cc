@@ -58,7 +58,7 @@ class FakeConnectivityMonitor : public ConnectivityMonitor {
 };
 
 bool IsConnectivityChange(const Status& status) {
-  return status.code() == FirestoreErrorCode::Unavailable;
+  return status.code() == Error::Unavailable;
 }
 
 class ConnectivityObserver : public GrpcStreamObserver {

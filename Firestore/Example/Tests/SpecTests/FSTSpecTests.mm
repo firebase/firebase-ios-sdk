@@ -58,7 +58,7 @@
 namespace objc = firebase::firestore::objc;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
@@ -283,7 +283,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSDictionary *userInfo = @{
       NSLocalizedDescriptionKey : @"Error from watchRemove.",
     };
-    error = Status{static_cast<FirestoreErrorCode>(code), MakeString([userInfo description])};
+    error = Status{static_cast<Error>(code), MakeString([userInfo description])};
   }
   WatchTargetChange change{WatchTargetChangeState::Removed,
                            ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};

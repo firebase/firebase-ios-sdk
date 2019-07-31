@@ -26,10 +26,10 @@ namespace firestore {
 namespace util {
 
 /// Returns the Canonical error code for the given errno value.
-static FirestoreErrorCode CodeForErrno(int errno_code) {
+static Error CodeForErrno(int errno_code) {
   switch (errno_code) {
     case 0:
-      return FirestoreErrorCode::Ok;
+      return Error::Ok;
 
       // Internal canonical mappings call these failed preconditions, but for
       // our purposes these must indicate an internal error in file handling.
@@ -37,7 +37,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(EBADFD)
     case EBADFD:  // File descriptor in bad state
 #endif
-      return FirestoreErrorCode::Internal;
+      return Error::Internal;
 
     case EINVAL:        // Invalid argument
     case ENAMETOOLONG:  // Filename too long
@@ -52,11 +52,11 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case ENOTTY:        // Inappropriate I/O control operation
     case EPROTOTYPE:    // Protocol wrong type for socket
     case ESPIPE:        // Invalid seek
-      return FirestoreErrorCode::InvalidArgument;
+      return Error::InvalidArgument;
 
     case ETIMEDOUT:  // Connection timed out
     case ETIME:      // Timer expired
-      return FirestoreErrorCode::DeadlineExceeded;
+      return Error::DeadlineExceeded;
 
     case ENODEV:  // No such device
     case ENOENT:  // No such file or directory
@@ -65,7 +65,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #endif
     case ENXIO:  // No such device or address
     case ESRCH:  // No such process
-      return FirestoreErrorCode::NotFound;
+      return Error::NotFound;
 
     case EEXIST:         // File exists
     case EADDRNOTAVAIL:  // Address not available
@@ -73,7 +73,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(ENOTUNIQ)
     case ENOTUNIQ:  // Name not unique on network
 #endif
-      return FirestoreErrorCode::AlreadyExists;
+      return Error::AlreadyExists;
 
     case EPERM:   // Operation not permitted
     case EACCES:  // Permission denied
@@ -81,7 +81,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case ENOKEY:  // Required key not available
 #endif
     case EROFS:  // Read only file system
-      return FirestoreErrorCode::PermissionDenied;
+      return Error::PermissionDenied;
 
     case ENOTEMPTY:   // Directory not empty
     case EISDIR:      // Is a directory
@@ -105,7 +105,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(EUNATCH)
     case EUNATCH:  // Protocol driver not attached
 #endif
-      return FirestoreErrorCode::FailedPrecondition;
+      return Error::FailedPrecondition;
 
     case ENOSPC:  // No space left on device
 #if defined(EDQUOT)
@@ -121,7 +121,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(EUSERS)
     case EUSERS:  // Too many users
 #endif
-      return FirestoreErrorCode::ResourceExhausted;
+      return Error::ResourceExhausted;
 
 #if defined(ECHRNG)
     case ECHRNG:  // Channel number out of range
@@ -129,7 +129,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case EFBIG:      // File too large
     case EOVERFLOW:  // Value too large to be stored in data type
     case ERANGE:     // Result too large
-      return FirestoreErrorCode::OutOfRange;
+      return Error::OutOfRange;
 
 #if defined(ENOPKG)
     case ENOPKG:  // Package not installed
@@ -145,7 +145,7 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case ESOCKTNOSUPPORT:  // Socket type not supported
 #endif
     case EXDEV:  // Improper link
-      return FirestoreErrorCode::Unimplemented;
+      return Error::Unimplemented;
 
     case EAGAIN:  // Resource temporarily unavailable
 #if defined(ECOMM)
@@ -167,19 +167,19 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(ENONET)
     case ENONET:  // Machine is not on the network
 #endif
-      return FirestoreErrorCode::Unavailable;
+      return Error::Unavailable;
 
     case EDEADLK:  // Resource deadlock avoided
 #if defined(ESTALE)
     case ESTALE:  // Stale file handle
 #endif
-      return FirestoreErrorCode::Aborted;
+      return Error::Aborted;
 
     case ECANCELED:  // Operation cancelled
-      return FirestoreErrorCode::Cancelled;
+      return Error::Cancelled;
 
     default:
-      return FirestoreErrorCode::Unknown;
+      return Error::Unknown;
   }
 }
 
@@ -188,7 +188,7 @@ Status Status::FromErrno(int errno_code, absl::string_view msg) {
     return Status::OK();
   }
 
-  FirestoreErrorCode canonical_code = CodeForErrno(errno_code);
+  Error canonical_code = CodeForErrno(errno_code);
   return Status{canonical_code,
                 util::StringFormat("%s (errno %s: %s)", msg, errno_code,
                                    StrError(errno_code))};

@@ -37,7 +37,7 @@ using util::CompletionEndState;
 using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
-using util::GetFirestoreErrorCodeName;
+using util::GetFirestoreErrorName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
@@ -232,7 +232,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   worker_queue->EnqueueBlocking([] {});
 
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::ResourceExhausted);
+  EXPECT_EQ(status.value().code(), Error::ResourceExhausted);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -247,7 +247,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
   ForceFinish(
       {{Type::Finish, grpc::Status{grpc::StatusCode::UNAVAILABLE, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::Unavailable);
+  EXPECT_EQ(status.value().code(), Error::Unavailable);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -262,7 +262,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 
   ForceFinish({{Type::Finish, grpc::Status{grpc::StatusCode::DATA_LOSS, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::DataLoss);
+  EXPECT_EQ(status.value().code(), Error::DataLoss);
   EXPECT_TRUE(responses.empty());
 }
 
