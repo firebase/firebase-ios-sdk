@@ -1,3 +1,6 @@
+# 6.2.4
+- Fix `GULObjectSwizzler` dealloc thread-safety. (#3300, #3183)
+
 # 6.2.3
 - Revert "Fix `GULMutableDictionary` thread-safety." (#3322)
 
