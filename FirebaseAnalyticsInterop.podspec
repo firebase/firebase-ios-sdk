@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAnalyticsInterop'
-  s.version          = '1.2.0'
+  s.version          = '1.3.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Analytics functionality.'
 
   s.description      = <<-DESC

@@ -274,7 +274,7 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithUTF8String:FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
 }
 
 #pragma mark - JSON

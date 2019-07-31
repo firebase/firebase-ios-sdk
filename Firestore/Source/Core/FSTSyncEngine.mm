@@ -27,7 +27,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -56,6 +56,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
@@ -67,6 +68,7 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
@@ -306,27 +308,34 @@ class LimboResolution {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateCallback, resultCallback, transaction, maybe_result] {
           if (!maybe_result.ok()) {
-            resultCallback(std::move(maybe_result));
-            return;
-          }
-
-          transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
-                               maybe_result](Status status) {
-            if (status.ok()) {
+            if (retries > 0 && [self isRetryableTransactionError:maybe_result.status()] &&
+                !transaction->IsPermanentlyFailed()) {
+              return [self transactionWithRetries:(retries - 1)
+                                      workerQueue:workerQueue
+                                   updateCallback:updateCallback
+                                   resultCallback:resultCallback];
+            } else {
               resultCallback(std::move(maybe_result));
-              return;
             }
-            // TODO(b/35201829): Only retry on real transaction failures.
-            if (retries == 0) {
+          } else {
+            transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
+                                 maybe_result, transaction](Status status) {
+              if (status.ok()) {
+                resultCallback(std::move(maybe_result));
+                return;
+              }
+
+              if (retries > 0 && [self isRetryableTransactionError:status] &&
+                  !transaction->IsPermanentlyFailed()) {
+                workerQueue->VerifyIsCurrentQueue();
+                return [self transactionWithRetries:(retries - 1)
+                                        workerQueue:workerQueue
+                                     updateCallback:updateCallback
+                                     resultCallback:resultCallback];
+              }
               resultCallback(std::move(status));
-              return;
-            }
-            workerQueue->VerifyIsCurrentQueue();
-            return [self transactionWithRetries:(retries - 1)
-                                    workerQueue:workerQueue
-                                 updateCallback:updateCallback
-                                 resultCallback:resultCallback];
-          });
+            });
+          }
         });
   });
 }
@@ -492,7 +501,7 @@ class LimboResolution {
                                            remoteEvent:(const absl::optional<RemoteEvent> &)
                                                            maybeRemoteEvent {
   __block std::vector<ViewSnapshot> newSnapshots;
-  NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
+  __block std::vector<LocalViewChanges> documentChangesInAllViews;
 
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
@@ -523,10 +532,9 @@ class LimboResolution {
 
         if (viewChange.snapshot.has_value()) {
           newSnapshots.push_back(viewChange.snapshot.value());
-          FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot.value()
-                                             withTargetID:queryView.targetID];
-          [documentChangesInAllViews addObject:docChanges];
+          LocalViewChanges docChanges =
+              LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
+          documentChangesInAllViews.push_back(std::move(docChanges));
         }
       }];
 
@@ -635,6 +643,14 @@ class LimboResolution {
   }
 
   return NO;
+}
+
+- (BOOL)isRetryableTransactionError:(const Status &)error {
+  // In transactions, the backend will fail outdated reads with FAILED_PRECONDITION and
+  // non-matching document versions with ABORTED. These errors should be retried.
+  FirestoreErrorCode code = error.code();
+  return code == FirestoreErrorCode::Aborted || code == FirestoreErrorCode::FailedPrecondition ||
+         !Datastore::IsPermanentError(error);
 }
 
 @end

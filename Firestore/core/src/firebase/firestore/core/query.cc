@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
@@ -39,9 +40,8 @@ using model::FieldPath;
 using model::ResourcePath;
 
 template <typename T>
-util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
-                                   T&& value) {
-  util::vector_of_ptr<T> updated = vector;
+std::vector<T> AppendingTo(const std::vector<T>& vector, T&& value) {
+  std::vector<T> updated = vector;
   updated.push_back(std::forward<T>(value));
   return updated;
 }
@@ -84,7 +84,7 @@ bool Query::HasArrayContainsFilter() const {
 
 // MARK: - Builder methods
 
-Query Query::Filter(std::shared_ptr<core::Filter> filter) const {
+Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
@@ -124,7 +124,7 @@ bool Query::MatchesPath(const Document& doc) const {
 
 bool Query::MatchesFilters(const Document& doc) const {
   return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<core::Filter>& filter) {
+                     [&](const std::shared_ptr<Filter>& filter) {
                        return filter->Matches(doc);
                      });
 }
@@ -142,7 +142,8 @@ bool Query::MatchesBounds(const Document&) const {
 bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
-         lhs.filters() == rhs.filters();
+         absl::c_equal(lhs.filters(), rhs.filters(),
+                       util::Equals<std::shared_ptr<const Filter>>);
 }
 
 }  // namespace core

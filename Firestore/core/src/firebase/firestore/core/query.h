@@ -26,7 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
 
 namespace firebase {
 namespace firestore {
@@ -38,7 +37,7 @@ namespace core {
  */
 class Query {
  public:
-  using FilterList = util::vector_of_ptr<std::shared_ptr<class Filter>>;
+  using FilterList = std::vector<std::shared_ptr<Filter>>;
 
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
@@ -101,7 +100,7 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query Filter(std::shared_ptr<core::Filter> filter) const;
+  Query AddingFilter(std::shared_ptr<Filter> filter) const;
 
   // MARK: - Matching
 

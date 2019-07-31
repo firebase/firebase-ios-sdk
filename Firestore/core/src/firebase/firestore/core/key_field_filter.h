@@ -30,8 +30,6 @@ namespace core {
  */
 class KeyFieldFilter : public FieldFilter {
  public:
-  KeyFieldFilter() = default;
-
   KeyFieldFilter(model::FieldPath field,
                  core::Filter::Operator op,
                  model::FieldValue value);

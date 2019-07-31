@@ -31,8 +31,6 @@ namespace core {
  */
 class ArrayContainsFilter : public FieldFilter {
  public:
-  ArrayContainsFilter() = default;
-
   ArrayContainsFilter(model::FieldPath field, model::FieldValue value);
 
   Type type() const override {

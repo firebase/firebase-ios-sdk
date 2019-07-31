@@ -328,6 +328,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
     BOOL isSentEventHeartbeat =
         dataObject.config.sdk_name == logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ICORE;
+    isSentEventHeartbeat = isSentEventHeartbeat && dataObject.config.has_sdk_name;
     XCTAssertEqual(isSentEventHeartbeat, isHeartbeat);
 
     return YES;

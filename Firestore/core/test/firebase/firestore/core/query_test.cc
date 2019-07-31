@@ -66,14 +66,16 @@ TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
   Document doc2 = *Doc("rooms/eros/messages/2");
 
   Query query = Query(Resource("rooms/eros/messages"))
-                    .Filter(Filter("text", "==", "msg1"));
+                    .AddingFilter(Filter("text", "==", "msg1"));
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));
 }
 
 TEST(QueryTest, PrimitiveValueFilter) {
-  Query query1 = Query(Resource("collection")).Filter(Filter("sort", ">=", 2));
-  Query query2 = Query(Resource("collection")).Filter(Filter("sort", "<=", 2));
+  Query query1 =
+      Query(Resource("collection")).AddingFilter(Filter("sort", ">=", 2));
+  Query query2 =
+      Query(Resource("collection")).AddingFilter(Filter("sort", "<=", 2));
 
   Document doc1 =
       *Doc("collection/1", 0, {{"sort", FieldValue::FromInteger(1)}});
@@ -99,7 +101,8 @@ TEST(QueryTest, PrimitiveValueFilter) {
 }
 
 TEST(QueryTest, NanFilter) {
-  Query query = Query(Resource("collection")).Filter(Filter("sort", "==", NAN));
+  Query query =
+      Query(Resource("collection")).AddingFilter(Filter("sort", "==", NAN));
 
   Document doc1 = *Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
   Document doc2 =

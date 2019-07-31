@@ -34,8 +34,6 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
                                        action:^{ [weakSelf signInEmailPassword]; }],
     [StaticContentTableViewCell cellWithTitle:@"Link with Email Password"
                                        action:^{ [weakSelf linkWithEmailPassword]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Unlink from Email Password"
-                                       action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Email Password"
                                        action:^{ [weakSelf reauthenticateEmailPassword]; }],
     [StaticContentTableViewCell cellWithTitle:@"Send Email Sign in Link"
@@ -44,6 +42,9 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
                                        action:^{ [weakSelf signInWithEmailLink]; }],
     [StaticContentTableViewCell cellWithTitle:@"Link with Email Link"
                                        action:^{ [weakSelf linkWithEmailLink]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink from Email"
+                                       action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID
+                                                                   completion:nil]; }],
     ]];
 }
 
