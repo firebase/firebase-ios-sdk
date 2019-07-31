@@ -63,6 +63,18 @@ class Timestamp {
    */
   Timestamp(int64_t seconds, int32_t nanoseconds);
 
+  /** Copy constructor, `Timestamp` is trivially copyable. */
+  Timestamp(const Timestamp& other) = default;
+
+  /** Move constructor, equivalent to copying. */
+  Timestamp(Timestamp&& other) = default;
+
+  /** Copy assignment operator, `Timestamp` is trivially copyable. */
+  Timestamp& operator=(const Timestamp& other) = default;
+
+  /** Move assignment operator, equivalent to copying. */
+  Timestamp& operator=(Timestamp&& other) = default;
+
   /**
    * Creates a new timestamp with the current date.
    *

@@ -43,6 +43,18 @@ class GeoPoint {
    */
   GeoPoint(double latitude, double longitude);
 
+  /** Copy constructor, `GeoPoint` is trivially copyable. */
+  GeoPoint(const GeoPoint& other) = default;
+
+  /** Move constructor, equivalent to copying. */
+  GeoPoint(GeoPoint&& other) = default;
+
+  /** Copy assignment operator, `GeoPoint` is trivially copyable. */
+  GeoPoint& operator=(const GeoPoint& other) = default;
+
+  /** Move assignment operator, equivalent to copying. */
+  GeoPoint& operator=(GeoPoint&& other) = default;
+
   /** Returns the latitude value of this `GeoPoint`. */
   double latitude() const {
     return latitude_;
