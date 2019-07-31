@@ -65,7 +65,7 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::OrderBy;
@@ -855,7 +855,7 @@ NS_ASSUME_NONNULL_BEGIN
   WatchTargetChange expected{WatchTargetChangeState::Removed,
                              {1, 4},
                              FSTTestData(0, 1, 2, -1),
-                             Status{FirestoreErrorCode::PermissionDenied, "Error message"}};
+                             Status{Error::PermissionDenied, "Error message"}};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;

@@ -27,7 +27,7 @@ namespace firestore {
 namespace util {
 
 TEST(Status, OK) {
-  EXPECT_EQ(Status::OK().code(), FirestoreErrorCode::Ok);
+  EXPECT_EQ(Status::OK().code(), Error::Ok);
   EXPECT_EQ(Status::OK().error_message(), "");
   EXPECT_OK(Status::OK());
   ASSERT_OK(Status::OK());
@@ -38,25 +38,25 @@ TEST(Status, OK) {
 }
 
 TEST(Status, DeathCheckOK) {
-  Status status(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status status(Error::InvalidArgument, "Invalid");
   ASSERT_ANY_THROW(STATUS_CHECK_OK(status));
 }
 
 TEST(Status, Set) {
   Status status;
-  status = Status(FirestoreErrorCode::Cancelled, "Error message");
-  EXPECT_EQ(status.code(), FirestoreErrorCode::Cancelled);
+  status = Status(Error::Cancelled, "Error message");
+  EXPECT_EQ(status.code(), Error::Cancelled);
   EXPECT_EQ(status.error_message(), "Error message");
 }
 
 TEST(Status, Copy) {
-  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status a(Error::InvalidArgument, "Invalid");
   Status b(a);
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
 TEST(Status, Assign) {
-  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status a(Error::InvalidArgument, "Invalid");
   Status b;
   b = a;
   ASSERT_EQ(a.ToString(), b.ToString());
@@ -66,10 +66,10 @@ TEST(Status, Update) {
   Status s;
   s.Update(Status::OK());
   ASSERT_TRUE(s.ok());
-  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status a(Error::InvalidArgument, "Invalid");
   s.Update(a);
   ASSERT_EQ(s.ToString(), a.ToString());
-  Status b(FirestoreErrorCode::Internal, "Internal");
+  Status b(Error::Internal, "Internal");
   s.Update(b);
   ASSERT_EQ(s.ToString(), a.ToString());
   s.Update(Status::OK());
@@ -82,26 +82,26 @@ TEST(Status, EqualsOK) {
 }
 
 TEST(Status, EqualsSame) {
-  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
-  Status b(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status a(Error::InvalidArgument, "Invalid");
+  Status b(Error::InvalidArgument, "Invalid");
   ASSERT_EQ(a, b);
 }
 
 TEST(Status, EqualsCopy) {
-  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status a(Error::InvalidArgument, "Invalid");
   Status b = a;
   ASSERT_EQ(a, b);
 }
 
 TEST(Status, EqualsDifferentCode) {
-  Status a(FirestoreErrorCode::InvalidArgument, "message");
-  Status b(FirestoreErrorCode::Internal, "message");
+  Status a(Error::InvalidArgument, "message");
+  Status b(Error::Internal, "message");
   ASSERT_NE(a, b);
 }
 
 TEST(Status, EqualsDifferentMessage) {
-  Status a(FirestoreErrorCode::InvalidArgument, "message");
-  Status b(FirestoreErrorCode::InvalidArgument, "another");
+  Status a(Error::InvalidArgument, "message");
+  Status b(Error::InvalidArgument, "another");
   ASSERT_NE(a, b);
 }
 
@@ -123,7 +123,7 @@ TEST(Status, CausedBy_OK) {
 }
 
 TEST(Status, CausedBy_CauseOK) {
-  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status not_found(Error::NotFound, "file not found");
 
   Status result = not_found;
   result.CausedBy(Status::OK());
@@ -131,7 +131,7 @@ TEST(Status, CausedBy_CauseOK) {
 }
 
 TEST(Status, CausedBy_OuterOK) {
-  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status not_found(Error::NotFound, "file not found");
 
   Status result = Status::OK();
   result.CausedBy(not_found);
@@ -139,8 +139,8 @@ TEST(Status, CausedBy_OuterOK) {
 }
 
 TEST(Status, CausedBy_Chain) {
-  Status not_found(FirestoreErrorCode::NotFound, "file not found");
-  Status not_ready(FirestoreErrorCode::FailedPrecondition, "DB not ready");
+  Status not_found(Error::NotFound, "file not found");
+  Status not_ready(Error::FailedPrecondition, "DB not ready");
 
   Status result = not_ready;
   result.CausedBy(not_found);
@@ -154,7 +154,7 @@ TEST(Status, CausedBy_Chain) {
 }
 
 TEST(Status, CauseBy_Self) {
-  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status not_found(Error::NotFound, "file not found");
   Status result = not_found.CausedBy(not_found);
   EXPECT_EQ(not_found, result);
 }

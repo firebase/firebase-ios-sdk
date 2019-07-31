@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthUserDefaults.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.";
 
-@implementation FIRAuthUserDefaultsStorage {
+@implementation FIRAuthUserDefaults {
   /** @var _persistentDomainName
       @brief The name of the persistent domain in user defaults.
    */
@@ -32,7 +32,7 @@ static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.
   NSUserDefaults *_storage;
 }
 
-- (id<FIRAuthStorage>)initWithService:(NSString *)service {
+- (instancetype)initWithService:(NSString *)service {
   self = [super init];
   if (self) {
     _persistentDomainName = [kPersistentDomainNamePrefix stringByAppendingString:service];

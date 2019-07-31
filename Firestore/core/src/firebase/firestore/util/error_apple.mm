@@ -33,7 +33,7 @@ namespace util {
 NSError* MakeNSError(const int64_t error_code,
                      const absl::string_view error_msg,
                      NSError* cause) {
-  if (error_code == FirestoreErrorCode::Ok) {
+  if (error_code == Error::Ok) {
     return nil;
   }
 

@@ -57,7 +57,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::ConvertStatus;
@@ -445,15 +445,13 @@ static const char *kReservedPathComponent = "firestore";
 + (Status)ensureDirectory:(const Path &)directory {
   Status status = util::RecursivelyCreateDir(directory);
   if (!status.ok()) {
-    return Status{FirestoreErrorCode::Internal, "Failed to create persistence directory"}.CausedBy(
-        status);
+    return Status{Error::Internal, "Failed to create persistence directory"}.CausedBy(status);
   }
 
   NSURL *dirURL = [NSURL fileURLWithPath:directory.ToNSString()];
   NSError *localError = nil;
   if (![dirURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&localError]) {
-    return Status{FirestoreErrorCode::Internal,
-                  "Failed to mark persistence directory as excluded from backups"}
+    return Status{Error::Internal, "Failed to mark persistence directory as excluded from backups"}
         .CausedBy(Status::FromNSError(localError));
   }
 
@@ -468,7 +466,7 @@ static const char *kReservedPathComponent = "firestore";
   DB *database = nullptr;
   leveldb::Status status = DB::Open(options, directory.ToUtf8String(), &database);
   if (!status.ok()) {
-    return Status{FirestoreErrorCode::Internal,
+    return Status{Error::Internal,
                   StringFormat("Failed to open LevelDB database at %s", directory.ToUtf8String())}
         .CausedBy(ConvertStatus(status));
   }

@@ -491,7 +491,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   [self awaitExpectations];
   // There should be a maximum of 3 retries: once for the 2nd update, and twice for the 3rd update.
-  XCTAssertLessThanOrEqual(6, (int)counter);
+  XCTAssertLessThanOrEqual((int)counter, 6);
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);

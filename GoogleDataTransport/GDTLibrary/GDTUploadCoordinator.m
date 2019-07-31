@@ -133,38 +133,22 @@
  */
 - (GDTUploadConditions)uploadConditions {
   SCNetworkReachabilityFlags currentFlags = [GDTReachability currentFlags];
-
   BOOL reachable =
       (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
   BOOL connectionRequired = (currentFlags & kSCNetworkReachabilityFlagsConnectionRequired) ==
                             kSCNetworkReachabilityFlagsConnectionRequired;
-  BOOL interventionRequired = (currentFlags & kSCNetworkReachabilityFlagsInterventionRequired) ==
-                              kSCNetworkReachabilityFlagsInterventionRequired;
-  BOOL connectionOnDemand = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnDemand) ==
-                            kSCNetworkReachabilityFlagsConnectionOnDemand;
-  BOOL connectionOnTraffic = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnTraffic) ==
-                             kSCNetworkReachabilityFlagsConnectionOnTraffic;
-  BOOL isWWAN = GDTReachabilityFlagsContainWWAN(currentFlags);
+  BOOL networkConnected = reachable && !connectionRequired;
 
-  if (!reachable) {
+  if (!networkConnected) {
     return GDTUploadConditionNoNetwork;
   }
 
-  GDTUploadConditions conditions = 0;
-  conditions |= !connectionRequired ? GDTUploadConditionWifiData : conditions;
-  conditions |= isWWAN ? GDTUploadConditionMobileData : conditions;
-  if ((connectionOnTraffic || connectionOnDemand) && !interventionRequired) {
-    conditions = GDTUploadConditionWifiData;
+  BOOL isWWAN = GDTReachabilityFlagsContainWWAN(currentFlags);
+  if (isWWAN) {
+    return GDTUploadConditionMobileData;
+  } else {
+    return GDTUploadConditionWifiData;
   }
-
-  BOOL wifi = (conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData;
-  BOOL cell = (conditions & GDTUploadConditionMobileData) == GDTUploadConditionMobileData;
-
-  if (!(wifi || cell)) {
-    conditions = GDTUploadConditionUnclearConnection;
-  }
-
-  return conditions;
 }
 
 #pragma mark - NSSecureCoding support

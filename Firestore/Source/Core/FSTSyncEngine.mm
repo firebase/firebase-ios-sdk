@@ -50,7 +50,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
@@ -648,8 +648,8 @@ class LimboResolution {
 - (BOOL)isRetryableTransactionError:(const Status &)error {
   // In transactions, the backend will fail outdated reads with FAILED_PRECONDITION and
   // non-matching document versions with ABORTED. These errors should be retried.
-  FirestoreErrorCode code = error.code();
-  return code == FirestoreErrorCode::Aborted || code == FirestoreErrorCode::FailedPrecondition ||
+  Error code = error.code();
+  return code == Error::Aborted || code == Error::FailedPrecondition ||
          !Datastore::IsPermanentError(error);
 }
 

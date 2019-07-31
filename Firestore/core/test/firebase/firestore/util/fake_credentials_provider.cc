@@ -40,7 +40,7 @@ void FakeCredentialsProvider::GetToken(TokenListener completion) {
   if (fail_get_token_) {
     fail_get_token_ = false;
     if (completion) {
-      completion(util::Status{FirestoreErrorCode::Unknown, ""});
+      completion(util::Status{Error::Unknown, ""});
     }
   } else {
     EmptyCredentialsProvider::GetToken(std::move(completion));

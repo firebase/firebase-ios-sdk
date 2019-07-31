@@ -1,216 +1,216 @@
 # v6.2.1
-- Add new client error MISSING_CLIENT_IDENTIFIER. (#3341)
+- [added] Add new client error MISSING_CLIENT_IDENTIFIER. (#3341)
 
 # v6.2.0
-- Expose `secret` of OAuth credential in public header. (#3089)
-- Fix a keychain issue where API key is incorrectly set. (#3239)
+- [feature] Expose `secret` of OAuth credential in public header. (#3089)
+- [fixed] Fix a keychain issue where API key is incorrectly set. (#3239)
 
 # v6.1.2
-- Fix line limits and linter warnings in public documentation. (#3139)
+- [fixed] Fix line limits and linter warnings in public documentation. (#3139)
 
 # v6.1.1
-- Fix an issue where a user can't link with email provider by email link. (#3030)
+- [fixed] Fix an issue where a user can't link with email provider by email link. (#3030)
 
 # v6.1.0
-- Add support of web.app as an auth domain. (#2959)
-- Fix an issue where the return type of `getStoredUserForAccessGroup:error:` is nonnull. (#2879)
+- [added] Add support of web.app as an auth domain. (#2959)
+- [fixed] Fix an issue where the return type of `getStoredUserForAccessGroup:error:` is nonnull. (#2879)
 
 # v6.0.0
-- Add support of single sign on. (#2684)
-- Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
-- Returned oauth secret token in Generic IDP sign-in for Twitter. (#2663)
-- Remove pendingToken from public API. (#2676)
-- `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
+- [added] Add support of single sign on. (#2684)
+- [deprecated] Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
+- [added] Returned oauth secret token in Generic IDP sign-in for Twitter. (#2663)
+- [removed] Remove pendingToken from public API. (#2676)
+- [changed] `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
 
 # v5.4.2
-- Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
+- [added] Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
 
 # v5.4.1
-- Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
-- Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
-- Fix an issue where a wrong error was thrown when handling error with
+- [deprecated] Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
+- [fixed] Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
+- [fixed] Fix an issue where a wrong error was thrown when handling error with
   FEDERATED_USER_ID_ALREADY_LINKED. (#2522)
 
 # v5.4.0
-- Add support of Generic IDP (#2405).
+- [added] Add support of Generic IDP (#2405).
 
 # v5.3.0
-- Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
+- [changed] Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
 
 # v5.2.0
-- Add support of Game Center sign in (#2127).
+- [added] Add support of Game Center sign in (#2127).
 
 # v5.1.0
-- Add support of custom FDL domain link (#2121).
+- [added] Add support of custom FDL domain link (#2121).
 
 # v5.0.5
-- Restore SafariServices framework dependency (#2002).
+- [changed] Restore SafariServices framework dependency (#2002).
 
 # v5.0.4
-- Fix analyzer issues (#1740).
+- [fixed] Fix analyzer issues (#1740).
 
 # v5.0.3
-- Add `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing.
+- [added] Add `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing.
   failures during auth operations (#1436).
-- Migrate to use FirebaseAuthInterop interfaces to access FirebaseAuth (#1501).
+- [changed] Migrate to use FirebaseAuthInterop interfaces to access FirebaseAuth (#1501).
 
 # v5.0.2
-- Fix an issue where JWT date timestamps weren't parsed correctly. (#1319)
-- Fix an issue where anonymous accounts weren't correctly promoted to
+- [fixed] Fix an issue where JWT date timestamps weren't parsed correctly. (#1319)
+- [fixed] Fix an issue where anonymous accounts weren't correctly promoted to
   non-anonymous when linked with passwordless email auth accounts. (#1383)
-- Fix an exception from using an invalidated NSURLSession. (#1261)
-- Fix a data race issue caught by the sanitizer. (#1446)
+- [fixed] Fix an exception from using an invalidated NSURLSession. (#1261)
+- [fixed] Fix a data race issue caught by the sanitizer. (#1446)
 
 # v5.0.1
-- Restore 4.x level of support for extensions (#1357).
+- [fixed] Restore 4.x level of support for extensions (#1357).
 
 # v5.0.0
-- Adds APIs for phone Auth testing to bypass the verification flow (#1192).
-- Changes the callback block signature for sign in and create user methods
+- [added] Adds APIs for phone Auth testing to bypass the verification flow (#1192).
+- [feature] Changes the callback block signature for sign in and create user methods
   to provide an AuthDataResult that includes the user and user info (#1123, #1186).
-- Removes GoogleToolboxForMac dependency (#1175).
-- Removes miscellaneous deprecated APIs (#1188, #1200).
+- [changed] Removes GoogleToolboxForMac dependency (#1175).
+- [removed] Removes miscellaneous deprecated APIs (#1188, #1200).
 
 # v4.6.1
-- Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
+- [fixed] Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
 
 # v4.6.0
-- Adds `getIDTokenResultWithCompletion:` and `getIDTokenResultForcingRefresh:completion:` APIs which
+- [added] Adds `getIDTokenResultWithCompletion:` and `getIDTokenResultForcingRefresh:completion:` APIs which
   call back with an AuthTokenResult object. The Auth token result object contains the ID token JWT string and other properties associated with the token including the decoded available payload claims (#1004).
 
-- Adds the `updateCurrentUser:completion:` API which sets the currentUser on the calling Auth instance to the provided user object (#1018).
+- [added] Adds the `updateCurrentUser:completion:` API which sets the currentUser on the calling Auth instance to the provided user object (#1018).
 
-- Adds client-side validation to prevent setting `handleCodeInApp` to false when performing
+- [added] Adds client-side validation to prevent setting `handleCodeInApp` to false when performing
   email-link authentication. If `handleCodeInApp` is set to false an invalid argument exception
   is thrown (#931).
 
-- Adds support for passing the deep link (which is embedded in the sign-in link sent via email) to the
+- [added] Adds support for passing the deep link (which is embedded in the sign-in link sent via email) to the
   `signInWithEmail:link:completion:` and `isSignInWithEmailLink:` methods during an
   email/link sign-in flow (#1023).
 
 # v4.5.0
-- Adds new API which provides a way to determine the sign-in methods associated with an
+- [added] Adds new API which provides a way to determine the sign-in methods associated with an
   email address.
-- Adds new API which allows authentication using only an email link (Passwordless Authentication
+- [added] Adds new API which allows authentication using only an email link (Passwordless Authentication
   with email link).
 
 # v4.4.4
-- Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of
+- [fixed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of
   Xcode and CocoaPods.
-- Improves FIRUser documentation with clear message explaining when Firebase Auth attempts to validate
+- [fixed] Improves FIRUser documentation with clear message explaining when Firebase Auth attempts to validate
   users and what happens when an invalidated user is detected (#694) .
 
 # v4.4.3
-- Adds an explicit dependency on CoreGraphics from Firebase Auth.
+- [added] Adds an explicit dependency on CoreGraphics from Firebase Auth.
 
 # v4.4.2
-- Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
+- [fixed] Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
   always contained a nil FIRAdditionalUserInfo object. Now the FIRAdditionalUserInfo object is
   never nil and its newUser field is populated correctly.
 
 # v4.4.0
-- Adds new APIs which return an AuthDataResult object after successfully creating an
+- [fixed] Adds new APIs which return an AuthDataResult object after successfully creating an
   Email/Password user, signing in anonymously, signing in with Email/Password and signing
   in with Custom Token. The AuthDataResult object contains the new user and additional
   information pertaining to the new user.
 
 # v4.3.2
-- Improves error handling for the phone number sign-in reCAPTCHA flow.
-- Improves error handling for phone number linking flow.
-- Fixes issue where after linking an anonymous user to a phone number the user remained
+- [fixed] Improves error handling for the phone number sign-in reCAPTCHA flow.
+- [fixed] Improves error handling for phone number linking flow.
+- [fixed] Fixes issue where after linking an anonymous user to a phone number the user remained
   anonymous.
 
 # v4.3.1
-- Internal clean up.
+- [changed] Internal clean up.
 
 # v4.3.0
-- Provides account creation and last sign-in dates as metadata to the user
+- [added] Provides account creation and last sign-in dates as metadata to the user
   object.
-- Returns more descriptive errors for some error cases of the phone number
+- [added] Returns more descriptive errors for some error cases of the phone number
   sign-in reCAPTCHA flow.
-- Fixes an issue that invalid users were not automatically signed out earlier.
-- Fixes an issue that ID token listeners were not fired in some cases.
+- [fixed] Fixes an issue that invalid users were not automatically signed out earlier.
+- [fixed] Fixes an issue that ID token listeners were not fired in some cases.
 
 # v4.2.1
-- Fixes a threading issue in phone number auth that completion block was not
+- [fixed] Fixes a threading issue in phone number auth that completion block was not
   executed on the main thread in some error cases.
 
 # v4.2.0
-- Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
+- [added] Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
 
 # v4.1.1
-- Improves some method documentation in headers.
+- [changed] Improves some method documentation in headers.
 
 # v4.1.0
-- Allows the app to handle continue URL natively, e.g., from password reset
+- [added] Allows the app to handle continue URL natively, e.g., from password reset
   email.
-- Allows the app to set language code, e.g., for sending password reset email.
-- Fixes an issue that user's phone number did not persist on client.
-- Fixes an issue that recover email action code type was reported as unknown.
-- Improves app start-up time by moving initialization off from the main
+- [added] Allows the app to set language code, e.g., for sending password reset email.
+- [fixed] Fixes an issue that user's phone number did not persist on client.
+- [fixed] Fixes an issue that recover email action code type was reported as unknown.
+- [feature] Improves app start-up time by moving initialization off from the main
   thread.
-- Better reports missing email error when creating a new password user.
-- Changes console message logging levels to be more consistent with other
+- [fixed] Better reports missing email error when creating a new password user.
+- [fixed] Changes console message logging levels to be more consistent with other
   Firebase products on the iOS platform.
 
 # 2017-05-17 -- v4.0.0
-- Adds Phone Number Authentication.
-- Adds support for generic OAuth2 identity providers.
-- Adds methods that return additional user data from identity providers if
+- [added] Adds Phone Number Authentication.
+- [added] Adds support for generic OAuth2 identity providers.
+- [added] Adds methods that return additional user data from identity providers if
   available when authenticating users.
-- Improves session management by automatically refreshing tokens if possible
+- [added] Improves session management by automatically refreshing tokens if possible
   and signing out users if the session is detected invalidated, for example,
   after the user changed password or deleted account from another device.
-- Fixes an issue that reauthentication creates new user account if the user
+- [fixed] Fixes an issue that reauthentication creates new user account if the user
   credential is valid but does not match the currently signed in user.
-- Fixes an issue that the "password" provider is not immediately listed on the
+- [fixed] Fixes an issue that the "password" provider is not immediately listed on the
   client side after adding a password to an account.
-- Changes factory methods to return non-null FIRAuth instances or raises an
+- [changed] Changes factory methods to return non-null FIRAuth instances or raises an
   exception, instead of returning nullable instances.
-- Changes auth state change listener to only be triggered when the user changes.
-- Adds a new listener which is triggered whenever the ID token is changed.
-- Switches ERROR_EMAIL_ALREADY_IN_USE to
+- [changed] Changes auth state change listener to only be triggered when the user changes.
+- [added] Adds a new listener which is triggered whenever the ID token is changed.
+- [changed] Switches ERROR_EMAIL_ALREADY_IN_USE to
   ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL when the email used in the
   signInWithCredential: call is already in use by another account.
-- Deprecates FIREmailPasswordAuthProvider in favor of FIREmailAuthProvider.
-- Deprecates getTokenWithCompletion in favor of getIDTokenWithCompletion on
+- [deprecated] Deprecates FIREmailPasswordAuthProvider in favor of FIREmailAuthProvider.
+- [deprecated] Deprecates getTokenWithCompletion in favor of getIDTokenWithCompletion on
   FIRUser.
-- Changes Swift API names to better align with Swift convention.
+- [fixed] Changes Swift API names to better align with Swift convention.
 
 # 2017-02-06 -- v3.1.1
-- Allows handling of additional errors when sending OOB action emails. The
+- [added] Allows handling of additional errors when sending OOB action emails. The
   server can respond with the following new error messages:
   INVALID_MESSAGE_PAYLOAD,INVALID_SENDER and INVALID_RECIPIENT_EMAIL.
-- Removes incorrect reference to FIRAuthErrorCodeCredentialTooOld in FIRUser.h.
-- Provides additional error information from server if available.
+- [fixed] Removes incorrect reference to FIRAuthErrorCodeCredentialTooOld in FIRUser.h.
+- [added] Provides additional error information from server if available.
 
 # 2016-12-13 -- v3.1.0
-- Adds FIRAuth methods that enable the app to follow up with user actions
+- [added] Adds FIRAuth methods that enable the app to follow up with user actions
   delivered by email, such as verifying email address or reset password.
-- No longer applies the keychain workaround introduced in v3.0.5 on iOS 10.2
+- [fixed] No longer applies the keychain workaround introduced in v3.0.5 on iOS 10.2
   simulator or above since the issue has been fixed.
-- Fixes nullability compilation warnings when used in Swift.
-- Better reports missing password error.
+- [fixed] Fixes nullability compilation warnings when used in Swift.
+- [fixed] Better reports missing password error.
 
 # 2016-10-24 -- v3.0.6
-- Switches to depend on open sourced GoogleToolboxForMac and GTMSessionFetcher.
-- Improves logging of keychain error when initializing.
+- [changed] Switches to depend on open sourced GoogleToolboxForMac and GTMSessionFetcher.
+- [fixed] Improves logging of keychain error when initializing.
 
 # 2016-09-14 -- v3.0.5
-- Works around a keychain issue in iOS 10 simulator.
-- Reports the correct error for invalid email when signing in with email and
+- [fixed] Works around a keychain issue in iOS 10 simulator.
+- [fixed] Reports the correct error for invalid email when signing in with email and
   password.
 
 # 2016-07-18 -- v3.0.4
-- Fixes a race condition bug that could crash the app with an exception from
+- [fixed] Fixes a race condition bug that could crash the app with an exception from
   NSURLSession on iOS 9.
 
 # 2016-06-20 -- v3.0.3
-- Adds documentation for all possible errors returned by each method.
-- Improves error handling and messages for a variety of error conditions.
-- Whether or not an user is considered anonymous is now consistent with other
+- [added] Adds documentation for all possible errors returned by each method.
+- [fixed] Improves error handling and messages for a variety of error conditions.
+- [fixed] Whether or not an user is considered anonymous is now consistent with other
   platforms.
-- A saved signed in user is now siloed between different Firebase projects
+- [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.
 
 # 2016-05-18 -- v3.0.2

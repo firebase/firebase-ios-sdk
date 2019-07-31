@@ -25,14 +25,14 @@ namespace local {
 
 namespace {
 
-FirestoreErrorCode ConvertStatusCode(const leveldb::Status& status) {
-  if (status.ok()) return FirestoreErrorCode::Ok;
-  if (status.IsNotFound()) return FirestoreErrorCode::NotFound;
-  if (status.IsCorruption()) return FirestoreErrorCode::DataLoss;
-  if (status.IsIOError()) return FirestoreErrorCode::Unavailable;
-  if (status.IsNotSupportedError()) return FirestoreErrorCode::Unimplemented;
-  if (status.IsInvalidArgument()) return FirestoreErrorCode::InvalidArgument;
-  return FirestoreErrorCode::Unknown;
+Error ConvertStatusCode(const leveldb::Status& status) {
+  if (status.ok()) return Error::Ok;
+  if (status.IsNotFound()) return Error::NotFound;
+  if (status.IsCorruption()) return Error::DataLoss;
+  if (status.IsIOError()) return Error::Unavailable;
+  if (status.IsNotSupportedError()) return Error::Unimplemented;
+  if (status.IsInvalidArgument()) return Error::InvalidArgument;
+  return Error::Unknown;
 }
 
 }  // namespace
@@ -40,7 +40,7 @@ FirestoreErrorCode ConvertStatusCode(const leveldb::Status& status) {
 util::Status ConvertStatus(const leveldb::Status& status) {
   if (status.ok()) return util::Status::OK();
 
-  FirestoreErrorCode code = ConvertStatusCode(status);
+  Error code = ConvertStatusCode(status);
   return util::Status{code, absl::StrCat("LevelDB error: ", status.ToString())};
 }
 
