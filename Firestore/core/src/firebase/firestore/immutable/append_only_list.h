@@ -36,7 +36,7 @@ namespace immutable {
  * Each `push_back` creates a new instance and does not modify any that come
  * before. If `push_back` is called on the last such instance, it will share
  * the backing vector with the prior instance (though the prior instance will
- * not percieve any change).
+ * not perceive any change).
  *
  * This "chaining" behavior is what makes AppendOnlyList efficient, but it only
  * applies when applied to the last link the chain. When applied any instance
@@ -64,7 +64,7 @@ class AppendOnlyList {
    * not actually modified. Successive `push_back` operations until `size()`
    * is equal to `capacity` are guaranteed to be O(1).
    *
-   * Note that if this instance is not the end of the chain then this forces
+   * Note that if this instance is not the end of the chain, then this forces
    * a copy.
    */
   ABSL_MUST_USE_RESULT AppendOnlyList reserve(size_t capacity) const {
@@ -117,7 +117,7 @@ class AppendOnlyList {
    * @see `push_back(const T&)` for detailed discussion.
    */
   template <typename... Args>
-  ABSL_MUST_USE_RESULT AppendOnlyList emplace_back(Args&&... args) {
+  ABSL_MUST_USE_RESULT AppendOnlyList emplace_back(Args&&... args) const {
     size_t new_size = size_ + 1;
     std::shared_ptr<std::vector<T>> new_contents = PrepareForAppend(new_size);
 
@@ -134,21 +134,18 @@ class AppendOnlyList {
    */
   ABSL_MUST_USE_RESULT AppendOnlyList pop_back() const {
     if (size_ <= 1) {
-      return clear();
+      return AppendOnlyList(nullptr, 0);
     }
 
     return AppendOnlyList(contents_, size_ - 1);
   }
 
-  /**
-   * Creates a new AppendOnlyList without any elements.
-   */
-  ABSL_MUST_USE_RESULT AppendOnlyList clear() const {
-    return AppendOnlyList(nullptr, 0);
-  }
-
   size_t size() const {
     return size_;
+  }
+
+  size_t capacity() const {
+    return contents_ ? contents_->capacity() : 0;
   }
 
   bool empty() const {
@@ -176,13 +173,11 @@ class AppendOnlyList {
   }
 
   const T& back() const {
-    const T* address = contents_->data() + size_ - 1;
-    return *address;
+    return *(end() - 1);
   }
 
   const T& operator[](size_t pos) const {
-    const T* address = contents_->data() + pos;
-    return *address;
+    return (*contents_)[pos];
   }
 
   friend bool operator==(const AppendOnlyList& lhs, const AppendOnlyList& rhs) {
@@ -199,17 +194,25 @@ class AppendOnlyList {
   }
 
   std::shared_ptr<std::vector<T>> PrepareForAppend(size_t new_size) const {
-    std::shared_ptr<std::vector<T>> new_contents;
-
-    if (contents_ && contents_->size() == size_) {
-      new_contents = contents_;
-      new_contents->reserve(new_size);
-    } else {
-      new_contents = std::make_shared<std::vector<T>>();
-      new_contents->reserve(new_size);
-      std::copy(begin(), end(), std::back_inserter(*new_contents));
+    if (contents_ && size_ == contents_->size() && new_size <= contents_->capacity()) {
+      // If there's an existing vector, this instance points to the end, and
+      // can already accommodate what's required, there's nothing to do.
+      return contents_;
     }
 
+    size_t min_capacity = new_size;
+    if (contents_) {
+      // contents_->capacity() * 2 overflows, min_capacity will be larger.
+      min_capacity = std::max(min_capacity, contents_->capacity() * 2);
+    }
+
+    // min_capacity will be larger than the existing contents of this list so
+    // reserve that capacity copying in the current values. Copying from this
+    // and then reserving would cause two allocations, the first for exactly
+    // the current size and then another for min_capacity.
+    auto new_contents = std::make_shared<std::vector<T>>();
+    new_contents->reserve(min_capacity);
+    new_contents->insert(new_contents->begin(), begin(), end());
     return new_contents;
   }
 

@@ -25,19 +25,6 @@ namespace immutable {
 
 using IntList = AppendOnlyList<int>;
 
-/**
- * Creates a SortedMap by inserting a pair for each value in the vector.
- * Each pair will have the same key and value.
- */
-template <typename Container>
-Container ToList(const std::vector<int>& values) {
-  Container result;
-  for (const auto& value : values) {
-    result = result.push_back(value);
-  }
-  return result;
-}
-
 TEST(AppendOnlyListTest, DefaultConstructs) {
   IntList list;
   EXPECT_TRUE(list.empty());
@@ -55,19 +42,18 @@ TEST(AppendOnlyListTest, AppendDoesNotModifyOriginal) {
 }
 
 TEST(AppendOnlyListTest, AppendToEndShares) {
-  IntList original;
-  original = original.push_back(0);
+  IntList initial{0, 1};
+  initial = initial.push_back(2);
 
-  IntList actual = original;
-  std::vector<int> to_append = Sequence(1, 5);
-  for (int value : to_append) {
-    actual = actual.push_back(value);
-  }
+  // Doubling behavior should leave unused capacity
+  ASSERT_LT(initial.size(), initial.capacity());
+
+  IntList actual = initial.push_back(3);
 
   ASSERT_NE(nullptr, actual.begin());
-  EXPECT_EQ(original.begin(), actual.begin());
+  EXPECT_EQ(initial.begin(), actual.begin());
 
-  EXPECT_EQ(Sequence(5), Collect(actual));
+  EXPECT_EQ(Sequence(4), Collect(actual));
 }
 
 TEST(AppendOnlyListTest, PopBack) {
@@ -90,14 +76,18 @@ TEST(AppendOnlyListTest, PopBack) {
 }
 
 TEST(AppendOnlyListTest, AppendToMiddleCopies) {
+  // Set up original to have extra capacity so that we can append without
+  // copying the backing vector.
   IntList original{0, 1};
+  original = original.push_back(2);
+
   IntList smaller = original.pop_back();
 
-  IntList original2 = original.push_back(2);
-  IntList smaller2 = smaller.push_back(2);
+  IntList original2 = original.push_back(3);
+  IntList smaller2 = smaller.push_back(3);
 
-  EXPECT_EQ((IntList{0, 1, 2}), original2);
-  EXPECT_EQ((IntList{0, 2}), smaller2);
+  EXPECT_EQ((IntList{0, 1, 2, 3}), original2);
+  EXPECT_EQ((IntList{0, 1, 3}), smaller2);
 
   EXPECT_EQ(original.begin(), original2.begin());
 
@@ -116,6 +106,25 @@ TEST(AppendOnlyListTest, Emplaces) {
 
   PairList appended2 = empty.emplace_back(3, 4);
   EXPECT_EQ(std::make_pair(3, 4), appended2.back());
+}
+
+TEST(AppendOnlyList, AvoidsIteratorInvalidation) {
+  const size_t iterations = 10;
+  std::vector<IntList> lists;
+  std::vector<IntList::const_iterator> iterators;
+
+  lists.emplace_back();
+  iterators.push_back(lists.back().begin());
+
+  // At each iteration, push_back onto the list
+  for (size_t i = 0; i < iterations; i++) {
+    lists.push_back(lists.back().push_back(0));
+    iterators.push_back(lists.back().begin());
+  }
+
+  for (size_t i = 0; i < iterations; i++) {
+    ASSERT_EQ(iterators[i], lists[i].begin()) << "iteration " << i;
+  }
 }
 
 }  // namespace immutable
