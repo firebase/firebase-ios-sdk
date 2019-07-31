@@ -241,7 +241,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
-  return [[FSTQuery alloc] initWithQuery:_query.AddingFilter(std::move(filter))
+  Query modified = _query.AddingFilter(std::move(filter));
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)
                                    limit:self.limit
                                  startAt:self.startAt
                                    endAt:self.endAt];
@@ -251,7 +252,8 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(![self isDocumentQuery], "No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
-  return [[FSTQuery alloc] initWithQuery:_query.AddingOrderBy(std::move(orderBy))
+  Query modified = _query.AddingOrderBy(std::move(orderBy));
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)
                                    limit:self.limit
                                  startAt:self.startAt
                                    endAt:self.endAt];

@@ -119,9 +119,9 @@ const Query::OrderByList& Query::order_bys() const {
       if (!found_key_order) {
         // The direction of the implicit key ordering always matches the
         // direction of the last explicit sort order
-        Direction last_direction = explicit_order_bys_.size() > 0
-                                       ? explicit_order_bys_.back().direction()
-                                       : Direction::Ascending;
+        Direction last_direction = explicit_order_bys_.empty()
+                                       ? Direction::Ascending
+                                       : explicit_order_bys_.back().direction();
         result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
       }
 

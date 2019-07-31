@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
  *
- * @param orderBy The path and direction to order by.
+ * @param orderBy The field and direction to order by.
  * @return the new FSTQuery.
  */
 - (instancetype)queryByAddingSortOrder:(core::OrderBy)orderBy;
