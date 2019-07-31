@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -34,26 +35,6 @@ namespace model = firebase::firestore::model;
 namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** FSTSortOrder is a field and direction to order query results by. */
-@interface FSTSortOrder : NSObject <NSCopying>
-
-/** Creates a new sort order with the given field and direction. */
-+ (instancetype)sortOrderWithFieldPath:(model::FieldPath)fieldPath ascending:(BOOL)ascending;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/** Compares two documents based on the field and direction of this sort order. */
-- (util::ComparisonResult)compareDocument:(FSTDocument *)document1
-                               toDocument:(FSTDocument *)document2;
-
-/** The field to sort by. */
-- (const model::FieldPath &)field;
-
-/** The direction of the sort. */
-@property(nonatomic, assign, readonly, getter=isAscending) BOOL ascending;
-
-@end
 
 /**
  * FSTBound represents a bound of a query.
@@ -85,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns true if a document comes before a bound using the provided sort order. */
 - (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder;
+             usingSortOrder:(const core::Query::OrderByList &)sortOrder;
 
 @end
 
@@ -98,7 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a query with all of its components directly.
  */
 - (instancetype)initWithQuery:(core::Query)query
-                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                         limit:(int32_t)limit
                       startAt:(nullable FSTBound *)startAtBound
                         endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
@@ -130,14 +110,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that the actual query performed might add additional sort orders to match the behavior
  * of the backend.
  */
-- (NSArray<FSTSortOrder *> *)explicitSortOrders;
+- (const core::Query::OrderByList &)explicitSortOrders;
 
 /**
  * Returns the full list of ordering constraints on the query.
  *
  * This might include additional sort orders added implicitly to match the backend behavior.
  */
-- (NSArray<FSTSortOrder *> *)sortOrders;
+- (const core::Query::OrderByList &)sortOrders;
 
 /**
  * Creates a new FSTQuery with an additional filter.
@@ -150,10 +130,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
  *
- * @param sortOrder The key and direction to order by.
+ * @param orderBy The field and direction to order by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder;
+- (instancetype)queryByAddingSortOrder:(core::OrderBy)orderBy;
 
 /**
  * Returns a new FSTQuery with the given limit on how many results can be returned.

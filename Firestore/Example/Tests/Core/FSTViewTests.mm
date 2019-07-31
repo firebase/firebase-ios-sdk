@@ -38,6 +38,7 @@
 #include "absl/types/optional.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
@@ -51,6 +52,7 @@ using firebase::firestore::model::FieldValue;
 using testing::ElementsAre;
 using testutil::Field;
 using testutil::Filter;
+using testutil::OrderBy;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -288,8 +290,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
   FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("num")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy("num")];
   query = [query queryBySettingLimit:2];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
@@ -426,8 +427,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testReturnsNeedsRefillOnReorderInLimitQuery {
   FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy("order")];
   query = [query queryBySettingLimit:2];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
@@ -462,8 +462,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntNeedRefillOnReorderWithinLimit {
   FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy("order")];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
@@ -496,8 +495,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testDoesntNeedRefillOnReorderAfterLimitQuery {
   FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy("order")];
   query = [query queryBySettingLimit:3];
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);

@@ -28,6 +28,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -317,6 +318,26 @@ inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
   return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 
+inline core::Direction Direction(absl::string_view direction) {
+  if (direction == "asc") {
+    return core::Direction::Ascending;
+  } else if (direction == "desc") {
+    return core::Direction::Descending;
+  } else {
+    HARD_FAIL("Unknown direction: %s (use \"asc\" or \"desc\")", direction);
+  }
+}
+
+inline core::OrderBy OrderBy(absl::string_view key,
+                             absl::string_view direction = "asc") {
+  return core::OrderBy(Field(key), Direction(direction));
+}
+
+inline core::OrderBy OrderBy(model::FieldPath field_path,
+                             core::Direction direction) {
+  return core::OrderBy(std::move(field_path), std::move(direction));
+}
+
 inline core::Query Query(absl::string_view path) {
   return core::Query(Resource(path));
 }
@@ -363,6 +384,11 @@ inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {
   std::string snapshot_string =
       std::string("snapshot-") + std::to_string(snapshot_version);
   return nanopb::ByteString(snapshot_string);
+}
+
+template <typename T, typename... Ts>
+std::vector<T> Vector(T&& arg1, Ts&&... args) {
+  return {std::forward<T>(arg1), std::forward<Ts>(args)...};
 }
 
 // Degenerate case to end recursion of `MoveIntoVector`.

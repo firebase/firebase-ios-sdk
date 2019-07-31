@@ -41,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -65,6 +66,7 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
@@ -465,11 +467,11 @@ FIRQuery *Wrap(Query &&query) {
   // contain the document key. That way the position becomes unambiguous and the query
   // continues/ends exactly at the provided document. Without the key (by using the explicit sort
   // orders), multiple documents could match the position, yielding duplicate results.
-  for (FSTSortOrder *sortOrder in self.query.sortOrders) {
-    if (sortOrder.field == FieldPath::KeyFieldPath()) {
+  for (const OrderBy &sortOrder : self.query.sortOrders) {
+    if (sortOrder.field() == FieldPath::KeyFieldPath()) {
       components.push_back(FieldValue::FromReference(databaseID, document.key));
     } else {
-      absl::optional<FieldValue> value = [document fieldForPath:sortOrder.field];
+      absl::optional<FieldValue> value = [document fieldForPath:sortOrder.field()];
 
       if (value) {
         if (value->type() == FieldValue::Type::ServerTimestamp) {
@@ -477,7 +479,7 @@ FIRQuery *Wrap(Query &&query) {
               "Invalid query. You are trying to start or end a query using a document for which "
               "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
               "is unknown, you cannot start/end a query with it.)",
-              sortOrder.field.CanonicalString());
+              sortOrder.field().CanonicalString());
         } else {
           components.push_back(*value);
         }
@@ -485,7 +487,7 @@ FIRQuery *Wrap(Query &&query) {
         ThrowInvalidArgument(
             "Invalid query. You are trying to start or end a query using a document for which the "
             "field '%s' (used as the order by) does not exist.",
-            sortOrder.field.CanonicalString());
+            sortOrder.field().CanonicalString());
       }
     }
   }
@@ -495,8 +497,8 @@ FIRQuery *Wrap(Query &&query) {
 /** Converts a list of field values to an FSTBound. */
 - (FSTBound *)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
   // Use explicit sort order because it has to match the query the user made
-  NSArray<FSTSortOrder *> *explicitSortOrders = self.query.explicitSortOrders;
-  if (fieldValues.count > explicitSortOrders.count) {
+  const core::Query::OrderByList &explicitSortOrders = self.query.explicitSortOrders;
+  if (fieldValues.count > explicitSortOrders.size()) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using more values "
                          "than were specified in the order by.");
   }
@@ -504,10 +506,10 @@ FIRQuery *Wrap(Query &&query) {
   std::vector<FieldValue> components;
   for (NSUInteger idx = 0, max = fieldValues.count; idx < max; ++idx) {
     id rawValue = fieldValues[idx];
-    FSTSortOrder *sortOrder = explicitSortOrders[idx];
+    const OrderBy &sortOrder = explicitSortOrders[idx];
 
     FieldValue fieldValue = [self parsedQueryValue:rawValue];
-    if (sortOrder.field.IsKeyFieldPath()) {
+    if (sortOrder.field().IsKeyFieldPath()) {
       if (fieldValue.type() != FieldValue::Type::String) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }

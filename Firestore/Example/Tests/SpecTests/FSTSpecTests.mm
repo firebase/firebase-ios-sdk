@@ -79,6 +79,7 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
 using testutil::Filter;
+using testutil::OrderBy;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -202,11 +203,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
-      [orderBys enumerateObjectsUsingBlock:^(NSArray *_Nonnull orderBy, NSUInteger idx,
-                                             BOOL *_Nonnull stop) {
-        query =
-            [query queryByAddingSortOrder:FSTTestOrderBy(util::MakeString(orderBy[0]), orderBy[1])];
-      }];
+      for (NSArray<NSString *> *orderBy in orderBys) {
+        std::string field_path = util::MakeString(orderBy[0]);
+        std::string direction = util::MakeString(orderBy[1]);
+        query = [query queryByAddingSortOrder:OrderBy(field_path, direction)];
+      }
     }
     return query;
   } else {

@@ -55,7 +55,9 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
@@ -194,23 +196,9 @@ FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:testutil::Resource(path)];
 }
 
-FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
-  const FieldPath path = testutil::Field(field);
-  BOOL ascending;
-  if ([direction isEqualToString:@"asc"]) {
-    ascending = YES;
-  } else if ([direction isEqualToString:@"desc"]) {
-    ascending = NO;
-  } else {
-    HARD_FAIL("Unsupported direction: %s", direction);
-  }
-  return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
-}
-
 DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
-                                                        ascending:YES]];
+      queryByAddingSortOrder:OrderBy(testutil::Field(fieldPath), Direction::Ascending)];
   return [query comparator];
 }
 

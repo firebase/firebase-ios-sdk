@@ -245,10 +245,8 @@ Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
     ThrowInvalidArgument("Invalid query. You must not specify an ending point "
                          "before specifying the order by.");
   }
-  bool ascending = direction == Direction::Ascending;
-  FSTSortOrder* sortOrder = [FSTSortOrder sortOrderWithFieldPath:fieldPath
-                                                       ascending:ascending];
-  return Wrap([query() queryByAddingSortOrder:sortOrder]);
+  return Wrap(
+      [query() queryByAddingSortOrder:core::OrderBy(fieldPath, direction)]);
 }
 
 Query Query::Limit(int32_t limit) const {
