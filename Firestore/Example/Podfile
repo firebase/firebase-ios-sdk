@@ -23,6 +23,9 @@ install! 'cocoapods',
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
   system('ruby', sync.to_s)
+  if !$?.success?
+    raise "sync_project.rb failed with status #{$?.exitstatus}"
+  end
 end
 
 
