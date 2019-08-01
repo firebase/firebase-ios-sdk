@@ -137,7 +137,7 @@ const FieldPath* Query::FirstOrderByField() const {
 
 // MARK: - Builder methods
 
-Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
+Query Query::AddingFilter(std::shared_ptr<const Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
