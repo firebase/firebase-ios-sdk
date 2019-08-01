@@ -35,7 +35,7 @@ namespace core {
  *
  * The bound is specified with components representing a position in the results
  * and whether it's just before or just after the position (relative to whatever
- * the * query order is).
+ * the query order is).
  *
  * The position represents a logical index position for a query. It's a prefix
  * of values for the (potentially implicit) order by clauses of a query.
