@@ -16,14 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthKeychain.h"
+#import "FIRAuthKeychainServices.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRAuthUserDefaultsStorage
+/** @class FIRAuthUserDefaults
     @brief The utility class to storage data in NSUserDefaults.
  */
-@interface FIRAuthUserDefaultsStorage : NSObject <FIRAuthStorage>
+@interface FIRAuthUserDefaults : NSObject <FIRAuthStorage>
 
 /** @fn clear
     @brief Clears all data from the storage.

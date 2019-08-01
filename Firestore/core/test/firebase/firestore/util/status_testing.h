@@ -74,7 +74,7 @@ testing::AssertionResult StatusOk(const StatusOr<T>& status) {
 // provide much value (when they fail, they would just print the OK status
 // which conveys no more information than EXPECT_FALSE(status.ok());
 // If you want to check for particular errors, a better alternative is:
-// EXPECT_EQ(..expected FirestoreErrorCode..., status.code());
+// EXPECT_EQ(..expected Error..., status.code());
 #define ASSERT_NOT_OK(status) \
   ASSERT_FALSE(firebase::firestore::util::StatusOk(status))
 #define EXPECT_NOT_OK(status) \

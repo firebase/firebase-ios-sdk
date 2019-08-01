@@ -20,6 +20,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -92,6 +93,17 @@ class Transaction {
    */
   void Commit(util::StatusCallback&& callback);
 
+  /**
+   * Marks the transaction as permanently failed, so the transaction will not
+   * retry.
+   */
+  void MarkPermanentlyFailed();
+
+  /**
+   * Checks if the transaction is permanently failed.
+   */
+  bool IsPermanentlyFailed() const;
+
  private:
   /**
    * Every time a document is read, this should be called to record its version.
@@ -126,12 +138,21 @@ class Transaction {
 
   std::vector<FSTMutation*> mutations_;
   bool committed_ = false;
+  bool permanentError_ = false;
 
   /**
    * A deferred usage error that occurred previously in this transaction that
    * will cause the transaction to fail once it actually commits.
    */
   util::Status last_write_error_;
+
+  /**
+   * Set of documents that have been written in the transaction.
+   *
+   * When there's more than one write to the same key in a transaction, any
+   * writes after the first are handled differently.
+   */
+  std::unordered_set<model::DocumentKey, model::DocumentKeyHash> written_docs_;
 
   std::unordered_map<model::DocumentKey,
                      model::SnapshotVersion,

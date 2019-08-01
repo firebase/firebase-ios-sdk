@@ -29,13 +29,13 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -55,9 +55,12 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
@@ -193,23 +196,9 @@ FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:testutil::Resource(path)];
 }
 
-FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
-  const FieldPath path = testutil::Field(field);
-  BOOL ascending;
-  if ([direction isEqualToString:@"asc"]) {
-    ascending = YES;
-  } else if ([direction isEqualToString:@"desc"]) {
-    ascending = NO;
-  } else {
-    HARD_FAIL("Unsupported direction: %s", direction);
-  }
-  return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
-}
-
 DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
-                                                        ascending:YES]];
+      queryByAddingSortOrder:OrderBy(testutil::Field(fieldPath), Direction::Ascending)];
   return [query comparator];
 }
 
@@ -420,9 +409,9 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
   return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
-                                        NSArray<NSString *> *addedKeys,
-                                        NSArray<NSString *> *removedKeys) {
+LocalViewChanges TestViewChanges(TargetId targetID,
+                                 NSArray<NSString *> *addedKeys,
+                                 NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
     added = added.insert(testutil::Key(util::MakeString(keyPath)));
@@ -431,9 +420,7 @@ FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
   for (NSString *keyPath in removedKeys) {
     removed = removed.insert(testutil::Key(util::MakeString(keyPath)));
   }
-  return [FSTLocalViewChanges changesForTarget:targetID
-                                     addedKeys:std::move(added)
-                                   removedKeys:std::move(removed)];
+  return LocalViewChanges(targetID, std::move(added), std::move(removed));
 }
 
 NS_ASSUME_NONNULL_END

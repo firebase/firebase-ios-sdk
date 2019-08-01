@@ -24,6 +24,8 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,14 +36,15 @@ using Operator = Filter::Operator;
 using Type = Filter::Type;
 
 using model::Document;
+using model::DocumentComparator;
 using model::DocumentKey;
 using model::FieldPath;
 using model::ResourcePath;
+using util::ComparisonResult;
 
 template <typename T>
-util::vector_of_ptr<T> AppendingTo(const util::vector_of_ptr<T>& vector,
-                                   T&& value) {
-  util::vector_of_ptr<T> updated = vector;
+std::vector<T> AppendingTo(const std::vector<T>& vector, T&& value) {
+  std::vector<T> updated = vector;
   updated.push_back(std::forward<T>(value));
   return updated;
 }
@@ -82,6 +85,63 @@ bool Query::HasArrayContainsFilter() const {
   return false;
 }
 
+const Query::OrderByList& Query::order_bys() const {
+  if (memoized_order_bys_.empty()) {
+    const FieldPath* inequality_field = InequalityFilterField();
+    const FieldPath* first_order_by_field = FirstOrderByField();
+    if (inequality_field && !first_order_by_field) {
+      // In order to implicitly add key ordering, we must also add the
+      // inequality filter field for it to be a valid query. Note that the
+      // default inequality field and key ordering is ascending.
+      if (inequality_field->IsKeyFieldPath()) {
+        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
+                                         Direction::Ascending);
+      } else {
+        memoized_order_bys_.emplace_back(*inequality_field,
+                                         Direction::Ascending);
+        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
+                                         Direction::Ascending);
+      }
+    } else {
+      HARD_ASSERT(
+          !inequality_field || *inequality_field == *first_order_by_field,
+          "First orderBy %s should match inequality field %s.",
+          first_order_by_field->CanonicalString(),
+          inequality_field->CanonicalString());
+
+      bool found_key_order = false;
+
+      Query::OrderByList result;
+      for (const OrderBy& order_by : explicit_order_bys_) {
+        result.push_back(order_by);
+        if (order_by.field().IsKeyFieldPath()) {
+          found_key_order = true;
+        }
+      }
+
+      if (!found_key_order) {
+        // The direction of the implicit key ordering always matches the
+        // direction of the last explicit sort order
+        Direction last_direction = explicit_order_bys_.empty()
+                                       ? Direction::Ascending
+                                       : explicit_order_bys_.back().direction();
+        result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
+      }
+
+      memoized_order_bys_ = std::move(result);
+    }
+  }
+  return memoized_order_bys_;
+}
+
+const FieldPath* Query::FirstOrderByField() const {
+  if (explicit_order_bys_.empty()) {
+    return nullptr;
+  }
+
+  return &explicit_order_bys_.front().field();
+}
+
 // MARK: - Builder methods
 
 Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
@@ -99,50 +159,167 @@ Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   // TODO(rsgowman): ensure first orderby must match inequality field
 
   return Query(path_, collection_group_,
-               AppendingTo(filters_, std::move(filter)));
+               AppendingTo(filters_, std::move(filter)), explicit_order_bys_,
+               limit_, start_at_, end_at_);
+}
+
+Query Query::AddingOrderBy(OrderBy order_by) const {
+  HARD_ASSERT(!IsDocumentQuery(), "No ordering is allowed for document query");
+
+  if (explicit_order_bys_.empty()) {
+    const FieldPath* inequality = InequalityFilterField();
+    HARD_ASSERT(inequality == nullptr || *inequality == order_by.field(),
+                "First OrderBy must match inequality field.");
+  }
+
+  return Query(path_, collection_group_, filters_,
+               AppendingTo(explicit_order_bys_, std::move(order_by)), limit_,
+               start_at_, end_at_);
+}
+
+Query Query::WithLimit(int32_t limit) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
+               start_at_, end_at_);
+}
+
+Query Query::StartingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               std::make_shared<Bound>(std::move(bound)), end_at_);
+}
+
+Query Query::EndingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               start_at_, std::make_shared<Bound>(std::move(bound)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
-  return Query(path, /*collection_group=*/nullptr, filters_);
+  return Query(path, /*collection_group=*/nullptr, filters_,
+               explicit_order_bys_, limit_, start_at_, end_at_);
 }
 
 // MARK: - Matching
 
 bool Query::Matches(const Document& doc) const {
-  return MatchesPath(doc) && MatchesOrderBy(doc) && MatchesFilters(doc) &&
-         MatchesBounds(doc);
+  return MatchesPathAndCollectionGroup(doc) && MatchesOrderBy(doc) &&
+         MatchesFilters(doc) && MatchesBounds(doc);
 }
 
-bool Query::MatchesPath(const Document& doc) const {
+bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
   const ResourcePath& doc_path = doc.key().path();
-  if (DocumentKey::IsDocumentKey(path_)) {
+  if (collection_group_) {
+    // NOTE: path_ is currently always empty since we don't expose Collection
+    // Group queries rooted at a document path yet.
+    return doc.key().HasCollectionId(*collection_group_) &&
+           path_.IsPrefixOf(doc_path);
+  } else if (DocumentKey::IsDocumentKey(path_)) {
+    // Exact match for document queries.
     return path_ == doc_path;
   } else {
-    return path_.IsPrefixOf(doc_path) && path_.size() == doc_path.size() - 1;
+    // Shallow ancestor queries by default.
+    return path_.IsImmediateParentOf(doc_path);
   }
 }
 
 bool Query::MatchesFilters(const Document& doc) const {
-  return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<Filter>& filter) {
-                       return filter->Matches(doc);
-                     });
-}
-
-bool Query::MatchesOrderBy(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
+  for (const auto& filter : filters_) {
+    if (!filter->Matches(doc)) return false;
+  }
   return true;
 }
 
-bool Query::MatchesBounds(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
+bool Query::MatchesOrderBy(const Document& doc) const {
+  for (const OrderBy& order_by : explicit_order_bys_) {
+    const FieldPath& field_path = order_by.field();
+    // order by key always matches
+    if (field_path != FieldPath::KeyFieldPath() &&
+        doc.field(field_path) == absl::nullopt) {
+      return false;
+    }
+  }
   return true;
+}
+
+bool Query::MatchesBounds(const Document& doc) const {
+  const OrderByList& ordering = order_bys();
+  if (start_at_ && !start_at_->SortsBeforeDocument(ordering, doc)) {
+    return false;
+  }
+  if (end_at_ && end_at_->SortsBeforeDocument(ordering, doc)) {
+    return false;
+  }
+  return true;
+}
+
+model::DocumentComparator Query::Comparator() const {
+  OrderByList ordering = order_bys();
+
+  bool has_key_ordering = false;
+  for (const OrderBy& order_by : ordering) {
+    if (order_by.field() == FieldPath::KeyFieldPath()) {
+      has_key_ordering = true;
+      break;
+    }
+  }
+  HARD_ASSERT(has_key_ordering,
+              "QueryComparator needs to have a key ordering.");
+
+  return DocumentComparator(
+      [ordering](const Document& doc1, const Document& doc2) {
+        for (const OrderBy& order_by : ordering) {
+          ComparisonResult comp = order_by.Compare(doc1, doc2);
+          if (!util::Same(comp)) return comp;
+        }
+        return ComparisonResult::Same;
+      });
+}
+
+const std::string& Query::CanonicalId() const {
+  if (!canonical_id_.empty()) return canonical_id_;
+
+  std::string result;
+  absl::StrAppend(&result, path_.CanonicalString());
+
+  if (collection_group_) {
+    absl::StrAppend(&result, "|cg:", *collection_group_);
+  }
+
+  // Add filters.
+  absl::StrAppend(&result, "|f:");
+  for (const auto& filter : filters_) {
+    absl::StrAppend(&result, filter->CanonicalId());
+  }
+
+  // Add order by.
+  absl::StrAppend(&result, "|ob:");
+  for (const OrderBy& order_by : order_bys()) {
+    absl::StrAppend(&result, order_by.CanonicalId());
+  }
+
+  // Add limit.
+  if (limit_ != kNoLimit) {
+    absl::StrAppend(&result, "|l:", limit_);
+  }
+
+  if (start_at_) {
+    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId());
+  }
+
+  if (end_at_) {
+    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId());
+  }
+
+  canonical_id_ = std::move(result);
+  return canonical_id_;
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
-         lhs.filters() == rhs.filters();
+         absl::c_equal(lhs.filters(), rhs.filters(),
+                       util::Equals<std::shared_ptr<const Filter>>) &&
+         lhs.order_bys() == rhs.order_bys() && lhs.limit() == rhs.limit() &&
+         util::Equals(lhs.start_at(), rhs.start_at()) &&
+         util::Equals(lhs.end_at(), rhs.end_at());
 }
 
 }  // namespace core

@@ -39,7 +39,7 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthExceptionUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthKeychain.h"
+#import "FIRAuthKeychainServices.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthStoredUserManager.h"
@@ -277,10 +277,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
    */
   NSMutableArray<FIRAuthStateDidChangeListenerHandle> *_listenerHandles;
 
-  /** @var _keychain
+  /** @var _keychainServices
       @brief The keychain service.
    */
-  FIRAuthKeychain *_keychain;
+  FIRAuthKeychainServices *_keychainServices;
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
@@ -393,7 +393,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSString *keychainServiceName =
           [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
       if (keychainServiceName) {
-        strongSelf->_keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
+        strongSelf->_keychainServices = [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
         strongSelf.storedUserManager =
             [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
       }
@@ -428,7 +428,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
 
       strongSelf->_appCredentialManager =
-          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychain];
+          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychainServices];
 
       strongSelf->_notificationManager = [[FIRAuthNotificationManager alloc]
            initWithApplication:application
@@ -928,7 +928,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           return;
         }
         FIRAdditionalUserInfo *additionalUserInfo =
-          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:nil
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:YES];
@@ -1800,7 +1800,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   if (!self.userAccessGroup) {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
     if (!user) {
-      success = [_keychain removeDataForKey:userKey error:outError];
+      success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
       // Encode the user object.
       NSMutableData *archiveData = [NSMutableData data];
@@ -1809,7 +1809,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
       [archiver finishEncoding];
 
       // Save the user object's encoded value.
-      success = [_keychain setData:archiveData forKey:userKey error:outError];
+      success = [_keychainServices setData:archiveData forKey:userKey error:outError];
     }
   } else {
     if (!user) {
@@ -1840,7 +1840,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
 
     NSError *keychainError;
-    NSData *encodedUserData = [_keychain dataForKey:userKey error:&keychainError];
+    NSData *encodedUserData = [_keychainServices dataForKey:userKey error:&keychainError];
     if (keychainError) {
       if (error) {
         *error = keychainError;
@@ -1906,7 +1906,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppName:app.name];
     if (keychainServiceName) {
       [[self class] deleteKeychainServiceNameForAppName:app.name];
-      FIRAuthKeychain *keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
+      FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
       NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
       [keychain removeDataForKey:userKey error:NULL];
     }
@@ -1999,7 +1999,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 
   if(_userAccessGroup == nil && accessGroup != nil) {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
-    [_keychain removeDataForKey:userKey error:outError];
+    [_keychainServices removeDataForKey:userKey error:outError];
   }
   _userAccessGroup = accessGroup;
   self->_lastNotifiedUserToken = user.rawAccessToken;
@@ -2012,7 +2012,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   FIRUser *user;
   if (!accessGroup) {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
-    NSData *encodedUserData = [_keychain dataForKey:userKey error:outError];
+    NSData *encodedUserData = [_keychainServices dataForKey:userKey error:outError];
     if (!encodedUserData) {
       return nil;
     }

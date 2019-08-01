@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -181,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (model::DocumentMap)executeQuery:(FSTQuery *)query;
 
 /** Notify the local store of the changed views to locally pin / unpin documents. */
-- (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges;
+- (void)notifyLocalViewChanges:(const std::vector<local::LocalViewChanges> &)viewChanges;
 
 /**
  * Gets the mutation batch after the passed in batchId in the mutation queue or nil if empty.

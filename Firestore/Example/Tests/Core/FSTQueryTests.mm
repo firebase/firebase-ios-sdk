@@ -23,6 +23,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/direction.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -33,6 +35,8 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Bound;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
@@ -45,7 +49,9 @@ using testutil::Array;
 using testutil::Field;
 using testutil::Filter;
 using testutil::Map;
+using testutil::OrderBy;
 using testutil::Value;
+using testutil::Vector;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,8 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTQuery (Tests)
 
 - (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending {
-  return [self queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field(key)
-                                                                 ascending:ascending]];
+  return [self queryByAddingSortOrder:OrderBy(Field(key), Direction::FromDescending(!ascending))];
 }
 
 @end
@@ -73,27 +78,26 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [FSTQuery queryWithPath:path];
   XCTAssertNotNil(query);
 
-  XCTAssertEqual(query.sortOrders.count, 1);
-  XCTAssertEqual(query.sortOrders[0].field.CanonicalString(), FieldPath::kDocumentKeyPath);
-  XCTAssertEqual(query.sortOrders[0].ascending, YES);
+  XCTAssertEqual(query.sortOrders.size(), 1);
+  XCTAssertEqual(query.sortOrders[0].field().CanonicalString(), FieldPath::kDocumentKeyPath);
+  XCTAssertEqual(query.sortOrders[0].ascending(), true);
 
-  XCTAssertEqual(query.explicitSortOrders.count, 0);
+  XCTAssertEqual(query.explicitSortOrders.size(), 0);
 }
 
 - (void)testOrderBy {
   FSTQuery *query = FSTTestQuery("rooms/Firestore/messages");
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("length")
-                                                                   ascending:NO]];
+  query = [query queryByAddingSortOrder:OrderBy(Field("length"), Direction::Descending)];
 
-  XCTAssertEqual(query.sortOrders.count, 2);
-  XCTAssertEqual(query.sortOrders[0].field.CanonicalString(), "length");
-  XCTAssertEqual(query.sortOrders[0].ascending, NO);
-  XCTAssertEqual(query.sortOrders[1].field.CanonicalString(), FieldPath::kDocumentKeyPath);
-  XCTAssertEqual(query.sortOrders[1].ascending, NO);
+  XCTAssertEqual(query.sortOrders.size(), 2);
+  XCTAssertEqual(query.sortOrders[0].field().CanonicalString(), "length");
+  XCTAssertEqual(query.sortOrders[0].ascending(), false);
+  XCTAssertEqual(query.sortOrders[1].field().CanonicalString(), FieldPath::kDocumentKeyPath);
+  XCTAssertEqual(query.sortOrders[1].ascending(), false);
 
-  XCTAssertEqual(query.explicitSortOrders.count, 1);
-  XCTAssertEqual(query.explicitSortOrders[0].field.CanonicalString(), "length");
-  XCTAssertEqual(query.explicitSortOrders[0].ascending, NO);
+  XCTAssertEqual(query.explicitSortOrders.size(), 1);
+  XCTAssertEqual(query.explicitSortOrders[0].field().CanonicalString(), "length");
+  XCTAssertEqual(query.explicitSortOrders[0].ascending(), NO);
 }
 
 - (void)testMatchesBasedOnDocumentKey {
@@ -277,7 +281,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
   FSTQuery *query1 = [FSTTestQuery("collection")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort") ascending:YES]];
+      queryByAddingSortOrder:OrderBy(Field("sort"), Direction::Ascending)];
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
@@ -359,8 +363,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsInTheCorrectOrder {
   FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy(Field("sort"), Direction::Ascending)];
 
   // clang-format off
   NSArray<FSTDocument *> *docs = @[
@@ -387,10 +390,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsUsingMultipleFields {
   FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort1")
-                                                                   ascending:YES]];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort2")
-                                                                   ascending:YES]];
+  query = [query queryByAddingSortOrder:OrderBy(Field("sort1"), Direction::Ascending)];
+  query = [query queryByAddingSortOrder:OrderBy(Field("sort2"), Direction::Ascending)];
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
@@ -412,10 +413,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSortsDocumentsWithDescendingToo {
   FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort1")
-                                                                   ascending:NO]];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("sort2")
-                                                                   ascending:NO]];
+  query = [query queryByAddingSortOrder:OrderBy(Field("sort1"), Direction::Descending)];
+  query = [query queryByAddingSortOrder:OrderBy(Field("sort2"), Direction::Descending)];
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
@@ -568,58 +567,47 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testImplicitOrderBy {
   FSTQuery *baseQuery = FSTTestQuery("foo");
   // Default is ascending
-  XCTAssertEqualObjects(baseQuery.sortOrders,
-                        @[ FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]);
+  XCTAssertEqual(baseQuery.sortOrders, Vector(OrderBy(FieldPath::kDocumentKeyPath, "asc")));
 
   // Explicit key ordering is respected
-  XCTAssertEqualObjects(
-      [baseQuery queryByAddingSortOrder:FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc")]
-          .sortOrders,
-      @[ FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]);
-  XCTAssertEqualObjects(
-      [baseQuery queryByAddingSortOrder:FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc")]
-          .sortOrders,
-      @[ FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc") ]);
+  XCTAssertEqual(
+      [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")].sortOrders,
+      Vector(OrderBy(FieldPath::kDocumentKeyPath, "asc")));
+  XCTAssertEqual(
+      [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")].sortOrders,
+      Vector(OrderBy(FieldPath::kDocumentKeyPath, "desc")));
 
-  XCTAssertEqualObjects(
-      [[baseQuery queryByAddingSortOrder:FSTTestOrderBy("foo", @"asc")]
-          queryByAddingSortOrder:FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc")]
-          .sortOrders,
-      (@[ FSTTestOrderBy("foo", @"asc"), FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]));
+  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
+                     queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")]
+                     .sortOrders,
+                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")));
 
-  XCTAssertEqualObjects(
-      [[baseQuery queryByAddingSortOrder:FSTTestOrderBy("foo", @"asc")]
-          queryByAddingSortOrder:FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc")]
-          .sortOrders,
-      (@[ FSTTestOrderBy("foo", @"asc"), FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc") ]));
+  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
+                     queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")]
+                     .sortOrders,
+                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")));
 
   // Inequality filters add order bys
-  XCTAssertEqualObjects(
-      [baseQuery queryByAddingFilter:Filter("foo", "<", 5)].sortOrders,
-      (@[ FSTTestOrderBy("foo", @"asc"), FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc") ]));
+  XCTAssertEqual([baseQuery queryByAddingFilter:Filter("foo", "<", 5)].sortOrders,
+                 Vector(OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")));
 
   // Descending order by applies to implicit key ordering
-  XCTAssertEqualObjects(
-      [baseQuery queryByAddingSortOrder:FSTTestOrderBy("foo", @"desc")].sortOrders,
-      (@[ FSTTestOrderBy("foo", @"desc"), FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc") ]));
-  XCTAssertEqualObjects([[baseQuery queryByAddingSortOrder:FSTTestOrderBy("foo", @"asc")]
-                            queryByAddingSortOrder:FSTTestOrderBy("bar", @"desc")]
-                            .sortOrders,
-                        (@[
-                          FSTTestOrderBy("foo", @"asc"), FSTTestOrderBy("bar", @"desc"),
-                          FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"desc")
-                        ]));
-  XCTAssertEqualObjects([[baseQuery queryByAddingSortOrder:FSTTestOrderBy("foo", @"desc")]
-                            queryByAddingSortOrder:FSTTestOrderBy("bar", @"asc")]
-                            .sortOrders,
-                        (@[
-                          FSTTestOrderBy("foo", @"desc"), FSTTestOrderBy("bar", @"asc"),
-                          FSTTestOrderBy(FieldPath::kDocumentKeyPath, @"asc")
-                        ]));
+  XCTAssertEqual([baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")].sortOrders,
+                 Vector(OrderBy("foo", "desc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
+                     queryByAddingSortOrder:OrderBy("bar", "desc")]
+                     .sortOrders,
+                 Vector(OrderBy("foo", "asc"), OrderBy("bar", "desc"),
+                        OrderBy(FieldPath::kDocumentKeyPath, "desc")));
+  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")]
+                     queryByAddingSortOrder:OrderBy("bar", "asc")]
+                     .sortOrders,
+                 Vector(OrderBy("foo", "desc"), OrderBy("bar", "asc"),
+                        OrderBy(FieldPath::kDocumentKeyPath, "asc")));
 }
 
 MATCHER_P(HasCanonicalId, expected, "") {
-  std::string actual = util::MakeString([arg canonicalID]);
+  const std::string &actual = [arg canonicalID];
   *result_listener << "which has canonicalID " << actual;
   return actual == expected;
 }
@@ -657,10 +645,8 @@ MATCHER_P(HasCanonicalId, expected, "") {
   FSTQuery *bounds = FSTTestQuery("airports");
   bounds = [bounds queryByAddingSortBy:"name" ascending:YES];
   bounds = [bounds queryByAddingSortBy:"score" ascending:NO];
-  bounds = [bounds queryByAddingStartAt:[FSTBound boundWithPosition:{Value("OAK"), Value(1000)}
-                                                           isBefore:true]];
-  bounds = [bounds queryByAddingEndAt:[FSTBound boundWithPosition:{Value("SFO"), Value(2000)}
-                                                         isBefore:false]];
+  bounds = [bounds queryByAddingStartAt:Bound({Value("OAK"), Value(1000)}, /* is_before= */ true)];
+  bounds = [bounds queryByAddingEndAt:Bound({Value("SFO"), Value(2000)}, /* is_before= */ false)];
   XC_ASSERT_THAT(
       bounds,
       HasCanonicalId("airports|f:|ob:nameascscoredesc__name__desc|lb:b:OAK1000|ub:a:SFO2000"));

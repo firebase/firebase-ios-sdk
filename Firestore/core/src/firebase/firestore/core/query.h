@@ -23,10 +23,12 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/vector_of_ptr.h"
 
 namespace firebase {
 namespace firestore {
@@ -38,26 +40,41 @@ namespace core {
  */
 class Query {
  public:
-  using FilterList = util::vector_of_ptr<std::shared_ptr<Filter>>;
+  using CollectionGroupId = std::shared_ptr<const std::string>;
+  using FilterList = std::vector<std::shared_ptr<Filter>>;
+  using OrderByList = std::vector<OrderBy>;
 
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
 
   static Query Invalid() {
-    return Query(model::ResourcePath::Empty());
+    return Query();
+  }
+
+  explicit Query(model::ResourcePath path,
+                 CollectionGroupId collection_group = nullptr)
+      : path_(std::move(path)), collection_group_(std::move(collection_group)) {
   }
 
   /**
    * Initializes a Query with a path and optional additional query constraints.
    * Path must currently be empty if this is a collection group query.
    */
-  explicit Query(model::ResourcePath path,
-                 std::shared_ptr<const std::string> collection_group = nullptr,
-                 FilterList filters = {})
+  Query(model::ResourcePath path,
+        CollectionGroupId collection_group,
+        FilterList filters,
+        OrderByList explicit_order_bys,
+        int32_t limit,
+        std::shared_ptr<Bound> start_at,
+        std::shared_ptr<Bound> end_at)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
-        filters_(std::move(filters)) {
+        filters_(std::move(filters)),
+        explicit_order_bys_(std::move(explicit_order_bys)),
+        limit_(limit),
+        start_at_(std::move(start_at)),
+        end_at_(std::move(end_at)) {
   }
 
   Query(model::ResourcePath path, std::string collection_group);
@@ -96,12 +113,71 @@ class Query {
   /** Returns true if this Query has an array-contains filter already. */
   bool HasArrayContainsFilter() const;
 
+  /**
+   * Returns the list of ordering constraints that were explicitly requested on
+   * the query by the user.
+   *
+   * Note that the actual query performed might add additional sort orders to
+   * match the behavior of the backend.
+   */
+  const OrderByList& explicit_order_bys() const {
+    return explicit_order_bys_;
+  }
+
+  /**
+   * Returns the full list of ordering constraints on the query.
+   *
+   * This might include additional sort orders added implicitly to match the
+   * backend behavior.
+   */
+  const OrderByList& order_bys() const;
+
+  /** Returns the first field in an order-by constraint, or nullptr if none. */
+  const model::FieldPath* FirstOrderByField() const;
+
+  int32_t limit() const {
+    return limit_;
+  }
+
+  const std::shared_ptr<Bound>& start_at() const {
+    return start_at_;
+  }
+
+  const std::shared_ptr<Bound>& end_at() const {
+    return end_at_;
+  }
+
   // MARK: - Builder methods
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
   Query AddingFilter(std::shared_ptr<Filter> filter) const;
+
+  /**
+   * Returns a copy of this Query object with the additional specified order by.
+   */
+  Query AddingOrderBy(OrderBy order_by) const;
+
+  /**
+   * Returns a copy of this Query with the given limit on how many results can
+   * be returned.
+   *
+   * @param limit The maximum number of results to return. If
+   *     `limit == kNoLimit`, then no limit is applied. Otherwise, if
+   *     `limit <= 0`, behavior is unspecified.
+   */
+  Query WithLimit(int32_t limit) const;
+
+  /**
+   * Returns a copy of this Query starting at the provided bound.
+   */
+  Query StartingAt(Bound bound) const;
+
+  /**
+   * Returns a copy of this Query ending at the provided bound.
+   */
+  Query EndingAt(Bound bound) const;
 
   // MARK: - Matching
 
@@ -116,8 +192,16 @@ class Query {
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
+  /**
+   * Returns a comparator that will sort documents according to the order by
+   * clauses in this query.
+   */
+  model::DocumentComparator Comparator() const;
+
+  const std::string& CanonicalId() const;
+
  private:
-  bool MatchesPath(const model::Document& doc) const;
+  bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;
   bool MatchesBounds(const model::Document& doc) const;
@@ -131,7 +215,18 @@ class Query {
   // immutable.) Filters are not shared across unrelated Query instances.
   FilterList filters_;
 
-  // TODO(rsgowman): Port collection group queries logic.
+  // A list of fields given to sort by. This does not include the implicit key
+  // sort at the end.
+  OrderByList explicit_order_bys_;
+
+  // The memoized list of sort orders.
+  mutable OrderByList memoized_order_bys_;
+
+  int32_t limit_ = kNoLimit;
+  std::shared_ptr<Bound> start_at_;
+  std::shared_ptr<Bound> end_at_;
+
+  mutable std::string canonical_id_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -65,7 +65,7 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
-      return Status{FirestoreErrorCode::Aborted,
+      return Status{Error::Aborted,
                     "Document version changed between two reads."};
     }
     return Status::OK();
@@ -80,7 +80,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   EnsureCommitNotCalled();
 
   if (!mutations_.empty()) {
-    Status lookup_error = Status{FirestoreErrorCode::InvalidArgument,
+    Status lookup_error = Status{Error::InvalidArgument,
                                  "Firestore transactions require all reads to "
                                  "be executed before all writes"};
     callback({}, lookup_error);
@@ -116,7 +116,7 @@ void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
 
 Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
   absl::optional<SnapshotVersion> version = GetVersion(key);
-  if (version.has_value()) {
+  if (written_docs_.count(key) == 0 && version.has_value()) {
     return Precondition::UpdateTime(version.value());
   } else {
     return Precondition::None();
@@ -126,12 +126,24 @@ Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
 StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
   absl::optional<SnapshotVersion> version = GetVersion(key);
-
-  if (version.has_value() && version.value() == SnapshotVersion::None()) {
-    // The document to update doesn't exist, so fail the transaction.
-    return Status{FirestoreErrorCode::InvalidArgument,
-                  "Can't update a document that doesn't exist."};
-  } else if (version.has_value()) {
+  // The first time a document is written, we want to take into account the
+  // read time and existence.
+  if (written_docs_.count(key) == 0 && version.has_value()) {
+    if (version.value() == SnapshotVersion::None()) {
+      // The document doesn't exist, so fail the transaction.
+      //
+      // This has to be validated locally because you can't send a
+      // precondition that a document does not exist without changing the
+      // semantics of the backend write to be an insert. This is the reverse
+      // of what we want, since we want to assert that the document doesn't
+      // exist but then send the update and have it fail. Since we can't
+      // express that to the backend, we have to validate locally.
+      //
+      // Note: this can change once we can send separate verify writes in the
+      // transaction.
+      return Status{Error::InvalidArgument,
+                    "Can't update a document that doesn't exist."};
+    }
     // Document exists, just base precondition on document update time.
     return Precondition::UpdateTime(version.value());
   } else {
@@ -143,6 +155,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
 
 void Transaction::Set(const DocumentKey& key, ParsedSetData&& data) {
   WriteMutations(std::move(data).ToMutations(key, CreatePrecondition(key)));
+  written_docs_.insert(key);
 }
 
 void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
@@ -153,6 +166,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
     WriteMutations(
         std::move(data).ToMutations(key, maybe_precondition.ValueOrDie()));
   }
+  written_docs_.insert(key);
 }
 
 void Transaction::Delete(const DocumentKey& key) {
@@ -160,10 +174,7 @@ void Transaction::Delete(const DocumentKey& key) {
       [[FSTDeleteMutation alloc] initWithKey:key
                                 precondition:CreatePrecondition(key)];
   WriteMutations({mutation});
-
-  // Since the delete will be applied before all following writes, we need to
-  // ensure that the precondition for the next write will be exists: false.
-  read_versions_[key] = SnapshotVersion::None();
+  written_docs_.insert(key);
 }
 
 void Transaction::Commit(util::StatusCallback&& callback) {
@@ -189,13 +200,21 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
     callback(
-        Status{FirestoreErrorCode::InvalidArgument,
+        Status{Error::InvalidArgument,
                "Every document read in a transaction must also be written in "
                "that transaction."});
   } else {
     committed_ = true;
     datastore_->CommitMutations(mutations_, std::move(callback));
   }
+}
+
+void Transaction::MarkPermanentlyFailed() {
+  permanentError_ = true;
+}
+
+bool Transaction::IsPermanentlyFailed() const {
+  return permanentError_;
 }
 
 void Transaction::EnsureCommitNotCalled() {

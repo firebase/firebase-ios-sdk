@@ -49,10 +49,10 @@ NSError* MakeCocoaNotFound() {
 
 TEST(Status, MapsPosixErrorCodes) {
   Status s = Status::FromNSError(MakeNotFound());
-  EXPECT_EQ(FirestoreErrorCode::NotFound, s.code());
+  EXPECT_EQ(Error::NotFound, s.code());
 
   s = Status::FromNSError(MakeCocoaNotFound());
-  EXPECT_EQ(FirestoreErrorCode::NotFound, s.code());
+  EXPECT_EQ(Error::NotFound, s.code());
 }
 
 TEST(Status, PreservesNSError) {
@@ -65,7 +65,7 @@ TEST(Status, PreservesNSError) {
 
 TEST(Status, CausedBy_Chain_NSError) {
   NSError* not_found_nserror = MakeNotFound();
-  Status internal_error(FirestoreErrorCode::Internal, "Something broke");
+  Status internal_error(Error::Internal, "Something broke");
 
   Status result = internal_error;
   result.CausedBy(Status::FromNSError(not_found_nserror));

@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -44,7 +45,6 @@
 @class FSTPatchMutation;
 @class FSTQuery;
 @class FSTSetMutation;
-@class FSTSortOrder;
 @class FSTTransformMutation;
 @class FSTUserDataConverter;
 @class FSTView;
@@ -59,6 +59,7 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -263,9 +264,6 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseI
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(const absl::string_view path);
 
-/** A convenience method for creating sort orders. */
-FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
-
 /**
  * Creates an NSComparator that will compare FSTDocuments by the given fieldPath string then by
  * key.
@@ -324,7 +322,7 @@ firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEventWithLimboTarget
     const std::vector<firebase::firestore::model::TargetId> &limboTargets);
 
 /** Creates a test view changes. */
-FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId targetID,
+local::LocalViewChanges TestViewChanges(firebase::firestore::model::TargetId targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
 

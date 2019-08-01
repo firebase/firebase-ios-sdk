@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthKeychain
     @brief The utility class to manipulate data in iOS Keychain.
  */
-@interface FIRAuthKeychain : NSObject <FIRAuthStorage>
+@interface FIRAuthKeychainServices : NSObject <FIRAuthStorage>
 
 /** @fn getItemWithQuery:error:
     @brief Get the item from keychain by given query.

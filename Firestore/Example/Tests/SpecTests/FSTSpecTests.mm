@@ -48,6 +48,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -58,7 +59,7 @@
 namespace objc = firebase::firestore::objc;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
@@ -79,6 +80,7 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
 using testutil::Filter;
+using testutil::OrderBy;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -202,11 +204,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
-      [orderBys enumerateObjectsUsingBlock:^(NSArray *_Nonnull orderBy, NSUInteger idx,
-                                             BOOL *_Nonnull stop) {
-        query =
-            [query queryByAddingSortOrder:FSTTestOrderBy(util::MakeString(orderBy[0]), orderBy[1])];
-      }];
+      for (NSArray<NSString *> *orderBy in orderBys) {
+        std::string field_path = util::MakeString(orderBy[0]);
+        std::string direction = util::MakeString(orderBy[1]);
+        query = [query queryByAddingSortOrder:OrderBy(field_path, direction)];
+      }
     }
     return query;
   } else {
@@ -283,7 +285,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSDictionary *userInfo = @{
       NSLocalizedDescriptionKey : @"Error from watchRemove.",
     };
-    error = Status{static_cast<FirestoreErrorCode>(code), MakeString([userInfo description])};
+    error = Status{static_cast<Error>(code), MakeString([userInfo description])};
   }
   WatchTargetChange change{WatchTargetChangeState::Removed,
                            ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
@@ -566,13 +568,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssertEqual(events.count, stepExpectations.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return [q1.query.canonicalID compare:q2.query.canonicalID];
+        return util::WrapCompare(q1.query.canonicalID, q2.query.canonicalID);
       }];
   stepExpectations = [stepExpectations
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         FSTQuery *leftQuery = [self parseQuery:left[@"query"]];
         FSTQuery *rightQuery = [self parseQuery:right[@"query"]];
-        return [leftQuery.canonicalID compare:rightQuery.canonicalID];
+        return util::WrapCompare(leftQuery.canonicalID, rightQuery.canonicalID);
       }];
 
   NSUInteger i = 0;

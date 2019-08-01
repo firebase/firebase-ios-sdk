@@ -20,7 +20,9 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -35,60 +37,6 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** FSTSortOrder is a field and direction to order query results by. */
-@interface FSTSortOrder : NSObject <NSCopying>
-
-/** Creates a new sort order with the given field and direction. */
-+ (instancetype)sortOrderWithFieldPath:(model::FieldPath)fieldPath ascending:(BOOL)ascending;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/** Compares two documents based on the field and direction of this sort order. */
-- (util::ComparisonResult)compareDocument:(FSTDocument *)document1
-                               toDocument:(FSTDocument *)document2;
-
-/** The field to sort by. */
-- (const model::FieldPath &)field;
-
-/** The direction of the sort. */
-@property(nonatomic, assign, readonly, getter=isAscending) BOOL ascending;
-
-@end
-
-/**
- * FSTBound represents a bound of a query.
- *
- * The bound is specified with the given components representing a position and whether it's just
- * before or just after the position (relative to whatever the query order is).
- *
- * The position represents a logical index position for a query. It's a prefix of values for
- * the (potentially implicit) order by clauses of a query.
- *
- * FSTBound provides a function to determine whether a document comes before or after a bound.
- * This is influenced by whether the position is just before or just after the provided values.
- */
-@interface FSTBound : NSObject <NSCopying>
-
-/**
- * Creates a new bound.
- *
- * @param position The position relative to the sort order.
- * @param isBefore Whether this bound is just before or just after the position.
- */
-+ (instancetype)boundWithPosition:(std::vector<model::FieldValue>)position isBefore:(bool)isBefore;
-
-/** Whether this bound is just before or just after the provided position */
-@property(nonatomic, assign, readonly, getter=isBefore) bool before;
-
-/** The index position of this bound represented as an array of field values. */
-@property(nonatomic, assign, readonly) const std::vector<model::FieldValue> &position;
-
-/** Returns true if a document comes before a bound using the provided sort order. */
-- (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder;
-
-@end
-
 /** FSTQuery represents the internal structure of a Firestore query. */
 @interface FSTQuery : NSObject <NSCopying>
 
@@ -97,11 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a query with all of its components directly.
  */
-- (instancetype)initWithQuery:(core::Query)query
-                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                        limit:(int32_t)limit
-                      startAt:(nullable FSTBound *)startAtBound
-                        endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQuery:(core::Query)query NS_DESIGNATED_INITIALIZER;
 
 /**
  * Creates and returns a new FSTQuery.
@@ -130,14 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that the actual query performed might add additional sort orders to match the behavior
  * of the backend.
  */
-- (NSArray<FSTSortOrder *> *)explicitSortOrders;
+- (const core::Query::OrderByList &)explicitSortOrders;
 
 /**
  * Returns the full list of ordering constraints on the query.
  *
  * This might include additional sort orders added implicitly to match the backend behavior.
  */
-- (NSArray<FSTSortOrder *> *)sortOrders;
+- (const core::Query::OrderByList &)sortOrders;
 
 /**
  * Creates a new FSTQuery with an additional filter.
@@ -150,10 +94,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
  *
- * @param sortOrder The key and direction to order by.
+ * @param orderBy The field and direction to order by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder;
+- (instancetype)queryByAddingSortOrder:(core::OrderBy)orderBy;
 
 /**
  * Returns a new FSTQuery with the given limit on how many results can be returned.
@@ -169,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param bound The bound to start this query at.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingStartAt:(FSTBound *)bound;
+- (instancetype)queryByAddingStartAt:(core::Bound)bound;
 
 /**
  * Creates a new FSTQuery ending at the provided bound.
@@ -177,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param bound The bound to end this query at.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingEndAt:(FSTBound *)bound;
+- (instancetype)queryByAddingEndAt:(core::Bound)bound;
 
 /**
  * Helper to convert a collection group query into a collection query at a specific path. This is
@@ -218,19 +162,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (const core::Query::FilterList &)filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
-@property(nonatomic, assign, readonly) int32_t limit;
+- (int32_t)limit;
 
 /**
  * A canonical string identifying the query. Two different instances of equivalent queries will
  * return the same canonicalID.
  */
-@property(nonatomic, strong, readonly) NSString *canonicalID;
+- (const std::string &)canonicalID;
 
 /** An optional bound to start the query at. */
-@property(nonatomic, nullable, strong, readonly) FSTBound *startAt;
+- (const std::shared_ptr<core::Bound> &)startAt;
 
 /** An optional bound to end the query at. */
-@property(nonatomic, nullable, strong, readonly) FSTBound *endAt;
+- (const std::shared_ptr<core::Bound> &)endAt;
 
 @end
 

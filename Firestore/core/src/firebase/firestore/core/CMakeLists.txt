@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     array_contains_filter.cc
     array_contains_filter.h
+    bound.cc
+    bound.h
     database_info.cc
     database_info.h
     direction.cc
@@ -28,6 +30,8 @@ cc_library(
     key_field_filter.cc
     key_field_filter.h
     listen_options.h
+    order_by.cc
+    order_by.h
     query.cc
     query.h
     target_id_generator.cc

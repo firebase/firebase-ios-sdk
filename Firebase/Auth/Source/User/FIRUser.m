@@ -938,7 +938,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 expirationDate:expDate
                                       authDate:authDate
                                   issuedAtDate:issuedDate
-                                signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
+                                signInProvider:tokenPayloadDictionary[@"firebase"][@"sign_in_provider"]
                                         claims:tokenPayloadDictionary];
   return result;
 }
@@ -1252,19 +1252,11 @@ static void callInMainThreadWithAuthDataResultAndError(
           [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
 
-      if ([provider isEqualToString:FIREmailAuthProviderID]) {
-        if (!self->_hasEmailPasswordCredential) {
-          completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
-          return;
-        }
-        setAccountInfoRequest.deleteAttributes = @[ FIRSetAccountInfoUserAttributePassword ];
-      } else {
-        if (!self->_providerData[provider]) {
-          completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
-          return;
-        }
-        setAccountInfoRequest.deleteProviders = @[ provider ];
+      if (!self->_providerData[provider]) {
+        completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
+        return;
       }
+      setAccountInfoRequest.deleteProviders = @[ provider ];
 
       [FIRAuthBackend setAccountInfo:setAccountInfoRequest
                             callback:^(FIRSetAccountInfoResponse *_Nullable response,

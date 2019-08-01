@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +37,7 @@ namespace api {
 
 namespace util = firebase::firestore::util;
 using core::AsyncEventListener;
+using core::Bound;
 using core::Direction;
 using core::EventListener;
 using core::FieldFilter;
@@ -103,7 +105,7 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 
       if (snapshot.metadata().from_cache() && source_ == Source::Server) {
         listener_->OnEvent(Status{
-            FirestoreErrorCode::Unavailable,
+            Error::Unavailable,
             "Failed to get documents from server. (However, these documents "
             "may exist in the local cache. Run again without setting source to "
             "FirestoreSourceServer to retrieve the cached documents.)"});
@@ -244,10 +246,8 @@ Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
     ThrowInvalidArgument("Invalid query. You must not specify an ending point "
                          "before specifying the order by.");
   }
-  bool ascending = direction == Direction::Ascending;
-  FSTSortOrder* sortOrder = [FSTSortOrder sortOrderWithFieldPath:fieldPath
-                                                       ascending:ascending];
-  return Wrap([query() queryByAddingSortOrder:sortOrder]);
+  return Wrap(
+      [query() queryByAddingSortOrder:core::OrderBy(fieldPath, direction)]);
 }
 
 Query Query::Limit(int32_t limit) const {
@@ -259,12 +259,12 @@ Query Query::Limit(int32_t limit) const {
   return Wrap([query() queryBySettingLimit:limit]);
 }
 
-Query Query::StartAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingStartAt:bound]);
+Query Query::StartAt(Bound bound) const {
+  return Wrap([query() queryByAddingStartAt:std::move(bound)]);
 }
 
-Query Query::EndAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingEndAt:bound]);
+Query Query::EndAt(Bound bound) const {
+  return Wrap([query() queryByAddingEndAt:std::move(bound)]);
 }
 
 namespace {

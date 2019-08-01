@@ -1,5 +1,11 @@
 # Unreleased
 
+# v1.4.3
+- [changed] Transactions are now more flexible. Some sequences of operations
+  that were previously incorrectly disallowed are now allowed. For example,
+  after reading a document that doesn't exist, you can now set it multiple
+  times successfully in a transaction.
+
 # v1.4.2
 - [fixed] Fixed an issue where query results were temporarily missing documents
   that previously had not matched but had been updated to now match the query

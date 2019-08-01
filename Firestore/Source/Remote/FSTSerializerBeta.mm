@@ -41,6 +41,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -65,10 +66,13 @@
 
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::GeoPoint;
+using firebase::firestore::core::Bound;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -817,11 +821,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (query.startAt) {
-    queryTarget.structuredQuery.startAt = [self encodedBound:query.startAt];
+    queryTarget.structuredQuery.startAt = [self encodedBound:*query.startAt];
   }
 
   if (query.endAt) {
-    queryTarget.structuredQuery.endAt = [self encodedBound:query.endAt];
+    queryTarget.structuredQuery.endAt = [self encodedBound:*query.endAt];
   }
 
   return queryTarget;
@@ -850,11 +854,9 @@ NS_ASSUME_NONNULL_BEGIN
     filterBy = [self decodedFilters:query.where];
   }
 
-  NSArray<FSTSortOrder *> *orderBy;
+  Query::OrderByList orderBy;
   if (query.orderByArray_Count > 0) {
     orderBy = [self decodedSortOrders:query.orderByArray];
-  } else {
-    orderBy = @[];
   }
 
   int32_t limit = Query::kNoLimit;
@@ -862,22 +864,19 @@ NS_ASSUME_NONNULL_BEGIN
     limit = query.limit.value;
   }
 
-  FSTBound *_Nullable startAt;
+  std::shared_ptr<Bound> startAt;
   if (query.hasStartAt) {
     startAt = [self decodedBound:query.startAt];
   }
 
-  FSTBound *_Nullable endAt;
+  std::shared_ptr<Bound> endAt;
   if (query.hasEndAt) {
     endAt = [self decodedBound:query.endAt];
   }
 
-  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy));
-  return [[FSTQuery alloc] initWithQuery:std::move(inner)
-                                 orderBy:orderBy
-                                   limit:limit
-                                 startAt:startAt
-                                   endAt:endAt];
+  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy),
+              limit, std::move(startAt), std::move(endAt));
+  return [[FSTQuery alloc] initWithQuery:std::move(inner)];
 }
 
 #pragma mark Filters
@@ -1029,26 +1028,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Property Orders
 
-- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(NSArray<FSTSortOrder *> *)orders {
+- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(const Query::OrderByList &)orders {
   NSMutableArray<GCFSStructuredQuery_Order *> *protos = [NSMutableArray array];
-  for (FSTSortOrder *order in orders) {
+  for (const OrderBy &order : orders) {
     [protos addObject:[self encodedSortOrder:order]];
   }
   return protos;
 }
 
-- (NSArray<FSTSortOrder *> *)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
-  NSMutableArray<FSTSortOrder *> *result = [NSMutableArray arrayWithCapacity:protos.count];
+- (Query::OrderByList)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
+  Query::OrderByList result;
+  result.reserve(protos.count);
   for (GCFSStructuredQuery_Order *orderProto in protos) {
-    [result addObject:[self decodedSortOrder:orderProto]];
+    result.push_back([self decodedSortOrder:orderProto]);
   }
   return result;
 }
 
-- (GCFSStructuredQuery_Order *)encodedSortOrder:(FSTSortOrder *)sortOrder {
+- (GCFSStructuredQuery_Order *)encodedSortOrder:(const OrderBy &)sortOrder {
   GCFSStructuredQuery_Order *proto = [GCFSStructuredQuery_Order message];
-  proto.field = [self encodedFieldPath:sortOrder.field];
-  if (sortOrder.ascending) {
+  proto.field = [self encodedFieldPath:sortOrder.field()];
+  if (sortOrder.ascending()) {
     proto.direction = GCFSStructuredQuery_Direction_Ascending;
   } else {
     proto.direction = GCFSStructuredQuery_Direction_Descending;
@@ -1056,35 +1056,35 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
+- (OrderBy)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
-  BOOL ascending;
+  Direction direction;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:
-      ascending = YES;
+      direction = Direction::Ascending;
       break;
     case GCFSStructuredQuery_Direction_Descending:
-      ascending = NO;
+      direction = Direction::Descending;
       break;
     default:
       HARD_FAIL("Unrecognized GCFSStructuredQuery_Direction %s", proto.direction);
   }
-  return [FSTSortOrder sortOrderWithFieldPath:fieldPath ascending:ascending];
+  return OrderBy(std::move(fieldPath), direction);
 }
 
 #pragma mark - Bounds/Cursors
 
-- (GCFSCursor *)encodedBound:(FSTBound *)bound {
+- (GCFSCursor *)encodedBound:(const Bound &)bound {
   GCFSCursor *proto = [GCFSCursor message];
-  proto.before = bound.isBefore;
-  for (const FieldValue &fieldValue : bound.position) {
+  proto.before = bound.before();
+  for (const FieldValue &fieldValue : bound.position()) {
     GCFSValue *value = [self encodedFieldValue:fieldValue];
     [proto.valuesArray addObject:value];
   }
   return proto;
 }
 
-- (FSTBound *)decodedBound:(GCFSCursor *)proto {
+- (std::shared_ptr<Bound>)decodedBound:(GCFSCursor *)proto {
   std::vector<FieldValue> indexComponents;
 
   for (GCFSValue *valueProto in proto.valuesArray) {
@@ -1092,7 +1092,7 @@ NS_ASSUME_NONNULL_BEGIN
     indexComponents.push_back(std::move(value));
   }
 
-  return [FSTBound boundWithPosition:std::move(indexComponents) isBefore:proto.before];
+  return std::make_shared<Bound>(std::move(indexComponents), proto.before);
 }
 
 #pragma mark - WatchChange <= GCFSListenResponse proto
@@ -1144,8 +1144,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   util::Status cause;
   if (change.hasCause) {
-    cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code),
-                         util::MakeString(change.cause.message)};
+    cause =
+        util::Status{static_cast<Error>(change.cause.code), util::MakeString(change.cause.message)};
   }
 
   return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
