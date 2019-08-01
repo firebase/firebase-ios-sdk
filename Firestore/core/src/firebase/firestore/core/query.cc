@@ -180,28 +180,42 @@ Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
 // MARK: - Matching
 
 bool Query::Matches(const Document& doc) const {
-  return MatchesPath(doc) && MatchesOrderBy(doc) && MatchesFilters(doc) &&
-         MatchesBounds(doc);
+  return MatchesPathAndCollectionGroup(doc) && MatchesOrderBy(doc) &&
+         MatchesFilters(doc) && MatchesBounds(doc);
 }
 
-bool Query::MatchesPath(const Document& doc) const {
+bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
   const ResourcePath& doc_path = doc.key().path();
-  if (DocumentKey::IsDocumentKey(path_)) {
+  if (collection_group_) {
+    // NOTE: path_ is currently always empty since we don't expose Collection
+    // Group queries rooted at a document path yet.
+    return doc.key().HasCollectionId(*collection_group_) &&
+           path_.IsPrefixOf(doc_path);
+  } else if (DocumentKey::IsDocumentKey(path_)) {
+    // Exact match for document queries.
     return path_ == doc_path;
   } else {
-    return path_.IsPrefixOf(doc_path) && path_.size() == doc_path.size() - 1;
+    // Shallow ancestor queries by default.
+    return path_.IsImmediateParentOf(doc_path);
   }
 }
 
 bool Query::MatchesFilters(const Document& doc) const {
-  return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<Filter>& filter) {
-                       return filter->Matches(doc);
-                     });
+  for (const auto& filter : filters_) {
+    if (!filter->Matches(doc)) return false;
+  }
+  return true;
 }
 
-bool Query::MatchesOrderBy(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
+bool Query::MatchesOrderBy(const Document& doc) const {
+  for (const OrderBy& order_by : explicit_order_bys_) {
+    const FieldPath& field_path = order_by.field();
+    // order by key always matches
+    if (field_path != FieldPath::KeyFieldPath() &&
+        doc.field(field_path) == absl::nullopt) {
+      return false;
+    }
+  }
   return true;
 }
 

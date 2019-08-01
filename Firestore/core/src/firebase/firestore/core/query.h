@@ -153,7 +153,7 @@ class Query {
   bool Matches(const model::Document& doc) const;
 
  private:
-  bool MatchesPath(const model::Document& doc) const;
+  bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;
   bool MatchesBounds(const model::Document& doc) const;
