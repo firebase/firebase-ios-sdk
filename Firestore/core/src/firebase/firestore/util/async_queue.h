@@ -98,27 +98,25 @@ class AsyncQueue {
   // destroyed may invoke `Enqueue`).
   //
   // After the shutdown process has initiated (`is_shutting_down()` is true),
-  // calling `Enqueue` will return, but the operation will *NOT* be run.
+  // calling `Enqueue` is a no-op.
   void Enqueue(const Operation& operation);
 
   // Like `Enqueue`, but also starts the shutdown process. Once the shutdown
-  // process has started, this queue will not run any operations requested
-  // via `Enqueue*` methods. They will not report error, they will simply
-  // return with the requested operations not scheduled.
+  // process has started, calling any Enqueue* methods becomes a no-op
   //
   // The exception is `EnqueueEvenAfterShutdown`, operations requsted via
   // this will still be scheduled.
   void EnqueueAndInitializeShutdown(const Operation& operation);
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
-  // regardless if the queue is shut down or not.
+  // regardless of whether the queue is shut down or not.
   void EnqueueEvenAfterShutdown(const Operation& operation);
 
   // Like `Enqueue`, but without applying any prerequisite checks.
   void EnqueueRelaxed(const Operation& operation);
 
   // Whether the queue has initiated its shutdown process.
-  bool is_shutting_down();
+  bool is_shutting_down() const;
 
   // Puts the `operation` on the queue to be executed `delay` milliseconds from
   // now, and returns a handle that allows to cancel the operation (provided it
@@ -185,7 +183,7 @@ class AsyncQueue {
   std::atomic<bool> is_operation_in_progress_;
   std::unique_ptr<Executor> executor_;
 
-  bool is_shutting_down_;
+  bool is_shutting_down_ = false;
   mutable std::mutex shut_down_mutex_;
 };
 

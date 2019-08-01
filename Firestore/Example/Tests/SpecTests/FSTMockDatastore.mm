@@ -66,13 +66,12 @@ namespace remote {
 class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue, std::shared_ptr<CredentialsProvider>(credentials_provider),
-                    serializer, grpc_connection, callback},
+      : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -158,13 +157,12 @@ class MockWatchStream : public WatchStream {
 class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, std::shared_ptr<CredentialsProvider>(credentials_provider),
-                    serializer, grpc_connection, callback},
+      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -242,7 +240,7 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             auth::CredentialsProvider* credentials)
+                             std::shared_ptr<auth::CredentialsProvider> credentials)
     : Datastore{database_info, worker_queue, std::shared_ptr<CredentialsProvider>(credentials),
                 CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},

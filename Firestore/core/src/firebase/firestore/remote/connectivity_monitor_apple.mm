@@ -99,6 +99,10 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
+    // Reachability events are fairly infrequent, we avoid using dispatch queue
+    // from `work_queue` and use main queue here to avoid leaking implemetation
+    // details of `work_queue`. The callback itself is still executed on
+    // `work_queue`.
     success = SCNetworkReachabilitySetDispatchQueue(reachability_,
                                                     dispatch_get_main_queue());
     if (!success) {

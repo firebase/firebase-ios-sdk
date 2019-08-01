@@ -99,12 +99,11 @@ class WriteStreamCallback {
  */
 class WriteStream : public Stream {
  public:
-  WriteStream(
-      const std::shared_ptr<util::AsyncQueue>& async_queue,
-      const std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-      FSTSerializerBeta* serializer,
-      GrpcConnection* grpc_connection,
-      WriteStreamCallback* callback);
+  WriteStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
+              std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+              FSTSerializerBeta* serializer,
+              GrpcConnection* grpc_connection,
+              WriteStreamCallback* callback);
 
   void SetLastStreamToken(NSData* token);
   /**

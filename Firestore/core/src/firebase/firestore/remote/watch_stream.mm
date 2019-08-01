@@ -37,7 +37,7 @@ using util::Status;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    const std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<CredentialsProvider> credentials_provider,
     FSTSerializerBeta* serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)

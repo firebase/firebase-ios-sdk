@@ -76,7 +76,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            const std::shared_ptr<auth::CredentialsProvider> credentials);
+            std::shared_ptr<auth::CredentialsProvider> credentials);
 
   virtual ~Datastore() {
   }
@@ -142,7 +142,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   /** Test-only constructor */
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            const std::shared_ptr<auth::CredentialsProvider> credentials,
+            std::shared_ptr<auth::CredentialsProvider> credentials,
             std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
 
   /** Test-only method */

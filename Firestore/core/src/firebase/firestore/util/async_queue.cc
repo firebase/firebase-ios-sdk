@@ -28,7 +28,6 @@ namespace util {
 AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
     : executor_{std::move(executor)} {
   is_operation_in_progress_ = false;
-  is_shutting_down_ = false;
 }
 
 // TODO(varconst): assert in destructor that the queue is empty.
@@ -50,10 +49,10 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
 }
 
 void AsyncQueue::ExecuteBlocking(const Operation& operation) {
-  // This is not guarded by `shut_down_mutex_` and `is_shutting_down_`
-  // because it is the execution of the operation, not scheduling. Checking
-  // `is_shutting_down_` here would mean *all* operations will not run after
-  // shutdown, which is not expected.
+  // This is not guarded by `is_shutting_down_` because it is the execution
+  // of the operation, not scheduling. Checking `is_shutting_down_` here
+  // would mean *all* operations will not run after shutdown, which is not
+  // intended.
   VerifyIsCurrentExecutor();
   HARD_ASSERT(!is_operation_in_progress_,
               "ExecuteBlocking may not be called "
@@ -84,7 +83,7 @@ void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {
   executor_->Execute(Wrap(operation));
 }
 
-bool AsyncQueue::is_shutting_down() {
+bool AsyncQueue::is_shutting_down() const {
   return is_shutting_down_;
 }
 

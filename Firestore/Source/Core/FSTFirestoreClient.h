@@ -68,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)clientWithDatabaseInfo:(const core::DatabaseInfo &)databaseInfo
                               settings:(const api::Settings &)settings
-                   credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)
-                                           credentialsProvider  // no passing ownership
+                   credentialsProvider:
+                       (std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                           userExecutor:(std::shared_ptr<util::Executor>)userExecutor
                            workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue;
 

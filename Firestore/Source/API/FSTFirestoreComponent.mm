@@ -124,10 +124,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRComponentLifecycleMaintainer
 
 - (void)appWillBeDeleted:(FIRApp *)app {
-  for (NSString *key in _instances) {
-    [_instances[key] shutdownInternalWithCompletion:nil];
+  NSDictionary<NSString *, FIRFirestore *> *instances;
+  @synchronized(self.instances) {
+    instances = [_instances copy];
+    [_instances removeAllObjects];
   }
-  [_instances removeAllObjects];
+  for (NSString *key in instances) {
+    [instances[key] shutdownInternalWithCompletion:nil];
+  }
 }
 
 #pragma mark - Object Lifecycle

@@ -99,8 +99,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                         credentialsProvider  // no passing ownership
+                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)queue NS_DESIGNATED_INITIALIZER;
 
@@ -148,8 +147,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                               settings:(const Settings &)settings
-                   credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                           credentialsProvider  // no passing ownership
+                   credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                           userExecutor:(std::shared_ptr<Executor>)userExecutor
                            workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
@@ -161,8 +159,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                             settings:(const Settings &)settings
-                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)
-                                         credentialsProvider  // no passing ownership
+                 credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                         userExecutor:(std::shared_ptr<Executor>)userExecutor
                          workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   if (self = [super init]) {
@@ -318,8 +315,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     _remoteStore->Shutdown();
     [self.persistence shutdown];
   });
+
   // This separate enqueue ensures if shutdown is called multiple times
-  // every time the callback is triggered. If it is in the previous
+  // every time the callback is triggered. If it is in the above
   // enqueue, it might not get executed because after first shutdown
   // all operations are not executed.
   _workerQueue->EnqueueEvenAfterShutdown([self, callback] {

@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
 /**
- * Shuts down this FirebaseFirestore instance.
+ * Shuts down this `FIRFirestore` instance.
  *
  * After shutdown only the `clearPersistence` method may be used. Any other method
  * will throw an error.

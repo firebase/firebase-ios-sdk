@@ -149,7 +149,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
-  EmptyCredentialsProvider _credentialProvider;
 
   std::shared_ptr<MockDatastore> _datastore;
 }
@@ -180,7 +179,8 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
-    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue, &_credentialProvider);
+    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
+                                                 std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore, _datastore, _workerQueue, [self](OnlineState onlineState) {
           [self.syncEngine applyChangedOnlineState:onlineState];
