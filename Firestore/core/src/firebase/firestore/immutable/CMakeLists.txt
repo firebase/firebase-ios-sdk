@@ -15,6 +15,7 @@
 cc_library(
   firebase_firestore_immutable
   SOURCES
+    append_only_list.h
     array_sorted_map.h
     keys_view.h
     llrb_node.h
