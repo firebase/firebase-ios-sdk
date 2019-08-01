@@ -215,7 +215,8 @@ class AppendOnlyList {
   }
 
   std::shared_ptr<std::vector<T>> PrepareForAppend(size_t new_size) const {
-    if (contents_ && size_ == contents_->size() && new_size <= contents_->capacity()) {
+    if (contents_ && size_ == contents_->size() &&
+        new_size <= contents_->capacity()) {
       // If there's an existing vector, this instance points to the end, and
       // can already accommodate what's required, there's nothing to do.
       return contents_;
