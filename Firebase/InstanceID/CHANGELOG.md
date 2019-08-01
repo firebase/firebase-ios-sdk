@@ -1,4 +1,7 @@
-# 2019-07 -- 4.2.2
+# 2019-08 -- 4.2.3
+- [fixed] Fixed a crash that could occur if InstanceID was shut down when fetching a new instance ID (#3439).
+
+# 2019-07-12 -- 4.2.2
 - [changed] Removed a call to a deprecated logging method (#3333).
 
 # 2019-07-09 -- 4.2.1
