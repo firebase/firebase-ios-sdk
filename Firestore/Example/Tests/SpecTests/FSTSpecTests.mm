@@ -48,6 +48,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -567,13 +568,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssertEqual(events.count, stepExpectations.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return [q1.query.canonicalID compare:q2.query.canonicalID];
+        return util::WrapCompare(q1.query.canonicalID, q2.query.canonicalID);
       }];
   stepExpectations = [stepExpectations
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         FSTQuery *leftQuery = [self parseQuery:left[@"query"]];
         FSTQuery *rightQuery = [self parseQuery:right[@"query"]];
-        return [leftQuery.canonicalID compare:rightQuery.canonicalID];
+        return util::WrapCompare(leftQuery.canonicalID, rightQuery.canonicalID);
       }];
 
   NSUInteger i = 0;

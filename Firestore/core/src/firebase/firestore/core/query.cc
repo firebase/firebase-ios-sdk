@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/util/equality.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,9 +36,11 @@ using Operator = Filter::Operator;
 using Type = Filter::Type;
 
 using model::Document;
+using model::DocumentComparator;
 using model::DocumentKey;
 using model::FieldPath;
 using model::ResourcePath;
+using util::ComparisonResult;
 
 template <typename T>
 std::vector<T> AppendingTo(const std::vector<T>& vector, T&& value) {
@@ -245,6 +248,68 @@ bool Query::MatchesBounds(const Document& doc) const {
     return false;
   }
   return true;
+}
+
+model::DocumentComparator Query::Comparator() const {
+  OrderByList ordering = order_bys();
+
+  bool has_key_ordering = false;
+  for (const OrderBy& order_by : ordering) {
+    if (order_by.field() == FieldPath::KeyFieldPath()) {
+      has_key_ordering = true;
+      break;
+    }
+  }
+  HARD_ASSERT(has_key_ordering,
+              "QueryComparator needs to have a key ordering.");
+
+  return DocumentComparator(
+      [ordering](const Document& doc1, const Document& doc2) {
+        for (const OrderBy& order_by : ordering) {
+          ComparisonResult comp = order_by.Compare(doc1, doc2);
+          if (!util::Same(comp)) return comp;
+        }
+        return ComparisonResult::Same;
+      });
+}
+
+const std::string& Query::CanonicalId() const {
+  if (!canonical_id_.empty()) return canonical_id_;
+
+  std::string result;
+  absl::StrAppend(&result, path_.CanonicalString());
+
+  if (collection_group_) {
+    absl::StrAppend(&result, "|cg:", *collection_group_);
+  }
+
+  // Add filters.
+  absl::StrAppend(&result, "|f:");
+  for (const auto& filter : filters_) {
+    absl::StrAppend(&result, filter->CanonicalId());
+  }
+
+  // Add order by.
+  absl::StrAppend(&result, "|ob:");
+  for (const OrderBy& order_by : order_bys()) {
+    absl::StrAppend(&result, order_by.CanonicalId());
+  }
+
+  // Add limit.
+  if (limit_ != kNoLimit) {
+    absl::StrAppend(&result, "|l:", limit_);
+  }
+
+  if (start_at_) {
+    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId());
+  }
+
+  if (end_at_) {
+    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId());
+  }
+
+  canonical_id_ = std::move(result);
+  return canonical_id_;
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {

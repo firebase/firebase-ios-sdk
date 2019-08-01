@@ -67,9 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTQuery
 
 @interface FSTQuery () {
-  // Cached value of the canonicalID property.
-  NSString *_canonicalID;
-
   // The C++ implementation of this query to which FSTQuery delegates.
   Query _query;
 }
@@ -99,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - NSObject methods
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTQuery: canonicalID:%@>", self.canonicalID];
+  return [NSString stringWithFormat:@"<FSTQuery: canonicalID:%s>", self.canonicalID.c_str()];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -113,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return [self.canonicalID hash];
+  return util::Hash(self.canonicalID);
 }
 
 - (instancetype)copyWithZone:(nullable NSZone *)zone {
@@ -189,21 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentComparator)comparator {
-  Query::OrderByList sortOrders = self.sortOrders;
-
-  return DocumentComparator([sortOrders](FSTDocument *document1, FSTDocument *document2) {
-    bool didCompareOnKeyField = false;
-    Document convertedDoc1(document1);
-    Document converetdDoc2(document2);
-    for (const OrderBy &orderBy : sortOrders) {
-      ComparisonResult comp = orderBy.Compare(convertedDoc1, converetdDoc2);
-      if (!util::Same(comp)) return comp;
-
-      didCompareOnKeyField = didCompareOnKeyField || orderBy.field() == FieldPath::KeyFieldPath();
-    }
-    HARD_ASSERT(didCompareOnKeyField, "sortOrder of query did not include key ordering");
-    return ComparisonResult::Same;
-  });
+  return _query.Comparator();
 }
 
 - (nullable const FieldPath *)inequalityFilterField {
@@ -227,47 +210,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.collection_group();
 }
 
-#pragma mark - Private properties
-
-- (NSString *)canonicalID {
-  if (_canonicalID) {
-    return _canonicalID;
-  }
-
-  NSMutableString *canonicalID = [NSMutableString string];
-  [canonicalID appendFormat:@"%s", self.path.CanonicalString().c_str()];
-
-  if (self.collectionGroup) {
-    [canonicalID appendFormat:@"|cg:%s", self.collectionGroup->c_str()];
-  }
-
-  // Add filters.
-  [canonicalID appendString:@"|f:"];
-  for (const auto &filter : self.filters) {
-    [canonicalID appendFormat:@"%s", filter->CanonicalId().c_str()];
-  }
-
-  // Add order by.
-  [canonicalID appendString:@"|ob:"];
-  for (const OrderBy &orderBy : self.sortOrders) {
-    [canonicalID appendFormat:@"%s", orderBy.CanonicalId().c_str()];
-  }
-
-  // Add limit.
-  if (self.limit != Query::kNoLimit) {
-    [canonicalID appendFormat:@"|l:%ld", (long)self.limit];
-  }
-
-  if (self.startAt) {
-    [canonicalID appendFormat:@"|lb:%s", self.startAt->CanonicalId().c_str()];
-  }
-
-  if (self.endAt) {
-    [canonicalID appendFormat:@"|ub:%s", self.endAt->CanonicalId().c_str()];
-  }
-
-  _canonicalID = canonicalID;
-  return canonicalID;
+- (const std::string &)canonicalID {
+  return _query.CanonicalId();
 }
 
 #pragma mark - Private methods

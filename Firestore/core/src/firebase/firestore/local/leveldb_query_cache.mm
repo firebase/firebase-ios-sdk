@@ -87,9 +87,9 @@ void LevelDbQueryCache::Start() {
 void LevelDbQueryCache::AddTarget(FSTQueryData* query_data) {
   Save(query_data);
 
-  NSString* canonical_id = query_data.query.canonicalID;
+  const std::string& canonical_id = query_data.query.canonicalID;
   std::string index_key =
-      LevelDbQueryTargetKey::Key(MakeString(canonical_id), query_data.targetID);
+      LevelDbQueryTargetKey::Key(canonical_id, query_data.targetID);
   std::string empty_buffer;
   db_.currentTransaction->Put(index_key, empty_buffer);
 
@@ -114,8 +114,8 @@ void LevelDbQueryCache::RemoveTarget(FSTQueryData* query_data) {
   std::string key = LevelDbTargetKey::Key(target_id);
   db_.currentTransaction->Delete(key);
 
-  std::string index_key = LevelDbQueryTargetKey::Key(
-      MakeString(query_data.query.canonicalID), target_id);
+  std::string index_key =
+      LevelDbQueryTargetKey::Key(query_data.query.canonicalID, target_id);
   db_.currentTransaction->Delete(index_key);
 
   metadata_.targetCount--;
@@ -126,7 +126,7 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
   // Scan the query-target index starting with a prefix starting with the given
   // query's canonicalID. Note that this is a scan rather than a get because
   // canonicalIDs are not required to be unique per target.
-  std::string canonical_id = MakeString(query.canonicalID);
+  const std::string& canonical_id = query.canonicalID;
   auto index_iterator = db_.currentTransaction->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
