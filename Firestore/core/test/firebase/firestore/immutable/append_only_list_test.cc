@@ -73,6 +73,10 @@ TEST(AppendOnlyListTest, PopBack) {
   IntList empty = even_smaller.pop_back();
   EXPECT_EQ(0, empty.size());
   EXPECT_EQ(nullptr, empty.begin());
+
+  IntList empty2 = empty.pop_back();
+  EXPECT_EQ(0, empty2.size());
+  EXPECT_EQ(nullptr, empty2.begin());
 }
 
 TEST(AppendOnlyListTest, AppendToMiddleCopies) {
@@ -108,7 +112,7 @@ TEST(AppendOnlyListTest, Emplaces) {
   EXPECT_EQ(std::make_pair(3, 4), appended2.back());
 }
 
-TEST(AppendOnlyList, AvoidsIteratorInvalidation) {
+TEST(AppendOnlyListTest, AvoidsIteratorInvalidation) {
   const size_t iterations = 10;
   std::vector<IntList> lists;
   std::vector<IntList::const_iterator> iterators;
@@ -125,6 +129,18 @@ TEST(AppendOnlyList, AvoidsIteratorInvalidation) {
   for (size_t i = 0; i < iterations; i++) {
     ASSERT_EQ(iterators[i], lists[i].begin()) << "iteration " << i;
   }
+}
+
+TEST(AppendOnlyListTest, ReservePreventsReallocation) {
+  IntList empty;
+  IntList one = empty.push_back(1);
+  IntList two = one.push_back(2);
+  ASSERT_NE(one.begin(), two.begin());
+
+  IntList reserved = empty.reserve(2);
+  IntList reserved_one = reserved.push_back(1);
+  IntList reserved_two = reserved_one.push_back(2);
+  ASSERT_EQ(reserved_one.begin(), reserved_two.begin());
 }
 
 }  // namespace immutable

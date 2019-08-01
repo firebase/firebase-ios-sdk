@@ -39,8 +39,10 @@ namespace immutable {
  * not perceive any change).
  *
  * This "chaining" behavior is what makes AppendOnlyList efficient, but it only
- * applies when applied to the last link the chain. When applied any instance
+ * applies when applied to the last link in the chain. When applied any instance
  * that is not at the end, most operations will copy instead of chaining.
+ *
+ * Iterators over an AppendOnlyList are never invalidated.
  */
 template <typename T>
 class AppendOnlyList {
@@ -131,6 +133,9 @@ class AppendOnlyList {
    * Note that the element isn't actually removed from the backing vector and
    * it still constitutes the end of the chain. This means that any `push_back`
    * on the resulting AppendOnlyList will result in a full copy.
+   *
+   * Calling pop_back() on an empty AppendOnlyList returns an empty
+   * AppendOnlyList.
    */
   ABSL_MUST_USE_RESULT AppendOnlyList pop_back() const {
     if (size_ <= 1) {
@@ -152,6 +157,10 @@ class AppendOnlyList {
     return size_ == 0;
   }
 
+  /**
+   * Returns an iterator to the beginning of the list. Iterators are never
+   * invalidated (so long as the container itself is valid).
+   */
   const_iterator begin() const {
     if (size_ == 0) {
       return nullptr;
@@ -160,6 +169,10 @@ class AppendOnlyList {
     }
   }
 
+  /**
+   * Returns an iterator that points to one past the end of the list. Iterators
+   * are never invalidated (so long as the container itself is valid).
+   */
   const_iterator end() const {
     if (size_ == 0) {
       return nullptr;
@@ -168,10 +181,18 @@ class AppendOnlyList {
     }
   }
 
+  /**
+   * Returns the first element of the list. Only valid when the list is not
+   * empty.
+   */
   const T& front() const {
     return *begin();
   }
 
+  /**
+   * Returns the last element of the list. Only valid when the list is not
+   * empty.
+   */
   const T& back() const {
     return *(end() - 1);
   }
@@ -202,7 +223,7 @@ class AppendOnlyList {
 
     size_t min_capacity = new_size;
     if (contents_) {
-      // contents_->capacity() * 2 overflows, min_capacity will be larger.
+      // if contents_->capacity() * 2 overflows, min_capacity will be larger.
       min_capacity = std::max(min_capacity, contents_->capacity() * 2);
     }
 
