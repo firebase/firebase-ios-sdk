@@ -70,13 +70,12 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 - (void)setUp {
 
   GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
-  id mockInstanceID = OCMClassMock([FIRInstanceID class]);
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
+  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:_mockInstanceID];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];
 
-  _mockInstanceID = OCMPartialMock(_messaging.instanceID);
   _result = [[FIRInstanceIDResult alloc] init];
   _result.token = kFakeToken;
   _result.instanceID = kFakeID;
