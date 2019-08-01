@@ -32,28 +32,35 @@ namespace firestore {
  */
 class GeoPoint {
  public:
-  /**
-   * Creates a `GeoPoint` with both latitude and longitude being 0.
-   */
-  GeoPoint();
+  /** Creates a `GeoPoint` with both latitude and longitude set to 0. */
+  GeoPoint() = default;
 
   /**
-   * Creates a `GeoPoint` from the provided latitude and longitude degrees.
+   * Creates a `GeoPoint` from the provided latitude and longitude values.
    *
-   * @param latitude The latitude as number between -90 and 90.
-   * @param longitude The longitude as number between -180 and 180.
+   * @param latitude The latitude as number of degrees between -90 and 90.
+   * @param longitude The longitude as number of degrees between -180 and 180.
    */
   GeoPoint(double latitude, double longitude);
 
+  /** Copy constructor, `GeoPoint` is trivially copyable. */
   GeoPoint(const GeoPoint& other) = default;
+
+  /** Move constructor, equivalent to copying. */
   GeoPoint(GeoPoint&& other) = default;
+
+  /** Copy assignment operator, `GeoPoint` is trivially copyable. */
   GeoPoint& operator=(const GeoPoint& other) = default;
+
+  /** Move assignment operator, equivalent to copying. */
   GeoPoint& operator=(GeoPoint&& other) = default;
 
+  /** Returns the latitude value of this `GeoPoint`. */
   double latitude() const {
     return latitude_;
   }
 
+  /** Returns the latitude value of this `GeoPoint`. */
   double longitude() const {
     return longitude_;
   }
@@ -62,36 +69,47 @@ class GeoPoint {
    * Returns a string representation of this `GeoPoint` for logging/debugging
    * purposes.
    *
-   * Note: the exact string representation is unspecified and subject to change;
-   * don't rely on the format of the string.
+   * @note: the exact string representation is unspecified and subject to
+   * change; don't rely on the format of the string.
    */
   std::string ToString() const;
+
+  /**
+   * Outputs the string representation of this `GeoPoint` to the given stream.
+   *
+   * @see `ToString()` for comments on the representation format.
+   */
   friend std::ostream& operator<<(std::ostream& out, const GeoPoint& geo_point);
 
  private:
-  double latitude_;
-  double longitude_;
+  double latitude_ = 0.0;
+  double longitude_ = 0.0;
 };
 
-/** Compares against another GeoPoint. */
+/** Checks whether `lhs` and `rhs` are in ascending order. */
 bool operator<(const GeoPoint& lhs, const GeoPoint& rhs);
 
+/** Checks whether `lhs` and `rhs` are in descending order. */
 inline bool operator>(const GeoPoint& lhs, const GeoPoint& rhs) {
   return rhs < lhs;
 }
 
+/** Checks whether `lhs` and `rhs` are in non-ascending order. */
 inline bool operator>=(const GeoPoint& lhs, const GeoPoint& rhs) {
   return !(lhs < rhs);
 }
 
+/** Checks whether `lhs` and `rhs` are in non-descending order. */
 inline bool operator<=(const GeoPoint& lhs, const GeoPoint& rhs) {
   return !(lhs > rhs);
 }
 
+/** Checks `lhs` and `rhs` for inequality. */
 inline bool operator!=(const GeoPoint& lhs, const GeoPoint& rhs) {
   return lhs < rhs || lhs > rhs;
 }
 
+/** Checks `lhs` and `rhs` for equality. */
 inline bool operator==(const GeoPoint& lhs, const GeoPoint& rhs) {
   return !(lhs != rhs);
 }
