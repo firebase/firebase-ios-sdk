@@ -101,7 +101,7 @@ inline bool operator!=(const Filter& lhs, const Filter& rhs) {
 }
 
 /** A list of Filters, as used in Queries and elsewhere. */
-using FilterList = immutable::AppendOnlyList<std::shared_ptr<Filter>>;
+using FilterList = immutable::AppendOnlyList<std::shared_ptr<const Filter>>;
 
 std::ostream& operator<<(std::ostream& os, const Filter& filter);
 
