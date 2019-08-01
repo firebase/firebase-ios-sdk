@@ -195,8 +195,6 @@ void DocumentReference::GetDocument(Source source,
 
 ListenerRegistration DocumentReference::AddSnapshotListener(
     ListenOptions options, DocumentSnapshot::Listener&& user_listener) {
-  core::Query query(key_.path());
-
   // Convert from ViewSnapshots to DocumentSnapshots.
   class Converter : public EventListener<ViewSnapshot> {
    public:
@@ -240,8 +238,9 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
   auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
       firestore_->client().userExecutor, std::move(view_listener));
 
+  core::Query query(key_.path());
   std::shared_ptr<QueryListener> query_listener =
-      [firestore_->client() listenToQuery:query
+      [firestore_->client() listenToQuery:std::move(query)
                                   options:options
                                  listener:async_listener];
   return ListenerRegistration(firestore_->client(), std::move(async_listener),

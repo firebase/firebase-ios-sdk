@@ -112,7 +112,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targets;
   for (TargetId targetID : targetIDs) {
     core::Query query = Query("coll");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
+    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                    targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen];
@@ -129,7 +129,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targets;
   for (TargetId targetID : targetIDs) {
     core::Query query = Query("coll/limbo");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
+    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                    targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeLimboResolution];

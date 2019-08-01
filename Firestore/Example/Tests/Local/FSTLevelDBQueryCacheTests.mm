@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   db1.run("add query data", [&]() {
     core::Query query = Query("some/path");
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                          targetID:lastTargetId
                                              listenSequenceNumber:minimumSequenceNumber
                                                           purpose:FSTQueryPurposeListen];

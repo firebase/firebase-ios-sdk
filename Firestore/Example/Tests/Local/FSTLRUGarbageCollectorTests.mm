@@ -158,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = ++_previousTargetID;
   ListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
   core::Query query = Query(absl::StrCat("path", targetID));
-  return [[FSTQueryData alloc] initWithQuery:query
+  return [[FSTQueryData alloc] initWithQuery:std::move(query)
                                     targetID:targetID
                         listenSequenceNumber:listenSequenceNumber
                                      purpose:FSTQueryPurposeListen];

@@ -597,7 +597,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesFirstLevelKeyQueries {
   core::Query query = Query("docs/1");
-  FSTQueryData *model = [self queryDataForQuery:query];
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   [expected.documents.documentsArray addObject:@"projects/p/databases/d/documents/docs/1"];
@@ -608,7 +608,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesFirstLevelAncestorQueries {
   core::Query q = Query("messages");
-  FSTQueryData *model = [self queryDataForQuery:q];
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -624,7 +624,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesNestedAncestorQueries {
   core::Query q = Query("rooms/1/messages/10/attachments");
-  FSTQueryData *model = [self queryDataForQuery:q];
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -640,7 +640,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
-  FSTQueryData *model = [self queryDataForQuery:q];
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -666,7 +666,7 @@ NS_ASSUME_NONNULL_BEGIN
                       .AddingFilter(Filter("prop", ">=", 42))
                       .AddingFilter(Filter("author", "==", "dimond"))
                       .AddingFilter(Filter("tags", "array_contains", "pending"));
-  FSTQueryData *model = [self queryDataForQuery:q];
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -721,7 +721,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unaryFilterTestWithValue:(FieldValue)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
-  FSTQueryData *model = [self queryDataForQuery:q];
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -741,7 +741,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   core::Query query = Query("docs").AddingOrderBy(OrderBy("prop", "asc"));
-  FSTQueryData *model = [self queryDataForQuery:query];
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -760,7 +760,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesSortOrdersDescending {
   core::Query query =
       Query("rooms/1/messages/10/attachments").AddingOrderBy(OrderBy("prop", "desc"));
-  FSTQueryData *model = [self queryDataForQuery:query];
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -778,7 +778,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesLimits {
   core::Query query = Query("docs").WithLimit(26);
-  FSTQueryData *model = [self queryDataForQuery:query];
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -795,7 +795,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesResumeTokens {
   core::Query q = Query("docs");
-  FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:q
+  FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:std::move(q)
                                                    targetID:1
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
