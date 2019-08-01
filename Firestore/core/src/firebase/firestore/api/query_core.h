@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -31,7 +32,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
-OBJC_CLASS(FSTBound);
 OBJC_CLASS(FSTQuery);
 
 NS_ASSUME_NONNULL_BEGIN
@@ -142,7 +142,7 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query StartAt(FSTBound* bound) const;
+  Query StartAt(core::Bound bound) const;
 
   /**
    * Creates and returns a new `Query` that ends at the given bound.  The ending
@@ -153,7 +153,7 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query EndAt(FSTBound* bound) const;
+  Query EndAt(core::Bound bound) const;
 
   /**
    * Creates a new `Query` with the given internal query.

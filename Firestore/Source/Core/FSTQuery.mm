@@ -27,6 +27,7 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -48,6 +49,7 @@ namespace core = firebase::firestore::core;
 namespace objc = firebase::firestore::objc;
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::OrderBy;
@@ -61,105 +63,6 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::ComparisonResult;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTBound
-
-@implementation FSTBound {
-  std::vector<FieldValue> _position;
-}
-
-- (instancetype)initWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
-  if (self = [super init]) {
-    _position = std::move(position);
-    _before = isBefore;
-  }
-  return self;
-}
-
-+ (instancetype)boundWithPosition:(std::vector<FieldValue>)position isBefore:(bool)isBefore {
-  return [[FSTBound alloc] initWithPosition:position isBefore:isBefore];
-}
-
-- (NSString *)canonicalString {
-  // TODO(b/29183165): Make this collision robust.
-  NSMutableString *string = [NSMutableString string];
-  if (self.isBefore) {
-    [string appendString:@"b:"];
-  } else {
-    [string appendString:@"a:"];
-  }
-  for (const FieldValue &component : _position) {
-    [string appendFormat:@"%s", component.ToString().c_str()];
-  }
-  return string;
-}
-
-- (bool)sortsBeforeDocument:(FSTDocument *)document
-             usingSortOrder:(const Query::OrderByList &)sortOrder {
-  HARD_ASSERT(_position.size() <= sortOrder.size(),
-              "FSTIndexPosition has more components than provided sort order.");
-  ComparisonResult result = ComparisonResult::Same;
-  for (size_t idx = 0; idx < _position.size(); ++idx) {
-    const FieldValue &fieldValue = _position[idx];
-
-    const OrderBy &sortOrderComponent = sortOrder[idx];
-    ComparisonResult comparison;
-    if (sortOrderComponent.field() == FieldPath::KeyFieldPath()) {
-      HARD_ASSERT(fieldValue.type() == FieldValue::Type::Reference,
-                  "FSTBound has a non-key value where the key path is being used %s",
-                  fieldValue.ToString());
-      const auto &ref = fieldValue.reference_value();
-      comparison = ref.key().CompareTo(document.key);
-    } else {
-      absl::optional<FieldValue> docValue = [document fieldForPath:sortOrderComponent.field()];
-      HARD_ASSERT(docValue.has_value(),
-                  "Field should exist since document matched the orderBy already.");
-      comparison = fieldValue.CompareTo(*docValue);
-    }
-
-    if (!sortOrderComponent.ascending()) {
-      comparison = util::ReverseOrder(comparison);
-    }
-
-    if (!util::Same(comparison)) {
-      result = comparison;
-      break;
-    }
-  }
-
-  return self.isBefore ? result <= ComparisonResult::Same : result < ComparisonResult::Same;
-}
-
-#pragma mark - NSObject methods
-
-- (NSString *)description {
-  return
-      [NSString stringWithFormat:@"<FSTBound: position:%s before:%@>",
-                                 util::ToString(_position).c_str(), self.isBefore ? @"YES" : @"NO"];
-}
-
-- (BOOL)isEqual:(NSObject *)other {
-  if (self == other) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTBound class]]) {
-    return NO;
-  }
-
-  FSTBound *otherBound = (FSTBound *)other;
-
-  return _position == otherBound->_position && self.isBefore == otherBound.isBefore;
-}
-
-- (NSUInteger)hash {
-  return util::Hash(self.position, self.isBefore);
-}
-
-- (instancetype)copyWithZone:(nullable NSZone *)zone {
-  return self;
-}
-
-@end
 
 #pragma mark - FSTQuery
 
@@ -183,21 +86,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)queryWithPath:(ResourcePath)path
               collectionGroup:(std::shared_ptr<const std::string>)collectionGroup {
-  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))
-                               limit:Query::kNoLimit
-                             startAt:nil
-                               endAt:nil];
+  return [[self alloc] initWithQuery:Query(std::move(path), std::move(collectionGroup))];
 }
 
-- (instancetype)initWithQuery:(core::Query)query
-                        limit:(int32_t)limit
-                      startAt:(nullable FSTBound *)startAtBound
-                        endAt:(nullable FSTBound *)endAtBound {
+- (instancetype)initWithQuery:(core::Query)query {
   if (self = [super init]) {
     _query = std::move(query);
-    _limit = limit;
-    _startAt = startAtBound;
-    _endAt = endAtBound;
   }
   return self;
 }
@@ -240,12 +134,21 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.order_bys();
 }
 
+- (int32_t)limit {
+  return _query.limit();
+}
+
+- (const std::shared_ptr<Bound> &)startAt {
+  return _query.start_at();
+}
+
+- (const std::shared_ptr<Bound> &)endAt {
+  return _query.end_at();
+}
+
 - (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
   Query modified = _query.AddingFilter(std::move(filter));
-  return [[FSTQuery alloc] initWithQuery:std::move(modified)
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)];
 }
 
 - (instancetype)queryByAddingSortOrder:(OrderBy)orderBy {
@@ -253,29 +156,23 @@ NS_ASSUME_NONNULL_BEGIN
 
   // TODO(klimt): Validate that the same key isn't added twice.
   Query modified = _query.AddingOrderBy(std::move(orderBy));
-  return [[FSTQuery alloc] initWithQuery:std::move(modified)
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:std::move(modified)];
 }
 
 - (instancetype)queryBySettingLimit:(int32_t)limit {
-  return [[FSTQuery alloc] initWithQuery:_query limit:limit startAt:self.startAt endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query.WithLimit(limit)];
 }
 
-- (instancetype)queryByAddingStartAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:bound endAt:self.endAt];
+- (instancetype)queryByAddingStartAt:(Bound)bound {
+  return [[FSTQuery alloc] initWithQuery:_query.StartingAt(std::move(bound))];
 }
 
-- (instancetype)queryByAddingEndAt:(FSTBound *)bound {
-  return [[FSTQuery alloc] initWithQuery:_query limit:self.limit startAt:self.startAt endAt:bound];
+- (instancetype)queryByAddingEndAt:(Bound)bound {
+  return [[FSTQuery alloc] initWithQuery:_query.EndingAt(std::move(bound))];
 }
 
 - (instancetype)collectionQueryAtPath:(ResourcePath)path {
-  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))
-                                   limit:self.limit
-                                 startAt:self.startAt
-                                   endAt:self.endAt];
+  return [[FSTQuery alloc] initWithQuery:_query.AsCollectionQueryAtPath(std::move(path))];
 }
 
 - (BOOL)isDocumentQuery {
@@ -288,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   Document converted(document);
-  return _query.Matches(converted) && [self boundsMatchDocument:document];
+  return _query.Matches(converted);
 }
 
 - (DocumentComparator)comparator {
@@ -362,11 +259,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   if (self.startAt) {
-    [canonicalID appendFormat:@"|lb:%@", self.startAt.canonicalString];
+    [canonicalID appendFormat:@"|lb:%s", self.startAt->CanonicalId().c_str()];
   }
 
   if (self.endAt) {
-    [canonicalID appendFormat:@"|ub:%@", self.endAt.canonicalString];
+    [canonicalID appendFormat:@"|ub:%s", self.endAt->CanonicalId().c_str()];
   }
 
   _canonicalID = canonicalID;
@@ -376,18 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return _query == other->_query && self.limit == other.limit &&
-         objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
-}
-
-- (BOOL)boundsMatchDocument:(FSTDocument *)document {
-  if (self.startAt && ![self.startAt sortsBeforeDocument:document usingSortOrder:self.sortOrders]) {
-    return NO;
-  }
-  if (self.endAt && [self.endAt sortsBeforeDocument:document usingSortOrder:self.sortOrders]) {
-    return NO;
-  }
-  return YES;
+  return _query == other->_query;
 }
 
 @end

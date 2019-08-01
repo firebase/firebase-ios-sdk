@@ -156,7 +156,8 @@ Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
   // TODO(rsgowman): ensure first orderby must match inequality field
 
   return Query(path_, collection_group_,
-               AppendingTo(filters_, std::move(filter)), explicit_order_bys_);
+               AppendingTo(filters_, std::move(filter)), explicit_order_bys_,
+               limit_, start_at_, end_at_);
 }
 
 Query Query::AddingOrderBy(OrderBy order_by) const {
@@ -169,12 +170,28 @@ Query Query::AddingOrderBy(OrderBy order_by) const {
   }
 
   return Query(path_, collection_group_, filters_,
-               AppendingTo(explicit_order_bys_, std::move(order_by)));
+               AppendingTo(explicit_order_bys_, std::move(order_by)), limit_,
+               start_at_, end_at_);
+}
+
+Query Query::WithLimit(int32_t limit) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit,
+               start_at_, end_at_);
+}
+
+Query Query::StartingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               std::make_shared<Bound>(std::move(bound)), end_at_);
+}
+
+Query Query::EndingAt(Bound bound) const {
+  return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
+               start_at_, std::make_shared<Bound>(std::move(bound)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
   return Query(path, /*collection_group=*/nullptr, filters_,
-               explicit_order_bys_);
+               explicit_order_bys_, limit_, start_at_, end_at_);
 }
 
 // MARK: - Matching
@@ -219,8 +236,14 @@ bool Query::MatchesOrderBy(const Document& doc) const {
   return true;
 }
 
-bool Query::MatchesBounds(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
+bool Query::MatchesBounds(const Document& doc) const {
+  const OrderByList& ordering = order_bys();
+  if (start_at_ && !start_at_->SortsBeforeDocument(ordering, doc)) {
+    return false;
+  }
+  if (end_at_ && end_at_->SortsBeforeDocument(ordering, doc)) {
+    return false;
+  }
   return true;
 }
 
@@ -229,7 +252,9 @@ bool operator==(const Query& lhs, const Query& rhs) {
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
          absl::c_equal(lhs.filters(), rhs.filters(),
                        util::Equals<std::shared_ptr<const Filter>>) &&
-         lhs.order_bys() == rhs.order_bys();
+         lhs.order_bys() == rhs.order_bys() && lhs.limit() == rhs.limit() &&
+         util::Equals(lhs.start_at(), rhs.start_at()) &&
+         util::Equals(lhs.end_at(), rhs.end_at());
 }
 
 }  // namespace core

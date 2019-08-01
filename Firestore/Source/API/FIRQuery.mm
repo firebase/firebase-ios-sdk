@@ -39,6 +39,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
@@ -62,6 +63,7 @@ using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::Source;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::AsyncEventListener;
+using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
@@ -360,43 +362,43 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {
-  FSTBound *bound = [self boundFromSnapshot:snapshot isBefore:YES];
-  return Wrap(_query.StartAt(bound));
+  Bound bound = [self boundFromSnapshot:snapshot isBefore:YES];
+  return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAtValues:(NSArray *)fieldValues {
-  FSTBound *bound = [self boundFromFieldValues:fieldValues isBefore:YES];
-  return Wrap(_query.StartAt(bound));
+  Bound bound = [self boundFromFieldValues:fieldValues isBefore:YES];
+  return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAfterDocument:(FIRDocumentSnapshot *)snapshot {
-  FSTBound *bound = [self boundFromSnapshot:snapshot isBefore:NO];
-  return Wrap(_query.StartAt(bound));
+  Bound bound = [self boundFromSnapshot:snapshot isBefore:NO];
+  return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAfterValues:(NSArray *)fieldValues {
-  FSTBound *bound = [self boundFromFieldValues:fieldValues isBefore:NO];
-  return Wrap(_query.StartAt(bound));
+  Bound bound = [self boundFromFieldValues:fieldValues isBefore:NO];
+  return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingBeforeDocument:(FIRDocumentSnapshot *)snapshot {
-  FSTBound *bound = [self boundFromSnapshot:snapshot isBefore:YES];
-  return Wrap(_query.EndAt(bound));
+  Bound bound = [self boundFromSnapshot:snapshot isBefore:YES];
+  return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingBeforeValues:(NSArray *)fieldValues {
-  FSTBound *bound = [self boundFromFieldValues:fieldValues isBefore:YES];
-  return Wrap(_query.EndAt(bound));
+  Bound bound = [self boundFromFieldValues:fieldValues isBefore:YES];
+  return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)snapshot {
-  FSTBound *bound = [self boundFromSnapshot:snapshot isBefore:NO];
-  return Wrap(_query.EndAt(bound));
+  Bound bound = [self boundFromSnapshot:snapshot isBefore:NO];
+  return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingAtValues:(NSArray *)fieldValues {
-  FSTBound *bound = [self boundFromFieldValues:fieldValues isBefore:NO];
-  return Wrap(_query.EndAt(bound));
+  Bound bound = [self boundFromFieldValues:fieldValues isBefore:NO];
+  return Wrap(_query.EndAt(std::move(bound)));
 }
 
 #pragma mark - Private Methods
@@ -444,16 +446,16 @@ FIRQuery *Wrap(Query &&query) {
 }
 
 /**
- * Create a FSTBound from a query given the document.
+ * Create a Bound from a query given the document.
  *
- * Note that the FSTBound will always include the key of the document and the position will be
+ * Note that the Bound will always include the key of the document and the position will be
  * unambiguous.
  *
  * Will throw if the document does not contain all fields of the order by of
  * the query or if any of the fields in the order by are an uncommitted server
  * timestamp.
  */
-- (FSTBound *)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isBefore:(BOOL)isBefore {
+- (Bound)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isBefore:(BOOL)isBefore {
   if (![snapshot exists]) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using a document "
                          "that doesn't exist.");
@@ -491,11 +493,11 @@ FIRQuery *Wrap(Query &&query) {
       }
     }
   }
-  return [FSTBound boundWithPosition:components isBefore:isBefore];
+  return Bound(std::move(components), isBefore);
 }
 
-/** Converts a list of field values to an FSTBound. */
-- (FSTBound *)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
+/** Converts a list of field values to an Bound. */
+- (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
   // Use explicit sort order because it has to match the query the user made
   const core::Query::OrderByList &explicitSortOrders = self.query.explicitSortOrders;
   if (fieldValues.count > explicitSortOrders.size()) {
@@ -533,7 +535,7 @@ FIRQuery *Wrap(Query &&query) {
     components.push_back(fieldValue);
   }
 
-  return [FSTBound boundWithPosition:components isBefore:isBefore];
+  return Bound(std::move(components), isBefore);
 }
 
 @end

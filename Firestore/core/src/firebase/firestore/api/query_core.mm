@@ -37,6 +37,7 @@ namespace api {
 
 namespace util = firebase::firestore::util;
 using core::AsyncEventListener;
+using core::Bound;
 using core::Direction;
 using core::EventListener;
 using core::FieldFilter;
@@ -258,12 +259,12 @@ Query Query::Limit(int32_t limit) const {
   return Wrap([query() queryBySettingLimit:limit]);
 }
 
-Query Query::StartAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingStartAt:bound]);
+Query Query::StartAt(Bound bound) const {
+  return Wrap([query() queryByAddingStartAt:std::move(bound)]);
 }
 
-Query Query::EndAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingEndAt:bound]);
+Query Query::EndAt(Bound bound) const {
+  return Wrap([query() queryByAddingEndAt:std::move(bound)]);
 }
 
 namespace {

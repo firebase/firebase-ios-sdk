@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     array_contains_filter.cc
     array_contains_filter.h
+    bound.cc
+    bound.h
     database_info.cc
     database_info.h
     direction.cc
