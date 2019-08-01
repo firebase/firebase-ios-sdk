@@ -53,7 +53,6 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 - (void) testDatabaseForAppWithInvalidURLs {
     XCTAssertThrows([self databaseForURL:nil]);
     XCTAssertThrows([self databaseForURL:@"not-a-url"]);
-    XCTAssertThrows([self databaseForURL:@"http://fblocal.com"]);
     XCTAssertThrows([self databaseForURL:@"http://x.example.com/paths/are/bad"]);
 }
 
@@ -95,7 +94,6 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
     XCTAssertThrows([FIRDatabase databaseForApp:app URL:nil]);
 #pragma clang diagnostic pop
     XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
-    XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://fblocal.com"]);
     XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
 }
 

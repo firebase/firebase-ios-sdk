@@ -122,54 +122,82 @@ void firebaseJobsTroll(void) {
     return [NSString stringWithFormat:@"/%@", [decodedPieces componentsJoinedByString:@"/"]];
 }
 
-+ (FParsedUrl *) parseUrl:(NSString *)url {
-    NSString* original = url;
-    //NSURL* n = [[NSURL alloc] initWithString:url]
++ (NSString *) extractPathFromUrlString:(NSString *)url {
+    NSString* path = url;
 
-    NSString* host;
+    NSRange schemeIndex = [path rangeOfString:@"//"];
+    if (schemeIndex.location != NSNotFound) {
+        path = [path substringFromIndex:schemeIndex.location + 2];
+    }
+
+    NSUInteger pathIndex = [path rangeOfString:@"/"].location;
+    if (pathIndex != NSNotFound) {
+        path = [path substringFromIndex:pathIndex + 1];
+    } else {
+        path = @"";
+    }
+
+    NSUInteger queryParamIndex = [path rangeOfString:@"?"].location;
+    if (queryParamIndex != NSNotFound) {
+        path = [path substringToIndex:queryParamIndex];
+    }
+
+    return path;
+}
+
++ (FParsedUrl *) parseUrl:(NSString *)url {
+    // For backwards compatibility, support URLs without schemes on iOS.
+    if (![url containsString:@"://"]) {
+        url = [@"http://" stringByAppendingString:url];
+    }
+
+    NSString* originalPathString = [self extractPathFromUrlString:url];
+
+    // Sanitize the database URL by removing the path component, which may contain invalid URL characters.
+    NSString* sanitizedUrlWithoutPath = [url stringByReplacingOccurrencesOfString:originalPathString withString:@""];
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:sanitizedUrlWithoutPath];
+    if (!urlComponents) {
+        [NSException raise:@"Failed to parse database URL" format:@"Failed to parse database URL: %@", url];
+    }
+
+    NSString* host = [urlComponents.host lowercaseString];
     NSString* namespace;
     bool secure;
 
-    NSString* scheme = nil;
-    FPath* path = nil;
-    NSRange colonIndex = [url rangeOfString:@"//"];
-    if (colonIndex.location != NSNotFound) {
-        scheme = [url substringToIndex:colonIndex.location - 1];
-        url = [url substringFromIndex:colonIndex.location + 2];
-    }
-    NSInteger slashIndex = [url rangeOfString:@"/"].location;
-    if (slashIndex == NSNotFound) {
-        slashIndex = url.length;
-    }
-
-    host = [[url substringToIndex:slashIndex] lowercaseString];
-    if (slashIndex >= url.length) {
-        url = @"";
+    if (urlComponents.port != nil) {
+        secure = [urlComponents.scheme isEqualToString:@"https"];
+        host = [host stringByAppendingFormat:@":%@", urlComponents.port];
+    } else if ( [urlComponents.host isEqualToString:@"localhost"]) {
+        secure = NO;
     } else {
-        url = [url substringFromIndex:slashIndex + 1];
-    }
+        secure = YES;
+    };
 
-    NSArray *parts = [host componentsSeparatedByString:@"."];
+    NSArray *parts = [urlComponents.host componentsSeparatedByString:@"."];
     if([parts count] == 3) {
-        NSInteger colonIndex = [[parts objectAtIndex:2] rangeOfString:@":"].location;
-        if (colonIndex != NSNotFound) {
-            // we have a port, use the provided scheme
-            secure = [scheme isEqualToString:@"https"];
-        } else {
-            secure = YES;
+        namespace = [parts[0] lowercaseString];
+    } else {
+        // Attempt to extract namespace from "ns" query param.
+        NSArray *queryItems = urlComponents.queryItems;
+        NSMutableArray *someIDs = [NSMutableArray new];
+        for (NSURLQueryItem *item in queryItems) {
+            if ([item.name isEqualToString:@"ns"]) {
+                namespace = item.value;
+                break;
+            }
         }
 
-        namespace = [[parts objectAtIndex:0] lowercaseString];
-        NSString* pathString = [self decodePath:[NSString stringWithFormat:@"/%@", url]];
-        path = [[FPath alloc] initWith:pathString];
-    }
-    else {
-        [NSException raise:@"No Firebase database specified." format:@"No Firebase database found for input: %@", url];
+        if (!namespace) {
+            namespace = [parts[0] lowercaseString];
+        }
     }
 
+
+    NSString* pathString = [self decodePath:[NSString stringWithFormat:@"/%@", originalPathString]];
+    FPath *  path = [[FPath alloc] initWith:pathString];
     FRepoInfo* repoInfo = [[FRepoInfo alloc] initWithHost:host isSecure:secure withNamespace:namespace];
 
-    FFLog(@"I-RDB095002", @"---> Parsed (%@) to: (%@,%@); ns=(%@); path=(%@)", original, [repoInfo description], [repoInfo connectionURL], repoInfo.namespace, [path description]);
+    FFLog(@"I-RDB095002", @"---> Parsed (%@) to: (%@,%@); ns=(%@); path=(%@)", url, [repoInfo description], [repoInfo connectionURL], repoInfo.namespace, [path description]);
 
     FParsedUrl* parsedUrl = [[FParsedUrl alloc] init];
     parsedUrl.repoInfo = repoInfo;

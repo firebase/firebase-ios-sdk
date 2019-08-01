@@ -50,6 +50,43 @@
     XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
 }
 
+- (void)testUrlParsedUsesSpaceInsteadOfPlus {
+    FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/+"];
+    XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/ "]);
+}
+
+- (void)testUrlParsedWithSpecialCharacters {
+    FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/a%b&c@d/space: /non-ascii:ø"];
+    XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/a%b&c@d/space: /non-ascii:ø"]);
+}
+
+- (void)testUrlParsedWithNamespace {
+    FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/foo/bar?ns=mrschmidt"];
+    XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/foo/bar"]);
+    // The subdomain takes precedence if one is provided
+    XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
+
+    parsedUrl = [FUtilities parseUrl:@"localhost/?ns=mrschmidt"];
+    XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"mrschmidt");
+
+    parsedUrl = [FUtilities parseUrl:@"127.0.0.1:9000/?ns=mrschmidt"];
+    XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"mrschmidt");
+}
+
+- (void)testUrlParsedWithSslDetection {
+    // Hosts with custom ports are considered non-secure
+    FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com:9000"];
+    XCTAssertFalse(parsedUrl.repoInfo.secure);
+
+    // Hosts with omitted ports are considered secure
+    parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com"];
+    XCTAssertTrue(parsedUrl.repoInfo.secure);
+
+    // Localhost is special-cased as insecure
+    parsedUrl = [FUtilities parseUrl:@"localhost"];
+    XCTAssertFalse(parsedUrl.repoInfo.secure);
+}
+
 - (void)testDefaultCacheSizeIs10MB {
     XCTAssertEqual([FTestHelpers defaultConfig].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);
     XCTAssertEqual([FTestHelpers configForName:@"test-config"].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);

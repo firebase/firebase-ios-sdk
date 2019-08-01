@@ -36,7 +36,7 @@
     self = [super init];
     if (self) {
         host = aHost;
-        domain = [host substringFromIndex:[host rangeOfString:@"."].location+1];
+        domain = [host containsString:@"."] ? [host substringFromIndex:[host rangeOfString:@"."].location+1] : host;
         secure = isSecure;
         namespace = aNamespace;
 

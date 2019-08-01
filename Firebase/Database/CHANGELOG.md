@@ -1,3 +1,10 @@
+# Unreleased
+- [feature] The SDK adds support for the Firebase Database Emulator. To connect
+  to the emulator, specify "http://<emulator_host>/" as your Database URL
+  (via `Database.database(url:)`).
+  If you refer to your emulator host by IP rather than by domain name, you may
+  also need to specify a namespace ("http://<emulator_host>/?ns=<project_id>").
+
 # v6.0.0
 - [removed] Remove deprecated `childByAppendingPath` API. (#2763)
 
