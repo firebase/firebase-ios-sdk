@@ -239,7 +239,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 - (void)doListen:(NSArray *)listenSpec {
   Query query = [self parseQuery:listenSpec[1]];
-  TargetId actualID = [self.driver addUserListenerWithQuery:query];
+  TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query)];
 
   TargetId expectedID = [listenSpec[0] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
@@ -247,7 +247,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 - (void)doUnlisten:(NSArray *)unlistenSpec {
   Query query = [self parseQuery:unlistenSpec[1]];
-  [self.driver removeUserListenerWithQuery:query];
+  [self.driver removeUserListenerWithQuery:std::move(query)];
 }
 
 - (void)doSet:(NSArray *)setSpec {
@@ -622,7 +622,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
         // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
         // the right value.
         expectedActiveTargets[targetID] =
-            [[FSTQueryData alloc] initWithQuery:query
+            [[FSTQueryData alloc] initWithQuery:std::move(query)
                                        targetID:targetID
                            listenSequenceNumber:0
                                         purpose:FSTQueryPurposeListen

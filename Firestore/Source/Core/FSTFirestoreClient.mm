@@ -337,7 +337,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 - (std::shared_ptr<QueryListener>)listenToQuery:(Query)query
                                         options:(core::ListenOptions)options
                                        listener:(ViewSnapshot::SharedListener &&)listener {
-  auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
+  auto query_listener = QueryListener::Create(std::move(query), std::move(options), std::move(listener));
 
   _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
 
