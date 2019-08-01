@@ -151,7 +151,7 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query AddingFilter(std::shared_ptr<Filter> filter) const;
+  Query AddingFilter(std::shared_ptr<const Filter> filter) const;
 
   /**
    * Returns a copy of this Query object with the additional specified order by.
