@@ -12,44 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(HAVE_LEVELDB)
-  cc_library(
-    firebase_firestore_local_persistence_leveldb
-    SOURCES
-      leveldb_index_manager.h
-      #leveldb_index_manager.mm
-      leveldb_key.cc
-      leveldb_key.h
-      leveldb_migrations.cc
-      leveldb_migrations.h
-      leveldb_mutation_queue.h
-      #leveldb_mutation_queue.mm
-      leveldb_query_cache.h
-      #leveldb_query_cache.mm
-      leveldb_remote_document_cache.h
-      #leveldb_remote_document_cache.mm
-      leveldb_transaction.cc
-      leveldb_transaction.h
-      leveldb_util.cc
-      leveldb_util.h
-    DEPENDS
-      # TODO(b/111328563) Force nanopb first to work around ODR violations
-      protobuf-nanopb-static
+cc_library(
+  firebase_firestore_local_persistence_leveldb
+  SOURCES
+    leveldb_index_manager.h
+    #leveldb_index_manager.mm
+    leveldb_key.cc
+    leveldb_key.h
+    leveldb_migrations.cc
+    leveldb_migrations.h
+    leveldb_mutation_queue.h
+    #leveldb_mutation_queue.mm
+    leveldb_query_cache.h
+    #leveldb_query_cache.mm
+    leveldb_remote_document_cache.h
+    #leveldb_remote_document_cache.mm
+    leveldb_transaction.cc
+    leveldb_transaction.h
+    leveldb_util.cc
+    leveldb_util.h
+  DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    protobuf-nanopb-static
 
-      LevelDB::LevelDB
-      absl_strings
-      firebase_firestore_model
-      firebase_firestore_nanopb
-      firebase_firestore_protos_nanopb
-      firebase_firestore_util
-    EXCLUDE_FROM_ALL
-  )
-
-  set(
-    FIREBASE_FIRESTORE_LOCAL_PERSISTENCE
-    firebase_firestore_local_persistence_leveldb
-  )
-endif()
+    LevelDB::LevelDB
+    absl_strings
+    firebase_firestore_model
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_util
+  EXCLUDE_FROM_ALL
+)
 
 cc_library(
   firebase_firestore_local
@@ -81,8 +74,8 @@ cc_library(
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
 
-    ${FIREBASE_FIRESTORE_LOCAL_PERSISTENCE}
     absl_strings
+    firebase_firestore_local_persistence_leveldb
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
