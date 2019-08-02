@@ -31,12 +31,16 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
+namespace testutil = firebase::firestore::testutil;
+
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
@@ -47,6 +51,8 @@ using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
+
+using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -94,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   };
 
   std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
-  FSTQuery *query = FSTTestQuery("foo");
+  core::Query query = Query("foo");
   ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,

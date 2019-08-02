@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
@@ -67,6 +66,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
@@ -334,10 +334,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   }
 }
 
-- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
+- (std::shared_ptr<QueryListener>)listenToQuery:(Query)query
                                         options:(core::ListenOptions)options
                                        listener:(ViewSnapshot::SharedListener &&)listener {
-  auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
+  auto query_listener =
+      QueryListener::Create(std::move(query), std::move(options), std::move(listener));
 
   _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
 

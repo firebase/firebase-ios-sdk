@@ -17,20 +17,30 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 
+#include <iosfwd>
 #include <limits>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+#if __OBJC__
+@class FSTDocument;
+#endif
 
 namespace firebase {
 namespace firestore {
 namespace core {
+
+using CollectionGroupId = std::shared_ptr<const std::string>;
 
 /**
  * Represents the internal structure of a Firestore Query. Query instances are
@@ -38,10 +48,6 @@ namespace core {
  */
 class Query {
  public:
-  using CollectionGroupId = std::shared_ptr<const std::string>;
-  using FilterList = std::vector<std::shared_ptr<Filter>>;
-  using OrderByList = std::vector<OrderBy>;
-
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
@@ -52,7 +58,7 @@ class Query {
 
   explicit Query(model::ResourcePath path,
                  CollectionGroupId collection_group = nullptr)
-      : Query(path, collection_group, {}, {}) {
+      : path_(std::move(path)), collection_group_(std::move(collection_group)) {
   }
 
   /**
@@ -62,11 +68,17 @@ class Query {
   Query(model::ResourcePath path,
         CollectionGroupId collection_group,
         FilterList filters,
-        OrderByList explicit_order_bys)
+        OrderByList explicit_order_bys,
+        int32_t limit,
+        std::shared_ptr<Bound> start_at,
+        std::shared_ptr<Bound> end_at)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)),
-        explicit_order_bys_(std::move(explicit_order_bys)) {
+        explicit_order_bys_(std::move(explicit_order_bys)),
+        limit_(limit),
+        start_at_(std::move(start_at)),
+        end_at_(std::move(end_at)) {
   }
 
   Query(model::ResourcePath path, std::string collection_group);
@@ -136,17 +148,49 @@ class Query {
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
 
+  int32_t limit() const {
+    return limit_;
+  }
+
+  const std::shared_ptr<Bound>& start_at() const {
+    return start_at_;
+  }
+
+  const std::shared_ptr<Bound>& end_at() const {
+    return end_at_;
+  }
+
   // MARK: - Builder methods
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query AddingFilter(std::shared_ptr<Filter> filter) const;
+  Query AddingFilter(std::shared_ptr<const Filter> filter) const;
 
   /**
    * Returns a copy of this Query object with the additional specified order by.
    */
   Query AddingOrderBy(OrderBy order_by) const;
+
+  /**
+   * Returns a copy of this Query with the given limit on how many results can
+   * be returned.
+   *
+   * @param limit The maximum number of results to return. If
+   *     `limit == kNoLimit`, then no limit is applied. Otherwise, if
+   *     `limit <= 0`, behavior is unspecified.
+   */
+  Query WithLimit(int32_t limit) const;
+
+  /**
+   * Returns a copy of this Query starting at the provided bound.
+   */
+  Query StartingAt(Bound bound) const;
+
+  /**
+   * Returns a copy of this Query ending at the provided bound.
+   */
+  Query EndingAt(Bound bound) const;
 
   // MARK: - Matching
 
@@ -160,6 +204,27 @@ class Query {
 
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
+
+#if __OBJC__
+  bool Matches(FSTDocument* doc) const {
+    model::Document converted(doc);
+    return Matches(converted);
+  }
+#endif  // __OBJC__s
+
+  /**
+   * Returns a comparator that will sort documents according to the order by
+   * clauses in this query.
+   */
+  model::DocumentComparator Comparator() const;
+
+  const std::string& CanonicalId() const;
+
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Query& query);
+
+  size_t Hash() const;
 
  private:
   bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
@@ -183,7 +248,11 @@ class Query {
   // The memoized list of sort orders.
   mutable OrderByList memoized_order_bys_;
 
-  // TODO(rsgowman): Port collection group queries logic.
+  int32_t limit_ = kNoLimit;
+  std::shared_ptr<Bound> start_at_;
+  std::shared_ptr<Bound> end_at_;
+
+  mutable std::string canonical_id_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
@@ -195,5 +264,16 @@ inline bool operator!=(const Query& lhs, const Query& rhs) {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+namespace std {
+
+template <>
+struct hash<firebase::firestore::core::Query> {
+  size_t operator()(const firebase::firestore::core::Query& query) const {
+    return query.Hash();
+  }
+};
+
+}  // namespace std
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_

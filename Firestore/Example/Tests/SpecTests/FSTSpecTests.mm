@@ -26,7 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -48,6 +47,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -61,6 +61,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
@@ -175,44 +176,43 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 #pragma mark - Methods for constructing objects from specs.
 
-- (nullable FSTQuery *)parseQuery:(id)querySpec {
+- (Query)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return FSTTestQuery(util::MakeString((NSString *)querySpec));
+    return testutil::Query(util::MakeString((NSString *)querySpec));
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
     ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
     std::shared_ptr<const std::string> collectionGroup =
         util::MakeStringPtr(queryDict[@"collectionGroup"]);
-    __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
-                                      collectionGroup:collectionGroup];
+    Query query(std::move(resource_path), std::move(collectionGroup));
     if (queryDict[@"limit"]) {
       NSNumber *limitNumber = queryDict[@"limit"];
       auto limit = static_cast<int32_t>(limitNumber.integerValue);
-      query = [query queryBySettingLimit:limit];
+      query = query.WithLimit(limit);
     }
     if (queryDict[@"filters"]) {
       FSTUserDataConverter *converter = FSTTestUserDataConverter();
-      NSArray *filters = queryDict[@"filters"];
-      [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
-                                            BOOL *_Nonnull stop) {
+      NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
+      for (NSArray<id> *filter in filters) {
+        std::string key = util::MakeString(filter[0]);
+        std::string op = util::MakeString(filter[1]);
         FieldValue value = [converter parsedQueryValue:filter[2]];
-        query = [query queryByAddingFilter:Filter(util::MakeString(filter[0]),
-                                                  util::MakeString(filter[1]), value)];
-      }];
+        query = query.AddingFilter(Filter(key, op, value));
+      }
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       for (NSArray<NSString *> *orderBy in orderBys) {
         std::string field_path = util::MakeString(orderBy[0]);
         std::string direction = util::MakeString(orderBy[1]);
-        query = [query queryByAddingSortOrder:OrderBy(field_path, direction)];
+        query = query.AddingOrderBy(OrderBy(field_path, direction));
       }
     }
     return query;
   } else {
     XCTFail(@"Invalid query: %@", querySpec);
-    return nil;
+    return Query::Invalid();
   }
 }
 
@@ -238,16 +238,16 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 #pragma mark - Methods for doing the steps of the spec test.
 
 - (void)doListen:(NSArray *)listenSpec {
-  FSTQuery *query = [self parseQuery:listenSpec[1]];
-  TargetId actualID = [self.driver addUserListenerWithQuery:query];
+  Query query = [self parseQuery:listenSpec[1]];
+  TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query)];
 
   TargetId expectedID = [listenSpec[0] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
 - (void)doUnlisten:(NSArray *)unlistenSpec {
-  FSTQuery *query = [self parseQuery:unlistenSpec[1]];
-  [self.driver removeUserListenerWithQuery:query];
+  Query query = [self parseQuery:unlistenSpec[1]];
+  [self.driver removeUserListenerWithQuery:std::move(query)];
 }
 
 - (void)doSet:(NSArray *)setSpec {
@@ -511,8 +511,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 }
 
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
-  FSTQuery *expectedQuery = [self parseQuery:expected[@"query"]];
-  XCTAssertEqualObjects(actual.query, expectedQuery);
+  Query expectedQuery = [self parseQuery:expected[@"query"]];
+  XCTAssertEqual(actual.query, expectedQuery);
   if ([expected[@"errorCode"] integerValue] != 0) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
@@ -567,13 +567,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssertEqual(events.count, stepExpectations.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return [q1.query.canonicalID compare:q2.query.canonicalID];
+        return util::WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
       }];
   stepExpectations = [stepExpectations
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
-        FSTQuery *leftQuery = [self parseQuery:left[@"query"]];
-        FSTQuery *rightQuery = [self parseQuery:right[@"query"]];
-        return [leftQuery.canonicalID compare:rightQuery.canonicalID];
+        Query leftQuery = [self parseQuery:left[@"query"]];
+        Query rightQuery = [self parseQuery:right[@"query"]];
+        return util::WrapCompare(leftQuery.CanonicalId(), rightQuery.CanonicalId());
       }];
 
   NSUInteger i = 0;
@@ -616,13 +616,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                                                       NSDictionary *queryData,
                                                                       BOOL *stop) {
         TargetId targetID = [targetIDString intValue];
-        FSTQuery *query = [self parseQuery:queryData[@"query"]];
+        Query query = [self parseQuery:queryData[@"query"]];
         NSData *resumeToken = [queryData[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
         // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
         // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
         // the right value.
         expectedActiveTargets[targetID] =
-            [[FSTQueryData alloc] initWithQuery:query
+            [[FSTQueryData alloc] initWithQuery:std::move(query)
                                        targetID:targetID
                            listenSequenceNumber:0
                                         purpose:FSTQueryPurposeListen
@@ -697,7 +697,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     FSTQueryData *actual = actualTargets[targetID];
     XCTAssertNotNil(actual);
     if (actual) {
-      XCTAssertEqualObjects(actual.query, queryData.query);
+      XCTAssertEqual(actual.query, queryData.query);
       XCTAssertEqual(actual.targetID, queryData.targetID);
       XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
       XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));

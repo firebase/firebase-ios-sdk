@@ -22,7 +22,6 @@
 #include <vector>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
@@ -39,6 +38,7 @@ namespace api {
 
 namespace util = firebase::firestore::util;
 using core::AsyncEventListener;
+using core::Bound;
 using core::Direction;
 using core::EventListener;
 using core::FieldFilter;
@@ -55,21 +55,16 @@ using util::StatusOr;
 
 using Operator = Filter::Operator;
 
-Query::Query(FSTQuery* query, std::shared_ptr<Firestore> firestore)
-    : firestore_{std::move(firestore)}, query_{query} {
+Query::Query(core::Query query, std::shared_ptr<Firestore> firestore)
+    : firestore_{std::move(firestore)}, query_{std::move(query)} {
 }
 
 bool operator==(const Query& lhs, const Query& rhs) {
-  return lhs.firestore() == rhs.firestore() &&
-         objc::Equals(lhs.query(), rhs.query());
+  return lhs.firestore() == rhs.firestore() && lhs.query() == rhs.query();
 }
 
 size_t Query::Hash() const {
   return util::Hash(firestore_.get(), query());
-}
-
-FSTQuery* Query::query() const {
-  return query_;
 }
 
 void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
@@ -164,7 +159,7 @@ ListenerRegistration Query::AddSnapshotListener(
 
    private:
     std::shared_ptr<Firestore> firestore_;
-    FSTQuery* query_;
+    core::Query query_;
     QuerySnapshot::Listener user_listener_;
   };
   auto view_listener =
@@ -211,11 +206,11 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  std::shared_ptr<FieldFilter> filter =
+  std::shared_ptr<const FieldFilter> filter =
       FieldFilter::Create(field_path, op, field_value);
   ValidateNewFilter(*filter);
 
-  return Wrap([query_ queryByAddingFilter:filter]);
+  return Wrap(query_.AddingFilter(std::move(filter)));
 }
 
 Query Query::OrderBy(FieldPath fieldPath, bool descending) const {
@@ -224,16 +219,16 @@ Query Query::OrderBy(FieldPath fieldPath, bool descending) const {
 
 Query Query::OrderBy(FieldPath fieldPath, Direction direction) const {
   ValidateNewOrderByPath(fieldPath);
-  if (query().startAt) {
+  if (query_.start_at()) {
     ThrowInvalidArgument("Invalid query. You must not specify a starting point "
                          "before specifying the order by.");
   }
-  if (query().endAt) {
+  if (query_.end_at()) {
     ThrowInvalidArgument("Invalid query. You must not specify an ending point "
                          "before specifying the order by.");
   }
   return Wrap(
-      [query() queryByAddingSortOrder:core::OrderBy(fieldPath, direction)]);
+      query_.AddingOrderBy(core::OrderBy(std::move(fieldPath), direction)));
 }
 
 Query Query::Limit(int32_t limit) const {
@@ -242,15 +237,15 @@ Query Query::Limit(int32_t limit) const {
         "Invalid Query. Query limit (%s) is invalid. Limit must be positive.",
         limit);
   }
-  return Wrap([query() queryBySettingLimit:limit]);
+  return Wrap(query_.WithLimit(limit));
 }
 
-Query Query::StartAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingStartAt:bound]);
+Query Query::StartAt(Bound bound) const {
+  return Wrap(query_.StartingAt(std::move(bound)));
 }
 
-Query Query::EndAt(FSTBound* bound) const {
-  return Wrap([query() queryByAddingEndAt:bound]);
+Query Query::EndAt(Bound bound) const {
+  return Wrap(query_.EndingAt(std::move(bound)));
 }
 
 void Query::ValidateNewFilter(const class Filter& filter) const {
@@ -258,7 +253,7 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
     const auto& field_filter = static_cast<const FieldFilter&>(filter);
 
     if (field_filter.IsInequality()) {
-      const FieldPath* existing_inequality = [query_ inequalityFilterField];
+      const FieldPath* existing_inequality = query_.InequalityFilterField();
       const FieldPath* new_inequality = &filter.field();
 
       if (existing_inequality && *existing_inequality != *new_inequality) {
@@ -270,7 +265,7 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
             new_inequality->CanonicalString());
       }
 
-      const FieldPath* first_order_by_field = [query_ firstSortOrderField];
+      const FieldPath* first_order_by_field = query_.FirstOrderByField();
       if (first_order_by_field) {
         ValidateOrderByField(*first_order_by_field, filter.field());
       }
@@ -282,10 +277,10 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
       Operator filter_op = field_filter.op();
 
       if (IsDisjunctiveOperator(filter_op)) {
-        conflicting_op = [query_ getDisjunctiveOps];
+        conflicting_op = query_.FirstDisjunctiveOperator();
       }
       if (!conflicting_op.has_value() && IsArrayOperator(filter_op)) {
-        conflicting_op = [query_ getArrayOps];
+        conflicting_op = query_.FirstArrayOperator();
       }
       if (conflicting_op.has_value()) {
         // We special case when it's a duplicate op to give a slightly clearer
@@ -306,9 +301,9 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
 }
 
 void Query::ValidateNewOrderByPath(const FieldPath& fieldPath) const {
-  if (![query() firstSortOrderField]) {
+  if (!query_.FirstOrderByField()) {
     // This is the first order by. It must match any inequality.
-    const FieldPath* inequalityField = [query() inequalityFilterField];
+    const FieldPath* inequalityField = query_.InequalityFilterField();
     if (inequalityField) {
       ValidateOrderByField(fieldPath, *inequalityField);
     }
@@ -373,7 +368,7 @@ FieldValue Query::ParseDocumentIdValue(
           "Invalid query. When querying by document ID you must provide a "
           "valid document ID, but it was an empty string.");
     }
-    if (![query() isCollectionGroupQuery] &&
+    if (!query().IsCollectionGroupQuery() &&
         document_key.find('/') != std::string::npos) {
       ThrowInvalidArgument(
           "Invalid query. When querying a collection by document ID you must "
@@ -381,7 +376,7 @@ FieldValue Query::ParseDocumentIdValue(
           document_key);
     }
     ResourcePath path =
-        query().path.Append(ResourcePath::FromString(document_key));
+        query().path().Append(ResourcePath::FromString(document_key));
     if (!DocumentKey::IsDocumentKey(path)) {
       ThrowInvalidArgument(
           "Invalid query. When querying a collection group by document ID, "
@@ -422,10 +417,6 @@ std::string Query::Describe(Filter::Operator op) const {
   }
 
   UNREACHABLE();
-}
-
-Query Query::Wrap(FSTQuery* query) const {
-  return Query(query, firestore_);
 }
 
 }  // namespace api

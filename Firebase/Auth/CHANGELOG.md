@@ -1,3 +1,7 @@
+# v6.2.2
+- [fixed] Fixed an issue where unlinking an email auth provider raised an incorrect error stating the account was not linked to an email auth provider. (#3405)
+- [changed] Renamed internal Keychain classes. (#3473)
+
 # v6.2.1
 - [added] Add new client error MISSING_CLIENT_IDENTIFIER. (#3341)
 

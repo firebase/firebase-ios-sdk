@@ -21,6 +21,7 @@
 
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -32,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FSTMaybeDocument;
 @class FSTMutationBatch;
-@class FSTQuery;
 
 namespace firebase {
 namespace firestore {
@@ -78,7 +78,7 @@ class LocalDocumentsView {
       const model::MaybeDocumentMap& base_docs);
 
   /** Performs a query against the local view of all documents. */
-  model::DocumentMap GetDocumentsMatchingQuery(FSTQuery* query);
+  model::DocumentMap GetDocumentsMatchingQuery(const core::Query& query);
 
  private:
   /** Internal version of GetDocument that allows re-using batches. */
@@ -98,10 +98,12 @@ class LocalDocumentsView {
   model::DocumentMap GetDocumentsMatchingDocumentQuery(
       const model::ResourcePath& doc_path);
 
-  model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(FSTQuery* query);
+  model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
+      const core::Query& query);
 
   /** Queries the remote documents and overlays mutations. */
-  model::DocumentMap GetDocumentsMatchingCollectionQuery(FSTQuery* query);
+  model::DocumentMap GetDocumentsMatchingCollectionQuery(
+      const core::Query& query);
 
   /**
    * It is possible that a `PatchMutation` can make a document match a query,

@@ -24,7 +24,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -63,10 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
-                    originalQuery:(FSTQuery *)query
+                    originalQuery:(core::Query)query
                          snapshot:(ViewSnapshot &&)snapshot
                          metadata:(SnapshotMetadata)metadata {
-  QuerySnapshot wrapped(firestore, query, std::move(snapshot), std::move(metadata));
+  QuerySnapshot wrapped(firestore, std::move(query), std::move(snapshot), std::move(metadata));
   return [self initWithSnapshot:std::move(wrapped)];
 }
 

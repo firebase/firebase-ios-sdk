@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -35,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace objc = firebase::firestore::objc;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::OnlineState;
@@ -89,7 +89,7 @@ struct QueryListenersInfo {
 @end
 
 @implementation FSTEventManager {
-  objc::unordered_map<FSTQuery *, QueryListenersInfo> _queries;
+  std::unordered_map<Query, QueryListenersInfo> _queries;
 }
 
 + (instancetype)eventManagerWithSyncEngine:(FSTSyncEngine *)syncEngine {
@@ -105,7 +105,7 @@ struct QueryListenersInfo {
 }
 
 - (TargetId)addListener:(std::shared_ptr<QueryListener>)listener {
-  FSTQuery *query = listener->query();
+  const Query &query = listener->query();
 
   auto inserted = _queries.emplace(query, QueryListenersInfo{});
   bool first_listen = inserted.second;
@@ -126,7 +126,7 @@ struct QueryListenersInfo {
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
-  FSTQuery *query = listener->query();
+  const Query &query = listener->query();
   bool last_listen = false;
 
   auto found_iter = _queries.find(query);
@@ -144,7 +144,7 @@ struct QueryListenersInfo {
 
 - (void)handleViewSnapshots:(std::vector<ViewSnapshot> &&)viewSnapshots {
   for (ViewSnapshot &viewSnapshot : viewSnapshots) {
-    FSTQuery *query = viewSnapshot.query();
+    const Query &query = viewSnapshot.query();
     auto found_iter = _queries.find(query);
     if (found_iter != _queries.end()) {
       QueryListenersInfo &query_info = found_iter->second;
@@ -156,7 +156,7 @@ struct QueryListenersInfo {
   }
 }
 
-- (void)handleError:(NSError *)error forQuery:(FSTQuery *)query {
+- (void)handleError:(NSError *)error forQuery:(const Query &)query {
   auto found_iter = _queries.find(query);
   if (found_iter != _queries.end()) {
     QueryListenersInfo &query_info = found_iter->second;

@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 
+#include <ostream>
+#include <sstream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -23,6 +25,19 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+std::ostream& operator<<(std::ostream& os, DocumentState state) {
+  switch (state) {
+    case DocumentState::kCommittedMutations:
+      return os << "kCommittedMutations";
+    case DocumentState::kLocalMutations:
+      return os << "kLocalMutations";
+    case DocumentState::kSynced:
+      return os << "kLocalMutations";
+  }
+
+  UNREACHABLE();
+}
 
 Document::Document(ObjectValue&& data,
                    DocumentKey key,
@@ -32,6 +47,19 @@ Document::Document(ObjectValue&& data,
       data_(std::move(data)),
       document_state_(document_state) {
   set_type(Type::Document);
+}
+
+std::string Document::ToString() const {
+  std::ostringstream out;
+  out << *this;
+  return out.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const Document& doc) {
+  return os << "Document(key=" << doc.key()
+            << ", version=" << doc.version().timestamp()
+            << ", document_state=" << doc.document_state_
+            << ", data=" << doc.data() << ")";
 }
 
 bool Document::Equals(const MaybeDocument& other) const {

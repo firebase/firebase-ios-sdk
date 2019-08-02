@@ -25,19 +25,20 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -230,8 +231,8 @@ using firebase::firestore::model::TargetId;
   proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshotVersion];
   proto.resumeToken = queryData.resumeToken;
 
-  FSTQuery *query = queryData.query;
-  if ([query isDocumentQuery]) {
+  const Query &query = queryData.query;
+  if (query.IsDocumentQuery()) {
     proto.documents = [remoteSerializer encodedDocumentsTarget:query];
   } else {
     proto.query = [remoteSerializer encodedQueryTarget:query];
@@ -248,7 +249,7 @@ using firebase::firestore::model::TargetId;
   SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 
-  FSTQuery *query;
+  Query query;
   switch (target.targetTypeOneOfCase) {
     case FSTPBTarget_TargetType_OneOfCase_Documents:
       query = [remoteSerializer decodedQueryFromDocumentsTarget:target.documents];
@@ -262,7 +263,7 @@ using firebase::firestore::model::TargetId;
       HARD_FAIL("Unknown Target.targetType %s", target.targetTypeOneOfCase);
   }
 
-  return [[FSTQueryData alloc] initWithQuery:query
+  return [[FSTQueryData alloc] initWithQuery:std::move(query)
                                     targetID:targetID
                         listenSequenceNumber:sequenceNumber
                                      purpose:FSTQueryPurposeListen

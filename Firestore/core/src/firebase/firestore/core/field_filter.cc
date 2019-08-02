@@ -70,9 +70,9 @@ const char* CanonicalName(Filter::Operator op) {
 
 }  // namespace
 
-std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
-                                                 Operator op,
-                                                 FieldValue value_rhs) {
+std::shared_ptr<const FieldFilter> FieldFilter::Create(FieldPath path,
+                                                       Operator op,
+                                                       FieldValue value_rhs) {
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
       HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,

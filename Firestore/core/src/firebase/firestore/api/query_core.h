@@ -24,17 +24,12 @@
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
-
-OBJC_CLASS(FSTBound);
-OBJC_CLASS(FSTQuery);
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -50,7 +45,7 @@ class Query {
  public:
   Query() = default;
 
-  Query(FSTQuery* query, std::shared_ptr<Firestore> firestore);
+  Query(core::Query query, std::shared_ptr<Firestore> firestore);
 
   size_t Hash() const;
 
@@ -58,7 +53,9 @@ class Query {
     return firestore_;
   }
 
-  FSTQuery* query() const;
+  const core::Query& query() const {
+    return query_;
+  }
 
   /**
    * Reads the documents matching this query.
@@ -142,7 +139,7 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query StartAt(FSTBound* bound) const;
+  Query StartAt(core::Bound bound) const;
 
   /**
    * Creates and returns a new `Query` that ends at the given bound.  The ending
@@ -153,13 +150,13 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query EndAt(FSTBound* bound) const;
+  Query EndAt(core::Bound bound) const;
 
   /**
    * Creates a new `Query` with the given internal query.
    */
-  Query Wrap(FSTQuery* chained_query) {
-    return Query(chained_query, firestore_);
+  Query Wrap(core::Query chained_query) const {
+    return Query(std::move(chained_query), firestore_);
   }
 
  private:
@@ -185,10 +182,8 @@ class Query {
 
   std::string Describe(core::Filter::Operator op) const;
 
-  Query Wrap(FSTQuery* query) const;
-
   std::shared_ptr<Firestore> firestore_;
-  objc::Handle<FSTQuery> query_;
+  core::Query query_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
@@ -200,7 +195,5 @@ inline bool operator!=(const Query& lhs, const Query& rhs) {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_QUERY_CORE_H_
