@@ -29,18 +29,18 @@ NS_ASSUME_NONNULL_BEGIN
   return [StaticContentTableViewSection sectionWithTitle:@"OAuth" cells:@[
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
                                        action:^{ [weakSelf signInGoogleHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Twitter (headful-lite)"
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Twitter"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Linkedin"
-                                       action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (access token)"
-                                       action:^{ [weakSelf signInWithGitHub]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (headful-lite)"
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub"
                                        action:^{ [weakSelf signInGitHubHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub (Access token)"
+                                       action:^{ [weakSelf signInWithGitHub]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
                                        action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Yahoo"
                                        action:^{ [weakSelf signInYahooHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Linkedin"
+                                       action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
     ]];
 }
 
