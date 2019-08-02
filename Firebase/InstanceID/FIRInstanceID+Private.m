@@ -18,9 +18,9 @@
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDTokenManager.h"
-#import "FIRInstanceID_Private.h"
 
 @class FIRInstallations;
 
