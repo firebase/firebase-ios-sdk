@@ -434,15 +434,15 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
  * parameter types from the swizzling implementation.
  */
 void FCMSwizzleWillPresentNotificationWithHandler(
-    id self, SEL _cmd, id center, id notification, void (^handler)(NSUInteger)) {
+    id self, SEL cmd, id center, id notification, void (^handler)(NSUInteger)) {
 
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
-  IMP original_imp = [proxy originalImplementationForSelector:_cmd];
+  IMP originalImp = [proxy originalImplementationForSelector:cmd];
 
   void (^callOriginalMethodIfAvailable)(void) = ^{
-    if (original_imp) {
-      ((void (*)(id, SEL, id, id, void (^)(NSUInteger)))original_imp)(
-          self, _cmd, center, notification, handler);
+    if (originalImp) {
+      ((void (*)(id, SEL, id, id, void (^)(NSUInteger)))originalImp)(
+          self, cmd, center, notification, handler);
     }
     return;
   };
@@ -499,15 +499,15 @@ void FCMSwizzleWillPresentNotificationWithHandler(
  * parameter types from the swizzling implementation.
  */
 void FCMSwizzleDidReceiveNotificationResponseWithHandler(
-    id self, SEL _cmd, id center, id response, void (^handler)(void)) {
+    id self, SEL cmd, id center, id response, void (^handler)(void)) {
 
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
-  IMP originalImp = [proxy originalImplementationForSelector:_cmd];
+  IMP originalImp = [proxy originalImplementationForSelector:cmd];
 
   void (^callOriginalMethodIfAvailable)(void) = ^{
     if (originalImp) {
       ((void (*)(id, SEL, id, id, void (^)(void)))originalImp)(
-          self, _cmd, center, response, handler);
+          self, cmd, center, response, handler);
     }
     return;
   };
