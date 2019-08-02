@@ -219,7 +219,7 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  std::shared_ptr<FieldFilter> filter =
+  std::shared_ptr<const FieldFilter> filter =
       FieldFilter::Create(field_path, op, field_value);
   ValidateNewFilter(*filter);
 
