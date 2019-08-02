@@ -24,6 +24,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+    Utility type for constructing federated auth provider credentials.
+ */
 NS_SWIFT_NAME(FederatedAuthProvider)
 @protocol FIRFederatedAuthProvider <NSObject>
 
