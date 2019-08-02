@@ -70,6 +70,7 @@ void AsyncQueue::Enqueue(const Operation& operation) {
 
 void AsyncQueue::EnqueueAndInitializeShutdown(const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  VerifySequentialOrder();
   if (is_shutting_down_) {
     return;
   }
@@ -80,10 +81,12 @@ void AsyncQueue::EnqueueAndInitializeShutdown(const Operation& operation) {
 void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {
   // Still guarding the lock to ensure sequential scheduling.
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  VerifySequentialOrder();
   executor_->Execute(Wrap(operation));
 }
 
 bool AsyncQueue::is_shutting_down() const {
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
   return is_shutting_down_;
 }
 
@@ -136,9 +139,6 @@ void AsyncQueue::VerifySequentialOrder() const {
 
 void AsyncQueue::EnqueueBlocking(const Operation& operation) {
   VerifySequentialOrder();
-  if (is_shutting_down_) {
-    return;
-  }
   executor_->ExecuteBlocking(Wrap(operation));
 }
 

@@ -1360,7 +1360,7 @@ using firebase::firestore::util::TimerId;
 
   [self deleteApp:app];
 
-  FSTFirestoreClient *client = [firestore wrapped] -> client();
+  FSTFirestoreClient *client = firestore.wrapped->client();
   XCTAssertTrue([client isShutdown]);
 }
 

@@ -241,8 +241,7 @@ class MockWriteStream : public WriteStream {
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
                              std::shared_ptr<auth::CredentialsProvider> credentials)
-    : Datastore{database_info, worker_queue, std::shared_ptr<CredentialsProvider>(credentials),
-                CreateNoOpConnectivityMonitor()},
+    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {
