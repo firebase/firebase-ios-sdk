@@ -19,10 +19,10 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 
 namespace api = firebase::firestore::api;
-
-@class FSTQuery;
+namespace core = firebase::firestore::core;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(api::Query &&)query NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(core::Query)query
                     firestore:(std::shared_ptr<api::Firestore>)firestore;
 
 @end
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRQuery API we don't want exposed in our public header files. */
 @interface FIRQuery (Internal)
 
-- (FSTQuery *)query;
+- (const core::Query &)query;
 
 - (const api::Query &)apiQuery;
 

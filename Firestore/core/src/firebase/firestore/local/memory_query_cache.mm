@@ -21,12 +21,12 @@
 #include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
+using firebase::firestore::core::Query;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -67,7 +67,7 @@ void MemoryQueryCache::RemoveTarget(FSTQueryData* query_data) {
   references_.RemoveReferences(query_data.targetID);
 }
 
-FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
+FSTQueryData* _Nullable MemoryQueryCache::GetTarget(const Query& query) {
   auto iter = queries_.find(query);
   return iter == queries_.end() ? nil : iter->second;
 }
@@ -81,21 +81,21 @@ void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
 int MemoryQueryCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, FSTQueryData*>& live_targets) {
-  std::vector<FSTQuery*> to_remove;
+  std::vector<const Query*> to_remove;
   for (const auto& kv : queries_) {
-    FSTQuery* query = kv.first;
+    const Query& query = kv.first;
     FSTQueryData* query_data = kv.second;
 
     if (query_data.sequenceNumber <= upper_bound) {
       if (live_targets.find(query_data.targetID) == live_targets.end()) {
-        to_remove.push_back(query);
+        to_remove.push_back(&query);
         references_.RemoveReferences(query_data.targetID);
       }
     }
   }
 
-  for (FSTQuery* element : to_remove) {
-    queries_.erase(element);
+  for (const Query* element : to_remove) {
+    queries_.erase(*element);
   }
   return static_cast<int>(to_remove.size());
 }

@@ -312,7 +312,7 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesQueryData) {
-  core::Query query = testutil::Query("room");
+  core::Query query = Query("room");
   TargetId target_id = 42;
   ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);

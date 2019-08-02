@@ -33,7 +33,6 @@
 @class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTMaybeDocument;
-@class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,7 +50,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
 
   FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) override;
   model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::DocumentMap GetMatching(FSTQuery* query) override;
+  model::DocumentMap GetMatching(const core::Query& query) override;
 
  private:
   FSTMaybeDocument* DecodeMaybeDocument(absl::string_view encoded,

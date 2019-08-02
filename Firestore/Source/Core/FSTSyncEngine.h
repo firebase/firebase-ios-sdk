@@ -22,6 +22,7 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
@@ -30,7 +31,6 @@
 
 @class FSTLocalStore;
 @class FSTMutation;
-@class FSTQuery;
 
 namespace auth = firebase::firestore::auth;
 namespace core = firebase::firestore::core;
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FSTSyncEngineDelegate
 - (void)handleViewSnapshots:(std::vector<core::ViewSnapshot> &&)viewSnapshots;
-- (void)handleError:(NSError *)error forQuery:(FSTQuery *)query;
+- (void)handleError:(NSError *)error forQuery:(const core::Query &)query;
 - (void)applyChangedOnlineState:(model::OnlineState)onlineState;
 @end
 
@@ -85,10 +85,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the target ID assigned to the query.
  */
-- (model::TargetId)listenToQuery:(FSTQuery *)query;
+- (model::TargetId)listenToQuery:(core::Query)query;
 
 /** Stops listening to a query previously listened to via listenToQuery:. */
-- (void)stopListeningToQuery:(FSTQuery *)query;
+- (void)stopListeningToQuery:(const core::Query &)query;
 
 /**
  * Initiates the write of local mutation batch which involves adding the writes to the mutation

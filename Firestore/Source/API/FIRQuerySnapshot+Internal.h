@@ -25,7 +25,6 @@
 
 @class FIRFirestore;
 @class FIRSnapshotMetadata;
-@class FSTQuery;
 
 namespace api = firebase::firestore::api;
 namespace core = firebase::firestore::core;
@@ -38,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithSnapshot:(api::QuerySnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
-                    originalQuery:(FSTQuery *)query
+                    originalQuery:(core::Query)query
                          snapshot:(core::ViewSnapshot &&)snapshot
                          metadata:(api::SnapshotMetadata)metadata;
 

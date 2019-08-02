@@ -21,7 +21,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
@@ -55,6 +54,8 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::VectorOfUniquePtrs;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
+
+using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -110,8 +111,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     (std::initializer_list<TargetId>)targetIDs {
   std::unordered_map<TargetId, FSTQueryData *> targets;
   for (TargetId targetID : targetIDs) {
-    FSTQuery *query = FSTTestQuery("coll");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
+    core::Query query = Query("coll");
+    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                    targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen];
@@ -127,8 +128,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     (std::initializer_list<TargetId>)targetIDs {
   std::unordered_map<TargetId, FSTQueryData *> targets;
   for (TargetId targetID : targetIDs) {
-    FSTQuery *query = FSTTestQuery("coll/limbo");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
+    core::Query query = Query("coll/limbo");
+    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                    targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeLimboResolution];

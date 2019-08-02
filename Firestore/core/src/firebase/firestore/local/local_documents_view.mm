@@ -19,7 +19,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -38,6 +37,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using core::Query;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
@@ -117,10 +117,10 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
   return results;
 }
 
-DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(FSTQuery* query) {
-  if ([query isDocumentQuery]) {
-    return GetDocumentsMatchingDocumentQuery(query.path);
-  } else if ([query isCollectionGroupQuery]) {
+DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(const Query& query) {
+  if (query.IsDocumentQuery()) {
+    return GetDocumentsMatchingDocumentQuery(query.path());
+  } else if (query.IsCollectionGroupQuery()) {
     return GetDocumentsMatchingCollectionGroupQuery(query);
   } else {
     return GetDocumentsMatchingCollectionQuery(query);
@@ -139,12 +139,12 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingDocumentQuery(
 }
 
 model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
-    FSTQuery* query) {
+    const Query& query) {
   HARD_ASSERT(
-      query.path.empty(),
+      query.path().empty(),
       "Currently we only support collection group queries at the root.");
 
-  const std::string& collection_id = *query.collectionGroup;
+  const std::string& collection_id = *query.collection_group();
   std::vector<ResourcePath> parents =
       index_manager_->GetCollectionParents(collection_id);
   DocumentMap results;
@@ -152,8 +152,8 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
   // Perform a collection query against each parent that contains the
   // collection_id and aggregate the results.
   for (const ResourcePath& parent : parents) {
-    FSTQuery* collection_query =
-        [query collectionQueryAtPath:parent.Append(collection_id)];
+    Query collection_query =
+        query.AsCollectionQueryAtPath(parent.Append(collection_id));
     DocumentMap collection_results =
         GetDocumentsMatchingCollectionQuery(collection_query);
     for (const auto& kv : collection_results.underlying_map()) {
@@ -166,7 +166,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
-    FSTQuery* query) {
+    const Query& query) {
   DocumentMap results = remote_document_cache_->GetMatching(query);
   // Get locally persisted mutation batches.
   std::vector<FSTMutationBatch*> matchingBatches =
@@ -177,7 +177,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   for (FSTMutationBatch* batch : matchingBatches) {
     for (FSTMutation* mutation : [batch mutations]) {
       // Only process documents belonging to the collection.
-      if (!query.path.IsImmediateParentOf(mutation.key.path())) {
+      if (!query.path().IsImmediateParentOf(mutation.key.path())) {
         continue;
       }
 
@@ -210,7 +210,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   for (const auto& kv : unfiltered.underlying_map()) {
     const DocumentKey& key = kv.first;
     auto* doc = static_cast<FSTDocument*>(kv.second);
-    if (![query matchesDocument:doc]) {
+    if (!query.Matches(doc)) {
       results = results.erase(key);
     }
   }

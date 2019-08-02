@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTQuery.h"
-
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -25,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -33,13 +32,13 @@
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 #include "absl/strings/string_view.h"
 
+namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderByList;
-using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentState;
@@ -47,28 +46,24 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::ComparisonResult;
 
+using testing::Not;
 using testutil::Array;
+using testutil::CollectionGroupQuery;
 using testutil::Field;
 using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::Query;
 using testutil::Value;
 using testutil::Vector;
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** Convenience methods for building test queries. */
-@interface FSTQuery (Tests)
-- (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending;
-@end
-
-@implementation FSTQuery (Tests)
-
-- (FSTQuery *)queryByAddingSortBy:(const absl::string_view)key ascending:(BOOL)ascending {
-  return [self queryByAddingSortOrder:OrderBy(Field(key), Direction::FromDescending(!ascending))];
+MATCHER_P(Matches, doc, "") {
+  bool actual = arg.Matches(doc);
+  *result_listener << "matches " << actual;
+  return actual == true;
 }
 
-@end
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTQueryTests : XCTestCase
 @end
@@ -77,29 +72,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testConstructor {
   const ResourcePath path{"rooms", "Firestore", "messages", "0001"};
-  FSTQuery *query = [FSTQuery queryWithPath:path];
-  XCTAssertNotNil(query);
+  core::Query query(path);
 
-  XCTAssertEqual(query.sortOrders.size(), 1);
-  XCTAssertEqual(query.sortOrders[0].field().CanonicalString(), FieldPath::kDocumentKeyPath);
-  XCTAssertEqual(query.sortOrders[0].ascending(), true);
+  XCTAssertEqual(query.order_bys().size(), 1);
+  XCTAssertEqual(query.order_bys()[0].field().CanonicalString(), FieldPath::kDocumentKeyPath);
+  XCTAssertEqual(query.order_bys()[0].ascending(), true);
 
-  XCTAssertEqual(query.explicitSortOrders.size(), 0);
+  XCTAssertEqual(query.explicit_order_bys().size(), 0);
 }
 
 - (void)testOrderBy {
-  FSTQuery *query = FSTTestQuery("rooms/Firestore/messages");
-  query = [query queryByAddingSortOrder:OrderBy(Field("length"), Direction::Descending)];
+  core::Query query = Query("rooms/Firestore/messages")
+                          .AddingOrderBy(OrderBy(Field("length"), Direction::Descending));
 
-  XCTAssertEqual(query.sortOrders.size(), 2);
-  XCTAssertEqual(query.sortOrders[0].field().CanonicalString(), "length");
-  XCTAssertEqual(query.sortOrders[0].ascending(), false);
-  XCTAssertEqual(query.sortOrders[1].field().CanonicalString(), FieldPath::kDocumentKeyPath);
-  XCTAssertEqual(query.sortOrders[1].ascending(), false);
+  XCTAssertEqual(query.order_bys().size(), 2);
+  XCTAssertEqual(query.order_bys()[0].field().CanonicalString(), "length");
+  XCTAssertEqual(query.order_bys()[0].ascending(), false);
+  XCTAssertEqual(query.order_bys()[1].field().CanonicalString(), FieldPath::kDocumentKeyPath);
+  XCTAssertEqual(query.order_bys()[1].ascending(), false);
 
-  XCTAssertEqual(query.explicitSortOrders.size(), 1);
-  XCTAssertEqual(query.explicitSortOrders[0].field().CanonicalString(), "length");
-  XCTAssertEqual(query.explicitSortOrders[0].ascending(), NO);
+  XCTAssertEqual(query.explicit_order_bys().size(), 1);
+  XCTAssertEqual(query.explicit_order_bys()[0].field().CanonicalString(), "length");
+  XCTAssertEqual(query.explicit_order_bys()[0].ascending(), NO);
 }
 
 - (void)testMatchesBasedOnDocumentKey {
@@ -111,10 +105,10 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, DocumentState::kSynced);
 
   // document query
-  FSTQuery *query = FSTTestQuery("rooms/eros/messages/1");
-  XCTAssertTrue([query matchesDocument:doc1]);
-  XCTAssertFalse([query matchesDocument:doc2]);
-  XCTAssertFalse([query matchesDocument:doc3]);
+  core::Query query = Query("rooms/eros/messages/1");
+  XC_ASSERT_THAT(query, Matches(doc1));
+  XC_ASSERT_THAT(query, Not(Matches(doc2)));
+  XC_ASSERT_THAT(query, Not(Matches(doc3)));
 }
 
 - (void)testMatchesCorrectlyForShallowAncestorQuery {
@@ -128,11 +122,11 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, DocumentState::kSynced);
 
   // shallow ancestor query
-  FSTQuery *query = FSTTestQuery("rooms/eros/messages");
-  XCTAssertTrue([query matchesDocument:doc1]);
-  XCTAssertFalse([query matchesDocument:doc1Meta]);
-  XCTAssertTrue([query matchesDocument:doc2]);
-  XCTAssertFalse([query matchesDocument:doc3]);
+  core::Query query = Query("rooms/eros/messages");
+  XC_ASSERT_THAT(query, Matches(doc1));
+  XC_ASSERT_THAT(query, Not(Matches(doc1Meta)));
+  XC_ASSERT_THAT(query, Matches(doc2));
+  XC_ASSERT_THAT(query, Not(Matches(doc3)));
 }
 
 - (void)testEmptyFieldsAreAllowedForQueries {
@@ -140,15 +134,14 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/1", 0, @{@"text" : @"msg1"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, DocumentState::kSynced);
 
-  FSTQuery *query =
-      [FSTTestQuery("rooms/eros/messages") queryByAddingFilter:Filter("text", "==", "msg1")];
-  XCTAssertTrue([query matchesDocument:doc1]);
-  XCTAssertFalse([query matchesDocument:doc2]);
+  core::Query query = Query("rooms/eros/messages").AddingFilter(Filter("text", "==", "msg1"));
+  XC_ASSERT_THAT(query, Matches(doc1));
+  XC_ASSERT_THAT(query, Not(Matches(doc2)));
 }
 
 - (void)testMatchesPrimitiveValuesForFilters {
-  FSTQuery *query1 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", ">=", 2)];
-  FSTQuery *query2 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "<=", 2)];
+  core::Query query1 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
+  core::Query query2 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @1}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
@@ -157,50 +150,49 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
   FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, DocumentState::kSynced);
 
-  XCTAssertFalse([query1 matchesDocument:doc1]);
-  XCTAssertTrue([query1 matchesDocument:doc2]);
-  XCTAssertTrue([query1 matchesDocument:doc3]);
-  XCTAssertFalse([query1 matchesDocument:doc4]);
-  XCTAssertFalse([query1 matchesDocument:doc5]);
-  XCTAssertFalse([query1 matchesDocument:doc6]);
+  XC_ASSERT_THAT(query1, Not(Matches(doc1)));
+  XC_ASSERT_THAT(query1, Matches(doc2));
+  XC_ASSERT_THAT(query1, Matches(doc3));
+  XC_ASSERT_THAT(query1, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc5)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc6)));
 
-  XCTAssertTrue([query2 matchesDocument:doc1]);
-  XCTAssertTrue([query2 matchesDocument:doc2]);
-  XCTAssertFalse([query2 matchesDocument:doc3]);
-  XCTAssertFalse([query2 matchesDocument:doc4]);
-  XCTAssertFalse([query2 matchesDocument:doc5]);
-  XCTAssertFalse([query2 matchesDocument:doc6]);
+  XC_ASSERT_THAT(query2, Matches(doc1));
+  XC_ASSERT_THAT(query2, Matches(doc2));
+  XC_ASSERT_THAT(query2, Not(Matches(doc3)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc5)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc6)));
 }
 
 - (void)testArrayContainsFilter {
-  FSTQuery *query =
-      [FSTTestQuery("collection") queryByAddingFilter:Filter("array", "array_contains", 42)];
+  core::Query query = Query("collection").AddingFilter(Filter("array", "array_contains", 42));
 
   // not an array.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"array" : @1}, DocumentState::kSynced);
-  XCTAssertFalse([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // empty array.
   doc = FSTTestDoc("collection/1", 0, @{@"array" : @[]}, DocumentState::kSynced);
-  XCTAssertFalse([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array without element (and make sure it doesn't match in a nested field or a different field).
   doc = FSTTestDoc(
       "collection/1", 0,
       @{@"array" : @[ @41, @"42", @{@"a" : @42, @"b" : @[ @42 ]} ], @"different" : @[ @42 ]},
       DocumentState::kSynced);
-  XCTAssertFalse([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array with element.
   doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @1} ]},
                    DocumentState::kSynced);
-  XCTAssertTrue([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Matches(doc));
 }
 
 - (void)testArrayContainsFilterWithObjectValue {
   // Search for arrays containing the object { a: [42] }
-  FSTQuery *query = [FSTTestQuery("collection")
-      queryByAddingFilter:Filter("array", "array_contains", Map("a", Array(42)))];
+  core::Query query =
+      Query("collection").AddingFilter(Filter("array", "array_contains", Map("a", Array(42))));
 
   // array without element.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
@@ -209,16 +201,16 @@ NS_ASSUME_NONNULL_BEGIN
     ]
   },
                                 DocumentState::kSynced);
-  XCTAssertFalse([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Not(Matches(doc)));
 
   // array with element.
   doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @[ @42 ]} ]},
                    DocumentState::kSynced);
-  XCTAssertTrue([query matchesDocument:doc]);
+  XC_ASSERT_THAT(query, Matches(doc));
 }
 
 - (void)testNullFilter {
-  FSTQuery *query = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "==", nullptr)];
+  core::Query query = Query("collection").AddingFilter(Filter("sort", "==", nullptr));
   FSTDocument *doc1 =
       FSTTestDoc("collection/1", 0, @{@"sort" : [NSNull null]}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
@@ -226,31 +218,31 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, DocumentState::kSynced);
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
 
-  XCTAssertTrue([query matchesDocument:doc1]);
-  XCTAssertFalse([query matchesDocument:doc2]);
-  XCTAssertFalse([query matchesDocument:doc3]);
-  XCTAssertFalse([query matchesDocument:doc4]);
-  XCTAssertFalse([query matchesDocument:doc5]);
+  XC_ASSERT_THAT(query, Matches(doc1));
+  XC_ASSERT_THAT(query, Not(Matches(doc2)));
+  XC_ASSERT_THAT(query, Not(Matches(doc3)));
+  XC_ASSERT_THAT(query, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query, Not(Matches(doc5)));
 }
 
 - (void)testNanFilter {
-  FSTQuery *query = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "==", NAN)];
+  core::Query query = Query("collection").AddingFilter(Filter("sort", "==", NAN));
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @(NAN)}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, DocumentState::kSynced);
   FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, DocumentState::kSynced);
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, DocumentState::kSynced);
 
-  XCTAssertTrue([query matchesDocument:doc1]);
-  XCTAssertFalse([query matchesDocument:doc2]);
-  XCTAssertFalse([query matchesDocument:doc3]);
-  XCTAssertFalse([query matchesDocument:doc4]);
-  XCTAssertFalse([query matchesDocument:doc5]);
+  XC_ASSERT_THAT(query, Matches(doc1));
+  XC_ASSERT_THAT(query, Not(Matches(doc2)));
+  XC_ASSERT_THAT(query, Not(Matches(doc3)));
+  XC_ASSERT_THAT(query, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query, Not(Matches(doc5)));
 }
 
 - (void)testDoesNotMatchComplexObjectsForFilters {
-  FSTQuery *query1 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", "<=", 2)];
-  FSTQuery *query2 = [FSTTestQuery("collection") queryByAddingFilter:Filter("sort", ">=", 2)];
+  core::Query query1 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
+  core::Query query2 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
@@ -264,26 +256,25 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc7 =
       FSTTestDoc("collection/7", 0, @{@"sort" : @[ @3, @1 ]}, DocumentState::kSynced);
 
-  XCTAssertTrue([query1 matchesDocument:doc1]);
-  XCTAssertFalse([query1 matchesDocument:doc2]);
-  XCTAssertFalse([query1 matchesDocument:doc3]);
-  XCTAssertFalse([query1 matchesDocument:doc4]);
-  XCTAssertFalse([query1 matchesDocument:doc5]);
-  XCTAssertFalse([query1 matchesDocument:doc6]);
-  XCTAssertFalse([query1 matchesDocument:doc7]);
+  XC_ASSERT_THAT(query1, Matches(doc1));
+  XC_ASSERT_THAT(query1, Not(Matches(doc2)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc3)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc5)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc6)));
+  XC_ASSERT_THAT(query1, Not(Matches(doc7)));
 
-  XCTAssertTrue([query2 matchesDocument:doc1]);
-  XCTAssertFalse([query2 matchesDocument:doc2]);
-  XCTAssertFalse([query2 matchesDocument:doc3]);
-  XCTAssertFalse([query2 matchesDocument:doc4]);
-  XCTAssertFalse([query2 matchesDocument:doc5]);
-  XCTAssertFalse([query2 matchesDocument:doc6]);
-  XCTAssertFalse([query2 matchesDocument:doc7]);
+  XC_ASSERT_THAT(query2, Matches(doc1));
+  XC_ASSERT_THAT(query2, Not(Matches(doc2)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc3)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc4)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc5)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc6)));
+  XC_ASSERT_THAT(query2, Not(Matches(doc7)));
 }
 
 - (void)testDoesntRemoveComplexObjectsWithOrderBy {
-  FSTQuery *query1 = [FSTTestQuery("collection")
-      queryByAddingSortOrder:OrderBy(Field("sort"), Direction::Ascending)];
+  core::Query query1 = Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
 
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, DocumentState::kSynced);
@@ -294,16 +285,16 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, DocumentState::kSynced);
   FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, DocumentState::kSynced);
 
-  XCTAssertTrue([query1 matchesDocument:doc1]);
-  XCTAssertTrue([query1 matchesDocument:doc2]);
-  XCTAssertTrue([query1 matchesDocument:doc3]);
-  XCTAssertTrue([query1 matchesDocument:doc4]);
-  XCTAssertTrue([query1 matchesDocument:doc5]);
-  XCTAssertFalse([query1 matchesDocument:doc6]);
+  XC_ASSERT_THAT(query1, Matches(doc1));
+  XC_ASSERT_THAT(query1, Matches(doc2));
+  XC_ASSERT_THAT(query1, Matches(doc3));
+  XC_ASSERT_THAT(query1, Matches(doc4));
+  XC_ASSERT_THAT(query1, Matches(doc5));
+  XC_ASSERT_THAT(query1, Not(Matches(doc6)));
 }
 
 - (void)testFiltersBasedOnArrayValue {
-  FSTQuery *baseQuery = FSTTestQuery("collection");
+  core::Query baseQuery = Query("collection");
   FSTDocument *doc1 =
       FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, DocumentState::kSynced);
 
@@ -316,16 +307,16 @@ NS_ASSUME_NONNULL_BEGIN
   };
 
   for (const auto &filter : matchingFilters) {
-    XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
+    XCTAssertTrue(baseQuery.AddingFilter(filter).Matches(doc1));
   }
 
   for (const auto &filter : nonMatchingFilters) {
-    XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
+    XCTAssertFalse(baseQuery.AddingFilter(filter).Matches(doc1));
   }
 }
 
 - (void)testFiltersBasedOnObjectValue {
-  FSTQuery *baseQuery = FSTTestQuery("collection");
+  core::Query baseQuery = Query("collection");
   FSTDocument *doc1 = FSTTestDoc(
       "collection/doc", 0, @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
       DocumentState::kSynced);
@@ -339,11 +330,11 @@ NS_ASSUME_NONNULL_BEGIN
                                    Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true))};
 
   for (const auto &filter : matchingFilters) {
-    XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
+    XCTAssertTrue(baseQuery.AddingFilter(filter).Matches(doc1));
   }
 
   for (const auto &filter : nonMatchingFilters) {
-    XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
+    XCTAssertFalse(baseQuery.AddingFilter(filter).Matches(doc1));
   }
 }
 
@@ -364,8 +355,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSortsDocumentsInTheCorrectOrder {
-  FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:OrderBy(Field("sort"), Direction::Ascending)];
+  core::Query query = Query("collection").AddingOrderBy(OrderBy("sort"));
 
   // clang-format off
   NSArray<FSTDocument *> *docs = @[
@@ -387,13 +377,12 @@ NS_ASSUME_NONNULL_BEGIN
   ];
   // clang-format on
 
-  [self assertCorrectComparisonsWithArray:docs comparator:query.comparator];
+  [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
 }
 
 - (void)testSortsDocumentsUsingMultipleFields {
-  FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:OrderBy(Field("sort1"), Direction::Ascending)];
-  query = [query queryByAddingSortOrder:OrderBy(Field("sort2"), Direction::Ascending)];
+  core::Query query =
+      Query("collection").AddingOrderBy(OrderBy("sort1")).AddingOrderBy(OrderBy("sort2"));
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
@@ -410,13 +399,13 @@ NS_ASSUME_NONNULL_BEGIN
         ];
   // clang-format on
 
-  [self assertCorrectComparisonsWithArray:docs comparator:query.comparator];
+  [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
 }
 
 - (void)testSortsDocumentsWithDescendingToo {
-  FSTQuery *query = FSTTestQuery("collection");
-  query = [query queryByAddingSortOrder:OrderBy(Field("sort1"), Direction::Descending)];
-  query = [query queryByAddingSortOrder:OrderBy(Field("sort2"), Direction::Descending)];
+  core::Query query = Query("collection")
+                          .AddingOrderBy(OrderBy("sort1", "desc"))
+                          .AddingOrderBy(OrderBy("sort2", "desc"));
 
   // clang-format off
   NSArray<FSTDocument *> *docs =
@@ -433,182 +422,162 @@ NS_ASSUME_NONNULL_BEGIN
         ];
   // clang-format on
 
-  [self assertCorrectComparisonsWithArray:docs comparator:query.comparator];
+  [self assertCorrectComparisonsWithArray:docs comparator:query.Comparator()];
 }
 
 - (void)testEquality {
-  FSTQuery *q11 = FSTTestQuery("foo");
-  q11 = [q11 queryByAddingFilter:Filter("i1", "<", 2)];
-  q11 = [q11 queryByAddingFilter:Filter("i2", "==", 3)];
-  FSTQuery *q12 = FSTTestQuery("foo");
-  q12 = [q12 queryByAddingFilter:Filter("i2", "==", 3)];
-  q12 = [q12 queryByAddingFilter:Filter("i1", "<", 2)];
+  core::Query q11 =
+      Query("foo").AddingFilter(Filter("i1", "<", 2)).AddingFilter(Filter("i2", "==", 3));
+  core::Query q12 =
+      Query("foo").AddingFilter(Filter("i2", "==", 3)).AddingFilter(Filter("i1", "<", 2));
 
-  FSTQuery *q21 = FSTTestQuery("foo");
-  FSTQuery *q22 = FSTTestQuery("foo");
+  core::Query q21 = Query("foo");
+  core::Query q22 = Query("foo");
 
-  FSTQuery *q31 = FSTTestQuery("foo/bar");
-  FSTQuery *q32 = FSTTestQuery("foo/bar");
+  core::Query q31 = Query("foo/bar");
+  core::Query q32 = Query("foo/bar");
 
-  FSTQuery *q41 = FSTTestQuery("foo");
-  q41 = [q41 queryByAddingSortBy:"foo" ascending:YES];
-  q41 = [q41 queryByAddingSortBy:"bar" ascending:YES];
-  FSTQuery *q42 = FSTTestQuery("foo");
-  q42 = [q42 queryByAddingSortBy:"foo" ascending:YES];
-  q42 = [q42 queryByAddingSortBy:"bar" ascending:YES];
-  FSTQuery *q43Diff = FSTTestQuery("foo");
-  q43Diff = [q43Diff queryByAddingSortBy:"bar" ascending:YES];
-  q43Diff = [q43Diff queryByAddingSortBy:"foo" ascending:YES];
+  core::Query q41 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingOrderBy(OrderBy("bar", "asc"));
+  core::Query q42 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingOrderBy(OrderBy("bar", "asc"));
+  core::Query q43Diff =
+      Query("foo").AddingOrderBy(OrderBy("bar", "asc")).AddingOrderBy(OrderBy("foo", "asc"));
 
-  FSTQuery *q51 = FSTTestQuery("foo");
-  q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
-  q51 = [q51 queryByAddingFilter:Filter("foo", ">", 2)];
-  FSTQuery *q52 = FSTTestQuery("foo");
-  q52 = [q52 queryByAddingFilter:Filter("foo", ">", 2)];
-  q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
-  FSTQuery *q53Diff = FSTTestQuery("foo");
-  q53Diff = [q53Diff queryByAddingFilter:Filter("bar", ">", 2)];
-  q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
+  core::Query q51 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingFilter(Filter("foo", ">", 2));
+  core::Query q52 =
+      Query("foo").AddingFilter(Filter("foo", ">", 2)).AddingOrderBy(OrderBy("foo", "asc"));
+  core::Query q53Diff =
+      Query("foo").AddingFilter(Filter("bar", ">", 2)).AddingOrderBy(OrderBy("bar", "asc"));
 
-  FSTQuery *q61 = FSTTestQuery("foo");
-  q61 = [q61 queryBySettingLimit:10];
+  core::Query q61 = Query("foo").WithLimit(10);
 
-  // XCTAssertEqualObjects(q11, q12);  // TODO(klimt): not canonical yet
-  XCTAssertNotEqualObjects(q11, q21);
-  XCTAssertNotEqualObjects(q11, q31);
-  XCTAssertNotEqualObjects(q11, q41);
-  XCTAssertNotEqualObjects(q11, q51);
-  XCTAssertNotEqualObjects(q11, q61);
+  // XCTAssertEqual(q11, q12);  // TODO(klimt): not canonical yet
+  XCTAssertNotEqual(q11, q21);
+  XCTAssertNotEqual(q11, q31);
+  XCTAssertNotEqual(q11, q41);
+  XCTAssertNotEqual(q11, q51);
+  XCTAssertNotEqual(q11, q61);
 
-  XCTAssertEqualObjects(q21, q22);
-  XCTAssertNotEqualObjects(q21, q31);
-  XCTAssertNotEqualObjects(q21, q41);
-  XCTAssertNotEqualObjects(q21, q51);
-  XCTAssertNotEqualObjects(q21, q61);
+  XCTAssertEqual(q21, q22);
+  XCTAssertNotEqual(q21, q31);
+  XCTAssertNotEqual(q21, q41);
+  XCTAssertNotEqual(q21, q51);
+  XCTAssertNotEqual(q21, q61);
 
-  XCTAssertEqualObjects(q31, q32);
-  XCTAssertNotEqualObjects(q31, q41);
-  XCTAssertNotEqualObjects(q31, q51);
-  XCTAssertNotEqualObjects(q31, q61);
+  XCTAssertEqual(q31, q32);
+  XCTAssertNotEqual(q31, q41);
+  XCTAssertNotEqual(q31, q51);
+  XCTAssertNotEqual(q31, q61);
 
-  XCTAssertEqualObjects(q41, q42);
-  XCTAssertNotEqualObjects(q41, q43Diff);
-  XCTAssertNotEqualObjects(q41, q51);
-  XCTAssertNotEqualObjects(q41, q61);
+  XCTAssertEqual(q41, q42);
+  XCTAssertNotEqual(q41, q43Diff);
+  XCTAssertNotEqual(q41, q51);
+  XCTAssertNotEqual(q41, q61);
 
-  XCTAssertEqualObjects(q51, q52);
-  XCTAssertNotEqualObjects(q51, q53Diff);
-  XCTAssertNotEqualObjects(q51, q61);
+  XCTAssertEqual(q51, q52);
+  XCTAssertNotEqual(q51, q53Diff);
+  XCTAssertNotEqual(q51, q61);
 }
 
 - (void)testUniqueIds {
-  FSTQuery *q11 = FSTTestQuery("foo");
-  q11 = [q11 queryByAddingFilter:Filter("i1", "<", 2)];
-  q11 = [q11 queryByAddingFilter:Filter("i2", "==", 3)];
-  FSTQuery *q12 = FSTTestQuery("foo");
-  q12 = [q12 queryByAddingFilter:Filter("i2", "==", 3)];
-  q12 = [q12 queryByAddingFilter:Filter("i1", "<", 2)];
+  core::Query q11 =
+      Query("foo").AddingFilter(Filter("i1", "<", 2)).AddingFilter(Filter("i2", "==", 3));
+  core::Query q12 =
+      Query("foo").AddingFilter(Filter("i2", "==", 3)).AddingFilter(Filter("i1", "<", 2));
 
-  FSTQuery *q21 = FSTTestQuery("foo");
-  FSTQuery *q22 = FSTTestQuery("foo");
+  core::Query q21 = Query("foo");
+  core::Query q22 = Query("foo");
 
-  FSTQuery *q31 = FSTTestQuery("foo/bar");
-  FSTQuery *q32 = FSTTestQuery("foo/bar");
+  core::Query q31 = Query("foo/bar");
+  core::Query q32 = Query("foo/bar");
 
-  FSTQuery *q41 = FSTTestQuery("foo");
-  q41 = [q41 queryByAddingSortBy:"foo" ascending:YES];
-  q41 = [q41 queryByAddingSortBy:"bar" ascending:YES];
-  FSTQuery *q42 = FSTTestQuery("foo");
-  q42 = [q42 queryByAddingSortBy:"foo" ascending:YES];
-  q42 = [q42 queryByAddingSortBy:"bar" ascending:YES];
-  FSTQuery *q43Diff = FSTTestQuery("foo");
-  q43Diff = [q43Diff queryByAddingSortBy:"bar" ascending:YES];
-  q43Diff = [q43Diff queryByAddingSortBy:"foo" ascending:YES];
+  core::Query q41 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingOrderBy(OrderBy("bar", "asc"));
+  core::Query q42 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingOrderBy(OrderBy("bar", "asc"));
+  core::Query q43Diff =
+      Query("foo").AddingOrderBy(OrderBy("bar", "asc")).AddingOrderBy(OrderBy("foo", "asc"));
 
-  FSTQuery *q51 = FSTTestQuery("foo");
-  q51 = [q51 queryByAddingSortBy:"foo" ascending:YES];
-  q51 = [q51 queryByAddingFilter:Filter("foo", ">", 2)];
-  FSTQuery *q52 = FSTTestQuery("foo");
-  q52 = [q52 queryByAddingFilter:Filter("foo", ">", 2)];
-  q52 = [q52 queryByAddingSortBy:"foo" ascending:YES];
-  FSTQuery *q53Diff = FSTTestQuery("foo");
-  q53Diff = [q53Diff queryByAddingFilter:Filter("bar", ">", 2)];
-  q53Diff = [q53Diff queryByAddingSortBy:"bar" ascending:YES];
+  core::Query q51 =
+      Query("foo").AddingOrderBy(OrderBy("foo", "asc")).AddingFilter(Filter("foo", ">", 2));
+  core::Query q52 =
+      Query("foo").AddingFilter(Filter("foo", ">", 2)).AddingOrderBy(OrderBy("foo", "asc"));
+  core::Query q53Diff =
+      Query("foo").AddingFilter(Filter("bar", ">", 2)).AddingOrderBy(OrderBy("bar", "asc"));
 
-  FSTQuery *q61 = FSTTestQuery("foo");
-  q61 = [q61 queryBySettingLimit:10];
+  core::Query q61 = Query("foo").WithLimit(10);
 
-  // XCTAssertEqual(q11.hash, q12.hash);  // TODO(klimt): not canonical yet
-  XCTAssertNotEqual(q11.hash, q21.hash);
-  XCTAssertNotEqual(q11.hash, q31.hash);
-  XCTAssertNotEqual(q11.hash, q41.hash);
-  XCTAssertNotEqual(q11.hash, q51.hash);
-  XCTAssertNotEqual(q11.hash, q61.hash);
+  // XCTAssertEqual(q11.Hash(), q12.Hash());  // TODO(klimt): not canonical yet
+  XCTAssertNotEqual(q11.Hash(), q21.Hash());
+  XCTAssertNotEqual(q11.Hash(), q31.Hash());
+  XCTAssertNotEqual(q11.Hash(), q41.Hash());
+  XCTAssertNotEqual(q11.Hash(), q51.Hash());
+  XCTAssertNotEqual(q11.Hash(), q61.Hash());
 
-  XCTAssertEqual(q21.hash, q22.hash);
-  XCTAssertNotEqual(q21.hash, q31.hash);
-  XCTAssertNotEqual(q21.hash, q41.hash);
-  XCTAssertNotEqual(q21.hash, q51.hash);
-  XCTAssertNotEqual(q21.hash, q61.hash);
+  XCTAssertEqual(q21.Hash(), q22.Hash());
+  XCTAssertNotEqual(q21.Hash(), q31.Hash());
+  XCTAssertNotEqual(q21.Hash(), q41.Hash());
+  XCTAssertNotEqual(q21.Hash(), q51.Hash());
+  XCTAssertNotEqual(q21.Hash(), q61.Hash());
 
-  XCTAssertEqual(q31.hash, q32.hash);
-  XCTAssertNotEqual(q31.hash, q41.hash);
-  XCTAssertNotEqual(q31.hash, q51.hash);
-  XCTAssertNotEqual(q31.hash, q61.hash);
+  XCTAssertEqual(q31.Hash(), q32.Hash());
+  XCTAssertNotEqual(q31.Hash(), q41.Hash());
+  XCTAssertNotEqual(q31.Hash(), q51.Hash());
+  XCTAssertNotEqual(q31.Hash(), q61.Hash());
 
-  XCTAssertEqual(q41.hash, q42.hash);
-  XCTAssertNotEqual(q41.hash, q43Diff.hash);
-  XCTAssertNotEqual(q41.hash, q51.hash);
-  XCTAssertNotEqual(q41.hash, q61.hash);
+  XCTAssertEqual(q41.Hash(), q42.Hash());
+  XCTAssertNotEqual(q41.Hash(), q43Diff.Hash());
+  XCTAssertNotEqual(q41.Hash(), q51.Hash());
+  XCTAssertNotEqual(q41.Hash(), q61.Hash());
 
-  XCTAssertEqual(q51.hash, q52.hash);
-  XCTAssertNotEqual(q51.hash, q53Diff.hash);
-  XCTAssertNotEqual(q51.hash, q61.hash);
+  XCTAssertEqual(q51.Hash(), q52.Hash());
+  XCTAssertNotEqual(q51.Hash(), q53Diff.Hash());
+  XCTAssertNotEqual(q51.Hash(), q61.Hash());
 }
 
 - (void)testImplicitOrderBy {
-  FSTQuery *baseQuery = FSTTestQuery("foo");
+  core::Query baseQuery = Query("foo");
   // Default is ascending
-  XCTAssertEqual(baseQuery.sortOrders, OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
+  XCTAssertEqual(baseQuery.order_bys(), OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
 
   // Explicit key ordering is respected
-  XCTAssertEqual(
-      [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")].sortOrders,
-      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
-  XCTAssertEqual(
-      [baseQuery queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")].sortOrders,
-      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "desc")});
+  XCTAssertEqual(baseQuery.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc")).order_bys(),
+                 OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
+  XCTAssertEqual(baseQuery.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc")).order_bys(),
+                 OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "desc")});
 
-  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
-                     queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "asc")]
-                     .sortOrders,
+  XCTAssertEqual(baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+                     .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
+                     .order_bys(),
                  (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   XCTAssertEqual(
-      [[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
-          queryByAddingSortOrder:OrderBy(FieldPath::kDocumentKeyPath, "desc")]
-          .sortOrders,
+      baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+          .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
+          .order_bys(),
       (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
 
   // Inequality filters add order bys
-  XCTAssertEqual([baseQuery queryByAddingFilter:Filter("foo", "<", 5)].sortOrders,
+  XCTAssertEqual(baseQuery.AddingFilter(Filter("foo", "<", 5)).order_bys(),
                  (OrderByList{OrderBy("foo", "asc"), OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   // Descending order by applies to implicit key ordering
   XCTAssertEqual(
-      [baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")].sortOrders,
+      baseQuery.AddingOrderBy(OrderBy("foo", "desc")).order_bys(),
       (OrderByList{OrderBy("foo", "desc"), OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
-  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "asc")]
-                     queryByAddingSortOrder:OrderBy("bar", "desc")]
-                     .sortOrders,
+  XCTAssertEqual(baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+                     .AddingOrderBy(OrderBy("bar", "desc"))
+                     .order_bys(),
                  (OrderByList{
                      OrderBy("foo", "asc"),
                      OrderBy("bar", "desc"),
                      OrderBy(FieldPath::kDocumentKeyPath, "desc"),
                  }));
-  XCTAssertEqual([[baseQuery queryByAddingSortOrder:OrderBy("foo", "desc")]
-                     queryByAddingSortOrder:OrderBy("bar", "asc")]
-                     .sortOrders,
+  XCTAssertEqual(baseQuery.AddingOrderBy(OrderBy("foo", "desc"))
+                     .AddingOrderBy(OrderBy("bar", "asc"))
+                     .order_bys(),
                  (OrderByList{
                      OrderBy("foo", "desc"),
                      OrderBy("bar", "asc"),
@@ -617,46 +586,43 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 MATCHER_P(HasCanonicalId, expected, "") {
-  const std::string &actual = [arg canonicalID];
+  const std::string &actual = arg.CanonicalId();
   *result_listener << "which has canonicalID " << actual;
   return actual == expected;
 }
 
 - (void)testCanonicalIDs {
-  FSTQuery *query = FSTTestQuery("coll");
+  core::Query query = Query("coll");
   XC_ASSERT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
 
-  FSTQuery *cg = [FSTQuery queryWithPath:ResourcePath::Empty()
-                         collectionGroup:std::make_shared<const std::string>("foo")];
+  core::Query cg = CollectionGroupQuery("foo");
   XC_ASSERT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
 
-  FSTQuery *subcoll = FSTTestQuery("foo/bar/baz");
+  core::Query subcoll = Query("foo/bar/baz");
   XC_ASSERT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
 
-  FSTQuery *filters = FSTTestQuery("coll");
-  filters = [filters queryByAddingFilter:Filter("str", "==", "foo")];
+  core::Query filters = Query("coll").AddingFilter(Filter("str", "==", "foo"));
   XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
 
   // Inequality filters end up in the order by too
-  filters = [filters queryByAddingFilter:Filter("int", "<", 42)];
+  filters = filters.AddingFilter(Filter("int", "<", 42));
   XC_ASSERT_THAT(filters, HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
 
-  FSTQuery *orderBys = FSTTestQuery("coll");
-  orderBys = [orderBys queryByAddingSortBy:"up" ascending:true];
+  core::Query orderBys = Query("coll").AddingOrderBy(OrderBy("up", "asc"));
   XC_ASSERT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
 
   // __name__'s order matches the trailing component
-  orderBys = [orderBys queryByAddingSortBy:"down" ascending:false];
+  orderBys = orderBys.AddingOrderBy(OrderBy("down", "desc"));
   XC_ASSERT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
 
-  FSTQuery *limit = [FSTTestQuery("coll") queryBySettingLimit:25];
+  core::Query limit = Query("coll").WithLimit(25);
   XC_ASSERT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25"));
 
-  FSTQuery *bounds = FSTTestQuery("airports");
-  bounds = [bounds queryByAddingSortBy:"name" ascending:YES];
-  bounds = [bounds queryByAddingSortBy:"score" ascending:NO];
-  bounds = [bounds queryByAddingStartAt:Bound({Value("OAK"), Value(1000)}, /* is_before= */ true)];
-  bounds = [bounds queryByAddingEndAt:Bound({Value("SFO"), Value(2000)}, /* is_before= */ false)];
+  core::Query bounds = Query("airports")
+                           .AddingOrderBy(OrderBy("name", "asc"))
+                           .AddingOrderBy(OrderBy("score", "desc"))
+                           .StartingAt(Bound({Value("OAK"), Value(1000)}, /* is_before= */ true))
+                           .EndingAt(Bound({Value("SFO"), Value(2000)}, /* is_before= */ false));
   XC_ASSERT_THAT(
       bounds,
       HasCanonicalId("airports|f:|ob:nameascscoredesc__name__desc|lb:b:OAK1000|ub:a:SFO2000"));

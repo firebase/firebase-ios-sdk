@@ -33,7 +33,6 @@
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -69,6 +68,7 @@ using firebase::Timestamp;
 using firebase::firestore::Error;
 using firebase::firestore::GeoPoint;
 using firebase::firestore::core::Bound;
+using firebase::firestore::core::CollectionGroupId;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
@@ -755,9 +755,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GCFSTarget *)encodedTarget:(FSTQueryData *)queryData {
   GCFSTarget *result = [GCFSTarget message];
-  FSTQuery *query = queryData.query;
+  const Query &query = queryData.query;
 
-  if ([query isDocumentQuery]) {
+  if (query.IsDocumentQuery()) {
     result.documents = [self encodedDocumentsTarget:query];
   } else {
     result.query = [self encodedQueryTarget:query];
@@ -771,32 +771,32 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(FSTQuery *)query {
+- (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(const Query &)query {
   GCFSTarget_DocumentsTarget *result = [GCFSTarget_DocumentsTarget message];
   NSMutableArray<NSString *> *docs = result.documentsArray;
-  [docs addObject:[self encodedQueryPath:query.path]];
+  [docs addObject:[self encodedQueryPath:query.path()]];
   return result;
 }
 
-- (FSTQuery *)decodedQueryFromDocumentsTarget:(GCFSTarget_DocumentsTarget *)target {
+- (Query)decodedQueryFromDocumentsTarget:(GCFSTarget_DocumentsTarget *)target {
   NSArray<NSString *> *documents = target.documentsArray;
   HARD_ASSERT(documents.count == 1, "DocumentsTarget contained other than 1 document %s",
               (unsigned long)documents.count);
 
   NSString *name = documents[0];
-  return [FSTQuery queryWithPath:[self decodedQueryPath:name]];
+  return Query([self decodedQueryPath:name]);
 }
 
-- (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query {
+- (GCFSTarget_QueryTarget *)encodedQueryTarget:(const Query &)query {
   // Dissect the path into parent, collectionId, and optional key filter.
   GCFSTarget_QueryTarget *queryTarget = [GCFSTarget_QueryTarget message];
-  const ResourcePath &path = query.path;
-  if (query.collectionGroup) {
+  const ResourcePath &path = query.path();
+  if (query.collection_group()) {
     HARD_ASSERT(path.size() % 2 == 0,
                 "Collection group queries should be within a document path or root.");
     queryTarget.parent = [self encodedQueryPath:path];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
-    from.collectionId = util::MakeNSString(query.collectionGroup);
+    from.collectionId = util::MakeNSString(query.collection_group());
     from.allDescendants = YES;
     [queryTarget.structuredQuery.fromArray addObject:from];
   } else {
@@ -808,36 +808,36 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Encode the filters.
-  GCFSStructuredQuery_Filter *_Nullable where = [self encodedFilters:query.filters];
+  GCFSStructuredQuery_Filter *_Nullable where = [self encodedFilters:query.filters()];
   if (where) {
     queryTarget.structuredQuery.where = where;
   }
 
-  NSArray<GCFSStructuredQuery_Order *> *orders = [self encodedSortOrders:query.sortOrders];
+  NSArray<GCFSStructuredQuery_Order *> *orders = [self encodedSortOrders:query.order_bys()];
   if (orders.count) {
     [queryTarget.structuredQuery.orderByArray addObjectsFromArray:orders];
   }
 
-  if (query.limit != Query::kNoLimit) {
-    queryTarget.structuredQuery.limit.value = (int32_t)query.limit;
+  if (query.limit() != Query::kNoLimit) {
+    queryTarget.structuredQuery.limit.value = (int32_t)query.limit();
   }
 
-  if (query.startAt) {
-    queryTarget.structuredQuery.startAt = [self encodedBound:*query.startAt];
+  if (query.start_at()) {
+    queryTarget.structuredQuery.startAt = [self encodedBound:*query.start_at()];
   }
 
-  if (query.endAt) {
-    queryTarget.structuredQuery.endAt = [self encodedBound:*query.endAt];
+  if (query.end_at()) {
+    queryTarget.structuredQuery.endAt = [self encodedBound:*query.end_at()];
   }
 
   return queryTarget;
 }
 
-- (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target {
+- (Query)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target {
   ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
-  std::shared_ptr<const std::string> collectionGroup;
+  CollectionGroupId collectionGroup;
   NSUInteger fromCount = query.fromArray_Count;
   if (fromCount > 0) {
     HARD_ASSERT(fromCount == 1,
@@ -876,9 +876,8 @@ NS_ASSUME_NONNULL_BEGIN
     endAt = [self decodedBound:query.endAt];
   }
 
-  Query inner(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy),
-              limit, std::move(startAt), std::move(endAt));
-  return [[FSTQuery alloc] initWithQuery:std::move(inner)];
+  return Query(std::move(path), std::move(collectionGroup), std::move(filterBy), std::move(orderBy),
+               limit, std::move(startAt), std::move(endAt));
 }
 
 #pragma mark Filters
