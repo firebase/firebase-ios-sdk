@@ -38,14 +38,6 @@ target 'Firestore_Example_iOS' do
   # corresponding podspec's.
   pod 'Firebase/CoreOnly', '6.5.0'
 
-  pod 'FirebaseAuth', :path => '../../'
-  pod 'FirebaseAuthInterop', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_iOS' do
@@ -93,15 +85,7 @@ end
 target 'Firestore_Example_macOS' do
   platform :osx, '10.11'
 
-  pod 'FirebaseAuth', :path => '../../'
-  pod 'FirebaseAuthInterop', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
   target 'Firestore_Tests_macOS' do
     inherit! :search_paths
@@ -130,13 +114,7 @@ end
 target 'Firestore_Example_tvOS' do
   platform :tvos, '10.0'
 
-  pod 'FirebaseAuth', :path => '../../'
-  pod 'FirebaseAuthInterop', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
   target 'Firestore_Tests_tvOS' do
     inherit! :search_paths
