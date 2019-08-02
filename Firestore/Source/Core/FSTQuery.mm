@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.end_at();
 }
 
-- (instancetype)queryByAddingFilter:(std::shared_ptr<Filter>)filter {
+- (instancetype)queryByAddingFilter:(std::shared_ptr<const Filter>)filter {
   Query modified = _query.AddingFilter(std::move(filter));
   return [[FSTQuery alloc] initWithQuery:std::move(modified)];
 }

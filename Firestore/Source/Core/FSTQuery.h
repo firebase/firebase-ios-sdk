@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filter The predicate to filter by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingFilter:(std::shared_ptr<core::Filter>)filter;
+- (instancetype)queryByAddingFilter:(std::shared_ptr<const core::Filter>)filter;
 
 /**
  * Creates a new FSTQuery with an additional ordering constraint.

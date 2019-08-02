@@ -59,9 +59,9 @@ const char* Describe(Filter::Operator op) {
 
 }  // namespace
 
-std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
-                                                 Operator op,
-                                                 FieldValue value_rhs) {
+std::shared_ptr<const FieldFilter> FieldFilter::Create(FieldPath path,
+                                                       Operator op,
+                                                       FieldValue value_rhs) {
   if (path.IsKeyFieldPath()) {
     HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
                 "Comparing on key, but filter value not a Reference.");
