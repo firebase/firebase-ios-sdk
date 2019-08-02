@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertFalse([query2 matchesDocument:doc6]);
 }
 
-- (void)testArrayContainsFilter {
+- (void)testArrayContainsFilters {
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:Filter("array", "array_contains", 42)];
 
@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertTrue([query matchesDocument:doc]);
 }
 
-- (void)testArrayContainsFilterWithObjectValue {
+- (void)testArrayContainsFiltersWithObjectValue {
   // Search for arrays containing the object { a: [42] }
   FSTQuery *query = [FSTTestQuery("collection")
       queryByAddingFilter:Filter("array", "array_contains", Map("a", Array(42)))];
@@ -212,6 +212,76 @@ NS_ASSUME_NONNULL_BEGIN
   doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @[ @42 ]} ]},
                    DocumentState::kSynced);
   XCTAssertTrue([query matchesDocument:doc]);
+}
+
+- (void)testInFilters {
+  FSTQuery *query =
+      [FSTTestQuery("collection") queryByAddingFilter:Filter("zip", "in", Array(12345))];
+
+  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"zip" : @12345}, DocumentState::kSynced);
+  XCTAssertTrue([query matchesDocument:doc]);
+
+  // Value matches in array.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @[ @12345 ]}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // Non-type match.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @"12345"}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // Nested match.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @[ @"12345", @{@"zip" : @12345} ]},
+                   DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+}
+
+- (void)testInFiltersWithObjectValues {
+  FSTQuery *query = [FSTTestQuery("collection")
+      queryByAddingFilter:Filter("zip", "in", Array(Map("a", Array(42))))];
+  // Containing object in array.
+  FSTDocument *doc =
+      FSTTestDoc("collection/1", 0, @{@"zip" : @[ @{@"a" : @[ @42 ]} ]}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // Containing object.
+  FSTDocument *doc2 =
+      FSTTestDoc("collection/1", 0, @{@"zip" : @{@"a" : @[ @42 ]}}, DocumentState::kSynced);
+  XCTAssertTrue([query matchesDocument:doc2]);
+}
+
+- (void)testArrayContainsAnyFilters {
+  FSTQuery *query = [FSTTestQuery("collection")
+      queryByAddingFilter:Filter("zip", "array-contains-any", Array(12345))];
+
+  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"zip" : @[ @12345 ]}, DocumentState::kSynced);
+  XCTAssertTrue([query matchesDocument:doc]);
+
+  // Value matches in non-array.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @12345}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // Non-type match.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @[ @"12345" ]}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // Nested match.
+  doc = FSTTestDoc("collection/1", 0, @{@"zip" : @[ @"12345", @{@"zip" : @[ @12345 ]} ]},
+                   DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc]);
+}
+
+- (void)testArrayContainsAnyFiltersWithObjectValues {
+  FSTQuery *query = [FSTTestQuery("collection")
+      queryByAddingFilter:Filter("zip", "array-contains-any", Array(Map("a", Array(42))))];
+  // Containing object in array.
+  FSTDocument *doc =
+      FSTTestDoc("collection/1", 0, @{@"zip" : @[ @{@"a" : @[ @42 ]} ]}, DocumentState::kSynced);
+  XCTAssertTrue([query matchesDocument:doc]);
+
+  // Containing object.
+  FSTDocument *doc2 =
+      FSTTestDoc("collection/1", 0, @{@"zip" : @{@"a" : @[ @42 ]}}, DocumentState::kSynced);
+  XCTAssertFalse([query matchesDocument:doc2]);
 }
 
 - (void)testNullFilter {

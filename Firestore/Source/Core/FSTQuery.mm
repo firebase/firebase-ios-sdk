@@ -43,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/algorithm/container.h"
+#include "absl/types/optional.h"
 
 namespace core = firebase::firestore::core;
 namespace objc = firebase::firestore::objc;
@@ -313,8 +314,12 @@ NS_ASSUME_NONNULL_BEGIN
   return _query.InequalityFilterField();
 }
 
-- (BOOL)hasArrayContainsFilter {
-  return _query.HasArrayContainsFilter();
+- (absl::optional<Filter::Operator>)getArrayOps {
+  return _query.GetArrayOps();
+}
+
+- (absl::optional<Filter::Operator>)getDisjunctiveOps {
+  return _query.GetDisjunctiveOps();
 }
 
 - (nullable const FieldPath *)firstSortOrderField {

@@ -70,16 +70,30 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
-bool Query::HasArrayContainsFilter() const {
+absl::optional<Operator> Query::GetArrayOps() const {
   for (const auto& filter : filters_) {
     if (filter->IsAFieldFilter()) {
       const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
-      if (relation_filter.op() == Operator::ArrayContains) {
-        return true;
+      if (relation_filter.op() == Operator::ArrayContains ||
+          relation_filter.op() == Operator::ArrayContainsAny) {
+        return relation_filter.op();
       }
     }
   }
-  return false;
+  return absl::nullopt;
+}
+
+absl::optional<Operator> Query::GetDisjunctiveOps() const {
+  for (const auto& filter : filters_) {
+    if (filter->IsAFieldFilter()) {
+      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
+      if (relation_filter.op() == Operator::In ||
+          relation_filter.op() == Operator::ArrayContainsAny) {
+        return relation_filter.op();
+      }
+    }
+  }
+  return absl::nullopt;
 }
 
 const Query::OrderByList& Query::order_bys() const {

@@ -19,6 +19,7 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -186,41 +187,26 @@ Query Query::Filter(FieldPath field_path,
                     FieldValue field_value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
-    if (op == Filter::Operator::ArrayContains) {
+    if (op == Filter::Operator::ArrayContains ||
+        op == Filter::Operator::ArrayContainsAny) {
       ThrowInvalidArgument(
-          "Invalid query. You can't perform arrayContains queries on document "
-          "ID since document IDs are not arrays.");
+          "Invalid query. You can't perform %s queries on document "
+          "ID since document IDs are not arrays.",
+          Describe(op));
+    } else if (op == Filter::Operator::In) {
+      ValidateDisjunctiveFilterElements(field_value, op);
+      std::vector<FieldValue> references;
+      for (const auto& array_value : field_value.array_value()) {
+        references.push_back(ParseDocumentIdValue(array_value, type_describer));
+      }
+      field_value = FieldValue::FromArray(references);
+    } else {
+      field_value = ParseDocumentIdValue(field_value, type_describer);
     }
-    if (field_value.type() == FieldValue::Type::String) {
-      const std::string& document_key = field_value.string_value();
-      if (document_key.empty()) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying by document ID you must provide a "
-            "valid document ID, but it was an empty string.");
-      }
-      if (![query() isCollectionGroupQuery] &&
-          document_key.find('/') != std::string::npos) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying a collection by document ID you must "
-            "provide a plain document ID, but '%s' contains a '/' character.",
-            document_key);
-      }
-      ResourcePath path =
-          query().path.Append(ResourcePath::FromString(document_key));
-      if (!DocumentKey::IsDocumentKey(path)) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying a collection group by document ID, "
-            "the value provided must result in a valid document path, but '%s' "
-            "is not because it has an odd number of segments.",
-            path.CanonicalString());
-      }
-      field_value = FieldValue::FromReference(firestore_->database_id(),
-                                              DocumentKey{path});
-    } else if (field_value.type() != FieldValue::Type::Reference) {
-      ThrowInvalidArgument(
-          "Invalid query. When querying by document ID you must provide a "
-          "valid string or DocumentReference, but it was of type: %s",
-          type_describer());
+  } else {
+    if (op == Filter::Operator::In ||
+        op == Filter::Operator::ArrayContainsAny) {
+      ValidateDisjunctiveFilterElements(field_value, op);
     }
   }
 
@@ -268,11 +254,17 @@ Query Query::EndAt(FSTBound* bound) const {
 
 namespace {
 
-constexpr Operator kArrayOps[] = {
+const Operator kArrayOps[] = {
     Operator::ArrayContains,
+    Operator::ArrayContainsAny,
 };
 
-}
+const Operator kDisjunctiveOps[] = {
+    Operator::In,
+    Operator::ArrayContainsAny,
+};
+
+}  // namespace
 
 void Query::ValidateNewFilter(const class Filter& filter) const {
   if (filter.IsAFieldFilter()) {
@@ -299,12 +291,32 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
     } else {
       // You can have at most 1 disjunctive filter and 1 array filter. Check if
       // the new filter conflicts with an existing one.
+      absl::optional<Operator> conflicting_op;
       Operator filter_op = field_filter.op();
       bool is_array_op = absl::c_linear_search(kArrayOps, filter_op);
+      bool is_disjunctive_op =
+          absl::c_linear_search(kDisjunctiveOps, filter_op);
 
-      if (is_array_op && [query_ hasArrayContainsFilter]) {
-        ThrowInvalidArgument("Invalid Query. Queries only support a single "
-                             "arrayContains filter.");
+      if (is_disjunctive_op) {
+        conflicting_op = [query_ getDisjunctiveOps];
+      }
+      if (!conflicting_op.has_value() && is_array_op) {
+        conflicting_op = [query_ getArrayOps];
+      }
+      if (conflicting_op.has_value()) {
+        // We special case when it's a duplicate op to give a slightly clearer
+        // error message.
+        if (conflicting_op.value() == filter_op) {
+          ThrowInvalidArgument(
+              "Invalid Query. You cannot use more than one '%s'"
+              " filter.",
+              Describe(filter_op));
+        } else {
+          ThrowInvalidArgument("Invalid Query. You cannot use '%s' filters with"
+                               " '%s' filters.",
+                               Describe(filter_op),
+                               Describe(conflicting_op.value()));
+        }
       }
     }
   }
@@ -332,6 +344,101 @@ void Query::ValidateOrderByField(const FieldPath& orderByField,
         inequalityField.CanonicalString(), inequalityField.CanonicalString(),
         orderByField.CanonicalString());
   }
+}
+
+void Query::ValidateDisjunctiveFilterElements(
+    const model::FieldValue& field_value,
+    const core::Filter::Operator op) const {
+  if (field_value.type() != FieldValue::Type::Array ||
+      field_value.array_value().size() == 0) {
+    ThrowInvalidArgument("Invalid Query. A non-empty array is required for '%s'"
+                         " filters.",
+                         Describe(op));
+  }
+  if (field_value.array_value().size() > 10) {
+    ThrowInvalidArgument("Invalid Query. '%s' filters support a maximum of 10"
+                         " elements in the value array.",
+                         Describe(op));
+  }
+
+  std::vector<FieldValue> array = field_value.array_value();
+  for (const auto& val : array) {
+    if (val.type() == FieldValue::Type::Null) {
+      ThrowInvalidArgument(
+          "Invalid Query. '%s' filters cannot contain 'null' in"
+          " the value array.",
+          Describe(op));
+    }
+    if ((val.type() == FieldValue::Type::Integer &&
+         std::isnan(val.integer_value())) ||
+        (val.type() == FieldValue::Type::Double &&
+         std::isnan(val.double_value()))) {
+      ThrowInvalidArgument("Invalid Query. '%s' filters cannot contain 'NaN' in"
+                           " the value array.",
+                           Describe(op));
+    }
+  }
+}
+
+FieldValue Query::ParseDocumentIdValue(
+    const model::FieldValue& field_value,
+    const std::function<std::string()>& type_describer) const {
+  if (field_value.type() == FieldValue::Type::String) {
+    const std::string& document_key = field_value.string_value();
+    if (document_key.empty()) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying by document ID you must provide a "
+          "valid document ID, but it was an empty string.");
+    }
+    if (![query() isCollectionGroupQuery] &&
+        document_key.find('/') != std::string::npos) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying a collection by document ID you must "
+          "provide a plain document ID, but '%s' contains a '/' character.",
+          document_key);
+    }
+    ResourcePath path =
+        query().path.Append(ResourcePath::FromString(document_key));
+    if (!DocumentKey::IsDocumentKey(path)) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying a collection group by document ID, "
+          "the value provided must result in a valid document path, but '%s' "
+          "is not because it has an odd number of segments.",
+          path.CanonicalString());
+    }
+    return FieldValue::FromReference(firestore_->database_id(),
+                                     DocumentKey{path});
+  } else if (field_value.type() == FieldValue::Type::Reference) {
+    return field_value;
+  } else {
+    ThrowInvalidArgument(
+        "Invalid query. When querying by document ID you must provide a "
+        "valid string or DocumentReference, but it was of type: %s",
+        type_describer());
+  }
+}
+
+std::string Query::Describe(Filter::Operator op) const {
+  switch (op) {
+    case Filter::Operator::LessThan:
+      return "lessThan";
+    case Filter::Operator::LessThanOrEqual:
+      return "lessThanOrEqual";
+    case Filter::Operator::Equal:
+      return "equal";
+    case Filter::Operator::GreaterThanOrEqual:
+      return "greaterThanOrEqual";
+    case Filter::Operator::GreaterThan:
+      return "greaterThan";
+    case Filter::Operator::ArrayContains:
+      return "arrayContains";
+    case Filter::Operator::In:
+      return "in";
+    case Filter::Operator::ArrayContainsAny:
+      return "arrayContainsAny";
+  }
+
+  UNREACHABLE();
 }
 
 Query Query::Wrap(FSTQuery* query) const {

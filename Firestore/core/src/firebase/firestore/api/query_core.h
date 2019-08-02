@@ -167,6 +167,18 @@ class Query {
   void ValidateNewOrderByPath(const model::FieldPath& fieldPath) const;
   void ValidateOrderByField(const model::FieldPath& orderByField,
                             const model::FieldPath& inequalityField) const;
+  /**
+   * Validates that the value passed into a disjunctive filter satisfies all
+   * array requirements.
+   */
+  void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
+                                         const core::Filter::Operator op) const;
+
+  model::FieldValue ParseDocumentIdValue(
+      const model::FieldValue& field_value,
+      const std::function<std::string()>& type_describer) const;
+
+  std::string Describe(core::Filter::Operator op) const;
 
   Query Wrap(FSTQuery* query) const;
 

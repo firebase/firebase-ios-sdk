@@ -182,8 +182,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable const model::FieldPath *)inequalityFilterField;
 
-/** Returns YES if the query has an arrayContains filter already. */
-- (BOOL)hasArrayContainsFilter;
+/**
+ * Returns the first array operator (array-contains or array-contains-any) found on a
+ * filter, or nullptr if there are no array operators.
+ */
+- (absl::optional<core::Filter::Operator>)getArrayOps;
+
+/**
+ * Returns the first disjunctive operator (IN or array-contains-any) found on a filter,
+ * or nullptr if there are no disjunctive operators.
+ */
+- (absl::optional<core::Filter::Operator>)getDisjunctiveOps;
 
 /** Returns the first field in an order-by constraint, or nullptr if none. */
 - (nullable const model::FieldPath *)firstSortOrderField;

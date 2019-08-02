@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -302,7 +304,7 @@
                         ]));
 }
 
-- (void)testArrayContainsQueries {
+- (void)testQueriesCanUseArrayContainsFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
@@ -314,13 +316,83 @@
   // Search for 42
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
                                                                          arrayContains:@42]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{@"array" : @[ @42 ]}, @{@"array" : @[ @"a", @42, @"c" ]},
-                          @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
-                        ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"a"], testDocs[@"b"], testDocs[@"d"] ]));
 
   // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much
   // of anything else interesting to test.
+}
+
+- (void)testQueriesCanUseInFilters {
+  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @98101},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98103},
+    @"d" : @{@"zip" : @[ @98101 ]},
+    @"e" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"f" : @{@"zip" : @{@"code" : @500}}
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // Search for zips matching [98101, 98103].
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @98101, @98103 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"], testDocs[@"c"] ]));
+
+  // With objects
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                                  in:@[ @{@"code" : @500} ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"f"] ]));
+}
+
+- (void)testQueriesCanUseInFiltersWithDocIds {
+  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
+  NSDictionary *testDocs = @{
+    @"aa" : @{@"key" : @"aa"},
+    @"ab" : @{@"key" : @"ab"},
+    @"ba" : @{@"key" : @"ba"},
+    @"bb" : @{@"key" : @"bb"},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[collection queryWhereFieldPath:[FIRFieldPath documentID]
+                                                               in:@[ @"aa", @"ab" ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"aa"], testDocs[@"ab"] ]));
+}
+
+- (void)testQueriesCanUseArrayContainsAnyFilters {
+  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
+  NSDictionary *testDocs = @{
+    @"a" : @{@"array" : @[ @42 ]},
+    @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
+    @"c" : @{@"array" : @[ @41.999, @"42", @{@"a" : @[ @42 ]} ]},
+    @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]},
+    @"e" : @{@"array" : @[ @43 ]},
+    @"f" : @{@"array" : @[ @{@"a" : @42} ]},
+    @"g" : @{@"array" : @42},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // Search for zips matching [42, 43].
+  FIRQuerySnapshot *snapshot = [self
+      readDocumentSetForRef:[collection queryWhereField:@"array" arrayContainsAny:@[ @42, @43 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"a"], testDocs[@"b"], testDocs[@"d"], testDocs[@"e"] ]));
+
+  // With objects.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                    arrayContainsAny:@[ @{@"a" : @42} ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"f"],
+                        ]));
 }
 
 - (void)testCollectionGroupQueries {

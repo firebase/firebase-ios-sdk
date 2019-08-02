@@ -43,14 +43,19 @@ class Filter {
     GreaterThanOrEqual,
     GreaterThan,
     ArrayContains,
+    In,
+    ArrayContainsAny,
   };
 
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
     kArrayContainsFilter,
+    kInFilter,
+    kArrayContainsAnyFilter,
     kFieldFilter,
     kKeyFieldFilter,
+    kKeyFieldInFilter,
   };
 
   virtual ~Filter() = default;
