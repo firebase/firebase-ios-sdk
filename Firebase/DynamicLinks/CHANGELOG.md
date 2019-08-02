@@ -1,3 +1,6 @@
+# v4.0.2
+- [changed] Updated to maintain compatibility with Firebase Core in 6.6.0.
+
 # v4.0.1
 - [changed] Removed deprecated internal log method (#3333)
 
