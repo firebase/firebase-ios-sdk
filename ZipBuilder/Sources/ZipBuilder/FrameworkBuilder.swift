@@ -23,12 +23,12 @@ private enum Architecture: String, CaseIterable {
     case device = "iphoneos"
     case simulator = "iphonesimulator"
 
-    /// Arguments that should be included as part of the build process for each target platform.
-    func extraArguments() -> [String] {
+    /// Extra C flags that should be included as part of the build process for each target platform.
+    func otherCFlags() -> [String] {
       switch self {
       case .device:
         // For device, we want to enable bitcode.
-        return ["OTHER_CFLAGS=$(value) " + "-fembed-bitcode"]
+        return ["-fembed-bitcode"]
       case .simulator:
         // No extra arguments are required for simulator builds.
         return []
@@ -220,16 +220,17 @@ struct FrameworkBuilder {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
-    let standardOptions = ["build",
-                           "-configuration", "release",
-                           "-workspace", workspacePath,
-                           "-scheme", framework,
-                           "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
-                           "ARCHS=\(arch.rawValue)",
-                           "BUILD_DIR=\(buildDir.path)",
-                           "-sdk", platform.rawValue,
-                           "OTHER_CFLAGS=$(value) \(distributionFlag)"]
-    let args = standardOptions + platform.extraArguments()
+    let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
+    let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
+    let args = ["build",
+                "-configuration", "release",
+                "-workspace", workspacePath,
+                "-scheme", framework,
+                "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
+                "ARCHS=\(arch.rawValue)",
+                "BUILD_DIR=\(buildDir.path)",
+                "-sdk", platform.rawValue,
+                cFlags]
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))
@@ -418,7 +419,7 @@ struct FrameworkBuilder {
 
     // Verify Firebase headers include an explicit umbrella header for Firebase.h.
     let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase") && framework != "FirebaseCoreDiagnostics" {
+    if framework.hasPrefix("Firebase"), framework != "FirebaseCoreDiagnostics" {
       let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
       guard fileManager.fileExists(atPath: frameworkHeader.path) else {
         fatalError("Missing explicit umbrella header for \(framework).")
