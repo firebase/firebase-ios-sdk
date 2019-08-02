@@ -961,14 +961,14 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (std::shared_ptr<FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (std::shared_ptr<const FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
   return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
-- (std::shared_ptr<FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (std::shared_ptr<const FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:

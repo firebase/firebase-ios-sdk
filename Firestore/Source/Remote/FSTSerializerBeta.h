@@ -123,8 +123,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (core::Query)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryOrFieldFilter:(const core::FieldFilter &)filter;
-- (std::shared_ptr<core::FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
-- (std::shared_ptr<core::FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
+- (std::shared_ptr<const core::FieldFilter>)decodedFieldFilter:
+    (GCFSStructuredQuery_FieldFilter *)proto;
+- (std::shared_ptr<const core::FieldFilter>)decodedUnaryFilter:
+    (GCFSStructuredQuery_UnaryFilter *)proto;
 
 - (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;
