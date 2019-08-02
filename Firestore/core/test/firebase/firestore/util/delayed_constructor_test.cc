@@ -69,7 +69,7 @@ TEST(DelayedConstructorTest, CopyableType) {
       constructed += 1;
     }
 
-    // Backdoor to construct a value without exposing a default constructor
+    // Workaround to construct a value without exposing a default constructor
     explicit Copyable(int) {
     }
   };
@@ -90,7 +90,7 @@ TEST(DelayedConstructorTest, MoveOnlyType) {
       constructed += 1;
     }
 
-    // Backdoor to construct a value without exposing a default constructor
+    // Workaround to construct a value without exposing a default constructor
     explicit MoveOnly(int) {
     }
   };
