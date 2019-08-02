@@ -24,7 +24,7 @@ private enum Architecture: String, CaseIterable {
     case simulator = "iphonesimulator"
 
     /// Extra C flags that should be included as part of the build process for each target platform.
-    func extraCFlags() -> [String] {
+    func otherCFlags() -> [String] {
       switch self {
       case .device:
         // For device, we want to enable bitcode.
@@ -220,7 +220,7 @@ struct FrameworkBuilder {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
-    let platformSpecificFlags = platform.extraCFlags().joined(separator: " ")
+    let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
     let args = ["build",
                 "-configuration", "release",
