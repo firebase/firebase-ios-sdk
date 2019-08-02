@@ -23,6 +23,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
@@ -76,6 +77,9 @@ class OrderBy {
   model::FieldPath field_;
   Direction direction_;
 };
+
+/** A list of OrderBys, as used in Queries and elsewhere. */
+using OrderByList = immutable::AppendOnlyList<OrderBy>;
 
 std::ostream& operator<<(std::ostream& os, const OrderBy& order);
 

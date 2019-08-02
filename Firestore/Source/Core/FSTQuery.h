@@ -74,14 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that the actual query performed might add additional sort orders to match the behavior
  * of the backend.
  */
-- (const core::Query::OrderByList &)explicitSortOrders;
+- (const core::OrderByList &)explicitSortOrders;
 
 /**
  * Returns the full list of ordering constraints on the query.
  *
  * This might include additional sort orders added implicitly to match the backend behavior.
  */
-- (const core::Query::OrderByList &)sortOrders;
+- (const core::OrderByList &)sortOrders;
 
 /**
  * Creates a new FSTQuery with an additional filter.
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filter The predicate to filter by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingFilter:(std::shared_ptr<core::Filter>)filter;
+- (instancetype)queryByAddingFilter:(std::shared_ptr<const core::Filter>)filter;
 
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const std::shared_ptr<const std::string> &)collectionGroup;
 
 /** The filters on the documents returned by the query. */
-- (const core::Query::FilterList &)filters;
+- (const core::FilterList &)filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
 - (int32_t)limit;

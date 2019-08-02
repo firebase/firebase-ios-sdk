@@ -72,7 +72,9 @@ using firebase::firestore::core::Bound;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderBy;
+using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -849,12 +851,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  Query::FilterList filterBy;
+  FilterList filterBy;
   if (query.hasWhere) {
     filterBy = [self decodedFilters:query.where];
   }
 
-  Query::OrderByList orderBy;
+  OrderByList orderBy;
   if (query.orderByArray_Count > 0) {
     orderBy = [self decodedSortOrders:query.orderByArray];
   }
@@ -881,7 +883,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Filters
 
-- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(const Query::FilterList &)filters {
+- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(const FilterList &)filters {
   if (filters.empty()) {
     return nil;
   }
@@ -902,8 +904,8 @@ NS_ASSUME_NONNULL_BEGIN
   return composite;
 }
 
-- (Query::FilterList)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
-  Query::FilterList result;
+- (FilterList)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
+  FilterList result;
 
   NSArray<GCFSStructuredQuery_Filter *> *filters;
   if (proto.filterTypeOneOfCase ==
@@ -915,17 +917,18 @@ NS_ASSUME_NONNULL_BEGIN
     filters = @[ proto ];
   }
 
+  result = result.reserve(filters.count);
   for (GCFSStructuredQuery_Filter *filter in filters) {
     switch (filter.filterTypeOneOfCase) {
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_CompositeFilter:
         HARD_FAIL("Nested composite filters are not supported");
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_FieldFilter:
-        result.push_back([self decodedFieldFilter:filter.fieldFilter]);
+        result = result.push_back([self decodedFieldFilter:filter.fieldFilter]);
         break;
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_UnaryFilter:
-        result.push_back([self decodedUnaryFilter:filter.unaryFilter]);
+        result = result.push_back([self decodedUnaryFilter:filter.unaryFilter]);
         break;
 
       default:
@@ -959,14 +962,14 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (std::shared_ptr<FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (std::shared_ptr<const FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
   return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
-- (std::shared_ptr<FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (std::shared_ptr<const FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:
@@ -1028,7 +1031,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Property Orders
 
-- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(const Query::OrderByList &)orders {
+- (NSArray<GCFSStructuredQuery_Order *> *)encodedSortOrders:(const OrderByList &)orders {
   NSMutableArray<GCFSStructuredQuery_Order *> *protos = [NSMutableArray array];
   for (const OrderBy &order : orders) {
     [protos addObject:[self encodedSortOrder:order]];
@@ -1036,11 +1039,11 @@ NS_ASSUME_NONNULL_BEGIN
   return protos;
 }
 
-- (Query::OrderByList)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
-  Query::OrderByList result;
-  result.reserve(protos.count);
+- (OrderByList)decodedSortOrders:(NSArray<GCFSStructuredQuery_Order *> *)protos {
+  OrderByList result;
+  result = result.reserve(protos.count);
   for (GCFSStructuredQuery_Order *orderProto in protos) {
-    result.push_back([self decodedSortOrder:orderProto]);
+    result = result.push_back([self decodedSortOrder:orderProto]);
   }
   return result;
 }

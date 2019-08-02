@@ -30,7 +30,6 @@
 namespace firebase {
 namespace firestore {
 namespace core {
-namespace {
 
 using Operator = Filter::Operator;
 using Type = Filter::Type;
@@ -41,15 +40,6 @@ using model::DocumentKey;
 using model::FieldPath;
 using model::ResourcePath;
 using util::ComparisonResult;
-
-template <typename T>
-std::vector<T> AppendingTo(const std::vector<T>& vector, T&& value) {
-  std::vector<T> updated = vector;
-  updated.push_back(std::forward<T>(value));
-  return updated;
-}
-
-}  // namespace
 
 Query::Query(ResourcePath path, std::string collection_group)
     : path_(std::move(path)),
@@ -85,7 +75,7 @@ bool Query::HasArrayContainsFilter() const {
   return false;
 }
 
-const Query::OrderByList& Query::order_bys() const {
+const OrderByList& Query::order_bys() const {
   if (memoized_order_bys_.empty()) {
     const FieldPath* inequality_field = InequalityFilterField();
     const FieldPath* first_order_by_field = FirstOrderByField();
@@ -94,13 +84,14 @@ const Query::OrderByList& Query::order_bys() const {
       // inequality filter field for it to be a valid query. Note that the
       // default inequality field and key ordering is ascending.
       if (inequality_field->IsKeyFieldPath()) {
-        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
-                                         Direction::Ascending);
+        memoized_order_bys_ = {
+            OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
+        };
       } else {
-        memoized_order_bys_.emplace_back(*inequality_field,
-                                         Direction::Ascending);
-        memoized_order_bys_.emplace_back(FieldPath::KeyFieldPath(),
-                                         Direction::Ascending);
+        memoized_order_bys_ = {
+            OrderBy(*inequality_field, Direction::Ascending),
+            OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
+        };
       }
     } else {
       HARD_ASSERT(
@@ -109,23 +100,23 @@ const Query::OrderByList& Query::order_bys() const {
           first_order_by_field->CanonicalString(),
           inequality_field->CanonicalString());
 
-      bool found_key_order = false;
+      OrderByList result = explicit_order_bys_;
 
-      Query::OrderByList result;
+      bool found_explicit_key_order = false;
       for (const OrderBy& order_by : explicit_order_bys_) {
-        result.push_back(order_by);
         if (order_by.field().IsKeyFieldPath()) {
-          found_key_order = true;
+          found_explicit_key_order = true;
+          break;
         }
       }
 
-      if (!found_key_order) {
+      if (!found_explicit_key_order) {
         // The direction of the implicit key ordering always matches the
         // direction of the last explicit sort order
         Direction last_direction = explicit_order_bys_.empty()
                                        ? Direction::Ascending
                                        : explicit_order_bys_.back().direction();
-        result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
+        result = result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
       }
 
       memoized_order_bys_ = std::move(result);
@@ -144,7 +135,7 @@ const FieldPath* Query::FirstOrderByField() const {
 
 // MARK: - Builder methods
 
-Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
+Query Query::AddingFilter(std::shared_ptr<const Filter> filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
@@ -158,9 +149,8 @@ Query Query::AddingFilter(std::shared_ptr<Filter> filter) const {
 
   // TODO(rsgowman): ensure first orderby must match inequality field
 
-  return Query(path_, collection_group_,
-               AppendingTo(filters_, std::move(filter)), explicit_order_bys_,
-               limit_, start_at_, end_at_);
+  return Query(path_, collection_group_, filters_.push_back(std::move(filter)),
+               explicit_order_bys_, limit_, start_at_, end_at_);
 }
 
 Query Query::AddingOrderBy(OrderBy order_by) const {
@@ -173,7 +163,7 @@ Query Query::AddingOrderBy(OrderBy order_by) const {
   }
 
   return Query(path_, collection_group_, filters_,
-               AppendingTo(explicit_order_bys_, std::move(order_by)), limit_,
+               explicit_order_bys_.push_back(std::move(order_by)), limit_,
                start_at_, end_at_);
 }
 

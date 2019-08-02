@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -34,16 +35,14 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using CollectionGroupId = std::shared_ptr<const std::string>;
+
 /**
  * Represents the internal structure of a Firestore Query. Query instances are
  * immutable.
  */
 class Query {
  public:
-  using CollectionGroupId = std::shared_ptr<const std::string>;
-  using FilterList = std::vector<std::shared_ptr<Filter>>;
-  using OrderByList = std::vector<OrderBy>;
-
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
@@ -152,7 +151,7 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query AddingFilter(std::shared_ptr<Filter> filter) const;
+  Query AddingFilter(std::shared_ptr<const Filter> filter) const;
 
   /**
    * Returns a copy of this Query object with the additional specified order by.
