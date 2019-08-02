@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/algorithm/container.h"
 
@@ -252,20 +253,6 @@ Query Query::EndAt(FSTBound* bound) const {
   return Wrap([query() queryByAddingEndAt:bound]);
 }
 
-namespace {
-
-const Operator kArrayOps[] = {
-    Operator::ArrayContains,
-    Operator::ArrayContainsAny,
-};
-
-const Operator kDisjunctiveOps[] = {
-    Operator::In,
-    Operator::ArrayContainsAny,
-};
-
-}  // namespace
-
 void Query::ValidateNewFilter(const class Filter& filter) const {
   if (filter.IsAFieldFilter()) {
     const auto& field_filter = static_cast<const FieldFilter&>(filter);
@@ -293,14 +280,11 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
       // the new filter conflicts with an existing one.
       absl::optional<Operator> conflicting_op;
       Operator filter_op = field_filter.op();
-      bool is_array_op = absl::c_linear_search(kArrayOps, filter_op);
-      bool is_disjunctive_op =
-          absl::c_linear_search(kDisjunctiveOps, filter_op);
 
-      if (is_disjunctive_op) {
+      if (IsDisjunctiveOperator(filter_op)) {
         conflicting_op = [query_ getDisjunctiveOps];
       }
-      if (!conflicting_op.has_value() && is_array_op) {
+      if (!conflicting_op.has_value() && IsArrayOperator(filter_op)) {
         conflicting_op = [query_ getArrayOps];
       }
       if (conflicting_op.has_value()) {
@@ -308,8 +292,7 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
         // error message.
         if (conflicting_op.value() == filter_op) {
           ThrowInvalidArgument(
-              "Invalid Query. You cannot use more than one '%s'"
-              " filter.",
+              "Invalid Query. You cannot use more than one '%s' filter.",
               Describe(filter_op));
         } else {
           ThrowInvalidArgument("Invalid Query. You cannot use '%s' filters with"

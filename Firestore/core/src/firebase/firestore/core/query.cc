@@ -19,6 +19,7 @@
 #include <algorithm>
 
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -70,12 +71,11 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
-absl::optional<Operator> Query::GetArrayOps() const {
+absl::optional<Operator> Query::FirstArrayOperator() const {
   for (const auto& filter : filters_) {
     if (filter->IsAFieldFilter()) {
       const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
-      if (relation_filter.op() == Operator::ArrayContains ||
-          relation_filter.op() == Operator::ArrayContainsAny) {
+      if (IsArrayOperator(relation_filter.op())) {
         return relation_filter.op();
       }
     }
@@ -83,12 +83,11 @@ absl::optional<Operator> Query::GetArrayOps() const {
   return absl::nullopt;
 }
 
-absl::optional<Operator> Query::GetDisjunctiveOps() const {
+absl::optional<Operator> Query::FirstDisjunctiveOperator() const {
   for (const auto& filter : filters_) {
     if (filter->IsAFieldFilter()) {
       const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
-      if (relation_filter.op() == Operator::In ||
-          relation_filter.op() == Operator::ArrayContainsAny) {
+      if (IsDisjunctiveOperator(relation_filter.op())) {
         return relation_filter.op();
       }
     }

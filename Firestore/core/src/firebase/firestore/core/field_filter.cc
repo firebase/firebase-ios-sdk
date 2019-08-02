@@ -41,7 +41,7 @@ using util::ComparisonResult;
 
 namespace {
 
-const char* Describe(Filter::Operator op) {
+const char* CanonicalName(Filter::Operator op) {
   switch (op) {
     case Filter::Operator::LessThan:
       return "<";
@@ -54,7 +54,11 @@ const char* Describe(Filter::Operator op) {
     case Filter::Operator::GreaterThan:
       return ">";
     case Filter::Operator::ArrayContains:
-      return "array-contains";
+      // The canonical name for this is array_contains for compatibility with
+      // existing entries in `query_targets` stored on user devices. This cannot
+      // be changed without causing users to lose their associated resume
+      // tokens.
+      return "array_contains";
     case Filter::Operator::In:
       return "in";
     case Filter::Operator::ArrayContainsAny:
@@ -81,7 +85,7 @@ std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
       HARD_ASSERT(op != Filter::Operator::ArrayContains &&
                       op != Filter::Operator::ArrayContainsAny,
                   "%s queries don't make sense on document keys.",
-                  Describe(op));
+                  CanonicalName(op));
       return std::make_shared<KeyFieldFilter>(std::move(path), op,
                                               std::move(value_rhs));
     }
@@ -162,13 +166,13 @@ bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
 }
 
 std::string FieldFilter::CanonicalId() const {
-  return absl::StrCat(field_.CanonicalString(), Describe(op_),
+  return absl::StrCat(field_.CanonicalString(), CanonicalName(op_),
                       value_rhs_.ToString());
 }
 
 std::string FieldFilter::ToString() const {
-  return util::StringFormat("%s %s %s", field_.CanonicalString(), Describe(op_),
-                            value_rhs_.ToString());
+  return util::StringFormat("%s %s %s", field_.CanonicalString(),
+                            CanonicalName(op_), value_rhs_.ToString());
 }
 
 size_t FieldFilter::Hash() const {

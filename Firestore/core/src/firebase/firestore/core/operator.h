@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_IN_FILTER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_IN_FILTER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_OPERATOR_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_OPERATOR_H_
 
-#include <string>
-
-#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-/**
- * A Filter that matches on an array of key fields.
- */
-class KeyFieldInFilter : public FieldFilter {
- public:
-  KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
+inline bool IsArrayOperator(Filter::Operator op) {
+  return op == Filter::Operator::ArrayContains ||
+         op == Filter::Operator::ArrayContainsAny;
+}
 
-  Type type() const override {
-    return Type::kKeyFieldInFilter;
-  }
-
-  bool Matches(const model::Document& doc) const override;
-};
+inline bool IsDisjunctiveOperator(Filter::Operator op) {
+  return op == Filter::Operator::In || op == Filter::Operator::ArrayContainsAny;
+}
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_KEY_FIELD_IN_FILTER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_OPERATOR_H_

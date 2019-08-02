@@ -104,15 +104,15 @@ class Query {
 
   /**
    * Returns the first array operator (array-contains or array-contains-any)
-   * found on a filter, or nullptr if there are no array operators.
+   * found on a filter, or absl::nullopt if there are no array operators.
    */
-  absl::optional<Filter::Operator> GetArrayOps() const;
+  absl::optional<Filter::Operator> FirstArrayOperator() const;
 
   /**
    * Returns the first disjunctive operator (IN or array-contains-any) found
-   * on a filter, or nullptr if there are no disjunctive operators.
+   * on a filter, or absl::nullopt if there are no disjunctive operators.
    */
-  absl::optional<Filter::Operator> GetDisjunctiveOps() const;
+  absl::optional<Filter::Operator> FirstDisjunctiveOperator() const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on

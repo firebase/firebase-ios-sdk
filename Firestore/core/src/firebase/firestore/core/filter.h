@@ -50,10 +50,10 @@ class Filter {
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
-    kArrayContainsFilter,
-    kInFilter,
     kArrayContainsAnyFilter,
+    kArrayContainsFilter,
     kFieldFilter,
+    kInFilter,
     kKeyFieldFilter,
     kKeyFieldInFilter,
   };

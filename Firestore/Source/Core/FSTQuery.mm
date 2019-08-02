@@ -315,11 +315,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (absl::optional<Filter::Operator>)getArrayOps {
-  return _query.GetArrayOps();
+  return _query.FirstArrayOperator();
 }
 
 - (absl::optional<Filter::Operator>)getDisjunctiveOps {
-  return _query.GetDisjunctiveOps();
+  return _query.FirstDisjunctiveOperator();
 }
 
 - (nullable const FieldPath *)firstSortOrderField {

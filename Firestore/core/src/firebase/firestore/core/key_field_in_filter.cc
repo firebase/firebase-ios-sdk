@@ -35,8 +35,8 @@ using Operator = Filter::Operator;
 KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
     : FieldFilter(std::move(field), Operator::In, std::move(value)) {
   const FieldValue::Array& array_value = this->value().array_value();
-  for (const auto& refValue : array_value) {
-    HARD_ASSERT(refValue.type() == FieldValue::Type::Reference,
+  for (const auto& ref_value : array_value) {
+    HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
                 "Comparing on key with IN, but an array value was not"
                 " a Reference");
   }

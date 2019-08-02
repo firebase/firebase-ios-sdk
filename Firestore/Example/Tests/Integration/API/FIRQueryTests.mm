@@ -324,7 +324,7 @@
 }
 
 - (void)testQueriesCanUseInFilters {
-  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
   if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
 
   NSDictionary *testDocs = @{
@@ -349,7 +349,7 @@
 }
 
 - (void)testQueriesCanUseInFiltersWithDocIds {
-  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
   if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
 
   NSDictionary *testDocs = @{
@@ -367,7 +367,7 @@
 }
 
 - (void)testQueriesCanUseArrayContainsAnyFilters {
-  // TODO(in-queries): Re-enable in prod once feature lands in backend.
+  // TODO(b/138855186): Re-enable in prod once feature lands in backend.
   if (![FSTIntegrationTestCase isRunningAgainstEmulator]) return;
 
   NSDictionary *testDocs = @{

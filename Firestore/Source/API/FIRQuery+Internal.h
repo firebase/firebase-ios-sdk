@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The created `FIRQuery`.
  */
-// TODO(in-queries): Expose to public once backend is ready.
+// TODO(b/138855186): Expose to public once backend is ready.
 - (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value;
 
 /**
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The created `FIRQuery`.
  */
-// TODO(in-queries): Expose to public once backend is ready.
+// TODO(b/138855186): Expose to public once backend is ready.
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value;
 
 /**
@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The created `FIRQuery`.
  */
-// TODO(in-queries): Expose to public once backend is ready.
+// TODO(b/138855186): Expose to public once backend is ready.
 - (FIRQuery *)queryWhereField:(NSString *)field in:(id)value;
 
 /**
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The created `FIRQuery`.
  */
-// TODO(in-queries): Expose to public once backend is ready.
+// TODO(b/138855186): Expose to public once backend is ready.
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value;
 
 @end

@@ -174,6 +174,11 @@ class Query {
   void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
                                          const core::Filter::Operator op) const;
 
+  /**
+   * Parses the given FieldValue into a Reference, throwing appropriate errors
+   * if the value is anything other than a Reference or String, or if the string
+   * is malformed.
+   */
   model::FieldValue ParseDocumentIdValue(
       const model::FieldValue& field_value,
       const std::function<std::string()>& type_describer) const;
