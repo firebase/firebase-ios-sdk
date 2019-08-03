@@ -218,17 +218,6 @@ target_include_directories(
 enable_testing()
 include(compiler_setup)
 
-
-# Firebase packages
-
-# Set variables that CocoaPods expects to be able to expand in values it
-# includes in the xcconfigs it generates.
-set(PODS_TARGET_SRCROOT ${FIREBASE_SOURCE_DIR})
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransport.podspec)
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransportCCTSupport.podspec)
-
 add_subdirectory(Firebase/Core)
 add_subdirectory(Firestore)
 add_subdirectory(GoogleUtilities)
