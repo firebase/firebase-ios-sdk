@@ -234,8 +234,6 @@ podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransport.podspec)
 
 podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransportCCTSupport.podspec)
 
-podspec_framework(${FIREBASE_SOURCE_DIR}/FirebaseCoreDiagnostics.podspec)
-
 podspec_framework(
   ${FIREBASE_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec
 )
@@ -277,4 +275,5 @@ if(APPLE)
 endif()
 
 add_subdirectory(Firebase/Core)
+add_subdirectory(Firebase/CoreDiagnostics)
 add_subdirectory(Firestore)
