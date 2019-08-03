@@ -225,11 +225,6 @@ include(compiler_setup)
 # includes in the xcconfigs it generates.
 set(PODS_TARGET_SRCROOT ${FIREBASE_SOURCE_DIR})
 
-podspec_framework(
-  ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
-  SPECS Logger
-)
-
 podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransport.podspec)
 
 podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransportCCTSupport.podspec)
@@ -256,3 +251,4 @@ endif()
 add_subdirectory(Firebase/Core)
 add_subdirectory(Firebase/CoreDiagnostics)
 add_subdirectory(Firestore)
+add_subdirectory(GoogleUtilities)
