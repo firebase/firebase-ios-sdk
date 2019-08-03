@@ -14,6 +14,36 @@
 
 include(CMakeParseArguments)
 
+macro(podspec_version VARIABLE PODSPEC_FILE)
+  execute_process(
+    COMMAND
+    sed -n
+    -f ${PROJECT_SOURCE_DIR}/cmake/podspec_version.sed
+    ${PODSPEC_FILE}
+    OUTPUT_VARIABLE ${VARIABLE}
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endmacro()
+
+macro(firebase_version VARIABLE PODSPEC_FILE)
+  execute_process(
+    COMMAND
+      sed -n
+        -f ${PROJECT_SOURCE_DIR}/cmake/firebase_version.sed
+        ${PODSPEC_FILE}
+    OUTPUT_VARIABLE ${VARIABLE}
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endmacro()
+
+function(podspec_prep_headers FRAMEWORK_NAME)
+  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Headers/${FRAMEWORK_NAME})
+  execute_process(
+    COMMAND
+      ln -sf ${ARGN} ${PROJECT_BINARY_DIR}/Headers/${FRAMEWORK_NAME}
+  )
+endfunction()
+
 # Reads properties from the given podspec and generates a cmake file that
 # defines the equivalent framework.
 #
