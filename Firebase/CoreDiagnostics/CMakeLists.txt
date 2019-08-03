@@ -19,6 +19,14 @@ if(APPLE)
   podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnostics.podspec)
 
   objc_framework(
+    FirebaseCoreDiagnosticsInterop
+    HEADERS ${headers}
+    VERSION ${version}
+    INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
+    EXCLUDE_FROM_ALL
+  )
+
+  objc_framework(
     FirebaseCoreDiagnostics
     SOURCES ${sources}
     HEADERS ${headers}
