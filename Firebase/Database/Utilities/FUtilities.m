@@ -179,7 +179,6 @@ void firebaseJobsTroll(void) {
     } else {
         // Attempt to extract namespace from "ns" query param.
         NSArray *queryItems = urlComponents.queryItems;
-        NSMutableArray *someIDs = [NSMutableArray new];
         for (NSURLQueryItem *item in queryItems) {
             if ([item.name isEqualToString:@"ns"]) {
                 namespace = item.value;
