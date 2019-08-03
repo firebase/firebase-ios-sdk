@@ -249,6 +249,5 @@ if(APPLE)
 endif()
 
 add_subdirectory(Firebase/Core)
-add_subdirectory(Firebase/CoreDiagnostics)
 add_subdirectory(Firestore)
 add_subdirectory(GoogleUtilities)
