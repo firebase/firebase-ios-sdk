@@ -100,9 +100,9 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     }
 
     // It's okay to use the main queue for reachability events because they are
-    // fairly infrequent,
-    // and there's no good way to get the underlying dispatch queue out of the
-    // worker queue. The callback itself is still executed on the worker queue.
+    // fairly infrequent, and there's no good way to get the underlying dispatch
+    // queue out of the worker queue. The callback itself is still executed on
+    // the worker queue.
     success = SCNetworkReachabilitySetDispatchQueue(reachability_,
                                                     dispatch_get_main_queue());
     if (!success) {

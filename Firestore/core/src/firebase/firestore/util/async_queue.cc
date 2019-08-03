@@ -68,7 +68,7 @@ void AsyncQueue::Enqueue(const Operation& operation) {
   EnqueueRelaxed(operation);
 }
 
-void AsyncQueue::EnqueueAndInitializeShutdown(const Operation& operation) {
+void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifySequentialOrder();
   if (is_shutting_down_) {

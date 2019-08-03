@@ -1331,13 +1331,7 @@ using firebase::firestore::util::TimerId;
       @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
   [self writeDocumentRef:[firestore documentWithPath:@"abc/123"] data:data];
 
-  // Shutdown `firestore`.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"shudown"];
-  [firestore shutdownWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self shutdownFirestore:firestore];
 
   // Create a new instance, check it's a different instance.
   FIRFirestore *newInstance = [FIRFirestore firestoreForApp:app];

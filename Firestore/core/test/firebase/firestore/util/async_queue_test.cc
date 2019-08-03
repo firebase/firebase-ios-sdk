@@ -187,7 +187,7 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
   std::string steps;
 
   queue.Enqueue([&] { steps += '1'; });
-  queue.EnqueueAndInitializeShutdown([&] { steps += '2'; });
+  queue.EnqueueAndInitiateShutdown([&] { steps += '2'; });
   queue.Enqueue([&] { steps += '3'; });
   queue.EnqueueEvenAfterShutdown([&] { steps += '4'; });
   queue.EnqueueEvenAfterShutdown([&] { signal_finished(); });

@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Provides a registry management interface for FIRFirestore instances. */
 @protocol FSTFirestoreInstanceRegistry
 
-/** Removes the FIRFirestore instance with given name from registry. */
-- (void)removeInstance:(NSString *)database;
+/** Removes the FIRFirestore instance with given database name from registry. */
+- (void)removeInstanceWithDatabase:(NSString *)database;
 
 @end
 
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
                credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
                        firebaseApp:(FIRApp *)app
-                  instanceRegistry:(id<FSTFirestoreInstanceRegistry>)registry;
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */

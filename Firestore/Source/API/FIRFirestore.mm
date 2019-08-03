@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFirestore {
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
-  id<FSTFirestoreInstanceRegistry> _registry;
+  __weak id<FSTFirestoreInstanceRegistry> _registry;
 }
 
 + (instancetype)firestore {
@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
                credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
                        firebaseApp:(FIRApp *)app
-                  instanceRegistry:(id<FSTFirestoreInstanceRegistry>)registry {
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry {
   if (self = [super init]) {
     _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
                                              std::move(credentialsProvider), std::move(workerQueue),
@@ -306,8 +306,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  if (_registry) {
-    [_registry removeInstance:util::MakeNSString(_firestore->database_id().database_id())];
+  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
+  if (strongRegistry) {
+    [strongRegistry
+        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
   }
   [self shutdownInternalWithCompletion:completion];
 }

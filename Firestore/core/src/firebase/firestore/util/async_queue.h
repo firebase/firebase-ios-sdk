@@ -106,7 +106,7 @@ class AsyncQueue {
   //
   // The exception is `EnqueueEvenAfterShutdown`, operations requsted via
   // this will still be scheduled.
-  void EnqueueAndInitializeShutdown(const Operation& operation);
+  void EnqueueAndInitiateShutdown(const Operation& operation);
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
   // regardless of whether the queue is shut down or not.

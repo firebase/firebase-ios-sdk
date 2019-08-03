@@ -305,7 +305,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)shutdownWithCallback:(util::StatusCallback)callback {
-  _workerQueue->EnqueueAndInitializeShutdown([self, callback] {
+  _workerQueue->EnqueueAndInitiateShutdown([self, callback] {
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
     // If we've scheduled LRU garbage collection, cancel it.

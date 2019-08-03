@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Default method for retrieving a Firestore instance, or creating one if it doesn't exist.
 - (FIRFirestore *)firestoreForDatabase:(NSString *)database;
 
-- (void)removeInstance:(NSString *)database;
+- (void)removeInstanceWithDatabase:(NSString *)database;
 
 /// Default initializer.
 - (instancetype)initWithApp:(FIRApp *)app NS_DESIGNATED_INITIALIZER;

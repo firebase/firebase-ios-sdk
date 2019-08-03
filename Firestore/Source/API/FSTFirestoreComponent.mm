@@ -114,8 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)removeInstance:(NSString *)database {
-  @synchronized(self.instances) {
+- (void)removeInstanceWithDatabase:(NSString *)database {
+  @synchronized(_instances) {
     NSString *key = [self keyForDatabase:database];
     [_instances removeObjectForKey:key];
   }
@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)appWillBeDeleted:(FIRApp *)app {
   NSDictionary<NSString *, FIRFirestore *> *instances;
-  @synchronized(self.instances) {
+  @synchronized(_instances) {
     instances = [_instances copy];
     [_instances removeAllObjects];
   }
