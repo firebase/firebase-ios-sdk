@@ -43,11 +43,6 @@ if(CXX_CLANG OR CXX_GNU)
 
   set(
     cxx_flags
-
-    # Cut down on symbol clutter
-    # TODO(wilhuff) try -fvisibility=hidden
-    -fvisibility-inlines-hidden
-
     -Wreorder -Werror=reorder
   )
 
