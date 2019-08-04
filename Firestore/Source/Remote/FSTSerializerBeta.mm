@@ -403,7 +403,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Encodes an FSTObjectValue into a dictionary.
+ * Encodes an ObjectValue into a dictionary.
  * @return a new dictionary that can be assigned to a field in another proto.
  */
 - (NSMutableDictionary<NSString *, GCFSValue *> *)encodedFields:(const ObjectValue &)value {
@@ -432,7 +432,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-#pragma mark - FSTObjectValue <=> Document proto
+#pragma mark - ObjectValue <=> Document proto
 
 - (GCFSDocument *)encodedDocumentWithFields:(const ObjectValue &)objectValue
                                         key:(const DocumentKey &)key {

@@ -32,7 +32,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 OBJC_CLASS(FSTDocument);
-OBJC_CLASS(FSTObjectValue);
 
 namespace firebase {
 namespace firestore {

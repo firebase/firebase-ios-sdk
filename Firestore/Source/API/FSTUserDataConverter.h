@@ -28,7 +28,6 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
 @class FIRTimestamp;
-@class FSTObjectValue;
 @class FSTMutation;
 
 namespace core = firebase::firestore::core;
