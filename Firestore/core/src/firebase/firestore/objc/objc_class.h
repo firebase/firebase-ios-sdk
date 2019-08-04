@@ -159,6 +159,7 @@ bool Equals(const Handle<T>& lhs, const Handle<T>& rhs) {
 #else  // !__clang__
 #define NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_END
+#define _Nullable
 #endif  // __clang__
 #endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
 
