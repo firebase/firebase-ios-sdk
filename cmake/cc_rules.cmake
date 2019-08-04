@@ -344,7 +344,7 @@ macro(generate_dummy_source name sources_list)
       "// Generated file that keeps header-only CMake libraries happy.
 
       // single meaningless symbol
-      void ${name}_header_only_fakesym() {}
+      void ${name}_header_only_fakesym(void) {}
       "
     )
   endif()
