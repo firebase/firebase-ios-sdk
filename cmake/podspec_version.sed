@@ -15,9 +15,13 @@
 # USAGE:
 # sed -n -f cmake/podspec_version.sed foo.podspec
 
+# Finds the version of a podspec, looking for a line line this:
+#
+#     s.version          = '6.1.0'
+
 # Find the line assigning to s.version
 /.*s\.version *= */ {
-  # Remove the assignment
+  # Reuse the pattern buffer to remove the assignment.
   s///
 
   # Remove the surrounding quotes
