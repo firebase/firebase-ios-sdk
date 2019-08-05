@@ -183,8 +183,7 @@ Query Query::Filter(FieldPath field_path,
                     FieldValue field_value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
-    if (op == Filter::Operator::ArrayContains ||
-        op == Filter::Operator::ArrayContainsAny) {
+    if (IsArrayOperator(op)) {
       ThrowInvalidArgument(
           "Invalid query. You can't perform %s queries on document "
           "ID since document IDs are not arrays.",
@@ -193,15 +192,15 @@ Query Query::Filter(FieldPath field_path,
       ValidateDisjunctiveFilterElements(field_value, op);
       std::vector<FieldValue> references;
       for (const auto& array_value : field_value.array_value()) {
-        references.push_back(ParseDocumentIdValue(array_value, type_describer));
+        references.push_back(
+            ParseExpectedReferenceValue(array_value, type_describer));
       }
       field_value = FieldValue::FromArray(references);
     } else {
-      field_value = ParseDocumentIdValue(field_value, type_describer);
+      field_value = ParseExpectedReferenceValue(field_value, type_describer);
     }
   } else {
-    if (op == Filter::Operator::In ||
-        op == Filter::Operator::ArrayContainsAny) {
+    if (IsDisjunctiveOperator(op)) {
       ValidateDisjunctiveFilterElements(field_value, op);
     }
   }
@@ -341,16 +340,13 @@ void Query::ValidateDisjunctiveFilterElements(
 
   std::vector<FieldValue> array = field_value.array_value();
   for (const auto& val : array) {
-    if (val.type() == FieldValue::Type::Null) {
+    if (val.is_null()) {
       ThrowInvalidArgument(
           "Invalid Query. '%s' filters cannot contain 'null' in"
           " the value array.",
           Describe(op));
     }
-    if ((val.type() == FieldValue::Type::Integer &&
-         std::isnan(val.integer_value())) ||
-        (val.type() == FieldValue::Type::Double &&
-         std::isnan(val.double_value()))) {
+    if (val.is_nan()) {
       ThrowInvalidArgument("Invalid Query. '%s' filters cannot contain 'NaN' in"
                            " the value array.",
                            Describe(op));
@@ -358,7 +354,7 @@ void Query::ValidateDisjunctiveFilterElements(
   }
 }
 
-FieldValue Query::ParseDocumentIdValue(
+FieldValue Query::ParseExpectedReferenceValue(
     const model::FieldValue& field_value,
     const std::function<std::string()>& type_describer) const {
   if (field_value.type() == FieldValue::Type::String) {

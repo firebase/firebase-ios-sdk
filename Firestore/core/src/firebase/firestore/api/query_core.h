@@ -176,7 +176,7 @@ class Query {
    * if the value is anything other than a Reference or String, or if the string
    * is malformed.
    */
-  model::FieldValue ParseDocumentIdValue(
+  model::FieldValue ParseExpectedReferenceValue(
       const model::FieldValue& field_value,
       const std::function<std::string()>& type_describer) const;
 
