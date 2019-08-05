@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTQuery;
-
+namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 /** An immutable set of metadata that the store will need to keep track of for each query. */
 @interface FSTQueryData : NSObject
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(core::Query)query
                      targetID:(model::TargetId)targetID
          listenSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
                   resumeToken:(NSData *)resumeToken NS_DESIGNATED_INITIALIZER;
 
 /** Convenience initializer for use when creating an FSTQueryData for the first time. */
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(core::Query)query
                      targetID:(model::TargetId)targetID
          listenSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose;
@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 - (const model::SnapshotVersion &)snapshotVersion;
 
 /** The query being listened to. */
-@property(nonatomic, strong, readonly) FSTQuery *query;
+- (const core::Query &)query;
 
 /**
  * The targetID to which the query corresponds, assigned by the FSTLocalStore for user queries or

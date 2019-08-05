@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
+#import <Foundation/Foundation.h>
 
 @interface FEmptyNode : NSObject
 
-+ (id<FNode>) emptyNode;
++ (id<FNode>)emptyNode;
 
 @end

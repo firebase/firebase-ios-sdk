@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 
+#include <iosfwd>
+#include <string>
+
 #if __OBJC__
 #import "Firestore/Source/Model/FSTDocument.h"
 #endif
@@ -47,6 +50,8 @@ enum class DocumentState {
   /** No mutations applied. Document was sent to us by Watch. */
   kSynced,
 };
+
+std::ostream& operator<<(std::ostream& os, DocumentState state);
 
 /**
  * Represents a document in Firestore with a key, version, data and whether the
@@ -96,6 +101,10 @@ class Document : public MaybeDocument {
   bool HasPendingWrites() const override {
     return HasLocalMutations() || HasCommittedMutations();
   }
+
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Document& doc);
 
  protected:
   bool Equals(const MaybeDocument& other) const override;

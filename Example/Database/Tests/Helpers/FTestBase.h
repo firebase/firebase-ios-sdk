@@ -19,7 +19,7 @@
 #import "SenTest+FWaiter.h"
 
 @interface FTestBase : XCTestCase {
-    BOOL runPerfTests;
+  BOOL runPerfTests;
 }
 
 - (void)snapWaiter:(FIRDatabaseReference *)path withBlock:(fbt_void_datasnapshot)fn;

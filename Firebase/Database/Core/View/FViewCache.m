@@ -16,17 +16,18 @@
 
 #import "FViewCache.h"
 #import "FCacheNode.h"
-#import "FNode.h"
 #import "FEmptyNode.h"
+#import "FNode.h"
 
 @interface FViewCache ()
-@property (nonatomic, strong, readwrite) FCacheNode *cachedEventSnap;
-@property (nonatomic, strong, readwrite) FCacheNode *cachedServerSnap;
+@property(nonatomic, strong, readwrite) FCacheNode *cachedEventSnap;
+@property(nonatomic, strong, readwrite) FCacheNode *cachedServerSnap;
 @end
 
 @implementation FViewCache
 
-- (id) initWithEventCache:(FCacheNode *)eventCache serverCache:(FCacheNode *)serverCache {
+- (id)initWithEventCache:(FCacheNode *)eventCache
+             serverCache:(FCacheNode *)serverCache {
     self = [super init];
     if (self) {
         self.cachedEventSnap = eventCache;
@@ -35,27 +36,37 @@
     return self;
 }
 
-- (FViewCache *) updateEventSnap:(FIndexedNode *)eventSnap isComplete:(BOOL)complete isFiltered:(BOOL)filtered {
-    FCacheNode *updatedEventCache = [[FCacheNode alloc] initWithIndexedNode:eventSnap
-                                                         isFullyInitialized:complete
-                                                                 isFiltered:filtered];
-    return [[FViewCache alloc] initWithEventCache:updatedEventCache serverCache:self.cachedServerSnap];
+- (FViewCache *)updateEventSnap:(FIndexedNode *)eventSnap
+                     isComplete:(BOOL)complete
+                     isFiltered:(BOOL)filtered {
+    FCacheNode *updatedEventCache =
+        [[FCacheNode alloc] initWithIndexedNode:eventSnap
+                             isFullyInitialized:complete
+                                     isFiltered:filtered];
+    return [[FViewCache alloc] initWithEventCache:updatedEventCache
+                                      serverCache:self.cachedServerSnap];
 }
 
-- (FViewCache *) updateServerSnap:(FIndexedNode *)serverSnap isComplete:(BOOL)complete isFiltered:(BOOL)filtered {
-    FCacheNode *updatedServerCache = [[FCacheNode alloc] initWithIndexedNode:serverSnap
-                                                          isFullyInitialized:complete
-                                                                  isFiltered:filtered];
-    return [[FViewCache alloc] initWithEventCache:self.cachedEventSnap serverCache:updatedServerCache];
+- (FViewCache *)updateServerSnap:(FIndexedNode *)serverSnap
+                      isComplete:(BOOL)complete
+                      isFiltered:(BOOL)filtered {
+    FCacheNode *updatedServerCache =
+        [[FCacheNode alloc] initWithIndexedNode:serverSnap
+                             isFullyInitialized:complete
+                                     isFiltered:filtered];
+    return [[FViewCache alloc] initWithEventCache:self.cachedEventSnap
+                                      serverCache:updatedServerCache];
 }
 
-- (id<FNode>) completeEventSnap {
-    return (self.cachedEventSnap.isFullyInitialized) ? self.cachedEventSnap.node : nil;
+- (id<FNode>)completeEventSnap {
+    return (self.cachedEventSnap.isFullyInitialized) ? self.cachedEventSnap.node
+                                                     : nil;
 }
 
-- (id<FNode>) completeServerSnap {
-    return (self.cachedServerSnap.isFullyInitialized) ? self.cachedServerSnap.node : nil;
+- (id<FNode>)completeServerSnap {
+    return (self.cachedServerSnap.isFullyInitialized)
+               ? self.cachedServerSnap.node
+               : nil;
 }
-
 
 @end

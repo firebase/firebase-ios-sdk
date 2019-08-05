@@ -44,7 +44,9 @@ FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataRangeMerge;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerAuthRevoked;
 FOUNDATION_EXPORT NSString *const kFWPASyncServerListenCancelled;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerSecurityDebug;
-FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateBodyPath; // {“a”: “d”, “b”: {“p”: “/”, “d”: “<data>”}}
+FOUNDATION_EXPORT NSString
+    *const kFWPAsyncServerDataUpdateBodyPath; // {“a”: “d”, “b”: {“p”: “/”, “d”:
+                                              // “<data>”}}
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateBodyData;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateStartPath;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateEndPath;
@@ -75,7 +77,9 @@ FOUNDATION_EXPORT NSString *const kFWPRequestActionPut;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionMerge;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedListen;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedUnlisten;
-FOUNDATION_EXPORT NSString *const kFWPRequestActionListen; // {"t": "d", "d": {"r": 1, "a": "l", "b": { "p": "/" } } }
+FOUNDATION_EXPORT NSString
+    *const kFWPRequestActionListen; // {"t": "d", "d": {"r": 1, "a": "l", "b": {
+                                    // "p": "/" } } }
 FOUNDATION_EXPORT NSString *const kFWPRequestActionUnlisten;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionStats;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionDisconnectPut;
@@ -108,7 +112,8 @@ FOUNDATION_EXPORT NSUInteger const kWebsocketConnectTimeout;
 FOUNDATION_EXPORT float const kPersistentConnReconnectMinDelay;
 FOUNDATION_EXPORT float const kPersistentConnReconnectMaxDelay;
 FOUNDATION_EXPORT float const kPersistentConnReconnectMultiplier;
-FOUNDATION_EXPORT float const kPersistentConnSuccessfulConnectionEstablishedDelay;
+FOUNDATION_EXPORT float const
+    kPersistentConnSuccessfulConnectionEstablishedDelay;
 
 #pragma mark -
 #pragma mark Query / QueryParams constants
@@ -148,7 +153,7 @@ FOUNDATION_EXPORT NSString *const kServerValueSubKey;
 FOUNDATION_EXPORT NSString *const kServerValuePriority;
 
 #pragma mark -
-#pragma mark .info/ constants
+#pragma mark.info/ constants
 
 FOUNDATION_EXPORT NSString *const kDotInfoPrefix;
 FOUNDATION_EXPORT NSString *const kDotInfoConnected;

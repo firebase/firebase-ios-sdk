@@ -20,7 +20,6 @@
 #include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -34,6 +33,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using core::Query;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ListenSequenceNumber;
@@ -87,7 +87,7 @@ void LevelDbQueryCache::Start() {
 void LevelDbQueryCache::AddTarget(FSTQueryData* query_data) {
   Save(query_data);
 
-  const std::string& canonical_id = query_data.query.canonicalID;
+  const std::string& canonical_id = query_data.query.CanonicalId();
   std::string index_key =
       LevelDbQueryTargetKey::Key(canonical_id, query_data.targetID);
   std::string empty_buffer;
@@ -115,18 +115,18 @@ void LevelDbQueryCache::RemoveTarget(FSTQueryData* query_data) {
   db_.currentTransaction->Delete(key);
 
   std::string index_key =
-      LevelDbQueryTargetKey::Key(query_data.query.canonicalID, target_id);
+      LevelDbQueryTargetKey::Key(query_data.query.CanonicalId(), target_id);
   db_.currentTransaction->Delete(index_key);
 
   metadata_.targetCount--;
   SaveMetadata();
 }
 
-FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
+FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(const Query& query) {
   // Scan the query-target index starting with a prefix starting with the given
   // query's canonicalID. Note that this is a scan rather than a get because
   // canonicalIDs are not required to be unique per target.
-  const std::string& canonical_id = query.canonicalID;
+  const std::string& canonical_id = query.CanonicalId();
   auto index_iterator = db_.currentTransaction->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
@@ -162,7 +162,7 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
     // Finally after finding a potential match, check that the query is actually
     // equal to the requested query.
     FSTQueryData* target = DecodeTarget(target_iterator->value());
-    if ([target.query isEqual:query]) {
+    if (target.query == query) {
       return target;
     }
   }

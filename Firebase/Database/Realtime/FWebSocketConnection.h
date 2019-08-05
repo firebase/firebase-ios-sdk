@@ -14,33 +14,40 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FSRWebSocket.h"
 #import "FUtilities.h"
+#import <Foundation/Foundation.h>
 
 @protocol FWebSocketDelegate;
 
 @interface FWebSocketConnection : NSObject <FSRWebSocketDelegate>
 
-@property (nonatomic, weak) id <FWebSocketDelegate> delegate;
+@property(nonatomic, weak) id<FWebSocketDelegate> delegate;
 
-- (id)initWith:(FRepoInfo *)repoInfo andQueue:(dispatch_queue_t)queue lastSessionID:(NSString *)lastSessionID;
+- (id)initWith:(FRepoInfo *)repoInfo
+         andQueue:(dispatch_queue_t)queue
+    lastSessionID:(NSString *)lastSessionID;
 
-- (void) open;
-- (void) close;
-- (void) start;
-- (void) send:(NSDictionary *)dictionary;
+- (void)open;
+- (void)close;
+- (void)start;
+- (void)send:(NSDictionary *)dictionary;
 
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message;
 - (void)webSocketDidOpen:(FSRWebSocket *)webSocket;
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error;
-- (void)webSocket:(FSRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(FSRWebSocket *)webSocket
+    didCloseWithCode:(NSInteger)code
+              reason:(NSString *)reason
+            wasClean:(BOOL)wasClean;
 
 @end
 
 @protocol FWebSocketDelegate <NSObject>
 
-- (void)onMessage:(FWebSocketConnection *)fwebSocket withMessage:(NSDictionary *)message;
-- (void)onDisconnect:(FWebSocketConnection *)fwebSocket wasEverConnected:(BOOL)everConnected;
+- (void)onMessage:(FWebSocketConnection *)fwebSocket
+      withMessage:(NSDictionary *)message;
+- (void)onDisconnect:(FWebSocketConnection *)fwebSocket
+    wasEverConnected:(BOOL)everConnected;
 
 @end

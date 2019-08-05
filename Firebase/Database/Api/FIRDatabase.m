@@ -35,8 +35,9 @@
 
 @implementation FIRDatabase
 
-// The STR and STR_EXPAND macro allow a numeric version passed to he compiler driver
-// with a -D to be treated as a string instead of an invalid floating point value.
+// The STR and STR_EXPAND macro allow a numeric version passed to he compiler
+// driver with a -D to be treated as a string instead of an invalid floating
+// point value.
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
@@ -44,8 +45,10 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 + (FIRDatabase *)database {
     if (![FIRApp isDefaultAppConfigured]) {
         [NSException raise:@"FIRAppNotConfigured"
-                    format:@"Failed to get default Firebase Database instance. Must call `[FIRApp "
-                           @"configure]` (`FirebaseApp.configure()` in Swift) before using "
+                    format:@"Failed to get default Firebase Database instance. "
+                           @"Must call `[FIRApp "
+                           @"configure]` (`FirebaseApp.configure()` in Swift) "
+                           @"before using "
                            @"Firebase Database."];
     }
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
@@ -54,57 +57,66 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 + (FIRDatabase *)databaseWithURL:(NSString *)url {
     FIRApp *app = [FIRApp defaultApp];
     if (app == nil) {
-        [NSException raise:@"FIRAppNotConfigured"
-                    format:@"Failed to get default Firebase Database instance. "
-                           @"Must call `[FIRApp configure]` (`FirebaseApp.configure()` in "
-                           @"Swift) before using Firebase Database."];
+        [NSException
+             raise:@"FIRAppNotConfigured"
+            format:
+                @"Failed to get default Firebase Database instance. "
+                @"Must call `[FIRApp configure]` (`FirebaseApp.configure()` in "
+                @"Swift) before using Firebase Database."];
     }
     return [FIRDatabase databaseForApp:app URL:url];
 }
 
 + (FIRDatabase *)databaseForApp:(FIRApp *)app {
     if (app == nil) {
-        [NSException raise:@"InvalidFIRApp" format:@"nil FIRApp instance passed to databaseForApp."];
+        [NSException raise:@"InvalidFIRApp"
+                    format:@"nil FIRApp instance passed to databaseForApp."];
     }
     return [FIRDatabase databaseForApp:app URL:app.options.databaseURL];
 }
 
 + (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url {
-  if (app == nil) {
-    [NSException raise:@"InvalidFIRApp"
-                format:@"nil FIRApp instance passed to databaseForApp."];
-  }
-  if (url == nil) {
-    [NSException raise:@"MissingDatabaseURL"
-                format:@"Failed to get FirebaseDatabase instance: "
-                       @"Specify DatabaseURL within FIRApp or from your databaseForApp:URL: call."];
-  }
-  id<FIRDatabaseProvider> provider = FIR_COMPONENT(FIRDatabaseProvider, app.container);
-  return [provider databaseForApp:app URL:url];
+    if (app == nil) {
+        [NSException raise:@"InvalidFIRApp"
+                    format:@"nil FIRApp instance passed to databaseForApp."];
+    }
+    if (url == nil) {
+        [NSException raise:@"MissingDatabaseURL"
+                    format:@"Failed to get FirebaseDatabase instance: "
+                           @"Specify DatabaseURL within FIRApp or from your "
+                           @"databaseForApp:URL: call."];
+    }
+    id<FIRDatabaseProvider> provider =
+        FIR_COMPONENT(FIRDatabaseProvider, app.container);
+    return [provider databaseForApp:app URL:url];
 }
 
-+ (NSString *) buildVersion {
++ (NSString *)buildVersion {
     // TODO: Restore git hash when build moves back to git
     return [NSString stringWithFormat:@"%s_%s", FIREBASE_SEMVER, __DATE__];
 }
 
-+ (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config {
-    FIRDatabase *db = [[FIRDatabase alloc] initWithApp:nil repoInfo:repoInfo config:config];
++ (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo
+                                 config:(FIRDatabaseConfig *)config {
+    FIRDatabase *db = [[FIRDatabase alloc] initWithApp:nil
+                                              repoInfo:repoInfo
+                                                config:config];
     [db ensureRepo];
     return db;
 }
 
-+ (NSString *) sdkVersion {
++ (NSString *)sdkVersion {
     return [NSString stringWithUTF8String:FIREBASE_SEMVER];
 }
 
-+ (void) setLoggingEnabled:(BOOL)enabled {
++ (void)setLoggingEnabled:(BOOL)enabled {
     [FUtilities setLoggingEnabled:enabled];
     FFLog(@"I-RDB024001", @"BUILD Version: %@", [FIRDatabase buildVersion]);
 }
 
-
-- (id)initWithApp:(FIRApp *)app repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config {
+- (id)initWithApp:(FIRApp *)app
+         repoInfo:(FRepoInfo *)info
+           config:(FIRDatabaseConfig *)config {
     self = [super init];
     if (self != nil) {
         self->_repoInfo = info;
@@ -117,7 +129,8 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 - (FIRDatabaseReference *)reference {
     [self ensureRepo];
 
-    return [[FIRDatabaseReference alloc] initWithRepo:self.repo path:[FPath empty]];
+    return [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                 path:[FPath empty]];
 }
 
 - (FIRDatabaseReference *)referenceWithPath:(NSString *)path {
@@ -132,23 +145,28 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     [self ensureRepo];
 
     if (databaseUrl == nil) {
-        [NSException raise:@"InvalidDatabaseURL" format:@"Invalid nil url passed to referenceFromURL:"];
+        [NSException raise:@"InvalidDatabaseURL"
+                    format:@"Invalid nil url passed to referenceFromURL:"];
     }
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
     [FValidation validateFrom:@"referenceFromURL:" validURL:parsedUrl];
     if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
-        [NSException raise:@"InvalidDatabaseURL" format:@"Invalid URL (%@) passed to getReference(). URL was expected "
-            "to match configured Database URL: %@", databaseUrl, [self reference].URL];
+        [NSException
+             raise:@"InvalidDatabaseURL"
+            format:
+                @"Invalid URL (%@) passed to getReference(). URL was expected "
+                 "to match configured Database URL: %@",
+                databaseUrl, [self reference].URL];
     }
-    return [[FIRDatabaseReference alloc] initWithRepo:self.repo path:parsedUrl.path];
+    return [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                 path:parsedUrl.path];
 }
-
 
 - (void)purgeOutstandingWrites {
     [self ensureRepo];
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self.repo purgeOutstandingWrites];
+      [self.repo purgeOutstandingWrites];
     });
 }
 
@@ -156,7 +174,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     [self ensureRepo];
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self.repo resume];
+      [self.repo resume];
     });
 }
 
@@ -164,7 +182,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     [self ensureRepo];
 
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self.repo interrupt];
+      [self.repo interrupt];
     });
 }
 
@@ -195,16 +213,21 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     return self->_config.callbackQueue;
 }
 
-- (void) assertUnfrozen:(NSString*)methodName {
+- (void)assertUnfrozen:(NSString *)methodName {
     if (self.repo != nil) {
-        [NSException raise:@"FIRDatabaseAlreadyInUse" format:@"Calls to %@ must be made before any other usage of "
-                "FIRDatabase instance.", methodName];
+        [NSException
+             raise:@"FIRDatabaseAlreadyInUse"
+            format:@"Calls to %@ must be made before any other usage of "
+                    "FIRDatabase instance.",
+                   methodName];
     }
 }
 
-- (void) ensureRepo {
+- (void)ensureRepo {
     if (self.repo == nil) {
-        self.repo = [FRepoManager createRepo:self.repoInfo config:self.config database:self];
+        self.repo = [FRepoManager createRepo:self.repoInfo
+                                      config:self.config
+                                    database:self];
     }
 }
 

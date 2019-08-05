@@ -23,8 +23,6 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/types/optional.h"
 
-@class FSTQuery;
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -105,7 +103,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(core::Query)query
               remoteDocuments:(model::DocumentKeySet)remoteDocuments NS_DESIGNATED_INITIALIZER;
 
 /**

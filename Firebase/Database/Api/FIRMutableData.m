@@ -15,20 +15,21 @@
  */
 
 #import "FIRMutableData.h"
+#import "FChildrenNode.h"
 #import "FIRMutableData_Private.h"
+#import "FIndexedNode.h"
+#import "FNamedNode.h"
 #import "FSnapshotHolder.h"
 #import "FSnapshotUtilities.h"
-#import "FChildrenNode.h"
 #import "FTransformedEnumerator.h"
-#import "FNamedNode.h"
-#import "FIndexedNode.h"
 
 @interface FIRMutableData ()
 
-- (id) initWithPrefixPath:(FPath *)path andSnapshotHolder:(FSnapshotHolder *)snapshotHolder;
+- (id)initWithPrefixPath:(FPath *)path
+       andSnapshotHolder:(FSnapshotHolder *)snapshotHolder;
 
-@property (strong, nonatomic) FSnapshotHolder* data;
-@property (strong, nonatomic) FPath* prefixPath;
+@property(strong, nonatomic) FSnapshotHolder *data;
+@property(strong, nonatomic) FPath *prefixPath;
 
 @end
 
@@ -37,14 +38,15 @@
 @synthesize data;
 @synthesize prefixPath;
 
-- (id) initWithNode:(id<FNode>)node {
-    FSnapshotHolder* holder = [[FSnapshotHolder alloc] init];
-    FPath* path = [FPath empty];
+- (id)initWithNode:(id<FNode>)node {
+    FSnapshotHolder *holder = [[FSnapshotHolder alloc] init];
+    FPath *path = [FPath empty];
     [holder updateSnapshot:path withNewSnapshot:node];
     return [self initWithPrefixPath:path andSnapshotHolder:holder];
 }
 
-- (id) initWithPrefixPath:(FPath *)path andSnapshotHolder:(FSnapshotHolder *)snapshotHolder {
+- (id)initWithPrefixPath:(FPath *)path
+       andSnapshotHolder:(FSnapshotHolder *)snapshotHolder {
     self = [super init];
     if (self) {
         self.prefixPath = path;
@@ -54,80 +56,93 @@
 }
 
 - (FIRMutableData *)childDataByAppendingPath:(NSString *)path {
-    FPath* wholePath = [self.prefixPath childFromString:path];
-    return [[FIRMutableData alloc] initWithPrefixPath:wholePath andSnapshotHolder:self.data];
+    FPath *wholePath = [self.prefixPath childFromString:path];
+    return [[FIRMutableData alloc] initWithPrefixPath:wholePath
+                                    andSnapshotHolder:self.data];
 }
 
-- (FIRMutableData *) parent {
+- (FIRMutableData *)parent {
     if ([self.prefixPath isEmpty]) {
         return nil;
     } else {
-        FPath* path = [self.prefixPath parent];
-        return [[FIRMutableData alloc] initWithPrefixPath:path andSnapshotHolder:self.data];
+        FPath *path = [self.prefixPath parent];
+        return [[FIRMutableData alloc] initWithPrefixPath:path
+                                        andSnapshotHolder:self.data];
     }
 }
 
-- (void) setValue:(id)aValue {
-    id<FNode> node = [FSnapshotUtilities nodeFrom:aValue withValidationFrom:@"setValue:"];
+- (void)setValue:(id)aValue {
+    id<FNode> node = [FSnapshotUtilities nodeFrom:aValue
+                               withValidationFrom:@"setValue:"];
     [self.data updateSnapshot:self.prefixPath withNewSnapshot:node];
 }
 
-- (void) setPriority:(id)aPriority {
+- (void)setPriority:(id)aPriority {
     id<FNode> node = [self.data getNode:self.prefixPath];
     id<FNode> pri = [FSnapshotUtilities nodeFrom:aPriority];
     node = [node updatePriority:pri];
     [self.data updateSnapshot:self.prefixPath withNewSnapshot:node];
 }
 
-- (id) value {
+- (id)value {
     return [[self.data getNode:self.prefixPath] val];
 }
 
-- (id) priority {
+- (id)priority {
     return [[[self.data getNode:self.prefixPath] getPriority] val];
 }
 
-- (BOOL) hasChildren {
+- (BOOL)hasChildren {
     id<FNode> node = [self.data getNode:self.prefixPath];
-    return ![node isLeafNode] && ![(FChildrenNode*)node isEmpty];
+    return ![node isLeafNode] && ![(FChildrenNode *)node isEmpty];
 }
 
-- (BOOL) hasChildAtPath:(NSString *)path {
+- (BOOL)hasChildAtPath:(NSString *)path {
     id<FNode> node = [self.data getNode:self.prefixPath];
-    FPath* childPath = [[FPath alloc] initWith:path];
+    FPath *childPath = [[FPath alloc] initWith:path];
     return ![[node getChild:childPath] isEmpty];
 }
 
-- (NSUInteger) childrenCount {
+- (NSUInteger)childrenCount {
     return [[self.data getNode:self.prefixPath] numChildren];
 }
 
-- (NSString *) key {
+- (NSString *)key {
     return [self.prefixPath getBack];
 }
 
-- (id<FNode>) nodeValue {
+- (id<FNode>)nodeValue {
     return [self.data getNode:self.prefixPath];
 }
 
-- (NSEnumerator<FIRMutableData *> *) children {
-    FIndexedNode *indexedNode = [FIndexedNode indexedNodeWithNode:self.nodeValue];
-    return [[FTransformedEnumerator alloc] initWithEnumerator:[indexedNode childEnumerator] andTransform:^id(FNamedNode *node) {
-        FPath* childPath = [self.prefixPath childFromString:node.name];
-        FIRMutableData * childData = [[FIRMutableData alloc] initWithPrefixPath:childPath andSnapshotHolder:self.data];
-        return childData;
-    }];
+- (NSEnumerator<FIRMutableData *> *)children {
+    FIndexedNode *indexedNode =
+        [FIndexedNode indexedNodeWithNode:self.nodeValue];
+    return [[FTransformedEnumerator alloc]
+        initWithEnumerator:[indexedNode childEnumerator]
+              andTransform:^id(FNamedNode *node) {
+                FPath *childPath = [self.prefixPath childFromString:node.name];
+                FIRMutableData *childData =
+                    [[FIRMutableData alloc] initWithPrefixPath:childPath
+                                             andSnapshotHolder:self.data];
+                return childData;
+              }];
 }
 
-- (BOOL) isEqualToData:(FIRMutableData *)other {
-    return self.data == other.data && [[self.prefixPath description] isEqualToString:[other.prefixPath description]];
+- (BOOL)isEqualToData:(FIRMutableData *)other {
+    return self.data == other.data &&
+           [[self.prefixPath description]
+               isEqualToString:[other.prefixPath description]];
 }
 
-- (NSString *) description {
+- (NSString *)description {
     if (self.key == nil) {
-        return [NSString stringWithFormat:@"FIRMutableData (top-most transaction) %@ %@", self.key, self.value];
+        return [NSString
+            stringWithFormat:@"FIRMutableData (top-most transaction) %@ %@",
+                             self.key, self.value];
     } else {
-        return [NSString stringWithFormat:@"FIRMutableData (%@) %@", self.key, self.value];
+        return [NSString
+            stringWithFormat:@"FIRMutableData (%@) %@", self.key, self.value];
     }
 }
 

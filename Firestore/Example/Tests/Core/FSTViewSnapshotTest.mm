@@ -18,14 +18,15 @@
 
 #include <vector>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace core = firebase::firestore::core;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::ViewSnapshot;
@@ -33,6 +34,7 @@ using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
+using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testViewSnapshotConstructor {
-  FSTQuery *query = FSTTestQuery("a");
+  core::Query query = Query("a");
   DocumentSet documents = DocumentSet{DocumentComparator::ByKey()};
   DocumentSet oldDocuments = documents;
   documents = documents.insert(FSTTestDoc("c/a", 1, @{}, DocumentState::kSynced));

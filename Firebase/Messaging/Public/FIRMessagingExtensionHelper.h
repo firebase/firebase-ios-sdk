@@ -21,6 +21,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// This class is used to automatically populate a notification with an image if it is
+/// specified in the notification body via the `image` parameter. Images and other
+/// rich content can be populated manually without the use of this class. See the
+/// `UNNotificationServiceExtension` type for more details.
 __IOS_AVAILABLE(10.0) __OSX_AVAILABLE(10.14)
 @interface FIRMessagingExtensionHelper : NSObject
 

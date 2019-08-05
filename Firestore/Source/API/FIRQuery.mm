@@ -34,7 +34,6 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
@@ -69,6 +68,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::OrderBy;
+using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
@@ -105,8 +105,8 @@ FIRQuery *Wrap(Query &&query) {
   return self;
 }
 
-- (instancetype)initWithQuery:(FSTQuery *)query firestore:(std::shared_ptr<Firestore>)firestore {
-  return [self initWithQuery:Query{query, std::move(firestore)}];
+- (instancetype)initWithQuery:(core::Query)query firestore:(std::shared_ptr<Firestore>)firestore {
+  return [self initWithQuery:Query{std::move(query), std::move(firestore)}];
 }
 
 #pragma mark - NSObject Methods
@@ -156,7 +156,7 @@ FIRQuery *Wrap(Query &&query) {
                                                              listener:
                                                                  (FIRQuerySnapshotBlock)listener {
   std::shared_ptr<Firestore> firestore = self.firestore.wrapped;
-  FSTQuery *query = self.query;
+  const core::Query &query = self.query;
 
   // Convert from ViewSnapshots to QuerySnapshots.
   auto view_listener = EventListener<ViewSnapshot>::Create(
@@ -469,11 +469,11 @@ FIRQuery *Wrap(Query &&query) {
   // contain the document key. That way the position becomes unambiguous and the query
   // continues/ends exactly at the provided document. Without the key (by using the explicit sort
   // orders), multiple documents could match the position, yielding duplicate results.
-  for (const OrderBy &sortOrder : self.query.sortOrders) {
-    if (sortOrder.field() == FieldPath::KeyFieldPath()) {
+  for (const OrderBy &orderBy : self.query.order_bys()) {
+    if (orderBy.field() == FieldPath::KeyFieldPath()) {
       components.push_back(FieldValue::FromReference(databaseID, document.key));
     } else {
-      absl::optional<FieldValue> value = [document fieldForPath:sortOrder.field()];
+      absl::optional<FieldValue> value = [document fieldForPath:orderBy.field()];
 
       if (value) {
         if (value->type() == FieldValue::Type::ServerTimestamp) {
@@ -481,7 +481,7 @@ FIRQuery *Wrap(Query &&query) {
               "Invalid query. You are trying to start or end a query using a document for which "
               "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
               "is unknown, you cannot start/end a query with it.)",
-              sortOrder.field().CanonicalString());
+              orderBy.field().CanonicalString());
         } else {
           components.push_back(*value);
         }
@@ -489,7 +489,7 @@ FIRQuery *Wrap(Query &&query) {
         ThrowInvalidArgument(
             "Invalid query. You are trying to start or end a query using a document for which the "
             "field '%s' (used as the order by) does not exist.",
-            sortOrder.field().CanonicalString());
+            orderBy.field().CanonicalString());
       }
     }
   }
@@ -499,7 +499,7 @@ FIRQuery *Wrap(Query &&query) {
 /** Converts a list of field values to an Bound. */
 - (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
   // Use explicit sort order because it has to match the query the user made
-  const core::Query::OrderByList &explicitSortOrders = self.query.explicitSortOrders;
+  const OrderByList &explicitSortOrders = self.query.explicit_order_bys();
   if (fieldValues.count > explicitSortOrders.size()) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using more values "
                          "than were specified in the order by.");
@@ -516,12 +516,12 @@ FIRQuery *Wrap(Query &&query) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
       const std::string &documentID = fieldValue.string_value();
-      if (![self.query isCollectionGroupQuery] && documentID.find('/') != std::string::npos) {
+      if (!self.query.IsCollectionGroupQuery() && documentID.find('/') != std::string::npos) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
                              documentID);
       }
-      ResourcePath path = self.query.path.Append(ResourcePath::FromString(documentID));
+      ResourcePath path = self.query.path().Append(ResourcePath::FromString(documentID));
       if (!DocumentKey::IsDocumentKey(path)) {
         ThrowInvalidArgument("Invalid query. When querying a collection group and ordering by "
                              "document ID, you must pass a value that results in a valid document "
@@ -542,7 +542,25 @@ FIRQuery *Wrap(Query &&query) {
 
 @implementation FIRQuery (Internal)
 
-- (FSTQuery *)query {
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny field:field value:value];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::ArrayContainsAny
+                                  path:path.internalValue
+                                 value:value];
+}
+
+- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::In field:field value:value];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::In path:path.internalValue value:value];
+}
+
+- (const core::Query &)query {
   return _query.query();
 }
 

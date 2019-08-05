@@ -31,7 +31,6 @@
 #import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -47,7 +46,6 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
-namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentState;
@@ -56,6 +54,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::testutil::Field;
+using firebase::firestore::testutil::Query;
 using firebase::firestore::testutil::Version;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -185,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesQueryData {
-  FSTQuery *query = FSTTestQuery("room");
+  core::Query query = Query("room");
   TargetId targetID = 42;
   SnapshotVersion version = Version(1039);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);

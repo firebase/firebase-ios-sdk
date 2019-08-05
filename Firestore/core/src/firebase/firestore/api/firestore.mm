@@ -22,7 +22,6 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
@@ -120,10 +119,10 @@ WriteBatch Firestore::GetBatch() {
 FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
-  FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
-                            collectionGroup:std::make_shared<const std::string>(
-                                                std::move(collection_id))];
-  return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
+  core::Query query(ResourcePath::Empty(), std::make_shared<const std::string>(
+                                               std::move(collection_id)));
+  return [[FIRQuery alloc] initWithQuery:std::move(query)
+                               firestore:shared_from_this()];
 }
 
 void Firestore::RunTransaction(

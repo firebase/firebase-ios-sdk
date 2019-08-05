@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRTransactionResult.h"
 #import "FIRMutableData.h"
+#import "FIRTransactionResult.h"
 
 @interface FIRTransactionResult ()
 
-@property (nonatomic) BOOL isSuccess;
-@property (nonatomic, strong) FIRMutableData * update;
+@property(nonatomic) BOOL isSuccess;
+@property(nonatomic, strong) FIRMutableData *update;
 
 @end

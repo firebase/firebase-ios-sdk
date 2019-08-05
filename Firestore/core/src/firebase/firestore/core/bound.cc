@@ -29,7 +29,7 @@ using model::FieldPath;
 using model::FieldValue;
 using util::ComparisonResult;
 
-bool Bound::SortsBeforeDocument(const std::vector<OrderBy>& order_by,
+bool Bound::SortsBeforeDocument(const OrderByList& order_by,
                                 const model::Document& document) const {
   HARD_ASSERT(position_.size() <= order_by.size(),
               "Bound has more components than the provided order by.");

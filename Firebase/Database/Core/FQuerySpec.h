@@ -16,14 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FQueryParams.h"
-#import "FPath.h"
 #import "FIndex.h"
+#import "FPath.h"
+#import "FQueryParams.h"
 
-@interface FQuerySpec : NSObject<NSCopying>
+@interface FQuerySpec : NSObject <NSCopying>
 
-@property (nonatomic, strong, readonly) FPath* path;
-@property (nonatomic, strong, readonly) FQueryParams *params;
+@property(nonatomic, strong, readonly) FPath *path;
+@property(nonatomic, strong, readonly) FQueryParams *params;
 
 - (id)initWithPath:(FPath *)path params:(FQueryParams *)params;
 

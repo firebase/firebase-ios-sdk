@@ -15,17 +15,17 @@
  */
 
 #import "FMerge.h"
-#import "FOperationSource.h"
-#import "FPath.h"
-#import "FNode.h"
-#import "FOverwrite.h"
 #import "FCompoundWrite.h"
+#import "FNode.h"
+#import "FOperationSource.h"
+#import "FOverwrite.h"
+#import "FPath.h"
 
 @interface FMerge ()
-@property (nonatomic, strong, readwrite) FOperationSource *source;
-@property (nonatomic, readwrite) FOperationType type;
-@property (nonatomic, strong, readwrite) FPath *path;
-@property (nonatomic, strong) FCompoundWrite *children;
+@property(nonatomic, strong, readwrite) FOperationSource *source;
+@property(nonatomic, readwrite) FOperationType type;
+@property(nonatomic, strong, readwrite) FPath *path;
+@property(nonatomic, strong) FCompoundWrite *children;
 @end
 
 @implementation FMerge
@@ -35,7 +35,9 @@
 @synthesize path;
 @synthesize children;
 
-- (id) initWithSource:(FOperationSource *)aSource path:(FPath *)aPath children:(FCompoundWrite *)someChildren {
+- (id)initWithSource:(FOperationSource *)aSource
+                path:(FPath *)aPath
+            children:(FCompoundWrite *)someChildren {
     self = [super init];
     if (self) {
         self.source = aSource;
@@ -46,26 +48,38 @@
     return self;
 }
 
-- (id<FOperation>) operationForChild:(NSString *)childKey {
+- (id<FOperation>)operationForChild:(NSString *)childKey {
     if ([self.path isEmpty]) {
-        FCompoundWrite *childTree = [self.children childCompoundWriteAtPath:[[FPath alloc] initWith:childKey]];
+        FCompoundWrite *childTree = [self.children
+            childCompoundWriteAtPath:[[FPath alloc] initWith:childKey]];
         if (childTree.isEmpty) {
             return nil;
         } else if (childTree.rootWrite != nil) {
-            // We have a snapshot for the child in question. This becomes an overwrite of the child.
-            return [[FOverwrite alloc] initWithSource:self.source path:[FPath empty] snap:childTree.rootWrite];
+            // We have a snapshot for the child in question. This becomes an
+            // overwrite of the child.
+            return [[FOverwrite alloc] initWithSource:self.source
+                                                 path:[FPath empty]
+                                                 snap:childTree.rootWrite];
         } else {
             // This is a merge at a deeper level
-            return [[FMerge alloc] initWithSource:self.source path:[FPath empty] children:childTree];
+            return [[FMerge alloc] initWithSource:self.source
+                                             path:[FPath empty]
+                                         children:childTree];
         }
     } else {
-        NSAssert([self.path.getFront isEqualToString:childKey], @"Can't get a merge for a child not on the path of the operation");
-        return [[FMerge alloc] initWithSource:self.source path:[self.path popFront] children:self.children];
+        NSAssert(
+            [self.path.getFront isEqualToString:childKey],
+            @"Can't get a merge for a child not on the path of the operation");
+        return [[FMerge alloc] initWithSource:self.source
+                                         path:[self.path popFront]
+                                     children:self.children];
     }
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"FMerge { path=%@, soruce=%@ children=%@}", self.path, self.source, self.children];
+- (NSString *)description {
+    return
+        [NSString stringWithFormat:@"FMerge { path=%@, soruce=%@ children=%@}",
+                                   self.path, self.source, self.children];
 }
 
 @end

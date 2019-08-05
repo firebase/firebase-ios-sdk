@@ -20,8 +20,12 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/array_contains_any_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/array_contains_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/in_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/key_field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/key_field_in_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -38,7 +42,7 @@ using util::ComparisonResult;
 
 namespace {
 
-const char* Describe(Filter::Operator op) {
+const char* CanonicalName(Filter::Operator op) {
   switch (op) {
     case Filter::Operator::LessThan:
       return "<";
@@ -51,7 +55,15 @@ const char* Describe(Filter::Operator op) {
     case Filter::Operator::GreaterThan:
       return ">";
     case Filter::Operator::ArrayContains:
+      // The canonical name for this is array_contains for compatibility with
+      // existing entries in `query_targets` stored on user devices. This cannot
+      // be changed without causing users to lose their associated resume
+      // tokens.
       return "array_contains";
+    case Filter::Operator::In:
+      return "in";
+    case Filter::Operator::ArrayContainsAny:
+      return "array-contains-any";
   }
 
   UNREACHABLE();
@@ -59,16 +71,24 @@ const char* Describe(Filter::Operator op) {
 
 }  // namespace
 
-std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
-                                                 Operator op,
-                                                 FieldValue value_rhs) {
+std::shared_ptr<const FieldFilter> FieldFilter::Create(FieldPath path,
+                                                       Operator op,
+                                                       FieldValue value_rhs) {
   if (path.IsKeyFieldPath()) {
-    HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
-                "Comparing on key, but filter value not a Reference.");
-    HARD_ASSERT(op != Filter::Operator::ArrayContains,
-                "arrayContains queries don't make sense on document keys.");
-    return std::make_shared<KeyFieldFilter>(std::move(path), op,
-                                            std::move(value_rhs));
+    if (op == Filter::Operator::In) {
+      HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
+                  "Comparing on key with IN, but the value was not an Array");
+      return std::make_shared<KeyFieldInFilter>(std::move(path),
+                                                std::move(value_rhs));
+    } else {
+      HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
+                  "Comparing on key, but filter value not a Reference.");
+      HARD_ASSERT(!IsArrayOperator(op),
+                  "%s queries don't make sense on document keys.",
+                  CanonicalName(op));
+      return std::make_shared<KeyFieldFilter>(std::move(path), op,
+                                              std::move(value_rhs));
+    }
 
   } else if (value_rhs.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
@@ -90,6 +110,17 @@ std::shared_ptr<FieldFilter> FieldFilter::Create(FieldPath path,
     return std::make_shared<ArrayContainsFilter>(std::move(path),
                                                  std::move(value_rhs));
 
+  } else if (op == Operator::In) {
+    HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
+                "IN filter has invalid value: %s", value_rhs.type());
+    return std::make_shared<InFilter>(std::move(path), std::move(value_rhs));
+
+  } else if (op == Operator::ArrayContainsAny) {
+    HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
+                "arrayContainsAny filter has invalid value: %s",
+                value_rhs.type());
+    return std::make_shared<ArrayContainsAnyFilter>(std::move(path),
+                                                    std::move(value_rhs));
   } else {
     FieldFilter filter(std::move(path), op, std::move(value_rhs));
     return std::make_shared<FieldFilter>(std::move(filter));
@@ -135,13 +166,13 @@ bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
 }
 
 std::string FieldFilter::CanonicalId() const {
-  return absl::StrCat(field_.CanonicalString(), Describe(op_),
+  return absl::StrCat(field_.CanonicalString(), CanonicalName(op_),
                       value_rhs_.ToString());
 }
 
 std::string FieldFilter::ToString() const {
-  return util::StringFormat("%s %s %s", field_.CanonicalString(), Describe(op_),
-                            value_rhs_.ToString());
+  return util::StringFormat("%s %s %s", field_.CanonicalString(),
+                            CanonicalName(op_), value_rhs_.ToString());
 }
 
 size_t FieldFilter::Hash() const {
@@ -149,7 +180,8 @@ size_t FieldFilter::Hash() const {
 }
 
 bool FieldFilter::IsInequality() const {
-  return op_ != Operator::Equal && op_ != Operator::ArrayContains;
+  return op_ == Operator::LessThan || op_ == Operator::LessThanOrEqual ||
+         op_ == Operator::GreaterThan || op_ == Operator::GreaterThanOrEqual;
 }
 
 bool FieldFilter::Equals(const Filter& other) const {

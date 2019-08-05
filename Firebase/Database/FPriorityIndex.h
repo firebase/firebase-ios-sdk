@@ -18,6 +18,6 @@
 
 #import "FIndex.h"
 
-@interface FPriorityIndex : NSObject<FIndex>
-+ (id<FIndex>) priorityIndex;
+@interface FPriorityIndex : NSObject <FIndex>
++ (id<FIndex>)priorityIndex;
 @end

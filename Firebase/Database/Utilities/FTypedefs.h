@@ -30,16 +30,17 @@
 // fbt = Firebase Block Typedef
 
 typedef void (^fbt_void_void)(void);
-typedef void (^fbt_void_datasnapshot_nsstring) (FIRDataSnapshot *snapshot, NSString *prevName);
-typedef void (^fbt_void_datasnapshot) (FIRDataSnapshot *snapshot);
+typedef void (^fbt_void_datasnapshot_nsstring)(FIRDataSnapshot *snapshot,
+                                               NSString *prevName);
+typedef void (^fbt_void_datasnapshot)(FIRDataSnapshot *snapshot);
 typedef void (^fbt_void_user)(FAuthData *user);
-typedef void (^fbt_void_nsstring_id)(NSString* status, id data);
-typedef void (^fbt_void_nserror_id)(NSError* error, id data);
+typedef void (^fbt_void_nsstring_id)(NSString *status, id data);
+typedef void (^fbt_void_nserror_id)(NSError *error, id data);
 typedef void (^fbt_void_nserror)(NSError *error);
-typedef void (^fbt_void_nserror_ref)(NSError* error, FIRDatabaseReference * ref);
-typedef void (^fbt_void_nserror_user)(NSError* error, FAuthData * user);
-typedef void (^fbt_void_nserror_json)(NSError* error, NSDictionary* json);
+typedef void (^fbt_void_nserror_ref)(NSError *error, FIRDatabaseReference *ref);
+typedef void (^fbt_void_nserror_user)(NSError *error, FAuthData *user);
+typedef void (^fbt_void_nserror_json)(NSError *error, NSDictionary *json);
 typedef void (^fbt_void_nsdictionary)(NSDictionary *data);
-typedef id (^fbt_id_node_nsstring)(id<FNode> node, NSString* childName);
+typedef id (^fbt_id_node_nsstring)(id<FNode> node, NSString *childName);
 
 #endif

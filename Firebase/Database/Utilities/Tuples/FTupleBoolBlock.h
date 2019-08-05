@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FTypedefs.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleBoolBlock : NSObject
 
-@property (nonatomic, readwrite) BOOL boolean;
-@property (nonatomic, copy) fbt_void_void block;
+@property(nonatomic, readwrite) BOOL boolean;
+@property(nonatomic, copy) fbt_void_void block;
 
 @end

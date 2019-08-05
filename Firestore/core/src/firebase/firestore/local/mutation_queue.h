@@ -26,13 +26,13 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTMutation;
 @class FSTMutationBatch;
-@class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -132,7 +132,7 @@ class MutationQueue {
   // TODO(mikelehen): This should perhaps return an iterator, though I'm not
   // sure we can avoid loading them all in memory.
   virtual std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
-      FSTQuery* query) = 0;
+      const core::Query& query) = 0;
 
   /** Loads the mutation batch with the given batch_id. */
   virtual FSTMutationBatch* _Nullable LookupMutationBatch(

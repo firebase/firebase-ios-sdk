@@ -104,6 +104,7 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .whereField("age", isGreaterThanOrEqualTo: 24)
     .whereField("tags", arrayContains: "active")
     .whereField(FieldPath(["tags"]), arrayContains: "active")
+    .whereField(FieldPath(["tags"]), arrayContains: "active")
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)

@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -31,9 +32,10 @@
 
 @class FSTMutation;
 @class FSTMutationResult;
-@class FSTQuery;
 @class FSTQueryData;
 @protocol FSTPersistence;
+
+namespace core = firebase::firestore::core;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  * given query.
  */
 @interface FSTQueryEvent : NSObject
-@property(nonatomic, strong) FSTQuery *query;
+@property(nonatomic, assign) core::Query query;
 @property(nonatomic, strong, nullable) NSError *error;
 
 - (const absl::optional<firebase::firestore::core::ViewSnapshot> &)viewSnapshot;
@@ -125,7 +127,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param query A valid query to execute against the backend.
  * @return The target ID assigned by the system to track the query.
  */
-- (firebase::firestore::model::TargetId)addUserListenerWithQuery:(FSTQuery *)query;
+- (firebase::firestore::model::TargetId)addUserListenerWithQuery:(core::Query)query;
 
 /**
  * Removes a listener from the FSTSyncEngine as if the user had removed a listener corresponding
@@ -135,7 +137,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * @param query An identical query corresponding to one passed to -addUserListenerWithQuery.
  */
-- (void)removeUserListenerWithQuery:(FSTQuery *)query;
+- (void)removeUserListenerWithQuery:(const core::Query &)query;
 
 /**
  * Delivers a WatchChange RPC to the FSTSyncEngine as if it were received from the backend watch
