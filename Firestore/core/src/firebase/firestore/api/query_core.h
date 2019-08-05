@@ -169,7 +169,7 @@ class Query {
    * array requirements.
    */
   void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
-                                         const core::Filter::Operator op) const;
+                                         core::Filter::Operator op) const;
 
   /**
    * Parses the given FieldValue into a Reference, throwing appropriate errors

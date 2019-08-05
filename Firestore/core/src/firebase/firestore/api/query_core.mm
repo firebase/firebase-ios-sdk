@@ -281,10 +281,10 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
       if (!conflicting_op.has_value() && IsArrayOperator(filter_op)) {
         conflicting_op = query_.FirstArrayOperator();
       }
-      if (conflicting_op.has_value()) {
+      if (conflicting_op) {
         // We special case when it's a duplicate op to give a slightly clearer
         // error message.
-        if (conflicting_op.value() == filter_op) {
+        if (*conflicting_op == filter_op) {
           ThrowInvalidArgument(
               "Invalid Query. You cannot use more than one '%s' filter.",
               Describe(filter_op));
@@ -324,8 +324,7 @@ void Query::ValidateOrderByField(const FieldPath& orderByField,
 }
 
 void Query::ValidateDisjunctiveFilterElements(
-    const model::FieldValue& field_value,
-    const core::Filter::Operator op) const {
+    const model::FieldValue& field_value, core::Filter::Operator op) const {
   if (field_value.type() != FieldValue::Type::Array ||
       field_value.array_value().size() == 0) {
     ThrowInvalidArgument("Invalid Query. A non-empty array is required for '%s'"
