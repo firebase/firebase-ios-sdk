@@ -18,12 +18,12 @@
 #import "FViewCache.h"
 
 @interface FViewProcessorResult ()
-@property (nonatomic, strong, readwrite) FViewCache *viewCache;
-@property (nonatomic, strong, readwrite) NSArray *changes;
+@property(nonatomic, strong, readwrite) FViewCache *viewCache;
+@property(nonatomic, strong, readwrite) NSArray *changes;
 @end
 
 @implementation FViewProcessorResult
-- (id) initWithViewCache:(FViewCache *)viewCache changes:(NSArray *)changes {
+- (id)initWithViewCache:(FViewCache *)viewCache changes:(NSArray *)changes {
     self = [super init];
     if (self) {
         self.viewCache = viewCache;

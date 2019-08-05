@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FIndex.h"
 #import "FPath.h"
+#import <Foundation/Foundation.h>
 
-@interface FPathIndex : NSObject<FIndex>
-- (id) initWithPath:(FPath *)path;
+@interface FPathIndex : NSObject <FIndex>
+- (id)initWithPath:(FPath *)path;
 @end

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FEventRegistration.h"
 #import "FTypedefs.h"
+#import <Foundation/Foundation.h>
 
 @class FRepo;
 
-@interface FValueEventRegistration : NSObject<FEventRegistration>
+@interface FValueEventRegistration : NSObject <FEventRegistration>
 
-- (id) initWithRepo:(FRepo *)repo
-             handle:(FIRDatabaseHandle)fHandle
-           callback:(fbt_void_datasnapshot)callbackBlock
-     cancelCallback:(fbt_void_nserror)cancelCallbackBlock;
+- (id)initWithRepo:(FRepo *)repo
+            handle:(FIRDatabaseHandle)fHandle
+          callback:(fbt_void_datasnapshot)callbackBlock
+    cancelCallback:(fbt_void_nserror)cancelCallbackBlock;
 
-@property (nonatomic, copy, readonly) fbt_void_datasnapshot callback;
-@property (nonatomic, copy, readonly) fbt_void_nserror cancelCallback;
-@property (nonatomic, readonly) FIRDatabaseHandle handle;
+@property(nonatomic, copy, readonly) fbt_void_datasnapshot callback;
+@property(nonatomic, copy, readonly) fbt_void_nserror cancelCallback;
+@property(nonatomic, readonly) FIRDatabaseHandle handle;
 
 @end

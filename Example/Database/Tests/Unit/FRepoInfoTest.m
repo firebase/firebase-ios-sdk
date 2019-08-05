@@ -25,20 +25,20 @@
 
 @implementation FRepoInfoTest
 
-- (void) testGetConnectionUrl {
-    FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"test-namespace.example.com"
-                                             isSecure:NO
-                                        withNamespace:@"tests"];
-    XCTAssertEqualObjects(info.connectionURL, @"ws://test-namespace.example.com/.ws?v=5&ns=tests",
-                         @"getConnection works");
+- (void)testGetConnectionUrl {
+  FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"test-namespace.example.com"
+                                           isSecure:NO
+                                      withNamespace:@"tests"];
+  XCTAssertEqualObjects(info.connectionURL, @"ws://test-namespace.example.com/.ws?v=5&ns=tests",
+                        @"getConnection works");
 }
 
-- (void) testGetConnectionUrlWithLastSession {
-    FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"tests-namespace.example.com"
-                                             isSecure:NO
-                                        withNamespace:@"tests"];
-    XCTAssertEqualObjects([info connectionURLWithLastSessionID:@"testsession"],
-                         @"ws://tests-namespace.example.com/.ws?v=5&ns=tests&ls=testsession",
-                         @"getConnectionWithLastSession works");
+- (void)testGetConnectionUrlWithLastSession {
+  FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"tests-namespace.example.com"
+                                           isSecure:NO
+                                      withNamespace:@"tests"];
+  XCTAssertEqualObjects([info connectionURLWithLastSessionID:@"testsession"],
+                        @"ws://tests-namespace.example.com/.ws?v=5&ns=tests&ls=testsession",
+                        @"getConnectionWithLastSession works");
 }
 @end

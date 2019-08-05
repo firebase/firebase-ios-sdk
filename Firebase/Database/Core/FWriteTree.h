@@ -28,36 +28,43 @@
 
 @interface FWriteTree : NSObject
 
-- (FWriteTreeRef *) childWritesForPath:(FPath *)path;
-- (void) addOverwriteAtPath:(FPath *)path newData:(id<FNode>)newData writeId:(NSInteger)writeId isVisible:(BOOL)visible;
-- (void) addMergeAtPath:(FPath *)path changedChildren:(FCompoundWrite *)changedChildren writeId:(NSInteger)writeId;
-- (BOOL) removeWriteId:(NSInteger)writeId;
-- (NSArray *) removeAllWrites;
+- (FWriteTreeRef *)childWritesForPath:(FPath *)path;
+- (void)addOverwriteAtPath:(FPath *)path
+                   newData:(id<FNode>)newData
+                   writeId:(NSInteger)writeId
+                 isVisible:(BOOL)visible;
+- (void)addMergeAtPath:(FPath *)path
+       changedChildren:(FCompoundWrite *)changedChildren
+               writeId:(NSInteger)writeId;
+- (BOOL)removeWriteId:(NSInteger)writeId;
+- (NSArray *)removeAllWrites;
 - (FWriteRecord *)writeForId:(NSInteger)writeId;
 
-- (id<FNode>) calculateCompleteEventCacheAtPath:(FPath *)treePath
-                            completeServerCache:(id<FNode>)completeServerCache
-                                excludeWriteIds:(NSArray *)writeIdsToExclude
-                            includeHiddenWrites:(BOOL)includeHiddenWrites;
+- (id<FNode>)calculateCompleteEventCacheAtPath:(FPath *)treePath
+                           completeServerCache:(id<FNode>)completeServerCache
+                               excludeWriteIds:(NSArray *)writeIdsToExclude
+                           includeHiddenWrites:(BOOL)includeHiddenWrites;
 
-- (id<FNode>) calculateCompleteEventChildrenAtPath:(FPath *)treePath
-                            completeServerChildren:(id<FNode>)completeServerChildren;
+- (id<FNode>)calculateCompleteEventChildrenAtPath:(FPath *)treePath
+                           completeServerChildren:
+                               (id<FNode>)completeServerChildren;
 
-- (id<FNode>) calculateEventCacheAfterServerOverwriteAtPath:(FPath *)treePath
-                                                  childPath:(FPath *)childPath
-                                          existingEventSnap:(id<FNode>)existingEventSnap
-                                         existingServerSnap:(id<FNode>)existingServerSnap;
+- (id<FNode>)
+    calculateEventCacheAfterServerOverwriteAtPath:(FPath *)treePath
+                                        childPath:(FPath *)childPath
+                                existingEventSnap:(id<FNode>)existingEventSnap
+                               existingServerSnap:(id<FNode>)existingServerSnap;
 
-- (id<FNode>) calculateCompleteChildAtPath:(FPath *)treePath
-                                  childKey:(NSString *)childKey
-                                     cache:(FCacheNode *)existingServerCache;
+- (id<FNode>)calculateCompleteChildAtPath:(FPath *)treePath
+                                 childKey:(NSString *)childKey
+                                    cache:(FCacheNode *)existingServerCache;
 
-- (id<FNode>) shadowingWriteAtPath:(FPath *)path;
+- (id<FNode>)shadowingWriteAtPath:(FPath *)path;
 
-- (FNamedNode *) calculateNextNodeAfterPost:(FNamedNode *)post
-                                     atPath:(FPath *)path
-                         completeServerData:(id<FNode>)completeServerData
-                                    reverse:(BOOL)reverse
-                                      index:(id<FIndex>)index;
+- (FNamedNode *)calculateNextNodeAfterPost:(FNamedNode *)post
+                                    atPath:(FPath *)path
+                        completeServerData:(id<FNode>)completeServerData
+                                   reverse:(BOOL)reverse
+                                     index:(id<FIndex>)index;
 
 @end

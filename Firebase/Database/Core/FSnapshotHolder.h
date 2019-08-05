@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
+#import <Foundation/Foundation.h>
 
 @interface FSnapshotHolder : NSObject
 
-- (id<FNode>) getNode:(FPath *)path;
-- (void) updateSnapshot:(FPath *)path withNewSnapshot:(id<FNode>)newSnapshotNode;
+- (id<FNode>)getNode:(FPath *)path;
+- (void)updateSnapshot:(FPath *)path withNewSnapshot:(id<FNode>)newSnapshotNode;
 
-@property (nonatomic, strong) id<FNode> rootNode;
+@property(nonatomic, strong) id<FNode> rootNode;
 
 @end

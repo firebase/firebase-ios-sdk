@@ -19,14 +19,15 @@
 #import "FPath.h"
 
 @interface FListenComplete ()
-@property (nonatomic, strong, readwrite) FOperationSource *source;
-@property (nonatomic, strong, readwrite) FPath *path;
-@property (nonatomic, readwrite) FOperationType type;
+@property(nonatomic, strong, readwrite) FOperationSource *source;
+@property(nonatomic, strong, readwrite) FPath *path;
+@property(nonatomic, readwrite) FOperationType type;
 @end
 
 @implementation FListenComplete
-- (id) initWithSource:(FOperationSource *)aSource path:(FPath *)aPath {
-    NSAssert(!aSource.fromUser, @"Can't have a listen complete from a user source");
+- (id)initWithSource:(FOperationSource *)aSource path:(FPath *)aPath {
+    NSAssert(!aSource.fromUser,
+             @"Can't have a listen complete from a user source");
     self = [super init];
     if (self) {
         self.source = aSource;
@@ -36,16 +37,19 @@
     return self;
 }
 
-- (id <FOperation>) operationForChild:(NSString *)childKey {
+- (id<FOperation>)operationForChild:(NSString *)childKey {
     if ([self.path isEmpty]) {
-        return [[FListenComplete alloc] initWithSource:self.source path:[FPath empty]];
+        return [[FListenComplete alloc] initWithSource:self.source
+                                                  path:[FPath empty]];
     } else {
-        return [[FListenComplete alloc] initWithSource:self.source path:[self.path popFront]];
+        return [[FListenComplete alloc] initWithSource:self.source
+                                                  path:[self.path popFront]];
     }
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"FListenComplete { path=%@, source=%@ }", self.path, self.source];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"FListenComplete { path=%@, source=%@ }",
+                                      self.path, self.source];
 }
 
 @end
