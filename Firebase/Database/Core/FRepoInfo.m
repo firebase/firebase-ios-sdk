@@ -38,7 +38,10 @@
     if (self) {
         host = aHost;
         domain =
-            [host substringFromIndex:[host rangeOfString:@"."].location + 1];
+            [host containsString:@"."]
+                ? [host
+                      substringFromIndex:[host rangeOfString:@"."].location + 1]
+                : host;
         secure = isSecure;
         namespace = aNamespace;
 

@@ -40,6 +40,12 @@
   XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
   XCTAssertTrue(parsedUrl.repoInfo.secure);
   XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
+
+  parsedUrl = [FUtilities parseUrl:@"wss://repo.firebaseio.com"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"repo.firebaseio.com");
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
+  XCTAssertTrue(parsedUrl.repoInfo.secure);
+  XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
 }
 
 - (void)testUrlParsedWithoutSchema {
@@ -48,6 +54,34 @@
   XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
   XCTAssertTrue(parsedUrl.repoInfo.secure);
   XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
+}
+
+- (void)testUrlParsedUsesSpaceInsteadOfPlus {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/+"];
+  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/ "]);
+}
+
+- (void)testUrlParsedWithSpecialCharacters {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/a%b&c@d/space: /non-ascii:ø"];
+  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/a%b&c@d/space: /non-ascii:ø"]);
+}
+
+- (void)testUrlParsedWithNamespace {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"localhost/?ns=mrschmidt"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"mrschmidt");
+
+  parsedUrl = [FUtilities parseUrl:@"127.0.0.1:9000/?ns=mrschmidt"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"mrschmidt");
+}
+
+- (void)testUrlParsedWithSslDetection {
+  // Hosts with custom ports are considered non-secure
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com:9000"];
+  XCTAssertFalse(parsedUrl.repoInfo.secure);
+
+  // Hosts with omitted ports are considered secure
+  parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com"];
+  XCTAssertTrue(parsedUrl.repoInfo.secure);
 }
 
 - (void)testDefaultCacheSizeIs10MB {
