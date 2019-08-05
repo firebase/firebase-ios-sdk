@@ -221,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Initializes a new patch mutation with an explicit FieldMask and ObjectValue representing the
- * updates to perform
+ * updates to perform.
  *
  * @param key Identifies the location of the document to mutate.
  * @param fieldMask The field mask specifying at what locations the data in value should be
