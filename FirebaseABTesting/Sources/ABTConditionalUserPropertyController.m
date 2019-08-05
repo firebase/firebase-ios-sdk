@@ -245,8 +245,8 @@
 #pragma mark - analytics internal methods
 
 - (void)logEventWithOrigin:(NSString *)origin
-                                payload:(ABTExperimentPayload *)payload
-                                 events:(FIRLifecycleEvents *)events {
+                   payload:(ABTExperimentPayload *)payload
+                    events:(FIRLifecycleEvents *)events {
   NSString *setExperimentEventName = events.setExperimentEventName;
   if (payload && payload.setEventToLog && payload.setEventToLog.length) {
     setExperimentEventName = payload.setEventToLog;
