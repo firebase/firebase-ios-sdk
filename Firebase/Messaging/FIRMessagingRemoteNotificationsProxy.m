@@ -94,8 +94,8 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   if (notificationCenterClass) {
     // We are linked against iOS 10 SDK or above
     id notificationCenter = FIRMessagingPropertyNameFromObject(notificationCenterClass,
-                                                       @"currentNotificationCenter",
-                                                       notificationCenterClass);
+                                                               @"currentNotificationCenter",
+                                                               notificationCenterClass);
     if (notificationCenter) {
       [self listenForDelegateChangesInUserNotificationCenter:notificationCenter];
     }
@@ -433,7 +433,7 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
  * In order to make FCM SDK compile and compatible with iOS SDKs before iOS 10, hide the
  * parameter types from the swizzling implementation.
  */
-void FCMSwizzleWillPresentNotificationWithHandler(
+static void FCMSwizzleWillPresentNotificationWithHandler(
     id self, SEL cmd, id center, id notification, void (^handler)(NSUInteger)) {
 
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
@@ -498,7 +498,7 @@ void FCMSwizzleWillPresentNotificationWithHandler(
  * In order to make FCM SDK compile and compatible with iOS SDKs before iOS 10, hide the
  * parameter types from the swizzling implementation.
  */
-void FCMSwizzleDidReceiveNotificationResponseWithHandler(
+static void FCMSwizzleDidReceiveNotificationResponseWithHandler(
     id self, SEL cmd, id center, id response, void (^handler)(void)) {
 
   FIRMessagingRemoteNotificationsProxy *proxy = [FIRMessagingRemoteNotificationsProxy sharedProxy];
@@ -559,7 +559,7 @@ void FCMSwizzleDidReceiveNotificationResponseWithHandler(
   callOriginalMethodIfAvailable();
 }
 
-id FIRMessagingUserInfoFromNotification(id notification) {
+static id FIRMessagingUserInfoFromNotification(id notification) {
 
   // Select the userInfo field from UNNotification.request.content.userInfo.
   SEL requestSelector = NSSelectorFromString(@"request");
