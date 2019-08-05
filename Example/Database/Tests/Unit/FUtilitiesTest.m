@@ -67,12 +67,7 @@
 }
 
 - (void)testUrlParsedWithNamespace {
-  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com/foo/bar?ns=mrschmidt"];
-  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"/foo/bar"]);
-  // The subdomain takes precedence if one is provided
-  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
-
-  parsedUrl = [FUtilities parseUrl:@"localhost/?ns=mrschmidt"];
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"localhost/?ns=mrschmidt"];
   XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"mrschmidt");
 
   parsedUrl = [FUtilities parseUrl:@"127.0.0.1:9000/?ns=mrschmidt"];
