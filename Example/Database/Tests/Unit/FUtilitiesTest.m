@@ -41,7 +41,7 @@
   XCTAssertTrue(parsedUrl.repoInfo.secure);
   XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
 
-  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"wss://repo.firebaseio.com"];
+  parsedUrl = [FUtilities parseUrl:@"wss://repo.firebaseio.com"];
   XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"repo.firebaseio.com");
   XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
   XCTAssertTrue(parsedUrl.repoInfo.secure);
