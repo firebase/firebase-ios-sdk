@@ -274,8 +274,14 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
     return core::Filter::Operator::GreaterThanOrEqual;
+    // Both are accepted for compatibility with spec tests and existing
+    // canonical ids.
   } else if (s == "array_contains" || s == "array-contains") {
     return core::Filter::Operator::ArrayContains;
+  } else if (s == "in") {
+    return core::Filter::Operator::In;
+  } else if (s == "array-contains-any") {
+    return core::Filter::Operator::ArrayContainsAny;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }

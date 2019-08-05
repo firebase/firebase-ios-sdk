@@ -19,12 +19,14 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/algorithm/container.h"
 
@@ -181,41 +183,25 @@ Query Query::Filter(FieldPath field_path,
                     FieldValue field_value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
-    if (op == Filter::Operator::ArrayContains) {
+    if (IsArrayOperator(op)) {
       ThrowInvalidArgument(
-          "Invalid query. You can't perform arrayContains queries on document "
-          "ID since document IDs are not arrays.");
+          "Invalid query. You can't perform %s queries on document "
+          "ID since document IDs are not arrays.",
+          Describe(op));
+    } else if (op == Filter::Operator::In) {
+      ValidateDisjunctiveFilterElements(field_value, op);
+      std::vector<FieldValue> references;
+      for (const auto& array_value : field_value.array_value()) {
+        references.push_back(
+            ParseExpectedReferenceValue(array_value, type_describer));
+      }
+      field_value = FieldValue::FromArray(references);
+    } else {
+      field_value = ParseExpectedReferenceValue(field_value, type_describer);
     }
-    if (field_value.type() == FieldValue::Type::String) {
-      const std::string& document_key = field_value.string_value();
-      if (document_key.empty()) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying by document ID you must provide a "
-            "valid document ID, but it was an empty string.");
-      }
-      if (!query_.IsCollectionGroupQuery() &&
-          document_key.find('/') != std::string::npos) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying a collection by document ID you must "
-            "provide a plain document ID, but '%s' contains a '/' character.",
-            document_key);
-      }
-      ResourcePath path =
-          query_.path().Append(ResourcePath::FromString(document_key));
-      if (!DocumentKey::IsDocumentKey(path)) {
-        ThrowInvalidArgument(
-            "Invalid query. When querying a collection group by document ID, "
-            "the value provided must result in a valid document path, but '%s' "
-            "is not because it has an odd number of segments.",
-            path.CanonicalString());
-      }
-      field_value = FieldValue::FromReference(firestore_->database_id(),
-                                              DocumentKey{path});
-    } else if (field_value.type() != FieldValue::Type::Reference) {
-      ThrowInvalidArgument(
-          "Invalid query. When querying by document ID you must provide a "
-          "valid string or DocumentReference, but it was of type: %s",
-          type_describer());
+  } else {
+    if (IsDisjunctiveOperator(op)) {
+      ValidateDisjunctiveFilterElements(field_value, op);
     }
   }
 
@@ -261,14 +247,6 @@ Query Query::EndAt(Bound bound) const {
   return Wrap(query_.EndingAt(std::move(bound)));
 }
 
-namespace {
-
-constexpr Operator kArrayOps[] = {
-    Operator::ArrayContains,
-};
-
-}
-
 void Query::ValidateNewFilter(const class Filter& filter) const {
   if (filter.IsAFieldFilter()) {
     const auto& field_filter = static_cast<const FieldFilter&>(filter);
@@ -294,12 +272,28 @@ void Query::ValidateNewFilter(const class Filter& filter) const {
     } else {
       // You can have at most 1 disjunctive filter and 1 array filter. Check if
       // the new filter conflicts with an existing one.
+      absl::optional<Operator> conflicting_op;
       Operator filter_op = field_filter.op();
-      bool is_array_op = absl::c_linear_search(kArrayOps, filter_op);
 
-      if (is_array_op && query_.HasArrayContainsFilter()) {
-        ThrowInvalidArgument("Invalid Query. Queries only support a single "
-                             "arrayContains filter.");
+      if (IsDisjunctiveOperator(filter_op)) {
+        conflicting_op = query_.FirstDisjunctiveOperator();
+      }
+      if (!conflicting_op.has_value() && IsArrayOperator(filter_op)) {
+        conflicting_op = query_.FirstArrayOperator();
+      }
+      if (conflicting_op) {
+        // We special case when it's a duplicate op to give a slightly clearer
+        // error message.
+        if (*conflicting_op == filter_op) {
+          ThrowInvalidArgument(
+              "Invalid Query. You cannot use more than one '%s' filter.",
+              Describe(filter_op));
+        } else {
+          ThrowInvalidArgument("Invalid Query. You cannot use '%s' filters with"
+                               " '%s' filters.",
+                               Describe(filter_op),
+                               Describe(conflicting_op.value()));
+        }
       }
     }
   }
@@ -327,6 +321,97 @@ void Query::ValidateOrderByField(const FieldPath& orderByField,
         inequalityField.CanonicalString(), inequalityField.CanonicalString(),
         orderByField.CanonicalString());
   }
+}
+
+void Query::ValidateDisjunctiveFilterElements(
+    const model::FieldValue& field_value, core::Filter::Operator op) const {
+  if (field_value.type() != FieldValue::Type::Array ||
+      field_value.array_value().size() == 0) {
+    ThrowInvalidArgument("Invalid Query. A non-empty array is required for '%s'"
+                         " filters.",
+                         Describe(op));
+  }
+  if (field_value.array_value().size() > 10) {
+    ThrowInvalidArgument("Invalid Query. '%s' filters support a maximum of 10"
+                         " elements in the value array.",
+                         Describe(op));
+  }
+
+  std::vector<FieldValue> array = field_value.array_value();
+  for (const auto& val : array) {
+    if (val.is_null()) {
+      ThrowInvalidArgument(
+          "Invalid Query. '%s' filters cannot contain 'null' in"
+          " the value array.",
+          Describe(op));
+    }
+    if (val.is_nan()) {
+      ThrowInvalidArgument("Invalid Query. '%s' filters cannot contain 'NaN' in"
+                           " the value array.",
+                           Describe(op));
+    }
+  }
+}
+
+FieldValue Query::ParseExpectedReferenceValue(
+    const model::FieldValue& field_value,
+    const std::function<std::string()>& type_describer) const {
+  if (field_value.type() == FieldValue::Type::String) {
+    const std::string& document_key = field_value.string_value();
+    if (document_key.empty()) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying by document ID you must provide a "
+          "valid document ID, but it was an empty string.");
+    }
+    if (!query().IsCollectionGroupQuery() &&
+        document_key.find('/') != std::string::npos) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying a collection by document ID you must "
+          "provide a plain document ID, but '%s' contains a '/' character.",
+          document_key);
+    }
+    ResourcePath path =
+        query().path().Append(ResourcePath::FromString(document_key));
+    if (!DocumentKey::IsDocumentKey(path)) {
+      ThrowInvalidArgument(
+          "Invalid query. When querying a collection group by document ID, "
+          "the value provided must result in a valid document path, but '%s' "
+          "is not because it has an odd number of segments.",
+          path.CanonicalString());
+    }
+    return FieldValue::FromReference(firestore_->database_id(),
+                                     DocumentKey{path});
+  } else if (field_value.type() == FieldValue::Type::Reference) {
+    return field_value;
+  } else {
+    ThrowInvalidArgument(
+        "Invalid query. When querying by document ID you must provide a "
+        "valid string or DocumentReference, but it was of type: %s",
+        type_describer());
+  }
+}
+
+std::string Query::Describe(Filter::Operator op) const {
+  switch (op) {
+    case Filter::Operator::LessThan:
+      return "lessThan";
+    case Filter::Operator::LessThanOrEqual:
+      return "lessThanOrEqual";
+    case Filter::Operator::Equal:
+      return "equal";
+    case Filter::Operator::GreaterThanOrEqual:
+      return "greaterThanOrEqual";
+    case Filter::Operator::GreaterThan:
+      return "greaterThan";
+    case Filter::Operator::ArrayContains:
+      return "arrayContains";
+    case Filter::Operator::In:
+      return "in";
+    case Filter::Operator::ArrayContainsAny:
+      return "arrayContainsAny";
+  }
+
+  UNREACHABLE();
 }
 
 }  // namespace api

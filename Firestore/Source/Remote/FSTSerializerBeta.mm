@@ -1003,6 +1003,10 @@ NS_ASSUME_NONNULL_BEGIN
       return GCFSStructuredQuery_FieldFilter_Operator_GreaterThan;
     case Filter::Operator::ArrayContains:
       return GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+    case Filter::Operator::In:
+      return GCFSStructuredQuery_FieldFilter_Operator_In;
+    case Filter::Operator::ArrayContainsAny:
+      return GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny;
     default:
       HARD_FAIL("Unhandled Filter::Operator: %s", filterOperator);
   }
@@ -1023,6 +1027,10 @@ NS_ASSUME_NONNULL_BEGIN
       return Filter::Operator::GreaterThan;
     case GCFSStructuredQuery_FieldFilter_Operator_ArrayContains:
       return Filter::Operator::ArrayContains;
+    case GCFSStructuredQuery_FieldFilter_Operator_In:
+      return Filter::Operator::In;
+    case GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny:
+      return Filter::Operator::ArrayContainsAny;
     default:
       HARD_FAIL("Unhandled FieldFilter.operator: %s", filterOperator);
   }

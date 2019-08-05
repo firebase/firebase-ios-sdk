@@ -164,6 +164,23 @@ class Query {
   void ValidateNewOrderByPath(const model::FieldPath& fieldPath) const;
   void ValidateOrderByField(const model::FieldPath& orderByField,
                             const model::FieldPath& inequalityField) const;
+  /**
+   * Validates that the value passed into a disjunctive filter satisfies all
+   * array requirements.
+   */
+  void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
+                                         core::Filter::Operator op) const;
+
+  /**
+   * Parses the given FieldValue into a Reference, throwing appropriate errors
+   * if the value is anything other than a Reference or String, or if the string
+   * is malformed.
+   */
+  model::FieldValue ParseExpectedReferenceValue(
+      const model::FieldValue& field_value,
+      const std::function<std::string()>& type_describer) const;
+
+  std::string Describe(core::Filter::Operator op) const;
 
   std::shared_ptr<Firestore> firestore_;
   core::Query query_;
