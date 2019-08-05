@@ -1,0 +1,3 @@
+allowed_message: "developers.mobile.abt.ExperimentLite"
+allowed_message: "developers.mobile.abt.ExperimentPayload"
+allowed_enum: "developers.mobile.abt.ExperimentPayload.ExperimentOverflowPolicy"
