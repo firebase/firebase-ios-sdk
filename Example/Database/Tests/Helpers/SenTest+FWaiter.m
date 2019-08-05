@@ -14,47 +14,47 @@
  * limitations under the License.
  */
 
-#import "SenTest+FWaiter.h"
 #import "FTestContants.h"
+#import "SenTest+FWaiter.h"
 
 @implementation XCTestCase (FWaiter)
 
-- (NSTimeInterval) waitUntil:(BOOL (^)(void))predicate {
-    return [self waitUntil:predicate timeout:kFirebaseTestWaitUntilTimeout description:nil];
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate {
+  return [self waitUntil:predicate timeout:kFirebaseTestWaitUntilTimeout description:nil];
 }
 
-- (NSTimeInterval) waitUntil:(BOOL (^)(void))predicate description:(NSString*)desc {
-    return [self waitUntil:predicate timeout:kFirebaseTestWaitUntilTimeout description:desc];
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate description:(NSString *)desc {
+  return [self waitUntil:predicate timeout:kFirebaseTestWaitUntilTimeout description:desc];
 }
 
-- (NSTimeInterval) waitUntil:(BOOL (^)(void))predicate timeout:(NSTimeInterval)seconds {
-    return [self waitUntil:predicate timeout:seconds description:nil];
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate timeout:(NSTimeInterval)seconds {
+  return [self waitUntil:predicate timeout:seconds description:nil];
 }
 
-- (NSTimeInterval) waitUntil:(BOOL (^)(void))predicate
-                     timeout:(NSTimeInterval)seconds
-                 description:(NSString*)desc {
-    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
-    NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
-    NSTimeInterval currentTime;
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
+                    timeout:(NSTimeInterval)seconds
+                description:(NSString *)desc {
+  NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
+  NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
+  NSTimeInterval currentTime;
 
-    for (currentTime = [NSDate timeIntervalSinceReferenceDate];
-         !predicate() && currentTime < timeoutTime;
-         currentTime = [NSDate timeIntervalSinceReferenceDate]) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+  for (currentTime = [NSDate timeIntervalSinceReferenceDate];
+       !predicate() && currentTime < timeoutTime;
+       currentTime = [NSDate timeIntervalSinceReferenceDate]) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+  }
+
+  NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
+  if (currentTime > timeoutTime) {
+    if (desc != nil) {
+      XCTFail("Timed out on: %@", desc);
+    } else {
+      XCTFail("Timed out");
     }
-
-    NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
-    if (currentTime > timeoutTime) {
-        if (desc != nil) {
-            XCTFail("Timed out on: %@", desc);
-        } else {
-            XCTFail("Timed out");
-        }
-    }
-    return (finish - start);
+  }
+  return (finish - start);
 }
 
 @end

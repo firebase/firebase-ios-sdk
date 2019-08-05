@@ -17,15 +17,15 @@
 #import "FTupleRemovedQueriesEvents.h"
 
 @interface FTupleRemovedQueriesEvents ()
-@property (nonatomic, strong, readwrite) NSArray *removedQueries;
-@property (nonatomic, strong, readwrite) NSArray *cancelEvents;
+@property(nonatomic, strong, readwrite) NSArray *removedQueries;
+@property(nonatomic, strong, readwrite) NSArray *cancelEvents;
 @end
 
 @implementation FTupleRemovedQueriesEvents
 @synthesize removedQueries;
 @synthesize cancelEvents;
 
-- (id) initWithRemovedQueries:(NSArray *)removed cancelEvents:(NSArray *)events {
+- (id)initWithRemovedQueries:(NSArray *)removed cancelEvents:(NSArray *)events {
     self = [super init];
     if (self) {
         self.removedQueries = removed;

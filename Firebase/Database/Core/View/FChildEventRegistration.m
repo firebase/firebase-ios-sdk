@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
 #import "FChildEventRegistration.h"
+#import "FCancelEvent.h"
+#import "FDataEvent.h"
+#import "FIRDataSnapshot_Private.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FQueryParams.h"
 #import "FQuerySpec.h"
-#import "FIRDataSnapshot_Private.h"
-#import "FDataEvent.h"
-#import "FCancelEvent.h"
+#import <FirebaseCore/FIRLogger.h>
 
 @interface FChildEventRegistration ()
-@property (nonatomic, strong) FRepo *repo;
-@property (nonatomic, copy, readwrite) NSDictionary *callbacks;
-@property (nonatomic, copy, readwrite) fbt_void_nserror cancelCallback;
-@property (nonatomic, readwrite) FIRDatabaseHandle handle;
+@property(nonatomic, strong) FRepo *repo;
+@property(nonatomic, copy, readwrite) NSDictionary *callbacks;
+@property(nonatomic, copy, readwrite) fbt_void_nserror cancelCallback;
+@property(nonatomic, readwrite) FIRDatabaseHandle handle;
 @end
 
 @implementation FChildEventRegistration
 
-- (id)initWithRepo:(id)repo handle:(FIRDatabaseHandle)fHandle callbacks:(NSDictionary *)callbackBlocks cancelCallback:(fbt_void_nserror)cancelCallbackBlock {
+- (id)initWithRepo:(id)repo
+            handle:(FIRDatabaseHandle)fHandle
+         callbacks:(NSDictionary *)callbackBlocks
+    cancelCallback:(fbt_void_nserror)cancelCallbackBlock {
     self = [super init];
     if (self) {
         self.repo = repo;
@@ -43,51 +46,67 @@
     return self;
 }
 
-- (BOOL) responseTo:(FIRDataEventType)eventType {
-    return self.callbacks != nil && [self.callbacks objectForKey:[NSNumber numberWithInteger:eventType]] != nil;
+- (BOOL)responseTo:(FIRDataEventType)eventType {
+    return self.callbacks != nil &&
+           [self.callbacks
+               objectForKey:[NSNumber numberWithInteger:eventType]] != nil;
 }
 
-- (FDataEvent *) createEventFrom:(FChange *)change query:(FQuerySpec *)query {
-    FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithRepo:self.repo path:[query.path childFromString:change.childKey]];
-    FIRDataSnapshot *snapshot = [[FIRDataSnapshot alloc] initWithRef:ref indexedNode:change.indexedNode];
+- (FDataEvent *)createEventFrom:(FChange *)change query:(FQuerySpec *)query {
+    FIRDatabaseReference *ref = [[FIRDatabaseReference alloc]
+        initWithRepo:self.repo
+                path:[query.path childFromString:change.childKey]];
+    FIRDataSnapshot *snapshot =
+        [[FIRDataSnapshot alloc] initWithRef:ref
+                                 indexedNode:change.indexedNode];
 
-    FDataEvent *eventData = [[FDataEvent alloc] initWithEventType:change.type eventRegistration:self
-                                                     dataSnapshot:snapshot prevName:change.prevKey];
+    FDataEvent *eventData =
+        [[FDataEvent alloc] initWithEventType:change.type
+                            eventRegistration:self
+                                 dataSnapshot:snapshot
+                                     prevName:change.prevKey];
     return eventData;
 }
 
-- (void) fireEvent:(id <FEvent>)event queue:(dispatch_queue_t)queue {
+- (void)fireEvent:(id<FEvent>)event queue:(dispatch_queue_t)queue {
     if ([event isCancelEvent]) {
         FCancelEvent *cancelEvent = event;
         FFLog(@"I-RDB061001", @"Raising cancel value event on %@", event.path);
-        NSAssert(self.cancelCallback != nil, @"Raising a cancel event on a listener with no cancel callback");
+        NSAssert(
+            self.cancelCallback != nil,
+            @"Raising a cancel event on a listener with no cancel callback");
         dispatch_async(queue, ^{
-            self.cancelCallback(cancelEvent.error);
+          self.cancelCallback(cancelEvent.error);
         });
     } else if (self.callbacks != nil) {
         FDataEvent *dataEvent = event;
-        FFLog(@"I-RDB061002", @"Raising event callback (%ld) on %@", (long)dataEvent.eventType, dataEvent.path);
-        fbt_void_datasnapshot_nsstring callback = [self.callbacks objectForKey:[NSNumber numberWithInteger:dataEvent.eventType]];
+        FFLog(@"I-RDB061002", @"Raising event callback (%ld) on %@",
+              (long)dataEvent.eventType, dataEvent.path);
+        fbt_void_datasnapshot_nsstring callback = [self.callbacks
+            objectForKey:[NSNumber numberWithInteger:dataEvent.eventType]];
 
         if (callback != nil) {
             dispatch_async(queue, ^{
-                callback(dataEvent.snapshot, dataEvent.prevName);
+              callback(dataEvent.snapshot, dataEvent.prevName);
             });
         }
     }
 }
 
-- (FCancelEvent *) createCancelEventFromError:(NSError *)error path:(FPath *)path {
+- (FCancelEvent *)createCancelEventFromError:(NSError *)error
+                                        path:(FPath *)path {
     if (self.cancelCallback != nil) {
-        return [[FCancelEvent alloc] initWithEventRegistration:self error:error path:path];
+        return [[FCancelEvent alloc] initWithEventRegistration:self
+                                                         error:error
+                                                          path:path];
     } else {
         return nil;
     }
 }
 
-- (BOOL) matches:(id<FEventRegistration>)other {
-    return self.handle == NSNotFound || other.handle == NSNotFound || self.handle == other.handle;
+- (BOOL)matches:(id<FEventRegistration>)other {
+    return self.handle == NSNotFound || other.handle == NSNotFound ||
+           self.handle == other.handle;
 }
-
 
 @end

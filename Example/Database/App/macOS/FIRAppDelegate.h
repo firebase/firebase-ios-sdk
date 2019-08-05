@@ -18,6 +18,4 @@
 
 @interface FIRAppDelegate : NSObject <NSApplicationDelegate>
 
-
 @end
-

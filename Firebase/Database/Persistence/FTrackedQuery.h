@@ -20,13 +20,16 @@
 
 @interface FTrackedQuery : NSObject
 
-@property (nonatomic, readonly) NSUInteger queryId;
-@property (nonatomic, strong, readonly) FQuerySpec *query;
-@property (nonatomic, readonly) NSTimeInterval lastUse;
-@property (nonatomic, readonly) BOOL isComplete;
-@property (nonatomic, readonly) BOOL isActive;
+@property(nonatomic, readonly) NSUInteger queryId;
+@property(nonatomic, strong, readonly) FQuerySpec *query;
+@property(nonatomic, readonly) NSTimeInterval lastUse;
+@property(nonatomic, readonly) BOOL isComplete;
+@property(nonatomic, readonly) BOOL isActive;
 
-- (id)initWithId:(NSUInteger)queryId query:(FQuerySpec *)query lastUse:(NSTimeInterval)lastUse isActive:(BOOL)isActive;
+- (id)initWithId:(NSUInteger)queryId
+           query:(FQuerySpec *)query
+         lastUse:(NSTimeInterval)lastUse
+        isActive:(BOOL)isActive;
 - (id)initWithId:(NSUInteger)queryId
            query:(FQuerySpec *)query
          lastUse:(NSTimeInterval)lastUse

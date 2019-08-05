@@ -14,35 +14,41 @@
  * limitations under the License.
  */
 
-
 #import <Foundation/Foundation.h>
 
-#import "FNode.h"
 #import "FIndex.h"
 #import "FNamedNode.h"
+#import "FNode.h"
 
 /**
- * Represents a node together with an index. The index and node are updated in unison. In the case where the index
- * does not affect the ordering (i.e. the ordering is identical to the key ordering) this class uses a fallback index
- * to save memory. Everything operating on the index must special case the fallback index.
+ * Represents a node together with an index. The index and node are updated in
+ * unison. In the case where the index does not affect the ordering (i.e. the
+ * ordering is identical to the key ordering) this class uses a fallback index
+ * to save memory. Everything operating on the index must special case the
+ * fallback index.
  */
 @interface FIndexedNode : NSObject
 
-@property (nonatomic, strong, readonly) id<FNode> node;
+@property(nonatomic, strong, readonly) id<FNode> node;
 
 + (FIndexedNode *)indexedNodeWithNode:(id<FNode>)node;
 + (FIndexedNode *)indexedNodeWithNode:(id<FNode>)node index:(id<FIndex>)index;
 
 - (BOOL)hasIndex:(id<FIndex>)index;
-- (FIndexedNode *)updateChild:(NSString *)key withNewChild:(id<FNode>)newChildNode;
+- (FIndexedNode *)updateChild:(NSString *)key
+                 withNewChild:(id<FNode>)newChildNode;
 - (FIndexedNode *)updatePriority:(id<FNode>)priority;
 
 - (FNamedNode *)firstChild;
 - (FNamedNode *)lastChild;
 
-- (NSString *)predecessorForChildKey:(NSString *)childKey childNode:(id<FNode>)childNode index:(id<FIndex>)index;
+- (NSString *)predecessorForChildKey:(NSString *)childKey
+                           childNode:(id<FNode>)childNode
+                               index:(id<FIndex>)index;
 
-- (void)enumerateChildrenReverse:(BOOL)reverse usingBlock:(void (^)(NSString *key, id<FNode> node, BOOL *stop))block;
+- (void)enumerateChildrenReverse:(BOOL)reverse
+                      usingBlock:(void (^)(NSString *key, id<FNode> node,
+                                           BOOL *stop))block;
 
 - (NSEnumerator *)childEnumerator;
 

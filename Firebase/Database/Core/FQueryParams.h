@@ -16,44 +16,45 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FIndex, FNodeFilter, FNode;
+@protocol FIndex
+, FNodeFilter, FNode;
 
 @interface FQueryParams : NSObject <NSCopying>
 
-@property (nonatomic, readonly) BOOL limitSet;
-@property (nonatomic, readonly) NSInteger limit;
+@property(nonatomic, readonly) BOOL limitSet;
+@property(nonatomic, readonly) NSInteger limit;
 
-@property (nonatomic, strong, readonly) NSString *viewFrom;
-@property (nonatomic, strong, readonly) id<FNode> indexStartValue;
-@property (nonatomic, strong, readonly) NSString *indexStartKey;
-@property (nonatomic, strong, readonly) id<FNode> indexEndValue;
-@property (nonatomic, strong, readonly) NSString *indexEndKey;
+@property(nonatomic, strong, readonly) NSString *viewFrom;
+@property(nonatomic, strong, readonly) id<FNode> indexStartValue;
+@property(nonatomic, strong, readonly) NSString *indexStartKey;
+@property(nonatomic, strong, readonly) id<FNode> indexEndValue;
+@property(nonatomic, strong, readonly) NSString *indexEndKey;
 
-@property (nonatomic, strong, readonly) id<FIndex> index;
+@property(nonatomic, strong, readonly) id<FIndex> index;
 
 - (BOOL)loadsAllData;
 - (BOOL)isDefault;
 - (BOOL)isValid;
 - (BOOL)hasAnchoredLimit;
 
-- (FQueryParams *) limitTo:(NSInteger) limit;
-- (FQueryParams *) limitToFirst:(NSInteger) newLimit;
-- (FQueryParams *) limitToLast:(NSInteger) newLimit;
+- (FQueryParams *)limitTo:(NSInteger)limit;
+- (FQueryParams *)limitToFirst:(NSInteger)newLimit;
+- (FQueryParams *)limitToLast:(NSInteger)newLimit;
 
-- (FQueryParams *) startAt:(id<FNode>)indexValue childKey:(NSString *)key;
-- (FQueryParams *) startAt:(id<FNode>)indexValue;
-- (FQueryParams *) endAt:(id<FNode>)indexValue childKey:(NSString *)key;
-- (FQueryParams *) endAt:(id<FNode>)indexValue;
+- (FQueryParams *)startAt:(id<FNode>)indexValue childKey:(NSString *)key;
+- (FQueryParams *)startAt:(id<FNode>)indexValue;
+- (FQueryParams *)endAt:(id<FNode>)indexValue childKey:(NSString *)key;
+- (FQueryParams *)endAt:(id<FNode>)indexValue;
 
-- (FQueryParams *) orderBy:(id<FIndex>) index;
+- (FQueryParams *)orderBy:(id<FIndex>)index;
 
-+ (FQueryParams *) defaultInstance;
-+ (FQueryParams *) fromQueryObject:(NSDictionary *)dict;
++ (FQueryParams *)defaultInstance;
++ (FQueryParams *)fromQueryObject:(NSDictionary *)dict;
 
 - (BOOL)hasStart;
 - (BOOL)hasEnd;
 
-- (NSDictionary *) wireProtocolParams;
-- (BOOL) isViewFromLeft;
-- (id<FNodeFilter>) nodeFilter;
+- (NSDictionary *)wireProtocolParams;
+- (BOOL)isViewFromLeft;
+- (id<FNodeFilter>)nodeFilter;
 @end

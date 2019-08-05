@@ -24,30 +24,33 @@
 @synthesize vvcallback;
 @synthesize initialized;
 
-- (id)initWithFirebase:(FIRDatabaseReference *)f withEvent:(FIRDataEventType)evt withString:(NSString *)str;
+- (id)initWithFirebase:(FIRDatabaseReference *)f
+             withEvent:(FIRDataEventType)evt
+            withString:(NSString *)str;
 {
-    self = [super init];
-    if (self) {
-        self.firebase = f;
-        self.eventType = evt;
-        self.string = str;
-        self.initialized = NO;
-    }
-    return self;
+  self = [super init];
+  if (self) {
+    self.firebase = f;
+    self.eventType = evt;
+    self.string = str;
+    self.initialized = NO;
+  }
+  return self;
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"%@ %@ (%zd)", self.firebase, self.string, self.eventType];
+- (NSString *)description {
+  return [NSString stringWithFormat:@"%@ %@ (%zd)", self.firebase, self.string, self.eventType];
 }
 
-- (BOOL) isEqualTo:(FTupleEventTypeString *)other {
-    BOOL stringsEqual = NO;
-    if (self.string == nil && other.string == nil) {
-        stringsEqual = YES;
-    } else if (self.string != nil && other.string != nil) {
-        stringsEqual = [self.string isEqualToString:other.string];
-    }
-    return self.eventType == other.eventType && stringsEqual && [[self.firebase description] isEqualToString:[other.firebase description]];
+- (BOOL)isEqualTo:(FTupleEventTypeString *)other {
+  BOOL stringsEqual = NO;
+  if (self.string == nil && other.string == nil) {
+    stringsEqual = YES;
+  } else if (self.string != nil && other.string != nil) {
+    stringsEqual = [self.string isEqualToString:other.string];
+  }
+  return self.eventType == other.eventType && stringsEqual &&
+         [[self.firebase description] isEqualToString:[other.firebase description]];
 }
 
 @end

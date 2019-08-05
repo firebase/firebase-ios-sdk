@@ -19,10 +19,10 @@
 
 @interface FIRTestAuthTokenProvider : NSObject <FAuthTokenProvider>
 
-@property (nonatomic, strong) NSString *token;
-@property (nonatomic, strong) NSString *nextToken;
+@property(nonatomic, strong) NSString *token;
+@property(nonatomic, strong) NSString *nextToken;
 
-- (instancetype) initWithToken:(NSString *)token;
-- (instancetype) init NS_UNAVAILABLE;
+- (instancetype)initWithToken:(NSString *)token;
+- (instancetype)init NS_UNAVAILABLE;
 
 @end

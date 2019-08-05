@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FTypedefs.h"
 #import "FQueryParams.h"
+#import "FTypedefs.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleUserCallback : NSObject
 
-- (id) initWithHandle:(NSUInteger)handle;
+- (id)initWithHandle:(NSUInteger)handle;
 
-@property (nonatomic, copy) fbt_void_datasnapshot_nsstring datasnapshotPrevnameCallback;
-@property (nonatomic, copy) fbt_void_datasnapshot datasnapshotCallback;
-@property (nonatomic, copy) fbt_void_nserror cancelCallback;
-@property (nonatomic, copy) FQueryParams* queryParams;
-@property (nonatomic) NSUInteger handle;
+@property(nonatomic, copy)
+    fbt_void_datasnapshot_nsstring datasnapshotPrevnameCallback;
+@property(nonatomic, copy) fbt_void_datasnapshot datasnapshotCallback;
+@property(nonatomic, copy) fbt_void_nserror cancelCallback;
+@property(nonatomic, copy) FQueryParams *queryParams;
+@property(nonatomic) NSUInteger handle;
 
 @end
