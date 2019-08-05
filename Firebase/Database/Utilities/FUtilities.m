@@ -165,10 +165,8 @@ void firebaseJobsTroll(void) {
     bool secure;
 
     if (urlComponents.port != nil) {
-        secure = [urlComponents.scheme isEqualToString:@"https"];
+        secure = [urlComponents.scheme isEqualToString:@"https"] || [urlComponents.scheme isEqualToString:@"wss"];
         host = [host stringByAppendingFormat:@":%@", urlComponents.port];
-    } else if ( [urlComponents.host isEqualToString:@"localhost"]) {
-        secure = NO;
     } else {
         secure = YES;
     };
@@ -193,7 +191,7 @@ void firebaseJobsTroll(void) {
 
 
     NSString* pathString = [self decodePath:[NSString stringWithFormat:@"/%@", originalPathString]];
-    FPath *  path = [[FPath alloc] initWith:pathString];
+    FPath*  path = [[FPath alloc] initWith:pathString];
     FRepoInfo* repoInfo = [[FRepoInfo alloc] initWithHost:host isSecure:secure withNamespace:namespace];
 
     FFLog(@"I-RDB095002", @"---> Parsed (%@) to: (%@,%@); ns=(%@); path=(%@)", url, [repoInfo description], [repoInfo connectionURL], repoInfo.namespace, [path description]);

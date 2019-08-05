@@ -40,6 +40,12 @@
     XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
     XCTAssertTrue(parsedUrl.repoInfo.secure);
     XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
+	
+    FParsedUrl *parsedUrl = [FUtilities parseUrl:@"wss://repo.firebaseio.com"];
+    XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"repo.firebaseio.com");
+    XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"repo");
+    XCTAssertTrue(parsedUrl.repoInfo.secure);
+    XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
 }
 
 - (void)testUrlParsedWithoutSchema {
@@ -81,10 +87,6 @@
     // Hosts with omitted ports are considered secure
     parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com"];
     XCTAssertTrue(parsedUrl.repoInfo.secure);
-
-    // Localhost is special-cased as insecure
-    parsedUrl = [FUtilities parseUrl:@"localhost"];
-    XCTAssertFalse(parsedUrl.repoInfo.secure);
 }
 
 - (void)testDefaultCacheSizeIs10MB {
