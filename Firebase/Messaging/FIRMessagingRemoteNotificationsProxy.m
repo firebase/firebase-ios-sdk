@@ -578,8 +578,8 @@ static id FIRMessagingUserInfoFromNotification(id notification) {
   }
   Class contentClass = NSClassFromString(@"UNNotificationContent");
   id notificationContent = FIRMessagingPropertyNameFromObject(notificationRequest,
-                                                      @"content",
-                                                      contentClass);
+                                                              @"content",
+                                                              contentClass);
 
   SEL notificationUserInfoSelector = NSSelectorFromString(@"userInfo");
   if (!notificationContent
@@ -588,8 +588,8 @@ static id FIRMessagingUserInfoFromNotification(id notification) {
     return nil;
   }
   id notificationUserInfo = FIRMessagingPropertyNameFromObject(notificationContent,
-                                                       @"userInfo",
-                                                       [NSDictionary class]);
+                                                               @"userInfo",
+                                                               [NSDictionary class]);
 
   if (!notificationUserInfo) {
     // This is not the expected notification handler.
