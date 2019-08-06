@@ -47,7 +47,6 @@ using testutil::Field;
 using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
-using testutil::Query;
 using testutil::Ref;
 using testutil::Value;
 using testutil::Vector;
@@ -55,12 +54,12 @@ using testutil::Vector;
 MATCHER_P(Matches, doc, "") {
   bool actual = arg.Matches(doc);
   *result_listener << "matches " << actual;
-  return actual == true;
+  return actual;
 }
 
 TEST(QueryTest, Constructor) {
   const ResourcePath path{"rooms", "Firestore", "messages", "0001"};
-  class core::Query query(path);
+  Query query(path);
 
   ASSERT_EQ(1, query.order_bys().size());
   EXPECT_EQ(FieldPath::kDocumentKeyPath,
@@ -72,7 +71,7 @@ TEST(QueryTest, Constructor) {
 
 TEST(QueryTest, OrderBy) {
   auto query =
-      Query("rooms/Firestore/messages")
+      testutil::Query("rooms/Firestore/messages")
           .AddingOrderBy(OrderBy(Field("length"), Direction::Descending));
 
   ASSERT_EQ(2, query.order_bys().size());
@@ -92,7 +91,7 @@ TEST(QueryTest, MatchesBasedOnDocumentKey) {
   auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
   auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
-  auto query = Query("rooms/eros/messages/1");
+  auto query = testutil::Query("rooms/eros/messages/1");
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
   EXPECT_THAT(query, Not(Matches(doc3)));
@@ -104,7 +103,7 @@ TEST(QueryTest, MatchesShallowAncestorQuery) {
   auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
   auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
-  auto query = Query("rooms/eros/messages");
+  auto query = testutil::Query("rooms/eros/messages");
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc1_meta)));
   EXPECT_THAT(query, Matches(doc2));
@@ -115,15 +114,17 @@ TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
   auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
   auto doc2 = *Doc("rooms/eros/messages/2", 0, Map());
 
-  auto query =
-      Query("rooms/eros/messages").AddingFilter(Filter("text", "==", "msg1"));
+  auto query = testutil::Query("rooms/eros/messages")
+                   .AddingFilter(Filter("text", "==", "msg1"));
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
 }
 
 TEST(QueryTest, PrimitiveValueFilter) {
-  auto query1 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
-  auto query2 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
+  auto query1 =
+      testutil::Query("collection").AddingFilter(Filter("sort", ">=", 2));
+  auto query2 =
+      testutil::Query("collection").AddingFilter(Filter("sort", "<=", 2));
 
   auto doc1 = *Doc("collection/1", 0, Map("sort", 1));
   auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
@@ -146,7 +147,8 @@ TEST(QueryTest, PrimitiveValueFilter) {
 }
 
 TEST(QueryTest, NullFilter) {
-  auto query = Query("collection").AddingFilter(Filter("sort", "==", nullptr));
+  auto query =
+      testutil::Query("collection").AddingFilter(Filter("sort", "==", nullptr));
   auto doc1 = *Doc("collection/1", 0, Map("sort", nullptr));
   auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
   auto doc3 = *Doc("collection/2", 0, Map("sort", 3.1));
@@ -161,7 +163,8 @@ TEST(QueryTest, NullFilter) {
 }
 
 TEST(QueryTest, NanFilter) {
-  auto query = Query("collection").AddingFilter(Filter("sort", "==", NAN));
+  auto query =
+      testutil::Query("collection").AddingFilter(Filter("sort", "==", NAN));
 
   auto doc1 = *Doc("collection/1", 0, Map("sort", NAN));
   auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
@@ -176,9 +179,9 @@ TEST(QueryTest, NanFilter) {
   EXPECT_THAT(query, Not(Matches(doc5)));
 }
 
-TEST(QueryTest, ArrayContainsFilters) {
-  auto query =
-      Query("collection").AddingFilter(Filter("array", "array_contains", 42));
+TEST(QueryTest, ArrayContainsFilter) {
+  auto query = testutil::Query("collection")
+                   .AddingFilter(Filter("array", "array_contains", 42));
 
   // not an array.
   auto doc = *Doc("collection/1", 0, Map("array", 1));
@@ -203,7 +206,7 @@ TEST(QueryTest, ArrayContainsFilters) {
 TEST(QueryTest, ArrayContainsFilterWithObjectValues) {
   // Search for arrays containing the object { a: [42] }
   auto query =
-      Query("collection")
+      testutil::Query("collection")
           .AddingFilter(Filter("array", "array_contains", Map("a", Array(42))));
 
   // array without element.
@@ -220,8 +223,8 @@ TEST(QueryTest, ArrayContainsFilterWithObjectValues) {
 }
 
 TEST(QueryTest, InFilters) {
-  auto query =
-      Query("collection").AddingFilter(Filter("zip", "in", Array(12345)));
+  auto query = testutil::Query("collection")
+                   .AddingFilter(Filter("zip", "in", Array(12345)));
 
   auto doc = *Doc("collection/1", 0, Map("zip", 12345));
   EXPECT_THAT(query, Matches(doc));
@@ -241,7 +244,7 @@ TEST(QueryTest, InFilters) {
 
 TEST(QueryTest, InFiltersWithObjectValues) {
   auto query =
-      Query("collection")
+      testutil::Query("collection")
           .AddingFilter(Filter("zip", "in", Array(Map("a", Array(42)))));
 
   // Containing object in array.
@@ -255,7 +258,7 @@ TEST(QueryTest, InFiltersWithObjectValues) {
 
 TEST(QueryTest, ArrayContainsAnyFilters) {
   auto query =
-      Query("collection")
+      testutil::Query("collection")
           .AddingFilter(Filter("zip", "array-contains-any", Array(12345)));
 
   auto doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
@@ -276,7 +279,7 @@ TEST(QueryTest, ArrayContainsAnyFilters) {
 }
 
 TEST(QueryTest, ArrayContainsAnyFiltersWithObjectValues) {
-  auto query = Query("collection")
+  auto query = testutil::Query("collection")
                    .AddingFilter(Filter("zip", "array-contains-any",
                                         Array(Map("a", Array(42)))));
 
@@ -290,8 +293,10 @@ TEST(QueryTest, ArrayContainsAnyFiltersWithObjectValues) {
 }
 
 TEST(QueryTest, DoesNotMatchComplexObjectsForFilters) {
-  auto query1 = Query("collection").AddingFilter(Filter("sort", "<=", 2));
-  auto query2 = Query("collection").AddingFilter(Filter("sort", ">=", 2));
+  auto query1 =
+      testutil::Query("collection").AddingFilter(Filter("sort", "<=", 2));
+  auto query2 =
+      testutil::Query("collection").AddingFilter(Filter("sort", ">=", 2));
 
   auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
   auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
@@ -319,7 +324,8 @@ TEST(QueryTest, DoesNotMatchComplexObjectsForFilters) {
 }
 
 TEST(QueryTest, DoesntRemoveComplexObjectsWithOrderBy) {
-  auto query1 = Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
+  auto query1 =
+      testutil::Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
 
   auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
   auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
@@ -337,46 +343,46 @@ TEST(QueryTest, DoesntRemoveComplexObjectsWithOrderBy) {
 }
 
 TEST(QueryTest, FiltersBasedOnArrayValue) {
-  auto baseQuery = Query("collection");
+  auto base_query = testutil::Query("collection");
   auto doc1 = *Doc("collection/doc", 0, Map("tags", Array("foo", 1, true)));
 
-  FilterList matchingFilters = {Filter("tags", "==", Array("foo", 1, true))};
+  FilterList matching_filters = {Filter("tags", "==", Array("foo", 1, true))};
 
-  FilterList nonMatchingFilters = {
+  FilterList non_matching_filters = {
       Filter("tags", "==", "foo"),
       Filter("tags", "==", Array("foo", 1)),
       Filter("tags", "==", Array("foo", true, 1)),
   };
 
-  for (const auto& filter : matchingFilters) {
-    EXPECT_THAT(baseQuery.AddingFilter(filter), Matches(doc1));
+  for (const auto& filter : matching_filters) {
+    EXPECT_THAT(base_query.AddingFilter(filter), Matches(doc1));
   }
 
-  for (const auto& filter : nonMatchingFilters) {
-    EXPECT_THAT(baseQuery.AddingFilter(filter), Not(Matches(doc1)));
+  for (const auto& filter : non_matching_filters) {
+    EXPECT_THAT(base_query.AddingFilter(filter), Not(Matches(doc1)));
   }
 }
 
 TEST(QueryTest, FiltersBasedOnObjectValue) {
-  auto baseQuery = Query("collection");
+  auto base_query = testutil::Query("collection");
   auto doc1 = *Doc("collection/doc", 0,
                    Map("tags", Map("foo", "foo", "a", 0, "b", true, "c", NAN)));
 
-  FilterList matchingFilters = {
+  FilterList matching_filters = {
       Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true, "c", NAN)),
       Filter("tags", "==", Map("b", true, "a", 0, "foo", "foo", "c", NAN)),
       Filter("tags.foo", "==", "foo")};
 
-  FilterList nonMatchingFilters = {
+  FilterList non_matching_filters = {
       Filter("tags", "==", "foo"),
       Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true))};
 
-  for (const auto& filter : matchingFilters) {
-    EXPECT_THAT(baseQuery.AddingFilter(filter), Matches(doc1));
+  for (const auto& filter : matching_filters) {
+    EXPECT_THAT(base_query.AddingFilter(filter), Matches(doc1));
   }
 
-  for (const auto& filter : nonMatchingFilters) {
-    EXPECT_THAT(baseQuery.AddingFilter(filter), Not(Matches(doc1)));
+  for (const auto& filter : non_matching_filters) {
+    EXPECT_THAT(base_query.AddingFilter(filter), Not(Matches(doc1)));
   }
 }
 
@@ -388,13 +394,13 @@ testing::AssertionResult CorrectComparisons(const std::vector<Document>& vector,
                                             const DocumentComparator& comp) {
   for (size_t i = 0; i < vector.size(); i++) {
     for (size_t j = 0; j < vector.size(); j++) {
-      const Document& iDoc = vector[i];
-      const Document& jDoc = vector[j];
+      const Document& i_doc = vector[i];
+      const Document& j_doc = vector[j];
       ComparisonResult expected = util::Compare(i, j);
-      ComparisonResult actual = comp.Compare(iDoc, jDoc);
+      ComparisonResult actual = comp.Compare(i_doc, j_doc);
       if (actual != expected) {
         return testing::AssertionFailure()
-               << "Comparison failure " << iDoc << " to " << jDoc << " at ("
+               << "Comparison failure " << i_doc << " to " << j_doc << " at ("
                << i << ", " << j << ").";
       }
     }
@@ -403,7 +409,7 @@ testing::AssertionResult CorrectComparisons(const std::vector<Document>& vector,
 }
 
 TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
-  auto query = Query("collection").AddingOrderBy(OrderBy("sort"));
+  auto query = testutil::Query("collection").AddingOrderBy(OrderBy("sort"));
 
   // clang-format off
   std::vector<Document> docs = {
@@ -428,7 +434,7 @@ TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
 }
 
 TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
-  auto query = Query("collection")
+  auto query = testutil::Query("collection")
                    .AddingOrderBy(OrderBy("sort1"))
                    .AddingOrderBy(OrderBy("sort2"));
 
@@ -451,7 +457,7 @@ TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
 }
 
 TEST(QueryTest, SortsDocumentsWithDescendingToo) {
-  auto query = Query("collection")
+  auto query = testutil::Query("collection")
                    .AddingOrderBy(OrderBy("sort1", "desc"))
                    .AddingOrderBy(OrderBy("sort2", "desc"));
 
@@ -474,40 +480,40 @@ TEST(QueryTest, SortsDocumentsWithDescendingToo) {
 }
 
 TEST(QueryTest, Equality) {
-  auto q11 = Query("foo")
+  auto q11 = testutil::Query("foo")
                  .AddingFilter(Filter("i1", "<", 2))
                  .AddingFilter(Filter("i2", "==", 3));
-  auto q12 = Query("foo")
+  auto q12 = testutil::Query("foo")
                  .AddingFilter(Filter("i2", "==", 3))
                  .AddingFilter(Filter("i1", "<", 2));
 
-  auto q21 = Query("foo");
-  auto q22 = Query("foo");
+  auto q21 = testutil::Query("foo");
+  auto q22 = testutil::Query("foo");
 
-  auto q31 = Query("foo/bar");
-  auto q32 = Query("foo/bar");
+  auto q31 = testutil::Query("foo/bar");
+  auto q32 = testutil::Query("foo/bar");
 
-  auto q41 = Query("foo")
+  auto q41 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingOrderBy(OrderBy("bar", "asc"));
-  auto q42 = Query("foo")
+  auto q42 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingOrderBy(OrderBy("bar", "asc"));
-  auto q43Diff = Query("foo")
+  auto q43Diff = testutil::Query("foo")
                      .AddingOrderBy(OrderBy("bar", "asc"))
                      .AddingOrderBy(OrderBy("foo", "asc"));
 
-  auto q51 = Query("foo")
+  auto q51 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingFilter(Filter("foo", ">", 2));
-  auto q52 = Query("foo")
+  auto q52 = testutil::Query("foo")
                  .AddingFilter(Filter("foo", ">", 2))
                  .AddingOrderBy(OrderBy("foo", "asc"));
-  auto q53Diff = Query("foo")
+  auto q53Diff = testutil::Query("foo")
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimit(10);
 
   // ASSERT_EQ(q12, q11);  // TODO(klimt): not canonical yet
   ASSERT_NE(q21, q11);
@@ -538,40 +544,40 @@ TEST(QueryTest, Equality) {
 }
 
 TEST(QueryTest, UniqueIds) {
-  auto q11 = Query("foo")
+  auto q11 = testutil::Query("foo")
                  .AddingFilter(Filter("i1", "<", 2))
                  .AddingFilter(Filter("i2", "==", 3));
-  auto q12 = Query("foo")
+  auto q12 = testutil::Query("foo")
                  .AddingFilter(Filter("i2", "==", 3))
                  .AddingFilter(Filter("i1", "<", 2));
 
-  auto q21 = Query("foo");
-  auto q22 = Query("foo");
+  auto q21 = testutil::Query("foo");
+  auto q22 = testutil::Query("foo");
 
-  auto q31 = Query("foo/bar");
-  auto q32 = Query("foo/bar");
+  auto q31 = testutil::Query("foo/bar");
+  auto q32 = testutil::Query("foo/bar");
 
-  auto q41 = Query("foo")
+  auto q41 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingOrderBy(OrderBy("bar", "asc"));
-  auto q42 = Query("foo")
+  auto q42 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingOrderBy(OrderBy("bar", "asc"));
-  auto q43Diff = Query("foo")
+  auto q43Diff = testutil::Query("foo")
                      .AddingOrderBy(OrderBy("bar", "asc"))
                      .AddingOrderBy(OrderBy("foo", "asc"));
 
-  auto q51 = Query("foo")
+  auto q51 = testutil::Query("foo")
                  .AddingOrderBy(OrderBy("foo", "asc"))
                  .AddingFilter(Filter("foo", ">", 2));
-  auto q52 = Query("foo")
+  auto q52 = testutil::Query("foo")
                  .AddingFilter(Filter("foo", ">", 2))
                  .AddingOrderBy(OrderBy("foo", "asc"));
-  auto q53Diff = Query("foo")
+  auto q53Diff = testutil::Query("foo")
                      .AddingFilter(Filter("bar", ">", 2))
                      .AddingOrderBy(OrderBy("bar", "asc"));
 
-  auto q61 = Query("foo").WithLimit(10);
+  auto q61 = testutil::Query("foo").WithLimit(10);
 
   // XCTAssertEqual(q11.Hash(), q12.Hash());  // TODO(klimt): not canonical yet
   ASSERT_NE(q21.Hash(), q11.Hash());
@@ -602,42 +608,43 @@ TEST(QueryTest, UniqueIds) {
 }
 
 TEST(QueryTest, ImplicitOrderBy) {
-  auto baseQuery = Query("foo");
+  auto base_query = testutil::Query("foo");
   // Default is ascending
-  ASSERT_EQ(baseQuery.order_bys(),
+  ASSERT_EQ(base_query.order_bys(),
             OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
 
   // Explicit key ordering is respected
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
-                .order_bys(),
-            OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
   ASSERT_EQ(
-      baseQuery.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
+      base_query.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
+          .order_bys(),
+      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
+  ASSERT_EQ(
+      base_query.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
           .order_bys(),
       OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "desc")});
 
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
                 .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
                 .order_bys(),
             (OrderByList{OrderBy("foo", "asc"),
                          OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
                 .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
                 .order_bys(),
             (OrderByList{OrderBy("foo", "asc"),
                          OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
 
   // Inequality filters add order bys
-  ASSERT_EQ(baseQuery.AddingFilter(Filter("foo", "<", 5)).order_bys(),
+  ASSERT_EQ(base_query.AddingFilter(Filter("foo", "<", 5)).order_bys(),
             (OrderByList{OrderBy("foo", "asc"),
                          OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   // Descending order by applies to implicit key ordering
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy("foo", "desc")).order_bys(),
+  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "desc")).order_bys(),
             (OrderByList{OrderBy("foo", "desc"),
                          OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy("foo", "asc"))
+  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
                 .AddingOrderBy(OrderBy("bar", "desc"))
                 .order_bys(),
             (OrderByList{
@@ -645,7 +652,7 @@ TEST(QueryTest, ImplicitOrderBy) {
                 OrderBy("bar", "desc"),
                 OrderBy(FieldPath::kDocumentKeyPath, "desc"),
             }));
-  ASSERT_EQ(baseQuery.AddingOrderBy(OrderBy("foo", "desc"))
+  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "desc"))
                 .AddingOrderBy(OrderBy("bar", "asc"))
                 .order_bys(),
             (OrderByList{
@@ -662,16 +669,17 @@ MATCHER_P(HasCanonicalId, expected, "") {
 }
 
 TEST(QueryTest, CanonicalIDs) {
-  auto query = Query("coll");
+  auto query = testutil::Query("coll");
   EXPECT_THAT(query, HasCanonicalId("coll|f:|ob:__name__asc"));
 
   auto cg = CollectionGroupQuery("foo");
   EXPECT_THAT(cg, HasCanonicalId("|cg:foo|f:|ob:__name__asc"));
 
-  auto subcoll = Query("foo/bar/baz");
+  auto subcoll = testutil::Query("foo/bar/baz");
   EXPECT_THAT(subcoll, HasCanonicalId("foo/bar/baz|f:|ob:__name__asc"));
 
-  auto filters = Query("coll").AddingFilter(Filter("str", "==", "foo"));
+  auto filters =
+      testutil::Query("coll").AddingFilter(Filter("str", "==", "foo"));
   EXPECT_THAT(filters, HasCanonicalId("coll|f:str==foo|ob:__name__asc"));
 
   // Inequality filters end up in the order by too
@@ -679,18 +687,19 @@ TEST(QueryTest, CanonicalIDs) {
   EXPECT_THAT(filters,
               HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
 
-  auto orderBys = Query("coll").AddingOrderBy(OrderBy("up", "asc"));
-  EXPECT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
+  auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
+  EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
 
   // __name__'s order matches the trailing component
-  orderBys = orderBys.AddingOrderBy(OrderBy("down", "desc"));
-  EXPECT_THAT(orderBys, HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
+  order_bys = order_bys.AddingOrderBy(OrderBy("down", "desc"));
+  EXPECT_THAT(order_bys,
+              HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
 
-  auto limit = Query("coll").WithLimit(25);
+  auto limit = testutil::Query("coll").WithLimit(25);
   EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25"));
 
   auto bounds =
-      Query("airports")
+      testutil::Query("airports")
           .AddingOrderBy(OrderBy("name", "asc"))
           .AddingOrderBy(OrderBy("score", "desc"))
           .StartingAt(Bound({Value("OAK"), Value(1000)}, /* is_before= */ true))
