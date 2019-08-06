@@ -70,6 +70,7 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Status;
 
 using testutil::Array;
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Key;
 using testutil::Map;
@@ -346,13 +347,12 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
-                                                  {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {targetID}, {})];
   FSTAssertRemoved("foo/bar");
   // Under eager GC, there is no longer a reference for the document, and it should be
   // deleted.
   if (![self gcIsEager]) {
-    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
+    FSTAssertContains(DeletedDoc("foo/bar", 2, NO));
   } else {
     FSTAssertNotContains("foo/bar");
   }
@@ -382,8 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
   FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
-                                                  {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {targetID}, {})];
   FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 }
@@ -492,7 +491,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   [self acknowledgeMutationWithVersion:1];
   FSTAssertRemoved("foo/bar");
@@ -515,7 +514,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Remove the target so only the mutation is pinning the document
   [self.localStore releaseQuery:query];
@@ -536,13 +535,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Add the document to a target so it will remain in persistence even when ack'd
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
                                                   {})];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Don't need to keep it pinned anymore
   [self.localStore releaseQuery:query];
@@ -567,11 +566,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
   FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
-                                                  {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(DeletedDoc("foo/bar", 2), {targetID}, {})];
   FSTAssertRemoved("foo/bar");
   if (![self gcIsEager]) {
-    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
+    FSTAssertContains(DeletedDoc("foo/bar", 2));
   }
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 3, Map("it", "changed")),
@@ -663,15 +661,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/bar"));
 
   [self acknowledgeMutationWithVersion:2];  // delete mutation
   FSTAssertRemoved("foo/bar");
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, YES));
+  FSTAssertContains(DeletedDoc("foo/bar", 2, /* has_committed_mutations= */ true));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
   FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 3));
@@ -687,8 +685,8 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   if (![self gcIsEager]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
-                             FSTTestDeletedDoc("foo/bar", 2, NO), {}, {}, {1})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(DeletedDoc("foo/bar", 2), {}, {},
+                                                                  {1})];
   FSTAssertNotContains("foo/bar");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
@@ -729,17 +727,17 @@ NS_ASSUME_NONNULL_BEGIN
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self acknowledgeMutationWithVersion:3];
   FSTAssertNotContains("foo/bar");
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self acknowledgeMutationWithVersion:4];
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self acknowledgeMutationWithVersion:5];
   FSTAssertNotContains("foo/bar");
@@ -764,17 +762,17 @@ NS_ASSUME_NONNULL_BEGIN
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
   FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self rejectMutation];  // patch mutation
   FSTAssertNotContains("foo/bar");
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self rejectMutation];  // set mutation
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
+  FSTAssertContains(DeletedDoc("foo/baz"));
 
   [self rejectMutation];  // delete mutation
   FSTAssertNotContains("foo/bar");
@@ -1093,7 +1091,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   FSTAssertNotContains("foo/bar");
-  FSTAssertChanged(FSTTestDeletedDoc("foo/bar", 0, NO));
+  FSTAssertChanged(DeletedDoc("foo/bar"));
 
   // Note: This test reflects the current behavior, but it may be preferable to replay the
   // mutation once we receive the first value from the remote event.

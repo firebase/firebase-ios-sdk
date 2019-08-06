@@ -165,13 +165,6 @@ DocumentKey FSTTestDocKey(NSString *path) {
   return DocumentKey::FromPathString(util::MakeString(path));
 }
 
-NoDocument FSTTestDeletedDoc(const absl::string_view path,
-                             FSTTestSnapshotVersion version,
-                             BOOL hasCommittedMutations) {
-  DocumentKey key = testutil::Key(path);
-  return NoDocument(std::move(key), testutil::Version(version), hasCommittedMutations);
-}
-
 UnknownDocument FSTTestUnknownDoc(const absl::string_view path, FSTTestSnapshotVersion version) {
   return UnknownDocument(testutil::Key(path), testutil::Version(version));
 }

@@ -85,6 +85,7 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
 using testutil::Key;
@@ -946,8 +947,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  DocumentWatchChange expected{
-      {}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), DeletedDoc("coll/1", 5)};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";

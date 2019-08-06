@@ -285,11 +285,6 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
-inline model::UnknownDocument UnknownDoc(absl::string_view key,
-                                         int64_t version) {
-  return model::UnknownDocument(Key(key), Version(version));
-}
-
 /**
  * Creates an DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.

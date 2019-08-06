@@ -47,6 +47,7 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OptionalMaybeDocumentMap;
 
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 using testutil::Query;
@@ -165,7 +166,7 @@ void ExpectMapHasDocs(XCTestCase *self,
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testSetAndReadDeletedDocument", [&]() {
-    absl::optional<MaybeDocument> deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
+    absl::optional<MaybeDocument> deletedDoc = DeletedDoc(kDocPath, kVersion);
     self.remoteDocumentCache->Add(*deletedDoc);
 
     XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);

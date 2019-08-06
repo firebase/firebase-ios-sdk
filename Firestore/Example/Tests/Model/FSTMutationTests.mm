@@ -61,6 +61,7 @@ using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::testutil::Version;
 
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 using testutil::WrapObject;
@@ -143,7 +144,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 }
 
 - (void)testPatchingDeletedDocumentsDoesNothing {
-  MaybeDocument baseDoc = FSTTestDeletedDoc("collection/key", 0, NO);
+  MaybeDocument baseDoc = DeletedDoc("collection/key");
   FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
   auto patchedDoc = [patch applyToLocalDocument:baseDoc
                                    baseDocument:baseDoc
@@ -477,7 +478,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto result = [mutation applyToLocalDocument:baseDoc
                                   baseDocument:baseDoc
                                 localWriteTime:_timestamp];
-  XCTAssertEqual(result, FSTTestDeletedDoc("collection/key", 0, NO));
+  XCTAssertEqual(result, DeletedDoc("collection/key"));
 }
 
 - (void)testSetWithMutationResult {
@@ -575,14 +576,14 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
  */
 - (void)testTransitions {
   Document docV3 = Doc("collection/key", 3, Map());
-  NoDocument deletedV3 = FSTTestDeletedDoc("collection/key", 3, NO);
+  NoDocument deletedV3 = DeletedDoc("collection/key", 3);
 
   FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
   FSTMutation *patchMutation = FSTTestPatchMutation("collection/key", @{}, {});
   FSTMutation *transformMutation = FSTTestTransformMutation(@"collection/key", @{});
   FSTMutation *deleteMutation = FSTTestDeleteMutation(@"collection/key");
 
-  NoDocument docV7Deleted = FSTTestDeletedDoc("collection/key", 7, YES);
+  NoDocument docV7Deleted = DeletedDoc("collection/key", 7, /* has_committed_mutations= */ true);
   Document docV7Committed = Doc("collection/key", 7, Map(), DocumentState::kCommittedMutations);
   UnknownDocument docV7Unknown = FSTTestUnknownDoc("collection/key", 7);
 

@@ -64,6 +64,7 @@ using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Query;
 using firebase::firestore::testutil::Version;
 
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 
@@ -180,7 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDeletedDocumentAsMaybeDocument {
-  NoDocument deletedDoc = FSTTestDeletedDoc("some/path", 42, false);
+  NoDocument deletedDoc = DeletedDoc("some/path", 42);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.noDocument = [FSTPBNoDocument message];

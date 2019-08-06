@@ -771,10 +771,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   Document existingDoc = Doc("docs/existing", 1, Map("some", "data"));
   auto existingDocChange = MakeDocChange({1}, {}, existingDoc.key(), existingDoc);
 
-  NoDocument deletedDoc = FSTTestDeletedDoc("docs/deleted", 1, NO);
+  NoDocument deletedDoc = DeletedDoc("docs/deleted", 1);
   auto deletedDocChange = MakeDocChange({}, {1}, deletedDoc.key(), deletedDoc);
 
-  NoDocument missingDoc = FSTTestDeletedDoc("docs/missing", 1, NO);
+  NoDocument missingDoc = DeletedDoc("docs/missing", 1);
   auto missingDocChange = MakeDocChange({}, {1}, missingDoc.key(), missingDoc);
 
   RemoteEvent event = [self

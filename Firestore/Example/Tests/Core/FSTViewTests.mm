@@ -50,6 +50,7 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
 
 using testing::ElementsAre;
+using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
 using testutil::Filter;
@@ -130,7 +131,7 @@ inline Query QueryForMessages() {
 
   // delete doc2, add doc3
   absl::optional<ViewSnapshot> maybe_snapshot =
-      FSTTestApplyChanges(view, {FSTTestDeletedDoc("rooms/eros/messages/2", 0, NO), doc3},
+      FSTTestApplyChanges(view, {DeletedDoc("rooms/eros/messages/2"), doc3},
                           FSTTestTargetChangeAckDocuments({doc1.key(), doc3.key()}));
   XCTAssertTrue(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
@@ -343,11 +344,9 @@ inline Query QueryForMessages() {
                         @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
                                                               key:doc3.key()] ]);
 
-  change = [view
-      applyChangesToDocuments:[view
-                                  computeChangesWithDocuments:FSTTestDocUpdates({FSTTestDeletedDoc(
-                                                                  "rooms/eros/messages/2", 1,
-                                                                  NO)})]];  // remove
+  change = [view applyChangesToDocuments:
+                     [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc(
+                                                           "rooms/eros/messages/2")})]];  // remove
   XCTAssertEqualObjects(change.limboChanges,
                         @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
                                                               key:doc3.key()] ]);
@@ -385,8 +384,8 @@ inline Query QueryForMessages() {
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
-  changes = [view computeChangesWithDocuments:FSTTestDocUpdates({FSTTestDeletedDoc(
-                                                  "rooms/eros/messages/0", 0, NO)})];
+  changes =
+      [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/0")})];
   XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc2}));
   XCTAssertTrue(changes.needsRefill);
   XCTAssertEqual(1, changes.changeSet.GetChanges().size());
@@ -517,8 +516,8 @@ inline Query QueryForMessages() {
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
-  changes = [view computeChangesWithDocuments:FSTTestDocUpdates({FSTTestDeletedDoc(
-                                                  "rooms/eros/messages/1", 0, NO)})];
+  changes =
+      [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/1")})];
   XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1}));
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(1, changes.changeSet.GetChanges().size());
@@ -540,8 +539,8 @@ inline Query QueryForMessages() {
   [view applyChangesToDocuments:changes];
 
   // Remove a doc that isn't even in the results.
-  changes = [view computeChangesWithDocuments:FSTTestDocUpdates({FSTTestDeletedDoc(
-                                                  "rooms/eros/messages/2", 0, NO)})];
+  changes =
+      [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/2")})];
   XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(0, changes.changeSet.GetChanges().size());
