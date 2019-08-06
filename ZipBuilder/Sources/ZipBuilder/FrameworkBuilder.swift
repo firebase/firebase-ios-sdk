@@ -19,9 +19,13 @@ import Foundation
 /// Different architectures to build frameworks for.
 private enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
-  enum TargetPlatform: String {
+  enum TargetPlatform: String, CaseIterable {
+    /// iOS and iPadOS devices.
     case device = "iphoneos"
+    /// iOS and iPadOS simulators.
     case simulator = "iphonesimulator"
+    /// iPad Apps on macOS.
+    case catalyst = "uikitformac"
 
     /// Extra C flags that should be included as part of the build process for each target platform.
     func otherCFlags() -> [String] {
@@ -29,9 +33,22 @@ private enum Architecture: String, CaseIterable {
       case .device:
         // For device, we want to enable bitcode.
         return ["-fembed-bitcode"]
-      case .simulator:
-        // No extra arguments are required for simulator builds.
+      default:
         return []
+      }
+    }
+
+    /// Arguments that should be included as part of the build process for each target platform.
+    func extraArguments() -> [String] {
+      let base = ["-sdk", rawValue]
+      switch self {
+      case .catalyst:
+        return ["SKIP_INSTALL=NO",
+                "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
+                "SUPPORTS_UIKITFORMAC=YES"]
+      case .simulator:
+        // No extra arguments are required for simulator or device builds.
+        return base
       }
     }
   }
@@ -39,13 +56,25 @@ private enum Architecture: String, CaseIterable {
   case arm64
   case armv7
   case i386
+  /// iOS Simulator.
   case x86_64
+  /// iPad Apps on macOS.
+  case x86_64Catalyst
+
+  /// The actual parameter for passing the architecture to `xcodebuild`.
+  var parameter: String {
+    switch self {
+    case .x86_64Catalyst: return "x86_64"
+    default: return rawValue
+    }
+  }
 
   /// The platform associated with the architecture.
   var platform: TargetPlatform {
     switch self {
     case .arm64, .armv7: return .device
     case .i386, .x86_64: return .simulator
+    case .x86_64Catalyst: return .catalyst
     }
   }
 }
@@ -217,22 +246,23 @@ struct FrameworkBuilder {
                          arch: Architecture,
                          buildDir: URL,
                          logRoot: URL) -> URL {
-    let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
+    let platform = arch.platform
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
-    let args = ["build",
-                "-configuration", "release",
-                "-workspace", workspacePath,
-                "-scheme", framework,
-                "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
-                "ARCHS=\(arch.rawValue)",
-                "BUILD_DIR=\(buildDir.path)",
-                "-sdk", platform.rawValue,
-                cFlags]
+    let standardOptions = ["build",
+                           "-configuration", "release",
+                           "-workspace", workspacePath,
+                           "-scheme", framework,
+                           "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
+                           "ARCHS=\(arch.parameter)",
+                           "BUILD_DIR=\(buildDir.path)",
+                           "-sdk", platform.rawValue,
+                           cFlags]
+    let args = standardOptions + platform.extraArguments()
     print("""
-    Compiling \(framework) for \(arch.rawValue) with command:
+    Compiling \(framework) for \(arch.parameter), \(platform.rawValue) with command:
     /usr/bin/xcodebuild \(args.joined(separator: " "))
     """)
 
@@ -304,7 +334,7 @@ struct FrameworkBuilder {
     return ([], [])
   }
 
-  private func makeModuleMap(baseDir: URL, framework: String, dir: URL) {
+  private func makeModuleMap(framework: String, dir: URL) {
     let dependencies = getModuleDependencies(forFramework: framework)
     let moduleDir = dir.appendingPathComponent("Modules")
     do {
@@ -313,11 +343,31 @@ struct FrameworkBuilder {
       fatalError("Could not create Modules directory for framework: \(framework). \(error)")
     }
 
+    // Check if there's an explicit umbrella header or not for this framework. If so, use it as the
+    // umbrella header. If not, use the `Headers` directory as an umbrella directory for all
+    // headers.
+    let headersDir = dir.appendingPathComponent("Headers")
+    let allHeaders: [String]
+    let umbrellaStatement: String
+    do {
+      allHeaders = try FileManager.default.contentsOfDirectory(atPath: headersDir.path)
+      print("All headers: \(allHeaders)")
+      if allHeaders.contains("\(framework).h") {
+        // Use the explicit umbrella header.
+        umbrellaStatement = "umbrella header \"\(framework).h\""
+      } else {
+        // Use the "Headers" folder as the umbrella folder for all headers.
+        umbrellaStatement = "umbrella \"Headers\""
+      }
+    } catch {
+      fatalError("Could not read Headers directory for \(framework): \(error)")
+    }
+
     let modulemap = moduleDir.appendingPathComponent("module.modulemap")
     // The base of the module map. The empty line at the end is intentional, do not remove it.
     var content = """
     framework module \(framework) {
-    umbrella header "\(framework).h"
+    \(umbrellaStatement)
     export *
     module * { export * }
 
@@ -367,14 +417,14 @@ struct FrameworkBuilder {
     // Build every architecture and save the locations in an array to be assembled.
     // TODO: Pass in supported architectures here, for those open source SDKs that don't support
     // individual architectures.
-    var thinArchives = [URL]()
+    var thinArchives = [Architecture: URL]()
     for arch in Architecture.allCases {
       let buildDir = projectDir.appendingPathComponent(arch.rawValue)
       let thinArchive = buildThin(framework: framework,
                                   arch: arch,
                                   buildDir: buildDir,
                                   logRoot: logsDir)
-      thinArchives.append(thinArchive)
+      thinArchives[arch] = thinArchive
     }
 
     // Create the framework directory in the filesystem for the thin archives to go.
@@ -384,37 +434,6 @@ struct FrameworkBuilder {
     } catch {
       fatalError("Could not create framework directory while building framework \(framework). " +
         "\(error)")
-    }
-
-    // Build the fat archive using the `lipo` command. We need the full archive path and the list of
-    // thin paths (as Strings, not URLs).
-    let thinPaths = thinArchives.map { $0.path }
-    let fatArchive = frameworkDir.appendingPathComponent(framework)
-    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
-    switch result {
-    case let .error(code, output):
-      fatalError("""
-      lipo command exited with \(code) when trying to build \(framework). Output:
-      \(output)
-      """)
-    case .success:
-      print("lipo command for \(framework) succeeded.")
-    }
-
-    // Remove the temporary thin archives.
-    for thinArchive in thinArchives {
-      do {
-        try fileManager.removeItem(at: thinArchive)
-      } catch {
-        // Just log a warning instead of failing, since this doesn't actually affect the build
-        // itself. This should only be shown to help users clean up their disk afterwards.
-        print("""
-        WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
-        removed from your system to save disk space. \(error). You should be able to remove the
-        archive from Terminal with:
-        rm \(thinArchive.path)
-        """)
-      }
     }
 
     // Verify Firebase headers include an explicit umbrella header for Firebase.h.
@@ -451,8 +470,169 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
-    return frameworkDir
+    makeModuleMap(framework: framework, dir: frameworkDir)
+
+    let xcframework = packageXCFramework(withName: framework,
+                                         fromFolder: frameworkDir,
+                                         thinArchives: thinArchives)
+//    let framework = packageFramework(withName: framework,
+//                                     fromFolder: frameworkDir,
+//                                     thinArchives: thinArchives)
+
+    // Remove the temporary thin archives.
+    for thinArchive in thinArchives.values {
+      do {
+        try fileManager.removeItem(at: thinArchive)
+      } catch {
+        // Just log a warning instead of failing, since this doesn't actually affect the build
+        // itself. This should only be shown to help users clean up their disk afterwards.
+        print("""
+        WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
+        removed from your system to save disk space. \(error). You should be able to remove the
+        archive from Terminal with:
+        rm \(thinArchive.path)
+        """)
+      }
+    }
+
+    //    return frameworkDir
+    return xcframework
+  }
+
+  private func packageFramework(withName framework: String,
+                                fromFolder: URL,
+                                thinArchives: [Architecture: URL],
+                                destination: URL) {
+    // Build the fat archive using the `lipo` command. We need the full archive path and the list of
+    // thin paths (as Strings, not URLs).
+    let thinPaths = thinArchives.map { $0.value.path }
+
+    // Store all fat archives in a temporary directory that includes all architectures included as
+    // the parent folder.
+    let fatArchivesDir: URL = {
+      let allArchivesDir = FileManager.default.temporaryDirectory(withName: "fat_archives")
+      let architectures = thinArchives.keys.map { $0.rawValue }.sorted()
+      return allArchivesDir.appendingPathComponent(architectures.joined(separator: "_"))
+    }()
+
+    do {
+      let fileManager = FileManager.default
+      try fileManager.createDirectory(at: fatArchivesDir, withIntermediateDirectories: true)
+      // Remove any previously built fat archives.
+      if fileManager.fileExists(atPath: destination.path) {
+        try fileManager.removeItem(at: destination)
+      }
+
+      try FileManager.default.copyItem(at: fromFolder, to: destination)
+    } catch {
+      fatalError("Could not create directories needed to build \(framework): \(error)")
+    }
+
+    let fatArchive = fatArchivesDir.appendingPathComponent(framework)
+    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      lipo command exited with \(code) when trying to build \(framework). Output:
+      \(output)
+      """)
+    case .success:
+      print("lipo command for \(framework) succeeded.")
+    }
+
+    // Copy the built binary to the destination.
+    let archiveDestination = destination.appendingPathComponent(framework)
+    do {
+      try FileManager.default.copyItem(at: fatArchive, to: archiveDestination)
+    } catch {
+      fatalError("Could not copy \(framework) to destination: \(error)")
+    }
+  }
+
+  /// Packages an XCFramework based on an almost complete framework folder (missing the binary but includes everything else needed)
+  /// and thin archives for each architecture slice.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter thinArchives: All the thin archives.
+  private func packageXCFramework(withName framework: String,
+                                  fromFolder: URL,
+                                  thinArchives: [Architecture: URL]) -> URL {
+    let fileManager = FileManager.default
+
+    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
+    let platformFrameworksDir =
+      fileManager.temporaryDirectory(withName: "platform_frameworks")
+    if !fileManager.directoryExists(at: platformFrameworksDir) {
+      do {
+        try fileManager.createDirectory(at: platformFrameworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
+      }
+    }
+
+    // Group the thin frameworks into three groups: device, simulator, and Catalyst (all represented
+    // by the `TargetPlatform` enum. The slices need to be packaged that way with lipo before
+    // creating a .framework that works for similar grouped architectures. If built separately,
+    // `-create-xcframework` will return an error and fail:
+    // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
+    var frameworksBuilt: [URL] = []
+    for platform in Architecture.TargetPlatform.allCases {
+      // Get all the slices that belong to the specific platform in order to lipo them together.
+      let slices = thinArchives.filter { $0.key.platform == platform }
+      let platformDir = platformFrameworksDir.appendingPathComponent(platform.rawValue)
+      do {
+        try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create directory for architecture slices on \(platform) for " +
+          "\(framework): \(error)")
+      }
+
+      // Package a normal .framework with the given slices.
+      let destination = platformDir.appendingPathComponent(fromFolder.lastPathComponent)
+      packageFramework(withName: framework,
+                       fromFolder: fromFolder,
+                       thinArchives: slices,
+                       destination: destination)
+
+      frameworksBuilt.append(destination)
+    }
+
+    // We now need to package those built frameworks into an XCFramework.
+    let xcframeworksDir = projectDir.appendingPathComponent("xcframeworks")
+    if !fileManager.directoryExists(at: xcframeworksDir) {
+      do {
+        try fileManager.createDirectory(at: xcframeworksDir,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create XCFrameworks directory: \(error)")
+      }
+    }
+
+    let xcframework = xcframeworksDir.appendingPathComponent(framework + ".xcframework")
+    if fileManager.fileExists(atPath: xcframework.path) {
+      try! fileManager.removeItem(at: xcframework)
+    }
+
+    // The arguments for the frameworks need to be separated.
+    var frameworkArgs: [String] = []
+    for frameworkBuilt in frameworksBuilt {
+      frameworkArgs.append("-framework")
+      frameworkArgs.append(frameworkBuilt.path)
+    }
+
+    let outputArgs = ["-output", xcframework.path]
+    let result = syncExec(command: "/usr/bin/xcodebuild",
+                          args: ["-create-xcframework"] + frameworkArgs + outputArgs,
+                          captureOutput: true)
+    switch result {
+    case let .error(code, output):
+      fatalError("Could not build xcframework for \(framework) exit code \(code): \(output)")
+
+    case .success:
+      print("XCFramework for \(framework) built successfully at \(xcframework).")
+    }
+
+    return xcframework
   }
 
   /// Recrusively copies headers from the given directory to the destination directory. This does a
