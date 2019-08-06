@@ -15,8 +15,8 @@
  */
 
 #import "FTree.h"
-#import "FTreeNode.h"
 #import "FPath.h"
+#import "FTreeNode.h"
 #import "FUtilities.h"
 
 @implementation FTree
@@ -25,8 +25,7 @@
 @synthesize parent;
 @synthesize node;
 
-- (id)init
-{
+- (id)init {
     self = [super init];
     if (self) {
         self.name = @"";
@@ -36,9 +35,9 @@
     return self;
 }
 
-
-- (id)initWithName:(NSString*)aName withParent:(FTree *)aParent withNode:(FTreeNode *)aNode
-{
+- (id)initWithName:(NSString *)aName
+        withParent:(FTree *)aParent
+          withNode:(FTreeNode *)aNode {
     self = [super init];
     if (self) {
         self.name = aName != nil ? aName : @"";
@@ -48,15 +47,17 @@
     return self;
 }
 
-- (FTree *) subTree:(FPath*)path {
-    FTree* child = self;
-    NSString* next = [path getFront];
-    while(next != nil) {
-        FTreeNode* childNode = child.node.children[next];
+- (FTree *)subTree:(FPath *)path {
+    FTree *child = self;
+    NSString *next = [path getFront];
+    while (next != nil) {
+        FTreeNode *childNode = child.node.children[next];
         if (childNode == nil) {
             childNode = [[FTreeNode alloc] init];
         }
-        child = [[FTree alloc] initWithName:next withParent:child withNode:childNode];
+        child = [[FTree alloc] initWithName:next
+                                 withParent:child
+                                   withNode:childNode];
         path = [path popFront];
         next = [path getFront];
     }
@@ -72,59 +73,67 @@
     [self updateParents];
 }
 
-- (void) clear {
+- (void)clear {
     self.node.value = nil;
     [self.node.children removeAllObjects];
     self.node.childCount = 0;
     [self updateParents];
 }
 
-- (BOOL) hasChildren {
+- (BOOL)hasChildren {
     return self.node.childCount > 0;
 }
 
-- (BOOL) isEmpty {
+- (BOOL)isEmpty {
     return [self getValue] == nil && ![self hasChildren];
 }
 
-- (void) forEachChild:(void (^)(FTree *))action {
-    for(NSString* key in self.node.children) {
-        action([[FTree alloc] initWithName:key withParent:self withNode:[self.node.children objectForKey:key]]);
+- (void)forEachChild:(void (^)(FTree *))action {
+    for (NSString *key in self.node.children) {
+        action([[FTree alloc]
+            initWithName:key
+              withParent:self
+                withNode:[self.node.children objectForKey:key]]);
     }
 }
 
-- (void) forEachChildMutationSafe:(void (^)(FTree *))action {
-    for(NSString* key in [self.node.children copy]) {
-        action([[FTree alloc] initWithName:key withParent:self withNode:[self.node.children objectForKey:key]]);
+- (void)forEachChildMutationSafe:(void (^)(FTree *))action {
+    for (NSString *key in [self.node.children copy]) {
+        action([[FTree alloc]
+            initWithName:key
+              withParent:self
+                withNode:[self.node.children objectForKey:key]]);
     }
 }
 
-- (void) forEachDescendant:(void (^)(FTree *))action {
+- (void)forEachDescendant:(void (^)(FTree *))action {
     [self forEachDescendant:action includeSelf:NO childrenFirst:NO];
 }
 
-- (void) forEachDescendant:(void (^)(FTree *))action includeSelf:(BOOL)incSelf childrenFirst:(BOOL)childFirst {
-    if(incSelf && !childFirst) {
+- (void)forEachDescendant:(void (^)(FTree *))action
+              includeSelf:(BOOL)incSelf
+            childrenFirst:(BOOL)childFirst {
+    if (incSelf && !childFirst) {
         action(self);
     }
 
-    [self forEachChild:^(FTree* child) {
-        [child forEachDescendant:action includeSelf:YES childrenFirst:childFirst];
+    [self forEachChild:^(FTree *child) {
+      [child forEachDescendant:action includeSelf:YES childrenFirst:childFirst];
     }];
 
-    if(incSelf && childFirst) {
+    if (incSelf && childFirst) {
         action(self);
     }
 }
 
-- (BOOL) forEachAncestor:(BOOL (^)(FTree *))action {
+- (BOOL)forEachAncestor:(BOOL (^)(FTree *))action {
     return [self forEachAncestor:action includeSelf:NO];
 }
 
-- (BOOL) forEachAncestor:(BOOL (^)(FTree *))action includeSelf:(BOOL)incSelf {
-    FTree* aNode = (incSelf) ? self : self.parent;
-    while(aNode != nil) {
-        if(action(aNode)) {
+- (BOOL)forEachAncestor:(BOOL (^)(FTree *))action includeSelf:(BOOL)incSelf {
+    FTree *aNode = (incSelf) ? self : self.parent;
+    while (aNode != nil) {
+        if (action(aNode)) {
             return YES;
         }
         aNode = aNode.parent;
@@ -132,21 +141,20 @@
     return NO;
 }
 
-- (void) forEachImmediateDescendantWithValue:(void (^)(FTree *))action {
-    [self forEachChild:^(FTree * child) {
-        if([child getValue] != nil) {
-            action(child);
-        }
-        else {
-            [child forEachImmediateDescendantWithValue:action];
-        }
+- (void)forEachImmediateDescendantWithValue:(void (^)(FTree *))action {
+    [self forEachChild:^(FTree *child) {
+      if ([child getValue] != nil) {
+          action(child);
+      } else {
+          [child forEachImmediateDescendantWithValue:action];
+      }
     }];
 }
 
-- (BOOL) valueExistsAtOrAbove:(FPath *)path {
-    FTreeNode* aNode = self.node;
-    while(aNode != nil) {
-        if(aNode.value != nil) {
+- (BOOL)valueExistsAtOrAbove:(FPath *)path {
+    FTreeNode *aNode = self.node;
+    while (aNode != nil) {
+        if (aNode.value != nil) {
             return YES;
         }
         aNode = [aNode.children objectForKey:path.getFront];
@@ -157,23 +165,25 @@
 }
 
 - (FPath *)path {
-    return [[FPath alloc] initWith:(self.parent == nil) ? self.name :
-            [NSString stringWithFormat:@"%@/%@", [self.parent path], self.name ]];
+    return [[FPath alloc]
+        initWith:(self.parent == nil)
+                     ? self.name
+                     : [NSString stringWithFormat:@"%@/%@", [self.parent path],
+                                                  self.name]];
 }
 
-- (void) updateParents {
+- (void)updateParents {
     [self.parent updateChild:self.name withNode:self];
 }
 
-- (void) updateChild:(NSString*)childName withNode:(FTree *)child {
+- (void)updateChild:(NSString *)childName withNode:(FTree *)child {
     BOOL childEmpty = [child isEmpty];
     BOOL childExists = self.node.children[childName] != nil;
-    if(childEmpty && childExists) {
+    if (childEmpty && childExists) {
         [self.node.children removeObjectForKey:childName];
         self.node.childCount = self.node.childCount - 1;
         [self updateParents];
-    }
-    else if(!childEmpty && !childExists) {
+    } else if (!childEmpty && !childExists) {
         [self.node.children setObject:child.node forKey:childName];
         self.node.childCount = self.node.childCount + 1;
         [self updateParents];

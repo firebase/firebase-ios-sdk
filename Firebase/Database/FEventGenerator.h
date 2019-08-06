@@ -21,7 +21,8 @@
 @protocol FNode;
 
 @interface FEventGenerator : NSObject
-- (id) initWithQuery:(FQuerySpec *)query;
-- (NSArray*) generateEventsForChanges:(NSArray*)changes eventCache:(FIndexedNode *)eventCache
-                   eventRegistrations:(NSArray*)registrations;
+- (id)initWithQuery:(FQuerySpec *)query;
+- (NSArray *)generateEventsForChanges:(NSArray *)changes
+                           eventCache:(FIndexedNode *)eventCache
+                   eventRegistrations:(NSArray *)registrations;
 @end

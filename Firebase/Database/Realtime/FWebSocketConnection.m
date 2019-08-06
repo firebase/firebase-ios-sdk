@@ -14,38 +14,39 @@
  * limitations under the License.
  */
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
+// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// release build.
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRLogger.h>
-#import "FWebSocketConnection.h"
 #import "FConstants.h"
 #import "FIRDatabaseReference.h"
-#import "FStringUtilities.h"
 #import "FIRDatabase_Private.h"
+#import "FStringUtilities.h"
+#import "FWebSocketConnection.h"
+#import <FirebaseCore/FIRLogger.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
 @interface FWebSocketConnection () {
-    NSMutableString* frame;
+    NSMutableString *frame;
     BOOL everConnected;
     BOOL isClosed;
-    NSTimer* keepAlive;
+    NSTimer *keepAlive;
 }
 
-- (void) shutdown;
-- (void) onClosed;
-- (void) closeIfNeverConnected;
+- (void)shutdown;
+- (void)onClosed;
+- (void)closeIfNeverConnected;
 
-@property (nonatomic, strong) FSRWebSocket* webSocket;
-@property (nonatomic, strong) NSNumber* connectionId;
-@property (nonatomic, readwrite) int totalFrames;
-@property (nonatomic, readonly) BOOL buffering;
-@property (nonatomic, readonly) NSString* userAgent;
-@property (nonatomic) dispatch_queue_t dispatchQueue;
+@property(nonatomic, strong) FSRWebSocket *webSocket;
+@property(nonatomic, strong) NSNumber *connectionId;
+@property(nonatomic, readwrite) int totalFrames;
+@property(nonatomic, readonly) BOOL buffering;
+@property(nonatomic, readonly) NSString *userAgent;
+@property(nonatomic) dispatch_queue_t dispatchQueue;
 
 - (void)nop:(NSTimer *)timer;
 
@@ -57,7 +58,9 @@
 @synthesize webSocket;
 @synthesize connectionId;
 
-- (id)initWith:(FRepoInfo *)repoInfo andQueue:(dispatch_queue_t)queue lastSessionID:(NSString *)lastSessionID {
+- (id)initWith:(FRepoInfo *)repoInfo
+         andQueue:(dispatch_queue_t)queue
+    lastSessionID:(NSString *)lastSessionID {
     self = [super init];
     if (self) {
         everConnected = NO;
@@ -67,120 +70,144 @@
         self.dispatchQueue = queue;
         frame = nil;
 
-        NSString* connectionUrl = [repoInfo connectionURLWithLastSessionID:lastSessionID];
-        NSString* ua = [self userAgent];
-        FFLog(@"I-RDB083001", @"(wsc:%@) Connecting to: %@ as %@", self.connectionId, connectionUrl, ua);
+        NSString *connectionUrl =
+            [repoInfo connectionURLWithLastSessionID:lastSessionID];
+        NSString *ua = [self userAgent];
+        FFLog(@"I-RDB083001", @"(wsc:%@) Connecting to: %@ as %@",
+              self.connectionId, connectionUrl, ua);
 
-        NSURLRequest* req = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
-        self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req queue:queue andUserAgent:ua];
+        NSURLRequest *req = [[NSURLRequest alloc]
+            initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
+        self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
+                                                            queue:queue
+                                                     andUserAgent:ua];
         [self.webSocket setDelegateDispatchQueue:queue];
         self.webSocket.delegate = self;
     }
     return self;
 }
 
-- (NSString *) userAgent {
-    NSString* systemVersion;
-    NSString* deviceName;
+- (NSString *)userAgent {
+    NSString *systemVersion;
+    NSString *deviceName;
     BOOL hasUiDeviceClass = NO;
 
-    // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual release build.
-    #if TARGET_OS_IOS || TARGET_OS_TV
+// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// release build.
+#if TARGET_OS_IOS || TARGET_OS_TV
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
     if (uiDeviceClass) {
         systemVersion = [uiDeviceClass currentDevice].systemVersion;
         deviceName = [uiDeviceClass currentDevice].model;
         hasUiDeviceClass = YES;
     }
-    #endif
+#endif
 
     if (!hasUiDeviceClass) {
-        NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-        systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
+        NSDictionary *systemVersionDictionary = [NSDictionary
+            dictionaryWithContentsOfFile:
+                @"/System/Library/CoreServices/SystemVersion.plist"];
+        systemVersion =
+            [systemVersionDictionary objectForKey:@"ProductVersion"];
         deviceName = [systemVersionDictionary objectForKey:@"ProductName"];
     }
 
-    NSString* bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
 
     // Sanitize '/'s in deviceName and bundleIdentifier for stats
     deviceName = [FStringUtilities sanitizedForUserAgent:deviceName];
-    bundleIdentifier = [FStringUtilities sanitizedForUserAgent:bundleIdentifier];
+    bundleIdentifier =
+        [FStringUtilities sanitizedForUserAgent:bundleIdentifier];
 
-    // Firebase/5/<semver>_<build date>_<git hash>/<os version>/{device model / os (Mac OS X, iPhone, etc.}_<bundle id>
-    NSString* ua = [NSString stringWithFormat:@"Firebase/%@/%@/%@/%@_%@", kWebsocketProtocolVersion, [FIRDatabase buildVersion], systemVersion, deviceName, bundleIdentifier];
+    // Firebase/5/<semver>_<build date>_<git hash>/<os version>/{device model /
+    // os (Mac OS X, iPhone, etc.}_<bundle id>
+    NSString *ua = [NSString
+        stringWithFormat:@"Firebase/%@/%@/%@/%@_%@", kWebsocketProtocolVersion,
+                         [FIRDatabase buildVersion], systemVersion, deviceName,
+                         bundleIdentifier];
     return ua;
 }
 
-- (BOOL) buffering {
+- (BOOL)buffering {
     return frame != nil;
 }
 
 #pragma mark -
 #pragma mark Public FWebSocketConnection methods
 
-- (void) open {
-    FFLog(@"I-RDB083002", @"(wsc:%@) FWebSocketConnection open.", self.connectionId);
+- (void)open {
+    FFLog(@"I-RDB083002", @"(wsc:%@) FWebSocketConnection open.",
+          self.connectionId);
     assert(delegate);
     everConnected = NO;
     // TODO Assert url
     [self.webSocket open];
-    dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, kWebsocketConnectTimeout * NSEC_PER_SEC);
+    dispatch_time_t when = dispatch_time(
+        DISPATCH_TIME_NOW, kWebsocketConnectTimeout * NSEC_PER_SEC);
     dispatch_after(when, self.dispatchQueue, ^{
-        [self closeIfNeverConnected];
+      [self closeIfNeverConnected];
     });
 }
 
-- (void) close {
-    FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.", self.connectionId);
+- (void)close {
+    FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
+          self.connectionId);
     isClosed = YES;
     [self.webSocket close];
 }
 
-- (void) start {
+- (void)start {
     // Start is a no-op for websockets.
 }
 
-- (void) send:(NSDictionary *)dictionary {
+- (void)send:(NSDictionary *)dictionary {
 
     [self resetKeepAlive];
 
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
-                                                       options:kNilOptions error:nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
+                                                       options:kNilOptions
+                                                         error:nil];
 
-    NSString* data = [[NSString alloc] initWithData:jsonData
+    NSString *data = [[NSString alloc] initWithData:jsonData
                                            encoding:NSUTF8StringEncoding];
 
-    NSArray* dataSegs = [FUtilities splitString:data intoMaxSize:kWebsocketMaxFrameSize];
+    NSArray *dataSegs = [FUtilities splitString:data
+                                    intoMaxSize:kWebsocketMaxFrameSize];
 
-    // First send the header so the server knows how many segments are forthcoming
+    // First send the header so the server knows how many segments are
+    // forthcoming
     if (dataSegs.count > 1) {
-        [self.webSocket send:[NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count]];
+        [self.webSocket
+            send:[NSString
+                     stringWithFormat:@"%u", (unsigned int)dataSegs.count]];
     }
 
     // Then, actually send the segments.
-    for(NSString * segment in dataSegs) {
+    for (NSString *segment in dataSegs) {
         [self.webSocket send:segment];
     }
 }
 
-- (void) nop:(NSTimer *)timer {
+- (void)nop:(NSTimer *)timer {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
         [self.webSocket send:@"0"];
-    }
-    else {
-        FFLog(@"I-RDB083005", @"(wsc:%@) No more websocket; invalidating nop timer.", self.connectionId);
+    } else {
+        FFLog(@"I-RDB083005",
+              @"(wsc:%@) No more websocket; invalidating nop timer.",
+              self.connectionId);
         [timer invalidate];
     }
 }
 
-- (void) handleNewFrameCount:(int) numFrames {
+- (void)handleNewFrameCount:(int)numFrames {
     self.totalFrames = numFrames;
     frame = [[NSMutableString alloc] initWithString:@""];
-    FFLog(@"I-RDB083006", @"(wsc:%@) handleNewFrameCount: %d", self.connectionId, self.totalFrames);
+    FFLog(@"I-RDB083006", @"(wsc:%@) handleNewFrameCount: %d",
+          self.connectionId, self.totalFrames);
 }
 
-- (NSString *) extractFrameCount:(NSString *) message {
+- (NSString *)extractFrameCount:(NSString *)message {
     if ([message length] <= 4) {
         int frameCount = [message intValue];
         if (frameCount > 0) {
@@ -192,17 +219,20 @@
     return message;
 }
 
-- (void) appendFrame:(NSString *) message {
+- (void)appendFrame:(NSString *)message {
     [frame appendString:message];
     self.totalFrames = self.totalFrames - 1;
 
     if (self.totalFrames == 0) {
         // Call delegate and pass an immutable version of the frame
-        NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[frame dataUsingEncoding:NSUTF8StringEncoding]
-                                                             options:kNilOptions
-                                                               error:nil];
+        NSDictionary *json = [NSJSONSerialization
+            JSONObjectWithData:[frame dataUsingEncoding:NSUTF8StringEncoding]
+                       options:kNilOptions
+                         error:nil];
         frame = nil;
-        FFLog(@"I-RDB083007", @"(wsc:%@) handleIncomingFrame sending complete frame: %d", self.connectionId, self.totalFrames);
+        FFLog(@"I-RDB083007",
+              @"(wsc:%@) handleIncomingFrame sending complete frame: %d",
+              self.connectionId, self.totalFrames);
 
         @autoreleasepool {
             [self.delegate onMessage:self withMessage:json];
@@ -210,7 +240,7 @@
     }
 }
 
-- (void) handleIncomingFrame:(NSString *) message {
+- (void)handleIncomingFrame:(NSString *)message {
     [self resetKeepAlive];
     if (self.buffering) {
         [self appendFrame:message];
@@ -224,36 +254,39 @@
 
 #pragma mark -
 #pragma mark SRWebSocketDelegate implementation
-- (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message
-{
+- (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message {
     [self handleIncomingFrame:message];
 }
 
-- (void)webSocketDidOpen:(FSRWebSocket *)webSocket
-{
+- (void)webSocketDidOpen:(FSRWebSocket *)webSocket {
     FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
 
     everConnected = YES;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->keepAlive = [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
-                                                           target:self
-                                                         selector:@selector(nop:)
-                                                         userInfo:nil
-                                                          repeats:YES];
-        FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off", self.connectionId);
+      self->keepAlive =
+          [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
+                                           target:self
+                                         selector:@selector(nop:)
+                                         userInfo:nil
+                                          repeats:YES];
+      FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
+            self.connectionId);
     });
 }
 
-- (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error
-{
-    FFLog(@"I-RDB083010", @"(wsc:%@) didFailWithError didFailWithError: %@", self.connectionId, [error description]);
+- (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error {
+    FFLog(@"I-RDB083010", @"(wsc:%@) didFailWithError didFailWithError: %@",
+          self.connectionId, [error description]);
     [self onClosed];
 }
 
-- (void)webSocket:(FSRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
-{
-    FFLog(@"I-RDB083011", @"(wsc:%@) didCloseWithCode: %ld %@", self.connectionId, (long)code, reason);
+- (void)webSocket:(FSRWebSocket *)webSocket
+    didCloseWithCode:(NSInteger)code
+              reason:(NSString *)reason
+            wasClean:(BOOL)wasClean {
+    FFLog(@"I-RDB083011", @"(wsc:%@) didCloseWithCode: %ld %@",
+          self.connectionId, (long)code, reason);
     [self onClosed];
 }
 
@@ -261,31 +294,33 @@
 #pragma mark Private methods
 
 /**
- * Note that the close / onClosed / shutdown cycle here is a little different from the javascript client.
- * In order to properly handle deallocation, no close-related action is taken at a higher level until we
- * have received notification from the websocket itself that it is closed. Otherwise, we end up deallocating
- * this class and the FConnection class before the websocket has a change to call some of its delegate methods.
- * So, since close is the external close handler, we just set a flag saying not to call our own delegate method
- * and close the websocket. That will trigger a callback into this class that can then do things like clean up
- * the keepalive timer.
+ * Note that the close / onClosed / shutdown cycle here is a little different
+ * from the javascript client. In order to properly handle deallocation, no
+ * close-related action is taken at a higher level until we have received
+ * notification from the websocket itself that it is closed. Otherwise, we end
+ * up deallocating this class and the FConnection class before the websocket has
+ * a change to call some of its delegate methods. So, since close is the
+ * external close handler, we just set a flag saying not to call our own
+ * delegate method and close the websocket. That will trigger a callback into
+ * this class that can then do things like clean up the keepalive timer.
  */
 
-- (void) closeIfNeverConnected {
+- (void)closeIfNeverConnected {
     if (!everConnected) {
-        FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect", self.connectionId);
+        FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
+              self.connectionId);
         [self.webSocket close];
     }
 }
 
-- (void) shutdown {
+- (void)shutdown {
     isClosed = YES;
 
     // Call delegate methods
     [self.delegate onDisconnect:self wasEverConnected:everConnected];
-
 }
 
-- (void) onClosed {
+- (void)onClosed {
     if (!isClosed) {
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
@@ -296,11 +331,14 @@
     }
 }
 
-- (void) resetKeepAlive {
-    NSDate* newTime = [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
-    // Calling setFireDate is actually kinda' expensive, so wait at least 5 seconds before updating it.
+- (void)resetKeepAlive {
+    NSDate *newTime =
+        [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
+    // Calling setFireDate is actually kinda' expensive, so wait at least 5
+    // seconds before updating it.
     if ([newTime timeIntervalSinceDate:keepAlive.fireDate] > 5) {
-        FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@", self.connectionId, newTime, [keepAlive fireDate]);
+        FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@",
+              self.connectionId, newTime, [keepAlive fireDate]);
         [keepAlive setFireDate:newTime];
     }
 }

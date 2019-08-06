@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <FirebaseCore/FIRLogger.h>
+#import <Foundation/Foundation.h>
 
 #import "FParsedUrl.h"
 
 @interface FUtilities : NSObject
 
-+ (NSArray *) splitString:(NSString *)str intoMaxSize:(const unsigned int)size;
-+ (NSNumber *) LUIDGenerator;
-+ (FParsedUrl *) parseUrl:(NSString *)url;
-+ (NSString *) getJavascriptType:(id)obj;
-+ (NSError *) errorForStatus:(NSString *)status andReason:(NSString *)reason;
-+ (NSNumber *) intForString:(NSString *)string;
-+ (NSString *) ieee754StringForNumber:(NSNumber *)val;
-+ (void) setLoggingEnabled:(BOOL)enabled;
-+ (BOOL) getLoggingEnabled;
++ (NSArray *)splitString:(NSString *)str intoMaxSize:(const unsigned int)size;
++ (NSNumber *)LUIDGenerator;
++ (FParsedUrl *)parseUrl:(NSString *)url;
++ (NSString *)getJavascriptType:(id)obj;
++ (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason;
++ (NSNumber *)intForString:(NSString *)string;
++ (NSString *)ieee754StringForNumber:(NSNumber *)val;
++ (void)setLoggingEnabled:(BOOL)enabled;
++ (BOOL)getLoggingEnabled;
 
-+ (NSString*) minName;
-+ (NSString*) maxName;
-+ (NSComparisonResult) compareKey:(NSString *)a toKey:(NSString *)b;
-+ (NSComparator) stringComparator;
-+ (NSComparator) keyComparator;
++ (NSString *)minName;
++ (NSString *)maxName;
++ (NSComparisonResult)compareKey:(NSString *)a toKey:(NSString *)b;
++ (NSComparator)stringComparator;
++ (NSComparator)keyComparator;
 
 + (double)randomDouble;
 
@@ -54,23 +54,27 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
 
 #define FFLog(code, format, ...) FFDebug((code), (format), ##__VA_ARGS__)
 
-#define FFDebug(code, format, ...) do { \
-  if (FFIsLoggingEnabled(FLogLevelDebug)) { \
-    FIRLogDebug(kFIRLoggerDatabase, (code), (format), ##__VA_ARGS__); \
-  } \
-} while(0)
+#define FFDebug(code, format, ...)                                             \
+    do {                                                                       \
+        if (FFIsLoggingEnabled(FLogLevelDebug)) {                              \
+            FIRLogDebug(kFIRLoggerDatabase, (code), (format), ##__VA_ARGS__);  \
+        }                                                                      \
+    } while (0)
 
-#define FFInfo(code, format, ...) do { \
-  if (FFIsLoggingEnabled(FLogLevelInfo)) { \
-    FIRLogError(kFIRLoggerDatabase, (code), (format), ##__VA_ARGS__); \
-  } \
-} while(0)
+#define FFInfo(code, format, ...)                                              \
+    do {                                                                       \
+        if (FFIsLoggingEnabled(FLogLevelInfo)) {                               \
+            FIRLogError(kFIRLoggerDatabase, (code), (format), ##__VA_ARGS__);  \
+        }                                                                      \
+    } while (0)
 
-#define FFWarn(code, format, ...) do { \
-  if (FFIsLoggingEnabled(FLogLevelWarn)) { \
-    FIRLogWarning(kFIRLoggerDatabase, (code), (format), ##__VA_ARGS__); \
-  } \
-} while(0)
+#define FFWarn(code, format, ...)                                              \
+    do {                                                                       \
+        if (FFIsLoggingEnabled(FLogLevelWarn)) {                               \
+            FIRLogWarning(kFIRLoggerDatabase, (code), (format),                \
+                          ##__VA_ARGS__);                                      \
+        }                                                                      \
+    } while (0)
 
 extern FIRLoggerService kFIRLoggerDatabase;
 BOOL FFIsLoggingEnabled(FLogLevel logLevel);

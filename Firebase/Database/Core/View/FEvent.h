@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FIRDataEventType.h"
+#import <Foundation/Foundation.h>
 
 @class FPath;
 
 @protocol FEvent <NSObject>
-- (FPath *) path;
-- (void) fireEventOnQueue:(dispatch_queue_t)queue;
-- (BOOL) isCancelEvent;
-- (NSString *) description;
+- (FPath *)path;
+- (void)fireEventOnQueue:(dispatch_queue_t)queue;
+- (BOOL)isCancelEvent;
+- (NSString *)description;
 @end

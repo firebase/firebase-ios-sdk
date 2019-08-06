@@ -155,7 +155,7 @@ s%^./%%
 \%/vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
-\%^(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
+\%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d

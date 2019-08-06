@@ -18,9 +18,9 @@
 
 @interface FStringUtilities : NSObject
 
-+ (NSString *) base64EncodedSha1:(NSString *)str;
-+ (NSString *) urlDecoded:(NSString *)url;
-+ (NSString *) urlEncoded:(NSString *)url;
-+ (NSString *) sanitizedForUserAgent:(NSString *)str;
++ (NSString *)base64EncodedSha1:(NSString *)str;
++ (NSString *)urlDecoded:(NSString *)url;
++ (NSString *)urlEncoded:(NSString *)url;
++ (NSString *)sanitizedForUserAgent:(NSString *)str;
 
 @end

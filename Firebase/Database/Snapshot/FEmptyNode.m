@@ -19,11 +19,11 @@
 
 @implementation FEmptyNode
 
-+ (id<FNode>) emptyNode {
-    static FChildrenNode* empty = nil;
++ (id<FNode>)emptyNode {
+    static FChildrenNode *empty = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        empty = [[FChildrenNode alloc] init];
+      empty = [[FChildrenNode alloc] init];
     });
     return empty;
 }

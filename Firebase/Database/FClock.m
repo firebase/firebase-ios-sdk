@@ -26,7 +26,7 @@
     static dispatch_once_t onceToken;
     static FSystemClock *clock;
     dispatch_once(&onceToken, ^{
-        clock = [[FSystemClock alloc] init];
+      clock = [[FSystemClock alloc] init];
     });
     return clock;
 }
@@ -35,8 +35,8 @@
 
 @interface FOffsetClock ()
 
-@property (nonatomic, strong) id<FClock> clock;
-@property (nonatomic) NSTimeInterval offset;
+@property(nonatomic, strong) id<FClock> clock;
+@property(nonatomic) NSTimeInterval offset;
 
 @end
 

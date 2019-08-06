@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNode.h"
 #import "FPath.h"
 #import "FTypedefs_Private.h"
+#import <Foundation/Foundation.h>
 
 @class FSparseSnapshotTree;
 
-typedef void (^fbt_void_nsstring_sstree) (NSString*, FSparseSnapshotTree*);
+typedef void (^fbt_void_nsstring_sstree)(NSString *, FSparseSnapshotTree *);
 
 @interface FSparseSnapshotTree : NSObject
 
-- (id<FNode>) findPath:(FPath *)path;
-- (void) rememberData:(id<FNode>)data onPath:(FPath *)path;
-- (BOOL) forgetPath:(FPath *)path;
-- (void) forEachTreeAtPath:(FPath *)prefixPath do:(fbt_void_path_node)func;
-- (void) forEachChild:(fbt_void_nsstring_sstree)func;
+- (id<FNode>)findPath:(FPath *)path;
+- (void)rememberData:(id<FNode>)data onPath:(FPath *)path;
+- (BOOL)forgetPath:(FPath *)path;
+- (void)forEachTreeAtPath:(FPath *)prefixPath do:(fbt_void_path_node)func;
+- (void)forEachChild:(fbt_void_nsstring_sstree)func;
 
 @end

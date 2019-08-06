@@ -16,26 +16,28 @@
 
 #import "FEventRaiser.h"
 #import "FDataEvent.h"
-#import "FTypedefs.h"
-#import "FUtilities.h"
-#import "FTupleUserCallback.h"
 #import "FRepo.h"
 #import "FRepoManager.h"
+#import "FTupleUserCallback.h"
+#import "FTypedefs.h"
+#import "FUtilities.h"
 
 @interface FEventRaiser ()
 
-@property (nonatomic, strong) dispatch_queue_t queue;
+@property(nonatomic, strong) dispatch_queue_t queue;
 
 @end
 
 /**
-* This class exists for symmetry with other clients, but since events are async, we don't need to do the complicated
-* stuff the JS client does to preserve event order.
-*/
+ * This class exists for symmetry with other clients, but since events are
+ * async, we don't need to do the complicated stuff the JS client does to
+ * preserve event order.
+ */
 @implementation FEventRaiser
 
 - (id)init {
-    [NSException raise:NSInternalInconsistencyException format:@"Can't use default constructor"];
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Can't use default constructor"];
     return nil;
 }
 
@@ -47,23 +49,23 @@
     return self;
 }
 
-- (void) raiseEvents:(NSArray *)eventDataList {
+- (void)raiseEvents:(NSArray *)eventDataList {
     for (id<FEvent> event in eventDataList) {
         [event fireEventOnQueue:self.queue];
     }
 }
 
-- (void) raiseCallback:(fbt_void_void)callback {
+- (void)raiseCallback:(fbt_void_void)callback {
     dispatch_async(self.queue, callback);
 }
 
-- (void) raiseCallbacks:(NSArray *)callbackList {
+- (void)raiseCallbacks:(NSArray *)callbackList {
     for (fbt_void_void callback in callbackList) {
         dispatch_async(self.queue, callback);
     }
 }
 
-+ (void) raiseCallbacks:(NSArray *)callbackList queue:(dispatch_queue_t)queue {
++ (void)raiseCallbacks:(NSArray *)callbackList queue:(dispatch_queue_t)queue {
     for (fbt_void_void callback in callbackList) {
         dispatch_async(queue, callback);
     }

@@ -19,10 +19,10 @@
 #import "FOperationSource.h"
 
 @interface FOverwrite ()
-@property (nonatomic, strong, readwrite) FOperationSource *source;
-@property (nonatomic, readwrite) FOperationType type;
-@property (nonatomic, strong, readwrite) FPath *path;
-@property (nonatomic, strong) id<FNode> snap;
+@property(nonatomic, strong, readwrite) FOperationSource *source;
+@property(nonatomic, readwrite) FOperationType type;
+@property(nonatomic, strong, readwrite) FPath *path;
+@property(nonatomic, strong) id<FNode> snap;
 @end
 
 @implementation FOverwrite
@@ -32,7 +32,9 @@
 @synthesize path;
 @synthesize snap;
 
-- (id) initWithSource:(FOperationSource *)aSource path:(FPath *)aPath snap:(id <FNode>)aSnap {
+- (id)initWithSource:(FOperationSource *)aSource
+                path:(FPath *)aPath
+                snap:(id<FNode>)aSnap {
     self = [super init];
     if (self) {
         self.source = aSource;
@@ -43,11 +45,12 @@
     return self;
 }
 
-- (FOverwrite *) operationForChild:(NSString *)childKey {
+- (FOverwrite *)operationForChild:(NSString *)childKey {
     if ([self.path isEmpty]) {
-        return [[FOverwrite alloc] initWithSource:self.source
-                                             path:[FPath empty]
-                                             snap:[self.snap getImmediateChild:childKey]];
+        return [[FOverwrite alloc]
+            initWithSource:self.source
+                      path:[FPath empty]
+                      snap:[self.snap getImmediateChild:childKey]];
     } else {
         return [[FOverwrite alloc] initWithSource:self.source
                                              path:[self.path popFront]
@@ -55,8 +58,10 @@
     }
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"FOverwrite { path=%@, source=%@, snapshot=%@ }", self.path, self.source, self.snap];
+- (NSString *)description {
+    return [NSString
+        stringWithFormat:@"FOverwrite { path=%@, source=%@, snapshot=%@ }",
+                         self.path, self.source, self.snap];
 }
 
 @end

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FIndex.h"
+#import <Foundation/Foundation.h>
 
-
-@interface FValueIndex : NSObject<FIndex>
-+ (id<FIndex>) valueIndex;
+@interface FValueIndex : NSObject <FIndex>
++ (id<FIndex>)valueIndex;
 @end

@@ -20,15 +20,18 @@
 
 @interface FOperationSource : NSObject
 
-@property (nonatomic, readonly) BOOL fromUser;
-@property (nonatomic, readonly) BOOL fromServer;
-@property (nonatomic, readonly) BOOL isTagged;
-@property (nonatomic, strong, readonly) FQueryParams *queryParams;
+@property(nonatomic, readonly) BOOL fromUser;
+@property(nonatomic, readonly) BOOL fromServer;
+@property(nonatomic, readonly) BOOL isTagged;
+@property(nonatomic, strong, readonly) FQueryParams *queryParams;
 
-- initWithFromUser:(BOOL)isFromUser fromServer:(BOOL)isFromServer queryParams:(FQueryParams *)params tagged:(BOOL)isTagged;
+- initWithFromUser:(BOOL)isFromUser
+        fromServer:(BOOL)isFromServer
+       queryParams:(FQueryParams *)params
+            tagged:(BOOL)isTagged;
 
-+ (FOperationSource *) userInstance;
-+ (FOperationSource *) serverInstance;
-+ (FOperationSource *) forServerTaggedQuery:(FQueryParams *)params;
++ (FOperationSource *)userInstance;
++ (FOperationSource *)serverInstance;
++ (FOperationSource *)forServerTaggedQuery:(FQueryParams *)params;
 
 @end

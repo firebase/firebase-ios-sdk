@@ -21,7 +21,7 @@
 /**
  * A singleton event registration to mark a query as keep synced
  */
-@interface FKeepSyncedEventRegistration : NSObject<FEventRegistration>
+@interface FKeepSyncedEventRegistration : NSObject <FEventRegistration>
 
 + (FKeepSyncedEventRegistration *)instance;
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
 #import "FConnection.h"
 #import "FConstants.h"
+#import <FirebaseCore/FIRLogger.h>
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,
@@ -28,8 +28,8 @@ typedef enum {
     FConnectionState state;
 }
 
-@property (nonatomic, strong) FWebSocketConnection* conn;
-@property (nonatomic, strong) FRepoInfo* repoInfo;
+@property(nonatomic, strong) FWebSocketConnection *conn;
+@property(nonatomic, strong) FRepoInfo *repoInfo;
 
 @end
 
@@ -45,12 +45,16 @@ typedef enum {
 #pragma mark -
 #pragma mark Initializers
 
-- (id)initWith:(FRepoInfo *)aRepoInfo andDispatchQueue:(dispatch_queue_t)queue lastSessionID:(NSString *)lastSessionID{
+- (id)initWith:(FRepoInfo *)aRepoInfo
+    andDispatchQueue:(dispatch_queue_t)queue
+       lastSessionID:(NSString *)lastSessionID {
     self = [super init];
     if (self) {
         state = REALTIME_STATE_CONNECTING;
         self.repoInfo = aRepoInfo;
-        self.conn = [[FWebSocketConnection alloc] initWith:self.repoInfo andQueue:queue lastSessionID:lastSessionID];
+        self.conn = [[FWebSocketConnection alloc] initWith:self.repoInfo
+                                                  andQueue:queue
+                                             lastSessionID:lastSessionID];
         self.conn.delegate = self;
     }
     return self;
@@ -64,7 +68,7 @@ typedef enum {
     [self.conn open];
 }
 
-- (void) closeWithReason:(FDisconnectReason)reason {
+- (void)closeWithReason:(FDisconnectReason)reason {
     if (state != REALTIME_STATE_DISCONNECTED) {
         FFLog(@"I-RDB082002", @"Closing realtime connection.");
         state = REALTIME_STATE_DISCONNECTED;
@@ -79,15 +83,16 @@ typedef enum {
     }
 }
 
-- (void) close {
+- (void)close {
     [self closeWithReason:DISCONNECT_REASON_OTHER];
 }
 
-- (void) sendRequest:(NSDictionary *)dataMsg sensitive:(BOOL)sensitive {
-    // since this came from the persistent connection, wrap it in a data message envelope
-    NSDictionary* msg = @{
-        kFWPRequestType: kFWPRequestTypeData,
-        kFWPRequestDataPayload: dataMsg
+- (void)sendRequest:(NSDictionary *)dataMsg sensitive:(BOOL)sensitive {
+    // since this came from the persistent connection, wrap it in a data message
+    // envelope
+    NSDictionary *msg = @{
+        kFWPRequestType : kFWPRequestTypeData,
+        kFWPRequestDataPayload : dataMsg
     };
     [self sendData:msg sensitive:sensitive];
 }
@@ -95,10 +100,12 @@ typedef enum {
 #pragma mark -
 #pragma mark Helpers
 
-
-- (void) sendData:(NSDictionary *)data sensitive:(BOOL)sensitive {
+- (void)sendData:(NSDictionary *)data sensitive:(BOOL)sensitive {
     if (state != REALTIME_STATE_CONNECTED) {
-        @throw [[NSException alloc] initWithName:@"InvalidConnectionState" reason:@"Tried to send data on an unconnected FConnection" userInfo:nil];
+        @throw [[NSException alloc]
+            initWithName:@"InvalidConnectionState"
+                  reason:@"Tried to send data on an unconnected FConnection"
+                userInfo:nil];
     } else {
         if (sensitive) {
             FFLog(@"I-RDB082004", @"Sending data (contents hidden)");
@@ -113,13 +120,15 @@ typedef enum {
 #pragma mark FWebSocketConnectinDelegate implementation
 
 // Corresponds to onConnectionLost in JS
-- (void)onDisconnect:(FWebSocketConnection *)fwebSocket wasEverConnected:(BOOL)everConnected {
+- (void)onDisconnect:(FWebSocketConnection *)fwebSocket
+    wasEverConnected:(BOOL)everConnected {
 
     self.conn = nil;
     if (!everConnected && state == REALTIME_STATE_CONNECTING) {
         FFLog(@"I-RDB082006", @"Realtime connection failed.");
 
-        // Since we failed to connect at all, clear any cached entry for this namespace in case the machine went away
+        // Since we failed to connect at all, clear any cached entry for this
+        // namespace in case the machine went away
         [self.repoInfo clearInternalHostCache];
     } else if (state == REALTIME_STATE_CONNECTED) {
         FFLog(@"I-RDB082007", @"Realtime connection lost.");
@@ -129,62 +138,69 @@ typedef enum {
 }
 
 // Corresponds to onMessageReceived in JS
-- (void)onMessage:(FWebSocketConnection *)fwebSocket withMessage:(NSDictionary *)message {
-    NSString* rawMessageType = [message objectForKey:kFWPAsyncServerEnvelopeType];
-    if(rawMessageType != nil) {
-        if([rawMessageType isEqualToString:kFWPAsyncServerDataMessage]) {
-            [self onDataMessage:[message objectForKey:kFWPAsyncServerEnvelopeData]];
-        }
-        else if ([rawMessageType isEqualToString:kFWPAsyncServerControlMessage]) {
+- (void)onMessage:(FWebSocketConnection *)fwebSocket
+      withMessage:(NSDictionary *)message {
+    NSString *rawMessageType =
+        [message objectForKey:kFWPAsyncServerEnvelopeType];
+    if (rawMessageType != nil) {
+        if ([rawMessageType isEqualToString:kFWPAsyncServerDataMessage]) {
+            [self onDataMessage:[message
+                                    objectForKey:kFWPAsyncServerEnvelopeData]];
+        } else if ([rawMessageType
+                       isEqualToString:kFWPAsyncServerControlMessage]) {
             [self onControl:[message objectForKey:kFWPAsyncServerEnvelopeData]];
+        } else {
+            FFLog(@"I-RDB082008", @"Unrecognized server packet type: %@",
+                  rawMessageType);
         }
-        else {
-            FFLog(@"I-RDB082008", @"Unrecognized server packet type: %@", rawMessageType);
-        }
-    }
-    else {
-        FFLog(@"I-RDB082009", @"Unrecognized raw server packet received: %@", message);
+    } else {
+        FFLog(@"I-RDB082009", @"Unrecognized raw server packet received: %@",
+              message);
     }
 }
 
-- (void) onDataMessage:(NSDictionary *)message {
+- (void)onDataMessage:(NSDictionary *)message {
     // we don't do anything with data messages, just kick them up a level
     FFLog(@"I-RDB082010", @"Got data message: %@", message);
     [self.delegate onDataMessage:self withMessage:message];
 }
 
-- (void) onControl:(NSDictionary *)message {
+- (void)onControl:(NSDictionary *)message {
     FFLog(@"I-RDB082011", @"Got control message: %@", message);
-    NSString* type = [message objectForKey:kFWPAsyncServerControlMessageType];
-    if([type isEqualToString:kFWPAsyncServerControlMessageShutdown]) {
-        NSString* reason = [message objectForKey:kFWPAsyncServerControlMessageData];
+    NSString *type = [message objectForKey:kFWPAsyncServerControlMessageType];
+    if ([type isEqualToString:kFWPAsyncServerControlMessageShutdown]) {
+        NSString *reason =
+            [message objectForKey:kFWPAsyncServerControlMessageData];
         [self onConnectionShutdownWithReason:reason];
-    }
-    else if ([type isEqualToString:kFWPAsyncServerControlMessageReset]) {
-        NSString* host = [message objectForKey:kFWPAsyncServerControlMessageData];
+    } else if ([type isEqualToString:kFWPAsyncServerControlMessageReset]) {
+        NSString *host =
+            [message objectForKey:kFWPAsyncServerControlMessageData];
         [self onReset:host];
-    }
-    else if ([type isEqualToString:kFWPAsyncServerHello]) {
-        NSDictionary* handshakeData = [message objectForKey:kFWPAsyncServerControlMessageData];
+    } else if ([type isEqualToString:kFWPAsyncServerHello]) {
+        NSDictionary *handshakeData =
+            [message objectForKey:kFWPAsyncServerControlMessageData];
         [self onHandshake:handshakeData];
-    }
-    else {
-        FFLog(@"I-RDB082012", @"Unknown control message returned from server: %@", message);
+    } else {
+        FFLog(@"I-RDB082012",
+              @"Unknown control message returned from server: %@", message);
     }
 }
 
-- (void) onConnectionShutdownWithReason:(NSString *)reason {
-    FFLog(@"I-RDB082013", @"Connection shutdown command received. Shutting down...");
+- (void)onConnectionShutdownWithReason:(NSString *)reason {
+    FFLog(@"I-RDB082013",
+          @"Connection shutdown command received. Shutting down...");
 
     [self.delegate onKill:self withReason:reason];
     [self close];
 }
 
-- (void) onHandshake:(NSDictionary *)handshake {
-    NSNumber* timestamp = [handshake objectForKey:kFWPAsyncServerHelloTimestamp];
-//    NSString* version = [handshake objectForKey:kFWPAsyncServerHelloVersion];
-    NSString* host = [handshake objectForKey:kFWPAsyncServerHelloConnectedHost];
-    NSString* sessionID = [handshake objectForKey:kFWPAsyncServerHelloSession];
+- (void)onHandshake:(NSDictionary *)handshake {
+    NSNumber *timestamp =
+        [handshake objectForKey:kFWPAsyncServerHelloTimestamp];
+    //    NSString* version = [handshake
+    //    objectForKey:kFWPAsyncServerHelloVersion];
+    NSString *host = [handshake objectForKey:kFWPAsyncServerHelloConnectedHost];
+    NSString *sessionID = [handshake objectForKey:kFWPAsyncServerHelloSession];
 
     self.repoInfo.internalHost = host;
 
@@ -194,18 +210,24 @@ typedef enum {
     }
 }
 
-- (void) onConnection:(FWebSocketConnection *)conn readyAtTime:(NSNumber *)timestamp sessionID:(NSString *)sessionID {
+- (void)onConnection:(FWebSocketConnection *)conn
+         readyAtTime:(NSNumber *)timestamp
+           sessionID:(NSString *)sessionID {
     FFLog(@"I-RDB082014", @"Realtime connection established");
     state = REALTIME_STATE_CONNECTED;
 
     [self.delegate onReady:self atTime:timestamp sessionID:sessionID];
 }
 
-- (void) onReset:(NSString *)host {
-    FFLog(@"I-RDB082015", @"Got a reset; killing connection to: %@; Updating internalHost to: %@", repoInfo.internalHost, host);
+- (void)onReset:(NSString *)host {
+    FFLog(
+        @"I-RDB082015",
+        @"Got a reset; killing connection to: %@; Updating internalHost to: %@",
+        repoInfo.internalHost, host);
     self.repoInfo.internalHost = host;
 
-    // Explicitly close the connection with SERVER_RESET so calling code knows to reconnect immediately.
+    // Explicitly close the connection with SERVER_RESET so calling code knows
+    // to reconnect immediately.
     [self closeWithReason:DISCONNECT_REASON_SERVER_RESET];
 }
 
