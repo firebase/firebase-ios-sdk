@@ -478,6 +478,9 @@
     return;
   }
 #endif
+#if TARGET_OS_MACCATALYST
+  return;
+#endif
 
   FLevelDBStorageEngine *engine = [self cleanStorageEngine];
   [engine updateServerCache:NODE((@{@"works" : @"value", @"fails" : @(2.225073858507201e-308)}))
@@ -529,7 +532,12 @@
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualInt), kCFNumberSInt64Type);
   XCTAssertEqualObjects([actualLong stringValue], [longValue stringValue]);
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualLong), kCFNumberSInt64Type);
+#if TARGET_OS_MACCATALYST
+  // Catalyst uses int128_t but CFNumber still calls it 64 bits
+  XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
+#else
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
+#endif
 }
 
 // TODO[offline]: Somehow test estimated server size?
