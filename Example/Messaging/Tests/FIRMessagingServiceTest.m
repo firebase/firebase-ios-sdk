@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
