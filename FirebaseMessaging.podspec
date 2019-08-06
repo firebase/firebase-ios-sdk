@@ -36,7 +36,7 @@ device, and it is completely free.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-      'FIRMessaging_LIB_VERSION=' + String(s.version)
+      'FIRMessaging_LIB_VERSION=' + String(s.version),
   }
   s.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
@@ -53,8 +53,8 @@ device, and it is completely free.
     unit_tests.source_files = 'Example/Messaging/Tests/*.[mh]'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-      # Unit tests do library imports using Firebase/Messaging relative paths.
-      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase/Messaging',
+      # Unit tests do library imports using repo-root relative paths.
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
       'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
     unit_tests.dependency 'OCMock'

@@ -16,7 +16,7 @@
 
 #import "FIRMessagingTestNotificationUtilities.h"
 
-#import "FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
 
 @implementation FIRMessagingTestNotificationUtilities
 

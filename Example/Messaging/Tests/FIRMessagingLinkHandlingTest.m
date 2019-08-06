@@ -18,8 +18,9 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingConstants.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+
 #import "FIRMessagingTestNotificationUtilities.h"
 #import "FIRMessagingTestUtilities.h"
 

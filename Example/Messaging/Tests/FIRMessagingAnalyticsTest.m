@@ -17,9 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingAnalytics.h"
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+
+#import "Firebase/Messaging/FIRMessagingAnalytics.h"
 
 // Analytics tracking is iOS only feature.
 #if TARGET_OS_IOS

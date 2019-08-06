@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRMessagingContextManagerService.h"
+#import "Firebase/Messaging/FIRMessagingContextManagerService.h"
 
 @interface FIRMessagingContextManagerServiceTest : XCTestCase
 

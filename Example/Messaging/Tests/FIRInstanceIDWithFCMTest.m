@@ -18,9 +18,11 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseMessaging/FIRMessaging.h>
+
 #import <OCMock/OCMock.h>
-#import "FIRMessaging_Private.h"
-#import "FIRMessaging.h"
+
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import "FIRMessagingTestUtilities.h"
 
 @interface FIRInstanceID (ExposedForTest)

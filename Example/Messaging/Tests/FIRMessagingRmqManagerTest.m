@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingPersistentSyncMessage.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";

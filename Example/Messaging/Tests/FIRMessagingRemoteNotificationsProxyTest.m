@@ -22,10 +22,11 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingRemoteNotificationsProxy.h"
-
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
+#import "Firebase/Messaging/FIRMessagingRemoteNotificationsProxy.h"
+
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 
