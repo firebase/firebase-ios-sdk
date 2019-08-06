@@ -18,12 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
 #import "FIRMessagingTestUtilities.h"
-#import "FIRInstanceID.h"
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 
