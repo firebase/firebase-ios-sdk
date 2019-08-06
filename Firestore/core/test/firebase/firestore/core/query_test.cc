@@ -54,7 +54,7 @@ using testutil::Vector;
 MATCHER_P(Matches, doc, "") {
   bool actual = arg.Matches(doc);
   *result_listener << "matches " << actual;
-  return actual == true;
+  return actual;
 }
 
 TEST(QueryTest, Constructor) {
@@ -223,8 +223,8 @@ TEST(QueryTest, ArrayContainsFilterWithObjectValues) {
 }
 
 TEST(QueryTest, InFilters) {
-  auto query =
-      Query("collection").AddingFilter(Filter("zip", "in", Array(12345)));
+  auto query = testutil::Query("collection")
+                   .AddingFilter(Filter("zip", "in", Array(12345)));
 
   auto doc = *Doc("collection/1", 0, Map("zip", 12345));
   EXPECT_THAT(query, Matches(doc));
@@ -244,7 +244,7 @@ TEST(QueryTest, InFilters) {
 
 TEST(QueryTest, InFiltersWithObjectValues) {
   auto query =
-      Query("collection")
+      testutil::Query("collection")
           .AddingFilter(Filter("zip", "in", Array(Map("a", Array(42)))));
 
   // Containing object in array.
@@ -258,7 +258,7 @@ TEST(QueryTest, InFiltersWithObjectValues) {
 
 TEST(QueryTest, ArrayContainsAnyFilters) {
   auto query =
-      Query("collection")
+      testutil::Query("collection")
           .AddingFilter(Filter("zip", "array-contains-any", Array(12345)));
 
   auto doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
@@ -279,7 +279,7 @@ TEST(QueryTest, ArrayContainsAnyFilters) {
 }
 
 TEST(QueryTest, ArrayContainsAnyFiltersWithObjectValues) {
-  auto query = Query("collection")
+  auto query = testutil::Query("collection")
                    .AddingFilter(Filter("zip", "array-contains-any",
                                         Array(Map("a", Array(42)))));
 

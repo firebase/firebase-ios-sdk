@@ -413,7 +413,7 @@ void MoveIntoVector(std::vector<std::unique_ptr<T>>* result,
 }
 
 // Works around the fact that move-only types (in this case, `unique_ptr`) don't
-// work with `initialzer_list`. Desired (doesn't work):
+// work with `initializer_list`. Desired (doesn't work):
 //
 //   std::unique_ptr<int> x, y;
 //   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
