@@ -67,6 +67,7 @@ using firebase::firestore::testutil::Version;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
+using testutil::UnknownDoc;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -166,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesUnknownDocumentAsMaybeDocument {
-  UnknownDocument doc = FSTTestUnknownDoc("some/path", 42);
+  UnknownDocument doc = UnknownDoc("some/path", 42);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.unknownDocument = [FSTPBUnknownDocument message];

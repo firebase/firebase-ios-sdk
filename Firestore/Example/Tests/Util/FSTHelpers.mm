@@ -165,10 +165,6 @@ DocumentKey FSTTestDocKey(NSString *path) {
   return DocumentKey::FromPathString(util::MakeString(path));
 }
 
-UnknownDocument FSTTestUnknownDoc(const absl::string_view path, FSTTestSnapshotVersion version) {
-  return UnknownDocument(testutil::Key(path), testutil::Version(version));
-}
-
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:DatabaseId(projectID, database)];

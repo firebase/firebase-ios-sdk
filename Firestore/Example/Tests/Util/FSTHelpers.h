@@ -242,10 +242,6 @@ firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
 
-/** A convenience method for creating unknown docs for tests. */
-model::UnknownDocument FSTTestUnknownDoc(const absl::string_view path,
-                                         FSTTestSnapshotVersion version);
-
 /**
  * A convenience method for creating a document reference from a path string.
  */

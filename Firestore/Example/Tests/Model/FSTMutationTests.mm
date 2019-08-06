@@ -64,6 +64,7 @@ using firebase::firestore::testutil::Version;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
+using testutil::UnknownDoc;
 using testutil::WrapObject;
 
 /**
@@ -585,7 +586,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
   NoDocument docV7Deleted = DeletedDoc("collection/key", 7, /* has_committed_mutations= */ true);
   Document docV7Committed = Doc("collection/key", 7, Map(), DocumentState::kCommittedMutations);
-  UnknownDocument docV7Unknown = FSTTestUnknownDoc("collection/key", 7);
+  UnknownDocument docV7Unknown = UnknownDoc("collection/key", 7);
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(7)
                                                                 transformResults:absl::nullopt];

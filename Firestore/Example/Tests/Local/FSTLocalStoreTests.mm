@@ -75,6 +75,7 @@ using testutil::Doc;
 using testutil::Key;
 using testutil::Map;
 using testutil::Query;
+using testutil::UnknownDoc;
 using testutil::Vector;
 
 static std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap &docs) {
@@ -421,11 +422,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains("foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 1));
+  FSTAssertChanged(UnknownDoc("foo/bar", 1));
   if ([self gcIsEager]) {
     FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
+    FSTAssertContains(UnknownDoc("foo/bar", 1));
   }
 }
 
@@ -468,13 +469,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains("foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 1));
+  FSTAssertChanged(UnknownDoc("foo/bar", 1));
 
   // There's no target pinning the doc, and we've ack'd the mutation.
   if ([self gcIsEager]) {
     FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
+    FSTAssertContains(UnknownDoc("foo/bar", 1));
   }
 
   core::Query query = Query("foo");
@@ -672,12 +673,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(DeletedDoc("foo/bar", 2, /* has_committed_mutations= */ true));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 3));
+  FSTAssertChanged(UnknownDoc("foo/bar", 3));
   if ([self gcIsEager]) {
     // There are no more pending mutations, the doc has been dropped
     FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 3));
+    FSTAssertContains(UnknownDoc("foo/bar", 3));
   }
 }
 
