@@ -68,14 +68,6 @@ if(CXX_CLANG OR CXX_GNU)
       list(APPEND common_flags -fdiagnostics-color)
     endif()
   endif()
-
-  foreach(flag ${common_flags} ${c_flags})
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
-  endforeach()
-
-  foreach(flag ${common_flags} ${cxx_flags})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
-  endforeach()
 endif()
 
 if(APPLE)
@@ -116,8 +108,19 @@ if(MSVC)
 
     # unary minus operator applied to unsigned type, result still unsigned
     /wd4146
+
+    # character cannot be represented in the current code page
+    /wd4566
   )
 endif()
+
+foreach(flag ${common_flags} ${c_flags})
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
+endforeach()
+
+foreach(flag ${common_flags} ${cxx_flags})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+endforeach()
 
 foreach(flag ${common_flags} ${c_flags})
   list(APPEND FIREBASE_C_FLAGS ${flag})

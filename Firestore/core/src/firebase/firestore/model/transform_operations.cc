@@ -155,7 +155,7 @@ double AsDouble(const FieldValue& value) {
   if (value.type() == FieldValue::Type::Double) {
     return value.double_value();
   } else if (value.type() == FieldValue::Type::Integer) {
-    return value.integer_value();
+    return static_cast<double>(value.integer_value());
   } else {
     HARD_FAIL("Expected 'operand' to be of numeric type, but was %s (type %s)",
               value.ToString(), value.type());

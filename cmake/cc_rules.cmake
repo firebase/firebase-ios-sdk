@@ -44,7 +44,6 @@ function(cc_library name)
     ${FIREBASE_SOURCE_DIR}
   )
 
-  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
