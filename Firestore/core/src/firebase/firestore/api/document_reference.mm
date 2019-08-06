@@ -23,7 +23,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
@@ -159,12 +158,12 @@ void DocumentReference::GetDocument(Source source,
         // 2) Actually call the callback with an error if the
         // document doesn't exist when you are offline.
         listener_->OnEvent(
-            Status{FirestoreErrorCode::Unavailable,
+            Status{Error::Unavailable,
                    "Failed to get document because the client is offline."});
       } else if (snapshot.exists() && snapshot.metadata().from_cache() &&
                  source_ == Source::Server) {
         listener_->OnEvent(
-            Status{FirestoreErrorCode::Unavailable,
+            Status{Error::Unavailable,
                    "Failed to get document from server. (However, "
                    "this document does exist in the local cache. Run "
                    "again without setting source to "
@@ -196,8 +195,6 @@ void DocumentReference::GetDocument(Source source,
 
 ListenerRegistration DocumentReference::AddSnapshotListener(
     ListenOptions options, DocumentSnapshot::Listener&& user_listener) {
-  FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
-
   // Convert from ViewSnapshots to DocumentSnapshots.
   class Converter : public EventListener<ViewSnapshot> {
    public:
@@ -241,8 +238,9 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
   auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
       firestore_->client().userExecutor, std::move(view_listener));
 
+  core::Query query(key_.path());
   std::shared_ptr<QueryListener> query_listener =
-      [firestore_->client() listenToQuery:query
+      [firestore_->client() listenToQuery:std::move(query)
                                   options:options
                                  listener:async_listener];
   return ListenerRegistration(firestore_->client(), std::move(async_listener),

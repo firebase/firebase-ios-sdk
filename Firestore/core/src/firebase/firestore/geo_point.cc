@@ -25,9 +25,6 @@
 namespace firebase {
 namespace firestore {
 
-GeoPoint::GeoPoint() : GeoPoint(0, 0) {
-}
-
 GeoPoint::GeoPoint(double latitude, double longitude)
     : latitude_(latitude), longitude_(longitude) {
   HARD_ASSERT(!std::isnan(latitude) && -90 <= latitude && latitude <= 90,

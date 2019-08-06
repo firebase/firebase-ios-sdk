@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
@@ -37,11 +38,24 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-class DocumentComparator : public util::FunctionComparator<FSTDocument*> {
+class DocumentComparator : public util::FunctionComparator<Document> {
  public:
-  using FunctionComparator<FSTDocument*>::FunctionComparator;
+  using FunctionComparator<Document>::FunctionComparator;
 
   static DocumentComparator ByKey();
+
+  // TODO(wilhuff): Remove this using statement
+  // This exists to put these two overloads on equal footing. Once the overload
+  // below is gone, this using statement can be removed as well.
+  using FunctionComparator<Document>::Compare;
+
+#if __OBJC__
+  util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
+    Document converted_lhs(lhs);
+    Document converted_rhs(rhs);
+    return Compare(converted_lhs, converted_rhs);
+  }
+#endif
 };
 
 /**
@@ -79,6 +93,10 @@ class DocumentSet : public immutable::SortedContainer {
 
   /** Returns true if this set contains a document with the given key. */
   bool ContainsKey(const DocumentKey& key) const;
+
+  const DocumentComparator& comparator() const {
+    return sorted_set_.comparator();
+  }
 
   SetType::const_iterator begin() const {
     return sorted_set_.begin();

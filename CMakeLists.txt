@@ -218,64 +218,8 @@ target_include_directories(
 enable_testing()
 include(compiler_setup)
 
-
-# Firebase packages
-
-# Set variables that CocoaPods expects to be able to expand in values it
-# includes in the xcconfigs it generates.
-set(PODS_TARGET_SRCROOT ${FIREBASE_SOURCE_DIR})
-
-podspec_framework(
-  ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
-  SPECS Logger
-)
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransport.podspec)
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/GoogleDataTransportCCTSupport.podspec)
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec)
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/FirebaseCoreDiagnostics.podspec)
-
-podspec_framework(
-  ${FIREBASE_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec
-)
-
-if(APPLE)
-  # FirebaseCoreDiagnosticsInterop has no source files but CMake can't build
-  # frameworks that don't have sources. Generate an inconsequential source
-  # file so that the library can be linked.
-  file(
-    WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseCoreDiagnosticsInteropDummy.c
-    "// generated file for header-only CMake support.
-    __attribute__((unused))
-    static void FirebaseCoreDiagnosticsInteropFakeSymbol() {}
-    "
-  )
-  target_sources(
-    FirebaseCoreDiagnosticsInterop
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseCoreDiagnosticsInteropDummy.c
-  )
-endif()
-
-podspec_framework(${FIREBASE_SOURCE_DIR}/FirebaseAuthInterop.podspec)
-
-if(APPLE)
-  # FirebaseAuthInterop has no source files but CMake can't build frameworks
-  # that don't have sources. Generate an inconsequential source file so that
-  # the library can be linked.
-  file(
-    WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
-    "// generated file for header-only CMake support.
-    __attribute__((unused))
-    static void FirebaseAuthInteropFakeSymbol() {}
-    "
-  )
-  target_sources(
-    FirebaseAuthInterop
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
-  )
-endif()
-
+add_subdirectory(Firebase/Core)
 add_subdirectory(Firestore)
+add_subdirectory(GoogleUtilities)
+add_subdirectory(Interop/Auth)
+add_subdirectory(Interop/CoreDiagnostics)

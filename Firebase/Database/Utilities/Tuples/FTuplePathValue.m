@@ -18,15 +18,15 @@
 #import "FPath.h"
 
 @interface FTuplePathValue ()
-@property (nonatomic, strong, readwrite) id value;
-@property (nonatomic, strong, readwrite) FPath *path;
+@property(nonatomic, strong, readwrite) id value;
+@property(nonatomic, strong, readwrite) FPath *path;
 @end
 
 @implementation FTuplePathValue
 @synthesize path;
 @synthesize value;
 
-- (id) initWithPath:(FPath *)aPath value:(id)aValue {
+- (id)initWithPath:(FPath *)aPath value:(id)aValue {
     self = [super init];
     if (self) {
         self.value = aValue;

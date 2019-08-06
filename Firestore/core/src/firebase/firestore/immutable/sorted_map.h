@@ -161,6 +161,16 @@ class SortedMap : public SortedMapBase {
     UNREACHABLE();
   }
 
+  const C& comparator() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.comparator();
+      case Tag::Tree:
+        return tree_.comparator();
+    }
+    UNREACHABLE();
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -353,16 +363,6 @@ class SortedMap : public SortedMapBase {
 
   explicit SortedMap(tree_type&& tree)
       : tag_{Tag::Tree}, tree_{std::move(tree)} {
-  }
-
-  const C& comparator() const {
-    switch (tag_) {
-      case Tag::Array:
-        return array_.comparator();
-      case Tag::Tree:
-        return tree_.comparator();
-    }
-    UNREACHABLE();
   }
 
   enum class Tag {

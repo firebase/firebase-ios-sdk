@@ -94,11 +94,6 @@ cc_library(
     string_format.h
   DEPENDS
     FirebaseCore
-    FirebaseCoreDiagnostics
-    FirebaseCoreDiagnosticsInterop
-    GoogleDataTransport
-    GoogleDataTransportCCTSupport
-    GoogleUtilities
     absl_base
     absl_strings
   EXCLUDE_FROM_ALL

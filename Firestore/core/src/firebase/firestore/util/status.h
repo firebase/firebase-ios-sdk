@@ -46,7 +46,7 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// \brief Create a status with the specified error code and msg as a
   /// human-readable string containing more detailed information.
-  Status(FirestoreErrorCode code, absl::string_view msg);
+  Status(Error code, absl::string_view msg);
 
   /// Copy the specified status.
   Status(const Status& s);
@@ -74,8 +74,8 @@ class ABSL_MUST_USE_RESULT Status {
     return (state_ == nullptr);
   }
 
-  FirestoreErrorCode code() const {
-    return ok() ? FirestoreErrorCode::Ok : state_->code;
+  Error code() const {
+    return ok() ? Error::Ok : state_->code;
   }
 
   const std::string& error_message() const {
@@ -119,7 +119,7 @@ class ABSL_MUST_USE_RESULT Status {
     State() = default;
     State(const State& other);
 
-    FirestoreErrorCode code;
+    Error code;
     std::string msg;
 
     // An additional platform-specific error representation that was used to
@@ -146,7 +146,7 @@ class PlatformError {
    * Creates a new PlatformError with the given code and message, whose cause is
    * this PlatformError.
    */
-  virtual std::unique_ptr<PlatformError> WrapWith(FirestoreErrorCode code,
+  virtual std::unique_ptr<PlatformError> WrapWith(Error code,
                                                   std::string message) = 0;
 };
 

@@ -17,23 +17,23 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::MaybeDocumentMap;
-
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
+
+using core::Query;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::DocumentMap;
+using model::ListenSequenceNumber;
+using model::MaybeDocumentMap;
+
 /**
  * Returns an estimate of the number of bytes used to store the given
  * document key in memory. This is only an estimate and includes the size
@@ -81,19 +81,19 @@ MaybeDocumentMap MemoryRemoteDocumentCache::GetAll(const DocumentKeySet& keys) {
   return results;
 }
 
-DocumentMap MemoryRemoteDocumentCache::GetMatching(FSTQuery* query) {
+DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
   HARD_ASSERT(
-      ![query isCollectionGroupQuery],
+      !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
   DocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
-  DocumentKey prefix{query.path.Append("")};
+  DocumentKey prefix{query.path().Append("")};
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
     const DocumentKey& key = it->first;
-    if (!query.path.IsPrefixOf(key.path())) {
+    if (!query.path().IsPrefixOf(key.path())) {
       break;
     }
     FSTMaybeDocument* maybeDoc = it->second;
@@ -101,7 +101,7 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(FSTQuery* query) {
       continue;
     }
     FSTDocument* doc = static_cast<FSTDocument*>(maybeDoc);
-    if ([query matchesDocument:doc]) {
+    if (query.Matches(doc)) {
       results = results.insert(key, doc);
     }
   }

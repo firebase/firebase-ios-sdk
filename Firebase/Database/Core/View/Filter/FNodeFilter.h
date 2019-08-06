@@ -24,48 +24,54 @@
 @class FPath;
 
 /**
-* FNodeFilter is used to update nodes and complete children of nodes while applying queries on the fly and keeping
-* track of any child changes. This class does not track value changes as value changes depend on more than just the
-* node itself. Different kind of queries require different kind of implementations of this interface.
-*/
-@protocol FNodeFilter<NSObject>
+ * FNodeFilter is used to update nodes and complete children of nodes while
+ * applying queries on the fly and keeping track of any child changes. This
+ * class does not track value changes as value changes depend on more than just
+ * the node itself. Different kind of queries require different kind of
+ * implementations of this interface.
+ */
+@protocol FNodeFilter <NSObject>
 
 /**
-* Update a single complete child in the snap. If the child equals the old child in the snap, this is a no-op.
-* The method expects an indexed snap.
-*/
-- (FIndexedNode *) updateChildIn:(FIndexedNode *)oldSnap
-                     forChildKey:(NSString *)childKey
-                        newChild:(id<FNode>)newChildSnap
-                    affectedPath:(FPath *)affectedPath
-                      fromSource:(id<FCompleteChildSource>)source
-                     accumulator:(FChildChangeAccumulator *)optChangeAccumulator;
+ * Update a single complete child in the snap. If the child equals the old child
+ * in the snap, this is a no-op. The method expects an indexed snap.
+ */
+- (FIndexedNode *)updateChildIn:(FIndexedNode *)oldSnap
+                    forChildKey:(NSString *)childKey
+                       newChild:(id<FNode>)newChildSnap
+                   affectedPath:(FPath *)affectedPath
+                     fromSource:(id<FCompleteChildSource>)source
+                    accumulator:(FChildChangeAccumulator *)optChangeAccumulator;
 
 /**
-* Update a node in full and output any resulting change from this complete update.
-*/
-- (FIndexedNode *) updateFullNode:(FIndexedNode *)oldSnap
-                      withNewNode:(FIndexedNode *)newSnap
-                      accumulator:(FChildChangeAccumulator *)optChangeAccumulator;
+ * Update a node in full and output any resulting change from this complete
+ * update.
+ */
+- (FIndexedNode *)updateFullNode:(FIndexedNode *)oldSnap
+                     withNewNode:(FIndexedNode *)newSnap
+                     accumulator:
+                         (FChildChangeAccumulator *)optChangeAccumulator;
 
 /**
-* Update the priority of the root node
-*/
-- (FIndexedNode *) updatePriority:(id<FNode>)priority forNode:(FIndexedNode *)oldSnap;
+ * Update the priority of the root node
+ */
+- (FIndexedNode *)updatePriority:(id<FNode>)priority
+                         forNode:(FIndexedNode *)oldSnap;
 
 /**
-* Returns true if children might be filtered due to query critiera
-*/
-- (BOOL) filtersNodes;
+ * Returns true if children might be filtered due to query critiera
+ */
+- (BOOL)filtersNodes;
 
 /**
-* Returns the index filter that this filter uses to get a NodeFilter that doesn't filter any children.
-*/
-@property (nonatomic, strong, readonly) id<FNodeFilter> indexedFilter;
+ * Returns the index filter that this filter uses to get a NodeFilter that
+ * doesn't filter any children.
+ */
+@property(nonatomic, strong, readonly) id<FNodeFilter> indexedFilter;
 
 /**
-* Returns the index that this filter uses
-*/
-@property (nonatomic, strong, readonly) id<FIndex> index;
+ * Returns the index that this filter uses
+ */
+@property(nonatomic, strong, readonly) id<FIndex> index;
 
 @end

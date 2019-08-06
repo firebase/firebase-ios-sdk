@@ -15,6 +15,7 @@
 cc_test(
   firebase_firestore_immutable_test
   SOURCES
+    append_only_list_test.cc
     array_sorted_map_test.cc
     testing.h
     sorted_map_test.cc

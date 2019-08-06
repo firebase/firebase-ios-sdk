@@ -43,9 +43,7 @@
 @class FSTDocumentKeyReference;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
-@class FSTQuery;
 @class FSTSetMutation;
-@class FSTSortOrder;
 @class FSTTransformMutation;
 @class FSTUserDataConverter;
 @class FSTView;
@@ -261,12 +259,6 @@ FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path, FSTTestSnaps
  * A convenience method for creating a document reference from a path string.
  */
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseID, NSString *path);
-
-/** A convenience method for creating a query for the given path (without any other filters). */
-FSTQuery *FSTTestQuery(const absl::string_view path);
-
-/** A convenience method for creating sort orders. */
-FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
 
 /**
  * Creates an NSComparator that will compare FSTDocuments by the given fieldPath string then by

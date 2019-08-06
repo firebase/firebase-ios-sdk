@@ -27,7 +27,6 @@
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -55,8 +54,10 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::model::DatabaseId;
@@ -81,6 +82,8 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChangeAggregator;
+using firebase::firestore::testutil::OrderBy;
+using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -190,28 +193,8 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
                                            databaseID:DatabaseId(projectID, database)];
 }
 
-FSTQuery *FSTTestQuery(const absl::string_view path) {
-  return [FSTQuery queryWithPath:testutil::Resource(path)];
-}
-
-FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
-  const FieldPath path = testutil::Field(field);
-  BOOL ascending;
-  if ([direction isEqualToString:@"asc"]) {
-    ascending = YES;
-  } else if ([direction isEqualToString:@"desc"]) {
-    ascending = NO;
-  } else {
-    HARD_FAIL("Unsupported direction: %s", direction);
-  }
-  return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
-}
-
 DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
-  FSTQuery *query = [FSTTestQuery("docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
-                                                        ascending:YES]];
-  return [query comparator];
+  return Query("docs").AddingOrderBy(OrderBy(fieldPath)).Comparator();
 }
 
 DocumentSet FSTTestDocSet(DocumentComparator comp, NSArray<FSTDocument *> *docs) {
@@ -294,7 +277,7 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvide
     const std::vector<TargetId> &listen_targets,
     const std::vector<TargetId> &limbo_targets) {
   TestTargetMetadataProvider metadata_provider;
-  FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
+  core::Query query(document_key.path());
 
   for (TargetId target_id : listen_targets) {
     FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
@@ -322,7 +305,7 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvide
 TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(
     const DocumentKey &document_key, const std::vector<TargetId> &targets) {
   TestTargetMetadataProvider metadata_provider;
-  FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
+  core::Query query(document_key.path());
 
   for (TargetId target_id : targets) {
     FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query

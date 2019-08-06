@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FPath.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleSetIdPath : NSObject
 
-- (id) initWithSetId:(NSNumber *)aSetId andPath:(FPath *)aPath;
+- (id)initWithSetId:(NSNumber *)aSetId andPath:(FPath *)aPath;
 
-@property (strong, nonatomic) NSNumber* setId;
-@property (strong, nonatomic) FPath* path;
+@property(strong, nonatomic) NSNumber *setId;
+@property(strong, nonatomic) FPath *path;
 
 @end

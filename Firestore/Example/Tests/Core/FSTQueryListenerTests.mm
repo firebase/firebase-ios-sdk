@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
@@ -38,9 +37,10 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::DocumentViewChange;
@@ -57,6 +57,8 @@ using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+
+using firebase::firestore::testutil::Query;
 using testing::ElementsAre;
 using testing::IsEmpty;
 
@@ -104,7 +106,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> accum;
   std::vector<ViewSnapshot> otherAccum;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
   FSTDocument *doc2prime = FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"},
@@ -132,7 +134,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   ViewSnapshot expectedSnap2{snap2.query(),
                              snap2.documents(),
-                             /*old_documents=*/DocumentSet{snap2.query().comparator},
+                             /*old_documents=*/DocumentSet{snap2.query().Comparator()},
                              /*document_changes=*/{change1, change4},
                              snap2.mutated_keys(),
                              snap2.from_cache(),
@@ -143,13 +145,13 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
 - (void)testRaisesErrorEvent {
   __block std::vector<Status> accum;
-  FSTQuery *query = FSTTestQuery("rooms/Eros");
+  core::Query query = Query("rooms/Eros");
 
   auto listener = QueryListener::Create(query, ^(const StatusOr<ViewSnapshot> &maybe_snapshot) {
     accum.push_back(maybe_snapshot.status());
   });
 
-  Status testError{FirestoreErrorCode::Unauthenticated, "Some info"};
+  Status testError{Error::Unauthenticated, "Some info"};
   listener->OnError(testError);
 
   XC_ASSERT_THAT(accum, ElementsAre(testError));
@@ -157,7 +159,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
 - (void)testRaisesEventForEmptyCollectionAfterSync {
   std::vector<ViewSnapshot> accum;
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
 
   auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
 
@@ -175,7 +177,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
   std::vector<ViewSnapshot> accum;
 
-  FSTQuery *query = FSTTestQuery("rooms/Eros");
+  core::Query query = Query("rooms/Eros");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, DocumentState::kSynced);
 
@@ -213,7 +215,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> filteredAccum;
   std::vector<ViewSnapshot> fullAccum;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
@@ -245,7 +247,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   std::vector<ViewSnapshot> filteredAccum;
   std::vector<ViewSnapshot> fullAccum;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 =
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
@@ -292,7 +294,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testRaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges {
   std::vector<ViewSnapshot> fullAccum;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 =
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
   FSTDocument *doc2 =
@@ -338,7 +340,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
   std::vector<ViewSnapshot> filteredAccum;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 =
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kLocalMutations);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
@@ -371,7 +373,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testWillWaitForSyncIfOnline {
   std::vector<ViewSnapshot> events;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
@@ -398,7 +400,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
   ViewSnapshot expectedSnap{snap3.query(),
                             snap3.documents(),
-                            /*old_documents=*/DocumentSet{snap3.query().comparator},
+                            /*old_documents=*/DocumentSet{snap3.query().Comparator()},
                             /*document_changes=*/{change1, change2},
                             snap3.mutated_keys(),
                             /*from_cache=*/false,
@@ -410,7 +412,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testWillRaiseInitialEventWhenGoingOffline {
   std::vector<ViewSnapshot> events;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, DocumentState::kSynced);
 
@@ -436,7 +438,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
   ViewSnapshot expectedSnap1{query,
                              /*documents=*/snap1.documents(),
-                             /*old_documents=*/DocumentSet{snap1.query().comparator},
+                             /*old_documents=*/DocumentSet{snap1.query().Comparator()},
                              /*document_changes=*/{change1},
                              snap1.mutated_keys(),
                              /*from_cache=*/true,
@@ -457,7 +459,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testWillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs {
   std::vector<ViewSnapshot> events;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -469,7 +471,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   ViewSnapshot expectedSnap{query,
                             /*documents=*/snap1.documents(),
-                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*old_documents=*/DocumentSet{snap1.query().Comparator()},
                             /*document_changes=*/{},
                             snap1.mutated_keys(),
                             /*from_cache=*/true,
@@ -481,7 +483,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 - (void)testWillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs {
   std::vector<ViewSnapshot> events;
 
-  FSTQuery *query = FSTTestQuery("rooms");
+  core::Query query = Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -492,7 +494,7 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   ViewSnapshot expectedSnap{query,
                             /*documents=*/snap1.documents(),
-                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*old_documents=*/DocumentSet{snap1.query().Comparator()},
                             /*document_changes=*/{},
                             snap1.mutated_keys(),
                             /*from_cache=*/true,

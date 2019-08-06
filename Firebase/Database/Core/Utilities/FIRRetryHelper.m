@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
 #import "FIRRetryHelper.h"
 #import "FUtilities.h"
+#import <FirebaseCore/FIRLogger.h>
 
 @interface FIRRetryHelperTask : NSObject
 
-@property (nonatomic, strong) void (^block)(void);
+@property(nonatomic, strong) void (^block)(void);
 
 @end
 
 @implementation FIRRetryHelperTask
 
-- (instancetype) initWithBlock:(void (^)(void))block {
+- (instancetype)initWithBlock:(void (^)(void))block {
     self = [super init];
     if (self != nil) {
         self->_block = [block copy];
@@ -34,15 +34,15 @@
     return self;
 }
 
-- (BOOL) isCanceled {
+- (BOOL)isCanceled {
     return self.block == nil;
 }
 
-- (void) cancel {
+- (void)cancel {
     self.block = nil;
 }
 
-- (void) execute {
+- (void)execute {
     if (self.block) {
         self.block();
     }
@@ -50,30 +50,28 @@
 
 @end
 
-
-
 @interface FIRRetryHelper ()
 
-@property (nonatomic, strong) dispatch_queue_t dispatchQueue;
-@property (nonatomic) NSTimeInterval minRetryDelayAfterFailure;
-@property (nonatomic) NSTimeInterval maxRetryDelay;
-@property (nonatomic) double retryExponent;
-@property (nonatomic) double jitterFactor;
+@property(nonatomic, strong) dispatch_queue_t dispatchQueue;
+@property(nonatomic) NSTimeInterval minRetryDelayAfterFailure;
+@property(nonatomic) NSTimeInterval maxRetryDelay;
+@property(nonatomic) double retryExponent;
+@property(nonatomic) double jitterFactor;
 
-@property (nonatomic) BOOL lastWasSuccess;
-@property (nonatomic) NSTimeInterval currentRetryDelay;
+@property(nonatomic) BOOL lastWasSuccess;
+@property(nonatomic) NSTimeInterval currentRetryDelay;
 
-@property (nonatomic, strong) FIRRetryHelperTask *scheduledRetry;
+@property(nonatomic, strong) FIRRetryHelperTask *scheduledRetry;
 
 @end
 
 @implementation FIRRetryHelper
 
-- (instancetype) initWithDispatchQueue:(dispatch_queue_t)dispatchQueue
-             minRetryDelayAfterFailure:(NSTimeInterval)minRetryDelayAfterFailure
-                         maxRetryDelay:(NSTimeInterval)maxRetryDelay
-                         retryExponent:(double)retryExponent
-                          jitterFactor:(double)jitterFactor {
+- (instancetype)initWithDispatchQueue:(dispatch_queue_t)dispatchQueue
+            minRetryDelayAfterFailure:(NSTimeInterval)minRetryDelayAfterFailure
+                        maxRetryDelay:(NSTimeInterval)maxRetryDelay
+                        retryExponent:(double)retryExponent
+                         jitterFactor:(double)jitterFactor {
     self = [super init];
     if (self != nil) {
         self->_dispatchQueue = dispatchQueue;
@@ -86,7 +84,7 @@
     return self;
 }
 
-- (void) retry:(void (^)(void))block {
+- (void)retry:(void (^)(void))block {
     if (self.scheduledRetry != nil) {
         FFLog(@"I-RDB054001", @"Canceling existing retry attempt");
         [self.scheduledRetry cancel];
@@ -100,33 +98,35 @@
         if (self.currentRetryDelay == 0) {
             self.currentRetryDelay = self.minRetryDelayAfterFailure;
         } else {
-            NSTimeInterval newDelay = (self.currentRetryDelay * self.retryExponent);
+            NSTimeInterval newDelay =
+                (self.currentRetryDelay * self.retryExponent);
             self.currentRetryDelay = MIN(newDelay, self.maxRetryDelay);
         }
 
         delay = ((1 - self.jitterFactor) * self.currentRetryDelay) +
-                (self.jitterFactor * self.currentRetryDelay * [FUtilities randomDouble]);
+                (self.jitterFactor * self.currentRetryDelay *
+                 [FUtilities randomDouble]);
         FFLog(@"I-RDB054002", @"Scheduling retry in %fs", delay);
-
     }
     self.lastWasSuccess = NO;
     FIRRetryHelperTask *task = [[FIRRetryHelperTask alloc] initWithBlock:block];
     self.scheduledRetry = task;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (long long)(delay * NSEC_PER_SEC));
+    dispatch_time_t popTime =
+        dispatch_time(DISPATCH_TIME_NOW, (long long)(delay * NSEC_PER_SEC));
     dispatch_after(popTime, self.dispatchQueue, ^{
-        if (![task isCanceled]) {
-            self.scheduledRetry = nil;
-            [task execute];
-        }
+      if (![task isCanceled]) {
+          self.scheduledRetry = nil;
+          [task execute];
+      }
     });
 }
 
-- (void) signalSuccess {
+- (void)signalSuccess {
     self.lastWasSuccess = YES;
     self.currentRetryDelay = 0;
 }
 
-- (void) cancel {
+- (void)cancel {
     if (self.scheduledRetry != nil) {
         FFLog(@"I-RDB054003", @"Canceling existing retry attempt");
         [self.scheduledRetry cancel];

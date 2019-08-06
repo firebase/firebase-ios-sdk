@@ -18,8 +18,10 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FILTER_H_
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -43,14 +45,19 @@ class Filter {
     GreaterThanOrEqual,
     GreaterThan,
     ArrayContains,
+    In,
+    ArrayContainsAny,
   };
 
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
+    kArrayContainsAnyFilter,
     kArrayContainsFilter,
     kFieldFilter,
+    kInFilter,
     kKeyFieldFilter,
+    kKeyFieldInFilter,
   };
 
   virtual ~Filter() = default;
@@ -97,6 +104,9 @@ class Filter {
 inline bool operator!=(const Filter& lhs, const Filter& rhs) {
   return !(lhs == rhs);
 }
+
+/** A list of Filters, as used in Queries and elsewhere. */
+using FilterList = immutable::AppendOnlyList<std::shared_ptr<const Filter>>;
 
 std::ostream& operator<<(std::ostream& os, const Filter& filter);
 

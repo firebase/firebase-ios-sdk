@@ -18,7 +18,6 @@
 
 #include <memory>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
@@ -34,6 +33,7 @@
 #include "absl/strings/string_view.h"
 
 namespace testutil = firebase::firestore::testutil;
+namespace core = firebase::firestore::core;
 namespace util = firebase::firestore::util;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
@@ -41,6 +41,8 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::MaybeDocumentMap;
+
+using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -177,7 +179,7 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:"b/2"];
     [self setTestDocumentAtPath:"c/1"];
 
-    FSTQuery *query = FSTTestQuery("b");
+    core::Query query = Query("b");
     DocumentMap results = self.remoteDocumentCache->GetMatching(query);
     [self expectMap:results.underlying_map()
         hasDocsInArray:@[

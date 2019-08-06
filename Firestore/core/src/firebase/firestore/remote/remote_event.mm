@@ -18,19 +18,19 @@
 
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-
-using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+using core::DocumentViewChange;
+using core::Query;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::SnapshotVersion;
+using model::TargetId;
 
 // TargetChange
 
@@ -214,8 +214,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
   FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
   if (query_data) {
-    FSTQuery* query = query_data.query;
-    if ([query isDocumentQuery]) {
+    const Query& query = query_data.query;
+    if (query.IsDocumentQuery()) {
       if (expected_count == 0) {
         // The existence filter told us the document does not exist. We deduce
         // that this document does not exist and apply a deleted document to our
@@ -223,7 +223,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
         // another query that will raise this document as part of a snapshot
         // until it is resolved, essentially exposing inconsistency between
         // queries.
-        DocumentKey key{query.path};
+        DocumentKey key{query.path()};
         RemoveDocumentFromTarget(
             target_id, key,
             [FSTDeletedDocument documentWithKey:key
@@ -256,12 +256,12 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
 
     FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.current() && [query_data.query isDocumentQuery]) {
+      if (target_state.current() && query_data.query.IsDocumentQuery()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from limboDocumentRefs.
-        DocumentKey key{query_data.query.path};
+        DocumentKey key{query_data.query.path()};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {

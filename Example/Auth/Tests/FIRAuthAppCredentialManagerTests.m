@@ -18,7 +18,7 @@
 
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthKeychain.h"
+#import "FIRAuthKeychainServices.h"
 #import <OCMock/OCMock.h>
 
 #define ANY_ERROR_POINTER ((NSError *__autoreleasing *_Nullable)[OCMArg anyPointer])
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setUp {
-  _mockKeychain = OCMClassMock([FIRAuthKeychain class]);
+  _mockKeychain = OCMClassMock([FIRAuthKeychainServices class]);
 }
 
 /** @fn testCompletion

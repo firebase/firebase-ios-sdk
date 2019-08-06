@@ -17,7 +17,6 @@
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
 #import "FIRGeoPoint.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
@@ -51,7 +50,7 @@ TEST(XcGmockTest, FIRGeoPointPrints) {
 }
 
 TEST(XcGmockTest, StatusPrints) {
-  util::Status status(FirestoreErrorCode::NotFound, "missing foo");
+  util::Status status(Error::NotFound, "missing foo");
   EXPECT_EQ("Not found: missing foo", testing::PrintToString(status));
 }
 

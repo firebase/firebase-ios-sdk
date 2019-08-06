@@ -24,7 +24,6 @@
 #include <vector>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -50,9 +49,10 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
@@ -90,7 +90,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
  */
 @interface FSTQueryView : NSObject
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
                   resumeToken:(NSData *)resumeToken
                          view:(FSTView *)view NS_DESIGNATED_INITIALIZER;
@@ -98,7 +98,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (instancetype)init NS_UNAVAILABLE;
 
 /** The query itself. */
-@property(nonatomic, strong, readonly) FSTQuery *query;
+- (const Query &)query;
 
 /** The targetID created by the client that is used in the watch stream to identify this query. */
 @property(nonatomic, assign, readonly) TargetId targetID;
@@ -119,19 +119,25 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 @end
 
-@implementation FSTQueryView
+@implementation FSTQueryView {
+  Query _query;
+}
 
-- (instancetype)initWithQuery:(FSTQuery *)query
+- (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
                   resumeToken:(NSData *)resumeToken
                          view:(FSTView *)view {
   if (self = [super init]) {
-    _query = query;
+    _query = std::move(query);
     _targetID = targetID;
     _resumeToken = resumeToken;
     _view = view;
   }
   return self;
+}
+
+- (const Query &)query {
+  return _query;
 }
 
 @end
@@ -164,10 +170,6 @@ class LimboResolution {
 /** The local store, used to persist mutations and cached documents. */
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 
-/** FSTQueryViews for all active queries, indexed by query. */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTQuery *, FSTQueryView *> *queryViewsByQuery;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -180,6 +182,9 @@ class LimboResolution {
   /** Stores user completion blocks, indexed by user and BatchId. */
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
+
+  /** FSTQueryViews for all active queries, indexed by query. */
+  std::unordered_map<Query, FSTQueryView *> _queryViewsByQuery;
 
   /** FSTQueryViews for all active queries, indexed by target ID. */
   std::unordered_map<TargetId, FSTQueryView *> _queryViewsByTarget;
@@ -209,17 +214,16 @@ class LimboResolution {
     _localStore = localStore;
     _remoteStore = remoteStore;
 
-    _queryViewsByQuery = [NSMutableDictionary dictionary];
-
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator();
     _currentUser = initialUser;
   }
   return self;
 }
 
-- (TargetId)listenToQuery:(FSTQuery *)query {
+- (TargetId)listenToQuery:(Query)query {
   [self assertDelegateExistsForSelector:_cmd];
-  HARD_ASSERT(self.queryViewsByQuery[query] == nil, "We already listen to query: %s", query);
+  HARD_ASSERT(_queryViewsByQuery.find(query) == _queryViewsByQuery.end(),
+              "We already listen to query: %s", query.ToString());
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   ViewSnapshot viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
@@ -244,7 +248,7 @@ class LimboResolution {
                                                        targetID:queryData.targetID
                                                     resumeToken:queryData.resumeToken
                                                            view:view];
-  self.queryViewsByQuery[queryData.query] = queryView;
+  _queryViewsByQuery[queryData.query] = queryView;
   _queryViewsByTarget[queryData.targetID] = queryView;
 
   HARD_ASSERT(viewChange.snapshot.has_value(),
@@ -252,10 +256,10 @@ class LimboResolution {
   return viewChange.snapshot.value();
 }
 
-- (void)stopListeningToQuery:(FSTQuery *)query {
+- (void)stopListeningToQuery:(const Query &)query {
   [self assertDelegateExistsForSelector:_cmd];
 
-  FSTQueryView *queryView = self.queryViewsByQuery[query];
+  FSTQueryView *queryView = _queryViewsByQuery[query];
   HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
 
   [self.localStore releaseQuery:query];
@@ -377,16 +381,16 @@ class LimboResolution {
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
-  __block std::vector<ViewSnapshot> newViewSnapshots;
-  [self.queryViewsByQuery
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
-        FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-        HARD_ASSERT(viewChange.limboChanges.count == 0,
-                    "OnlineState should not affect limbo documents.");
-        if (viewChange.snapshot.has_value()) {
-          newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
-        }
-      }];
+  std::vector<ViewSnapshot> newViewSnapshots;
+  for (const auto &entry : _queryViewsByQuery) {
+    FSTQueryView *queryView = entry.second;
+    FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
+    HARD_ASSERT(viewChange.limboChanges.count == 0,
+                "OnlineState should not affect limbo documents.");
+    if (viewChange.snapshot.has_value()) {
+      newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
+    }
+  }
 
   [self.syncEngineDelegate handleViewSnapshots:std::move(newViewSnapshots)];
   [self.syncEngineDelegate applyChangedOnlineState:onlineState];
@@ -419,11 +423,11 @@ class LimboResolution {
     auto found = _queryViewsByTarget.find(targetID);
     HARD_ASSERT(found != _queryViewsByTarget.end(), "Unknown targetId: %s", targetID);
     FSTQueryView *queryView = found->second;
-    FSTQuery *query = queryView.query;
+    const Query &query = queryView.query;
     [self.localStore releaseQuery:query];
     [self removeAndCleanupQuery:queryView];
     if ([self errorIsInteresting:error]) {
-      LOG_WARN("Listen for query at %s failed: %s", query.path.CanonicalString(),
+      LOG_WARN("Listen for query at %s failed: %s", query.path().CanonicalString(),
                error.localizedDescription);
     }
     [self.syncEngineDelegate handleError:error forQuery:query];
@@ -481,7 +485,7 @@ class LimboResolution {
 }
 
 - (void)removeAndCleanupQuery:(FSTQueryView *)queryView {
-  [self.queryViewsByQuery removeObjectForKey:queryView.query];
+  _queryViewsByQuery.erase(queryView.query);
   _queryViewsByTarget.erase(queryView.targetID);
 
   DocumentKeySet limboKeys = _limboDocumentRefs.ReferencedKeys(queryView.targetID);
@@ -500,43 +504,43 @@ class LimboResolution {
 - (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap &)changes
                                            remoteEvent:(const absl::optional<RemoteEvent> &)
                                                            maybeRemoteEvent {
-  __block std::vector<ViewSnapshot> newSnapshots;
-  __block std::vector<LocalViewChanges> documentChangesInAllViews;
+  std::vector<ViewSnapshot> newSnapshots;
+  std::vector<LocalViewChanges> documentChangesInAllViews;
 
-  [self.queryViewsByQuery
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
-        FSTView *view = queryView.view;
-        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
-        if (viewDocChanges.needsRefill) {
-          // The query has a limit and some docs were removed/updated, so we need to re-run the
-          // query against the local store to make sure we didn't lose any good docs that had been
-          // past the limit.
-          DocumentMap docs = [self.localStore executeQuery:queryView.query];
-          viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()
-                                             previousChanges:viewDocChanges];
-        }
+  for (const auto &entry : _queryViewsByQuery) {
+    FSTQueryView *queryView = entry.second;
+    FSTView *view = queryView.view;
+    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
+    if (viewDocChanges.needsRefill) {
+      // The query has a limit and some docs were removed/updated, so we need to re-run the
+      // query against the local store to make sure we didn't lose any good docs that had been
+      // past the limit.
+      DocumentMap docs = [self.localStore executeQuery:queryView.query];
+      viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()
+                                         previousChanges:viewDocChanges];
+    }
 
-        absl::optional<TargetChange> targetChange;
-        if (maybeRemoteEvent.has_value()) {
-          const RemoteEvent &remoteEvent = maybeRemoteEvent.value();
-          auto it = remoteEvent.target_changes().find(queryView.targetID);
-          if (it != remoteEvent.target_changes().end()) {
-            targetChange = it->second;
-          }
-        }
-        FSTViewChange *viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
-                                                               targetChange:targetChange];
+    absl::optional<TargetChange> targetChange;
+    if (maybeRemoteEvent.has_value()) {
+      const RemoteEvent &remoteEvent = maybeRemoteEvent.value();
+      auto it = remoteEvent.target_changes().find(queryView.targetID);
+      if (it != remoteEvent.target_changes().end()) {
+        targetChange = it->second;
+      }
+    }
+    FSTViewChange *viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
+                                                           targetChange:targetChange];
 
-        [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
-                                            targetID:queryView.targetID];
+    [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
+                                        targetID:queryView.targetID];
 
-        if (viewChange.snapshot.has_value()) {
-          newSnapshots.push_back(viewChange.snapshot.value());
-          LocalViewChanges docChanges =
-              LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
-          documentChangesInAllViews.push_back(std::move(docChanges));
-        }
-      }];
+    if (viewChange.snapshot.has_value()) {
+      newSnapshots.push_back(viewChange.snapshot.value());
+      LocalViewChanges docChanges =
+          LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
+      documentChangesInAllViews.push_back(std::move(docChanges));
+    }
+  }
 
   [self.syncEngineDelegate handleViewSnapshots:std::move(newSnapshots)];
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
@@ -573,8 +577,8 @@ class LimboResolution {
   if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
     TargetId limboTargetID = _targetIdGenerator.NextId();
-    FSTQuery *query = [FSTQuery queryWithPath:key.path()];
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+    Query query(key.path());
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:std::move(query)
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
@@ -648,8 +652,8 @@ class LimboResolution {
 - (BOOL)isRetryableTransactionError:(const Status &)error {
   // In transactions, the backend will fail outdated reads with FAILED_PRECONDITION and
   // non-matching document versions with ABORTED. These errors should be retried.
-  FirestoreErrorCode code = error.code();
-  return code == FirestoreErrorCode::Aborted || code == FirestoreErrorCode::FailedPrecondition ||
+  Error code = error.code();
+  return code == Error::Aborted || code == Error::FailedPrecondition ||
          !Datastore::IsPermanentError(error);
 }
 

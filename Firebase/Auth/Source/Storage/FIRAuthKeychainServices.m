@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRAuthKeychain.h"
+#import "FIRAuthKeychainServices.h"
 
 #import <Security/Security.h>
 
 #import "FIRAuthErrorUtils.h"
-#import "FIRAuthUserDefaultsStorage.h"
+#import "FIRAuthUserDefaults.h"
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.
@@ -29,7 +29,7 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRAuthKeychain {
+@implementation FIRAuthKeychainServices {
   /** @var _service
       @brief The name of the keychain service.
    */

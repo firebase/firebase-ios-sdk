@@ -20,14 +20,13 @@
 
 @interface FTrackedQuery ()
 
-@property (nonatomic, readwrite) NSUInteger queryId;
-@property (nonatomic, strong, readwrite) FQuerySpec *query;
-@property (nonatomic, readwrite) NSTimeInterval lastUse;
-@property (nonatomic, readwrite) BOOL isComplete;
-@property (nonatomic, readwrite) BOOL isActive;
+@property(nonatomic, readwrite) NSUInteger queryId;
+@property(nonatomic, strong, readwrite) FQuerySpec *query;
+@property(nonatomic, readwrite) NSTimeInterval lastUse;
+@property(nonatomic, readwrite) BOOL isComplete;
+@property(nonatomic, readwrite) BOOL isActive;
 
 @end
-
 
 @implementation FTrackedQuery
 
@@ -47,8 +46,15 @@
     return self;
 }
 
-- (id)initWithId:(NSUInteger)queryId query:(FQuerySpec *)query lastUse:(NSTimeInterval)lastUse isActive:(BOOL)isActive {
-    return [self initWithId:queryId query:query lastUse:lastUse isActive:isActive isComplete:NO];
+- (id)initWithId:(NSUInteger)queryId
+           query:(FQuerySpec *)query
+         lastUse:(NSTimeInterval)lastUse
+        isActive:(BOOL)isActive {
+    return [self initWithId:queryId
+                      query:query
+                    lastUse:lastUse
+                   isActive:isActive
+                 isComplete:NO];
 }
 
 - (FTrackedQuery *)updateLastUse:(NSTimeInterval)lastUse {
@@ -80,11 +86,16 @@
         return NO;
     }
     FTrackedQuery *other = (FTrackedQuery *)object;
-    if (self.queryId != other.queryId) return NO;
-    if (self.query != other.query && ![self.query isEqual:other.query]) return NO;
-    if (self.lastUse != other.lastUse) return NO;
-    if (self.isComplete != other.isComplete) return NO;
-    if (self.isActive != other.isActive) return NO;
+    if (self.queryId != other.queryId)
+        return NO;
+    if (self.query != other.query && ![self.query isEqual:other.query])
+        return NO;
+    if (self.lastUse != other.lastUse)
+        return NO;
+    if (self.isComplete != other.isComplete)
+        return NO;
+    if (self.isActive != other.isActive)
+        return NO;
 
     return YES;
 }

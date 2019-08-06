@@ -26,8 +26,8 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-Status::Status(FirestoreErrorCode code, absl::string_view msg) {
-  HARD_ASSERT(code != FirestoreErrorCode::Ok);
+Status::Status(Error code, absl::string_view msg) {
+  HARD_ASSERT(code != Error::Ok);
   state_ = absl::make_unique<State>();
   state_->code = code;
   state_->msg = static_cast<std::string>(msg);
@@ -88,52 +88,52 @@ std::string Status::ToString() const {
   } else {
     std::string result;
     switch (code()) {
-      case FirestoreErrorCode::Cancelled:
+      case Error::Cancelled:
         result = "Cancelled";
         break;
-      case FirestoreErrorCode::Unknown:
+      case Error::Unknown:
         result = "Unknown";
         break;
-      case FirestoreErrorCode::InvalidArgument:
+      case Error::InvalidArgument:
         result = "Invalid argument";
         break;
-      case FirestoreErrorCode::DeadlineExceeded:
+      case Error::DeadlineExceeded:
         result = "Deadline exceeded";
         break;
-      case FirestoreErrorCode::NotFound:
+      case Error::NotFound:
         result = "Not found";
         break;
-      case FirestoreErrorCode::AlreadyExists:
+      case Error::AlreadyExists:
         result = "Already exists";
         break;
-      case FirestoreErrorCode::PermissionDenied:
+      case Error::PermissionDenied:
         result = "Permission denied";
         break;
-      case FirestoreErrorCode::Unauthenticated:
+      case Error::Unauthenticated:
         result = "Unauthenticated";
         break;
-      case FirestoreErrorCode::ResourceExhausted:
+      case Error::ResourceExhausted:
         result = "Resource exhausted";
         break;
-      case FirestoreErrorCode::FailedPrecondition:
+      case Error::FailedPrecondition:
         result = "Failed precondition";
         break;
-      case FirestoreErrorCode::Aborted:
+      case Error::Aborted:
         result = "Aborted";
         break;
-      case FirestoreErrorCode::OutOfRange:
+      case Error::OutOfRange:
         result = "Out of range";
         break;
-      case FirestoreErrorCode::Unimplemented:
+      case Error::Unimplemented:
         result = "Unimplemented";
         break;
-      case FirestoreErrorCode::Internal:
+      case Error::Internal:
         result = "Internal";
         break;
-      case FirestoreErrorCode::Unavailable:
+      case Error::Unavailable:
         result = "Unavailable";
         break;
-      case FirestoreErrorCode::DataLoss:
+      case Error::DataLoss:
         result = "Data loss";
         break;
       default:

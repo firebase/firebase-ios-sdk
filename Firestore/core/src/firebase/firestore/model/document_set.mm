@@ -35,8 +35,8 @@ namespace model {
 using immutable::SortedSet;
 
 DocumentComparator DocumentComparator::ByKey() {
-  return DocumentComparator([](FSTDocument* lhs, FSTDocument* rhs) {
-    return util::Compare(lhs.key, rhs.key);
+  return DocumentComparator([](const Document& lhs, const Document& rhs) {
+    return util::Compare(lhs.key(), rhs.key());
   });
 }
 

@@ -23,7 +23,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -38,9 +37,11 @@
 #include "absl/types/optional.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::core::Direction;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
@@ -51,6 +52,7 @@ using firebase::firestore::model::FieldValue;
 using testing::ElementsAre;
 using testutil::Field;
 using testutil::Filter;
+using testutil::OrderBy;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,18 +78,18 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   return ContainsDocsMatcherP<std::vector<FSTDocument *>>(docs);
 }
 
+/** Returns a new empty query to use for testing. */
+inline Query QueryForMessages() {
+  return testutil::Query("rooms/eros/messages");
+}
+
 @interface FSTViewTests : XCTestCase
 @end
 
 @implementation FSTViewTests
 
-/** Returns a new empty query to use for testing. */
-- (FSTQuery *)queryForMessages {
-  return [FSTQuery queryWithPath:ResourcePath{"rooms", "eros", "messages"}];
-}
-
 - (void)testAddsDocumentsBasedOnQuery {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 =
@@ -117,7 +119,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRemovesDocuments {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 =
@@ -151,7 +153,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testReturnsNilIfThereAreNoChanges {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 =
@@ -168,7 +170,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesNotReturnNilForFirstChanges {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   absl::optional<ViewSnapshot> snapshot = FSTTestApplyChanges(view, @[], absl::nullopt);
@@ -176,8 +178,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingFilter:Filter("sort", "<=", 2)];
+  Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTDocument *doc1 =
@@ -211,8 +212,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingFilter:Filter("sort", "<=", 2)];
+  Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTDocument *doc1 =
@@ -253,8 +253,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRemovesDocumentsForQueryWithLimit {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryBySettingLimit:2];
+  Query query = QueryForMessages().WithLimit(2);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 =
@@ -287,10 +286,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("num")
-                                                                   ascending:YES]];
-  query = [query queryBySettingLimit:2];
+  Query query = QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimit(2);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 =
@@ -337,7 +333,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testKeepsTrackOfLimboDocuments {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
@@ -380,7 +376,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testResumingQueryCreatesNoLimbos {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
 
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
@@ -397,7 +393,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testReturnsNeedsRefillOnDeleteInLimitQuery {
-  FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
+  Query query = QueryForMessages().WithLimit(2);
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -425,10 +421,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testReturnsNeedsRefillOnReorderInLimitQuery {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
-  query = [query queryBySettingLimit:2];
+  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(2);
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
   FSTDocument *doc2 =
@@ -461,10 +454,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntNeedRefillOnReorderWithinLimit {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
-  query = [query queryBySettingLimit:3];
+  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(3);
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
   FSTDocument *doc2 =
@@ -495,10 +485,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntNeedRefillOnReorderAfterLimitQuery {
-  FSTQuery *query = [self queryForMessages];
-  query = [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:Field("order")
-                                                                   ascending:YES]];
-  query = [query queryBySettingLimit:3];
+  Query query = QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimit(3);
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, DocumentState::kSynced);
   FSTDocument *doc2 =
@@ -529,7 +516,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntNeedRefillForAdditionAfterTheLimit {
-  FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
+  Query query = QueryForMessages().WithLimit(2);
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -552,7 +539,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntNeedRefillForDeletionsWhenNotNearTheLimit {
-  FSTQuery *query = [[self queryForMessages] queryBySettingLimit:20];
+  Query query = QueryForMessages().WithLimit(20);
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -574,7 +561,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testHandlesApplyingIrrelevantDocs {
-  FSTQuery *query = [[self queryForMessages] queryBySettingLimit:2];
+  Query query = QueryForMessages().WithLimit(2);
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -597,7 +584,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testComputesMutatedKeys {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -614,7 +601,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -632,7 +619,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRemembersLocalMutationsFromPreviousSnapshot {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -650,7 +637,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRemembersLocalMutationsFromPreviousCallToComputeChangesWithDocuments {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0, @{}, DocumentState::kSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -666,7 +653,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testRaisesHasPendingWritesForPendingMutationsInInitialSnapshot {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
@@ -675,7 +662,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 }
 
 - (void)testDoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot {
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/1", 0, @{}, DocumentState::kCommittedMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -689,7 +676,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   // suppress the event generated by the write acknowledgement and instead wait for Watch to catch
   // up.
 
-  FSTQuery *query = [self queryForMessages];
+  Query query = QueryForMessages();
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/1", 1, @{@"time" : @1}, DocumentState::kLocalMutations);
   FSTDocument *doc1Committed =

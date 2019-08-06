@@ -21,16 +21,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// This protocol is used in the interop registration process to register an instance provider for
-/// individual FIRApps.
+/// This protocol is used in the interop registration process to register an
+/// instance provider for individual FIRApps.
 @protocol FIRDatabaseProvider
 
-/// Gets a FirebaseDatabase instance for the specified URL, using the specified FirebaseApp.
+/// Gets a FirebaseDatabase instance for the specified URL, using the specified
+/// FirebaseApp.
 - (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url;
 
 @end
 
-/// A concrete implementation for FIRDatabaseProvider to create Database instances.
+/// A concrete implementation for FIRDatabaseProvider to create Database
+/// instances.
 @interface FIRDatabaseComponent : NSObject <FIRDatabaseProvider>
 
 /// The FIRApp that instances will be set up with.

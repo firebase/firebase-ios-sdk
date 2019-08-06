@@ -20,7 +20,6 @@
 #include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -40,6 +39,7 @@ namespace firestore {
 namespace local {
 
 using auth::User;
+using core::Query;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::Status;
@@ -269,14 +269,14 @@ LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKey(
 }
 
 std::vector<FSTMutationBatch*>
-LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
-  HARD_ASSERT(![query isDocumentQuery],
+LevelDbMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
+  HARD_ASSERT(!query.IsDocumentQuery(),
               "Document queries shouldn't go down this path");
   HARD_ASSERT(
-      ![query isCollectionGroupQuery],
+      !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
-  const ResourcePath& query_path = query.path;
+  const ResourcePath& query_path = query.path();
   size_t immediate_children_path_length = query_path.size() + 1;
 
   // TODO(mcg): Actually implement a single-collection query

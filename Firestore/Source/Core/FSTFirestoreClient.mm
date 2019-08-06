@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
@@ -57,7 +56,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Settings;
@@ -67,6 +66,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
@@ -333,10 +333,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   }
 }
 
-- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
+- (std::shared_ptr<QueryListener>)listenToQuery:(Query)query
                                         options:(core::ListenOptions)options
                                        listener:(ViewSnapshot::SharedListener &&)listener {
-  auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
+  auto query_listener =
+      QueryListener::Create(std::move(query), std::move(options), std::move(listener));
 
   _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
 
@@ -368,10 +369,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                                         /*from_cache=*/true,
                                         /*has_pending_writes=*/false};
     } else {
-      maybe_snapshot = Status{FirestoreErrorCode::Unavailable,
-                              "Failed to get document from cache. (However, this document "
-                              "may exist on the server. Run again without setting source to "
-                              "FirestoreSourceCache to attempt to retrieve the document "};
+      maybe_snapshot =
+          Status{Error::Unavailable, "Failed to get document from cache. (However, this document "
+                                     "may exist on the server. Run again without setting source to "
+                                     "FirestoreSourceCache to attempt to retrieve the document "};
     }
 
     if (shared_callback) {

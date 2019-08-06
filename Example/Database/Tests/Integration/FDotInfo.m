@@ -15,159 +15,192 @@
  */
 
 #import "FDotInfo.h"
-#import "FTestHelpers.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FTestHelpers.h"
 
 @implementation FDotInfo
 
-- (void) testCanGetReferenceToInfoNodes {
-    FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
+- (void)testCanGetReferenceToInfoNodes {
+  FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
 
-    [ref.root child:@".info"];
-    [ref.root child:@".info/foo"];
+  [ref.root child:@".info"];
+  [ref.root child:@".info/foo"];
 }
 
-- (void) testCantWriteToInfo {
-    FIRDatabaseReference * ref = [[FTestHelpers getRandomNode].root child:@".info"];
-    XCTAssertThrows([ref setValue:@"hi"], @"Cannot write to path at /.info");
-    XCTAssertThrows([ref setValue:@"hi" andPriority:@5], @"Cannot write to path at /.info");
-    XCTAssertThrows([ref setPriority:@"hi"], @"Cannot write to path at /.info");
-    XCTAssertThrows([ref runTransactionBlock:^FIRTransactionResult *(FIRMutableData *currentData) {
-        return [FIRTransactionResult successWithValue:currentData];
-    }], @"Cannot write to path at /.info");
-    XCTAssertThrows([ref removeValue], @"Cannot write to path at /.info");
-    XCTAssertThrows([[ref child:@"test"] setValue:@"hi"], @"Cannot write to path at /.info");
+- (void)testCantWriteToInfo {
+  FIRDatabaseReference *ref = [[FTestHelpers getRandomNode].root child:@".info"];
+  XCTAssertThrows([ref setValue:@"hi"], @"Cannot write to path at /.info");
+  XCTAssertThrows([ref setValue:@"hi" andPriority:@5], @"Cannot write to path at /.info");
+  XCTAssertThrows([ref setPriority:@"hi"], @"Cannot write to path at /.info");
+  XCTAssertThrows([ref runTransactionBlock:^FIRTransactionResult *(FIRMutableData *currentData) {
+                    return [FIRTransactionResult successWithValue:currentData];
+                  }],
+                  @"Cannot write to path at /.info");
+  XCTAssertThrows([ref removeValue], @"Cannot write to path at /.info");
+  XCTAssertThrows([[ref child:@"test"] setValue:@"hi"], @"Cannot write to path at /.info");
 }
 
-- (void) testCanWatchInfoConnected {
-    FIRDatabaseReference * rootRef = [FTestHelpers getRandomNode].root;
-    __block BOOL done = NO;
-    [[rootRef child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        if ([[snapshot value] boolValue]) {
-            done = YES;
-        }
-    }];
-    [self waitUntil:^{ return done; }];
+- (void)testCanWatchInfoConnected {
+  FIRDatabaseReference *rootRef = [FTestHelpers getRandomNode].root;
+  __block BOOL done = NO;
+  [[rootRef child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                             withBlock:^(FIRDataSnapshot *snapshot) {
+                                               if ([[snapshot value] boolValue]) {
+                                                 done = YES;
+                                               }
+                                             }];
+  [self waitUntil:^{
+    return done;
+  }];
 }
 
-- (void) testInfoConnectedGoesToFalseOnDisconnect {
-    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-    FIRDatabaseReference * rootRef = [[FIRDatabaseReference alloc] initWithConfig:cfg];
-    __block BOOL everConnected = NO;
-    __block NSMutableString *connectedHistory = [[NSMutableString alloc] init];
-    [[rootRef child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        if ([[snapshot value] boolValue]) {
-            everConnected = YES;
-        }
+- (void)testInfoConnectedGoesToFalseOnDisconnect {
+  FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
+  FIRDatabaseReference *rootRef = [[FIRDatabaseReference alloc] initWithConfig:cfg];
+  __block BOOL everConnected = NO;
+  __block NSMutableString *connectedHistory = [[NSMutableString alloc] init];
+  [[rootRef child:@".info/connected"]
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^(FIRDataSnapshot *snapshot) {
+               if ([[snapshot value] boolValue]) {
+                 everConnected = YES;
+               }
 
-        if (everConnected) {
-            [connectedHistory appendString:([[snapshot value] boolValue] ? @"YES," : @"NO,")];
-        }
-    }];
-    [self waitUntil:^{ return everConnected; }];
+               if (everConnected) {
+                 [connectedHistory appendString:([[snapshot value] boolValue] ? @"YES," : @"NO,")];
+               }
+             }];
+  [self waitUntil:^{
+    return everConnected;
+  }];
 
-    [FRepoManager interrupt:cfg];
-    [FRepoManager resume:cfg];
+  [FRepoManager interrupt:cfg];
+  [FRepoManager resume:cfg];
 
-    [self waitUntil:^BOOL{
-        return [connectedHistory isEqualToString:@"YES,NO,YES,"];
-    }];
+  [self waitUntil:^BOOL {
+    return [connectedHistory isEqualToString:@"YES,NO,YES,"];
+  }];
 
-    [FRepoManager interrupt:cfg];
-    [FRepoManager disposeRepos:cfg];
+  [FRepoManager interrupt:cfg];
+  [FRepoManager disposeRepos:cfg];
 }
 
-- (void) testInfoServerTimeOffset {
-    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-    FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
+- (void)testInfoServerTimeOffset {
+  FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
 
-    // make sure childByAutoId works
-    [ref childByAutoId];
+  // make sure childByAutoId works
+  [ref childByAutoId];
 
-    NSMutableArray* offsets = [[NSMutableArray alloc] init];
+  NSMutableArray *offsets = [[NSMutableArray alloc] init];
 
-    [[ref child:@".info/serverTimeOffset"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        NSLog(@"got value: %@", snapshot.value);
-        [offsets addObject:snapshot.value];
-    }];
+  [[ref child:@".info/serverTimeOffset"] observeEventType:FIRDataEventTypeValue
+                                                withBlock:^(FIRDataSnapshot *snapshot) {
+                                                  NSLog(@"got value: %@", snapshot.value);
+                                                  [offsets addObject:snapshot.value];
+                                                }];
 
-    WAIT_FOR(offsets.count == 1);
+  WAIT_FOR(offsets.count == 1);
 
-    XCTAssertTrue([[offsets objectAtIndex:0] isKindOfClass:[NSNumber class]], @"Second element should be a number, in milliseconds");
+  XCTAssertTrue([[offsets objectAtIndex:0] isKindOfClass:[NSNumber class]],
+                @"Second element should be a number, in milliseconds");
 
-    // make sure childByAutoId still works
-    [ref childByAutoId];
+  // make sure childByAutoId still works
+  [ref childByAutoId];
 
-    [FRepoManager interrupt:cfg];
-    [FRepoManager disposeRepos:cfg];
+  [FRepoManager interrupt:cfg];
+  [FRepoManager disposeRepos:cfg];
 }
 
-- (void) testManualConnectionManagement {
-    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-    FIRDatabaseConfig *altCfg = [FTestHelpers configForName:@"alt-config"];
+- (void)testManualConnectionManagement {
+  FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
+  FIRDatabaseConfig *altCfg = [FTestHelpers configForName:@"alt-config"];
 
-    FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
-    FIRDatabaseReference * refAlt = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
+  FIRDatabaseReference *refAlt = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
 
-    // Wait until we're connected to both Firebases
-    __block BOOL ready = NO;
-    [[ref child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        ready = [[snapshot value] boolValue];
-    }];
-    [self waitUntil:^{ return ready; }];
-    [[ref child:@".info/connected"] removeAllObservers];
+  // Wait until we're connected to both Firebases
+  __block BOOL ready = NO;
+  [[ref child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                         withBlock:^(FIRDataSnapshot *snapshot) {
+                                           ready = [[snapshot value] boolValue];
+                                         }];
+  [self waitUntil:^{
+    return ready;
+  }];
+  [[ref child:@".info/connected"] removeAllObservers];
 
-    ready = NO;
-    [[refAlt child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        ready = [[snapshot value] boolValue];
-    }];
-    [self waitUntil:^{ return ready; }];
-    [[refAlt child:@".info/connected"] removeAllObservers];
+  ready = NO;
+  [[refAlt child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                            withBlock:^(FIRDataSnapshot *snapshot) {
+                                              ready = [[snapshot value] boolValue];
+                                            }];
+  [self waitUntil:^{
+    return ready;
+  }];
+  [[refAlt child:@".info/connected"] removeAllObservers];
 
-    [FIRDatabaseReference goOffline];
+  [FIRDatabaseReference goOffline];
 
-    // Ensure we're disconnected from both Firebases
-    ready = NO;
+  // Ensure we're disconnected from both Firebases
+  ready = NO;
 
-    [[ref child:@".info/connected"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        XCTAssertFalse([[snapshot value] boolValue], @".info/connected should be false");
-        ready = YES;
-    }];
-    [self waitUntil:^{ return ready; }];
-    ready = NO;
-    [[refAlt child:@".info/connected"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        XCTAssertFalse([[snapshot value] boolValue], @".info/connected should be false");
-        ready = YES;
-    }];
-    [self waitUntil:^{ return ready; }];
+  [[ref child:@".info/connected"]
+      observeSingleEventOfType:FIRDataEventTypeValue
+                     withBlock:^(FIRDataSnapshot *snapshot) {
+                       XCTAssertFalse([[snapshot value] boolValue],
+                                      @".info/connected should be false");
+                       ready = YES;
+                     }];
+  [self waitUntil:^{
+    return ready;
+  }];
+  ready = NO;
+  [[refAlt child:@".info/connected"]
+      observeSingleEventOfType:FIRDataEventTypeValue
+                     withBlock:^(FIRDataSnapshot *snapshot) {
+                       XCTAssertFalse([[snapshot value] boolValue],
+                                      @".info/connected should be false");
+                       ready = YES;
+                     }];
+  [self waitUntil:^{
+    return ready;
+  }];
 
-    // Ensure that we don't automatically reconnect upon new Firebase creation
-    FIRDatabaseReference * refDup = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
-    [[refDup child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        if ([[snapshot value] boolValue]) {
-            XCTFail(@".info/connected should remain false");
-        }
-    }];
+  // Ensure that we don't automatically reconnect upon new Firebase creation
+  FIRDatabaseReference *refDup = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
+  [[refDup child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                            withBlock:^(FIRDataSnapshot *snapshot) {
+                                              if ([[snapshot value] boolValue]) {
+                                                XCTFail(@".info/connected should remain false");
+                                              }
+                                            }];
 
-    // Wait for 1.5 seconds to make sure connected remains false
-    [NSThread sleepForTimeInterval:1.5];
-    [[refDup child:@".info/connected"] removeAllObservers];
+  // Wait for 1.5 seconds to make sure connected remains false
+  [NSThread sleepForTimeInterval:1.5];
+  [[refDup child:@".info/connected"] removeAllObservers];
 
-    [FIRDatabaseReference goOnline];
+  [FIRDatabaseReference goOnline];
 
-    // Ensure we're reconnected to both Firebases
-    ready = NO;
-    [[ref child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        ready = [[snapshot value] boolValue];
-    }];
-    [self waitUntil:^{ return ready; }];
-    [[ref child:@".info/connected"] removeAllObservers];
+  // Ensure we're reconnected to both Firebases
+  ready = NO;
+  [[ref child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                         withBlock:^(FIRDataSnapshot *snapshot) {
+                                           ready = [[snapshot value] boolValue];
+                                         }];
+  [self waitUntil:^{
+    return ready;
+  }];
+  [[ref child:@".info/connected"] removeAllObservers];
 
-    ready = NO;
-    [[refAlt child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        ready = [[snapshot value] boolValue];
-    }];
-    [self waitUntil:^{ return ready; }];
-    [[refAlt child:@".info/connected"] removeAllObservers];
+  ready = NO;
+  [[refAlt child:@".info/connected"] observeEventType:FIRDataEventTypeValue
+                                            withBlock:^(FIRDataSnapshot *snapshot) {
+                                              ready = [[snapshot value] boolValue];
+                                            }];
+  [self waitUntil:^{
+    return ready;
+  }];
+  [[refAlt child:@".info/connected"] removeAllObservers];
 }
 @end

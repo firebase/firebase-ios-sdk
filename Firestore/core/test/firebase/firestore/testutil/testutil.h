@@ -28,6 +28,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -273,52 +274,80 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
     return core::Filter::Operator::GreaterThanOrEqual;
+    // Both are accepted for compatibility with spec tests and existing
+    // canonical ids.
   } else if (s == "array_contains" || s == "array-contains") {
     return core::Filter::Operator::ArrayContains;
+  } else if (s == "in") {
+    return core::Filter::Operator::In;
+  } else if (s == "array-contains-any") {
+    return core::Filter::Operator::ArrayContainsAny;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 model::FieldValue value) {
+inline std::shared_ptr<const core::FieldFilter> Filter(
+    absl::string_view key, absl::string_view op, model::FieldValue value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
                                    std::move(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 model::FieldValue::Map value) {
+inline std::shared_ptr<const core::FieldFilter> Filter(
+    absl::string_view key, absl::string_view op, model::FieldValue::Map value) {
   return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 std::nullptr_t) {
+inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
+                                                       absl::string_view op,
+                                                       std::nullptr_t) {
   return Filter(key, op, model::FieldValue::Null());
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 const std::string& value) {
+inline std::shared_ptr<const core::FieldFilter> Filter(
+    absl::string_view key, absl::string_view op, const std::string& value) {
   return Filter(key, op, model::FieldValue::FromString(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 int value) {
+inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
+                                                       absl::string_view op,
+                                                       int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
-inline std::shared_ptr<core::FieldFilter> Filter(absl::string_view key,
-                                                 absl::string_view op,
-                                                 double value) {
+inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
+                                                       absl::string_view op,
+                                                       double value) {
   return Filter(key, op, model::FieldValue::FromDouble(value));
+}
+
+inline core::Direction Direction(absl::string_view direction) {
+  if (direction == "asc") {
+    return core::Direction::Ascending;
+  } else if (direction == "desc") {
+    return core::Direction::Descending;
+  } else {
+    HARD_FAIL("Unknown direction: %s (use \"asc\" or \"desc\")", direction);
+  }
+}
+
+inline core::OrderBy OrderBy(absl::string_view key,
+                             absl::string_view direction = "asc") {
+  return core::OrderBy(Field(key), Direction(direction));
+}
+
+inline core::OrderBy OrderBy(model::FieldPath field_path,
+                             core::Direction direction) {
+  return core::OrderBy(std::move(field_path), std::move(direction));
 }
 
 inline core::Query Query(absl::string_view path) {
   return core::Query(Resource(path));
+}
+
+inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
+  return core::Query(model::ResourcePath::Empty(),
+                     std::make_shared<const std::string>(collection_id));
 }
 
 inline std::unique_ptr<model::SetMutation> SetMutation(
@@ -363,6 +392,11 @@ inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {
   std::string snapshot_string =
       std::string("snapshot-") + std::to_string(snapshot_version);
   return nanopb::ByteString(snapshot_string);
+}
+
+template <typename T, typename... Ts>
+std::vector<T> Vector(T&& arg1, Ts&&... args) {
+  return {std::forward<T>(arg1), std::forward<Ts>(args)...};
 }
 
 // Degenerate case to end recursion of `MoveIntoVector`.

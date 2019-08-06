@@ -19,7 +19,7 @@
 @class FPath;
 
 @interface FTuplePathValue : NSObject
-@property (nonatomic, strong, readonly) FPath *path;
-@property (nonatomic, strong, readonly) id value;
-- (id) initWithPath:(FPath *)aPath value:(id)aValue;
+@property(nonatomic, strong, readonly) FPath *path;
+@property(nonatomic, strong, readonly) id value;
+- (id)initWithPath:(FPath *)aPath value:(id)aValue;
 @end

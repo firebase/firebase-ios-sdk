@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -35,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
@@ -42,6 +42,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::testutil::Key;
+using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -299,7 +300,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     std::vector<FSTMutationBatch *> expected = {batches[1], batches[2], batches[4]};
-    FSTQuery *query = FSTTestQuery("foo");
+    core::Query query = Query("foo");
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingQuery(query);
 

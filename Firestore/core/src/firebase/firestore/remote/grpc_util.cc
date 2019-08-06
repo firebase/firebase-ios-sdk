@@ -39,7 +39,7 @@ Status ConvertStatus(const grpc::Status& from) {
       error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
       "Unknown gRPC error code: %s", error_code);
 
-  return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
+  return {static_cast<Error>(error_code), from.error_message()};
 }
 
 }  // namespace remote

@@ -18,7 +18,7 @@
 
 #import "FCachePolicy.h"
 
-@interface FTestCachePolicy : NSObject<FCachePolicy>
+@interface FTestCachePolicy : NSObject <FCachePolicy>
 
 - (id)initWithPercent:(float)percent maxQueries:(NSUInteger)maxQueries;
 

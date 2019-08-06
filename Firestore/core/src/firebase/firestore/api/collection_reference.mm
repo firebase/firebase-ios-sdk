@@ -18,8 +18,6 @@
 
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
-
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -28,25 +26,23 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
-namespace util = firebase::firestore::util;
-using firebase::firestore::api::ThrowInvalidArgument;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::ResourcePath;
-
 namespace firebase {
 namespace firestore {
 namespace api {
-
 namespace {
 
-FSTQuery* MakeQuery(model::ResourcePath path) {
+using core::Query;
+using model::DocumentKey;
+using model::ResourcePath;
+
+Query MakeQuery(model::ResourcePath path) {
   if (path.size() % 2 != 1) {
     ThrowInvalidArgument("Invalid collection reference. Collection references "
                          "must have an odd number of segments, but %s has %s",
                          path.CanonicalString(), path.size());
   }
 
-  return [FSTQuery queryWithPath:std::move(path)];
+  return Query(std::move(path));
 }
 
 }  // namespace
@@ -58,8 +54,7 @@ CollectionReference::CollectionReference(model::ResourcePath path,
 
 bool operator==(const CollectionReference& lhs,
                 const CollectionReference& rhs) {
-  return lhs.firestore() == rhs.firestore() &&
-         objc::Equals(lhs.query(), rhs.query());
+  return lhs.firestore() == rhs.firestore() && lhs.query() == rhs.query();
 }
 
 size_t CollectionReference::Hash() const {
@@ -67,11 +62,11 @@ size_t CollectionReference::Hash() const {
 }
 
 std::string CollectionReference::collection_id() const {
-  return query().path.last_segment();
+  return query().path().last_segment();
 }
 
 absl::optional<DocumentReference> CollectionReference::parent() const {
-  ResourcePath parent_path = query().path.PopLast();
+  ResourcePath parent_path = query().path().PopLast();
   if (parent_path.empty()) {
     return absl::nullopt;
   } else {
@@ -80,13 +75,13 @@ absl::optional<DocumentReference> CollectionReference::parent() const {
 }
 
 std::string CollectionReference::path() const {
-  return query().path.CanonicalString();
+  return query().path().CanonicalString();
 }
 
 DocumentReference CollectionReference::Document(
     absl::string_view document_path) const {
   ResourcePath sub_path = ResourcePath::FromString(document_path);
-  ResourcePath path = query().path.Append(sub_path);
+  ResourcePath path = query().path().Append(sub_path);
   return DocumentReference(std::move(path), firestore());
 }
 
@@ -98,7 +93,7 @@ DocumentReference CollectionReference::AddDocument(
 }
 
 DocumentReference CollectionReference::Document() const {
-  DocumentKey key(query().path.Append(util::CreateAutoId()));
+  DocumentKey key(query().path().Append(util::CreateAutoId()));
   return DocumentReference(std::move(key), firestore());
 }
 

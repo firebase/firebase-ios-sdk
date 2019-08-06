@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -65,7 +65,7 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
-      return Status{FirestoreErrorCode::Aborted,
+      return Status{Error::Aborted,
                     "Document version changed between two reads."};
     }
     return Status::OK();
@@ -80,7 +80,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   EnsureCommitNotCalled();
 
   if (!mutations_.empty()) {
-    Status lookup_error = Status{FirestoreErrorCode::InvalidArgument,
+    Status lookup_error = Status{Error::InvalidArgument,
                                  "Firestore transactions require all reads to "
                                  "be executed before all writes"};
     callback({}, lookup_error);
@@ -141,7 +141,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
       //
       // Note: this can change once we can send separate verify writes in the
       // transaction.
-      return Status{FirestoreErrorCode::InvalidArgument,
+      return Status{Error::InvalidArgument,
                     "Can't update a document that doesn't exist."};
     }
     // Document exists, just base precondition on document update time.
@@ -200,7 +200,7 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
     callback(
-        Status{FirestoreErrorCode::InvalidArgument,
+        Status{Error::InvalidArgument,
                "Every document read in a transaction must also be written in "
                "that transaction."});
   } else {

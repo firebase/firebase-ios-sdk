@@ -45,7 +45,7 @@ using util::CompletionEndState;
 using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
-using util::GetFirestoreErrorCodeName;
+using util::GetFirestoreErrorName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
@@ -70,7 +70,7 @@ class Observer : public GrpcStreamObserver {
   }
   void OnStreamFinish(const util::Status& status) override {
     observed_states.push_back(StringFormat(
-        "OnStreamFinish(%s)", GetFirestoreErrorCodeName(status.code())));
+        "OnStreamFinish(%s)", GetFirestoreErrorName(status.code())));
   }
 
   std::vector<std::string> observed_states;
@@ -278,9 +278,8 @@ TEST_F(GrpcStreamTest, ObserverReceivesNotificationFromFinishAndNotify) {
   worker_queue->EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
-  worker_queue->EnqueueBlocking([&] {
-    stream->FinishAndNotify(Status(FirestoreErrorCode::Unavailable, ""));
-  });
+  worker_queue->EnqueueBlocking(
+      [&] { stream->FinishAndNotify(Status(Error::Unavailable, "")); });
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamFinish(Unavailable)"}));
 }

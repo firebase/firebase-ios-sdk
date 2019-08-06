@@ -21,7 +21,6 @@
 #include <queue>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -100,7 +99,7 @@ class MockWatchStream : public WatchStream {
   }
 
   void WatchQuery(FSTQueryData* query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query, query.resumeToken);
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query.ToString(), query.resumeToken);
 
     // Snapshot version is ignored on the wire
     FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
