@@ -19,9 +19,9 @@
 
 @interface FExpectation : NSObject
 
-@property (strong, nonatomic) FIRDatabaseQuery * query;
-@property (strong, nonatomic) id expectation;
-@property (strong, nonatomic) FIRDataSnapshot * snap;
+@property(strong, nonatomic) FIRDatabaseQuery* query;
+@property(strong, nonatomic) id expectation;
+@property(strong, nonatomic) FIRDataSnapshot* snap;
 
 @end
 
@@ -35,54 +35,56 @@
 
 @implementation FTestExpectations
 
-- (id) initFrom:(XCTestCase *)other {
-    self = [super init];
-    if (self) {
-        expectations = [[NSMutableArray alloc] init];
-        from = other;
+- (id)initFrom:(XCTestCase*)other {
+  self = [super init];
+  if (self) {
+    expectations = [[NSMutableArray alloc] init];
+    from = other;
+  }
+  return self;
+}
+
+- (void)addQuery:(FIRDatabaseQuery*)query withExpectation:(id)expectation {
+  FExpectation* exp = [[FExpectation alloc] init];
+  exp.query = query;
+  exp.expectation = expectation;
+  [query observeEventType:FIRDataEventTypeValue
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  exp.snap = snapshot;
+                }];
+  [expectations addObject:exp];
+}
+
+- (BOOL)isReady {
+  for (FExpectation* exp in expectations) {
+    if (!exp.snap) {
+      return NO;
     }
-    return self;
-}
-
-- (void)addQuery:(FIRDatabaseQuery *)query withExpectation:(id)expectation {
-    FExpectation* exp = [[FExpectation alloc] init];
-    exp.query = query;
-    exp.expectation = expectation;
-    [query observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        exp.snap = snapshot;
-    }];
-    [expectations addObject:exp];
-}
-
-- (BOOL) isReady {
-    for (FExpectation* exp in expectations) {
-        if (!exp.snap) {
-            return NO;
-        }
-        // Note that a failure here will end up triggering the timeout
-        FIRDataSnapshot * snap = exp.snap;
-        NSDictionary* result = snap.value;
-        NSDictionary* expected = exp.expectation;
-        if ([result isEqual:[NSNull null]] || ![result isEqualToDictionary:expected]) {
-            return NO;
-        }
+    // Note that a failure here will end up triggering the timeout
+    FIRDataSnapshot* snap = exp.snap;
+    NSDictionary* result = snap.value;
+    NSDictionary* expected = exp.expectation;
+    if ([result isEqual:[NSNull null]] || ![result isEqualToDictionary:expected]) {
+      return NO;
     }
-    return YES;
+  }
+  return YES;
 }
 
-- (void) validate {
-    for (FExpectation* exp in expectations) {
-        FIRDataSnapshot * snap = exp.snap;
-        NSDictionary* result = [snap value];
-        NSDictionary* expected = exp.expectation;
-        XCTAssertTrue([result isEqualToDictionary:expected], @"Expectation mismatch: %@ should be %@", result, expected);
-    }
+- (void)validate {
+  for (FExpectation* exp in expectations) {
+    FIRDataSnapshot* snap = exp.snap;
+    NSDictionary* result = [snap value];
+    NSDictionary* expected = exp.expectation;
+    XCTAssertTrue([result isEqualToDictionary:expected], @"Expectation mismatch: %@ should be %@",
+                  result, expected);
+  }
 }
 
-- (void) failWithException:(NSException *) anException {
-    @throw anException;
-    // TODO: fix
-    //[from failWithException:anException];
+- (void)failWithException:(NSException*)anException {
+  @throw anException;
+  // TODO: fix
+  //[from failWithException:anException];
 }
 
 @end

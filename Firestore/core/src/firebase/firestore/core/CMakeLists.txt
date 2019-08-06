@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_core
   SOURCES
+    array_contains_any_filter.cc
+    array_contains_any_filter.h
     array_contains_filter.cc
     array_contains_filter.h
     bound.cc
@@ -27,9 +29,14 @@ cc_library(
     field_filter.h
     filter.cc
     filter.h
+    in_filter.cc
+    in_filter.h
+    key_field_in_filter.cc
+    key_field_in_filter.h
     key_field_filter.cc
     key_field_filter.h
     listen_options.h
+    operator.h
     order_by.cc
     order_by.h
     query.cc

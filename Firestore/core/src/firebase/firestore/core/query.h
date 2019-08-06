@@ -114,8 +114,17 @@ class Query {
    */
   const model::FieldPath* InequalityFilterField() const;
 
-  /** Returns true if this Query has an array-contains filter already. */
-  bool HasArrayContainsFilter() const;
+  /**
+   * Returns the first array operator (array-contains or array-contains-any)
+   * found on a filter, or absl::nullopt if there are no array operators.
+   */
+  absl::optional<Filter::Operator> FirstArrayOperator() const;
+
+  /**
+   * Returns the first disjunctive operator (IN or array-contains-any) found
+   * on a filter, or absl::nullopt if there are no disjunctive operators.
+   */
+  absl::optional<Filter::Operator> FirstDisjunctiveOperator() const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on

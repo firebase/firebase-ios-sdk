@@ -21,41 +21,44 @@
 @class FPath;
 
 /**
-* This class holds a collection of writes that can be applied to nodes in unison. It abstracts away the logic with
-* dealing with priority writes and multiple nested writes. At any given path, there is only allowed to be one write
-* modifying that path. Any write to an existing path or shadowing an existing path will modify that existing write to
-* reflect the write added.
-*/
+ * This class holds a collection of writes that can be applied to nodes in
+ * unison. It abstracts away the logic with dealing with priority writes and
+ * multiple nested writes. At any given path, there is only allowed to be one
+ * write modifying that path. Any write to an existing path or shadowing an
+ * existing path will modify that existing write to reflect the write added.
+ */
 @interface FCompoundWrite : NSObject
 
-- (id) initWithWriteTree:(FImmutableTree *)tree;
+- (id)initWithWriteTree:(FImmutableTree *)tree;
 
 /**
  * Creates a compound write with NSDictionary from path string to object
  */
-+ (FCompoundWrite *) compoundWriteWithValueDictionary:(NSDictionary *)dictionary;
++ (FCompoundWrite *)compoundWriteWithValueDictionary:(NSDictionary *)dictionary;
 /**
  * Creates a compound write with NSDictionary from path string to node
  */
-+ (FCompoundWrite *) compoundWriteWithNodeDictionary:(NSDictionary *)dictionary;
++ (FCompoundWrite *)compoundWriteWithNodeDictionary:(NSDictionary *)dictionary;
 
-+ (FCompoundWrite *) emptyWrite;
++ (FCompoundWrite *)emptyWrite;
 
-- (FCompoundWrite *) addWrite:(id<FNode>)node atPath:(FPath *)path;
-- (FCompoundWrite *) addWrite:(id<FNode>)node atKey:(NSString *)key;
-- (FCompoundWrite *) addCompoundWrite:(FCompoundWrite *)node atPath:(FPath *)path;
-- (FCompoundWrite *) removeWriteAtPath:(FPath *)path;
+- (FCompoundWrite *)addWrite:(id<FNode>)node atPath:(FPath *)path;
+- (FCompoundWrite *)addWrite:(id<FNode>)node atKey:(NSString *)key;
+- (FCompoundWrite *)addCompoundWrite:(FCompoundWrite *)node
+                              atPath:(FPath *)path;
+- (FCompoundWrite *)removeWriteAtPath:(FPath *)path;
 - (id<FNode>)rootWrite;
-- (BOOL) hasCompleteWriteAtPath:(FPath *)path;
-- (id<FNode>) completeNodeAtPath:(FPath *)path;
-- (NSArray *) completeChildren;
+- (BOOL)hasCompleteWriteAtPath:(FPath *)path;
+- (id<FNode>)completeNodeAtPath:(FPath *)path;
+- (NSArray *)completeChildren;
 - (NSDictionary *)childCompoundWrites;
-- (FCompoundWrite *) childCompoundWriteAtPath:(FPath *)path;
-- (id<FNode>) applyToNode:(id<FNode>)node;
-- (void)enumerateWrites:(void (^)(FPath *path, id<FNode>node, BOOL *stop))block;
+- (FCompoundWrite *)childCompoundWriteAtPath:(FPath *)path;
+- (id<FNode>)applyToNode:(id<FNode>)node;
+- (void)enumerateWrites:(void (^)(FPath *path, id<FNode> node,
+                                  BOOL *stop))block;
 
 - (NSDictionary *)valForExport:(BOOL)exportFormat;
 
-- (BOOL) isEmpty;
+- (BOOL)isEmpty;
 
 @end

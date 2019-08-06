@@ -274,8 +274,14 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
     return core::Filter::Operator::GreaterThanOrEqual;
+    // Both are accepted for compatibility with spec tests and existing
+    // canonical ids.
   } else if (s == "array_contains" || s == "array-contains") {
     return core::Filter::Operator::ArrayContains;
+  } else if (s == "in") {
+    return core::Filter::Operator::In;
+  } else if (s == "array-contains-any") {
+    return core::Filter::Operator::ArrayContainsAny;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }
@@ -407,7 +413,7 @@ void MoveIntoVector(std::vector<std::unique_ptr<T>>* result,
 }
 
 // Works around the fact that move-only types (in this case, `unique_ptr`) don't
-// work with `initialzer_list`. Desired (doesn't work):
+// work with `initializer_list`. Desired (doesn't work):
 //
 //   std::unique_ptr<int> x, y;
 //   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};

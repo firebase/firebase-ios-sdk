@@ -17,15 +17,15 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FQueryParams.h"
+#import "FEmptyNode.h"
 #import "FIndex.h"
-#import "FPriorityIndex.h"
-#import "FValueIndex.h"
+#import "FKeyIndex.h"
 #import "FLeafNode.h"
 #import "FPathIndex.h"
+#import "FPriorityIndex.h"
+#import "FQueryParams.h"
 #import "FSnapshotUtilities.h"
-#import "FKeyIndex.h"
-#import "FEmptyNode.h"
+#import "FValueIndex.h"
 
 @interface FQueryParamsTest : XCTestCase
 
@@ -34,129 +34,146 @@
 @implementation FQueryParamsTest
 
 - (void)testQueryParamsEquals {
-    { // Limit equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] limitToLast:10];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] limitTo:10];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] limitToFirst:10];
-        FQueryParams *params4 = [[FQueryParams defaultInstance] limitToLast:11];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-        XCTAssertFalse([params1 isEqual:params4]);
-    }
+  {  // Limit equals
+    FQueryParams *params1 = [[FQueryParams defaultInstance] limitToLast:10];
+    FQueryParams *params2 = [[FQueryParams defaultInstance] limitTo:10];
+    FQueryParams *params3 = [[FQueryParams defaultInstance] limitToFirst:10];
+    FQueryParams *params4 = [[FQueryParams defaultInstance] limitToLast:11];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+    XCTAssertFalse([params1 isEqual:params4]);
+  }
 
-    { // Index equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // Index equals
+    FQueryParams *params1 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
+    FQueryParams *params2 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
+    FQueryParams *params3 = [[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 
-    { // startAt equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value"]];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value"] childKey:nil];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // startAt equals
+    FQueryParams *params1 =
+        [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value"]];
+    FQueryParams *params2 =
+        [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value"]
+                                       childKey:nil];
+    FQueryParams *params3 =
+        [[FQueryParams defaultInstance] startAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 
-    { // startAt with childkey equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode] childKey:@"key"];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode] childKey:@"key"];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode] childKey:@"other-key"];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // startAt with childkey equals
+    FQueryParams *params1 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode]
+                                                           childKey:@"key"];
+    FQueryParams *params2 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode]
+                                                           childKey:@"key"];
+    FQueryParams *params3 = [[FQueryParams defaultInstance] startAt:[FEmptyNode emptyNode]
+                                                           childKey:@"other-key"];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 
-    { // endAt equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value"]];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value"] childKey:nil];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // endAt equals
+    FQueryParams *params1 =
+        [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value"]];
+    FQueryParams *params2 =
+        [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value"] childKey:nil];
+    FQueryParams *params3 =
+        [[FQueryParams defaultInstance] endAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 
-    { // endAt with childkey equals
-        FQueryParams *params1 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode] childKey:@"key"];
-        FQueryParams *params2 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode] childKey:@"key"];
-        FQueryParams *params3 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode] childKey:@"other-key"];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // endAt with childkey equals
+    FQueryParams *params1 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode]
+                                                         childKey:@"key"];
+    FQueryParams *params2 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode]
+                                                         childKey:@"key"];
+    FQueryParams *params3 = [[FQueryParams defaultInstance] endAt:[FEmptyNode emptyNode]
+                                                         childKey:@"other-key"];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 
-    { // Limit/startAt equals
-        FQueryParams *params1 = [[[FQueryParams defaultInstance] limitToFirst:10] startAt:[FSnapshotUtilities nodeFrom:@"value"]];
-        FQueryParams *params2 = [[[FQueryParams defaultInstance] limitTo:10] startAt:[FSnapshotUtilities nodeFrom:@"value"]];
-        FQueryParams *params3 = [[[FQueryParams defaultInstance] limitTo:10] startAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
-        XCTAssertEqualObjects(params1, params2);
-        XCTAssertEqual(params1.hash, params2.hash);
-        XCTAssertFalse([params1 isEqual:params3]);
-    }
+  {  // Limit/startAt equals
+    FQueryParams *params1 = [[[FQueryParams defaultInstance] limitToFirst:10]
+        startAt:[FSnapshotUtilities nodeFrom:@"value"]];
+    FQueryParams *params2 = [[[FQueryParams defaultInstance] limitTo:10]
+        startAt:[FSnapshotUtilities nodeFrom:@"value"]];
+    FQueryParams *params3 = [[[FQueryParams defaultInstance] limitTo:10]
+        startAt:[FSnapshotUtilities nodeFrom:@"value-2"]];
+    XCTAssertEqualObjects(params1, params2);
+    XCTAssertEqual(params1.hash, params2.hash);
+    XCTAssertFalse([params1 isEqual:params3]);
+  }
 }
 
 - (void)testFromDictionaryEquals {
-    FQueryParams *params1 = [[[[[FQueryParams defaultInstance] limitToLast:10]
-                              startAt:[FSnapshotUtilities nodeFrom:@"start-value"] childKey:@"child-key-2"]
-                             endAt:[FSnapshotUtilities nodeFrom:@"end-value"] childKey:@"child-key-2"]
-                             orderBy:[FKeyIndex keyIndex]];
-    XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
-    XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
+  FQueryParams *params1 = [[[[[FQueryParams defaultInstance] limitToLast:10]
+       startAt:[FSnapshotUtilities nodeFrom:@"start-value"]
+      childKey:@"child-key-2"] endAt:[FSnapshotUtilities nodeFrom:@"end-value"]
+                            childKey:@"child-key-2"] orderBy:[FKeyIndex keyIndex]];
+  XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
+  XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
 }
 
 - (void)testCanCreateAllIndexes {
-    FQueryParams *params1 = [[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]];
-    FQueryParams *params2 = [[FQueryParams defaultInstance] orderBy:[FValueIndex valueIndex]];
-    FQueryParams *params3 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
-    FQueryParams *params4 = [[FQueryParams defaultInstance] orderBy:[[FPathIndex alloc] initWithPath:[[FPath alloc] initWith:@"subkey"]]];
-    XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
-    XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params2.wireProtocolParams]);
-    XCTAssertEqualObjects(params3, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
-    XCTAssertEqualObjects(params4, [FQueryParams fromQueryObject:params4.wireProtocolParams]);
-    XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
-    XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params2.wireProtocolParams].hash);
-    XCTAssertEqual(params3.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
-    XCTAssertEqual(params4.hash, [FQueryParams fromQueryObject:params4.wireProtocolParams].hash);
+  FQueryParams *params1 = [[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]];
+  FQueryParams *params2 = [[FQueryParams defaultInstance] orderBy:[FValueIndex valueIndex]];
+  FQueryParams *params3 = [[FQueryParams defaultInstance] orderBy:[FPriorityIndex priorityIndex]];
+  FQueryParams *params4 = [[FQueryParams defaultInstance]
+      orderBy:[[FPathIndex alloc] initWithPath:[[FPath alloc] initWith:@"subkey"]]];
+  XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
+  XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params2.wireProtocolParams]);
+  XCTAssertEqualObjects(params3, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
+  XCTAssertEqualObjects(params4, [FQueryParams fromQueryObject:params4.wireProtocolParams]);
+  XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
+  XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params2.wireProtocolParams].hash);
+  XCTAssertEqual(params3.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
+  XCTAssertEqual(params4.hash, [FQueryParams fromQueryObject:params4.wireProtocolParams].hash);
 }
 
 - (void)testDifferentLimits {
-    FQueryParams *params1 = [[FQueryParams defaultInstance] limitToFirst:10];
-    FQueryParams *params2 = [[FQueryParams defaultInstance] limitToLast:10];
-    FQueryParams *params3 = [[FQueryParams defaultInstance] limitTo:10];
-    XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
-    XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params2.wireProtocolParams]);
-    XCTAssertEqualObjects(params3, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
-    // 2 and 3 are equivalent
-    XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
+  FQueryParams *params1 = [[FQueryParams defaultInstance] limitToFirst:10];
+  FQueryParams *params2 = [[FQueryParams defaultInstance] limitToLast:10];
+  FQueryParams *params3 = [[FQueryParams defaultInstance] limitTo:10];
+  XCTAssertEqualObjects(params1, [FQueryParams fromQueryObject:params1.wireProtocolParams]);
+  XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params2.wireProtocolParams]);
+  XCTAssertEqualObjects(params3, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
+  // 2 and 3 are equivalent
+  XCTAssertEqualObjects(params2, [FQueryParams fromQueryObject:params3.wireProtocolParams]);
 
-    XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
-    XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params2.wireProtocolParams].hash);
-    XCTAssertEqual(params3.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
-    // 2 and 3 are equivalent
-    XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
+  XCTAssertEqual(params1.hash, [FQueryParams fromQueryObject:params1.wireProtocolParams].hash);
+  XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params2.wireProtocolParams].hash);
+  XCTAssertEqual(params3.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
+  // 2 and 3 are equivalent
+  XCTAssertEqual(params2.hash, [FQueryParams fromQueryObject:params3.wireProtocolParams].hash);
 }
 
 - (void)testStartAtNullIsSerializable {
-    FQueryParams *params = [FQueryParams defaultInstance];
-    params = [params startAt:[FEmptyNode emptyNode] childKey:@"key"];
-    NSDictionary *dict = [params wireProtocolParams];
-    FQueryParams *parsed = [FQueryParams fromQueryObject:dict];
-    XCTAssertEqualObjects(parsed, params);
-    XCTAssertTrue([parsed hasStart]);
+  FQueryParams *params = [FQueryParams defaultInstance];
+  params = [params startAt:[FEmptyNode emptyNode] childKey:@"key"];
+  NSDictionary *dict = [params wireProtocolParams];
+  FQueryParams *parsed = [FQueryParams fromQueryObject:dict];
+  XCTAssertEqualObjects(parsed, params);
+  XCTAssertTrue([parsed hasStart]);
 }
 
 - (void)testEndAtNullIsSerializable {
-    FQueryParams *params = [FQueryParams defaultInstance];
-    params = [params endAt:[FEmptyNode emptyNode] childKey:@"key"];
-    NSDictionary *dict = [params wireProtocolParams];
-    FQueryParams *parsed = [FQueryParams fromQueryObject:dict];
-    XCTAssertEqualObjects(parsed, params);
-    XCTAssertTrue([parsed hasEnd]);
+  FQueryParams *params = [FQueryParams defaultInstance];
+  params = [params endAt:[FEmptyNode emptyNode] childKey:@"key"];
+  NSDictionary *dict = [params wireProtocolParams];
+  FQueryParams *parsed = [FQueryParams fromQueryObject:dict];
+  XCTAssertEqualObjects(parsed, params);
+  XCTAssertTrue([parsed hasEnd]);
 }
 
 @end

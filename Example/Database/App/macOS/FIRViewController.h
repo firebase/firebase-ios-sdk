@@ -18,6 +18,4 @@
 
 @interface FIRViewController : NSViewController
 
-
 @end
-

@@ -578,6 +578,36 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(*input, *roundTripped);
 }
 
+- (void)testEncodesArrayContainsAnyFilter {
+  auto input = Filter("item.tags", "array-contains-any", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer encodedString:"food"]];
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
+- (void)testEncodesInFilter {
+  auto input = Filter("item.tags", "in", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_In;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer encodedString:"food"]];
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
 - (void)testEncodesKeyFieldFilter {
   auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];

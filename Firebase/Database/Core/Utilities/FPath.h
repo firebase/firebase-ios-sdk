@@ -16,30 +16,31 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FPath : NSObject<NSCopying>
+@interface FPath : NSObject <NSCopying>
 
-+ (FPath *) relativePathFrom:(FPath *)outer to:(FPath *)inner;
-+ (FPath *) empty;
-+ (FPath *) pathWithString:(NSString *)string;
++ (FPath *)relativePathFrom:(FPath *)outer to:(FPath *)inner;
++ (FPath *)empty;
++ (FPath *)pathWithString:(NSString *)string;
 
 - (id)initWith:(NSString *)path;
 - (id)initWithPieces:(NSArray *)somePieces andPieceNum:(NSInteger)aPieceNum;
 
 - (id)copyWithZone:(NSZone *)zone;
 
-- (void)enumerateComponentsUsingBlock:(void (^)(NSString *key, BOOL *stop))block;
-- (NSString *) getFront;
-- (NSUInteger) length;
-- (FPath *) popFront;
-- (NSString *) getBack;
-- (NSString *) toString;
-- (NSString *) toStringWithTrailingSlash;
-- (NSString *) wireFormat;
-- (FPath *) parent;
-- (FPath *) child:(FPath *)childPathObj;
-- (FPath *) childFromString:(NSString *)childPath;
-- (BOOL) isEmpty;
-- (BOOL) contains:(FPath *)other;
-- (NSComparisonResult) compare:(FPath *)other;
+- (void)enumerateComponentsUsingBlock:(void (^)(NSString *key,
+                                                BOOL *stop))block;
+- (NSString *)getFront;
+- (NSUInteger)length;
+- (FPath *)popFront;
+- (NSString *)getBack;
+- (NSString *)toString;
+- (NSString *)toStringWithTrailingSlash;
+- (NSString *)wireFormat;
+- (FPath *)parent;
+- (FPath *)child:(FPath *)childPathObj;
+- (FPath *)childFromString:(NSString *)childPath;
+- (BOOL)isEmpty;
+- (BOOL)contains:(FPath *)other;
+- (NSComparisonResult)compare:(FPath *)other;
 
 @end

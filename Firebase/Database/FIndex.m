@@ -17,9 +17,9 @@
 #import "FIndex.h"
 
 #import "FKeyIndex.h"
-#import "FValueIndex.h"
 #import "FPathIndex.h"
 #import "FPriorityIndex.h"
+#import "FValueIndex.h"
 
 @implementation FIndex
 
@@ -31,7 +31,8 @@
     } else if ([string isEqualToString:@".priority"]) {
         return [FPriorityIndex priorityIndex];
     } else {
-        return [[FPathIndex alloc] initWithPath:[[FPath alloc] initWith:string]];
+        return
+            [[FPathIndex alloc] initWithPath:[[FPath alloc] initWith:string]];
     }
 }
 

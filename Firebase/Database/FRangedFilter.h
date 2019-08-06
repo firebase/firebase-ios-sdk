@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNodeFilter.h"
+#import <Foundation/Foundation.h>
 
 @class FQueryParams;
 @class FNamedNode;
 
-@interface FRangedFilter : NSObject<FNodeFilter>
+@interface FRangedFilter : NSObject <FNodeFilter>
 
-- (id) initWithQueryParams:(FQueryParams *)params;
-- (BOOL) matchesKey:(NSString *)key andNode:(id<FNode>)node;
+- (id)initWithQueryParams:(FQueryParams *)params;
+- (BOOL)matchesKey:(NSString *)key andNode:(id<FNode>)node;
 
-
-@property (nonatomic, strong, readonly) FNamedNode *startPost;
-@property (nonatomic, strong, readonly) FNamedNode *endPost;
+@property(nonatomic, strong, readonly) FNamedNode *startPost;
+@property(nonatomic, strong, readonly) FNamedNode *endPost;
 
 @end

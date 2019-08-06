@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FNodeFilter.h"
+#import <Foundation/Foundation.h>
 
 @protocol FIndex;
 
+@interface FIndexedFilter : NSObject <FNodeFilter>
 
-@interface FIndexedFilter : NSObject<FNodeFilter>
-
-- (id) initWithIndex:(id<FIndex>)theIndex;
+- (id)initWithIndex:(id<FIndex>)theIndex;
 
 @end

@@ -19,15 +19,14 @@
 @class FQuerySpec;
 @protocol FSyncTreeHash;
 
-typedef NSArray* (^fbt_startListeningBlock)(FQuerySpec *query,
-                                            NSNumber *tagId,
-                                            id<FSyncTreeHash> hash,
-                                            fbt_nsarray_nsstring onComplete);
+typedef NSArray * (^fbt_startListeningBlock)(FQuerySpec *query, NSNumber *tagId,
+                                             id<FSyncTreeHash> hash,
+                                             fbt_nsarray_nsstring onComplete);
 typedef void (^fbt_stopListeningBlock)(FQuerySpec *query, NSNumber *tagId);
 
 @interface FListenProvider : NSObject
 
-@property (nonatomic, copy) fbt_startListeningBlock startListening;
-@property (nonatomic, copy) fbt_stopListeningBlock stopListening;
+@property(nonatomic, copy) fbt_startListeningBlock startListening;
+@property(nonatomic, copy) fbt_stopListeningBlock stopListening;
 
 @end

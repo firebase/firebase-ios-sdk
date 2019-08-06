@@ -16,22 +16,21 @@
 
 #import "FPriorityIndex.h"
 
-#import "FNode.h"
-#import "FUtilities.h"
-#import "FNamedNode.h"
 #import "FEmptyNode.h"
 #import "FLeafNode.h"
 #import "FMaxNode.h"
+#import "FNamedNode.h"
+#import "FNode.h"
+#import "FUtilities.h"
 
 // TODO: Abstract into some common base class?
 
 @implementation FPriorityIndex
 
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2
-{
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2 {
     id<FNode> child1 = [node1 getPriority];
     id<FNode> child2 = [node2 getPriority];
     NSComparisonResult indexCmp = [child1 compare:child2];
@@ -42,29 +41,37 @@
     }
 }
 
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2
-                          reverse:(BOOL)reverse
-{
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2
+                         reverse:(BOOL)reverse {
     if (reverse) {
-        return [self compareKey:key2 andNode:node2 toOtherKey:key1 andNode:node1];
+        return [self compareKey:key2
+                        andNode:node2
+                     toOtherKey:key1
+                        andNode:node1];
     } else {
-        return [self compareKey:key1 andNode:node1 toOtherKey:key2 andNode:node2];
+        return [self compareKey:key1
+                        andNode:node1
+                     toOtherKey:key2
+                        andNode:node2];
     }
 }
 
-- (NSComparisonResult) compareNamedNode:(FNamedNode *)namedNode1 toNamedNode:(FNamedNode *)namedNode2
-{
-    return [self compareKey:namedNode1.name andNode:namedNode1.node toOtherKey:namedNode2.name andNode:namedNode2.node];
+- (NSComparisonResult)compareNamedNode:(FNamedNode *)namedNode1
+                           toNamedNode:(FNamedNode *)namedNode2 {
+    return [self compareKey:namedNode1.name
+                    andNode:namedNode1.node
+                 toOtherKey:namedNode2.name
+                    andNode:namedNode2.node];
 }
 
-- (BOOL)isDefinedOn:(id <FNode>)node {
+- (BOOL)isDefinedOn:(id<FNode>)node {
     return !node.getPriority.isEmpty;
 }
 
-- (BOOL)indexedValueChangedBetween:(id <FNode>)oldNode and:(id <FNode>)newNode {
+- (BOOL)indexedValueChangedBetween:(id<FNode>)oldNode and:(id<FNode>)newNode {
     id<FNode> oldValue = [oldNode getPriority];
     id<FNode> newValue = [newNode getPriority];
     return ![oldValue isEqual:newValue];
@@ -78,8 +85,9 @@
     return [self makePost:[FMaxNode maxNode] name:[FUtilities maxName]];
 }
 
-- (FNamedNode*)makePost:(id<FNode>)indexValue name:(NSString*)name {
-    id<FNode> node = [[FLeafNode alloc] initWithValue:@"[PRIORITY-POST]" withPriority:indexValue];
+- (FNamedNode *)makePost:(id<FNode>)indexValue name:(NSString *)name {
+    id<FNode> node = [[FLeafNode alloc] initWithValue:@"[PRIORITY-POST]"
+                                         withPriority:indexValue];
     return [[FNamedNode alloc] initWithName:name andNode:node];
 }
 
@@ -96,20 +104,20 @@
     return self;
 }
 
-- (BOOL) isEqual:(id)other {
+- (BOOL)isEqual:(id)other {
     return [other isKindOfClass:[FPriorityIndex class]];
 }
 
-- (NSUInteger) hash {
+- (NSUInteger)hash {
     // chosen by a fair dice roll. Guaranteed to be random
     return 3155577;
 }
 
-+ (id<FIndex>) priorityIndex {
++ (id<FIndex>)priorityIndex {
     static id<FIndex> index;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        index = [[FPriorityIndex alloc] init];
+      index = [[FPriorityIndex alloc] init];
     });
 
     return index;
