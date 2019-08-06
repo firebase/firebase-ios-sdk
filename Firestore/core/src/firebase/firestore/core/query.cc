@@ -20,6 +20,7 @@
 #include <ostream>
 
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -65,16 +66,28 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
-bool Query::HasArrayContainsFilter() const {
+absl::optional<Operator> Query::FirstArrayOperator() const {
   for (const auto& filter : filters_) {
     if (filter->IsAFieldFilter()) {
       const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
-      if (relation_filter.op() == Operator::ArrayContains) {
-        return true;
+      if (IsArrayOperator(relation_filter.op())) {
+        return relation_filter.op();
       }
     }
   }
-  return false;
+  return absl::nullopt;
+}
+
+absl::optional<Operator> Query::FirstDisjunctiveOperator() const {
+  for (const auto& filter : filters_) {
+    if (filter->IsAFieldFilter()) {
+      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
+      if (IsDisjunctiveOperator(relation_filter.op())) {
+        return relation_filter.op();
+      }
+    }
+  }
+  return absl::nullopt;
 }
 
 const OrderByList& Query::order_bys() const {

@@ -24,18 +24,18 @@
 
 @interface FRepo ()
 
-- (void) runOnDisconnectEvents;
+- (void)runOnDisconnectEvents;
 
-@property (nonatomic, strong) FRepoInfo* repoInfo;
-@property (nonatomic, strong) FPersistentConnection* connection;
-@property (nonatomic, strong) FSnapshotHolder* infoData;
-@property (nonatomic, strong) FSparseSnapshotTree* onDisconnect;
-@property (nonatomic, strong) FEventRaiser *eventRaiser;
-@property (nonatomic, strong) FSyncTree *serverSyncTree;
+@property(nonatomic, strong) FRepoInfo *repoInfo;
+@property(nonatomic, strong) FPersistentConnection *connection;
+@property(nonatomic, strong) FSnapshotHolder *infoData;
+@property(nonatomic, strong) FSparseSnapshotTree *onDisconnect;
+@property(nonatomic, strong) FEventRaiser *eventRaiser;
+@property(nonatomic, strong) FSyncTree *serverSyncTree;
 
 // For testing.
-@property (nonatomic) long dataUpdateCount;
-@property (nonatomic) long rangeMergeUpdateCount;
+@property(nonatomic) long dataUpdateCount;
+@property(nonatomic) long rangeMergeUpdateCount;
 
 - (NSInteger)nextWriteId;
 

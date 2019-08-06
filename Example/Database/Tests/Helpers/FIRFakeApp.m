@@ -20,7 +20,7 @@
 #import "FIRComponentTestUtilities.h"
 #import "FIRDatabaseComponent.h"
 
-@interface FIRFakeOptions: NSObject
+@interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;
 - (instancetype)initWithURL:(NSString *)url;
 @end
@@ -73,12 +73,13 @@
         };
     FIRComponentCreationBlock databaseBlock =
         ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-          *isCacheable = YES;
-          return [[FIRDatabaseComponent alloc] initWithApp:container.app];
-        };
-    NSDictionary<NSString *, FIRComponentCreationBlock> *components =
-        @{NSStringFromProtocol(@protocol(FIRAuthInterop)) : authBlock,
-          NSStringFromProtocol(@protocol(FIRDatabaseProvider)) : databaseBlock};
+      *isCacheable = YES;
+      return [[FIRDatabaseComponent alloc] initWithApp:container.app];
+    };
+    NSDictionary<NSString *, FIRComponentCreationBlock> *components = @{
+      NSStringFromProtocol(@protocol(FIRAuthInterop)) : authBlock,
+      NSStringFromProtocol(@protocol(FIRDatabaseProvider)) : databaseBlock
+    };
     _container = [[FIRComponentContainer alloc] initWithApp:(FIRApp *)self components:components];
   }
   return self;

@@ -203,7 +203,7 @@ TEST(QueryTest, ArrayContainsFilter) {
   EXPECT_THAT(query, Matches(doc));
 }
 
-TEST(QueryTest, ArrayContainsFilterWithObjectValue) {
+TEST(QueryTest, ArrayContainsFilterWithObjectValues) {
   // Search for arrays containing the object { a: [42] }
   auto query =
       testutil::Query("collection")
@@ -220,6 +220,76 @@ TEST(QueryTest, ArrayContainsFilterWithObjectValue) {
   doc = *Doc("collection/1", 0,
              Map("array", Array(1, "2", 42, Map("a", Array(42)))));
   EXPECT_THAT(query, Matches(doc));
+}
+
+TEST(QueryTest, InFilters) {
+  auto query =
+      Query("collection").AddingFilter(Filter("zip", "in", Array(12345)));
+
+  auto doc = *Doc("collection/1", 0, Map("zip", 12345));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Value matches in array.
+  doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Non-type match.
+  doc = *Doc("collection/1", 0, Map("zip", "12345"));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Nested match.
+  doc = *Doc("collection/1", 0, Map("zip", Array("12345", Map("zip", 12345))));
+  EXPECT_THAT(query, Not(Matches(doc)));
+}
+
+TEST(QueryTest, InFiltersWithObjectValues) {
+  auto query =
+      Query("collection")
+          .AddingFilter(Filter("zip", "in", Array(Map("a", Array(42)))));
+
+  // Containing object in array.
+  auto doc = *Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Containing object.
+  doc = *Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
+  EXPECT_THAT(query, Matches(doc));
+}
+
+TEST(QueryTest, ArrayContainsAnyFilters) {
+  auto query =
+      Query("collection")
+          .AddingFilter(Filter("zip", "array-contains-any", Array(12345)));
+
+  auto doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Value matches in non-array.
+  doc = *Doc("collection/1", 0, Map("zip", 12345));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Non-type match.
+  doc = *Doc("collection/1", 0, Map("zip", Array("12345")));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Nested match.
+  doc = *Doc("collection/1", 0,
+             Map("zip", Array("12345", Map("zip", Array(12345)))));
+  EXPECT_THAT(query, Not(Matches(doc)));
+}
+
+TEST(QueryTest, ArrayContainsAnyFiltersWithObjectValues) {
+  auto query = Query("collection")
+                   .AddingFilter(Filter("zip", "array-contains-any",
+                                        Array(Map("a", Array(42)))));
+
+  // Containing object in array.
+  auto doc = *Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Containing object.
+  doc = *Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
+  EXPECT_THAT(query, Not(Matches(doc)));
 }
 
 TEST(QueryTest, DoesNotMatchComplexObjectsForFilters) {

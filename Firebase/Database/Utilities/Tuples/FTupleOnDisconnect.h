@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FTypedefs_Private.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleOnDisconnect : NSObject
 
-@property (strong, nonatomic) NSString* pathString;
-@property (strong, nonatomic) NSString* action;
-@property (strong, nonatomic) id data;
-@property (strong, nonatomic) fbt_void_nsstring_nsstring onComplete;
+@property(strong, nonatomic) NSString *pathString;
+@property(strong, nonatomic) NSString *action;
+@property(strong, nonatomic) id data;
+@property(strong, nonatomic) fbt_void_nsstring_nsstring onComplete;
 
 @end

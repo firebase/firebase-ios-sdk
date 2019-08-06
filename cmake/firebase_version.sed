@@ -15,13 +15,21 @@
 # USAGE:
 # sed -n -f cmake/firebase_version.sed FirebaseCore.podspec
 
-# Find the line assigning to s.version
+# Finds the Firebase version in the FirebaseCore podspec. Note this is *not*
+# the FIRCore version.
+#
+# The line this looks for is this one:
+#
+#     'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.5.0',
+
+# Find the line passing the Firebase_VERSION macro.
 /.*Firebase_VERSION=/ {
-  # Remove the assignment
+  # Re-use the pattern buffer to remove everything on the line up to and
+  # including the =.
   s///
 
-  # Remove trailing quotes
-  s/'.*//
+  # Remove trailing quote and comma
+  s/',//
 
   # Explicitly print
   p

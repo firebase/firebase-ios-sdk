@@ -20,9 +20,11 @@
 @class FNamedNode;
 @protocol FIndex;
 
-@protocol FCompleteChildSource<NSObject>
+@protocol FCompleteChildSource <NSObject>
 
-- (id<FNode>) completeChild:(NSString *)childKey;
-- (FNamedNode *) childByIndex:(id<FIndex>)index afterChild:(FNamedNode *)child isReverse:(BOOL)reverse;
+- (id<FNode>)completeChild:(NSString *)childKey;
+- (FNamedNode *)childByIndex:(id<FIndex>)index
+                  afterChild:(FNamedNode *)child
+                   isReverse:(BOOL)reverse;
 
 @end

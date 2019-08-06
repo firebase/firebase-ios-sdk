@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface FTransformedEnumerator : NSEnumerator
-- (id)initWithEnumerator:(NSEnumerator*) enumerator andTransform:(id (^)(id))transform;
+- (id)initWithEnumerator:(NSEnumerator *)enumerator
+            andTransform:(id (^)(id))transform;
 - (id)nextObject;
 
 @end

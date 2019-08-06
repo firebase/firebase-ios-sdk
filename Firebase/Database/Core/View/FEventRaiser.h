@@ -21,15 +21,16 @@
 @class FIRDatabaseConfig;
 
 /**
-* Left as instance methods rather than class methods so that we could potentially callback on different queues for different repos.
-* This is semi-parallel to JS's FEventQueue
-*/
+ * Left as instance methods rather than class methods so that we could
+ * potentially callback on different queues for different repos. This is
+ * semi-parallel to JS's FEventQueue
+ */
 @interface FEventRaiser : NSObject
 
 - (id)initWithQueue:(dispatch_queue_t)queue;
 
-- (void) raiseEvents:(NSArray *)eventDataList;
-- (void) raiseCallback:(fbt_void_void)callback;
-- (void) raiseCallbacks:(NSArray *)callbackList;
+- (void)raiseEvents:(NSArray *)eventDataList;
+- (void)raiseCallback:(fbt_void_void)callback;
+- (void)raiseCallbacks:(NSArray *)callbackList;
 
 @end
