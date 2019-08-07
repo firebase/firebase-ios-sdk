@@ -28,12 +28,11 @@
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingConnection.h"
 #import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingFakeConnection.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
-
+#import "FIRMessagingFakeConnection.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";
