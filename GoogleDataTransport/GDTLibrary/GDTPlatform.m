@@ -85,7 +85,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
                                  name:UISceneWillDeactivateNotification
                                object:nil];
     }
-#endif // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 #elif TARGET_OS_OSX
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
