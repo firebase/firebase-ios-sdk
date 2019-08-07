@@ -1,7 +1,7 @@
 {
   "GoogleDataTransportCCTSupport":"1.0.0",
   "GoogleDataTransport":"1.0.0",
-  "FirebaseCoreDiagnosticsInterop":"1.0.0",  
+  "FirebaseCoreDiagnosticsInterop":"1.0.0",
   "FirebaseCoreDiagnostics":"1.0.0",
   "FirebaseCore":"6.2.0",
   "FirebaseAuth":"6.2.2",
