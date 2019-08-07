@@ -259,7 +259,13 @@ static NSInteger target = 1337;
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
+#ifdef TARGET_OS_MACCATALYST
+  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                              requiringSecureCoding:NO
+                                                              error:nil];
+#else
   NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+#endif
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
@@ -267,8 +273,13 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
-
+#ifdef TARGET_OS_MACCATALYST
+  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
+                                                                    fromData:storageData
+                                                                       error:nil];
+#else
   GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+#endif
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
@@ -278,7 +289,13 @@ static NSInteger target = 1337;
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
+#ifdef TARGET_OS_MACCATALYST
+  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                              requiringSecureCoding:NO
+                                                              error:nil];
+#else
   NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+#endif
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
@@ -286,8 +303,13 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
-
+#ifdef TARGET_OS_MACCATALYST
+  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
+                                                                    fromData:storageData
+                                                                       error:nil];
+#else
   GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+#endif
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 

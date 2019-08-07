@@ -111,8 +111,18 @@
   uploadPackage.events = set;
   uploadPackage.handler = self;
 
+#ifdef TARGET_OS_MACCATALYST
+  NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:self
+                                              requiringSecureCoding:NO
+                                                              error:nil];
+  GDTUploadPackage *recreatedPackage =
+      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTUploadPackage class]
+                                        fromData:packageData
+                                           error:nil];
+#else
   NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
   GDTUploadPackage *recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
+#endif
   XCTAssertEqualObjects(uploadPackage, recreatedPackage);
 }
 

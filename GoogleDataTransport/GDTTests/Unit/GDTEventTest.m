@@ -43,12 +43,22 @@
   event.qosTier = GDTEventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
 
+#ifdef TARGET_OS_MACCATALYST
+  NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:event
+                                              requiringSecureCoding:NO
+                                                              error:nil];
+#else
   NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
-
+#endif
   // To ensure that all the objects being retained by the original event are dealloc'd.
   event = nil;
-
+#ifdef TARGET_OS_MACCATALYST
+  GDTEvent *decodedEvent = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTEvent class]
+                                                             fromData:archiveData
+                                                                error:nil];
+#else
   GDTEvent *decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+#endif
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
   XCTAssertEqualObjects(decodedEvent.dataObjectTransportBytes,

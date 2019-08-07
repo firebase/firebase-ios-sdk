@@ -111,7 +111,14 @@ static NSString *GDTStoragePath() {
 
     // If running in the background, save state to disk and end the associated background task.
     if (bgID != GDTBackgroundIdentifierInvalid) {
+#if TARGET_OS_MACCATALYST
+      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                           requiringSecureCoding:NO
+                                                           error:nil];
+      [data writeToFile:[GDTStorage archivePath] atomically:YES];
+#else
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+#endif
       [[GDTApplication sharedApplication] endBackgroundTask:bgID];
     }
   });
@@ -193,13 +200,25 @@ static NSString *GDTStoragePath() {
 #pragma mark - GDTLifecycleProtocol
 
 - (void)appWillForeground:(GDTApplication *)app {
+#ifdef TARGET_OS_MACCATALYST
+  NSData *data = [NSData dataWithContentsOfFile:[GDTStorage archivePath]];
+  [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class] fromData:data error:nil];
+#else
   [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
+#endif
   self->_runningInBackground = NO;
 }
 
 - (void)appWillBackground:(GDTApplication *)app {
   self->_runningInBackground = YES;
+#if TARGET_OS_MACCATALYST
+  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                       requiringSecureCoding:NO
+                                                       error:nil];
+  [data writeToFile:[GDTStorage archivePath] atomically:YES];
+#else
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+#endif
   // Create an immediate background task to run until the end of the current queue of work.
   __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
     [app endBackgroundTask:bgID];
@@ -210,7 +229,14 @@ static NSString *GDTStoragePath() {
 }
 
 - (void)appWillTerminate:(GDTApplication *)application {
+#if TARGET_OS_MACCATALYST
+  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                       requiringSecureCoding:NO
+                                                       error:nil];
+  [data writeToFile:[GDTStorage archivePath] atomically:YES];
+#else
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+#endif
 }
 
 #pragma mark - NSSecureCoding
