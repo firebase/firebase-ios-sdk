@@ -19,11 +19,10 @@
 #include <ostream>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace model {
+namespace {
 
 using immutable::SortedSet;
+
+inline absl::optional<Document> none() {
+  return absl::optional<Document>{};
+}
+
+}  // namespace
 
 DocumentComparator DocumentComparator::ByKey() {
   return DocumentComparator([](const Document& lhs, const Document& rhs) {
@@ -45,10 +51,7 @@ DocumentSet::DocumentSet(DocumentComparator&& comparator)
 }
 
 bool operator==(const DocumentSet& lhs, const DocumentSet& rhs) {
-  return absl::c_equal(lhs.sorted_set_, rhs.sorted_set_,
-                       [](FSTDocument* left_doc, FSTDocument* right_doc) {
-                         return [left_doc isEqual:right_doc];
-                       });
+  return absl::c_equal(lhs.sorted_set_, rhs.sorted_set_);
 }
 
 std::string DocumentSet::ToString() const {
@@ -60,62 +63,60 @@ std::ostream& operator<<(std::ostream& os, const DocumentSet& set) {
 }
 
 size_t DocumentSet::Hash() const {
-  size_t hash = 0;
-  for (FSTDocument* doc : sorted_set_) {
-    hash = 31 * hash + [doc hash];
-  }
-  return hash;
+  return util::Hash(sorted_set_);
 }
 
 bool DocumentSet::ContainsKey(const DocumentKey& key) const {
   return index_.underlying_map().find(key) != index_.underlying_map().end();
 }
 
-FSTDocument* _Nullable DocumentSet::GetDocument(const DocumentKey& key) const {
+absl::optional<Document> DocumentSet::GetDocument(
+    const DocumentKey& key) const {
   auto found = index_.underlying_map().find(key);
-  return found != index_.underlying_map().end()
-             ? static_cast<FSTDocument*>(found->second)
-             : nil;
+  return found != index_.underlying_map().end() ? Document(found->second)
+                                                : none();
 }
 
-FSTDocument* _Nullable DocumentSet::GetFirstDocument() const {
+absl::optional<Document> DocumentSet::GetFirstDocument() const {
   auto result = sorted_set_.min();
-  return result != sorted_set_.end() ? *result : nil;
+  return result != sorted_set_.end() ? *result : none();
 }
 
-FSTDocument* _Nullable DocumentSet::GetLastDocument() const {
+absl::optional<Document> DocumentSet::GetLastDocument() const {
   auto result = sorted_set_.max();
-  return result != sorted_set_.end() ? *result : nil;
+  return result != sorted_set_.end() ? *result : none();
 }
 
 size_t DocumentSet::IndexOf(const DocumentKey& key) const {
-  FSTDocument* doc = GetDocument(key);
-  return doc ? sorted_set_.find_index(doc) : npos;
+  absl::optional<Document> doc = GetDocument(key);
+  return doc ? sorted_set_.find_index(*doc) : npos;
 }
 
-DocumentSet DocumentSet::insert(FSTDocument* _Nullable document) const {
-  // TODO(mcg): look into making document nonnull.
+DocumentSet DocumentSet::insert(
+    const absl::optional<Document>& document) const {
+  // TODO(mcg): look into making document non-optional.
   if (!document) {
     return *this;
   }
 
   // Remove any prior mapping of the document's key before adding, preventing
   // sortedSet from accumulating values that aren't in the index.
-  DocumentSet removed = erase(document.key);
+  const DocumentKey& key = document->key();
+  DocumentSet removed = erase(key);
 
-  DocumentMap index = removed.index_.insert(document.key, document);
-  SetType set = removed.sorted_set_.insert(document);
+  DocumentMap index = removed.index_.insert(key, *document);
+  SetType set = removed.sorted_set_.insert(*document);
   return {std::move(index), std::move(set)};
 }
 
 DocumentSet DocumentSet::erase(const DocumentKey& key) const {
-  FSTDocument* doc = GetDocument(key);
+  absl::optional<Document> doc = GetDocument(key);
   if (!doc) {
     return *this;
   }
 
   DocumentMap index = index_.erase(key);
-  SetType set = sorted_set_.erase(doc);
+  SetType set = sorted_set_.erase(*doc);
   return {std::move(index), std::move(set)};
 }
 
