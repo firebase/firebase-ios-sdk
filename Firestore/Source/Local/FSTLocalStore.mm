@@ -353,7 +353,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     if (remoteVersion != SnapshotVersion::None()) {
       HARD_ASSERT(remoteVersion >= lastRemoteVersion,
                   "Watch stream reverted to previous snapshot?? (%s < %s)",
-                  remoteVersion.timestamp().ToString(), lastRemoteVersion.timestamp().ToString());
+                  remoteVersion.ToString(), lastRemoteVersion.ToString());
       _queryCache->SetLastRemoteSnapshotVersion(remoteVersion);
     }
 
