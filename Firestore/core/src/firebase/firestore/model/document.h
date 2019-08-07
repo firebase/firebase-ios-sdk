@@ -66,7 +66,7 @@ class Document : public MaybeDocument {
   /**
    * Construct a document. ObjectValue must be passed by rvalue.
    */
-  Document(ObjectValue&& data,
+  Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state);
@@ -74,7 +74,7 @@ class Document : public MaybeDocument {
   /**
    * Construct a document. ObjectValue must be passed by rvalue.
    */
-  Document(ObjectValue&& data,
+  Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state,

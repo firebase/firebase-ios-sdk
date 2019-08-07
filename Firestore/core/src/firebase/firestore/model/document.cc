@@ -92,7 +92,7 @@ class Document::Rep : public MaybeDocument::Rep {
   absl::any proto_;
 };
 
-Document::Document(ObjectValue&& data,
+Document::Document(ObjectValue data,
                    DocumentKey key,
                    SnapshotVersion version,
                    DocumentState document_state)
@@ -100,7 +100,7 @@ Document::Document(ObjectValue&& data,
           std::move(data), std::move(key), version, document_state)) {
 }
 
-Document::Document(ObjectValue&& data,
+Document::Document(ObjectValue data,
                    DocumentKey key,
                    SnapshotVersion version,
                    DocumentState document_state,
