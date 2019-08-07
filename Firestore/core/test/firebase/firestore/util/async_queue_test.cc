@@ -183,6 +183,19 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
+TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
+  std::string steps;
+
+  queue.Enqueue([&] { steps += '1'; });
+  queue.EnqueueAndInitiateShutdown([&] { steps += '2'; });
+  queue.Enqueue([&] { steps += '3'; });
+  queue.EnqueueEvenAfterShutdown([&] { steps += '4'; });
+  queue.EnqueueEvenAfterShutdown([&] { signal_finished(); });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+  EXPECT_EQ(steps, "124");
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

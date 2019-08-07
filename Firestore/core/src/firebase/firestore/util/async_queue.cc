@@ -49,6 +49,10 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
 }
 
 void AsyncQueue::ExecuteBlocking(const Operation& operation) {
+  // This is not guarded by `is_shutting_down_` because it is the execution
+  // of the operation, not scheduling. Checking `is_shutting_down_` here
+  // would mean *all* operations will not run after shutdown, which is not
+  // intended.
   VerifyIsCurrentExecutor();
   HARD_ASSERT(!is_operation_in_progress_,
               "ExecuteBlocking may not be called "
@@ -64,13 +68,40 @@ void AsyncQueue::Enqueue(const Operation& operation) {
   EnqueueRelaxed(operation);
 }
 
+void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  VerifySequentialOrder();
+  if (is_shutting_down_) {
+    return;
+  }
+  executor_->Execute(Wrap(operation));
+  is_shutting_down_ = true;
+}
+
+void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {
+  // Still guarding the lock to ensure sequential scheduling.
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  VerifySequentialOrder();
+  executor_->Execute(Wrap(operation));
+}
+
+bool AsyncQueue::is_shutting_down() const {
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  return is_shutting_down_;
+}
+
 void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  if (is_shutting_down_) {
+    return;
+  }
   executor_->Execute(Wrap(operation));
 }
 
 DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                                                const TimerId timer_id,
                                                const Operation& operation) {
+  std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifyIsCurrentExecutor();
 
   // While not necessarily harmful, we currently don't expect to have multiple
@@ -78,6 +109,10 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // them.
   HARD_ASSERT(!IsScheduled(timer_id),
               "Attempted to schedule multiple operations with id %s", timer_id);
+
+  if (is_shutting_down_) {
+    return DelayedOperation();
+  }
 
   Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
   return executor_->Schedule(delay, std::move(tagged));

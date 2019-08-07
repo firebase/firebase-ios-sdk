@@ -16,20 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FStorageEngine.h"
+#import "FCompoundWrite.h"
 #import "FNode.h"
 #import "FPath.h"
-#import "FCompoundWrite.h"
 #import "FQuerySpec.h"
+#import "FStorageEngine.h"
 
 @class FCacheNode;
 @class FTrackedQuery;
 @class FPruneForest;
 @class FRepoInfo;
 
-@interface FLevelDBStorageEngine : NSObject<FStorageEngine>
+@interface FLevelDBStorageEngine : NSObject <FStorageEngine>
 
-+ (NSString *) firebaseDir;
++ (NSString *)firebaseDir;
 
 - (id)initWithPath:(NSString *)path;
 

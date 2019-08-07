@@ -15,50 +15,49 @@
  */
 
 #import "FQueryParams.h"
-#import "FValidation.h"
 #import "FConstants.h"
 #import "FIndex.h"
-#import "FPriorityIndex.h"
-#import "FUtilities.h"
-#import "FNodeFilter.h"
 #import "FIndexedFilter.h"
 #import "FLimitedFilter.h"
-#import "FRangedFilter.h"
 #import "FNode.h"
+#import "FNodeFilter.h"
+#import "FPriorityIndex.h"
+#import "FRangedFilter.h"
 #import "FSnapshotUtilities.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 
 @interface FQueryParams ()
 
-@property (nonatomic, readwrite) BOOL limitSet;
-@property (nonatomic, readwrite) NSInteger limit;
+@property(nonatomic, readwrite) BOOL limitSet;
+@property(nonatomic, readwrite) NSInteger limit;
 
-@property (nonatomic, strong, readwrite) NSString *viewFrom;
+@property(nonatomic, strong, readwrite) NSString *viewFrom;
 /**
-* indexStartValue is anything you can store as a priority / value.
-*/
-@property (nonatomic, strong, readwrite) id<FNode> indexStartValue;
-@property (nonatomic, strong, readwrite) NSString *indexStartKey;
+ * indexStartValue is anything you can store as a priority / value.
+ */
+@property(nonatomic, strong, readwrite) id<FNode> indexStartValue;
+@property(nonatomic, strong, readwrite) NSString *indexStartKey;
 /**
-* indexStartValue is anything you can store as a priority / value.
-*/
-@property (nonatomic, strong, readwrite) id<FNode> indexEndValue;
-@property (nonatomic, strong, readwrite) NSString *indexEndKey;
+ * indexStartValue is anything you can store as a priority / value.
+ */
+@property(nonatomic, strong, readwrite) id<FNode> indexEndValue;
+@property(nonatomic, strong, readwrite) NSString *indexEndKey;
 
-@property (nonatomic, strong, readwrite) id<FIndex> index;
+@property(nonatomic, strong, readwrite) id<FIndex> index;
 
 @end
 
 @implementation FQueryParams
 
-+ (FQueryParams *) defaultInstance {
++ (FQueryParams *)defaultInstance {
     static FQueryParams *defaultParams = nil;
     static dispatch_once_t defaultParamsToken;
     dispatch_once(&defaultParamsToken, ^{
-        defaultParams = [[FQueryParams alloc] init];
+      defaultParams = [[FQueryParams alloc] init];
     });
     return defaultParams;
 }
-
 
 - (id)init {
     self = [super init];
@@ -78,18 +77,18 @@
 }
 
 /**
-* Only valid if hasStart is true
-*/
-- (id) indexStartValue {
+ * Only valid if hasStart is true
+ */
+- (id)indexStartValue {
     NSAssert([self hasStart], @"Only valid if start has been set");
     return _indexStartValue;
 }
 
 /**
-* Only valid if hasStart is true.
-* @return The starting key name for the range defined by these query parameters
-*/
-- (NSString *) indexStartKey {
+ * Only valid if hasStart is true.
+ * @return The starting key name for the range defined by these query parameters
+ */
+- (NSString *)indexStartKey {
     NSAssert([self hasStart], @"Only valid if start has been set");
     if (_indexStartKey == nil) {
         return [FUtilities minName];
@@ -99,18 +98,18 @@
 }
 
 /**
-* Only valid if hasEnd is true.
-*/
-- (id) indexEndValue {
+ * Only valid if hasEnd is true.
+ */
+- (id)indexEndValue {
     NSAssert([self hasEnd], @"Only valid if end has been set");
     return _indexEndValue;
 }
 
 /**
-* Only valid if hasEnd is true.
-* @return The end key name for the range defined by these query parameters
-*/
-- (NSString *) indexEndKey {
+ * Only valid if hasEnd is true.
+ * @return The end key name for the range defined by these query parameters
+ */
+- (NSString *)indexEndKey {
     NSAssert([self hasEnd], @"Only valid if end has been set");
     if (_indexEndKey == nil) {
         return [FUtilities maxName];
@@ -120,16 +119,16 @@
 }
 
 /**
-* @return true if a limit has been set and has been explicitly anchored
-*/
-- (BOOL) hasAnchoredLimit {
+ * @return true if a limit has been set and has been explicitly anchored
+ */
+- (BOOL)hasAnchoredLimit {
     return self.limitSet && self.viewFrom != nil;
 }
 
 /**
-* Only valid to call if limitSet returns true
-*/
-- (NSInteger) limit {
+ * Only valid to call if limitSet returns true
+ */
+- (NSInteger)limit {
     NSAssert(self.limitSet, @"Only valid if limit has been set");
     return _limit;
 }
@@ -142,13 +141,13 @@
     return self->_indexEndValue != nil;
 }
 
-- (id) copyWithZone:(NSZone *)zone {
+- (id)copyWithZone:(NSZone *)zone {
     // Immutable
     return self;
 }
 
-- (id) mutableCopy {
-    FQueryParams* other = [[[self class] alloc] init];
+- (id)mutableCopy {
+    FQueryParams *other = [[[self class] alloc] init];
     // Maybe need to do extra copying here
     other->_limitSet = _limitSet;
     other->_limit = _limit;
@@ -161,7 +160,7 @@
     return other;
 }
 
-- (FQueryParams *) limitTo:(NSInteger)newLimit {
+- (FQueryParams *)limitTo:(NSInteger)newLimit {
     FQueryParams *newParams = [self mutableCopy];
     newParams->_limitSet = YES;
     newParams->_limit = newLimit;
@@ -169,7 +168,7 @@
     return newParams;
 }
 
-- (FQueryParams *) limitToFirst:(NSInteger)newLimit {
+- (FQueryParams *)limitToFirst:(NSInteger)newLimit {
     FQueryParams *newParams = [self mutableCopy];
     newParams->_limitSet = YES;
     newParams->_limit = newLimit;
@@ -177,7 +176,7 @@
     return newParams;
 }
 
-- (FQueryParams *) limitToLast:(NSInteger)newLimit {
+- (FQueryParams *)limitToLast:(NSInteger)newLimit {
     FQueryParams *newParams = [self mutableCopy];
     newParams->_limitSet = YES;
     newParams->_limit = newLimit;
@@ -185,7 +184,7 @@
     return newParams;
 }
 
-- (FQueryParams *) startAt:(id<FNode>)indexValue childKey:(NSString *)key {
+- (FQueryParams *)startAt:(id<FNode>)indexValue childKey:(NSString *)key {
     NSAssert([indexValue isLeafNode] || [indexValue isEmpty], nil);
     FQueryParams *newParams = [self mutableCopy];
     newParams->_indexStartValue = indexValue;
@@ -193,11 +192,11 @@
     return newParams;
 }
 
-- (FQueryParams *) startAt:(id<FNode>)indexValue {
+- (FQueryParams *)startAt:(id<FNode>)indexValue {
     return [self startAt:indexValue childKey:nil];
 }
 
-- (FQueryParams *) endAt:(id<FNode>)indexValue childKey:(NSString *)key {
+- (FQueryParams *)endAt:(id<FNode>)indexValue childKey:(NSString *)key {
     NSAssert([indexValue isLeafNode] || [indexValue isEmpty], nil);
     FQueryParams *newParams = [self mutableCopy];
     newParams->_indexEndValue = indexValue;
@@ -205,20 +204,21 @@
     return newParams;
 }
 
-- (FQueryParams *) endAt:(id<FNode>)indexValue {
+- (FQueryParams *)endAt:(id<FNode>)indexValue {
     return [self endAt:indexValue childKey:nil];
 }
 
-- (FQueryParams *) orderBy:(id)newIndex {
+- (FQueryParams *)orderBy:(id)newIndex {
     FQueryParams *newParams = [self mutableCopy];
     newParams->_index = newIndex;
     return newParams;
 }
 
-- (NSDictionary *) wireProtocolParams {
-    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+- (NSDictionary *)wireProtocolParams {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     if ([self hasStart]) {
-        [dict setObject:[self.indexStartValue valForExport:YES] forKey:kFQPIndexStartValue];
+        [dict setObject:[self.indexStartValue valForExport:YES]
+                 forKey:kFQPIndexStartValue];
 
         // Don't use property as it will be [MIN-NAME]
         if (self->_indexStartKey != nil) {
@@ -227,7 +227,8 @@
     }
 
     if ([self hasEnd]) {
-        [dict setObject:[self.indexEndValue valForExport:YES] forKey:kFQPIndexEndValue];
+        [dict setObject:[self.indexEndValue valForExport:YES]
+                 forKey:kFQPIndexEndValue];
 
         // Don't use property as it will be [MAX-NAME]
         if (self->_indexEndKey != nil) {
@@ -236,13 +237,14 @@
     }
 
     if (self.limitSet) {
-        [dict setObject:[NSNumber numberWithInteger:self.limit] forKey:kFQPLimit];
+        [dict setObject:[NSNumber numberWithInteger:self.limit]
+                 forKey:kFQPLimit];
         NSString *vf = self.viewFrom;
         if (vf == nil) {
             // limit() rather than limitToFirst or limitToLast was called.
             // This means that only one of startSet or endSet is true. Use them
-            // to calculate which side of the view to anchor to. If neither is set,
-            // Anchor to end
+            // to calculate which side of the view to anchor to. If neither is
+            // set, Anchor to end
             if ([self hasStart]) {
                 vf = kFQPViewFromLeft;
             } else {
@@ -252,7 +254,8 @@
         [dict setObject:vf forKey:kFQPViewFrom];
     }
 
-    // For now, priority index is the default, so we only specify if it's some other index.
+    // For now, priority index is the default, so we only specify if it's some
+    // other index.
     if (![self.index isEqual:[FPriorityIndex priorityIndex]]) {
         [dict setObject:[self.index queryDefinition] forKey:kFQPIndex];
     }
@@ -272,14 +275,16 @@
     }
 
     if (dict[kFQPIndexStartValue] != nil) {
-        params->_indexStartValue = [FSnapshotUtilities nodeFrom:dict[kFQPIndexStartValue]];
+        params->_indexStartValue =
+            [FSnapshotUtilities nodeFrom:dict[kFQPIndexStartValue]];
         if (dict[kFQPIndexStartName] != nil) {
             params->_indexStartKey = dict[kFQPIndexStartName];
         }
     }
 
     if (dict[kFQPIndexEndValue] != nil) {
-        params->_indexEndValue = [FSnapshotUtilities nodeFrom:dict[kFQPIndexEndValue]];
+        params->_indexEndValue =
+            [FSnapshotUtilities nodeFrom:dict[kFQPIndexEndValue]];
         if (dict[kFQPIndexEndName] != nil) {
             params->_indexEndKey = dict[kFQPIndexEndName];
         }
@@ -287,8 +292,10 @@
 
     if (dict[kFQPViewFrom] != nil) {
         NSString *viewFrom = dict[kFQPViewFrom];
-        if (![viewFrom isEqualToString:kFQPViewFromLeft] && ![viewFrom isEqualToString:kFQPViewFromRight]) {
-            [NSException raise:NSInvalidArgumentException format:@"Unknown view from paramter: %@", viewFrom];
+        if (![viewFrom isEqualToString:kFQPViewFromLeft] &&
+            ![viewFrom isEqualToString:kFQPViewFromRight]) {
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Unknown view from paramter: %@", viewFrom];
         }
         params->_viewFrom = viewFrom;
     }
@@ -301,7 +308,7 @@
     return params;
 }
 
-- (BOOL) isViewFromLeft {
+- (BOOL)isViewFromLeft {
     if (self.viewFrom != nil) {
         // Not null, we can just check
         return [self.viewFrom isEqualToString:kFQPViewFromLeft];
@@ -311,7 +318,7 @@
     }
 }
 
-- (id<FNodeFilter>) nodeFilter {
+- (id<FNodeFilter>)nodeFilter {
     if (self.loadsAllData) {
         return [[FIndexedFilter alloc] initWithIndex:self.index];
     } else if (self.limitSet) {
@@ -321,24 +328,25 @@
     }
 }
 
-
-- (BOOL) isValid {
-    return !(self.hasStart && self.hasEnd && self.limitSet && !self.hasAnchoredLimit);
+- (BOOL)isValid {
+    return !(self.hasStart && self.hasEnd && self.limitSet &&
+             !self.hasAnchoredLimit);
 }
 
-- (BOOL) loadsAllData {
+- (BOOL)loadsAllData {
     return !(self.hasStart || self.hasEnd || self.limitSet);
 }
 
-- (BOOL) isDefault {
-    return [self loadsAllData] && [self.index isEqual:[FPriorityIndex priorityIndex]];
+- (BOOL)isDefault {
+    return [self loadsAllData] &&
+           [self.index isEqual:[FPriorityIndex priorityIndex]];
 }
 
-- (NSString *) description {
+- (NSString *)description {
     return [[self wireProtocolParams] description];
 }
 
-- (BOOL) isEqual:(id)obj {
+- (BOOL)isEqual:(id)obj {
     if (self == obj) {
         return YES;
     }
@@ -346,19 +354,32 @@
         return NO;
     }
     FQueryParams *other = (FQueryParams *)obj;
-    if (self->_limitSet != other->_limitSet) return NO;
-    if (self->_limit != other->_limit) return NO;
-    if ((self->_index != other->_index) && ![self->_index isEqual:other->_index]) return NO;
-    if ((self->_indexStartKey != other->_indexStartKey) && ![self->_indexStartKey isEqualToString:other->_indexStartKey]) return NO;
-    if ((self->_indexStartValue != other->_indexStartValue) && ![self->_indexStartValue isEqual:other->_indexStartValue]) return NO;
-    if ((self->_indexEndKey != other->_indexEndKey) && ![self->_indexEndKey isEqualToString:other->_indexEndKey]) return NO;
-    if ((self->_indexEndValue != other->_indexEndValue) && ![self->_indexEndValue isEqual:other->_indexEndValue]) return NO;
-    if ([self isViewFromLeft] != [other isViewFromLeft]) return NO;
+    if (self->_limitSet != other->_limitSet)
+        return NO;
+    if (self->_limit != other->_limit)
+        return NO;
+    if ((self->_index != other->_index) && !
+                                           [self->_index isEqual:other->_index])
+        return NO;
+    if ((self->_indexStartKey != other->_indexStartKey) &&
+        ![self->_indexStartKey isEqualToString:other->_indexStartKey])
+        return NO;
+    if ((self->_indexStartValue != other->_indexStartValue) &&
+        ![self->_indexStartValue isEqual:other->_indexStartValue])
+        return NO;
+    if ((self->_indexEndKey != other->_indexEndKey) &&
+        ![self->_indexEndKey isEqualToString:other->_indexEndKey])
+        return NO;
+    if ((self->_indexEndValue != other->_indexEndValue) &&
+        ![self->_indexEndValue isEqual:other->_indexEndValue])
+        return NO;
+    if ([self isViewFromLeft] != [other isViewFromLeft])
+        return NO;
 
     return YES;
 }
 
-- (NSUInteger) hash {
+- (NSUInteger)hash {
     NSUInteger result = _limitSet ? _limit : 0;
     result = 31 * result + ([self isViewFromLeft] ? 1231 : 1237);
     result = 31 * result + [_indexStartKey hash];

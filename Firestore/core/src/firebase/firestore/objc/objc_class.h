@@ -17,7 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 
+#if __OBJC__
 #include <objc/objc.h>
+#else
+struct objc_object;
+using id = struct objc_object*;
+#endif
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
@@ -159,6 +164,7 @@ bool Equals(const Handle<T>& lhs, const Handle<T>& rhs) {
 #else  // !__clang__
 #define NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_END
+#define _Nullable
 #endif  // __clang__
 #endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
 

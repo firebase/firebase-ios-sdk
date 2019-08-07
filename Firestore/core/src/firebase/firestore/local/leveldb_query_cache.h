@@ -35,7 +35,6 @@
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTQuery;
 @class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -68,7 +67,7 @@ class LevelDbQueryCache : public QueryCache {
 
   void RemoveTarget(FSTQueryData* query_data) override;
 
-  FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
+  FSTQueryData* _Nullable GetTarget(const core::Query& query) override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
 

@@ -44,12 +44,16 @@ class DocumentComparator : public util::FunctionComparator<Document> {
 
   static DocumentComparator ByKey();
 
+  // TODO(wilhuff): Remove this using statement
+  // This exists to put these two overloads on equal footing. Once the overload
+  // below is gone, this using statement can be removed as well.
+  using FunctionComparator<Document>::Compare;
+
 #if __OBJC__
   util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
     Document converted_lhs(lhs);
     Document converted_rhs(rhs);
-    return util::FunctionComparator<Document>::Compare(converted_lhs,
-                                                       converted_rhs);
+    return Compare(converted_lhs, converted_rhs);
   }
 #endif
 };

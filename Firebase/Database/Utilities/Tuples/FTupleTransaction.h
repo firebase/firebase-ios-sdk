@@ -14,61 +14,62 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FPath.h"
-#import "FTypedefs_Private.h"
 #import "FTypedefs.h"
+#import "FTypedefs_Private.h"
+#import <Foundation/Foundation.h>
 
 @interface FTupleTransaction : NSObject
 
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, copy) fbt_transactionresult_mutabledata update;
-@property (nonatomic, copy) fbt_void_nserror_bool_datasnapshot onComplete;
-@property (nonatomic) FTransactionStatus status;
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, copy) fbt_transactionresult_mutabledata update;
+@property(nonatomic, copy) fbt_void_nserror_bool_datasnapshot onComplete;
+@property(nonatomic) FTransactionStatus status;
 
 /**
-* Used when combining transaction at different locations to figure out which one goes first.
-*/
-@property (nonatomic, strong) NSNumber* order;
+ * Used when combining transaction at different locations to figure out which
+ * one goes first.
+ */
+@property(nonatomic, strong) NSNumber *order;
 /**
-* Whether to raise local events for this transaction
-*/
-@property (nonatomic) BOOL applyLocally;
+ * Whether to raise local events for this transaction
+ */
+@property(nonatomic) BOOL applyLocally;
 
 /**
-* Count how many times we've retried the transaction
-*/
-@property (nonatomic) int retryCount;
+ * Count how many times we've retried the transaction
+ */
+@property(nonatomic) int retryCount;
 
 /**
-* Function to call to clean up our listener
-*/
-@property (nonatomic, copy) fbt_void_void unwatcher;
+ * Function to call to clean up our listener
+ */
+@property(nonatomic, copy) fbt_void_void unwatcher;
 
 /**
-* Stores why a transaction was aborted
-*/
-@property (nonatomic, strong, readonly) NSString* abortStatus;
-@property (nonatomic, strong, readonly) NSString* abortReason;
+ * Stores why a transaction was aborted
+ */
+@property(nonatomic, strong, readonly) NSString *abortStatus;
+@property(nonatomic, strong, readonly) NSString *abortReason;
 
 - (void)setAbortStatus:(NSString *)abortStatus reason:(NSString *)reason;
 - (NSError *)abortError;
 
-@property (nonatomic, strong) NSNumber *currentWriteId;
+@property(nonatomic, strong) NSNumber *currentWriteId;
 
 /**
-* Stores the input snapshot, before the update
-*/
-@property (nonatomic, strong) id<FNode> currentInputSnapshot;
+ * Stores the input snapshot, before the update
+ */
+@property(nonatomic, strong) id<FNode> currentInputSnapshot;
 
 /**
-* Stores the unresolved (for server values) output snapshot, after the update
-*/
-@property (nonatomic, strong) id<FNode> currentOutputSnapshotRaw;
+ * Stores the unresolved (for server values) output snapshot, after the update
+ */
+@property(nonatomic, strong) id<FNode> currentOutputSnapshotRaw;
 
 /**
  * Stores the resolved (for server values) output snapshot, after the update
  */
-@property (nonatomic, strong) id<FNode> currentOutputSnapshotResolved;
+@property(nonatomic, strong) id<FNode> currentOutputSnapshotResolved;
 
 @end

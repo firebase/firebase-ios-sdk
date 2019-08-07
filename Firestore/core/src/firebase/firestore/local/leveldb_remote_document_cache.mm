@@ -21,7 +21,6 @@
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -30,15 +29,16 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "leveldb/db.h"
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::MaybeDocumentMap;
-using leveldb::Status;
-
 namespace firebase {
 namespace firestore {
 namespace local {
+
+using core::Query;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::DocumentMap;
+using model::MaybeDocumentMap;
+using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     FSTLevelDB* db, FSTLocalSerializer* serializer)
@@ -93,15 +93,15 @@ MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
   return results;
 }
 
-DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
+DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
   HARD_ASSERT(
-      ![query isCollectionGroupQuery],
+      !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
   DocumentMap results;
 
   // Use the query path as a prefix for testing if a document matches the query.
-  const model::ResourcePath& query_path = query.path;
+  const model::ResourcePath& query_path = query.path();
   size_t immediate_children_path_length = query_path.size() + 1;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down

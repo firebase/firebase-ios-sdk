@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 
+#include <iosfwd>
 #include <limits>
 #include <memory>
 #include <string>
@@ -26,13 +27,20 @@
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
+#if __OBJC__
+@class FSTDocument;
+#endif
+
 namespace firebase {
 namespace firestore {
 namespace core {
+
+using CollectionGroupId = std::shared_ptr<const std::string>;
 
 /**
  * Represents the internal structure of a Firestore Query. Query instances are
@@ -40,10 +48,6 @@ namespace core {
  */
 class Query {
  public:
-  using CollectionGroupId = std::shared_ptr<const std::string>;
-  using FilterList = std::vector<std::shared_ptr<Filter>>;
-  using OrderByList = std::vector<OrderBy>;
-
   static constexpr int32_t kNoLimit = std::numeric_limits<int32_t>::max();
 
   Query() = default;
@@ -110,8 +114,17 @@ class Query {
    */
   const model::FieldPath* InequalityFilterField() const;
 
-  /** Returns true if this Query has an array-contains filter already. */
-  bool HasArrayContainsFilter() const;
+  /**
+   * Returns the first array operator (array-contains or array-contains-any)
+   * found on a filter, or absl::nullopt if there are no array operators.
+   */
+  absl::optional<Filter::Operator> FirstArrayOperator() const;
+
+  /**
+   * Returns the first disjunctive operator (IN or array-contains-any) found
+   * on a filter, or absl::nullopt if there are no disjunctive operators.
+   */
+  absl::optional<Filter::Operator> FirstDisjunctiveOperator() const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on
@@ -152,7 +165,7 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query AddingFilter(std::shared_ptr<Filter> filter) const;
+  Query AddingFilter(std::shared_ptr<const Filter> filter) const;
 
   /**
    * Returns a copy of this Query object with the additional specified order by.
@@ -192,6 +205,13 @@ class Query {
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
+#if __OBJC__
+  bool Matches(FSTDocument* doc) const {
+    model::Document converted(doc);
+    return Matches(converted);
+  }
+#endif  // __OBJC__s
+
   /**
    * Returns a comparator that will sort documents according to the order by
    * clauses in this query.
@@ -199,6 +219,12 @@ class Query {
   model::DocumentComparator Comparator() const;
 
   const std::string& CanonicalId() const;
+
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Query& query);
+
+  size_t Hash() const;
 
  private:
   bool MatchesPathAndCollectionGroup(const model::Document& doc) const;
@@ -238,5 +264,16 @@ inline bool operator!=(const Query& lhs, const Query& rhs) {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+namespace std {
+
+template <>
+struct hash<firebase::firestore::core::Query> {
+  size_t operator()(const firebase::firestore::core::Query& query) const {
+    return query.Hash();
+  }
+};
+
+}  // namespace std
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_

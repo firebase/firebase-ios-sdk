@@ -36,7 +36,6 @@
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -88,6 +87,8 @@ using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
 using testutil::Filter;
+using testutil::OrderBy;
+using testutil::Query;
 using testutil::Ref;
 using testutil::Value;
 
@@ -508,7 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesListenRequestLabels {
-  FSTQuery *query = FSTTestQuery("collection/key");
+  core::Query query = Query("collection/key");
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:2
                                            listenSequenceNumber:3
@@ -577,6 +578,36 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(*input, *roundTripped);
 }
 
+- (void)testEncodesArrayContainsAnyFilter {
+  auto input = Filter("item.tags", "array-contains-any", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer encodedString:"food"]];
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
+- (void)testEncodesInFilter {
+  auto input = Filter("item.tags", "in", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_In;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer encodedString:"food"]];
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(*input, *roundTripped);
+}
+
 - (void)testEncodesKeyFieldFilter {
   auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
@@ -595,8 +626,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - encodedQuery
 
 - (void)testEncodesFirstLevelKeyQueries {
-  FSTQuery *q = FSTTestQuery("docs/1");
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query query = Query("docs/1");
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   [expected.documents.documentsArray addObject:@"projects/p/databases/d/documents/docs/1"];
@@ -606,8 +637,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesFirstLevelAncestorQueries {
-  FSTQuery *q = FSTTestQuery("messages");
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query q = Query("messages");
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -622,8 +653,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNestedAncestorQueries {
-  FSTQuery *q = FSTTestQuery("rooms/1/messages/10/attachments");
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query q = Query("rooms/1/messages/10/attachments");
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -638,8 +669,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:Filter("prop", "<", 42)];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -661,11 +692,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[[FSTTestQuery("rooms/1/messages/10/attachments")
-      queryByAddingFilter:Filter("prop", ">=", 42)]
-      queryByAddingFilter:Filter("author", "==", "dimond")]
-      queryByAddingFilter:Filter("tags", "array_contains", "pending")];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query q = Query("rooms/1/messages/10/attachments")
+                      .AddingFilter(Filter("prop", ">=", 42))
+                      .AddingFilter(Filter("author", "==", "dimond"))
+                      .AddingFilter(Filter("tags", "array_contains", "pending"));
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -719,8 +750,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)unaryFilterTestWithValue:(FieldValue)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
-  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:Filter("prop", "==", value)];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
+  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -739,9 +770,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrders {
-  FSTQuery *q = [FSTTestQuery("docs")
-      queryByAddingSortOrder:OrderBy(testutil::Field("prop"), Direction::Ascending)];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query query = Query("docs").AddingOrderBy(OrderBy("prop", "asc"));
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -758,9 +788,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrdersDescending {
-  FSTQuery *q = [FSTTestQuery("rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:OrderBy(testutil::Field("prop"), Direction::Descending)];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query query =
+      Query("rooms/1/messages/10/attachments").AddingOrderBy(OrderBy("prop", "desc"));
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -777,8 +807,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesLimits {
-  FSTQuery *q = [FSTTestQuery("docs") queryBySettingLimit:26];
-  FSTQueryData *model = [self queryDataForQuery:q];
+  core::Query query = Query("docs").WithLimit(26);
+  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -794,8 +824,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResumeTokens {
-  FSTQuery *q = FSTTestQuery("docs");
-  FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:q
+  core::Query q = Query("docs");
+  FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:std::move(q)
                                                    targetID:1
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
@@ -815,8 +845,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForQueryData:model proto:expected];
 }
 
-- (FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
-  return [[FSTQueryData alloc] initWithQuery:query
+- (FSTQueryData *)queryDataForQuery:(core::Query)query {
+  return [[FSTQueryData alloc] initWithQuery:std::move(query)
                                     targetID:1
                         listenSequenceNumber:0
                                      purpose:FSTQueryPurposeListen
@@ -831,13 +861,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   // We don't have deserialization logic for full targets since they're not used for RPC
   // interaction, but the query deserialization only *is* used for the local store.
-  FSTQuery *actualModel;
+  core::Query actualModel;
   if (proto.targetTypeOneOfCase == GCFSTarget_TargetType_OneOfCase_Query) {
     actualModel = [self.serializer decodedQueryFromQueryTarget:proto.query];
   } else {
     actualModel = [self.serializer decodedQueryFromDocumentsTarget:proto.documents];
   }
-  XCTAssertEqualObjects(actualModel, queryData.query);
+  XCTAssertEqual(actualModel, queryData.query);
 }
 
 - (void)testConvertsTargetChangeWithAdded {

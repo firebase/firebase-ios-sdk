@@ -26,7 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -54,13 +53,13 @@
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 
-namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
@@ -145,11 +144,10 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _expectedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
-  objc::unordered_map<FSTQuery *, std::shared_ptr<QueryListener>> _queryListeners;
+  std::unordered_map<Query, std::shared_ptr<QueryListener>> _queryListeners;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
-  EmptyCredentialsProvider _credentialProvider;
 
   std::shared_ptr<MockDatastore> _datastore;
 }
@@ -180,7 +178,8 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
-    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue, &_credentialProvider);
+    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
+                                                 std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore, _datastore, _workerQueue, [self](OnlineState onlineState) {
           [self.syncEngine applyChangedOnlineState:onlineState];
@@ -346,7 +345,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (TargetId)addUserListenerWithQuery:(FSTQuery *)query {
+- (TargetId)addUserListenerWithQuery:(Query)query {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   ListenOptions options = ListenOptions::FromIncludeMetadataChanges(true);
@@ -368,7 +367,7 @@ NS_ASSUME_NONNULL_BEGIN
   return targetID;
 }
 
-- (void)removeUserListenerWithQuery:(FSTQuery *)query {
+- (void)removeUserListenerWithQuery:(const Query &)query {
   auto found_iter = _queryListeners.find(query);
   if (found_iter != _queryListeners.end()) {
     std::shared_ptr<QueryListener> listener = found_iter->second;

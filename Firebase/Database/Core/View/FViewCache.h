@@ -22,14 +22,19 @@
 
 @interface FViewCache : NSObject
 
-- (id) initWithEventCache:(FCacheNode *)eventCache serverCache:(FCacheNode *)serverCache;
+- (id)initWithEventCache:(FCacheNode *)eventCache
+             serverCache:(FCacheNode *)serverCache;
 
-- (FViewCache *) updateEventSnap:(FIndexedNode *)eventSnap isComplete:(BOOL)complete isFiltered:(BOOL)filtered;
-- (FViewCache *) updateServerSnap:(FIndexedNode *)serverSnap isComplete:(BOOL)complete isFiltered:(BOOL)filtered;
+- (FViewCache *)updateEventSnap:(FIndexedNode *)eventSnap
+                     isComplete:(BOOL)complete
+                     isFiltered:(BOOL)filtered;
+- (FViewCache *)updateServerSnap:(FIndexedNode *)serverSnap
+                      isComplete:(BOOL)complete
+                      isFiltered:(BOOL)filtered;
 
-@property (nonatomic, strong, readonly) FCacheNode *cachedEventSnap;
-@property (nonatomic, strong, readonly) id<FNode> completeEventSnap;
-@property (nonatomic, strong, readonly) FCacheNode *cachedServerSnap;
-@property (nonatomic, strong, readonly) id<FNode> completeServerSnap;
+@property(nonatomic, strong, readonly) FCacheNode *cachedEventSnap;
+@property(nonatomic, strong, readonly) id<FNode> completeEventSnap;
+@property(nonatomic, strong, readonly) FCacheNode *cachedServerSnap;
+@property(nonatomic, strong, readonly) id<FNode> completeServerSnap;
 
 @end

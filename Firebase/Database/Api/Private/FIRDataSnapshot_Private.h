@@ -21,7 +21,7 @@
 @interface FIRDataSnapshot ()
 
 // in _Private for testing purposes
-@property (nonatomic, strong) FIndexedNode *node;
+@property(nonatomic, strong) FIndexedNode *node;
 
 - (id)initWithRef:(FIRDatabaseReference *)ref indexedNode:(FIndexedNode *)node;
 

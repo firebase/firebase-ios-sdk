@@ -23,7 +23,6 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-@class FSTQuery;
 @class FSTSyncEngine;
 
 namespace core = firebase::firestore::core;

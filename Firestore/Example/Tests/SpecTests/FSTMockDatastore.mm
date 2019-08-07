@@ -21,7 +21,6 @@
 #include <queue>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -66,7 +65,7 @@ namespace remote {
 class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
@@ -100,7 +99,7 @@ class MockWatchStream : public WatchStream {
   }
 
   void WatchQuery(FSTQueryData* query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query, query.resumeToken);
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query.ToString(), query.resumeToken);
 
     // Snapshot version is ignored on the wire
     FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
@@ -157,7 +156,7 @@ class MockWatchStream : public WatchStream {
 class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
@@ -240,7 +239,7 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             auth::CredentialsProvider* credentials)
+                             std::shared_ptr<auth::CredentialsProvider> credentials)
     : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},
       worker_queue_{worker_queue},

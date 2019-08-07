@@ -18,23 +18,23 @@
 
 @protocol FCachePolicy <NSObject>
 
-- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize numberOfTrackedQueries:(NSUInteger)numTrackedQueries;
+- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize
+          numberOfTrackedQueries:(NSUInteger)numTrackedQueries;
 - (BOOL)shouldCheckCacheSize:(NSUInteger)serverUpdatesSinceLastCheck;
 - (float)percentOfQueriesToPruneAtOnce;
 - (NSUInteger)maxNumberOfQueriesToKeep;
 
 @end
 
+@interface FLRUCachePolicy : NSObject <FCachePolicy>
 
-@interface FLRUCachePolicy : NSObject<FCachePolicy>
-
-@property (nonatomic, readonly) NSUInteger maxSize;
+@property(nonatomic, readonly) NSUInteger maxSize;
 
 - (id)initWithMaxSize:(NSUInteger)maxSize;
 
 @end
 
-@interface FNoCachePolicy : NSObject<FCachePolicy>
+@interface FNoCachePolicy : NSObject <FCachePolicy>
 
 + (FNoCachePolicy *)noCachePolicy;
 

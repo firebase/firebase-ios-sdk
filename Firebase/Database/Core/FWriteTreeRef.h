@@ -27,25 +27,31 @@
 
 @interface FWriteTreeRef : NSObject
 
-- (id) initWithPath:(FPath *)aPath writeTree:(FWriteTree *)tree;
+- (id)initWithPath:(FPath *)aPath writeTree:(FWriteTree *)tree;
 
-- (id <FNode>) calculateCompleteEventCacheWithCompleteServerCache:(id <FNode>)completeServerCache;
+- (id<FNode>)calculateCompleteEventCacheWithCompleteServerCache:
+    (id<FNode>)completeServerCache;
 
-- (FChildrenNode *) calculateCompleteEventChildrenWithCompleteServerChildren:(FChildrenNode *)completeServerChildren;
+- (FChildrenNode *)calculateCompleteEventChildrenWithCompleteServerChildren:
+    (FChildrenNode *)completeServerChildren;
 
-- (id<FNode>) calculateEventCacheAfterServerOverwriteWithChildPath:(FPath *)childPath
-                                                 existingEventSnap:(id<FNode>)existingEventSnap
-                                                existingServerSnap:(id<FNode>)existingServerSnap;
+- (id<FNode>)
+    calculateEventCacheAfterServerOverwriteWithChildPath:(FPath *)childPath
+                                       existingEventSnap:
+                                           (id<FNode>)existingEventSnap
+                                      existingServerSnap:
+                                          (id<FNode>)existingServerSnap;
 
-- (id<FNode>) shadowingWriteAtPath:(FPath *)path;
+- (id<FNode>)shadowingWriteAtPath:(FPath *)path;
 
-- (FNamedNode *) calculateNextNodeAfterPost:(FNamedNode *)post
-                         completeServerData:(id<FNode>)completeServerData
-                                    reverse:(BOOL)reverse
-                                      index:(id<FIndex>)index;
+- (FNamedNode *)calculateNextNodeAfterPost:(FNamedNode *)post
+                        completeServerData:(id<FNode>)completeServerData
+                                   reverse:(BOOL)reverse
+                                     index:(id<FIndex>)index;
 
-- (id<FNode>) calculateCompleteChild:(NSString *)childKey cache:(FCacheNode *)existingServerCache;
+- (id<FNode>)calculateCompleteChild:(NSString *)childKey
+                              cache:(FCacheNode *)existingServerCache;
 
-- (FWriteTreeRef *) childWriteTreeRef:(NSString *)childKey;
+- (FWriteTreeRef *)childWriteTreeRef:(NSString *)childKey;
 
 @end

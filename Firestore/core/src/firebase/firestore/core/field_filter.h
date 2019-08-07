@@ -38,9 +38,9 @@ class FieldFilter : public Filter {
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
-  static std::shared_ptr<FieldFilter> Create(model::FieldPath path,
-                                             Operator op,
-                                             model::FieldValue value_rhs);
+  static std::shared_ptr<const FieldFilter> Create(model::FieldPath path,
+                                                   Operator op,
+                                                   model::FieldValue value_rhs);
 
   Type type() const override {
     return Type::kFieldFilter;

@@ -34,6 +34,14 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Provides a registry management interface for FIRFirestore instances. */
+@protocol FSTFirestoreInstanceRegistry
+
+/** Removes the FIRFirestore instance with given database name from registry. */
+- (void)removeInstanceWithDatabase:(NSString *)database;
+
+@end
+
 @interface FIRFirestore (/* Init */)
 
 /**
@@ -42,9 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
-                       firebaseApp:(FIRApp *)app;
+                       firebaseApp:(FIRApp *)app
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
@@ -56,13 +65,30 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
 /**
- * Shutdown this `FIRFirestore`, releasing all resources (abandoning any outstanding writes,
- * removing all listens, closing all network connections, etc.).
+ * Shuts down this `FIRFirestore` instance.
+ *
+ * After shutdown only the `clearPersistence` method may be used. Any other method
+ * will throw an error.
+ *
+ * To restart after shutdown, simply create a new instance of FIRFirestore with
+ * `firestore` or `firestoreForApp` methods.
+ *
+ * Shutdown does not cancel any pending writes and any tasks that are awaiting a response from
+ * the server will not be resolved. The next time you start this instance, it will resume
+ * attempting to send these writes to the server.
+ *
+ * Note: Under normal circumstances, calling this method is not required. This
+ * method is useful only when you want to force this instance to release all of its resources or
+ * in combination with `clearPersistence` to ensure that all local state is destroyed
+ * between test runs.
  *
  * @param completion A block to execute once everything has shut down.
  */
+// TODO(b/135755126): Make this public.
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
+
+- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 

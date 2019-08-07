@@ -99,15 +99,12 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-    // TODO(varconst): 1. Make this at least more robust by adding an enum to
-    // `Executor` that allows asserting on the actual type before casting.
-    // 2. This is an unfortunate, brittle mechanism, see if better alternatives
-    //    come up.
-    // On Apple platforms, the executor implementation must be the
-    // libdispatch-based one.
-    auto executor = static_cast<ExecutorLibdispatch*>(queue()->executor());
+    // It's okay to use the main queue for reachability events because they are
+    // fairly infrequent, and there's no good way to get the underlying dispatch
+    // queue out of the worker queue. The callback itself is still executed on
+    // the worker queue.
     success = SCNetworkReachabilitySetDispatchQueue(reachability_,
-                                                    executor->dispatch_queue());
+                                                    dispatch_get_main_queue());
     if (!success) {
       LOG_DEBUG("Couldn't set reachability queue");
       return;

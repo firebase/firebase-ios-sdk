@@ -22,7 +22,6 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
@@ -55,7 +54,7 @@ using util::Status;
 
 Firestore::Firestore(model::DatabaseId database_id,
                      std::string persistence_key,
-                     std::unique_ptr<CredentialsProvider> credentials_provider,
+                     std::shared_ptr<CredentialsProvider> credentials_provider,
                      std::shared_ptr<AsyncQueue> worker_queue,
                      void* extension)
     : database_id_{std::move(database_id)},
@@ -120,10 +119,10 @@ WriteBatch Firestore::GetBatch() {
 FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
-  FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
-                            collectionGroup:std::make_shared<const std::string>(
-                                                std::move(collection_id))];
-  return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
+  core::Query query(ResourcePath::Empty(), std::make_shared<const std::string>(
+                                               std::move(collection_id)));
+  return [[FIRQuery alloc] initWithQuery:std::move(query)
+                               firestore:shared_from_this()];
 }
 
 void Firestore::RunTransaction(
@@ -144,7 +143,7 @@ void Firestore::Shutdown(util::StatusCallback callback) {
 }
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
-  worker_queue()->Enqueue([this, callback] {
+  worker_queue()->EnqueueEvenAfterShutdown([this, callback] {
     auto Yield = [=](Status status) {
       if (callback) {
         this->user_executor_->Execute([=] { callback(status); });
@@ -180,12 +179,12 @@ void Firestore::EnsureClientConfigured() {
 
   if (!client_) {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
-    client_ =
-        [FSTFirestoreClient clientWithDatabaseInfo:MakeDatabaseInfo()
-                                          settings:settings_
-                               credentialsProvider:credentials_provider_.get()
-                                      userExecutor:user_executor_
-                                       workerQueue:worker_queue_];
+    client_ = [FSTFirestoreClient
+        clientWithDatabaseInfo:MakeDatabaseInfo()
+                      settings:settings_
+           credentialsProvider:std::move(credentials_provider_)
+                  userExecutor:user_executor_
+                   workerQueue:worker_queue_];
   }
 }
 

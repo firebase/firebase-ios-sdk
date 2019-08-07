@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -160,7 +159,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTDatastoreTests {
   std::shared_ptr<AsyncQueue> _testWorkerQueue;
   FSTLocalStore *_localStore;
-  EmptyCredentialsProvider _credentials;
 
   DatabaseInfo _databaseInfo;
   std::shared_ptr<Datastore> _datastore;
@@ -184,7 +182,8 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_queue_t queue = dispatch_queue_create(
       "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _testWorkerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue, &_credentials);
+  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
+                                           std::make_shared<EmptyCredentialsProvider>());
 
   _remoteStore =
       absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue, [](OnlineState) {});

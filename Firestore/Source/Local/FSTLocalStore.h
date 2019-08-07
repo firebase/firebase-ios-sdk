@@ -44,11 +44,11 @@ class RemoteEvent;
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
-@class FSTQuery;
 @class FSTQueryData;
 @protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;
+namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
@@ -173,13 +173,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.
  * A query must be allocated in the local store before the store can be used to manage its view.
  */
-- (FSTQueryData *)allocateQuery:(FSTQuery *)query;
+- (FSTQueryData *)allocateQuery:(core::Query)query;
 
 /** Unpin all the documents associated with @a query. */
-- (void)releaseQuery:(FSTQuery *)query;
+- (void)releaseQuery:(const core::Query &)query;
 
 /** Runs @a query against all the documents in the local store and returns the results. */
-- (model::DocumentMap)executeQuery:(FSTQuery *)query;
+- (model::DocumentMap)executeQuery:(const core::Query &)query;
 
 /** Notify the local store of the changed views to locally pin / unpin documents. */
 - (void)notifyLocalViewChanges:(const std::vector<local::LocalViewChanges> &)viewChanges;

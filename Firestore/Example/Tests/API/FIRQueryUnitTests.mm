@@ -20,12 +20,14 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
 namespace api = firebase::firestore::api;
+using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,9 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEquals {
   std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
-  FIRQuery *queryFoo = [[FIRQuery alloc] initWithQuery:FSTTestQuery("foo") firestore:firestore];
-  FIRQuery *queryFooDup = [[FIRQuery alloc] initWithQuery:FSTTestQuery("foo") firestore:firestore];
-  FIRQuery *queryBar = [[FIRQuery alloc] initWithQuery:FSTTestQuery("bar") firestore:firestore];
+  FIRQuery *queryFoo = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
+  FIRQuery *queryFooDup = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
+  FIRQuery *queryBar = [[FIRQuery alloc] initWithQuery:Query("bar") firestore:firestore];
   XCTAssertEqualObjects(queryFoo, queryFooDup);
   XCTAssertNotEqualObjects(queryFoo, queryBar);
   XCTAssertEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
@@ -56,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFilteringWithPredicate {
   std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
-  FIRQuery *query = [[FIRQuery alloc] initWithQuery:FSTTestQuery("foo") firestore:firestore];
+  FIRQuery *query = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];
   FIRQuery *query3 = [[query queryWhereField:@"f1" isLessThan:@2] queryWhereField:@"f2"

@@ -42,7 +42,6 @@
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTPBMutationQueue;
-@class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -85,7 +84,7 @@ class LevelDbMutationQueue : public MutationQueue {
       const model::DocumentKey& key) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
-      FSTQuery* query) override;
+      const core::Query& query) override;
 
   FSTMutationBatch* _Nullable LookupMutationBatch(
       model::BatchId batch_id) override;

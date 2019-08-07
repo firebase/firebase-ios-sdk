@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FChange.h"
 #import "FIRDataEventType.h"
+#import <Foundation/Foundation.h>
 
 @protocol FEvent;
 @class FDataEvent;
@@ -24,13 +24,15 @@
 @class FQuerySpec;
 
 @protocol FEventRegistration <NSObject>
-- (BOOL) responseTo:(FIRDataEventType)eventType;
-- (FDataEvent *) createEventFrom:(FChange *)change query:(FQuerySpec *)query;
-- (void) fireEvent:(id<FEvent>)event queue:(dispatch_queue_t)queue;
-- (FCancelEvent *) createCancelEventFromError:(NSError *)error path:(FPath *)path;
+- (BOOL)responseTo:(FIRDataEventType)eventType;
+- (FDataEvent *)createEventFrom:(FChange *)change query:(FQuerySpec *)query;
+- (void)fireEvent:(id<FEvent>)event queue:(dispatch_queue_t)queue;
+- (FCancelEvent *)createCancelEventFromError:(NSError *)error
+                                        path:(FPath *)path;
 /**
-* Used to figure out what event registration match the event registration that needs to be removed.
-*/
-- (BOOL) matches:(id<FEventRegistration>)other;
-@property (nonatomic, readonly) FIRDatabaseHandle handle;
+ * Used to figure out what event registration match the event registration that
+ * needs to be removed.
+ */
+- (BOOL)matches:(id<FEventRegistration>)other;
+@property(nonatomic, readonly) FIRDatabaseHandle handle;
 @end

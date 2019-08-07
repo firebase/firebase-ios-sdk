@@ -92,7 +92,7 @@ class FakeDatastore : public Datastore {
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    CredentialsProvider* credentials) {
+    std::shared_ptr<CredentialsProvider> credentials) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
                                          credentials);
 }
@@ -106,7 +106,7 @@ class DatastoreTest : public testing::Test {
             absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
                 "datastore_test", DISPATCH_QUEUE_SERIAL)))},
         database_info{DatabaseId{"p", "d"}, "", "localhost", false},
-        datastore{CreateDatastore(database_info, worker_queue, &credentials)},
+        datastore{CreateDatastore(database_info, worker_queue, credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -139,7 +139,8 @@ class DatastoreTest : public testing::Test {
 
   bool is_shut_down = false;
   DatabaseInfo database_info;
-  FakeCredentialsProvider credentials;
+  std::shared_ptr<FakeCredentialsProvider> credentials =
+      std::make_shared<FakeCredentialsProvider>();
 
   std::shared_ptr<AsyncQueue> worker_queue;
   std::shared_ptr<FakeDatastore> datastore;
@@ -307,7 +308,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
 // Auth errors
 
 TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
-  credentials.FailGetToken();
+  credentials->FailGetToken();
 
   Status resulting_status;
   datastore->CommitMutations(
@@ -317,7 +318,7 @@ TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
 }
 
 TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
-  credentials.FailGetToken();
+  credentials->FailGetToken();
 
   Status resulting_status;
   datastore->LookupDocuments(
@@ -329,7 +330,7 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
-  credentials.DelayGetToken();
+  credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations({}, [](const Status& status) {
@@ -338,11 +339,11 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   });
   Shutdown();
 
-  EXPECT_NO_THROW(credentials.InvokeGetToken());
+  EXPECT_NO_THROW(credentials->InvokeGetToken());
 }
 
 TEST_F(DatastoreTest, AuthOutlivesDatastore) {
-  credentials.DelayGetToken();
+  credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations({}, [](const Status& status) {
@@ -352,7 +353,7 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   Shutdown();
   datastore.reset();
 
-  EXPECT_NO_THROW(credentials.InvokeGetToken());
+  EXPECT_NO_THROW(credentials->InvokeGetToken());
 }
 
 // Error classification

@@ -31,7 +31,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -51,6 +50,8 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
 
+using testutil::Query;
+
 NS_ASSUME_NONNULL_BEGIN
 
 FIRFirestore *FSTTestFirestore() {
@@ -64,7 +65,8 @@ FIRFirestore *FSTTestFirestore() {
                                                persistenceKey:"db123"
                                           credentialsProvider:nullptr
                                                   workerQueue:nullptr
-                                                  firebaseApp:nil];
+                                                  firebaseApp:nil
+                                             instanceRegistry:nil];
   });
 #pragma clang diagnostic pop
   return sharedInstance;
@@ -128,7 +130,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
-  ViewSnapshot viewSnapshot{FSTTestQuery(path),
+  ViewSnapshot viewSnapshot{Query(path),
                             newDocuments,
                             oldDocuments,
                             std::move(documentChanges),
@@ -137,7 +139,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
   return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
-                                       originalQuery:FSTTestQuery(path)
+                                       originalQuery:Query(path)
                                             snapshot:std::move(viewSnapshot)
                                             metadata:std::move(metadata)];
 }

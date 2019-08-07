@@ -19,7 +19,6 @@
 #include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -35,6 +34,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using core::Query;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -161,20 +161,20 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKey(
 }
 
 std::vector<FSTMutationBatch*>
-MemoryMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
+MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   HARD_ASSERT(
-      ![query isCollectionGroupQuery],
+      !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
   // Use the query path as a prefix for testing if a document matches the query.
-  const ResourcePath& prefix = query.path;
+  const ResourcePath& prefix = query.path();
   size_t immediate_children_path_length = prefix.size() + 1;
 
   // Construct a document reference for actually scanning the index. Unlike the
   // prefix, the document key in this reference must have an even number of
   // segments. The empty segment can be used as a suffix of the query path
   // because it precedes all other segments in an ordered traversal.
-  ResourcePath start_path = query.path;
+  ResourcePath start_path = query.path();
   if (!DocumentKey::IsDocumentKey(start_path)) {
     start_path = start_path.Append("");
   }

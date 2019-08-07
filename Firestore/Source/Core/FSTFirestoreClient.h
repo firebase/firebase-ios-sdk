@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -43,7 +44,6 @@
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
 @class FSTMutation;
-@class FSTQuery;
 @class FSTTransaction;
 
 namespace api = firebase::firestore::api;
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)clientWithDatabaseInfo:(const core::DatabaseInfo &)databaseInfo
                               settings:(const api::Settings &)settings
                    credentialsProvider:
-                       (auth::CredentialsProvider *)credentialsProvider  // no passing ownership
+                       (std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                           userExecutor:(std::shared_ptr<util::Executor>)userExecutor
                            workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue;
 
@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enableNetworkWithCallback:(util::StatusCallback)callback;
 
 /** Starts listening to a query. */
-- (std::shared_ptr<core::QueryListener>)listenToQuery:(FSTQuery *)query
+- (std::shared_ptr<core::QueryListener>)listenToQuery:(core::Query)query
                                               options:(core::ListenOptions)options
                                              listener:
                                                  (core::ViewSnapshot::SharedListener &&)listener;

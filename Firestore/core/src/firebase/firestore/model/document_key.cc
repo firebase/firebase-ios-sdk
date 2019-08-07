@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
+#include <ostream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -50,6 +51,14 @@ const DocumentKey& DocumentKey::Empty() {
 
 util::ComparisonResult DocumentKey::CompareTo(const DocumentKey& other) const {
   return path().CompareTo(other.path());
+}
+
+std::string DocumentKey::ToString() const {
+  return path().CanonicalString();
+}
+
+std::ostream& operator<<(std::ostream& os, const DocumentKey& key) {
+  return os << key.ToString();
 }
 
 }  // namespace model

@@ -70,6 +70,10 @@ else
       check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
       ;;
 
+    ABTesting-*)
+      check_changes '^(Firebase/Core|FirebaseABTesting)'
+      ;;
+
     Auth-*)
       check_changes '^(Firebase/Core|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
       ;;
