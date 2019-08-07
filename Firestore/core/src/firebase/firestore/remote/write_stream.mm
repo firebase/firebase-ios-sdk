@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -32,12 +34,13 @@ using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
 
-WriteStream::WriteStream(const std::shared_ptr<AsyncQueue>& async_queue,
-                         CredentialsProvider* credentials_provider,
-                         FSTSerializerBeta* serializer,
-                         GrpcConnection* grpc_connection,
-                         WriteStreamCallback* callback)
-    : Stream{async_queue, credentials_provider, grpc_connection,
+WriteStream::WriteStream(
+    const std::shared_ptr<AsyncQueue>& async_queue,
+    std::shared_ptr<CredentialsProvider> credentials_provider,
+    FSTSerializerBeta* serializer,
+    GrpcConnection* grpc_connection,
+    WriteStreamCallback* callback)
+    : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
       serializer_bridge_{serializer},
       callback_{NOT_NULL(callback)} {

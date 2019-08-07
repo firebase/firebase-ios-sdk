@@ -65,7 +65,8 @@ FIRFirestore *FSTTestFirestore() {
                                                persistenceKey:"db123"
                                           credentialsProvider:nullptr
                                                   workerQueue:nullptr
-                                                  firebaseApp:nil];
+                                                  firebaseApp:nil
+                                             instanceRegistry:nil];
   });
 #pragma clang diagnostic pop
   return sharedInstance;

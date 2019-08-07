@@ -22,6 +22,10 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::util::TimerId;
 
@@ -1313,6 +1317,68 @@ using firebase::firestore::util::TimerId;
     [expectation fulfill];
   }];
   [self awaitExpectations];
+}
+
+- (void)testRestartFirestoreLeadsToNewInstance {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *sameInstance = [FIRFirestore firestoreForApp:app];
+  firestore.settings = [FSTIntegrationTestCase settings];
+
+  XCTAssertEqual(firestore, sameInstance);
+
+  NSDictionary<NSString *, id> *data =
+      @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  [self writeDocumentRef:[firestore documentWithPath:@"abc/123"] data:data];
+
+  [self shutdownFirestore:firestore];
+
+  // Create a new instance, check it's a different instance.
+  FIRFirestore *newInstance = [FIRFirestore firestoreForApp:app];
+  newInstance.settings = [FSTIntegrationTestCase settings];
+  XCTAssertNotEqual(firestore, newInstance);
+
+  // New instance still functions.
+  FIRDocumentSnapshot *snapshot =
+      [self readDocumentForRef:[newInstance documentWithPath:@"abc/123"]];
+  XCTAssertTrue([data isEqualToDictionary:[snapshot data]]);
+}
+
+- (void)testAppDeleteLeadsToFirestoreShutdown {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  firestore.settings = [FSTIntegrationTestCase settings];
+  NSDictionary<NSString *, id> *data =
+      @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  [self writeDocumentRef:[firestore documentWithPath:@"abc/123"] data:data];
+
+  [self deleteApp:app];
+
+  FSTFirestoreClient *client = firestore.wrapped->client();
+  XCTAssertTrue([client isShutdown]);
+}
+
+- (void)testShutdownCanBeCalledMultipleTimes {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown1"]];
+  [self awaitExpectations];
+  XCTAssertThrowsSpecific(
+      {
+        [firestore disableNetworkWithCompletion:^(NSError *error){
+        }];
+      },
+      NSException, @"The client has already been shutdown.");
+
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown2"]];
+  [self awaitExpectations];
+  XCTAssertThrowsSpecific(
+      {
+        [firestore enableNetworkWithCompletion:^(NSError *error){
+        }];
+      },
+      NSException, @"The client has already been shutdown.");
 }
 
 @end

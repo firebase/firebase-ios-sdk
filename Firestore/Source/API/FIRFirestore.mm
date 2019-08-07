@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFirestore {
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
+  __weak id<FSTFirestoreInstanceRegistry> _registry;
 }
 
 + (instancetype)firestore {
@@ -106,15 +107,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
-                       firebaseApp:(FIRApp *)app {
+                       firebaseApp:(FIRApp *)app
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry {
   if (self = [super init]) {
     _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
                                              std::move(credentialsProvider), std::move(workerQueue),
                                              (__bridge void *)self);
 
     _app = app;
+    _registry = registry;
 
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
@@ -298,8 +301,17 @@ NS_ASSUME_NONNULL_BEGIN
   return (__bridge FIRFirestore *)firestore->extension();
 }
 
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   _firestore->Shutdown(util::MakeCallback(completion));
+}
+
+- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
+  if (strongRegistry) {
+    [strongRegistry
+        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
+  }
+  [self shutdownInternalWithCompletion:completion];
 }
 
 @end
