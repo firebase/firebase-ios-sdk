@@ -16,19 +16,30 @@
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 
+#include <ostream>
 #include <utility>
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-MaybeDocument::MaybeDocument(DocumentKey key, SnapshotVersion version)
-    : key_(std::move(key)), version_(std::move(version)) {
+bool MaybeDocument::Rep::Equals(const MaybeDocument::Rep& other) const {
+  return type() == other.type() && version() == other.version() &&
+         key() == other.key();
 }
 
-bool MaybeDocument::Equals(const MaybeDocument& other) const {
-  return type_ == other.type_ && version_ == other.version_ &&
-         key_ == other.key_;
+size_t MaybeDocument::Rep::Hash() const {
+  return util::Hash(type_, key_, version_);
+}
+
+std::ostream& operator<<(std::ostream& os, const MaybeDocument& doc) {
+  return os << doc.rep_->ToString();
+}
+
+bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs) {
+  return lhs.rep_ == nullptr
+             ? rhs.rep_ == nullptr
+             : (rhs.rep_ != nullptr && lhs.rep_->Equals(*rhs.rep_));
 }
 
 }  // namespace model

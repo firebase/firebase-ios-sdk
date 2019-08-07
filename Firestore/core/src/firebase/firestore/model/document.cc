@@ -26,6 +26,124 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+class Document::Rep : public MaybeDocument::Rep {
+ public:
+  Rep(ObjectValue&& data,
+      DocumentKey&& key,
+      SnapshotVersion version,
+      DocumentState document_state)
+      : MaybeDocument::Rep(Type::Document, std::move(key), version),
+        data_(std::move(data)),
+        document_state_(document_state) {
+  }
+
+  Rep(ObjectValue&& data,
+      DocumentKey&& key,
+      SnapshotVersion version,
+      DocumentState document_state,
+      absl::any proto)
+      : Rep(std::move(data), std::move(key), version, document_state) {
+    proto_ = std::move(proto);
+  }
+
+  const ObjectValue& data() const {
+    return data_;
+  }
+
+  DocumentState document_state() const {
+    return document_state_;
+  }
+
+  bool has_local_mutations() const {
+    return document_state_ == DocumentState::kLocalMutations;
+  }
+
+  bool has_committed_mutations() const {
+    return document_state_ == DocumentState::kCommittedMutations;
+  }
+
+  bool has_pending_writes() const override {
+    return has_local_mutations() || has_committed_mutations();
+  }
+
+  bool Equals(const MaybeDocument::Rep& other) const override {
+    if (!MaybeDocument::Rep::Equals(other)) return false;
+
+    const auto& other_rep = static_cast<const Rep&>(other);
+    return document_state_ == other_rep.document_state_ &&
+           data_ == other_rep.data_;
+  }
+
+  size_t Hash() const override {
+    return util::Hash(type(), key(), version(), data_, document_state_);
+  }
+
+  std::string ToString() const override {
+    return absl::StrCat(
+        "Document(key=", key().ToString(), ", version=", version().ToString(),
+        ", document_state=", document_state_, ", data=", data_.ToString(), ")");
+  }
+
+ private:
+  friend class Document;
+
+  ObjectValue data_;
+  DocumentState document_state_;
+  absl::any proto_;
+};
+
+Document::Document(ObjectValue&& data,
+                   DocumentKey key,
+                   SnapshotVersion version,
+                   DocumentState document_state)
+    : MaybeDocument(std::make_shared<Rep>(
+          std::move(data), std::move(key), version, document_state)) {
+}
+
+Document::Document(ObjectValue&& data,
+                   DocumentKey key,
+                   SnapshotVersion version,
+                   DocumentState document_state,
+                   absl::any proto)
+    : MaybeDocument(std::make_shared<Rep>(std::move(data),
+                                          std::move(key),
+                                          version,
+                                          document_state,
+                                          std::move(proto))) {
+}
+
+Document::Document(const MaybeDocument& document) : MaybeDocument(document) {
+  HARD_ASSERT(type() == Type::Document);
+}
+
+const ObjectValue& Document::data() const {
+  return doc_rep().data();
+}
+
+absl::optional<FieldValue> Document::field(const FieldPath& path) const {
+  return data().Get(path);
+}
+
+DocumentState Document::document_state() const {
+  return doc_rep().document_state_;
+}
+
+bool Document::has_local_mutations() const {
+  return doc_rep().has_local_mutations();
+}
+
+bool Document::has_committed_mutations() const {
+  return doc_rep().has_committed_mutations();
+}
+
+const absl::any& Document::proto() const {
+  return doc_rep().proto_;
+}
+
+const Document::Rep& Document::doc_rep() const {
+  return static_cast<const Rep&>(MaybeDocument::rep());
+}
+
 std::ostream& operator<<(std::ostream& os, DocumentState state) {
   switch (state) {
     case DocumentState::kCommittedMutations:
@@ -39,37 +157,9 @@ std::ostream& operator<<(std::ostream& os, DocumentState state) {
   UNREACHABLE();
 }
 
-Document::Document(ObjectValue&& data,
-                   DocumentKey key,
-                   SnapshotVersion version,
-                   DocumentState document_state)
-    : MaybeDocument(std::move(key), std::move(version)),
-      data_(std::move(data)),
-      document_state_(document_state) {
-  set_type(Type::Document);
-}
-
-std::string Document::ToString() const {
-  std::ostringstream out;
-  out << *this;
-  return out.str();
-}
-
-std::ostream& operator<<(std::ostream& os, const Document& doc) {
-  return os << "Document(key=" << doc.key()
-            << ", version=" << doc.version().timestamp()
-            << ", document_state=" << doc.document_state_
-            << ", data=" << doc.data() << ")";
-}
-
-bool Document::Equals(const MaybeDocument& other) const {
-  if (other.type() != Type::Document) {
-    return false;
-  }
-  auto& other_doc = static_cast<const Document&>(other);
-  return MaybeDocument::Equals(other) &&
-         document_state_ == other_doc.document_state_ &&
-         data_ == other_doc.data_;
+/** Compares against another Document. */
+bool operator==(const Document& lhs, const Document& rhs) {
+  return lhs.doc_rep().Equals(rhs.doc_rep());
 }
 
 }  // namespace model

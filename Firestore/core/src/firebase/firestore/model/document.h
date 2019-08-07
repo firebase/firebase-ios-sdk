@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 #if __OBJC__
@@ -27,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "absl/types/any.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -59,6 +61,8 @@ std::ostream& operator<<(std::ostream& os, DocumentState state);
  */
 class Document : public MaybeDocument {
  public:
+  Document() = default;
+
   /**
    * Construct a document. ObjectValue must be passed by rvalue.
    */
@@ -67,59 +71,54 @@ class Document : public MaybeDocument {
            SnapshotVersion version,
            DocumentState document_state);
 
+  /**
+   * Construct a document. ObjectValue must be passed by rvalue.
+   */
+  Document(ObjectValue&& data,
+           DocumentKey key,
+           SnapshotVersion version,
+           DocumentState document_state,
+           absl::any proto);
+
+  /**
+   * Casts a MaybeDocument to a Document. This is a checked operation that will
+   * assert if the type of the MaybeDocument isn't actually Type::Document.
+   */
+  explicit Document(const MaybeDocument& document);
+
 #if __OBJC__
   explicit Document(FSTDocument* doc)
-      : MaybeDocument(doc.key, doc.version),
-        data_(doc.data),
-        document_state_(doc.documentState) {
+      : Document(doc.data, doc.key, doc.version, doc.documentState) {
   }
 
   FSTDocument* ToDocument() const {
-    return [FSTDocument documentWithData:data_
+    return [FSTDocument documentWithData:data()
                                      key:key()
                                  version:version()
-                                   state:document_state_];
+                                   state:document_state()];
   }
 #endif  // __OBJC__
 
-  const ObjectValue& data() const {
-    return data_;
-  }
+  const ObjectValue& data() const;
 
-  absl::optional<FieldValue> field(const FieldPath& path) const {
-    return data_.Get(path);
-  }
+  absl::optional<FieldValue> field(const FieldPath& path) const;
 
-  bool HasLocalMutations() const {
-    return document_state_ == DocumentState::kLocalMutations;
-  }
+  DocumentState document_state() const;
 
-  bool HasCommittedMutations() const {
-    return document_state_ == DocumentState::kCommittedMutations;
-  }
+  bool has_local_mutations() const;
 
-  bool HasPendingWrites() const override {
-    return HasLocalMutations() || HasCommittedMutations();
-  }
+  bool has_committed_mutations() const;
 
-  std::string ToString() const;
+  const absl::any& proto() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const Document& doc);
-
- protected:
-  bool Equals(const MaybeDocument& other) const override;
+  /** Compares against another Document. */
+  friend bool operator==(const Document& lhs, const Document& rhs);
 
  private:
-  ObjectValue data_;
-  DocumentState document_state_;
-};
+  class Rep;
 
-/** Compares against another Document. */
-inline bool operator==(const Document& lhs, const Document& rhs) {
-  return lhs.version() == rhs.version() && lhs.key() == rhs.key() &&
-         lhs.HasLocalMutations() == rhs.HasLocalMutations() &&
-         lhs.data() == rhs.data();
-}
+  const Rep& doc_rep() const;
+};
 
 inline bool operator!=(const Document& lhs, const Document& rhs) {
   return !(lhs == rhs);

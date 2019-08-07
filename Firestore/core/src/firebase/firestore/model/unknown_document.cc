@@ -16,15 +16,40 @@
 
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 
+#include <string>
 #include <utility>
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
+class UnknownDocument::Rep : public MaybeDocument::Rep {
+ public:
+  Rep(DocumentKey key, SnapshotVersion version)
+      : MaybeDocument::Rep(Type::UnknownDocument, std::move(key), version) {
+  }
+
+  bool has_pending_writes() const override {
+    return true;
+  }
+
+  size_t Hash() const override {
+    return util::Hash(type(), key(), version());
+  }
+
+  std::string ToString() const override {
+    return absl::StrCat("UnknownDocument(key=", key().ToString(),
+                        ", version=", version().ToString(), ")");
+  }
+};
+
 UnknownDocument::UnknownDocument(DocumentKey key, SnapshotVersion version)
-    : MaybeDocument(std::move(key), std::move(version)) {
-  set_type(Type::UnknownDocument);
+    : MaybeDocument(std::make_shared<Rep>(std::move(key), version)) {
+}
+
+UnknownDocument::UnknownDocument(const MaybeDocument& document)
+    : MaybeDocument(document) {
+  HARD_ASSERT(type() == Type::UnknownDocument);
 }
 
 }  // namespace model

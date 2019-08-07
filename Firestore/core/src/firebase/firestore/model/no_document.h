@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_NO_DOCUMENT_H_
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 
 namespace firebase {
@@ -30,12 +32,19 @@ class NoDocument : public MaybeDocument {
              SnapshotVersion version,
              bool has_committed_mutations);
 
-  bool HasPendingWrites() const override {
-    return has_committed_mutations_;
-  }
+  /**
+   * Casts a MaybeDocument to a NoDocument. This is a checked operation that
+   * will assert if the type of the MaybeDocument isn't actually
+   * Type::NoDocument.
+   */
+  explicit NoDocument(const MaybeDocument& document);
+
+  bool has_committed_mutations() const;
 
  private:
-  bool has_committed_mutations_;
+  class Rep;
+
+  const Rep& doc_rep() const;
 };
 
 }  // namespace model
