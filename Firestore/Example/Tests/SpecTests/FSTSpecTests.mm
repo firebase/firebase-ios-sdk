@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -37,9 +36,12 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -62,10 +64,13 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -79,6 +84,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
+using testutil::Doc;
 using testutil::Filter;
 using testutil::OrderBy;
 
@@ -132,6 +138,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 @implementation FSTSpecTests {
   BOOL _gcEnabled;
   BOOL _networkEnabled;
+  FSTUserDataConverter *_converter;
 }
 
 - (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
@@ -150,6 +157,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  _converter = FSTTestUserDataConverter();
+
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   _gcEnabled = [GCEnabled boolValue];
@@ -192,12 +201,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       query = query.WithLimit(limit);
     }
     if (queryDict[@"filters"]) {
-      FSTUserDataConverter *converter = FSTTestUserDataConverter();
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
       for (NSArray<id> *filter in filters) {
         std::string key = util::MakeString(filter[0]);
         std::string op = util::MakeString(filter[1]);
-        FieldValue value = [converter parsedQueryValue:filter[2]];
+        FieldValue value = [_converter parsedQueryValue:filter[2]];
         query = query.AddingFilter(Filter(key, op, value));
       }
     }
@@ -230,8 +238,9 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                            : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
-                                version.longLongValue, jsonDoc[@"value"], documentState);
+  FieldValue data = [_converter parsedQueryValue:jsonDoc[@"value"]];
+  Document doc = Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data,
+                     documentState);
   return DocumentViewChange{doc, type};
 }
 
@@ -315,20 +324,19 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                             ? absl::optional<ObjectValue>{}
                                             : FSTTestObjectValue(docSpec[@"value"]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
-    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:*value
-                                                              key:key
-                                                          version:std::move(version)
-                                                            state:DocumentState::kSynced]
-                                  : [FSTDeletedDocument documentWithKey:key
-                                                                version:std::move(version)
-                                                  hasCommittedMutations:NO];
+    MaybeDocument doc;
+    if (value) {
+      doc = Document(*std::move(value), key, std::move(version), DocumentState::kSynced);
+    } else {
+      doc = NoDocument(key, std::move(version), /* has_committed_mutations= */ false);
+    }
     DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
-                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key, doc};
+                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key(), doc};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
     DocumentWatchChange change{
-        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, nil};
+        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, absl::nullopt};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");

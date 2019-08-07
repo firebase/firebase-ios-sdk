@@ -37,7 +37,6 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -86,7 +85,10 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
+using testutil::Doc;
 using testutil::Filter;
+using testutil::Key;
+using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
 using testutil::Ref;
@@ -911,10 +913,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithTargetIds {
-  DocumentWatchChange expected {
-    {1, 2}, {}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
-  };
+  DocumentWatchChange expected{
+      {1, 2}, {}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -929,10 +929,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
-  DocumentWatchChange expected {
-    {2}, {1}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
-  };
+  DocumentWatchChange expected{
+      {2}, {1}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
@@ -962,7 +960,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithRemoves {
-  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), nil};
+  DocumentWatchChange expected{{}, {1, 2}, Key("coll/1"), absl::nullopt};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentRemove.document = @"projects/p/databases/d/documents/coll/1";

@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_CHANGE_H_
 
 #if !defined(__OBJC__)
-// TODO(varconst): the only dependencies are `FSTMaybeDocument` and `NSData`
-// (the latter is used to represent the resume token).
+// TODO(varconst): the only dependency is `NSData`
+// (used to represent the resume token).
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
@@ -29,11 +29,10 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-
-@class FSTMaybeDocument;
 
 namespace firebase {
 namespace firestore {
@@ -71,11 +70,11 @@ class DocumentWatchChange : public WatchChange {
   DocumentWatchChange(std::vector<model::TargetId> updated_target_ids,
                       std::vector<model::TargetId> removed_target_ids,
                       model::DocumentKey document_key,
-                      FSTMaybeDocument* new_document)
+                      absl::optional<model::MaybeDocument> new_document)
       : updated_target_ids_{std::move(updated_target_ids)},
         removed_target_ids_{std::move(removed_target_ids)},
         document_key_{std::move(document_key)},
-        new_document_{new_document} {
+        new_document_{std::move(new_document)} {
   }
 
   Type type() const override {
@@ -96,7 +95,7 @@ class DocumentWatchChange : public WatchChange {
    * The new document, or `DeletedDocument` if it was deleted. Is null if the
    * document went out of view without the server sending a new document.
    */
-  FSTMaybeDocument* new_document() const {
+  const absl::optional<model::MaybeDocument>& new_document() const {
     return new_document_;
   }
 
@@ -109,7 +108,7 @@ class DocumentWatchChange : public WatchChange {
   std::vector<model::TargetId> updated_target_ids_;
   std::vector<model::TargetId> removed_target_ids_;
   model::DocumentKey document_key_;
-  FSTMaybeDocument* new_document_;
+  absl::optional<model::MaybeDocument> new_document_;
 };
 
 bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);

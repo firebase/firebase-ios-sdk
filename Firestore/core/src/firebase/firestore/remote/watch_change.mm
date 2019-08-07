@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 namespace firebase {
@@ -29,7 +27,7 @@ bool operator==(const DocumentWatchChange& lhs,
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         objc::Equals(lhs.new_document(), rhs.new_document());
+         lhs.new_document() == rhs.new_document();
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
