@@ -23,7 +23,7 @@ namespace firestore {
 namespace api {
 
 size_t DocumentChange::Hash() const {
-  return util::Hash(static_cast<int>(type_), document_, old_index_, new_index_);
+  return util::Hash(type_, document_, old_index_, new_index_);
 }
 
 bool operator==(const DocumentChange& lhs, const DocumentChange& rhs) {
