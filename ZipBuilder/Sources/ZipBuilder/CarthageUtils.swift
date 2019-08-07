@@ -82,8 +82,8 @@ public extension CarthageUtils {
       if product == "Analytics" {
         createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
 
-        // TODO: Rebuild CoreDiagnostics to include the correct compiler flag.
-        //    let builder = FrameworkBuilder(projectDir: <#T##URL#>, carthageBuild: true)
+        // TODO: Rebuild CoreDiagnostics to include the correct compiler
+//        let builder = FrameworkBuilder(projectDir: <#T##URL#>, carthageBuild: true)
 
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
@@ -195,7 +195,7 @@ public extension CarthageUtils {
   ///   - dir: The directory containing all JSON manifests.
   ///   - product: The name of the Firebase product.
   /// - Returns: A dictionary with versions as keys and URLs as values.
-  private static func parseJSONFile(fromDir dir: URL, product: String) -> [String: String] {
+  private static func parseJSONFile(fromDir dir: URL, product: String) -> [String: URL] {
     // Parse the JSON manifest.
     let jsonFileName = "Firebase\(product)Binary.json"
     let jsonFile = dir.appendingPathComponent(jsonFileName)
@@ -204,17 +204,22 @@ public extension CarthageUtils {
         "Location: \(jsonFile)")
     }
 
-    // Get a dictionary out of the file, then ensure it's in the right format.
-    guard let productReleasesDict = NSDictionary(contentsOf: jsonFile) else {
+    let jsonData: Data
+    do {
+      jsonData = try Data(contentsOf: jsonFile)
+    } catch {
+      fatalError("Could not read JSON manifest for \(product) during Carthage build. " +
+        "Location: \(jsonFile). \(error)")
+    }
+
+    // Get a dictionary out of the file.
+    let decoder = JSONDecoder()
+    do {
+      let productReleases = try decoder.decode([String: URL].self, from: jsonData)
+      return productReleases
+    } catch {
       fatalError("Could not parse JSON manifest for \(product) during Carthage build. " +
-        "Location: \(jsonFile)")
+        "Location: \(jsonFile). \(error)")
     }
-
-    guard let productReleases = productReleasesDict as? [String: String] else {
-      fatalError("Unexpected JSON format for \(product)'s Carthage manifest. Contents: " +
-        "\(productReleasesDict)")
-    }
-
-    return productReleases
   }
 }
