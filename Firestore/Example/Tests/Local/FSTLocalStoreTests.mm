@@ -19,13 +19,13 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <string>
 #include <utility>
 #include <vector>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTClasses.h"
@@ -51,11 +51,13 @@ using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
@@ -67,12 +69,25 @@ using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Status;
 
+using testutil::Array;
+using testutil::Doc;
+using testutil::Key;
+using testutil::Map;
 using testutil::Query;
+using testutil::Vector;
 
-static NSArray<FSTDocument *> *docMapToArray(const DocumentMap &docs) {
-  NSMutableArray<FSTDocument *> *result = [NSMutableArray array];
+static std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap &docs) {
+  std::vector<MaybeDocument> result;
+  for (const auto &kv : docs) {
+    result.push_back(kv.second);
+  }
+  return result;
+}
+
+static std::vector<Document> DocMapToArray(const DocumentMap &docs) {
+  std::vector<Document> result;
   for (const auto &kv : docs.underlying_map()) {
-    [result addObject:static_cast<FSTDocument *>(kv.second)];
+    result.push_back(Document(kv.second));
   }
   return result;
 }
@@ -199,47 +214,46 @@ NS_ASSUME_NONNULL_BEGIN
   } while (0)
 
 /** Asserts that a the lastChanges contain the docs in the given array. */
-#define FSTAssertChanged(documents)                                           \
-  do {                                                                        \
-    NSArray<FSTMaybeDocument *> *expected = (documents);                      \
-    XCTAssertEqual(_lastChanges.size(), expected.count);                      \
-    NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator; \
-    for (const auto &kv : _lastChanges) {                                     \
-      FSTMaybeDocument *value = kv.second;                                    \
-      XCTAssertEqualObjects(value, [enumerator nextObject]);                  \
-    }                                                                         \
-    _lastChanges = MaybeDocumentMap{};                                        \
+#define FSTAssertChanged(...)                             \
+  do {                                                    \
+    std::vector<MaybeDocument> expected = {__VA_ARGS__};  \
+    XCTAssertEqual(_lastChanges.size(), expected.size()); \
+    auto lastChangesList = DocMapToArray(_lastChanges);   \
+    XCTAssertEqual(lastChangesList, expected);            \
+    _lastChanges = MaybeDocumentMap{};                    \
   } while (0)
 
 /** Asserts that the given keys were removed. */
-#define FSTAssertRemoved(keyPaths)                                             \
-  do {                                                                         \
-    XCTAssertEqual(_lastChanges.size(), keyPaths.count);                       \
-    NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;   \
-    for (const auto &kv : _lastChanges) {                                      \
-      const DocumentKey &actualKey = kv.first;                                 \
-      FSTMaybeDocument *value = kv.second;                                     \
-      DocumentKey expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]); \
-      XCTAssertEqual(actualKey, expectedKey);                                  \
-      XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);         \
-    }                                                                          \
-    _lastChanges = MaybeDocumentMap{};                                         \
+#define FSTAssertRemoved(...)                             \
+  do {                                                    \
+    std::vector<std::string> keyPaths = {__VA_ARGS__};    \
+    XCTAssertEqual(_lastChanges.size(), keyPaths.size()); \
+    auto keyPathIterator = keyPaths.begin();              \
+    for (const auto &kv : _lastChanges) {                 \
+      const DocumentKey &actualKey = kv.first;            \
+      const MaybeDocument &value = kv.second;             \
+      DocumentKey expectedKey = Key(*keyPathIterator);    \
+      XCTAssertEqual(actualKey, expectedKey);             \
+      XCTAssertTrue(value.is_no_document());              \
+      ++keyPathIterator;                                  \
+    }                                                     \
+    _lastChanges = MaybeDocumentMap{};                    \
   } while (0)
 
 /** Asserts that the given local store contains the given document. */
-#define FSTAssertContains(document)                                         \
-  do {                                                                      \
-    FSTMaybeDocument *expected = (document);                                \
-    FSTMaybeDocument *actual = [self.localStore readDocument:expected.key]; \
-    XCTAssertEqualObjects(actual, expected);                                \
+#define FSTAssertContains(document)                                                       \
+  do {                                                                                    \
+    MaybeDocument expected = (document);                                                  \
+    absl::optional<MaybeDocument> actual = [self.localStore readDocument:expected.key()]; \
+    XCTAssertEqual(actual, expected);                                                     \
   } while (0)
 
 /** Asserts that the given local store does not contain the given document. */
-#define FSTAssertNotContains(keyPathString)                        \
-  do {                                                             \
-    DocumentKey key = FSTTestDocKey(keyPathString);                \
-    FSTMaybeDocument *actual = [self.localStore readDocument:key]; \
-    XCTAssertNil(actual);                                          \
+#define FSTAssertNotContains(keyPathString)                                    \
+  do {                                                                         \
+    DocumentKey key = Key(keyPathString);                                      \
+    absl::optional<MaybeDocument> actual = [self.localStore readDocument:key]; \
+    XCTAssertEqual(actual, absl::nullopt);                                     \
   } while (0)
 
 - (void)testMutationBatchKeys {
@@ -260,19 +274,16 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:0];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kCommittedMutations));
   if ([self gcIsEager]) {
     // Nothing is pinning this anymore, as it has been acknowledged and there are no targets active.
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(
-        FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations));
+    FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kCommittedMutations));
   }
 }
 
@@ -280,18 +291,15 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   TargetId targetID = [self allocateQuery:Query("foo")];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"},
-                                                             DocumentState::kSynced),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 2, Map("it", "changed")),
                                                   {targetID}, {})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesAckThenRejectThenRemoteEvent {
@@ -302,39 +310,34 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   // The last seen version is zero, so this ack must be held.
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kCommittedMutations));
 
   // Under eager GC, there is no longer a reference for the document, and it should be
   // deleted.
   if ([self gcIsEager]) {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(
-        FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations));
+    FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kCommittedMutations));
   }
 
   [self writeMutation:FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("bar/baz", 0, Map("bar", "baz"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("bar/baz", 0, Map("bar", "baz"), DocumentState::kLocalMutations));
 
   [self rejectMutation];
-  FSTAssertRemoved(@[ @"bar/baz" ]);
-  FSTAssertNotContains(@"bar/baz");
+  FSTAssertRemoved("bar/baz");
+  FSTAssertNotContains("bar/baz");
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"},
-                                                            DocumentState::kSynced),
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 2, Map("it", "changed")),
                                                  {targetID})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, DocumentState::kSynced));
-  FSTAssertNotContains(@"bar/baz");
+  FSTAssertChanged(Doc("foo/bar", 2, Map("it", "changed")));
+  FSTAssertContains(Doc("foo/bar", 2, Map("it", "changed")));
+  FSTAssertNotContains("bar/baz");
 }
 
 - (void)testHandlesDeletedDocumentThenSetMutationThenAck {
@@ -345,30 +348,28 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
                                                   {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   // Under eager GC, there is no longer a reference for the document, and it should be
   // deleted.
   if (![self gcIsEager]) {
     FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
   } else {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   }
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
   [self.localStore releaseQuery:query];
   // Verify we didn't lose anything
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
   // It has been acknowledged, and should no longer be retained as there is no target and mutation
   if ([self gcIsEager]) {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   }
 }
 
@@ -379,14 +380,12 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
                                                   {})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesDocumentThenSetMutationThenAckThenDocument {
@@ -396,42 +395,36 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, DocumentState::kSynced));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 2, Map("it", "base")), {targetID})];
+  FSTAssertChanged(Doc("foo/bar", 2, Map("it", "base")));
+  FSTAssertContains(Doc("foo/bar", 2, Map("it", "base")));
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];
   // we haven't seen the remote event yet, so the write is still held.
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations) ]);
-  FSTAssertContains(
-      FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations));
+  FSTAssertChanged(Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
+  FSTAssertContains(Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"},
-                                                             DocumentState::kSynced),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 3, Map("it", "changed")),
                                                   {targetID}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, DocumentState::kSynced));
+  FSTAssertChanged(Doc("foo/bar", 3, Map("it", "changed")));
+  FSTAssertContains(Doc("foo/bar", 3, Map("it", "changed")));
 }
 
 - (void)testHandlesPatchWithoutPriorDocument {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertRemoved("foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 1) ]);
+  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 1));
   if ([self gcIsEager]) {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
     FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
   }
@@ -441,52 +434,46 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertRemoved("foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"},
-                                 DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"},
-                               DocumentState::kLocalMutations));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID})];
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("foo", "bar", "it", "base"), DocumentState::kLocalMutations));
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("foo", "bar", "it", "base"), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:2];
   // We still haven't seen the remote events for the patch, so the local changes remain, and there
   // are no changes
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
-                                 DocumentState::kCommittedMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
-                               DocumentState::kCommittedMutations));
+  FSTAssertChanged(
+      Doc("foo/bar", 2, Map("foo", "bar", "it", "base"), DocumentState::kCommittedMutations));
+  FSTAssertContains(
+      Doc("foo/bar", 2, Map("foo", "bar", "it", "base"), DocumentState::kCommittedMutations));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
-                                        DocumentState::kSynced),
-                             {targetID}, {})];
+                             Doc("foo/bar", 2, Map("foo", "bar", "it", "base")), {targetID}, {})];
 
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, DocumentState::kSynced) ]);
-  FSTAssertContains(
-      FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, DocumentState::kSynced));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar", "it", "base")));
+  FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar", "it", "base")));
 }
 
 - (void)testHandlesPatchMutationThenAckThenDocument {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertRemoved("foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 1) ]);
+  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 1));
 
   // There's no target pinning the doc, and we've ack'd the mutation.
   if ([self gcIsEager]) {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
     FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
   }
@@ -494,25 +481,24 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
+                                                  {})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
+  FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 }
 
 - (void)testHandlesDeleteMutationThenAck {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   // There's no target pinning the doc, and we've ack'd the mutation.
   if ([self gcIsEager]) {
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   }
 }
 
@@ -522,24 +508,23 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
+                                                  {})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
+  FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Remove the target so only the mutation is pinning the document
   [self.localStore releaseQuery:query];
 
   [self acknowledgeMutationWithVersion:2];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   if ([self gcIsEager]) {
     // Neither the target nor the mutation pin the document, it should be gone.
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   }
 }
 
@@ -550,25 +535,24 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Add the document to a target so it will remain in persistence even when ack'd
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
+                                                  {})];
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Don't need to keep it pinned anymore
   [self.localStore releaseQuery:query];
 
   [self acknowledgeMutationWithVersion:2];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   if ([self gcIsEager]) {
     // The doc is not pinned in a target and we've acknowledged the mutation. It shouldn't exist
     // anymore.
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   }
 }
 
@@ -578,64 +562,55 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
+                                                  {})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("it", "base")));
+  FSTAssertContains(Doc("foo/bar", 1, Map("it", "base")));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO), {targetID},
                                                   {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   if (![self gcIsEager]) {
     FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
   }
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"},
-                                                             DocumentState::kSynced),
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 3, Map("it", "changed")),
                                                   {targetID}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, DocumentState::kSynced) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, DocumentState::kSynced));
+  FSTAssertChanged(Doc("foo/bar", 3, Map("it", "changed")));
+  FSTAssertContains(Doc("foo/bar", 3, Map("it", "changed")));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenDocumentThenAckThenAck {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "old"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "old"), DocumentState::kLocalMutations));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("it", "base")), {targetID},
+                                                  {})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self.localStore releaseQuery:query];
   [self acknowledgeMutationWithVersion:2];  // delete mutation
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
   if ([self gcIsEager]) {
     // we've ack'd all of the mutations, nothing is keeping this pinned anymore
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
-    FSTAssertContains(
-        FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, DocumentState::kCommittedMutations));
+    FSTAssertContains(Doc("foo/bar", 3, Map("foo", "bar"), DocumentState::kCommittedMutations));
   }
 }
 
@@ -647,9 +622,8 @@ NS_ASSUME_NONNULL_BEGIN
         FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
   }];
 
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenReject {
@@ -657,16 +631,16 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "old"), DocumentState::kLocalMutations));
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // A blind patch is not visible in the cache
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   [self rejectMutation];
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 }
 
 - (void)testHandlesSetMutationsAndPatchMutationOfJustOneTogether {
@@ -678,34 +652,32 @@ NS_ASSUME_NONNULL_BEGIN
         FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
   }];
 
-  FSTAssertChanged((@[
-    FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, DocumentState::kLocalMutations),
-    FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations)
-  ]));
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("bar/baz", 0, Map("bar", "baz"), DocumentState::kLocalMutations),
+                   Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("bar/baz", 0, Map("bar", "baz"), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesDeleteMutationThenPatchMutationThenAckThenAck {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self acknowledgeMutationWithVersion:2];  // delete mutation
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertRemoved("foo/bar");
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, YES));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 3) ]);
+  FSTAssertChanged(FSTTestUnknownDoc("foo/bar", 3));
   if ([self gcIsEager]) {
     // There are no more pending mutations, the doc has been dropped
-    FSTAssertNotContains(@"foo/bar");
+    FSTAssertNotContains("foo/bar");
   } else {
     FSTAssertContains(FSTTestUnknownDoc("foo/bar", 3));
   }
@@ -717,12 +689,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
                              FSTTestDeletedDoc("foo/bar", 2, NO), {}, {}, {1})];
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kSynced),
-                             {}, {}, {1})];
-  FSTAssertNotContains(@"foo/bar");
+                             Doc("foo/bar", 2, Map("foo", "bar")), {}, {}, {1})];
+  FSTAssertNotContains("foo/bar");
 }
 
 - (void)testCollectsGarbageAfterChangeBatch {
@@ -732,16 +703,13 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kSynced),
-                             {targetID})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, DocumentState::kSynced));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 2, Map("foo", "bar")), {targetID})];
+  FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar")));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"baz"}, DocumentState::kSynced),
-                             {}, {targetID})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 2, Map("foo", "baz")), {},
+                                                  {targetID})];
 
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 }
 
 - (void)testCollectsGarbageAfterAcknowledgedMutation {
@@ -751,33 +719,32 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, DocumentState::kSynced),
-                             {targetID}, {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {targetID},
+                                                  {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
   [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:3];
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, DocumentState::kLocalMutations));
+  FSTAssertNotContains("foo/bar");
+  FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:4];
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertNotContains(@"foo/bah");
+  FSTAssertNotContains("foo/bar");
+  FSTAssertNotContains("foo/bah");
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:5];
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertNotContains(@"foo/bah");
-  FSTAssertNotContains(@"foo/baz");
+  FSTAssertNotContains("foo/bar");
+  FSTAssertNotContains("foo/bah");
+  FSTAssertNotContains("foo/baz");
 }
 
 - (void)testCollectsGarbageAfterRejectedMutation {
@@ -787,33 +754,32 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, DocumentState::kSynced),
-                             {targetID}, {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {targetID},
+                                                  {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
   [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations));
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // patch mutation
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, DocumentState::kLocalMutations));
+  FSTAssertNotContains("foo/bar");
+  FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // set mutation
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertNotContains(@"foo/bah");
+  FSTAssertNotContains("foo/bar");
+  FSTAssertNotContains("foo/bah");
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // delete mutation
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertNotContains(@"foo/bah");
-  FSTAssertNotContains(@"foo/baz");
+  FSTAssertNotContains("foo/bar");
+  FSTAssertNotContains("foo/bah");
+  FSTAssertNotContains("foo/baz");
 }
 
 - (void)testPinsDocumentsInTheLocalView {
@@ -823,32 +789,28 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced),
-                             {targetID})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")), {targetID})];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
-  FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
+  FSTAssertContains(Doc("foo/baz", 0, Map("foo", "baz"), DocumentState::kLocalMutations));
 
   [self notifyLocalViewChanges:TestViewChanges(targetID, @[ @"foo/bar", @"foo/baz" ], @[])];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced),
-                             {}, {targetID})];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, DocumentState::kSynced),
-                             {targetID}, {})];
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "bar")), {},
+                                                  {targetID})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/baz", 2, Map("foo", "baz")), {targetID},
+                                                  {})];
+  FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz"), DocumentState::kLocalMutations));
   [self acknowledgeMutationWithVersion:2];
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, DocumentState::kSynced));
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, DocumentState::kSynced));
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, DocumentState::kSynced));
+  FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar")));
+  FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
 
   [self notifyLocalViewChanges:TestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self.localStore releaseQuery:query];
 
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertNotContains(@"foo/baz");
+  FSTAssertNotContains("foo/bar");
+  FSTAssertNotContains("foo/baz");
 }
 
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {
@@ -856,11 +818,10 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   TargetId targetID = 321;
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
-                             FSTTestDoc("foo/bar", 1, @{}, DocumentState::kSynced), {}, {},
-                             {targetID})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(Doc("foo/bar", 1, Map()), {}, {},
+                                                                  {targetID})];
 
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertNotContains("foo/bar");
 }
 
 - (void)testCanExecuteDocumentQueries {
@@ -873,8 +834,8 @@ NS_ASSUME_NONNULL_BEGIN
   }];
   core::Query query = Query("foo/bar");
   DocumentMap docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects(docMapToArray(docs), @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"},
-                                                           DocumentState::kLocalMutations) ]);
+  XCTAssertEqual(DocMapToArray(docs),
+                 Vector(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations)));
 }
 
 - (void)testCanExecuteCollectionQueries {
@@ -889,11 +850,9 @@ NS_ASSUME_NONNULL_BEGIN
   }];
   core::Query query = Query("foo");
   DocumentMap docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects(
-      docMapToArray(docs), (@[
-        FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, DocumentState::kLocalMutations),
-        FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, DocumentState::kLocalMutations)
-      ]));
+  XCTAssertEqual(DocMapToArray(docs),
+                 Vector(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations),
+                        Doc("foo/baz", 0, Map("foo", "baz"), DocumentState::kLocalMutations)));
 }
 
 - (void)testCanExecuteMixedCollectionQueries {
@@ -903,21 +862,15 @@ NS_ASSUME_NONNULL_BEGIN
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, DocumentState::kSynced), {2},
-                             {})];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, DocumentState::kSynced), {2},
-                             {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}, {})];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}, {})];
 
   [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
   DocumentMap docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects(docMapToArray(docs), (@[
-                          FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, DocumentState::kSynced),
-                          FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, DocumentState::kSynced),
-                          FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, DocumentState::kLocalMutations)
-                        ]));
+  XCTAssertEqual(DocMapToArray(docs),
+                 Vector(Doc("foo/bar", 20, Map("a", "b")), Doc("foo/baz", 10, Map("a", "b")),
+                        Doc("foo/bonk", 0, Map("a", "b"), DocumentState::kLocalMutations)));
 }
 
 - (void)testPersistsResumeTokens {
@@ -958,12 +911,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self
-      applyRemoteEvent:FSTTestAddedRemoteEvent(
-                           FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, DocumentState::kSynced), {2})];
-  [self
-      applyRemoteEvent:FSTTestAddedRemoteEvent(
-                           FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, DocumentState::kSynced), {2})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2})];
 
   [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
@@ -982,18 +931,18 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
 
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
 
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @3}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @3}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 3), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 3), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesSetMutationThenAckThenTransformMutationThenAckThenTransformMutation {
@@ -1005,28 +954,26 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self gcIsEager]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, DocumentState::kCommittedMutations));
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, DocumentState::kCommittedMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 0), DocumentState::kCommittedMutations));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0), DocumentState::kCommittedMutations));
 
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:2 transformResult:@1];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, DocumentState::kCommittedMutations));
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, DocumentState::kCommittedMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 1), DocumentState::kCommittedMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 1), DocumentState::kCommittedMutations));
 
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesSetMutationThenTransformMutationThenRemoteEventThenTransformMutation {
@@ -1037,44 +984,38 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertTargetID(2);
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
 
-  [self
-      applyRemoteEvent:FSTTestAddedRemoteEvent(
-                           FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, DocumentState::kSynced), {2})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 0)), {2})];
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, DocumentState::kSynced));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, DocumentState::kSynced) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 0)));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0)));
 
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
 
   // The value in this remote event gets ignored since we still have a pending transform mutation.
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"sum" : @0}, DocumentState::kSynced), {2},
-                             {})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 2, Map("sum", 0)), {2}, {})];
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 1), DocumentState::kLocalMutations));
 
   // Add another increment. Note that we still compute the increment based on the local value.
   [self writeMutation:FSTTestTransformMutation(
                           @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:3 transformResult:@1];
-  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"sum" : @3}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"sum" : @3}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 3, Map("sum", 3), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 3, Map("sum", 3), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:4 transformResult:@1339];
-  FSTAssertContains(
-      FSTTestDoc("foo/bar", 4, @{@"sum" : @1339}, DocumentState::kCommittedMutations));
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 4, @{@"sum" : @1339}, DocumentState::kCommittedMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 4, Map("sum", 1339), DocumentState::kCommittedMutations));
+  FSTAssertChanged(Doc("foo/bar", 4, Map("sum", 1339), DocumentState::kCommittedMutations));
 }
 
 - (void)testHoldsBackOnlyNonIdempotentTransforms {
@@ -1085,19 +1026,16 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertTargetID(2);
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0, @"array_union" : @[]})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0, @"array_union" : @[]},
-                                 DocumentState::kLocalMutations) ]);
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("sum", 0, "array_union", Array()), DocumentState::kLocalMutations));
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]},
-                                 DocumentState::kCommittedMutations) ]);
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("sum", 0, "array_union", Array()), DocumentState::kCommittedMutations));
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]},
-                                        DocumentState::kSynced),
-                             {2})];
-  FSTAssertChanged(
-      @[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]}, DocumentState::kSynced) ]);
+                             Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())), {2})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())));
 
   [self writeMutations:{
     FSTTestTransformMutation(@"foo/bar",
@@ -1107,18 +1045,16 @@ NS_ASSUME_NONNULL_BEGIN
             @{@"array_union" : [FIRFieldValue fieldValueForArrayUnion:@[ @"foo" ]]})
   }];
 
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1, @"array_union" : @[ @"foo" ]},
-                                 DocumentState::kLocalMutations) ]);
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("foo")),
+                       DocumentState::kLocalMutations));
 
   // The sum transform is not idempotent and the backend's updated value is ignored. The
   // ArrayUnion transform is recomputed and includes the backend value.
-  [self
-      applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                           FSTTestDoc("foo/bar", 1, @{@"sum" : @1337, @"array_union" : @[ @"bar" ]},
-                                      DocumentState::kSynced),
-                           {2}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1, @"array_union" : @[ @"bar", @"foo" ]},
-                                 DocumentState::kLocalMutations) ]);
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             Doc("foo/bar", 1, Map("sum", 1337, "array_union", Array("bar"))), {2},
+                             {})];
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("bar", "foo")),
+                       DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesMergeMutationWithTransformThenRemoteEvent {
@@ -1134,15 +1070,13 @@ NS_ASSUME_NONNULL_BEGIN
                                  @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})
   }];
 
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"sum" : @1337}, DocumentState::kSynced),
-                             {2})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2})];
 
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
 }
 
 - (void)testHandlesPatchMutationWithTransformThenRemoteEvent {
@@ -1158,17 +1092,15 @@ NS_ASSUME_NONNULL_BEGIN
                                  @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})
   }];
 
-  FSTAssertNotContains(@"foo/bar");
-  FSTAssertChanged(@[ FSTTestDeletedDoc("foo/bar", 0, NO) ]);
+  FSTAssertNotContains("foo/bar");
+  FSTAssertChanged(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Note: This test reflects the current behavior, but it may be preferable to replay the
   // mutation once we receive the first value from the remote event.
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
-                             FSTTestDoc("foo/bar", 1, @{@"sum" : @1337}, DocumentState::kSynced),
-                             {2})];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("sum", 1337)), {2})];
 
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations));
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, DocumentState::kLocalMutations) ]);
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
 }
 
 @end

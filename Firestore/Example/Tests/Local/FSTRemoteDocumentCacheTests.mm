@@ -17,9 +17,9 @@
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -36,12 +36,19 @@ namespace testutil = firebase::firestore::testutil;
 namespace core = firebase::firestore::core;
 namespace util = firebase::firestore::util;
 using firebase::firestore::local::RemoteDocumentCache;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentState;
+using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::NoDocument;
+using firebase::firestore::model::OptionalMaybeDocumentMap;
 
+using testutil::Doc;
+using testutil::Map;
 using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,15 +57,41 @@ static const char *kDocPath = "a/b";
 static const char *kLongDocPath = "a/b/c/d/e/f";
 static const int kVersion = 42;
 
+void ExpectMapHasDocs(XCTestCase *self,
+                      const MaybeDocumentMap &map,
+                      const std::vector<Document> &expected,
+                      bool exactly) {
+  if (exactly) {
+    XCTAssertEqual(map.size(), expected.size());
+  }
+  for (const Document &doc : expected) {
+    absl::optional<MaybeDocument> actual = map.get(doc.key());
+    XCTAssertEqual(*actual, doc);
+  }
+}
+
+void ExpectMapHasDocs(XCTestCase *self,
+                      const OptionalMaybeDocumentMap &map,
+                      const std::vector<Document> &expected,
+                      bool exactly) {
+  if (exactly) {
+    XCTAssertEqual(map.size(), expected.size());
+  }
+  for (const Document &doc : expected) {
+    absl::optional<absl::optional<MaybeDocument>> actual = map.get(doc.key());
+    XCTAssertEqual(**actual, doc);
+  }
+}
+
 @implementation FSTRemoteDocumentCacheTests {
-  NSDictionary<NSString *, id> *_kDocData;
+  FieldValue::Map _kDocData;
 }
 
 - (void)setUp {
   [super setUp];
 
   // essentially a constant, but can't be a compile-time one.
-  _kDocData = @{@"a" : @1, @"b" : @2};
+  _kDocData = Map("a", 1, "b", 2);
 }
 
 - (void)tearDown {
@@ -69,16 +102,16 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testReadDocumentNotInCache", [&]() {
-    XCTAssertNil(self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
+    XCTAssertEqual(absl::nullopt, self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
 }
 
 // Helper for next two tests.
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
   self.persistence.run("setAndReadADocumentAtPath", [&]() {
-    FSTDocument *written = [self setTestDocumentAtPath:path];
-    FSTMaybeDocument *read = self.remoteDocumentCache->Get(testutil::Key(path));
-    XCTAssertEqualObjects(read, written);
+    Document written = [self setTestDocumentAtPath:path];
+    absl::optional<MaybeDocument> read = self.remoteDocumentCache->Get(testutil::Key(path));
+    XCTAssertEqual(*read, written);
   });
 }
 
@@ -92,11 +125,13 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testSetAndReadSeveralDocuments", [=]() {
-    NSArray<FSTDocument *> *written =
-        @[ [self setTestDocumentAtPath:kDocPath], [self setTestDocumentAtPath:kLongDocPath] ];
-    MaybeDocumentMap read = self.remoteDocumentCache->GetAll(
+    std::vector<Document> written = {
+        [self setTestDocumentAtPath:kDocPath],
+        [self setTestDocumentAtPath:kLongDocPath],
+    };
+    OptionalMaybeDocumentMap read = self.remoteDocumentCache->GetAll(
         DocumentKeySet{testutil::Key(kDocPath), testutil::Key(kLongDocPath)});
-    [self expectMap:read hasDocsInArray:written exactly:YES];
+    ExpectMapHasDocs(self, read, written, /* exactly= */ true);
   });
 }
 
@@ -104,17 +139,19 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=]() {
-    NSArray<FSTDocument *> *written =
-        @[ [self setTestDocumentAtPath:kDocPath], [self setTestDocumentAtPath:kLongDocPath] ];
-    MaybeDocumentMap read = self.remoteDocumentCache->GetAll(DocumentKeySet{
+    std::vector<Document> written = {
+        [self setTestDocumentAtPath:kDocPath],
+        [self setTestDocumentAtPath:kLongDocPath],
+    };
+    OptionalMaybeDocumentMap read = self.remoteDocumentCache->GetAll(DocumentKeySet{
         testutil::Key(kDocPath),
         testutil::Key(kLongDocPath),
         testutil::Key("foo/nonexistent"),
     });
-    [self expectMap:read hasDocsInArray:written exactly:NO];
+    ExpectMapHasDocs(self, read, written, /* exactly= */ false);
     auto found = read.find(DocumentKey::FromPathString("foo/nonexistent"));
     XCTAssertTrue(found != read.end());
-    XCTAssertNil(found->second);
+    XCTAssertEqual(absl::nullopt, found->second);
   });
 }
 
@@ -128,10 +165,10 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testSetAndReadDeletedDocument", [&]() {
-    FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
-    self.remoteDocumentCache->Add(deletedDoc);
+    absl::optional<MaybeDocument> deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
+    self.remoteDocumentCache->Add(*deletedDoc);
 
-    XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
+    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
   });
 }
 
@@ -140,9 +177,9 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, DocumentState::kSynced);
-    self.remoteDocumentCache->Add(newDoc);
-    XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
+    absl::optional<MaybeDocument> newDoc = Doc(kDocPath, kVersion, Map("data", 2));
+    self.remoteDocumentCache->Add(*newDoc);
+    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
   });
 }
 
@@ -153,7 +190,7 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:kDocPath];
     self.remoteDocumentCache->Remove(testutil::Key(kDocPath));
 
-    XCTAssertNil(self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
+    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), absl::nullopt);
   });
 }
 
@@ -181,36 +218,19 @@ static const int kVersion = 42;
 
     core::Query query = Query("b");
     DocumentMap results = self.remoteDocumentCache->GetMatching(query);
-    [self expectMap:results.underlying_map()
-        hasDocsInArray:@[
-          FSTTestDoc("b/1", kVersion, _kDocData, DocumentState::kSynced),
-          FSTTestDoc("b/2", kVersion, _kDocData, DocumentState::kSynced)
-        ]
-               exactly:YES];
+    std::vector<Document> docs = {
+        Doc("b/1", kVersion, _kDocData),
+        Doc("b/2", kVersion, _kDocData),
+    };
+    ExpectMapHasDocs(self, results.underlying_map(), docs, /* exactly= */ true);
   });
 }
 
 #pragma mark - Helpers
-- (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
-  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, DocumentState::kSynced);
+- (Document)setTestDocumentAtPath:(const absl::string_view)path {
+  Document doc = Doc(path, kVersion, _kDocData);
   self.remoteDocumentCache->Add(doc);
   return doc;
-}
-
-- (void)expectMap:(const MaybeDocumentMap &)map
-    hasDocsInArray:(NSArray<FSTDocument *> *)expected
-           exactly:(BOOL)exactly {
-  if (exactly) {
-    XCTAssertEqual(map.size(), [expected count]);
-  }
-  for (FSTDocument *doc in expected) {
-    FSTDocument *actual = nil;
-    auto found = map.find(doc.key);
-    if (found != map.end()) {
-      actual = static_cast<FSTDocument *>(found->second);
-    }
-    XCTAssertEqualObjects(actual, doc);
-  }
 }
 
 @end
