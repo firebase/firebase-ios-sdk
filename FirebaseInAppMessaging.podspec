@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '0.15.2'
+  s.version          = '0.15.3'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -32,7 +32,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version)
   }
 
-  s.dependency 'FirebaseCore', '~> 6.0'
-  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
+  s.dependency 'FirebaseCore', '~> 6.2'
+  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstanceID', '~> 4.0'
 end
