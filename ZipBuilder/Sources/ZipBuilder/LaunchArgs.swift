@@ -193,8 +193,8 @@ struct LaunchArgs {
       // TEMPORARY REMOVAL: We don't currently pass in the RC to Kokoro, so ignore the missing flag.
       // Check if we have other release related flags. If so, fail since we need an RC number.
 //      guard currentReleasePath == nil else {
-//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed in " +
-//          "when specifiying \(Key.releasingSDKs).")
+//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed " +
+//          "in when specifiying \(Key.releasingSDKs).")
 //      }
 
       rcNumber = nil
