@@ -242,25 +242,43 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline std::shared_ptr<model::Document> Doc(
+inline model::Document Doc(
     absl::string_view key,
     int64_t version = 0,
     const model::FieldValue::Map& data = model::FieldValue::Map(),
     model::DocumentState document_state = model::DocumentState::kSynced) {
-  return std::make_shared<model::Document>(model::ObjectValue::FromMap(data),
-                                           Key(key), Version(version),
-                                           document_state);
+  return model::Document(model::ObjectValue::FromMap(data), Key(key),
+                         Version(version), document_state);
 }
 
-inline std::shared_ptr<model::NoDocument> DeletedDoc(absl::string_view key,
-                                                     int64_t version) {
-  return std::make_shared<model::NoDocument>(Key(key), Version(version),
-                                             /*has_committed_mutations=*/false);
+inline model::Document Doc(
+    absl::string_view key,
+    int64_t version,
+    const model::FieldValue& data,
+    model::DocumentState document_state = model::DocumentState::kSynced) {
+  return model::Document(model::ObjectValue(data), Key(key), Version(version),
+                         document_state);
 }
 
-inline std::shared_ptr<model::UnknownDocument> UnknownDoc(absl::string_view key,
-                                                          int64_t version) {
-  return std::make_shared<model::UnknownDocument>(Key(key), Version(version));
+/** A convenience method for creating deleted docs for tests. */
+inline model::NoDocument DeletedDoc(absl::string_view key,
+                                    int64_t version = 0,
+                                    bool has_committed_mutations = false) {
+  return model::NoDocument(Key(key), Version(version), has_committed_mutations);
+}
+
+/** A convenience method for creating deleted docs for tests. */
+inline model::NoDocument DeletedDoc(model::DocumentKey key,
+                                    int64_t version = 0,
+                                    bool has_committed_mutations = false) {
+  return model::NoDocument(std::move(key), Version(version),
+                           has_committed_mutations);
+}
+
+/** A convenience method for creating unknown docs for tests. */
+inline model::UnknownDocument UnknownDoc(absl::string_view key,
+                                         int64_t version) {
+  return model::UnknownDocument(Key(key), Version(version));
 }
 
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
