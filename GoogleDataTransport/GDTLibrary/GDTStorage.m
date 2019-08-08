@@ -200,12 +200,14 @@ static NSString *GDTStoragePath() {
 #pragma mark - GDTLifecycleProtocol
 
 - (void)appWillForeground:(GDTApplication *)app {
-#ifdef TARGET_OS_MACCATALYST
-  NSData *data = [NSData dataWithContentsOfFile:[GDTStorage archivePath]];
-  [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class] fromData:data error:nil];
-#else
-  [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *data = [NSData dataWithContentsOfFile:[GDTStorage archivePath]];
+    [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class] fromData:data error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
 #endif
+  }
   self->_runningInBackground = NO;
 }
 
