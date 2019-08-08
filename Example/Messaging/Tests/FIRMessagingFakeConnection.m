@@ -18,10 +18,10 @@
 
 #import <OCMock/OCMock.h>
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingSecureSocket.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
 static NSString *const kHost = @"localhost";
 static const int kPort = 6234;

@@ -18,12 +18,12 @@
 
 #import <OCMock/OCMock.h>
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
-#import "FIRMessagingConnection.h"
 #import "FIRMessagingFakeSocket.h"
-#import "FIRMessagingSecureSocket.h"
-#import "FIRMessagingUtilities.h"
 
 @interface FIRMessagingConnection ()
 

@@ -16,8 +16,8 @@
 
 #import "FIRMessagingFakeSocket.h"
 
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
 
 @interface FIRMessagingSecureSocket() <NSStreamDelegate>
 
