@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingExtensionHelper.h"
+#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
-#import "FIRMMessageCode.h"
-#import "FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMMessageCode.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
 
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";

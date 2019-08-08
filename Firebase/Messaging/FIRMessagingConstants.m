@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
 
 NSString *const kFIRMessagingRawDataKey = @"rawData";
 NSString *const kFIRMessagingCollapseKey = @"collapse_key";

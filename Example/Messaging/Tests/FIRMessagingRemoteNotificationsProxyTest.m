@@ -19,8 +19,8 @@
     __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>

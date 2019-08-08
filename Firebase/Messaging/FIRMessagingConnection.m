@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
-#import "Protos/GtalkExtensions.pbobjc.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingDataMessageManager.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingSecureSocket.h"
-#import "FIRMessagingUtilities.h"
-#import "FIRMessagingVersionUtilities.h"
-#import "FIRMessaging_Private.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkExtensions.pbobjc.h"
+
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingVersionUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 
 static NSInteger const kIqSelectiveAck = 12;
 static NSInteger const kIqStreamAck = 13;

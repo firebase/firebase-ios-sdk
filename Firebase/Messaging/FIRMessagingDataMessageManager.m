@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingClient.h"
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingDelayedMessageQueue.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingReceiver.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessaging_Private.h"
-#import "FIRMessagingSyncMessageManager.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingDelayedMessageQueue.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingReceiver.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 static const int kMaxAppDataSizeDefault = 4 * 1024; // 4k
 static const int kMinDelaySeconds = 1; // 1 second

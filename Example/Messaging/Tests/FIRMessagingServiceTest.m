@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
 #import "Firebase/Messaging/InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "FIRMessagingTestUtilities.h"
-
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
