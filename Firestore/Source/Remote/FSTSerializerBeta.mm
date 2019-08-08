@@ -577,7 +577,7 @@ absl::any Wrap(GCFSDocument *doc) {
   } else if (precondition.type() == Precondition::Type::Exists) {
     message.exists = precondition == Precondition::Exists(true);
   } else {
-    HARD_FAIL("Unknown precondition: %s", precondition.description());
+    HARD_FAIL("Unknown precondition: %s", precondition.ToString());
   }
   return message;
 }

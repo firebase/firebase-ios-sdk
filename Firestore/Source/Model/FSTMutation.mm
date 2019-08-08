@@ -153,9 +153,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%s precondition=%@>",
+  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%s precondition=%s>",
                                     self.key.ToString().c_str(), self.value.ToString().c_str(),
-                                    self.precondition.description()];
+                                    self.precondition.ToString().c_str()];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -247,9 +247,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%s precondition=%@>",
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%s precondition=%s>",
                                     self.key.ToString().c_str(), _fieldMask.ToString().c_str(),
-                                    self.value.ToString().c_str(), self.precondition.description()];
+                                    self.value.ToString().c_str(),
+                                    self.precondition.ToString().c_str()];
 }
 
 /**
@@ -377,9 +378,9 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &transform : self.fieldTransforms) {
     fieldTransforms += " " + transform.path().CanonicalString();
   }
-  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%s precondition=%@>",
+  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%s precondition=%s>",
                                     self.key.ToString().c_str(), fieldTransforms.c_str(),
-                                    self.precondition.description()];
+                                    self.precondition.ToString().c_str()];
 }
 
 - (absl::optional<MaybeDocument>)applyToLocalDocument:
@@ -564,8 +565,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%@>",
-                                    self.key.ToString().c_str(), self.precondition.description()];
+  return
+      [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%s>",
+                                 self.key.ToString().c_str(), self.precondition.ToString().c_str()];
 }
 
 - (absl::optional<MaybeDocument>)applyToLocalDocument:
