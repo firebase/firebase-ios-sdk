@@ -17,9 +17,9 @@
 #import "Firebase/Messaging/FIRMessagingClient.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "FIRMessaging.h"
 #import "Firebase/Messaging/FIRMessagingConnection.h"
 #import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingDataMessageManager.h"

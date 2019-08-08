@@ -19,7 +19,7 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
 
 static NSString *const kUpstreamMessageIDUserInfoKey = @"messageID";

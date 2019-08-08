@@ -19,7 +19,7 @@
 #import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "FIRMessagingPersistentSyncMessage.h"
+#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 
