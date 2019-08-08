@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [NSString
       stringWithFormat:@"<FSTQueryData: query:%s target:%d purpose:%lu version:%s resumeToken:%@)>",
                        self.query.ToString().c_str(), self.targetID, (unsigned long)self.purpose,
-                       self.snapshotVersion.timestamp().ToString().c_str(), self.resumeToken];
+                       self.snapshotVersion.ToString().c_str(), self.resumeToken];
 }
 
 - (instancetype)queryDataByReplacingSnapshotVersion:(SnapshotVersion)snapshotVersion

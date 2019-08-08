@@ -115,6 +115,30 @@ TEST(HashingTest, RangeOfHashMember) {
   ASSERT_EQ(expected, Hash(values));
 }
 
+TEST(HashingTest, Optional) {
+  absl::optional<int> value = 37;
+  ASSERT_EQ(Hash(37), Hash(value));
+
+  value.reset();
+  ASSERT_EQ(-1171, Hash(value));
+}
+
+TEST(HashingTest, Enum) {
+  enum class Enum {
+    First,
+    Second,
+    Third,
+  };
+
+  Enum value = Enum::First;
+  ASSERT_EQ(std::hash<int>{}(0), Hash(value));
+
+  value = Enum::Second;
+  ASSERT_EQ(std::hash<int>{}(1), Hash(value));
+
+  ASSERT_EQ(std::hash<int>{}(2), Hash(Enum::Third));
+}
+
 TEST(HashingTest, Composite) {
   // Verify the result ends up as if hand-rolled
   EXPECT_EQ(std::hash<int>{}(1), Hash(1));

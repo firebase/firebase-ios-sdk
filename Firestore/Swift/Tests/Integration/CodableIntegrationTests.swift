@@ -62,7 +62,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
             _ = try transaction.setData(from: value, forDocument: doc)
           }
         } catch {
-          XCTFail("setData with transation failed.")
+          XCTFail("setData with transaction failed.")
         }
         return nil
       }) { object, error in

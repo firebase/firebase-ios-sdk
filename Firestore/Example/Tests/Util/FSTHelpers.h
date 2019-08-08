@@ -233,7 +233,7 @@ NSDateComponents *FSTTestDateComponents(
 /** Wraps a plain value into an FieldValue instance. */
 model::FieldValue FSTTestFieldValue(id _Nullable value);
 
-/** Wraps a NSDictionary value into an FSTObjectValue instance. */
+/** Wraps a NSDictionary value into an ObjectValue instance. */
 model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */

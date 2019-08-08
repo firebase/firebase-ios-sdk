@@ -176,7 +176,7 @@ std::string FieldFilter::ToString() const {
 }
 
 size_t FieldFilter::Hash() const {
-  return util::Hash(field_, static_cast<int>(op_), value_rhs_);
+  return util::Hash(field_, op_, value_rhs_);
 }
 
 bool FieldFilter::IsInequality() const {

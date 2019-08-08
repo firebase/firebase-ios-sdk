@@ -51,8 +51,7 @@ std::string DocumentViewChange::ToString() const {
 }
 
 size_t DocumentViewChange::Hash() const {
-  size_t document_hash = static_cast<size_t>([document() hash]);
-  return util::Hash(document_hash, static_cast<int>(type()));
+  return util::Hash(document(), type());
 }
 
 bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs) {
