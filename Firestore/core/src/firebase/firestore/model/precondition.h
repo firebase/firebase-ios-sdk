@@ -130,9 +130,8 @@ class Precondition {
           return @"<Precondition exists=no>";
         }
       case Type::UpdateTime:
-        return [NSString
-            stringWithFormat:@"<Precondition update_time=%s>",
-                             update_time_.ToString().c_str()];
+        return [NSString stringWithFormat:@"<Precondition update_time=%s>",
+                                          update_time_.ToString().c_str()];
     }
     UNREACHABLE();
   }
