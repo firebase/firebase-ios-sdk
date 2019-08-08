@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 
 #include <cstdlib>
 #include <utility>
@@ -29,30 +29,29 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-Mutation::Mutation(DocumentKey&& key, Precondition&& precondition)
-    : key_(std::move(key)), precondition_(std::move(precondition)) {
+DeleteMutation::DeleteMutation(DocumentKey&& key, Precondition&& precondition)
+    : Mutation(std::move(key), std::move(precondition)) {
 }
 
-void Mutation::VerifyKeyMatches(
-    const absl::optional<MaybeDocument>& maybe_doc) const {
-  if (maybe_doc) {
-    HARD_ASSERT(maybe_doc->key() == key(),
-                "Can only apply a mutation to a document with the same key");
+MaybeDocument DeleteMutation::ApplyToRemoteDocument(
+    const absl::optional<MaybeDocument>& /*maybe_doc*/,
+    const MutationResult& /*mutation_result*/) const {
+  // TODO(rsgowman): Implement.
+  abort();
+}
+
+absl::optional<MaybeDocument> DeleteMutation::ApplyToLocalView(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>&,
+    const Timestamp&) const {
+  VerifyKeyMatches(maybe_doc);
+
+  if (!precondition().IsValidFor(maybe_doc)) {
+    return maybe_doc;
   }
-}
 
-SnapshotVersion Mutation::GetPostMutationVersion(
-    const absl::optional<MaybeDocument>& maybe_doc) {
-  if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
-    return maybe_doc->version();
-  } else {
-    return SnapshotVersion::None();
-  }
-}
-
-bool Mutation::equal_to(const Mutation& other) const {
-  return key_ == other.key_ && precondition_ == other.precondition_ &&
-         type() == other.type();
+  return NoDocument(key(), SnapshotVersion::None(),
+                    /* has_committed_mutations= */ false);
 }
 
 }  // namespace model

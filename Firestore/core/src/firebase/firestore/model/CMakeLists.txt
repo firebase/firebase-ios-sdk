@@ -18,6 +18,8 @@ cc_library(
     base_path.h
     database_id.cc
     database_id.h
+    delete_mutation.cc
+    delete_mutation.h
     document.cc
     document.h
     document_key.cc
@@ -44,10 +46,14 @@ cc_library(
     mutation_batch.h
     no_document.cc
     no_document.h
+    patch_mutation.cc
+    patch_mutation.h
     precondition.cc
     precondition.h
     resource_path.cc
     resource_path.h
+    set_mutation.cc
+    set_mutation.h
     snapshot_version.cc
     snapshot_version.h
     transform_operations.h
