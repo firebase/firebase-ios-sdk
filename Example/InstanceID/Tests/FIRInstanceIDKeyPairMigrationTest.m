@@ -156,7 +156,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 }
 
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !defined(TARGET_OS_MACCATALYST)
   __weak id weakKeyRef;
 
   // Use a local autorelease pool to make sure any autorelease objects allocated will be released.
