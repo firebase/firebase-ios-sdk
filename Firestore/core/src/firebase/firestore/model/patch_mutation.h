@@ -55,7 +55,7 @@ class PatchMutation : public Mutation {
                 Precondition&& precondition);
 
   Type type() const override {
-    return Mutation::Type::kPatch;
+    return Mutation::Type::Patch;
   }
 
   MaybeDocument ApplyToRemoteDocument(

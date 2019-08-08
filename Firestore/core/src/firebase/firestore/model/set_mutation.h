@@ -45,7 +45,7 @@ class SetMutation : public Mutation {
               Precondition&& precondition);
 
   Type type() const override {
-    return Mutation::Type::kSet;
+    return Mutation::Type::Set;
   }
 
   MaybeDocument ApplyToRemoteDocument(

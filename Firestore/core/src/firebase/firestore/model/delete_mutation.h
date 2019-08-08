@@ -39,7 +39,7 @@ class DeleteMutation : public Mutation {
   DeleteMutation(DocumentKey&& key, Precondition&& precondition);
 
   Type type() const override {
-    return Mutation::Type::kDelete;
+    return Mutation::Type::Delete;
   }
 
   MaybeDocument ApplyToRemoteDocument(

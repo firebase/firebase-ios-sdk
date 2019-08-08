@@ -128,7 +128,7 @@ class Mutation {
   /**
    * Represents the mutation type. This is used in place of dynamic_cast.
    */
-  enum class Type { kSet, kPatch, kDelete };
+  enum class Type { Set, Patch, Delete };
 
   virtual ~Mutation() = default;
 
