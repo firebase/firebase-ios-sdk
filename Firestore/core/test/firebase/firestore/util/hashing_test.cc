@@ -117,10 +117,10 @@ TEST(HashingTest, RangeOfHashMember) {
 
 TEST(HashingTest, Optional) {
   absl::optional<int> value = 37;
-  ASSERT_EQ(std::hash<int>{}(37), Hash(value));
+  ASSERT_EQ(Hash(37), Hash(value));
 
   value.reset();
-  ASSERT_EQ(std::hash<int>{}(0), Hash(value));
+  ASSERT_EQ(-1171, Hash(value));
 }
 
 TEST(HashingTest, Enum) {

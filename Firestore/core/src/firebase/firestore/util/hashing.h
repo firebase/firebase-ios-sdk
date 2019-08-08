@@ -94,7 +94,7 @@ using std_hash_type =
 /**
  * Combines a hash_value with whatever accumulated state there is so far.
  */
-inline size_t Combine(size_t state, size_t hash_value) {
+constexpr size_t Combine(size_t state, size_t hash_value) {
   return 31 * state + hash_value;
 }
 
@@ -190,7 +190,7 @@ auto RankedInvokeHash(const Range& range, HashChoice<3>)
 template <typename K>
 auto RankedInvokeHash(const absl::optional<K>& option, HashChoice<4>)
     -> decltype(InvokeHash(*option)) {
-  return option ? InvokeHash(*option) : 0;
+  return option ? InvokeHash(*option) : -1171;
 }
 
 template <typename K, typename = absl::enable_if_t<std::is_enum<K>::value>>
