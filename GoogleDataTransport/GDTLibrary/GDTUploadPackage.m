@@ -17,6 +17,7 @@
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
@@ -74,7 +75,10 @@
 }
 
 - (void)completeDelivery {
-  NSAssert(_isDelivered == NO, @"It's an API violation to call -completeDelivery twice.");
+  if (_isDelivered) {
+    GDTLogError(GDTMCEDeliverTwice, @"%@",
+                @"It's an API violation to call -completeDelivery twice.");
+  }
   _isDelivered = YES;
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
