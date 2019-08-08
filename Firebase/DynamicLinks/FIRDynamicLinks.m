@@ -220,12 +220,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     }
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
   }
-  // Check to see if FirebaseDynamicLinksCustomDomains array is present.
-  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
-  NSArray *customDomains = infoDictionary[kInfoPlistCustomDomainsKey];
-  if (customDomains) {
-    FIRDLAddToAllowListForCustomDomainsArray(customDomains);
-  }
+  [self checkForCustomDomains];
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics {
@@ -252,7 +247,27 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   });
   return dynamicLinks;
 }
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    [self checkForCustomDomains];
+  }
+  return self;
+}
 #endif
+
+#pragma mark - Custom domains
+
+// Check for custom domains entry in PLIST file.
+- (void)checkForCustomDomains {
+  // Check to see if FirebaseDynamicLinksCustomDomains array is present.
+  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
+  NSArray *customDomains = infoDictionary[kInfoPlistCustomDomainsKey];
+  if (customDomains) {
+    FIRDLAddToAllowListForCustomDomainsArray(customDomains);
+  }
+}
 
 #pragma mark - First party interface
 
