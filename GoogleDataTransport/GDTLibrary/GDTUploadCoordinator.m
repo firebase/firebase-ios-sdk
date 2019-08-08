@@ -17,9 +17,9 @@
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 
 #import "GDTLibrary/Private/GDTAssert.h"
-#import "GDTLibrary/Private/GDTConsoleLogger.h"
 #import "GDTLibrary/Private/GDTReachability.h"
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTStorage.h"
@@ -212,7 +212,10 @@ static NSString *const ktargetToInFlightPackagesKey =
     NSNumber *targetNumber = @(package.target);
     [self->_targetToInFlightPackages removeObjectForKey:targetNumber];
     id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
-    NSAssert(prioritizer, @"A prioritizer should be registered for this target: %@", targetNumber);
+    if (!prioritizer) {
+      GDTLogError(GDTMCEPrioritizerError, @"A prioritizer should be registered for this target: %@",
+                  targetNumber);
+    }
     if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
       [prioritizer packageDelivered:package successful:successful];
     }

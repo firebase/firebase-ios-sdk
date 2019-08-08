@@ -77,19 +77,6 @@
   XCTAssertNotNil([[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest]);
 }
 
-/** Tests that calling -completeDelivery twice on the same package asserts. */
-- (void)testCompleteDeliveryTwiceAsserts {
-  GDTTestPrioritizer *prioritizer = [[GDTTestPrioritizer alloc] init];
-  GDTTestUploader *uploader = [[GDTTestUploader alloc] init];
-
-  [[GDTRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTTargetTest];
-  [[GDTRegistrar sharedInstance] registerUploader:uploader target:kGDTTargetTest];
-
-  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
-  [uploadPackage completeDelivery];
-  XCTAssertThrows([uploadPackage completeDelivery]);
-}
-
 /** Tests copying indicates that the underlying sets of events can't be changed from underneath. */
 - (void)testRegisterUpload {
   GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];

@@ -22,6 +22,8 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#import <GoogleDataTransport/GDTConsoleLogger.h>
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -48,7 +50,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for size: %s",
+                PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -56,7 +59,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
+                PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -86,7 +90,11 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
 
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
                                              NSSet<GDTStoredEvent *> *_Nonnull logSet) {
-  NSCAssert(logSet.count, @"An empty event set can't be serialized to proto.");
+  if (logSet.count == 0) {
+    GDTLogError(GDTMCEGeneralError, @"%@", @"An empty event set can't be serialized to proto.");
+    gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
+    return logRequest;
+  }
   gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
   logRequest.log_source = logSource;
   logRequest.has_log_source = 1;
@@ -118,7 +126,11 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
   NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL
                                                  options:0
                                                    error:&error];
-  NSCAssert(error == nil, @"There was an error reading extension bytes from disk: %@", error);
+  if (error) {
+    GDTLogError(GDTMCEGeneralError, @"There was an error reading extension bytes from disk: %@",
+                error);
+    return logEvent;
+  }
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.
   return logEvent;
 }
