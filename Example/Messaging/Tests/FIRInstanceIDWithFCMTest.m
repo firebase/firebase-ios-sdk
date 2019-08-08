@@ -23,7 +23,7 @@
 #import <OCMock/OCMock.h>
 
 #import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "FIRMessagingTestUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;

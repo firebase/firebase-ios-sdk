@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
 
 #import <FirebaseCore/FIRLogger.h>
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTopicOperation.h"
+#import "Firebase/Messaging/FIRMessagingTopicOperation.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 #define DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS 0
 

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDataMessageManager.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingTopicsCommon.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
-#import "FIRMessagingPubSubRegistrar.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingPubSubRegistrar.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60; // 2 minutes

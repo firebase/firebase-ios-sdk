@@ -25,7 +25,7 @@
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
 #import "Firebase/Messaging/InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "FIRMessagingTestUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 
 static NSString *const kFakeToken =

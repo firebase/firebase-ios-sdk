@@ -32,7 +32,7 @@
 #import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "FIRMessagingFakeConnection.h"
+#import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";

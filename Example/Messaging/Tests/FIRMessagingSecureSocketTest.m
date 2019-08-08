@@ -22,8 +22,7 @@
 #import "Firebase/Messaging/FIRMessagingConnection.h"
 #import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
-
-#import "FIRMessagingFakeSocket.h"
+#import "Example/Messaging/Tests/FIRMessagingFakeSocket.h"
 
 @interface FIRMessagingConnection ()
 
