@@ -553,6 +553,17 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                    name:*foregroundConstant
                  object:nil];
     }
+
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13, *)) {
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(enteringForeground:)
+                   name:UISceneWillEnterForegroundNotification
+                 object:nil];
+    }
+#endif
+
     // An empty address is interpreted a generic internet access
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));

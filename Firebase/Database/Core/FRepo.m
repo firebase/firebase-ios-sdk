@@ -723,6 +723,16 @@
         FFLog(@"I-RDB038016",
               @"Skipped registering for background notification.");
     }
+
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13, *)) {
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(didEnterBackground:)
+                   name:UISceneWillDeactivateNotification
+                 object:nil];
+    }
+#endif
 }
 
 - (void)didEnterBackground {
