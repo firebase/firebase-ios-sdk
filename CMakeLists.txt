@@ -184,16 +184,11 @@ endif()
 
 
 # LevelDB
-if(NOT WIN32)
-  set(HAVE_LEVELDB ON)
-endif()
-if(HAVE_LEVELDB)
-  set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
-  set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
-  set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
-  add_external_subdirectory(leveldb)
-  add_alias(LevelDB::LevelDB leveldb)
-endif()
+set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
+add_external_subdirectory(leveldb)
+add_alias(LevelDB::LevelDB leveldb)
 
 
 # nanopb
