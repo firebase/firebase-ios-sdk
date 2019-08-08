@@ -513,6 +513,27 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   XCTAssertNil(dynamicLink, @"invite should be nil since there is no parameter.");
 }
 
+// Custom domain entries in plist file:
+//  https://google.com
+//  https://google.com/one
+//  https://a.firebase.com/mypath
+- (void)testDynamicLinkFromUniversalLinkURLWithCustomDomainLink {
+  self.service = [[FIRDynamicLinks alloc] init];
+  NSString *durableDeepLinkString = @"https://a.firebase.com/mypath/?link=abcd";
+  NSURL *durabledeepLinkURL = [NSURL URLWithString:durableDeepLinkString];
+
+  SwizzleDynamicLinkNetworkingWithMock();
+
+  FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromUniversalLinkURL:durabledeepLinkURL];
+
+  XCTAssertNotNil(dynamicLink);
+  NSString *deepLinkURLString = dynamicLink.url.absoluteString;
+
+  XCTAssertEqualObjects(@"abcd", deepLinkURLString,
+                        @"ddl url parameter and deep link url should be the same");
+  UnswizzleDynamicLinkNetworking();
+}
+
 - (void)testDynamicLinkFromUniversalLinkURLWithSpecialCharacters {
   NSString *durableDeepLinkString =
       [NSString stringWithFormat:@"https://xyz.page.link/?link=%@", kEncodedComplicatedURLString];
