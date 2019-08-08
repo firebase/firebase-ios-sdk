@@ -110,19 +110,4 @@
   XCTAssertNoThrow([transformer transformEvent:event withTransformers:transformers]);
 }
 
-/** Tests that using a transformer without transform: implemented throws. */
-- (void)testWriteEventWithBadTransformer {
-  GDTTransformer *transformer = [GDTTransformer sharedInstance];
-  GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"2" target:1];
-  event.dataObject = [[GDTDataObjectTesterSimple alloc] init];
-  NSArray *transformers = @[ [[NSObject alloc] init] ];
-
-  XCTestExpectation *errorExpectation = [self expectationWithDescription:@"transform: is missing"];
-  [GDTAssertHelper setAssertionBlock:^{
-    [errorExpectation fulfill];
-  }];
-  [transformer transformEvent:event withTransformers:transformers];
-  [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
-}
-
 @end
