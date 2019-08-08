@@ -155,8 +155,8 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 #endif
 }
 
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !defined(TARGET_OS_MACCATALYST)
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
-#if TARGET_OS_IOS || TARGET_OS_TV
   __weak id weakKeyRef;
 
   // Use a local autorelease pool to make sure any autorelease objects allocated will be released.
@@ -183,7 +183,6 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   // The check below is flaky for build under DEBUG (petentially due to ARC specifics).
   // Comment it so far as not-so-important one.
   //  XCTAssertNil(weakKeyRef);
-#endif
 }
 
 - (SecKeyRef)generateKeyRef {
@@ -201,5 +200,6 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
   return publicKey;
 }
+#endif  // (TARGET_OS_IOS || TARGET_OS_TV) && !defined(TARGET_OS_MACCATALYST)
 
 @end
