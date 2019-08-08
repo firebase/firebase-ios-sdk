@@ -19,14 +19,15 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -38,24 +39,28 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::MaybeDocument;
 using model::MaybeDocumentMap;
+using model::NoDocument;
+using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
 using util::MakeString;
 
-FSTMaybeDocument* _Nullable LocalDocumentsView::GetDocument(
+absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
     const DocumentKey& key) {
   std::vector<FSTMutationBatch*> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKey(key);
   return GetDocument(key, batches);
 }
 
-FSTMaybeDocument* _Nullable LocalDocumentsView::GetDocument(
+absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<FSTMutationBatch*>& batches) {
-  FSTMaybeDocument* _Nullable document = remote_document_cache_->Get(key);
+  absl::optional<MaybeDocument> document = remote_document_cache_->Get(key);
   for (FSTMutationBatch* batch : batches) {
     document = [batch applyToLocalDocument:document documentKey:key];
   }
@@ -63,14 +68,14 @@ FSTMaybeDocument* _Nullable LocalDocumentsView::GetDocument(
   return document;
 }
 
-MaybeDocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
-    const MaybeDocumentMap& docs,
+OptionalMaybeDocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
+    const OptionalMaybeDocumentMap& docs,
     const std::vector<FSTMutationBatch*>& batches) {
-  MaybeDocumentMap results;
+  OptionalMaybeDocumentMap results;
 
   for (const auto& kv : docs) {
     const DocumentKey& key = kv.first;
-    FSTMaybeDocument* local_view = kv.second;
+    absl::optional<MaybeDocument> local_view = kv.second;
     for (FSTMutationBatch* batch : batches) {
       local_view = [batch applyToLocalDocument:local_view documentKey:key];
     }
@@ -80,7 +85,7 @@ MaybeDocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
 }
 
 MaybeDocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
-  MaybeDocumentMap docs = remote_document_cache_->GetAll(keys);
+  OptionalMaybeDocumentMap docs = remote_document_cache_->GetAll(keys);
   return GetLocalViewOfDocuments(docs);
 }
 
@@ -89,9 +94,7 @@ MaybeDocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
  * `baseDocs` without retrieving documents from the local store.
  */
 MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
-    const MaybeDocumentMap& base_docs) {
-  MaybeDocumentMap results;
-
+    const OptionalMaybeDocumentMap& base_docs) {
   DocumentKeySet all_keys;
   for (const auto& kv : base_docs) {
     all_keys = all_keys.insert(kv.first);
@@ -99,19 +102,20 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
   std::vector<FSTMutationBatch*> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKeys(all_keys);
 
-  MaybeDocumentMap docs = ApplyLocalMutationsToDocuments(base_docs, batches);
+  OptionalMaybeDocumentMap docs =
+      ApplyLocalMutationsToDocuments(base_docs, batches);
 
+  MaybeDocumentMap results;
   for (const auto& kv : docs) {
     const DocumentKey& key = kv.first;
-    FSTMaybeDocument* maybe_doc = kv.second;
+    absl::optional<MaybeDocument> maybe_doc = kv.second;
 
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybe_doc) {
-      maybe_doc = [FSTDeletedDocument documentWithKey:key
-                                              version:SnapshotVersion::None()
-                                hasCommittedMutations:NO];
+      maybe_doc = NoDocument(key, SnapshotVersion::None(),
+                             /* has_committed_mutations= */ false);
     }
-    results = results.insert(key, maybe_doc);
+    results = results.insert(key, *maybe_doc);
   }
 
   return results;
@@ -131,9 +135,9 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingDocumentQuery(
     const ResourcePath& doc_path) {
   DocumentMap result;
   // Just do a simple document lookup.
-  FSTMaybeDocument* doc = GetDocument(DocumentKey{doc_path});
-  if ([doc isKindOfClass:[FSTDocument class]]) {
-    result = result.insert(doc.key, static_cast<FSTDocument*>(doc));
+  absl::optional<MaybeDocument> doc = GetDocument(DocumentKey{doc_path});
+  if (doc && doc->is_document()) {
+    result = result.insert(doc->key(), Document(*doc));
   }
   return result;
 }
@@ -158,8 +162,8 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
         GetDocumentsMatchingCollectionQuery(collection_query);
     for (const auto& kv : collection_results.underlying_map()) {
       const DocumentKey& key = kv.first;
-      FSTDocument* doc = static_cast<FSTDocument*>(kv.second);
-      results = results.insert(key, doc);
+      Document doc = Document(kv.second);
+      results = results.insert(key, std::move(doc));
     }
   }
   return results;
@@ -182,20 +186,21 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       }
 
       const DocumentKey& key = mutation.key;
-      // base_doc may be nil for the documents that weren't yet written to the
-      // backend.
-      FSTMaybeDocument* base_doc = nil;
+      // base_doc may be unset for the documents that weren't yet written to
+      // the backend.
+      absl::optional<MaybeDocument> base_doc;
       auto found = results.underlying_map().find(key);
       if (found != results.underlying_map().end()) {
         base_doc = found->second;
       }
-      FSTMaybeDocument* mutated_doc =
+
+      absl::optional<MaybeDocument> mutated_doc =
           [mutation applyToLocalDocument:base_doc
                             baseDocument:base_doc
                           localWriteTime:batch.localWriteTime];
 
-      if ([mutated_doc isKindOfClass:[FSTDocument class]]) {
-        results = results.insert(key, static_cast<FSTDocument*>(mutated_doc));
+      if (mutated_doc && mutated_doc->is_document()) {
+        results = results.insert(key, Document(*mutated_doc));
       } else {
         results = results.erase(key);
       }
@@ -209,7 +214,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap unfiltered = results;
   for (const auto& kv : unfiltered.underlying_map()) {
     const DocumentKey& key = kv.first;
-    auto* doc = static_cast<FSTDocument*>(kv.second);
+    auto doc = Document(kv.second);
     if (!query.Matches(doc)) {
       results = results.erase(key);
     }
@@ -232,13 +237,12 @@ DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
     }
   }
 
-  MaybeDocumentMap missing_docs =
+  OptionalMaybeDocumentMap missing_docs =
       remote_document_cache_->GetAll(missing_doc_keys);
   for (const auto& kv : missing_docs) {
-    FSTMaybeDocument* maybe_doc = kv.second;
-    if (maybe_doc != nil && [maybe_doc isKindOfClass:[FSTDocument class]]) {
-      existing_docs =
-          existing_docs.insert(kv.first, static_cast<FSTDocument*>(maybe_doc));
+    const absl::optional<MaybeDocument>& maybe_doc = kv.second;
+    if (maybe_doc && maybe_doc->is_document()) {
+      existing_docs = existing_docs.insert(kv.first, Document(*maybe_doc));
     }
   }
 

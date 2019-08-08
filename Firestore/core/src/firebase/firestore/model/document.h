@@ -21,10 +21,6 @@
 #include <memory>
 #include <string>
 
-#if __OBJC__
-#import "Firestore/Source/Model/FSTDocument.h"
-#endif
-
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -85,19 +81,6 @@ class Document : public MaybeDocument {
    * assert if the type of the MaybeDocument isn't actually Type::Document.
    */
   explicit Document(const MaybeDocument& document);
-
-#if __OBJC__
-  explicit Document(FSTDocument* doc)
-      : Document(doc.data, doc.key, doc.version, doc.documentState) {
-  }
-
-  FSTDocument* ToDocument() const {
-    return [FSTDocument documentWithData:data()
-                                     key:key()
-                                 version:version()
-                                   state:document_state()];
-  }
-#endif  // __OBJC__
 
   const ObjectValue& data() const;
 

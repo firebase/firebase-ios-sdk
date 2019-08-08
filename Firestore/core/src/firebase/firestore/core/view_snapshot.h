@@ -27,15 +27,12 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-
-OBJC_CLASS(FSTDocument);
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -53,9 +50,9 @@ class DocumentViewChange {
 
   DocumentViewChange() = default;
 
-  DocumentViewChange(FSTDocument* document, Type type);
+  DocumentViewChange(model::Document document, Type type);
 
-  FSTDocument* document() const;
+  const model::Document& document() const;
   DocumentViewChange::Type type() const {
     return type_;
   }
@@ -64,7 +61,7 @@ class DocumentViewChange {
   size_t Hash() const;
 
  private:
-  objc::Handle<FSTDocument> document_;
+  model::Document document_;
   Type type_{};
 };
 
@@ -188,7 +185,5 @@ bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs);
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_

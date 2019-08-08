@@ -32,10 +32,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
-#if __OBJC__
-@class FSTDocument;
-#endif
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -204,13 +200,6 @@ class Query {
 
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
-
-#if __OBJC__
-  bool Matches(FSTDocument* doc) const {
-    model::Document converted(doc);
-    return Matches(converted);
-  }
-#endif  // __OBJC__s
 
   /**
    * Returns a comparator that will sort documents according to the order by

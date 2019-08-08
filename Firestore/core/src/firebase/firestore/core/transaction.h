@@ -35,7 +35,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-OBJC_CLASS(FSTMaybeDocument);
 OBJC_CLASS(FSTMutation);
 
 namespace firebase {
@@ -56,7 +55,7 @@ class Transaction {
   // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
   // this function could take a single `StatusOr` parameter.
   using LookupCallback = std::function<void(
-      const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
+      const std::vector<model::MaybeDocument>&, const util::Status&)>;
 
   Transaction() = default;
   explicit Transaction(remote::Datastore* transaction);
@@ -111,7 +110,7 @@ class Transaction {
    * error. When the transaction is committed, the versions recorded will be set
    * as preconditions on the writes sent to the backend.
    */
-  util::Status RecordVersion(FSTMaybeDocument* doc);
+  util::Status RecordVersion(const model::MaybeDocument& doc);
 
   /** Stores mutations to be written when `Commit` is called. */
   void WriteMutations(std::vector<FSTMutation*>&& mutations);

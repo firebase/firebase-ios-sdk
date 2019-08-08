@@ -21,7 +21,6 @@
 
 #import "FIRTimestamp.h"
 
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -38,6 +37,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::util::Hash;
@@ -104,13 +104,13 @@ NS_ASSUME_NONNULL_BEGIN
                                     objc::Description(_mutations)];
 }
 
-- (FSTMaybeDocument *_Nullable)applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc
-                                         documentKey:(const DocumentKey &)documentKey
-                                 mutationBatchResult:
-                                     (FSTMutationBatchResult *_Nullable)mutationBatchResult {
-  HARD_ASSERT(!maybeDoc || maybeDoc.key == documentKey,
+- (absl::optional<MaybeDocument>)applyToRemoteDocument:(absl::optional<MaybeDocument>)maybeDoc
+                                           documentKey:(const DocumentKey &)documentKey
+                                   mutationBatchResult:
+                                       (FSTMutationBatchResult *_Nullable)mutationBatchResult {
+  HARD_ASSERT(!maybeDoc || maybeDoc->key() == documentKey,
               "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
-              maybeDoc.key.ToString());
+              maybeDoc->key().ToString());
 
   HARD_ASSERT(mutationBatchResult.mutationResults.size() == _mutations.size(),
               "Mismatch between mutations length (%s) and results length (%s)", _mutations.size(),
@@ -126,11 +126,11 @@ NS_ASSUME_NONNULL_BEGIN
   return maybeDoc;
 }
 
-- (FSTMaybeDocument *_Nullable)applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
-                                        documentKey:(const DocumentKey &)documentKey {
-  HARD_ASSERT(!maybeDoc || maybeDoc.key == documentKey,
+- (absl::optional<MaybeDocument>)applyToLocalDocument:(absl::optional<MaybeDocument>)maybeDoc
+                                          documentKey:(const DocumentKey &)documentKey {
+  HARD_ASSERT(!maybeDoc || maybeDoc->key() == documentKey,
               "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
-              maybeDoc.key.ToString());
+              maybeDoc->key().ToString());
 
   // First, apply the base state. This allows us to apply non-idempotent transform against a
   // consistent set of values.
@@ -142,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  FSTMaybeDocument *baseDoc = maybeDoc;
+  absl::optional<MaybeDocument> baseDoc = maybeDoc;
 
   // Second, apply all user-provided mutations.
   for (FSTMutation *mutation : _mutations) {
@@ -162,12 +162,17 @@ NS_ASSUME_NONNULL_BEGIN
   MaybeDocumentMap mutatedDocuments = documentSet;
   for (FSTMutation *mutation : _mutations) {
     const DocumentKey &key = mutation.key;
-    auto maybeDocument = mutatedDocuments.find(key);
-    FSTMaybeDocument *mutatedDocument = [self
-        applyToLocalDocument:(maybeDocument != mutatedDocuments.end() ? maybeDocument->second : nil)
-                 documentKey:key];
+
+    absl::optional<MaybeDocument> previousDocument;
+    auto found = mutatedDocuments.find(key);
+    if (found != mutatedDocuments.end()) {
+      previousDocument = found->second;
+    }
+
+    absl::optional<MaybeDocument> mutatedDocument = [self applyToLocalDocument:previousDocument
+                                                                   documentKey:key];
     if (mutatedDocument) {
-      mutatedDocuments = mutatedDocuments.insert(key, mutatedDocument);
+      mutatedDocuments = mutatedDocuments.insert(key, *mutatedDocument);
     }
   }
   return mutatedDocuments;

@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 
-#include "Firestore/Source/Model/FSTDocument.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,11 +37,11 @@ LocalViewChanges LocalViewChanges::FromViewSnapshot(
   for (const DocumentViewChange& doc_change : snapshot.document_changes()) {
     switch (doc_change.type()) {
       case DocumentViewChange::Type::kAdded:
-        added_keys = added_keys.insert(doc_change.document().key);
+        added_keys = added_keys.insert(doc_change.document().key());
         break;
 
       case DocumentViewChange::Type::kRemoved:
-        removed_keys = removed_keys.insert(doc_change.document().key);
+        removed_keys = removed_keys.insert(doc_change.document().key());
         break;
 
       default:

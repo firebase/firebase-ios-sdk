@@ -113,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (local::LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations;
 
 /** Returns the current value of a document with a given key, or nil if not found. */
-- (nullable FSTMaybeDocument *)readDocument:(const model::DocumentKey &)key;
+- (absl::optional<model::MaybeDocument>)readDocument:(const model::DocumentKey &)key;
 
 /**
  * Acknowledges the given batch.

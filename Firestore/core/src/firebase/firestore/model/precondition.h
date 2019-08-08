@@ -20,7 +20,6 @@
 #include <utility>
 
 #if defined(__OBJC__)
-#import "Firestore/Source/Model/FSTDocument.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)
 
@@ -89,26 +88,6 @@ class Precondition {
       : type_(Type::None),
         update_time_(SnapshotVersion::None()),
         exists_(false) {
-  }
-
-  // MaybeDocument is not fully ported yet. So we suppose this addition helper.
-  bool IsValidFor(FSTMaybeDocument* maybe_doc) const {
-    switch (type_) {
-      case Type::UpdateTime:
-        return [maybe_doc isKindOfClass:[FSTDocument class]] &&
-               firebase::firestore::model::SnapshotVersion(maybe_doc.version) ==
-                   update_time_;
-      case Type::Exists:
-        if (exists_) {
-          return [maybe_doc isKindOfClass:[FSTDocument class]];
-        } else {
-          return maybe_doc == nil ||
-                 [maybe_doc isKindOfClass:[FSTDeletedDocument class]];
-        }
-      case Type::None:
-        return true;
-    }
-    UNREACHABLE();
   }
 
   size_t Hash() const {

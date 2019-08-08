@@ -24,7 +24,6 @@
 
 #import "FIRTimestamp.h"
 
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -34,23 +33,29 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -92,18 +97,19 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult {
+- (MaybeDocument)applyToRemoteDocument:(const absl::optional<MaybeDocument> &)maybeDoc
+                        mutationResult:(FSTMutationResult *)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const Timestamp &)localWriteTime {
+- (absl::optional<MaybeDocument>)applyToLocalDocument:
+                                     (const absl::optional<MaybeDocument> &)maybeDoc
+                                         baseDocument:(const absl::optional<MaybeDocument> &)baseDoc
+                                       localWriteTime:(const Timestamp &)localWriteTime {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+- (absl::optional<ObjectValue>)extractBaseValue:(const absl::optional<MaybeDocument> &)maybeDoc {
   return absl::nullopt;
 }
 
@@ -115,9 +121,9 @@ NS_ASSUME_NONNULL_BEGIN
   return _precondition;
 }
 
-- (void)verifyKeyMatches:(nullable FSTMaybeDocument *)maybeDoc {
+- (void)verifyKeyMatches:(const absl::optional<MaybeDocument> &)maybeDoc {
   if (maybeDoc) {
-    HARD_ASSERT(maybeDoc.key == self.key, "Can only set a document with the same key");
+    HARD_ASSERT(maybeDoc->key() == self.key, "Can only set a document with the same key");
   }
 }
 
@@ -126,8 +132,9 @@ NS_ASSUME_NONNULL_BEGIN
  * defined to return the version of the base document only if it is an existing document. Deleted
  * and unknown documents have a post-mutation version of {@code SnapshotVersion::None()}.
  */
-- (const SnapshotVersion &)postMutationVersionForDocument:(FSTMaybeDocument *)maybeDoc {
-  return [maybeDoc isKindOfClass:[FSTDocument class]] ? maybeDoc.version : SnapshotVersion::None();
+- (const SnapshotVersion &)postMutationVersionForDocument:
+    (const absl::optional<MaybeDocument> &)maybeDoc {
+  return maybeDoc && maybeDoc->is_document() ? maybeDoc->version() : SnapshotVersion::None();
 }
 @end
 
@@ -168,9 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
   return Hash(self.key, self.precondition, self.value);
 }
 
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const Timestamp &)localWriteTime {
+- (absl::optional<MaybeDocument>)applyToLocalDocument:
+                                     (const absl::optional<MaybeDocument> &)maybeDoc
+                                         baseDocument:(const absl::optional<MaybeDocument> &)baseDoc
+                                       localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -178,14 +186,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   SnapshotVersion version = [self postMutationVersionForDocument:maybeDoc];
-  return [FSTDocument documentWithData:self.value
-                                   key:self.key
-                               version:version
-                                 state:DocumentState::kLocalMutations];
+  return Document(self.value, self.key, version, DocumentState::kLocalMutations);
 }
 
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult {
+- (MaybeDocument)applyToRemoteDocument:(const absl::optional<MaybeDocument> &)maybeDoc
+                        mutationResult:(FSTMutationResult *)mutationResult {
   [self verifyKeyMatches:maybeDoc];
 
   HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTSetMutation.");
@@ -193,13 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
   // Unlike applyToLocalView, if we're applying a mutation to a remote document the server has
   // accepted the mutation so the precondition must have held.
 
-  return [FSTDocument documentWithData:self.value
-                                   key:self.key
-                               version:mutationResult.version
-                                 state:DocumentState::kCommittedMutations];
+  return Document(self.value, self.key, mutationResult.version, DocumentState::kCommittedMutations);
 }
 
-- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+- (absl::optional<ObjectValue>)extractBaseValue:(const absl::optional<MaybeDocument> &)maybeDoc {
   return absl::nullopt;
 }
 
@@ -254,19 +256,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Patches the data of document if available or creates a new document. Note that this does not
  * check whether or not the precondition of this patch holds.
  */
-- (ObjectValue)patchDocument:(nullable FSTMaybeDocument *)maybeDoc {
+- (ObjectValue)patchDocument:(const absl::optional<MaybeDocument> &)maybeDoc {
   ObjectValue data;
-  if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-    data = ((FSTDocument *)maybeDoc).data;
+  if (maybeDoc && maybeDoc->is_document()) {
+    data = Document(*maybeDoc).data();
   } else {
     data = ObjectValue::Empty();
   }
   return [self patchObjectValue:data];
 }
 
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const Timestamp &)localWriteTime {
+- (absl::optional<MaybeDocument>)applyToLocalDocument:
+                                     (const absl::optional<MaybeDocument> &)maybeDoc
+                                         baseDocument:(const absl::optional<MaybeDocument> &)baseDoc
+                                       localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -276,18 +279,15 @@ NS_ASSUME_NONNULL_BEGIN
   ObjectValue newData = [self patchDocument:maybeDoc];
   SnapshotVersion version = [self postMutationVersionForDocument:maybeDoc];
 
-  return [FSTDocument documentWithData:newData
-                                   key:self.key
-                               version:version
-                                 state:DocumentState::kLocalMutations];
+  return Document(std::move(newData), self.key, version, DocumentState::kLocalMutations);
 }
 
-- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+- (absl::optional<ObjectValue>)extractBaseValue:(const absl::optional<MaybeDocument> &)maybeDoc {
   return absl::nullopt;
 }
 
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult {
+- (MaybeDocument)applyToRemoteDocument:(const absl::optional<MaybeDocument> &)maybeDoc
+                        mutationResult:(FSTMutationResult *)mutationResult {
   [self verifyKeyMatches:maybeDoc];
 
   HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTPatchMutation.");
@@ -295,16 +295,14 @@ NS_ASSUME_NONNULL_BEGIN
   if (!self.precondition.IsValidFor(maybeDoc)) {
     // Since the mutation was not rejected, we know that the precondition matched on the backend.
     // We therefore must not have the expected version of the document in our cache and return a
-    // FSTUnknownDocument with the known updateTime.
-    return [FSTUnknownDocument documentWithKey:self.key version:mutationResult.version];
+    // UnknownDocument with the known updateTime.
+    return UnknownDocument(self.key, mutationResult.version);
   }
 
   ObjectValue newData = [self patchDocument:maybeDoc];
 
-  return [FSTDocument documentWithData:newData
-                                   key:self.key
-                               version:mutationResult.version
-                                 state:DocumentState::kCommittedMutations];
+  return Document(std::move(newData), self.key, mutationResult.version,
+                  DocumentState::kCommittedMutations);
 }
 
 - (ObjectValue)patchObjectValue:(ObjectValue)objectValue {
@@ -384,9 +382,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     self.precondition.description()];
 }
 
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const Timestamp &)localWriteTime {
+- (absl::optional<MaybeDocument>)applyToLocalDocument:
+                                     (const absl::optional<MaybeDocument> &)maybeDoc
+                                         baseDocument:(const absl::optional<MaybeDocument> &)baseDoc
+                                       localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -395,24 +394,21 @@ NS_ASSUME_NONNULL_BEGIN
 
   // We only support transforms with precondition exists, so we can only apply it to an existing
   // document
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
+  HARD_ASSERT(maybeDoc && maybeDoc->is_document(), "Unknown MaybeDocument type %s",
+              maybeDoc->type());
+  Document doc = Document(*maybeDoc);
 
   std::vector<FieldValue> transformResults =
       [self localTransformResultsWithLocalDocument:maybeDoc
                                       baseDocument:baseDoc
                                          writeTime:localWriteTime];
-  ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
+  ObjectValue newData = [self transformObject:doc.data() transformResults:transformResults];
 
-  return [FSTDocument documentWithData:std::move(newData)
-                                   key:doc.key
-                               version:doc.version
-                                 state:DocumentState::kLocalMutations];
+  return Document(std::move(newData), doc.key(), doc.version(), DocumentState::kLocalMutations);
 }
 
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult {
+- (MaybeDocument)applyToRemoteDocument:(const absl::optional<MaybeDocument> &)maybeDoc
+                        mutationResult:(FSTMutationResult *)mutationResult {
   [self verifyKeyMatches:maybeDoc];
 
   HARD_ASSERT(mutationResult.transformResults,
@@ -421,15 +417,15 @@ NS_ASSUME_NONNULL_BEGIN
   if (!self.precondition.IsValidFor(maybeDoc)) {
     // Since the mutation was not rejected, we know that the precondition matched on the backend.
     // We therefore must not have the expected version of the document in our cache and return an
-    // FSTUnknownDocument with the known updateTime.
-    return [FSTUnknownDocument documentWithKey:self.key version:mutationResult.version];
+    // UnknownDocument with the known updateTime.
+    return UnknownDocument(self.key, mutationResult.version);
   }
 
   // We only support transforms with precondition exists, so we can only apply it to an existing
   // document
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
+  HARD_ASSERT(maybeDoc && maybeDoc->is_document(), "Unknown MaybeDocument type %s",
+              maybeDoc->type());
+  Document doc = Document(*maybeDoc);
 
   HARD_ASSERT(mutationResult.transformResults.has_value());
 
@@ -437,21 +433,19 @@ NS_ASSUME_NONNULL_BEGIN
       [self serverTransformResultsWithBaseDocument:maybeDoc
                             serverTransformResults:*mutationResult.transformResults];
 
-  ObjectValue newData = [self transformObject:doc.data transformResults:transformResults];
+  ObjectValue newData = [self transformObject:doc.data() transformResults:transformResults];
 
-  return [FSTDocument documentWithData:newData
-                                   key:self.key
-                               version:mutationResult.version
-                                 state:DocumentState::kCommittedMutations];
+  return Document(std::move(newData), self.key, mutationResult.version,
+                  DocumentState::kCommittedMutations);
 }
 
-- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+- (absl::optional<ObjectValue>)extractBaseValue:(const absl::optional<MaybeDocument> &)maybeDoc {
   absl::optional<ObjectValue> base_object = absl::nullopt;
 
   for (const FieldTransform &transform : self.fieldTransforms) {
     absl::optional<FieldValue> existing_value;
-    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      existing_value = {[((FSTDocument *)maybeDoc) fieldForPath:transform.path()]};
+    if (maybeDoc && maybeDoc->is_document()) {
+      existing_value = Document(*maybeDoc).field(transform.path());
     }
 
     absl::optional<FieldValue> coerced_value =
@@ -477,7 +471,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (std::vector<FieldValue>)
-    serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
+    serverTransformResultsWithBaseDocument:(const absl::optional<MaybeDocument> &)baseDocument
                     serverTransformResults:(const std::vector<FieldValue> &)serverTransformResults {
   std::vector<FieldValue> transformResults;
   HARD_ASSERT(self.fieldTransforms.size() == serverTransformResults.size(),
@@ -489,8 +483,8 @@ NS_ASSUME_NONNULL_BEGIN
     const TransformOperation &transform = fieldTransform.transformation();
 
     absl::optional<model::FieldValue> previousValue;
-    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    if (baseDocument->is_document()) {
+      previousValue = Document(*baseDocument).field(fieldTransform.path());
     }
 
     transformResults.push_back(
@@ -510,24 +504,24 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (std::vector<FieldValue>)
-    localTransformResultsWithLocalDocument:(nullable FSTMaybeDocument *)maybeDocument
-                              baseDocument:(nullable FSTMaybeDocument *)baseDocument
+    localTransformResultsWithLocalDocument:(const absl::optional<MaybeDocument> &)maybeDocument
+                              baseDocument:(const absl::optional<MaybeDocument> &)baseDocument
                                  writeTime:(const Timestamp &)localWriteTime {
   std::vector<FieldValue> transformResults;
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
     const TransformOperation &transform = fieldTransform.transformation();
 
     absl::optional<FieldValue> previousValue;
-    if ([maybeDocument isMemberOfClass:[FSTDocument class]]) {
-      previousValue = [((FSTDocument *)maybeDocument) fieldForPath:fieldTransform.path()];
+    if (maybeDocument && maybeDocument->is_document()) {
+      previousValue = Document(*maybeDocument).field(fieldTransform.path());
     }
 
-    if (!previousValue && [baseDocument isMemberOfClass:[FSTDocument class]]) {
+    if (!previousValue && baseDocument && baseDocument->is_document()) {
       // If the current document does not contain a value for the mutated field, use the value
       // that existed before applying this mutation batch. This solves an edge case where a
       // FSTPatchMutation clears the values in a nested map before the FSTTransformMutation is
       // applied.
-      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+      previousValue = Document(*baseDocument).field(fieldTransform.path());
     }
     transformResults.push_back(transform.ApplyToLocalView(previousValue, localWriteTime));
   }
@@ -574,22 +568,21 @@ NS_ASSUME_NONNULL_BEGIN
                                     self.key.ToString().c_str(), self.precondition.description()];
 }
 
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const Timestamp &)localWriteTime {
+- (absl::optional<MaybeDocument>)applyToLocalDocument:
+                                     (const absl::optional<MaybeDocument> &)maybeDoc
+                                         baseDocument:(const absl::optional<MaybeDocument> &)baseDoc
+                                       localWriteTime:(const Timestamp &)localWriteTime {
   [self verifyKeyMatches:maybeDoc];
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
-  return [FSTDeletedDocument documentWithKey:self.key
-                                     version:SnapshotVersion::None()
-                       hasCommittedMutations:NO];
+  return NoDocument(self.key, SnapshotVersion::None(), /* has_committed_mutations= */ false);
 }
 
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult {
+- (MaybeDocument)applyToRemoteDocument:(const absl::optional<MaybeDocument> &)maybeDoc
+                        mutationResult:(FSTMutationResult *)mutationResult {
   [self verifyKeyMatches:maybeDoc];
 
   if (mutationResult) {
@@ -602,12 +595,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   // We store the deleted document at the commit version of the delete. Any document version
   // that the server sends us before the delete was applied is discarded
-  return [FSTDeletedDocument documentWithKey:self.key
-                                     version:mutationResult.version
-                       hasCommittedMutations:YES];
+  return NoDocument(self.key, mutationResult.version, /* has_committed_mutations= */ true);
 }
 
-- (absl::optional<ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc {
+- (absl::optional<ObjectValue>)extractBaseValue:(const absl::optional<MaybeDocument> &)maybeDoc {
   return absl::nullopt;
 }
 

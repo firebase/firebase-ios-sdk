@@ -18,8 +18,6 @@
 
 #include <ostream>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -30,6 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentSet;
@@ -37,11 +36,11 @@ using util::StringFormat;
 
 // DocumentViewChange
 
-DocumentViewChange::DocumentViewChange(FSTDocument* document, Type type)
-    : document_{document}, type_{type} {
+DocumentViewChange::DocumentViewChange(Document document, Type type)
+    : document_{std::move(document)}, type_{type} {
 }
 
-FSTDocument* DocumentViewChange::document() const {
+const Document& DocumentViewChange::document() const {
   return document_;
 }
 
@@ -55,14 +54,13 @@ size_t DocumentViewChange::Hash() const {
 }
 
 bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs) {
-  return objc::Equals(lhs.document(), rhs.document()) &&
-         lhs.type() == rhs.type();
+  return lhs.document() == rhs.document() && lhs.type() == rhs.type();
 }
 
 // DocumentViewChangeSet
 
 void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
-  const DocumentKey& key = change.document().key;
+  const DocumentKey& key = change.document().key();
   auto old_change_iter = change_map_.find(key);
   if (old_change_iter == change_map_.end()) {
     change_map_ = change_map_.insert(key, change);
@@ -164,7 +162,7 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
     bool from_cache,
     bool excludes_metadata_changes) {
   std::vector<DocumentViewChange> view_changes;
-  for (FSTDocument* doc : documents) {
+  for (const Document& doc : documents) {
     view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
 

@@ -36,7 +36,6 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -71,8 +70,10 @@ using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::Datastore;
@@ -356,16 +357,16 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   _workerQueue->Enqueue([self, doc, shared_callback] {
-    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
+    absl::optional<MaybeDocument> maybeDoc = [self.localStore readDocument:doc.key()];
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
-    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      FSTDocument *document = (FSTDocument *)maybeDoc;
+    if (maybeDoc && maybeDoc->is_document()) {
+      Document document = Document(*maybeDoc);
       maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), document,
                                         /*from_cache=*/true,
-                                        /*has_pending_writes=*/document.hasLocalMutations};
-    } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), nil,
+                                        /*has_pending_writes=*/document.has_local_mutations()};
+    } else if (maybeDoc && maybeDoc->is_no_document()) {
+      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), absl::nullopt,
                                         /*from_cache=*/true,
                                         /*has_pending_writes=*/false};
     } else {

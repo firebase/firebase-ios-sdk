@@ -16,20 +16,17 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/types/optional.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace api {
 
+using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
 using model::FieldValue;
@@ -37,22 +34,22 @@ using model::ObjectValue;
 
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
-                                   FSTDocument* _Nullable document,
+                                   absl::optional<Document> document,
                                    SnapshotMetadata metadata)
     : firestore_{std::move(firestore)},
       internal_key_{std::move(document_key)},
-      internal_document_{document},
+      internal_document_{std::move(document)},
       metadata_{std::move(metadata)} {
 }
 
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
-                                   FSTDocument* _Nullable document,
+                                   absl::optional<Document> document,
                                    bool from_cache,
                                    bool has_pending_writes)
     : firestore_{std::move(firestore)},
       internal_key_{std::move(document_key)},
-      internal_document_{document},
+      internal_document_{std::move(document)},
       metadata_{has_pending_writes, from_cache} {
 }
 
@@ -62,10 +59,10 @@ size_t DocumentSnapshot::Hash() const {
 }
 
 bool DocumentSnapshot::exists() const {
-  return internal_document_ != nil;
+  return internal_document_.has_value();
 }
 
-FSTDocument* DocumentSnapshot::internal_document() const {
+const absl::optional<Document>& DocumentSnapshot::internal_document() const {
   return internal_document_;
 }
 
@@ -78,25 +75,23 @@ const std::string& DocumentSnapshot::document_id() const {
 }
 
 absl::optional<ObjectValue> DocumentSnapshot::GetData() const {
-  return internal_document_ == nil ? absl::optional<ObjectValue>{}
-                                   : [internal_document_ data];
+  return internal_document_ ? internal_document_->data()
+                            : absl::optional<ObjectValue>{};
 }
 
 absl::optional<FieldValue> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
-  return internal_document_ == nil ? absl::optional<ObjectValue>{}
-                                   : [internal_document_ data].Get(field_path);
+  return internal_document_ ? internal_document_->field(field_path)
+                            : absl::optional<ObjectValue>{};
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          lhs.internal_key_ == rhs.internal_key_ &&
-         objc::Equals(lhs.internal_document_, rhs.internal_document_) &&
+         lhs.internal_document_ == rhs.internal_document_ &&
          lhs.metadata_ == rhs.metadata_;
 }
 
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

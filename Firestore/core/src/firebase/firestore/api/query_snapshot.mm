@@ -18,8 +18,6 @@
 
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -37,6 +35,7 @@ namespace api {
 using api::Firestore;
 using core::DocumentViewChange;
 using core::ViewSnapshot;
+using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
 
@@ -73,9 +72,9 @@ void QuerySnapshot::ForEachDocument(
   DocumentSet documentSet = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (FSTDocument* document : documentSet) {
-    bool has_pending_writes = snapshot_.mutated_keys().contains(document.key);
-    DocumentSnapshot snap(firestore_, document.key, document, from_cache,
+  for (const Document& document : documentSet) {
+    bool has_pending_writes = snapshot_.mutated_keys().contains(document.key());
+    DocumentSnapshot snap(firestore_, document.key(), document, from_cache,
                           has_pending_writes);
     callback(std::move(snap));
   }
@@ -110,19 +109,19 @@ void QuerySnapshot::ForEachChange(
     // fast. Also all changes on the first snapshot are adds so there are also
     // no metadata-only changes to filter out.
     DocumentComparator doc_comparator = snapshot_.query().Comparator();
-    FSTDocument* last_document = nil;
+    absl::optional<Document> last_document;
     size_t index = 0;
     for (const DocumentViewChange& change : snapshot_.document_changes()) {
-      FSTDocument* doc = change.document();
+      const Document& doc = change.document();
       SnapshotMetadata metadata(
-          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key),
+          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key, doc, metadata);
+      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
       HARD_ASSERT(!last_document || util::Ascending(doc_comparator.Compare(
-                                        last_document, change.document())),
+                                        *last_document, change.document())),
                   "Got added events in wrong order");
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),
@@ -140,23 +139,23 @@ void QuerySnapshot::ForEachChange(
         continue;
       }
 
-      FSTDocument* doc = change.document();
+      const Document& doc = change.document();
       SnapshotMetadata metadata(
-          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key),
+          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key()),
           /*from_cache=*/snapshot_.from_cache());
-      DocumentSnapshot document(firestore_, doc.key, doc, metadata);
+      DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
 
       size_t old_index = DocumentChange::npos;
       size_t new_index = DocumentChange::npos;
       if (change.type() != DocumentViewChange::Type::kAdded) {
-        old_index = index_tracker.IndexOf(change.document().key);
+        old_index = index_tracker.IndexOf(change.document().key());
         HARD_ASSERT(old_index != DocumentSet::npos,
                     "Index for document not found");
-        index_tracker = index_tracker.erase(change.document().key);
+        index_tracker = index_tracker.erase(change.document().key());
       }
       if (change.type() != DocumentViewChange::Type::kRemoved) {
         index_tracker = index_tracker.insert(change.document());
-        new_index = index_tracker.IndexOf(change.document().key);
+        new_index = index_tracker.IndexOf(change.document().key());
       }
 
       DocumentChange::Type type = DocumentChangeTypeForChange(change);

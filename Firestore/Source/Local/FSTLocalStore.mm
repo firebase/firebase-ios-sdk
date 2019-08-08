@@ -26,7 +26,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -47,9 +46,11 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 #include "absl/types/optional.h"
 
+namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::Query;
@@ -70,8 +71,10 @@ using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::OptionalMaybeDocumentMap;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -195,9 +198,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // transform.
     std::vector<FSTMutation *> baseMutations;
     for (FSTMutation *mutation : mutations) {
-      auto base_document_it = existingDocuments.find(mutation.key);
-      FSTMaybeDocument *base_document =
-          base_document_it != existingDocuments.end() ? base_document_it->second : nil;
+      absl::optional<MaybeDocument> base_document = existingDocuments.get(mutation.key);
 
       absl::optional<ObjectValue> base_value = [mutation extractBaseValue:base_document];
       if (base_value) {
@@ -305,7 +306,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       }
     }
 
-    MaybeDocumentMap changedDocs;
+    OptionalMaybeDocumentMap changedDocs;
     const DocumentKeySet &limboDocuments = remoteEvent.limbo_document_changes();
     DocumentKeySet updatedKeys;
     for (const auto &kv : remoteEvent.document_updates()) {
@@ -313,30 +314,29 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
     // documents in advance in a single call.
-    MaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
+    OptionalMaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
 
     for (const auto &kv : remoteEvent.document_updates()) {
       const DocumentKey &key = kv.first;
-      FSTMaybeDocument *doc = kv.second;
-      FSTMaybeDocument *existingDoc = nil;
-      auto foundExisting = existingDocs.find(key);
-      if (foundExisting != existingDocs.end()) {
-        existingDoc = foundExisting->second;
+      const MaybeDocument &doc = kv.second;
+      absl::optional<MaybeDocument> existingDoc;
+      auto foundExisting = existingDocs.get(key);
+      if (foundExisting) {
+        existingDoc = *foundExisting;
       }
 
       // If a document update isn't authoritative, make sure we don't apply an old document version
       // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
       // manufactured events (e.g. in the case of a limbo document resolution failing).
-      if (!existingDoc || doc.version == SnapshotVersion::None() ||
-          (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
-          doc.version >= existingDoc.version) {
+      if (!existingDoc || doc.version() == SnapshotVersion::None() ||
+          (authoritativeUpdates.contains(doc.key()) && !existingDoc->has_pending_writes()) ||
+          doc.version() >= existingDoc->version()) {
         _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
                   "Current version: %s  Watch version: %s",
-                  key.ToString(), existingDoc.version.timestamp().ToString(),
-                  doc.version.timestamp().ToString());
+                  key.ToString(), existingDoc->version().ToString(), doc.version().ToString());
       }
 
       // If this was a limbo resolution, make sure we mark when it was accessed.
@@ -418,8 +418,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   return result;
 }
 
-- (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+- (absl::optional<MaybeDocument>)readDocument:(const DocumentKey &)key {
+  return self.persistence.run("ReadDocument", [&]() -> absl::optional<MaybeDocument> {
     return _localDocuments->GetDocument(key);
   });
 }
@@ -495,20 +495,20 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   DocumentKeySet docKeys = batch.keys;
   const DocumentVersionMap &versions = batchResult.docVersions;
   for (const DocumentKey &docKey : docKeys) {
-    FSTMaybeDocument *_Nullable remoteDoc = _remoteDocumentCache->Get(docKey);
-    FSTMaybeDocument *_Nullable doc = remoteDoc;
+    absl::optional<MaybeDocument> remoteDoc = _remoteDocumentCache->Get(docKey);
+    absl::optional<MaybeDocument> doc = remoteDoc;
 
     auto ackVersionIter = versions.find(docKey);
     HARD_ASSERT(ackVersionIter != versions.end(),
                 "docVersions should contain every doc in the write.");
     const SnapshotVersion &ackVersion = ackVersionIter->second;
-    if (!doc || doc.version < ackVersion) {
+    if (!doc || doc->version() < ackVersion) {
       doc = [batch applyToRemoteDocument:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
-        HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nil.", batch,
-                    remoteDoc);
+        HARD_ASSERT(!doc, "Mutation batch %s applied to document %s resulted in nil.", batch,
+                    util::ToString(remoteDoc));
       } else {
-        _remoteDocumentCache->Add(doc);
+        _remoteDocumentCache->Add(*doc);
       }
     }
   }

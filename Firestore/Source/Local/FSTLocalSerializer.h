@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-@class FSTMaybeDocument;
 @class FSTMutationBatch;
 @class FSTQueryData;
 @class FSTSerializerBeta;
@@ -46,11 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Encodes an FSTMaybeDocument model to the equivalent protocol buffer for local storage. */
-- (FSTPBMaybeDocument *)encodedMaybeDocument:(FSTMaybeDocument *)document;
+/** Encodes an MaybeDocument model to the equivalent protocol buffer for local storage. */
+- (FSTPBMaybeDocument *)encodedMaybeDocument:(const model::MaybeDocument &)document;
 
 /** Decodes an FSTPBMaybeDocument proto to the equivalent model. */
-- (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto;
+- (model::MaybeDocument)decodedMaybeDocument:(FSTPBMaybeDocument *)proto;
 
 /** Encodes an FSTMutationBatch model for local storage in the mutation queue. */
 - (FSTPBWriteBatch *)encodedMutationBatch:(FSTMutationBatch *)batch;

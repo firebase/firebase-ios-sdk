@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
 
 #if !defined(__OBJC__)
-// TODO(varconst): the only dependencies are `FSTMaybeDocument` and `NSData`
-// (the latter is used to represent the resume token).
+// TODO(varconst): the only dependency is `NSData`
+// (used to represent the resume token).
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
@@ -34,11 +34,11 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-@class FSTMaybeDocument;
 @class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -246,7 +246,7 @@ class RemoteEvent {
               std::unordered_map<model::TargetId, TargetChange> target_changes,
               std::unordered_set<model::TargetId> target_mismatches,
               std::unordered_map<model::DocumentKey,
-                                 FSTMaybeDocument*,
+                                 model::MaybeDocument,
                                  model::DocumentKeyHash> document_updates,
               model::DocumentKeySet limbo_document_changes)
       : snapshot_version_{snapshot_version},
@@ -280,7 +280,7 @@ class RemoteEvent {
    * new values (if not deleted).
    */
   const std::unordered_map<model::DocumentKey,
-                           FSTMaybeDocument*,
+                           model::MaybeDocument,
                            model::DocumentKeyHash>&
   document_updates() const {
     return document_updates_;
@@ -298,7 +298,7 @@ class RemoteEvent {
   std::unordered_map<model::TargetId, TargetChange> target_changes_;
   std::unordered_set<model::TargetId> target_mismatches_;
   std::unordered_map<model::DocumentKey,
-                     FSTMaybeDocument*,
+                     model::MaybeDocument,
                      model::DocumentKeyHash>
       document_updates_;
   model::DocumentKeySet limbo_document_changes_;
@@ -361,7 +361,7 @@ class WatchChangeAggregator {
    * document key to the given target's mapping.
    */
   void AddDocumentToTarget(model::TargetId target_id,
-                           FSTMaybeDocument* document);
+                           const model::MaybeDocument& document);
 
   /**
    * Removes the provided document from the target mapping. If the document no
@@ -370,9 +370,10 @@ class WatchChangeAggregator {
    * the filter mismatch), the new document can be provided to update the remote
    * document cache.
    */
-  void RemoveDocumentFromTarget(model::TargetId target_id,
-                                const model::DocumentKey& key,
-                                FSTMaybeDocument* _Nullable updated_document);
+  void RemoveDocumentFromTarget(
+      model::TargetId target_id,
+      const model::DocumentKey& key,
+      const absl::optional<model::MaybeDocument>& updated_document);
 
   /**
    * Returns the current count of documents in the target. This includes both
@@ -420,7 +421,7 @@ class WatchChangeAggregator {
 
   /** Keeps track of the documents to update since the last raised snapshot. */
   std::unordered_map<model::DocumentKey,
-                     FSTMaybeDocument*,
+                     model::MaybeDocument,
                      model::DocumentKeyHash>
       pending_document_updates_;
 

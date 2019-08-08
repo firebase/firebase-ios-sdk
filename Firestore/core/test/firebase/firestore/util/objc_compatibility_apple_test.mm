@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
+#import <FirebaseFirestore/FIRGeoPoint.h>
 #import <Foundation/NSArray.h>
 
 #include <string>
@@ -23,12 +24,12 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
 // Include this to validate that it does not cause ambiguity.
@@ -38,37 +39,41 @@ namespace firebase {
 namespace firestore {
 namespace objc {
 
+using model::Document;
 using model::DocumentState;
 
-TEST(ObjCCompatibilityTest, Equals) {
-  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
-  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
-  FSTDocument* doc2 = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
+using testutil::Doc;
+using testutil::Map;
 
-  EXPECT_TRUE(Equals(doc1a, doc1b));
-  EXPECT_FALSE(Equals(doc1a, doc2));
-  EXPECT_FALSE(Equals(doc1b, doc2));
+TEST(ObjCCompatibilityTest, Equals) {
+  auto point_1a = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
+  auto point_1b = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
+  auto point_2 = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:40];
+
+  EXPECT_TRUE(Equals(point_1a, point_1b));
+  EXPECT_FALSE(Equals(point_1a, point_2));
+  EXPECT_FALSE(Equals(point_1b, point_2));
 }
 
 TEST(ObjCCompatibilityTest, ContainerEquals) {
-  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
-  FSTDocument* doc2a = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
-  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, DocumentState::kSynced);
-  FSTDocument* doc2b = FSTTestDoc("b/c", 1, @{}, DocumentState::kSynced);
+  auto point_1a = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
+  auto point_1b = [[FIRGeoPoint alloc] initWithLatitude:25 longitude:50];
+  auto point_2a = [[FIRGeoPoint alloc] initWithLatitude:40 longitude:20];
+  auto point_2b = [[FIRGeoPoint alloc] initWithLatitude:40 longitude:20];
 
-  std::vector<FSTDocument*> v1{doc1a, doc2a};
-  std::vector<FSTDocument*> v2{doc1b, doc2b};
-  std::vector<FSTDocument*> v3{doc1a, doc1b};
+  NSArray<FIRGeoPoint*>* v1 = @[ point_1a, point_2a ];
+  NSArray<FIRGeoPoint*>* v2 = @[ point_1b, point_2b ];
+  NSArray<FIRGeoPoint*>* v3 = @[ point_1a, point_1b ];
   EXPECT_TRUE(Equals(v1, v2));
   EXPECT_FALSE(Equals(v1, v3));
   EXPECT_FALSE(Equals(v2, v3));
 }
 
 TEST(ObjCCompatibilityTest, NilEquals) {
-  FSTDocument* doc1 = nil;
-  FSTDocument* doc2 = nil;
-  EXPECT_FALSE([doc1 isEqual:doc2]);
-  EXPECT_TRUE(Equals(doc1, doc2));
+  FIRGeoPoint* point_1;
+  FIRGeoPoint* point_2;
+  EXPECT_FALSE([point_1 isEqual:point_2]);
+  EXPECT_TRUE(Equals(point_1, point_2));
 }
 
 TEST(ObjCCompatibilityTest, Description) {

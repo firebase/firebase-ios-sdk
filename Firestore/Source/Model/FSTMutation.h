@@ -24,13 +24,12 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "absl/types/optional.h"
 
-@class FSTDocument;
-@class FSTMaybeDocument;
 @class FIRTimestamp;
 
 namespace model = firebase::firestore::model;
@@ -107,12 +106,12 @@ NS_ASSUME_NONNULL_BEGIN
  * commitTime of the WriteResponse for acknowledged deletes.
  *
  * If a mutation is acknowledged by the backend but fails the precondition check locally, we
- * return an `FSTUnknownDocument` and rely on Watch to send us the updated version.
+ * return an `UnknownDocument` and rely on Watch to send us the updated version.
  *
- * Note that FSTTransformMutations don't create Documents (in the case of being applied to an
- * FSTDeletedDocument), even though they would on the backend. This is because the client always
+ * Note that FSTTransformMutations don't create Documents (in the case of being applied to a
+ * DeletedDocument), even though they would on the backend. This is because the client always
  * combines the FSTTransformMutations with a FSTSetMutation or FSTPatchMutation and we only want to
- * apply the transform if the prior mutation resulted in an FSTDocument (always true for an
+ * apply the transform if the prior mutation resulted in an Document (always true for an
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
 @interface FSTMutation : NSObject
@@ -123,21 +122,21 @@ NS_ASSUME_NONNULL_BEGIN
                precondition:(model::Precondition)precondition NS_DESIGNATED_INITIALIZER;
 
 /**
- * Applies this mutation to the given FSTMaybeDocument for the purposes of computing a new remote
+ * Applies this mutation to the given MaybeDocument for the purposes of computing a new remote
  * document. If the input document doesn't match the expected state (e.g. it is nil or outdated),
- * an `FSTUnknownDocument` can be returned.
+ * an `UnknownDocument` can be returned.
  *
  * @param maybeDoc The document to mutate. The input document can be nil if the client has no
  *     knowledge of the pre-mutation state of the document.
  * @param mutationResult The result of applying the mutation from the backend.
- * @return The mutated document. The returned document may be an FSTUnknownDocument if the mutation
+ * @return The mutated document. The returned document may be an UnknownDocument if the mutation
  *     could not be applied to the locally cached base document.
  */
-- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                             mutationResult:(FSTMutationResult *)mutationResult;
+- (model::MaybeDocument)applyToRemoteDocument:(const absl::optional<model::MaybeDocument> &)maybeDoc
+                               mutationResult:(FSTMutationResult *)mutationResult;
 
 /**
- * Applies this mutation to the given FSTMaybeDocument for the purposes of computing the new local
+ * Applies this mutation to the given MaybeDocument for the purposes of computing the new local
  * view of a document. Both the input and returned documents can be nil.
  *
  * @param maybeDoc The document to mutate. The input document can be nil if the client has no
@@ -149,9 +148,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The mutated document. The returned document may be nil, but only if maybeDoc was nil
  * and the mutation would not create a new document.
  */
-- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                                     localWriteTime:(const firebase::Timestamp &)localWriteTime;
+- (absl::optional<model::MaybeDocument>)
+    applyToLocalDocument:(const absl::optional<model::MaybeDocument> &)maybeDoc
+            baseDocument:(const absl::optional<model::MaybeDocument> &)baseDoc
+          localWriteTime:(const firebase::Timestamp &)localWriteTime;
 
 /**
  * If this mutation is not idempotent, returns the base value to persist with this mutation.
@@ -167,7 +167,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return a base value to store along with the mutation, or empty for idempotent mutations.
  */
-- (absl::optional<model::ObjectValue>)extractBaseValue:(nullable FSTMaybeDocument *)maybeDoc;
+- (absl::optional<model::ObjectValue>)extractBaseValue:
+    (const absl::optional<model::MaybeDocument> &)maybeDoc;
 
 - (const model::DocumentKey &)key;
 
@@ -254,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
  * be supported in the future.
  *
  * It is somewhat similar to an FSTPatchMutation in that it patches specific fields and has no
- * effect when applied to nil or an FSTDeletedDocument (see comment on [FSTMutation applyTo] for
+ * effect when applied to nil or a DeletedDocument (see comment on [FSTMutation applyTo] for
  * rationale).
  */
 @interface FSTTransformMutation : FSTMutation
