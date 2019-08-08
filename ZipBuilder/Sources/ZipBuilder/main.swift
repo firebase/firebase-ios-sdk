@@ -53,6 +53,7 @@ do {
   print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
   // Package carthage if it's enabled.
+  var carthageRoot: URL? = nil
   if let carthageJSONDir = args.carthageDir {
     do {
       print("Creating Carthage release...")
@@ -64,9 +65,9 @@ do {
       try fileManager.copyItem(at: location, to: carthagePath)
 
       // Package the Carthage distribution with the current directory structure.
-      let carthageRoot = location.deletingLastPathComponent().appendingPathComponent("carthage")
-      fileManager.removeDirectoryIfExists(at: carthageRoot)
-      var output = carthageRoot.appendingPathComponent(firebaseVersion)
+      let carthageDir = location.deletingLastPathComponent().appendingPathComponent("carthage")
+      fileManager.removeDirectoryIfExists(at: carthageDir)
+      var output = carthageDir.appendingPathComponent(firebaseVersion)
       if let rcNumber = args.rcNumber {
         output.appendPathComponent("rc\(rcNumber)")
       }
@@ -80,6 +81,9 @@ do {
       // Remove the duplicated Carthage build directory.
       fileManager.removeDirectoryIfExists(at: carthagePath)
       print("Done creating Carthage release! Files written to \(output)")
+
+      // Save the directory for later copying.
+      carthageRoot = carthageDir
     } catch {
       fatalError("Could not copy output directory for Carthage build: \(error)")
     }
@@ -132,6 +136,16 @@ do {
       try FileManager.default.copyItem(at: zipped, to: destination)
     } catch {
       fatalError("Could not copy Zip file to output directory: \(error)")
+    }
+
+    // Move the Carthage directory, if it exists.
+    if let carthageOutput = carthageRoot {
+      do {
+        let carthageDir = outputDir.appendingPathComponent("carthage")
+        try FileManager.default.copyItem(at: carthageOutput, to: carthageDir)
+      } catch {
+        fatalError("Could not copy Carthage output to directory: \(error)")
+      }
     }
   } else {
     print("Success! Zip file can be found at \(zipped.path)")

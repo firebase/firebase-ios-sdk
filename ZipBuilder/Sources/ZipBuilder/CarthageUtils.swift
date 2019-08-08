@@ -48,7 +48,7 @@ public extension CarthageUtils {
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
-      let jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
+      var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
       guard jsonManifest[firebaseVersion] == nil else {
         print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
         continue
@@ -106,14 +106,53 @@ public extension CarthageUtils {
         fatalError("Could not hash contents of \(product) for Carthage build. \(error)")
       }
 
+      // Generate the zip name to write to the manifest as well as the actual zip file.
       let zipName = "\(product)-\(hash).zip"
       let productZip = outputDir.appendingPathComponent(zipName)
       let zipped = Zip.zipContents(ofDir: fullPath, name: zipName)
+
       do {
         try FileManager.default.moveItem(at: zipped, to: productZip)
       } catch {
         fatalError("Could not move packaged zip file for \(product) during Carthage build. " +
           "\(error)")
+      }
+
+      // Force unwrapping because this can't fail at this point.
+      let url =
+        URL(string: "https://dl.google.com/dl/firebase/ios/carthage/\(firebaseVersion)/\(zipName)")!
+      jsonManifest[firebaseVersion] = url
+
+      // Write the updated manifest.
+      let manifestPath = outputDir.appendingPathComponent("Firebase" + product + "Binary.json")
+
+      // Unfortunate workaround: There's a strange issue when serializing to JSON on macOS: URLs
+      // will have the `/` escaped leading to an odd JSON output. Instead, let's output the
+      // dictionary to a String and write that to disk. When Xcode 11 can be used, use a JSON
+      // encoder with the `.withoutEscapingSlashes` option on `outputFormatting` like this:
+//      do {
+//        let encoder = JSONEncoder()
+//        encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
+//        let encodedManifest = try encoder.encode(jsonManifest)
+//      catch { /* handle error */ }
+
+      // Sort the manifest based on the key, $0 and $1 are the parameters and 0 is the first item in
+      // the tuple (key).
+      let sortedManifest = jsonManifest.sorted { $0.0 < $1.0 }
+      var contents: String = "{\n"
+      sortedManifest.forEach { key, value in
+        contents += "  \"\(key)\": \"\(value.absoluteString)\"\n"
+      }
+      contents += "}\n"
+      guard let encodedManifest = contents.data(using: .utf8) else {
+        fatalError("Could not encode Carthage JSON manifest for \(product) - UTF8 encoding failed.")
+      }
+
+      do {
+        try encodedManifest.write(to: manifestPath)
+        print("Successfully written Carthage JSON manifest for \(product).")
+      } catch {
+        fatalError("Could not write new Carthage JSON manifest to disk for \(product). \(error)")
       }
     }
   }

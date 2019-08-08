@@ -207,7 +207,7 @@ struct ZipBuilder {
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
-    var frameworks = generateFrameworks(fromPods: installedPods,
+    let frameworks = generateFrameworks(fromPods: installedPods,
                                         inProjectDir: projectDir,
                                         useCache: useCache)
 

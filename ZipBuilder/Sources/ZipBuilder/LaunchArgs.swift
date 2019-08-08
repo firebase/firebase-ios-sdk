@@ -222,7 +222,7 @@ struct LaunchArgs {
     if let carthagePath = defaults.string(forKey: Key.carthageDir.rawValue) {
       let url = URL(fileURLWithPath: carthagePath)
       guard fileChecker.directoryExists(at: url) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.outputDir) key: value " +
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.carthageDir) key: value " +
           "passed in is not a file URL or the directory does not exist. Value: \(carthagePath)")
       }
 
