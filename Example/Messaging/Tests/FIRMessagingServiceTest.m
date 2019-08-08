@@ -24,7 +24,6 @@
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-#import "Firebase/Messaging/InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 static NSString *const kFakeToken =
@@ -32,8 +31,10 @@ static NSString *const kFakeToken =
     @"yUTTzK6dhIvLqzqqCSabaa4TQVM0pGTmF6r7tmMHPe6VYiGMHuCwJFgj5v97xl78sUNMLwuPPhoci8z_"
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
 static NSString *const kFakeID = @"fE1e1PZJFSQ";
-
-NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
+static NSString *const kFIRMessagingSDKClassString = @"FIRMessaging";
+static NSString *const kFIRMessagingSDKVersionSelectorString = @"FIRMessagingSDKVersion";
+static NSString *const kFIRMessagingSDKLocaleSelectorString = @"FIRMessagingSDKCurrentLocale";
+static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
 
 @interface FIRMessaging () <FIRMessagingClientDelegate>
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
