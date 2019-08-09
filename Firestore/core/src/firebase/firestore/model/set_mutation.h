@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SET_MUTATION_H_
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -40,33 +41,57 @@ namespace model {
  */
 class SetMutation : public Mutation {
  public:
-  SetMutation(DocumentKey&& key,
-              ObjectValue&& value,
-              Precondition&& precondition);
+  SetMutation(DocumentKey key, ObjectValue value, Precondition precondition);
 
-  Type type() const override {
-    return Mutation::Type::Set;
-  }
+  /**
+   * Casts a Mutation to a SetMutation. This is a checked operation that will
+   * assert if the type of the Mutation isn't actually Type::Set.
+   */
+  explicit SetMutation(const Mutation& mutation);
 
-  MaybeDocument ApplyToRemoteDocument(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const MutationResult& mutation_result) const override;
-
-  absl::optional<MaybeDocument> ApplyToLocalView(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const absl::optional<MaybeDocument>& base_doc,
-      const Timestamp& local_write_time) const override;
+  /** Creates an invalid SetMutation instances. */
+  SetMutation() = default;
 
   /** Returns the object value to use when setting the document. */
   const ObjectValue& value() const {
-    return value_;
+    return set_rep().value();
   }
 
- protected:
-  bool equal_to(const Mutation& other) const override;
-
  private:
-  const ObjectValue value_;
+  class Rep : public Mutation::Rep {
+   public:
+    Rep(DocumentKey&& key, ObjectValue&& value, Precondition&& precondition);
+
+    Type type() const override {
+      return Type::Set;
+    }
+
+    const ObjectValue& value() const {
+      return value_;
+    }
+
+    MaybeDocument ApplyToRemoteDocument(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const MutationResult& mutation_result) const override;
+
+    absl::optional<MaybeDocument> ApplyToLocalView(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const absl::optional<MaybeDocument>&,
+        const Timestamp&) const override;
+
+    bool Equals(const Mutation::Rep& other) const override;
+
+    size_t Hash() const override;
+
+    std::string ToString() const override;
+
+   private:
+    ObjectValue value_;
+  };
+
+  const Rep& set_rep() const {
+    return static_cast<const Rep&>(rep());
+  }
 };
 
 }  // namespace model

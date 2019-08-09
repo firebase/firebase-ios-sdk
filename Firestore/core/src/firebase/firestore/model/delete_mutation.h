@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DELETE_MUTATION_H_
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -36,20 +37,39 @@ namespace model {
 /** Represents a Delete operation. */
 class DeleteMutation : public Mutation {
  public:
-  DeleteMutation(DocumentKey&& key, Precondition&& precondition);
+  DeleteMutation(DocumentKey key, Precondition precondition);
 
-  Type type() const override {
-    return Mutation::Type::Delete;
-  }
+  /**
+   * Casts a Mutation to a DeleteMutation. This is a checked operation that will
+   * assert if the type of the Mutation isn't actually Type::Delete.
+   */
+  explicit DeleteMutation(const Mutation& mutation);
 
-  MaybeDocument ApplyToRemoteDocument(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const MutationResult& mutation_result) const override;
+  /** Creates an invalid DeleteMutation instances. */
+  DeleteMutation() = default;
 
-  absl::optional<MaybeDocument> ApplyToLocalView(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const absl::optional<MaybeDocument>& base_doc,
-      const Timestamp& local_write_time) const override;
+ private:
+  class Rep : public Mutation::Rep {
+   public:
+    using Mutation::Rep::Rep;
+
+    Type type() const override {
+      return Type::Delete;
+    }
+
+    MaybeDocument ApplyToRemoteDocument(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const MutationResult& mutation_result) const override;
+
+    absl::optional<MaybeDocument> ApplyToLocalView(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const absl::optional<MaybeDocument>&,
+        const Timestamp&) const override;
+
+    // Does not override Equals; Mutation's version is sufficient.
+
+    std::string ToString() const override;
+  };
 };
 
 }  // namespace model

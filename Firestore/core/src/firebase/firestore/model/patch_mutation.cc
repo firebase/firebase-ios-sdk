@@ -29,16 +29,29 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-PatchMutation::PatchMutation(DocumentKey&& key,
-                             ObjectValue&& value,
-                             FieldMask&& mask,
-                             Precondition&& precondition)
-    : Mutation(std::move(key), std::move(precondition)),
+PatchMutation::PatchMutation(DocumentKey key,
+                             ObjectValue value,
+                             FieldMask mask,
+                             Precondition precondition)
+    : Mutation(std::make_shared<Rep>(std::move(key),
+                                     std::move(value),
+                                     std::move(mask),
+                                     std::move(precondition))) {
+}
+
+PatchMutation::PatchMutation(const Mutation& mutation) : Mutation(mutation) {
+}
+
+PatchMutation::Rep::Rep(DocumentKey&& key,
+                        ObjectValue&& value,
+                        FieldMask&& mask,
+                        Precondition&& precondition)
+    : Mutation::Rep(std::move(key), std::move(precondition)),
       value_(std::move(value)),
       mask_(std::move(mask)) {
 }
 
-MaybeDocument PatchMutation::ApplyToRemoteDocument(
+MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
     const absl::optional<MaybeDocument>& maybe_doc,
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
@@ -65,7 +78,7 @@ MaybeDocument PatchMutation::ApplyToRemoteDocument(
                   DocumentState::kCommittedMutations);
 }
 
-absl::optional<MaybeDocument> PatchMutation::ApplyToLocalView(
+absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
     const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
@@ -81,7 +94,7 @@ absl::optional<MaybeDocument> PatchMutation::ApplyToLocalView(
                   DocumentState::kLocalMutations);
 }
 
-ObjectValue PatchMutation::PatchDocument(
+ObjectValue PatchMutation::Rep::PatchDocument(
     const absl::optional<MaybeDocument>& maybe_doc) const {
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
     return PatchObject(Document(*maybe_doc).data());
@@ -90,7 +103,7 @@ ObjectValue PatchMutation::PatchDocument(
   }
 }
 
-ObjectValue PatchMutation::PatchObject(ObjectValue obj) const {
+ObjectValue PatchMutation::Rep::PatchObject(ObjectValue obj) const {
   for (const FieldPath& path : mask_) {
     if (!path.empty()) {
       absl::optional<FieldValue> new_value = value_.Get(path);
@@ -104,10 +117,22 @@ ObjectValue PatchMutation::PatchObject(ObjectValue obj) const {
   return obj;
 }
 
-bool PatchMutation::equal_to(const Mutation& other) const {
-  if (!Mutation::equal_to(other)) return false;
-  const PatchMutation& patch_other = static_cast<const PatchMutation&>(other);
-  return value_ == patch_other.value_ && mask_ == patch_other.mask_;
+bool PatchMutation::Rep::Equals(const Mutation::Rep& other) const {
+  if (!Mutation::Rep::Equals(other)) return false;
+
+  const auto& other_rep = static_cast<const PatchMutation::Rep&>(other);
+  return value_ == other_rep.value_ && mask_ == other_rep.mask_;
+}
+
+size_t PatchMutation::Rep::Hash() const {
+  return util::Hash(Mutation::Rep::Hash(), mask_, value_);
+}
+
+std::string PatchMutation::Rep::ToString() const {
+  return absl::StrCat("PatchMutation(key=", key().ToString(),
+                      ", precondition=", precondition().ToString(),
+                      ", value=", value().ToString(),
+                      ", mask=", mask().ToString(), ")");
 }
 
 }  // namespace model

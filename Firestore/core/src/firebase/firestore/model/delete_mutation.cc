@@ -29,18 +29,21 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-DeleteMutation::DeleteMutation(DocumentKey&& key, Precondition&& precondition)
-    : Mutation(std::move(key), std::move(precondition)) {
+DeleteMutation::DeleteMutation(DocumentKey key, Precondition precondition)
+    : Mutation(std::make_shared<Rep>(std::move(key), std::move(precondition))) {
 }
 
-MaybeDocument DeleteMutation::ApplyToRemoteDocument(
+DeleteMutation::DeleteMutation(const Mutation& mutation) : Mutation(mutation) {
+}
+
+MaybeDocument DeleteMutation::Rep::ApplyToRemoteDocument(
     const absl::optional<MaybeDocument>& /*maybe_doc*/,
     const MutationResult& /*mutation_result*/) const {
   // TODO(rsgowman): Implement.
   abort();
 }
 
-absl::optional<MaybeDocument> DeleteMutation::ApplyToLocalView(
+absl::optional<MaybeDocument> DeleteMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
     const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
@@ -52,6 +55,11 @@ absl::optional<MaybeDocument> DeleteMutation::ApplyToLocalView(
 
   return NoDocument(key(), SnapshotVersion::None(),
                     /* has_committed_mutations= */ false);
+}
+
+std::string DeleteMutation::Rep::ToString() const {
+  return absl::StrCat("DeleteMutation(key=", key().ToString(),
+                      ", precondition=", precondition().ToString(), ")");
 }
 
 }  // namespace model

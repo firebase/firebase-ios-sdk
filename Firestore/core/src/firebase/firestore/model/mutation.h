@@ -17,7 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
 
+#include <iosfwd>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -45,7 +47,7 @@ class MutationResult {
  public:
   MutationResult(
       SnapshotVersion version,
-      std::shared_ptr<const std::vector<ObjectValue>> transform_results)
+      std::shared_ptr<const std::vector<FieldValue>> transform_results)
       : version_(version), transform_results_(std::move(transform_results)) {
   }
 
@@ -65,19 +67,19 @@ class MutationResult {
 
   /**
    * The resulting fields returned from the backend after a TransformMutation
-   * has been committed.  Contains one ObjectValue for each FieldTransform
-   * that was in the mutation.
+   * has been committed.  Contains one FieldValue for each FieldTransform that
+   * was in the mutation.
    *
    * Will be null if the mutation was not a TransformMutation.
    */
-  const std::shared_ptr<const std::vector<ObjectValue>>& transform_results()
+  const std::shared_ptr<const std::vector<FieldValue>>& transform_results()
       const {
     return transform_results_;
   }
 
  private:
   SnapshotVersion version_;
-  std::shared_ptr<const std::vector<ObjectValue>> transform_results_;
+  std::shared_ptr<const std::vector<FieldValue>> transform_results_;
 };
 
 /**
@@ -130,17 +132,28 @@ class Mutation {
    */
   enum class Type { Set, Patch, Delete };
 
-  virtual ~Mutation() = default;
+  /** Creates an invalid mutation. */
+  Mutation() = default;
 
-  const DocumentKey& key() const {
-    return key_;
-  }
-  const Precondition& precondition() const {
-    return precondition_;
+  /**
+   * Returns true if the given mutation is a valid instance. Default constructed
+   * and moved-from Mutations are not valid.
+   */
+  bool is_valid() const {
+    return rep_ != nullptr;
   }
 
   /** The runtime type of this mutation. */
-  virtual Type type() const = 0;
+  Type type() const {
+    return rep_->type();
+  }
+
+  const DocumentKey& key() const {
+    return rep_->key();
+  }
+  const Precondition& precondition() const {
+    return rep_->precondition();
+  }
 
   /**
    * Applies this mutation to the given MaybeDocument for the purposes of
@@ -160,9 +173,11 @@ class Mutation {
    *     cache might have caused a `nullopt` result, this method will return an
    *     `UnknownDocument` instead.
    */
-  virtual MaybeDocument ApplyToRemoteDocument(
+  MaybeDocument ApplyToRemoteDocument(
       const absl::optional<MaybeDocument>& maybe_doc,
-      const MutationResult& mutation_result) const = 0;
+      const MutationResult& mutation_result) const {
+    return rep_->ApplyToRemoteDocument(maybe_doc, mutation_result);
+  }
 
   /**
    * Estimates the latency compensated view of this mutation applied to the
@@ -199,31 +214,78 @@ class Mutation {
    *     only if maybe_doc was nullopt and the mutation would not create a new
    *     document.
    */
-  virtual absl::optional<MaybeDocument> ApplyToLocalView(
+  absl::optional<MaybeDocument> ApplyToLocalView(
       const absl::optional<MaybeDocument>& maybe_doc,
       const absl::optional<MaybeDocument>& base_doc,
-      const Timestamp& local_write_time) const = 0;
+      const Timestamp& local_write_time) const {
+    return rep_->ApplyToLocalView(maybe_doc, base_doc, local_write_time);
+  }
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
+  size_t Hash() const {
+    return rep_->Hash();
+  }
+
+  std::string ToString() const {
+    return rep_ ? rep_->ToString() : "(invalid)";
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Mutation& mutation);
+
  protected:
-  Mutation(DocumentKey&& key, Precondition&& precondition);
+  class Rep {
+   public:
+    Rep(DocumentKey&& key, Precondition&& precondition);
 
-  void VerifyKeyMatches(const absl::optional<MaybeDocument>& maybe_doc) const;
+    virtual ~Rep() = default;
 
-  static SnapshotVersion GetPostMutationVersion(
-      const absl::optional<MaybeDocument>& maybe_doc);
+    virtual Type type() const = 0;
 
-  virtual bool equal_to(const Mutation& other) const;
+    const DocumentKey& key() const {
+      return key_;
+    }
+
+    const Precondition& precondition() const {
+      return precondition_;
+    }
+
+    virtual MaybeDocument ApplyToRemoteDocument(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const MutationResult& mutation_result) const = 0;
+
+    virtual absl::optional<MaybeDocument> ApplyToLocalView(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const absl::optional<MaybeDocument>& base_doc,
+        const Timestamp& local_write_time) const = 0;
+
+    virtual bool Equals(const Rep& other) const;
+
+    virtual size_t Hash() const;
+
+    virtual std::string ToString() const = 0;
+
+   protected:
+    void VerifyKeyMatches(const absl::optional<MaybeDocument>& maybe_doc) const;
+
+    static SnapshotVersion GetPostMutationVersion(
+        const absl::optional<MaybeDocument>& maybe_doc);
+
+   private:
+    DocumentKey key_;
+    Precondition precondition_;
+  };
+
+  explicit Mutation(std::shared_ptr<Rep>&& rep) : rep_(std::move(rep)) {
+  }
+
+  const Rep& rep() const {
+    return *rep_;
+  }
 
  private:
-  const DocumentKey key_;
-  const Precondition precondition_;
+  std::shared_ptr<Rep> rep_;
 };
-
-inline bool operator==(const Mutation& lhs, const Mutation& rhs) {
-  return lhs.equal_to(rhs);
-}
 
 inline bool operator!=(const Mutation& lhs, const Mutation& rhs) {
   return !(lhs == rhs);

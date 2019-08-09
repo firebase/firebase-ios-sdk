@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 
 #include <cstdlib>
+#include <ostream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -29,11 +30,16 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-Mutation::Mutation(DocumentKey&& key, Precondition&& precondition)
+Mutation::Rep::Rep(DocumentKey&& key, Precondition&& precondition)
     : key_(std::move(key)), precondition_(std::move(precondition)) {
 }
 
-void Mutation::VerifyKeyMatches(
+bool Mutation::Rep::Equals(const Mutation::Rep& other) const {
+  return type() == other.type() && key_ == other.key_ &&
+         precondition_ == other.precondition_;
+}
+
+void Mutation::Rep::VerifyKeyMatches(
     const absl::optional<MaybeDocument>& maybe_doc) const {
   if (maybe_doc) {
     HARD_ASSERT(maybe_doc->key() == key(),
@@ -41,7 +47,7 @@ void Mutation::VerifyKeyMatches(
   }
 }
 
-SnapshotVersion Mutation::GetPostMutationVersion(
+SnapshotVersion Mutation::Rep::GetPostMutationVersion(
     const absl::optional<MaybeDocument>& maybe_doc) {
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
     return maybe_doc->version();
@@ -50,9 +56,18 @@ SnapshotVersion Mutation::GetPostMutationVersion(
   }
 }
 
-bool Mutation::equal_to(const Mutation& other) const {
-  return key_ == other.key_ && precondition_ == other.precondition_ &&
-         type() == other.type();
+bool operator==(const Mutation& lhs, const Mutation& rhs) {
+  return lhs.rep_ == nullptr
+             ? rhs.rep_ == nullptr
+             : (rhs.rep_ != nullptr && lhs.rep_->Equals(*rhs.rep_));
+}
+
+size_t Mutation::Rep::Hash() const {
+  return util::Hash(type(), key(), precondition());
+}
+
+std::ostream& operator<<(std::ostream& os, const Mutation& mutation) {
+  return os << mutation.ToString();
 }
 
 }  // namespace model

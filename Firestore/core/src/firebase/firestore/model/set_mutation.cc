@@ -24,19 +24,31 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-SetMutation::SetMutation(DocumentKey&& key,
-                         ObjectValue&& value,
-                         Precondition&& precondition)
-    : Mutation(std::move(key), std::move(precondition)),
+SetMutation::SetMutation(DocumentKey key,
+                         ObjectValue value,
+                         Precondition precondition)
+    : Mutation(std::make_shared<Rep>(
+          std::move(key), std::move(value), std::move(precondition))) {
+}
+
+SetMutation::SetMutation(const Mutation& mutation) : Mutation(mutation) {
+}
+
+SetMutation::Rep::Rep(DocumentKey&& key,
+                      ObjectValue&& value,
+                      Precondition&& precondition)
+    : Mutation::Rep(std::move(key), std::move(precondition)),
       value_(std::move(value)) {
 }
 
-MaybeDocument SetMutation::ApplyToRemoteDocument(
+MaybeDocument SetMutation::Rep::ApplyToRemoteDocument(
     const absl::optional<MaybeDocument>& maybe_doc,
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
@@ -51,7 +63,7 @@ MaybeDocument SetMutation::ApplyToRemoteDocument(
   return Document(value_, key(), version, DocumentState::kCommittedMutations);
 }
 
-absl::optional<MaybeDocument> SetMutation::ApplyToLocalView(
+absl::optional<MaybeDocument> SetMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
     const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
@@ -65,9 +77,21 @@ absl::optional<MaybeDocument> SetMutation::ApplyToLocalView(
   return Document(value_, key(), version, DocumentState::kLocalMutations);
 }
 
-bool SetMutation::equal_to(const Mutation& other) const {
-  if (!Mutation::equal_to(other)) return false;
-  return value_ == static_cast<const SetMutation&>(other).value_;
+bool SetMutation::Rep::Equals(const Mutation::Rep& other) const {
+  if (!Mutation::Rep::Equals(other)) return false;
+
+  const auto& other_rep = static_cast<const SetMutation::Rep&>(other);
+  return value_ == other_rep.value_;
+}
+
+size_t SetMutation::Rep::Hash() const {
+  return util::Hash(Mutation::Rep::Hash(), value_);
+}
+
+std::string SetMutation::Rep::ToString() const {
+  return absl::StrCat("SetMutation(key=", key().ToString(),
+                      ", precondition=", precondition().ToString(),
+                      ", value=", value().ToString(), ")");
 }
 
 }  // namespace model
