@@ -131,6 +131,10 @@ do {
   // the location for further use.
   if let outputDir = args.outputDir {
     do {
+      // Clear out the output directory if it exists.
+      FileManager.default.removeDirectoryIfExists(at: outputDir)
+      try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+
       // We want the output to be in the X_Y_Z directory.
       let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")
       let versionedOutputDir = outputDir.appendingPathComponent(underscoredVersion)
