@@ -18,23 +18,22 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_TRANSFORM_H_
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
+class TransformOperation;
+
 /** A field path and the TransformOperation to perform upon it. */
 class FieldTransform {
  public:
   FieldTransform(FieldPath path,
-                 std::unique_ptr<TransformOperation> transformation) noexcept
-      : path_{std::move(path)}, transformation_{std::move(transformation)} {
-  }
+                 std::unique_ptr<TransformOperation> transformation) noexcept;
 
   const FieldPath& path() const {
     return path_;
@@ -44,17 +43,11 @@ class FieldTransform {
     return *transformation_.get();
   }
 
-  bool operator==(const FieldTransform& other) const {
-    return path_ == other.path_ && *transformation_ == *other.transformation_;
-  }
+  bool operator==(const FieldTransform& other) const;
 
-#if defined(__OBJC__)
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
-  NSUInteger Hash() const {
-    return util::Hash(path_, transformation_->Hash());
-  }
-#endif  // defined(__OBJC__)
+  size_t Hash() const;
+
+  std::string ToString() const;
 
  private:
   FieldPath path_;

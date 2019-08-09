@@ -27,10 +27,11 @@ cc_library(
     document_map.mm
     document_set.h
     document_set.mm
-    field_mask.h
     field_mask.cc
+    field_mask.h
     field_path.cc
     field_path.h
+    field_transform.cc
     field_transform.h
     field_value.cc
     field_value.h
