@@ -79,6 +79,9 @@ class TransformMutation : public Mutation {
         const absl::optional<MaybeDocument>&,
         const Timestamp&) const override;
 
+    absl::optional<ObjectValue> ExtractBaseValue(
+        const absl::optional<MaybeDocument>& maybe_doc) const override;
+
     bool Equals(const Mutation::Rep& other) const override;
 
     std::string ToString() const override;

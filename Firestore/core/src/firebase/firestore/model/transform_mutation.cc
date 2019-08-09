@@ -113,6 +113,29 @@ absl::optional<MaybeDocument> TransformMutation::Rep::ApplyToLocalView(
                   DocumentState::kLocalMutations);
 }
 
+absl::optional<ObjectValue> TransformMutation::Rep::ExtractBaseValue(
+    const absl::optional<MaybeDocument>& maybe_doc) const {
+  absl::optional<ObjectValue> base_object = absl::nullopt;
+
+  for (const FieldTransform& transform : field_transforms_) {
+    absl::optional<FieldValue> existing_value;
+    if (maybe_doc && maybe_doc->is_document()) {
+      existing_value = Document(*maybe_doc).field(transform.path());
+    }
+
+    absl::optional<FieldValue> coerced_value =
+        transform.transformation().ComputeBaseValue(existing_value);
+    if (coerced_value) {
+      if (!base_object) {
+        base_object = ObjectValue::Empty();
+      }
+      base_object = base_object->Set(transform.path(), *coerced_value);
+    }
+  }
+
+  return base_object;
+}
+
 bool TransformMutation::Rep::Equals(const Mutation::Rep& other) const {
   if (!Mutation::Rep::Equals(other)) return false;
 

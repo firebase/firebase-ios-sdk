@@ -221,6 +221,27 @@ class Mutation {
     return rep_->ApplyToLocalView(maybe_doc, base_doc, local_write_time);
   }
 
+  /**
+   * If this mutation is not idempotent, returns the base value to persist with
+   * this mutation.  If a base value is returned, the mutation is always
+   * applied to this base value, even if document has already been updated.
+   *
+   * The base value is a sparse object that consists of only the document
+   * fields for which this mutation contains a non-idempotent transformation
+   * (e.g. a numeric increment). The provided value guarantees consistent
+   * behavior for non-idempotent transforms and allow us to return the same
+   * latency-compensated value even if the backend has already applied the
+   * mutation. The base value is empty for idempotent mutations, as they can be
+   * re-played even if the backend has already applied them.
+   *
+   * @return a base value to store along with the mutation, or empty for
+   *     idempotent mutations.
+   */
+  absl::optional<ObjectValue> ExtractBaseValue(
+      const absl::optional<MaybeDocument>& maybe_doc) const {
+    return rep_->ExtractBaseValue(maybe_doc);
+  }
+
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
   size_t Hash() const {
@@ -258,6 +279,12 @@ class Mutation {
         const absl::optional<MaybeDocument>& maybe_doc,
         const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const = 0;
+
+    virtual absl::optional<ObjectValue> ExtractBaseValue(
+        const absl::optional<MaybeDocument>& maybe_doc) const {
+      (void)maybe_doc;
+      return absl::nullopt;
+    }
 
     virtual bool Equals(const Rep& other) const;
 
