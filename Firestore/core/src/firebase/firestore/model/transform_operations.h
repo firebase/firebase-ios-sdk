@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -67,14 +68,14 @@ class TransformOperation {
    * transform operation is always applied to this base value, even if document
    * has already been updated.
    *
-   * <p>Base values provide consistent behavior for non-idempotent transforms
-   * and allow us to return the same latency-compensated value even if the
-   * backend has already applied the transform operation. The base value is
-   * empty for idempotent transforms, as they can be re-played even if the
-   * backend has already applied them.
+   * Base values provide consistent behavior for non-idempotent transforms and
+   * allow us to return the same latency-compensated value even if the backend
+   * has already applied the transform operation. The base value is empty for
+   * idempotent transforms, as they can be re-played even if the backend has
+   * already applied them.
    *
    * @return a base value to store along with the mutation, or empty for
-   * idempotent transforms.
+   *     idempotent transforms.
    */
   virtual absl::optional<model::FieldValue> ComputeBaseValue(
       const absl::optional<model::FieldValue>& previous_value) const = 0;
@@ -87,9 +88,9 @@ class TransformOperation {
     return !operator==(other);
   }
 
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
   virtual size_t Hash() const = 0;
+
+  virtual std::string ToString() const = 0;
 };
 
 /** Transforms a value into a server-generated timestamp. */
@@ -118,9 +119,9 @@ class ServerTimestampTransform : public TransformOperation {
 
   static const ServerTimestampTransform& Get();
 
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
   size_t Hash() const override;
+
+  std::string ToString() const override;
 
  private:
   ServerTimestampTransform() = default;
@@ -162,6 +163,8 @@ class ArrayTransform : public TransformOperation {
   bool operator==(const TransformOperation& other) const override;
 
   size_t Hash() const override;
+
+  std::string ToString() const override;
 
   static const std::vector<model::FieldValue>& Elements(
       const TransformOperation& op);
@@ -212,9 +215,9 @@ class NumericIncrementTransform : public TransformOperation {
 
   bool operator==(const TransformOperation& other) const override;
 
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
   size_t Hash() const override;
+
+  std::string ToString() const override;
 
  private:
   model::FieldValue operand_;

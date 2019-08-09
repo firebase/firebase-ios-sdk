@@ -22,7 +22,9 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,6 +57,10 @@ size_t ServerTimestampTransform::Hash() const {
   // arbitrary number, the same as used in ObjC implementation, since all
   // instances are equal.
   return 37;
+}
+
+std::string ServerTimestampTransform::ToString() const {
+  return "ServerTimestamp";
 }
 
 FieldValue ArrayTransform::ApplyToLocalView(
@@ -95,6 +101,11 @@ size_t ArrayTransform::Hash() const {
     result = 31 * result + element.Hash();
   }
   return result;
+}
+
+std::string ArrayTransform::ToString() const {
+  const char* name = type_ == Type::ArrayUnion ? "ArrayUnion" : "ArrayRemove";
+  return absl::StrCat(name, "(", util::ToString(elements_), ")");
 }
 
 const std::vector<FieldValue>& ArrayTransform::Elements(
@@ -213,6 +224,10 @@ bool NumericIncrementTransform::operator==(
 
 size_t NumericIncrementTransform::Hash() const {
   return operand_.Hash();
+}
+
+std::string NumericIncrementTransform::ToString() const {
+  return absl::StrCat("NumericIncrement(", operand_.ToString(), ")");
 }
 
 }  // namespace model
