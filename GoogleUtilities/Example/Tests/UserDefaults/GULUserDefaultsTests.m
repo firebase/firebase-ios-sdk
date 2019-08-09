@@ -24,12 +24,12 @@ static const double sEpsilon = 0.001;
 static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
 @interface GULUserDefaults (Test)
-- (void)clearAllData:(NSString *) name;
+- (void)clearAllData:(NSString *)name;
 @end
 
 @implementation GULUserDefaults (Test)
 /// Removes all values from the search list entry specified by 'suiteName'.
-- (void)clearAllData:(NSString *) suiteName {
+- (void)clearAllData:(NSString *)suiteName {
   NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
   [userDefaults removePersistentDomainForName:suiteName];
 }
@@ -161,7 +161,6 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   // Remove all of the objects from the new user defaults. The values from the NSUserDefaults must
   // also be cleared.
-  
   [newUserDefaults clearAllData:suiteName];
   XCTAssertNil([userDefaults objectForKey:key1]);
   XCTAssertNil([newUserDefaults objectForKey:key1]);
