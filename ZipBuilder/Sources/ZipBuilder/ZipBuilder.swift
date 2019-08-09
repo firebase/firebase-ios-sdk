@@ -58,6 +58,9 @@ public struct Constants {
 
   """
 
+  /// The name of the Core Diagnostics pod.
+  public static let coreDiagnosticsName: String = "FirebaseCoreDiagnostics"
+
   // Make the struct un-initializable.
   @available(*, unavailable)
   init() { fatalError() }
@@ -65,6 +68,19 @@ public struct Constants {
 
 /// A zip file builder. The zip file can be built with the `buildAndAssembleReleaseDir()` function.
 struct ZipBuilder {
+  /// Artifacts from building and assembling the release directory.
+  struct ReleaseArtifacts {
+    /// The path to the compiled FirebaseCoreDiagnostics framework with the Carthage bit enabled.
+    let carthageDiagnostics: URL
+
+    /// The Firebase version.
+    let firebaseVersion: String
+
+    /// The directory that contains the properly assembled release artifacts.
+    let outputDir: URL
+  }
+
+  /// Relevant paths in the filesystem to build the release directory.
   struct FilesystemPaths {
     // MARK: - Required Paths
 
@@ -123,12 +139,9 @@ struct ZipBuilder {
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
-  /// - Returns: A URL to the folder that should be compressed and distributed, as well as the
-  ///     Firebase version as a String.
+  /// - Returns: Information related to the built artifacts.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleReleaseDir() throws -> (output: URL, firebaseVersion: String) {
-    let projectDir = FileManager.default.temporaryDirectory(withName: "project")
-
+  func buildAndAssembleRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
     // If it exists, remove it before we re-create it. This is simpler than removing all objects.
     if FileManager.default.directoryExists(at: projectDir) {
       try FileManager.default.removeItem(at: projectDir)
@@ -197,13 +210,12 @@ struct ZipBuilder {
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
 
-    // We need the Firebase pod's version to generate the Carthage release (if needed). Get it here.
-    let firebasePods = installedPods.filter { $0.name == "Firebase" }
-    guard firebasePods.count == 1 else {
-      fatalError("Could not get Firebase pod's version. Pods matching the Firebase name: " +
-        "\(firebasePods.count).")
+    // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
+    // `module.modulemap` file from it.
+    guard let firebasePod = installedPods.first(where: { $0.name == "Firebase" }) else {
+      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
+        "installed: \(installedPods)")
     }
-    let firebaseVersion = firebasePods[0].version
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
@@ -214,6 +226,10 @@ struct ZipBuilder {
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
+
+    // Create the CoreDiagnostics framework for Carthage, since it needs to be recompiled.
+    let carthageCoreDiagnostics: URL = createCarthageCoreDiagnostics(fromPods: installedPods,
+                                                                     inProjectDir: projectDir)
 
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
     // required, we will `pod install` only those subspecs and then fetch the information for all
@@ -237,12 +253,6 @@ struct ZipBuilder {
       try FileManager.default.createDirectory(at: zipDir,
                                               withIntermediateDirectories: true,
                                               attributes: nil)
-    }
-
-    // Get the Firebase pod in order to copy the `Firebase.h` and `module.modulemap` file from it.
-    guard let firebasePod = installedPods.filter({ $0.name == "Firebase" }).first else {
-      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
-        "installed: \(installedPods)")
     }
 
     // Copy all required files from the Firebase pod. This will cause a fatalError if anything
@@ -306,11 +316,40 @@ struct ZipBuilder {
       fatalError("Could not write README to Zip directory: \(error)")
     }
 
-    print("Contents of the Zip file were assembled at: \(zipDir)")
-    return (zipDir, firebaseVersion)
+    print("Contents of the packaged release were assembled at: \(zipDir)")
+    return ReleaseArtifacts(carthageDiagnostics: carthageCoreDiagnostics,
+                            firebaseVersion: firebasePod.version,
+                            outputDir: zipDir)
   }
 
   // MARK: - Private
+
+  private func createCarthageCoreDiagnostics(fromPods pods: [CocoaPodUtils.PodInfo],
+                                             inProjectDir projectDir: URL) -> URL {
+    // FirebaseCoreDiagnostics needs to be re-compiled for Carthage. It should be included in all
+    // builds, so ensure it's there.
+    guard let coreDiag = pods.first(where: { $0.name == Constants.coreDiagnosticsName }) else {
+      fatalError("Could not get FirebaseCoreDiagnostics pod to re-compile for Carthage. Pods " +
+        "installed: \(pods.map { $0.name })")
+    }
+
+    // Compile the CoreDiagnostics pod for Carthage.
+    let carthageFrameworks = generateFrameworks(fromPods: [coreDiag],
+                                                inProjectDir: projectDir,
+                                                carthageBuild: true)
+    guard let coreDiagnosticsFrameworks = carthageFrameworks[Constants.coreDiagnosticsName] else {
+      fatalError("Could not get the re-compiled \(Constants.coreDiagnosticsName) framework for " +
+        "Carthage packaging. Frameworks built: \(carthageFrameworks.keys)")
+    }
+
+    // All frameworks for the Core Diagnostics pod are included but we only need the one.
+    let frameworkName = Constants.coreDiagnosticsName + ".framework"
+    guard let carthageCoreDiag: URL = coreDiagnosticsFrameworks.first(where: { $0.lastPathComponent == frameworkName }) else {
+      fatalError("Could not get \(frameworkName) from compiled Carthage frameworks: \(coreDiagnosticsFrameworks)")
+    }
+
+    return carthageCoreDiag
+  }
 
   /// Copies all frameworks from the `InstalledPod` (pulling from the `frameworkLocations`) and copy
   /// them to the destination directory.

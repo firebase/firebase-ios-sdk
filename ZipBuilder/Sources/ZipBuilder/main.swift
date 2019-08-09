@@ -49,11 +49,14 @@ let builder = ZipBuilder(paths: paths,
 
 do {
   // Build the zip file and get the path.
-  let (location, firebaseVersion) = try builder.buildAndAssembleReleaseDir()
+  let projectDir = FileManager.default.temporaryDirectory(withName: "project")
+  let artifacts = try builder.buildAndAssembleRelease(inProjectDir: projectDir)
+  let firebaseVersion = artifacts.firebaseVersion
+  let location = artifacts.outputDir
   print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
   // Package carthage if it's enabled.
-  var carthageRoot: URL? = nil
+  var carthageRoot: URL?
   if let carthageJSONDir = args.carthageDir {
     do {
       print("Creating Carthage release...")
@@ -76,6 +79,7 @@ do {
                                             templateDir: args.templateDir,
                                             jsonDir: carthageJSONDir,
                                             firebaseVersion: firebaseVersion,
+                                            coreDiagnosticsPath: artifacts.carthageDiagnostics,
                                             outputDir: output)
 
       // Remove the duplicated Carthage build directory.

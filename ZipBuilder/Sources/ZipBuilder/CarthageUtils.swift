@@ -29,11 +29,13 @@ public extension CarthageUtils {
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
   ///   - jsonDir: Location of directory containing all JSON Carthage manifests.
   ///   - firebaseVersion: The version of the Firebase pod.
+  ///   - coreDiagnosticsPath: The path to the Core Diagnostics framework built for Carthage.
   ///   - outputDir: The directory where all artifacts should be created.
   static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
                                       templateDir: URL,
                                       jsonDir: URL,
                                       firebaseVersion: String,
+                                      coreDiagnosticsPath: URL,
                                       outputDir: URL) {
     let directories: [String]
     do {
@@ -82,9 +84,6 @@ public extension CarthageUtils {
       if product == "Analytics" {
         createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
 
-        // TODO: Rebuild CoreDiagnostics to include the correct compiler
-//        let builder = FrameworkBuilder(projectDir: <#T##URL#>, carthageBuild: true)
-
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
         let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.framework", noticesName])
@@ -93,6 +92,17 @@ public extension CarthageUtils {
           try FileManager.default.copyItem(at: noticesPath, to: coreNotices)
         } catch {
           fatalError("Could not copy \(noticesName) to FirebaseCore for Carthage build. \(error)")
+        }
+
+        // Override the Core Diagnostics framework with one that includes the proper bit flipped.
+        let coreDiagnosticsFramework = Constants.coreDiagnosticsName + ".framework"
+        let destination = fullPath.appendingPathComponent(coreDiagnosticsFramework)
+        do {
+          // Remove the existing framework and replace it with the newly compiled one.
+          try FileManager.default.removeItem(at: destination)
+          try FileManager.default.copyItem(at: coreDiagnosticsPath, to: destination)
+        } catch {
+          fatalError("Could not replace \(coreDiagnosticsFramework) during Carthage build. \(error)")
         }
       }
 
