@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTEventManager.h"
-
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -27,6 +25,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -36,6 +35,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
 using firebase::firestore::core::EventListener;
+using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
@@ -63,10 +63,6 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
 
 }  // namespace
 
-// FSTEventManager implements this delegate privately
-@interface FSTEventManager () <FSTSyncEngineDelegate>
-@end
-
 @interface FSTEventManagerTests : XCTestCase
 @end
 
@@ -79,18 +75,18 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
   auto listener2 = NoopQueryListener(query);
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
-  FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
+  OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
+  EventManager eventManager = EventManager(syncEngineMock);
 
   OCMExpect([syncEngineMock listenToQuery:query]);
-  [eventManager addListener:listener1];
+  eventManager.AddQueryListener(listener1);
   OCMVerifyAll((id)syncEngineMock);
 
-  [eventManager addListener:listener2];
-  [eventManager removeListener:listener2];
+  eventManager.AddQueryListener(listener2);
+  eventManager.RemoveQueryListener(listener2);
 
   OCMExpect([syncEngineMock stopListeningToQuery:query]);
-  [eventManager removeListener:listener1];
+  eventManager.RemoveQueryListener(listener1);
   OCMVerifyAll((id)syncEngineMock);
 }
 
@@ -99,10 +95,10 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
   auto listener = NoopQueryListener(query);
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
-  FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
+  OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
+  EventManager eventManager = EventManager(syncEngineMock);
 
-  [eventManager removeListener:listener];
+  eventManager.RemoveQueryListener(listener);
   OCMVerifyAll((id)syncEngineMock);
 }
 
@@ -129,17 +125,17 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
       query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener3"]; });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
-  FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
+  EventManager eventManager = EventManager(syncEngineMock);
 
-  [eventManager addListener:listener1];
-  [eventManager addListener:listener2];
-  [eventManager addListener:listener3];
+  eventManager.AddQueryListener(listener1);
+  eventManager.AddQueryListener(listener2);
+  eventManager.AddQueryListener(listener3);
   OCMVerify([syncEngineMock listenToQuery:query1]);
   OCMVerify([syncEngineMock listenToQuery:query2]);
 
   ViewSnapshot snapshot1 = [self makeEmptyViewSnapshotWithQuery:query1];
   ViewSnapshot snapshot2 = [self makeEmptyViewSnapshotWithQuery:query2];
-  [eventManager handleViewSnapshots:{snapshot1, snapshot2}];
+  eventManager.OnViewSnapshots({snapshot1, snapshot2});
 
   NSArray *expected = @[ @"listener1", @"listener3", @"listener2" ];
   XCTAssertEqualObjects(eventOrder, expected);
@@ -165,14 +161,16 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
   auto fake_listener = std::make_shared<FakeQueryListener>(query);
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
-  FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
+  OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
+  EventManager eventManager = EventManager(syncEngineMock);
 
-  [eventManager addListener:fake_listener];
+  eventManager.AddQueryListener(fake_listener);
   XC_ASSERT_THAT(fake_listener->events, ElementsAre(OnlineState::Unknown));
 
-  [eventManager applyChangedOnlineState:OnlineState::Online];
+  eventManager.HandleOnlineStateChange(OnlineState::Online);
   XC_ASSERT_THAT(fake_listener->events, ElementsAre(OnlineState::Unknown, OnlineState::Online));
+
+  OCMVerifyAll((id)syncEngineMock);
 }
 
 @end

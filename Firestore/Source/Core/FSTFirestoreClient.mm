@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
@@ -43,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -66,6 +66,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::EventManager;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
@@ -104,7 +105,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                          workerQueue:(std::shared_ptr<AsyncQueue>)queue NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
-@property(nonatomic, strong, readonly) FSTEventManager *eventManager;
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
@@ -121,6 +121,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::shared_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<RemoteStore> _remoteStore;
+  std::unique_ptr<EventManager> _eventManager;
 
   std::shared_ptr<Executor> _userExecutor;
   std::shared_ptr<CredentialsProvider> _credentialsProvider;
@@ -253,7 +254,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                                               remoteStore:_remoteStore.get()
                                               initialUser:user];
 
-  _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
+  _eventManager = absl::make_unique<EventManager>(_syncEngine);
 
   // Setup wiring for remote store.
   _remoteStore->set_sync_engine(_syncEngine);
@@ -339,14 +340,15 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   auto query_listener =
       QueryListener::Create(std::move(query), std::move(options), std::move(listener));
 
-  _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
+  _workerQueue->Enqueue(
+      [self, query_listener] { _eventManager->AddQueryListener(query_listener); });
 
   return query_listener;
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
   [self verifyNotShutdown];
-  _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
+  _workerQueue->Enqueue([self, listener] { _eventManager->RemoveQueryListener(listener); });
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
