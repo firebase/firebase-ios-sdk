@@ -5830,7 +5830,7 @@
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseCoreDiagnosticsInterop\"",
 					"\"${PODS_ROOT}/Headers/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../..\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -5877,7 +5877,7 @@
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseCoreDiagnosticsInterop\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../..\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -7783,7 +7783,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../..\"",
 					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;
@@ -7813,7 +7813,7 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
-					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+					"\"${PODS_ROOT}/../..\"",
 					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = Messaging/Tests/Info.plist;

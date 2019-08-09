@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <OCMock/OCMock.h>
-#import "FIRMessaging.h"
-#import "FIRMessagingTestUtilities.h"
-#import "FIRMessaging_Private.h"
-
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+
+#import <FirebaseMessaging/FIRMessaging.h>
+
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;

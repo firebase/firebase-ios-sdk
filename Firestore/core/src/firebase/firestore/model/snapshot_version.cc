@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
+#include <ostream>
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -36,6 +38,14 @@ util::ComparisonResult SnapshotVersion::CompareTo(
 
 size_t SnapshotVersion::Hash() const {
   return std::hash<Timestamp>{}(timestamp_);
+}
+
+std::string SnapshotVersion::ToString() const {
+  return timestamp_.ToString();
+}
+
+std::ostream& operator<<(std::ostream& os, const SnapshotVersion& version) {
+  return os << version.timestamp_;
 }
 
 }  // namespace model

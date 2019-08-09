@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingCodedInputStream.h"
-#import "FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
 
 typedef struct {
   const void *bytes;

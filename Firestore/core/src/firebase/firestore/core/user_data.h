@@ -30,7 +30,6 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
 @class FSTMutation;
-@class FSTObjectValue;
 
 namespace firebase {
 namespace firestore {

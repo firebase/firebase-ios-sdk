@@ -23,7 +23,6 @@
 #include "absl/types/optional.h"
 
 @class GCFSDocument;
-@class FSTObjectValue;
 
 namespace firebase {
 namespace firestore {

@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingExtensionHelper.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
 API_AVAILABLE(macos(10.14), ios(10.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);

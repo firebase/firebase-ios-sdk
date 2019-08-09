@@ -23,9 +23,12 @@
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingTestUtilities.h"
-#import "FIRMessaging_Private.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseMessaging/FIRMessaging.h>
+
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 

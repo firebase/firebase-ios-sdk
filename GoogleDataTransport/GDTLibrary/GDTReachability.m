@@ -17,6 +17,8 @@
 #import "GDTLibrary/Private/GDTReachability.h"
 #import "GDTLibrary/Private/GDTReachability_Private.h"
 
+#import <GoogleDataTransport/GDTConsoleLogger.h>
+
 #import <netinet/in.h>
 
 /** Sets the _callbackFlag ivar whenever the network changes.
@@ -74,9 +76,13 @@ static void GDTReachabilityCallback(SCNetworkReachabilityRef reachability,
     _reachabilityRef = SCNetworkReachabilityCreateWithAddress(
         kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
     Boolean success = SCNetworkReachabilitySetDispatchQueue(_reachabilityRef, _reachabilityQueue);
-    NSAssert(success, @"The reachability queue wasn't set.");
+    if (!success) {
+      GDTLogWarning(GDTMCWReachabilityFailed, @"%@", @"The reachability queue wasn't set.");
+    }
     success = SCNetworkReachabilitySetCallback(_reachabilityRef, GDTReachabilityCallback, NULL);
-    NSAssert(success, @"The reachability callback wasn't set.");
+    if (!success) {
+      GDTLogWarning(GDTMCWReachabilityFailed, @"%@", @"The reachability callback wasn't set.");
+    }
 
     // Get the initial set of flags.
     dispatch_async(_reachabilityQueue, ^{

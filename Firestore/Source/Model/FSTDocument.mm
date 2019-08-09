@@ -171,8 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTDocument: key:%s version:%s documentState:%ld data:%s>",
-                                    self.key.ToString().c_str(),
-                                    self.version.timestamp().ToString().c_str(),
+                                    self.key.ToString().c_str(), self.version.ToString().c_str(),
                                     (long)_documentState, self.data.ToString().c_str()];
 }
 
@@ -228,10 +227,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<FSTDeletedDocument: key:%s version:%s committedMutations:%d>",
-                       self.key.ToString().c_str(), self.version.timestamp().ToString().c_str(),
-                       _hasCommittedMutations];
+  return
+      [NSString stringWithFormat:@"<FSTDeletedDocument: key:%s version:%s committedMutations:%d>",
+                                 self.key.ToString().c_str(), self.version.ToString().c_str(),
+                                 _hasCommittedMutations];
 }
 
 @end
@@ -266,8 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<FSTUnknownDocument: key:%s version:%s>",
-                                    self.key.ToString().c_str(),
-                                    self.version.timestamp().ToString().c_str()];
+                                    self.key.ToString().c_str(), self.version.ToString().c_str()];
 }
 
 @end

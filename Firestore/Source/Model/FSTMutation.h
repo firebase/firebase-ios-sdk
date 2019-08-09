@@ -31,7 +31,6 @@
 
 @class FSTDocument;
 @class FSTMaybeDocument;
-@class FSTObjectValue;
 @class FIRTimestamp;
 
 namespace model = firebase::firestore::model;
@@ -221,14 +220,14 @@ NS_ASSUME_NONNULL_BEGIN
                precondition:(model::Precondition)precondition NS_UNAVAILABLE;
 
 /**
- * Initializes a new patch mutation with an explicit FieldMask and FSTObjectValue representing
- * the updates to perform
+ * Initializes a new patch mutation with an explicit FieldMask and ObjectValue representing the
+ * updates to perform.
  *
  * @param key Identifies the location of the document to mutate.
  * @param fieldMask The field mask specifying at what locations the data in value should be
  * applied.
- * @param value An FSTObjectValue containing the data to be written (using the paths in fieldMask
- * to determine the locations at which it should be applied).
+ * @param value An ObjectValue containing the data to be written (using the paths in fieldMask to
+ * determine the locations at which it should be applied).
  * @param precondition The precondition for this mutation.
  */
 - (instancetype)initWithKey:(model::DocumentKey)key

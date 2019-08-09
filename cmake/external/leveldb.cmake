@@ -18,25 +18,15 @@ if(TARGET leveldb)
   return()
 endif()
 
-if(WIN32)
-  # Unfortunately, LevelDB does not build on Windows (yet). See:
-  #
-  #   * https://github.com/google/leveldb/issues/363
-  #   * https://github.com/google/leveldb/issues/466
-  add_custom_target(leveldb)
-  return()
-endif()
-
-# CMake support was added after the 1.20 release
-set(commit 6caf73ad9dae0ee91873bcb39554537b85163770)  # master@{2018-07-14}
+set(version 1.22)
 
 ExternalProject_Add(
   leveldb
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME leveldb-${commit}.tar.gz
-  URL https://github.com/google/leveldb/archive/${commit}.tar.gz
-  URL_HASH SHA256=255e3283556aff81e337a951c5f5579f5b98b63d5f345db9e97a1f7563f54f9e
+  DOWNLOAD_NAME leveldb-${version}.tar.gz
+  URL https://github.com/google/leveldb/archive/${version}.tar.gz
+  URL_HASH SHA256=55423cac9e3306f4a9502c738a001e4a339d1a38ffbee7572d4a07d5d63949b2
 
   PREFIX ${PROJECT_BINARY_DIR}
 

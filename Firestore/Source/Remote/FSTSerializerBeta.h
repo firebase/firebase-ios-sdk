@@ -35,7 +35,6 @@
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationResult;
-@class FSTObjectValue;
 @class FSTQueryData;
 
 @class GCFSBatchGetDocumentsResponse;
@@ -135,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         key:(const model::DocumentKey &)key;
 
 /**
- * Encodes an FSTObjectValue into a dictionary.
+ * Encodes an ObjectValue into a dictionary.
  * @return a new dictionary that can be assigned to a field in another proto.
  */
 - (NSMutableDictionary<NSString *, GCFSValue *> *)encodedFields:(const model::ObjectValue &)value;

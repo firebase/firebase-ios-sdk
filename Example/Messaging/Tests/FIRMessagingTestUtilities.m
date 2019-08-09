@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTestUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
