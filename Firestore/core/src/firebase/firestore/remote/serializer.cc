@@ -544,9 +544,10 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       return result;
     }
 
+    case Mutation::Type::Transform: {
       // TODO(rsgowman): Implement transform mutations. Probably like this:
+      abort();
       /*
-      case Mutation::Type::kTransform:
         result.which_operation = google_firestore_v1_Write_transform_tag;
         auto transform = static_cast<const TransformMutation&>(mutation);
         result.transform.document = EncodeKey(transform.key());
@@ -562,6 +563,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
         }
         return result;
       */
+    }
 
     case Mutation::Type::Delete: {
       result.which_operation = google_firestore_v1_Write_delete_tag;
