@@ -23,9 +23,16 @@ static const double sEpsilon = 0.001;
 /// The maximum time to wait for an expectation before failing.
 static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
-@interface GULUserDefaults ()
-// Expose for testing.
-- (void)clearAllData;
+@interface GULUserDefaults (Test)
+- (void)clearAllData:(NSString *) name;
+@end
+
+@implementation GULUserDefaults (Test)
+/// Removes all values from the search list entry specified by 'suiteName'.
+- (void)clearAllData:(NSString *) suiteName {
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+  [userDefaults removePersistentDomainForName:suiteName];
+}
 @end
 
 @interface GULUserDefaultsThreadArgs : NSObject
@@ -154,7 +161,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   // Remove all of the objects from the new user defaults. The values from the NSUserDefaults must
   // also be cleared.
-  [newUserDefaults clearAllData];
+  
+  [newUserDefaults clearAllData:suiteName];
   XCTAssertNil([userDefaults objectForKey:key1]);
   XCTAssertNil([newUserDefaults objectForKey:key1]);
   XCTAssertNil([userDefaults objectForKey:key2]);
@@ -387,7 +395,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   // Remove all of the objects from the new user defaults. The values from the NSUserDefaults must
   // also be cleared.
-  [newUserDefaults clearAllData];
+  [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
   XCTAssertNil([userDefaults objectForKey:key1]);
   XCTAssertNil([newUserDefaults objectForKey:key1]);
   XCTAssertNil([userDefaults objectForKey:key2]);
@@ -424,15 +432,12 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [newUserDefaults setObject:nil forKey:@"test-another"];
   XCTAssertNil([newUserDefaults objectForKey:@"test-another"]);
   [newUserDefaults synchronize];
-  [newUserDefaults clearAllData];
   [[NSNotificationCenter defaultCenter] removeObserver:observer];
-
-  // Remove the underlying reference file.
-  [self removePreferenceFileWithSuiteName:suiteName];
+  [newUserDefaults clearAllData:suiteName];
 }
 
 - (void)testSynchronizeToDisk {
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   // `NSFileManager` has trouble reading the files in `~/Library` even though the
   // `removeItemAtPath:` call works. Watching Finder while stepping through this test shows that the
   // file does get created and removed properly. When using LLDB to call `fileExistsAtPath:` the
@@ -458,7 +463,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   // Now get the file directly from disk.
   XCTAssertTrue([fileManager fileExistsAtPath:filePath]);
-  [newUserDefaults clearAllData];
+  [newUserDefaults clearAllData:suiteName];
   [newUserDefaults synchronize];
 
   [self removePreferenceFileWithSuiteName:suiteName];
@@ -500,7 +505,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   [newUserDefaults setObject:nil forKey:@"fine"];
   XCTAssertNil([newUserDefaults objectForKey:@"fine"]);
-  [newUserDefaults clearAllData];
+  [newUserDefaults clearAllData:suiteName];
 
   [self removePreferenceFileWithSuiteName:suiteName];
 }
@@ -513,7 +518,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 
   [newUserDefaults removeObjectForKey:@"fine"];
   XCTAssertNil([newUserDefaults objectForKey:@"fine"]);
-  [newUserDefaults clearAllData];
+  [newUserDefaults clearAllData:suiteName];
 
   [self removePreferenceFileWithSuiteName:suiteName];
 }
@@ -535,7 +540,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   GULUserDefaults *newUserDefaults = [[GULUserDefaults alloc] initWithSuiteName:suiteName];
   XCTAssertEqualObjects([newUserDefaults objectForKey:@"key1"], @"value1");
   XCTAssertEqualObjects([newUserDefaults objectForKey:@"key2"], @"value2");
-  [newUserDefaults clearAllData];
+  [newUserDefaults clearAllData:suiteName];
 
   // Clean up.
   [self removePreferenceFileWithSuiteName:suiteName];
@@ -572,7 +577,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
     XCTAssertEqualObjects([userDefaults objectForKey:key], @(i));
   }
 
-  [userDefaults clearAllData];
+  [userDefaults clearAllData:suiteName];
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
@@ -616,7 +621,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
     XCTAssertNil([userDefaults objectForKey:key]);
   }
 
-  [userDefaults clearAllData];
+  [userDefaults clearAllData:suiteName];
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
@@ -661,7 +666,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
       XCTAssertEqualObjects([userDefaults objectForKey:key], @(i));
     }
   }
-  [userDefaults clearAllData];
+  [userDefaults clearAllData:suiteName];
 
   [self removePreferenceFileWithSuiteName:suiteName];
 }
@@ -703,7 +708,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
     }
   }
 
-  [newUserDefaults clearAllData];
+  [newUserDefaults clearAllData:suiteName];
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
@@ -760,7 +765,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
       }
     }
   }
-  [userDefaults clearAllData];
+  [userDefaults clearAllData:suiteName];
 
   [self removePreferenceFileWithSuiteName:suiteName];
 }
