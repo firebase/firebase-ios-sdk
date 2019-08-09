@@ -360,24 +360,6 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary2);
   XCTAssertEqualObjects([userDefaults objectForKey:key4], dictionary2);
 
-  // Remove all of the objects from the new user defaults. The values from the NSUserDefaults must
-  // also be cleared.
-  [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
-  XCTAssertNil([userDefaults objectForKey:key1]);
-  XCTAssertNil([newUserDefaults objectForKey:key1]);
-  XCTAssertNil([userDefaults objectForKey:key2]);
-  XCTAssertNil([newUserDefaults objectForKey:key2]);
-  XCTAssertNil([userDefaults objectForKey:key3]);
-  XCTAssertNil([newUserDefaults objectForKey:key3]);
-  XCTAssertNil([userDefaults objectForKey:key4]);
-  XCTAssertNil([newUserDefaults objectForKey:key4]);
-  XCTAssertNil([userDefaults objectForKey:key5]);
-  XCTAssertNil([newUserDefaults objectForKey:key5]);
-  XCTAssertNil([userDefaults objectForKey:key6]);
-  XCTAssertNil([newUserDefaults objectForKey:key6]);
-  XCTAssertNil([userDefaults objectForKey:key7]);
-  XCTAssertNil([newUserDefaults objectForKey:key7]);
-
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
 }
 
@@ -400,6 +382,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertNil([newUserDefaults objectForKey:@"test-another"]);
   [newUserDefaults synchronize];
   [[NSNotificationCenter defaultCenter] removeObserver:observer];
+
+  // Remove the underlying reference file.
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
