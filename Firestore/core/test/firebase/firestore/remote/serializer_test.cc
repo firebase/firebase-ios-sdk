@@ -325,21 +325,20 @@ class SerializerTest : public ::testing::Test {
     google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
     reader.ReadNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
-    StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
+    StatusOr<MaybeDocument> actual_model_status =
         serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     reader.FreeNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
 
     EXPECT_OK(actual_model_status);
-    std::unique_ptr<MaybeDocument> actual_model =
-        std::move(actual_model_status).ValueOrDie();
+    MaybeDocument actual_model = std::move(actual_model_status).ValueOrDie();
 
-    EXPECT_EQ(key, actual_model->key());
-    EXPECT_EQ(version, actual_model->version());
-    switch (actual_model->type()) {
+    EXPECT_EQ(key, actual_model.key());
+    EXPECT_EQ(version, actual_model.version());
+    switch (actual_model.type()) {
       case MaybeDocument::Type::Document: {
-        Document* actual_doc_model = static_cast<Document*>(actual_model.get());
-        EXPECT_EQ(value, actual_doc_model->data());
+        Document actual_doc_model = Document(actual_model);
+        EXPECT_EQ(value, actual_doc_model.data());
         break;
       }
       case MaybeDocument::Type::NoDocument:

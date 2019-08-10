@@ -124,13 +124,12 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_MaybeDocument nanopb_proto{};
     reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
-    std::unique_ptr<MaybeDocument> actual_model =
-        serializer.DecodeMaybeDocument(&reader, nanopb_proto);
+    auto actual_model = serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     reader.FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model->type());
-    EXPECT_EQ(model, *actual_model);
+    EXPECT_EQ(type, actual_model.type());
+    EXPECT_EQ(model, actual_model);
   }
 
   ByteString EncodeMaybeDocument(local::LocalSerializer* serializer,

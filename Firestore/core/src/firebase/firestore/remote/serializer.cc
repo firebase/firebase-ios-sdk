@@ -449,7 +449,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
   return result;
 }
 
-std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
+model::MaybeDocument Serializer::DecodeMaybeDocument(
     Reader* reader,
     const google_firestore_v1_BatchGetDocumentsResponse& response) const {
   switch (response.which_result) {
@@ -460,13 +460,13 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
     default:
       reader->Fail(
           StringFormat("Unknown result case: %s", response.which_result));
-      return nullptr;
+      return {};
   }
 
   UNREACHABLE();
 }
 
-std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
+model::Document Serializer::DecodeFoundDocument(
     Reader* reader,
     const google_firestore_v1_BatchGetDocumentsResponse& response) const {
   HARD_ASSERT(response.which_result ==
@@ -483,12 +483,11 @@ std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
     reader->Fail("Got a document response with no snapshot version");
   }
 
-  return absl::make_unique<Document>(ObjectValue::FromMap(std::move(value)),
-                                     std::move(key), std::move(version),
-                                     DocumentState::kSynced);
+  return Document(ObjectValue::FromMap(std::move(value)), std::move(key),
+                  std::move(version), DocumentState::kSynced);
 }
 
-std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
+model::NoDocument Serializer::DecodeMissingDocument(
     Reader* reader,
     const google_firestore_v1_BatchGetDocumentsResponse& response) const {
   HARD_ASSERT(response.which_result ==
@@ -500,23 +499,22 @@ std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a no document response with no snapshot version");
-    return nullptr;
+    return {};
   }
 
-  return absl::make_unique<NoDocument>(std::move(key), std::move(version),
-                                       /*hasCommittedMutations=*/false);
+  return NoDocument(std::move(key), std::move(version),
+                    /*hasCommittedMutations=*/false);
 }
 
-std::unique_ptr<Document> Serializer::DecodeDocument(
+Document Serializer::DecodeDocument(
     Reader* reader, const google_firestore_v1_Document& proto) const {
   FieldValue::Map fields_internal =
       DecodeFields(reader, proto.fields_count, proto.fields);
   SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
 
-  return absl::make_unique<Document>(
-      ObjectValue::FromMap(std::move(fields_internal)),
-      DecodeKey(reader, DecodeString(proto.name)), std::move(version),
-      DocumentState::kSynced);
+  return Document(ObjectValue::FromMap(std::move(fields_internal)),
+                  DecodeKey(reader, DecodeString(proto.name)),
+                  std::move(version), DocumentState::kSynced);
 }
 
 google_firestore_v1_Write Serializer::EncodeMutation(

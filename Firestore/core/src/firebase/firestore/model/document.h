@@ -57,8 +57,6 @@ std::ostream& operator<<(std::ostream& os, DocumentState state);
  */
 class Document : public MaybeDocument {
  public:
-  Document() = default;
-
   /**
    * Construct a document. ObjectValue must be passed by rvalue.
    */
@@ -81,6 +79,9 @@ class Document : public MaybeDocument {
    * assert if the type of the MaybeDocument isn't actually Type::Document.
    */
   explicit Document(const MaybeDocument& document);
+
+  /** Creates an invalid Document instance. */
+  Document() = default;
 
   const ObjectValue& data() const;
 

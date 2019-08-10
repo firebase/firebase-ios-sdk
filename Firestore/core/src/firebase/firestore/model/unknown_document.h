@@ -40,6 +40,9 @@ class UnknownDocument : public MaybeDocument {
    */
   explicit UnknownDocument(const MaybeDocument& document);
 
+  /** Creates an invalid UnknownDocument. */
+  UnknownDocument() = default;
+
  private:
   class Rep;
 };
