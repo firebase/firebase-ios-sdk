@@ -149,26 +149,27 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), reader.status().code());
   }
 
-  v1::Value ValueProto(std::nullptr_t) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::Null());
-    return ProtobufParse<v1::Value>(bytes);
-  }
-
-  ByteString EncodeFieldValue(Serializer* serializer, const FieldValue& fv) {
+  ByteString EncodeFieldValue(const FieldValue& fv) {
     ByteStringWriter writer;
-    google_firestore_v1_Value proto = serializer->EncodeFieldValue(fv);
+    google_firestore_v1_Value proto = serializer.EncodeFieldValue(fv);
     writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
-    serializer->FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
     return writer.Release();
   }
 
-  ByteString EncodeDocument(Serializer* serializer,
-                            const DocumentKey& key,
-                            const ObjectValue& value) {
+  ByteString EncodeDocument(const DocumentKey& key, const ObjectValue& value) {
     ByteStringWriter writer;
-    google_firestore_v1_Document proto = serializer->EncodeDocument(key, value);
+    google_firestore_v1_Document proto = serializer.EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
-    serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
+    return writer.Release();
+  }
+
+  ByteString EncodeMutation(const Mutation& mutation) {
+    ByteStringWriter writer;
+    google_firestore_v1_Write proto = serializer.EncodeMutation(mutation);
+    writer.WriteNanopbMessage(google_firestore_v1_Write_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Write_fields, &proto);
     return writer.Release();
   }
 
@@ -187,20 +188,30 @@ class SerializerTest : public ::testing::Test {
     *byte = new_value;
   }
 
+  v1::Value ValueProto(std::nullptr_t) {
+    ByteString bytes = EncodeFieldValue(FieldValue::Null());
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
   v1::Value ValueProto(bool b) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromBoolean(b));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromBoolean(b));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(int64_t i) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromInteger(i));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromInteger(i));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(double d) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::FromDouble(d));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromDouble(d));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
+  // int64_t and double are equally good overloads for integer literals so this
+  // avoids ambiguity
+  v1::Value ValueProto(int i) {
+    ByteString bytes = EncodeFieldValue(FieldValue::FromInteger(i));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -209,31 +220,27 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(const std::string& s) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::FromString(s));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromString(s));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const Timestamp& ts) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromTimestamp(ts));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromTimestamp(ts));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const ByteString& blob) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromBlob(blob));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromBlob(blob));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const GeoPoint& geo_point) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromGeoPoint(geo_point));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromGeoPoint(geo_point));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const std::vector<FieldValue>& array) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromArray(array));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromArray(array));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -266,7 +273,7 @@ class SerializerTest : public ::testing::Test {
                                     const v1::Value& proto,
                                     FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
-    ByteString bytes = EncodeFieldValue(&serializer, model);
+    ByteString bytes = EncodeFieldValue(model);
     auto actual_proto = ProtobufParse<v1::Value>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
@@ -294,7 +301,7 @@ class SerializerTest : public ::testing::Test {
       const ObjectValue& value,
       const SnapshotVersion& update_time,
       const v1::BatchGetDocumentsResponse& proto) {
-    ByteString bytes = EncodeDocument(&serializer, key, value);
+    ByteString bytes = EncodeDocument(key, value);
     auto actual_proto = ProtobufParse<v1::Document>(bytes);
 
     // Note that the client can only serialize Documents (and cannot serialize
@@ -662,8 +669,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 }
 
 TEST_F(SerializerTest, BadNullValue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -674,7 +680,7 @@ TEST_F(SerializerTest, BadNullValue) {
 
 TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
   std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::FromBoolean(true)));
+      MakeVector(EncodeFieldValue(FieldValue::FromBoolean(true)));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
@@ -692,8 +698,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
 TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
   auto max_int = FieldValue::FromInteger(std::numeric_limits<uint64_t>::max());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, max_int));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_int));
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
     ASSERT_EQ(0xff, bytes[i]);
@@ -710,7 +715,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
 
 TEST_F(SerializerTest, BadStringValue) {
   std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::FromString("a")));
+      MakeVector(EncodeFieldValue(FieldValue::FromString("a")));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -722,8 +727,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   auto max_ts = FieldValue::FromTimestamp(TimestampInternal::Max());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, max_ts));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_ts));
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -734,8 +738,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   auto min_ts = FieldValue::FromTimestamp(TimestampInternal::Min());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, min_ts));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(min_ts));
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
@@ -750,8 +753,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // assume some sort of default type in this situation, we've decided to fail
   // the deserialization process in this case instead.
 
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
 
   // The v1::Value value_type oneof currently has tags up to 18. For this test,
   // we'll pick a tag that's unlikely to be added in the near term but still
@@ -813,8 +815,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload
