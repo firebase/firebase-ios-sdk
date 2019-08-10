@@ -32,6 +32,7 @@
 using firebase::firestore::core::Transaction;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -417,7 +418,7 @@ void RemoteStore::OnWriteStreamHandshakeComplete() {
 
 void RemoteStore::OnWriteStreamMutationResult(
     SnapshotVersion commit_version,
-    std::vector<FSTMutationResult*> mutation_results) {
+    std::vector<MutationResult> mutation_results) {
   // This is a response to a write containing mutations and should be correlated
   // to the first write in our write pipeline.
   HARD_ASSERT(!write_pipeline_.empty(), "Got result for empty write pipeline");

@@ -22,12 +22,11 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FSTMutation);
 
 namespace firebase {
 namespace firestore {
@@ -62,7 +61,7 @@ class WriteBatch {
 
  private:
   std::shared_ptr<Firestore> firestore_;
-  std::vector<FSTMutation*> mutations_;
+  std::vector<model::Mutation> mutations_;
   bool committed_ = false;
 
   void VerifyNotCommitted() const;

@@ -21,8 +21,6 @@
 
 #import "FIRTimestamp.h"
 
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
@@ -39,6 +37,8 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::util::Hash;
 
@@ -46,14 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMutationBatch {
   Timestamp _localWriteTime;
-  std::vector<FSTMutation *> _baseMutations;
-  std::vector<FSTMutation *> _mutations;
+  std::vector<Mutation> _baseMutations;
+  std::vector<Mutation> _mutations;
 }
 
 - (instancetype)initWithBatchID:(BatchId)batchID
                  localWriteTime:(const Timestamp &)localWriteTime
-                  baseMutations:(std::vector<FSTMutation *> &&)baseMutations
-                      mutations:(std::vector<FSTMutation *> &&)mutations {
+                  baseMutations:(std::vector<Mutation> &&)baseMutations
+                      mutations:(std::vector<Mutation> &&)mutations {
   HARD_ASSERT(!mutations.empty(), "Cannot create an empty mutation batch");
   self = [super init];
   if (self) {
@@ -65,11 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (const std::vector<FSTMutation *> &)baseMutations {
+- (const std::vector<Mutation> &)baseMutations {
   return _baseMutations;
 }
 
-- (const std::vector<FSTMutation *> &)mutations {
+- (const std::vector<Mutation> &)mutations {
   return _mutations;
 }
 
@@ -82,18 +82,17 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTMutationBatch *otherBatch = (FSTMutationBatch *)other;
   return self.batchID == otherBatch.batchID && self.localWriteTime == otherBatch.localWriteTime &&
-         objc::Equals(_baseMutations, otherBatch.baseMutations) &&
-         objc::Equals(_mutations, otherBatch.mutations);
+         _baseMutations == otherBatch.baseMutations && _mutations == otherBatch.mutations;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = (NSUInteger)self.batchID;
   result = result * 31 + TimestampInternal::Hash(self.localWriteTime);
-  for (FSTMutation *mutation : _baseMutations) {
-    result = result * 31 + [mutation hash];
+  for (const Mutation &mutation : _baseMutations) {
+    result = result * 31 + mutation.Hash();
   }
-  for (FSTMutation *mutation : _mutations) {
-    result = result * 31 + [mutation hash];
+  for (const Mutation &mutation : _mutations) {
+    result = result * 31 + mutation.Hash();
   }
   return result;
 }
@@ -117,10 +116,10 @@ NS_ASSUME_NONNULL_BEGIN
               mutationBatchResult.mutationResults.size());
 
   for (size_t i = 0; i < _mutations.size(); i++) {
-    FSTMutation *mutation = _mutations[i];
-    FSTMutationResult *mutationResult = mutationBatchResult.mutationResults[i];
-    if (mutation.key == documentKey) {
-      maybeDoc = [mutation applyToRemoteDocument:maybeDoc mutationResult:mutationResult];
+    const Mutation &mutation = _mutations[i];
+    const MutationResult &mutationResult = mutationBatchResult.mutationResults[i];
+    if (mutation.key() == documentKey) {
+      maybeDoc = mutation.ApplyToRemoteDocument(maybeDoc, mutationResult);
     }
   }
   return maybeDoc;
@@ -134,22 +133,18 @@ NS_ASSUME_NONNULL_BEGIN
 
   // First, apply the base state. This allows us to apply non-idempotent transform against a
   // consistent set of values.
-  for (FSTMutation *mutation : _baseMutations) {
-    if (mutation.key == documentKey) {
-      maybeDoc = [mutation applyToLocalDocument:maybeDoc
-                                   baseDocument:maybeDoc
-                                 localWriteTime:self.localWriteTime];
+  for (const Mutation &mutation : _baseMutations) {
+    if (mutation.key() == documentKey) {
+      maybeDoc = mutation.ApplyToLocalView(maybeDoc, maybeDoc, self.localWriteTime);
     }
   }
 
   absl::optional<MaybeDocument> baseDoc = maybeDoc;
 
   // Second, apply all user-provided mutations.
-  for (FSTMutation *mutation : _mutations) {
-    if (mutation.key == documentKey) {
-      maybeDoc = [mutation applyToLocalDocument:maybeDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:self.localWriteTime];
+  for (const Mutation &mutation : _mutations) {
+    if (mutation.key() == documentKey) {
+      maybeDoc = mutation.ApplyToLocalView(maybeDoc, baseDoc, self.localWriteTime);
     }
   }
   return maybeDoc;
@@ -175,8 +170,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (DocumentKeySet)keys {
   DocumentKeySet set;
-  for (FSTMutation *mutation : _mutations) {
-    set = set.insert(mutation.key);
+  for (const Mutation &mutation : _mutations) {
+    set = set.insert(mutation.key());
   }
   return set;
 }
@@ -188,20 +183,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTMutationBatchResult ()
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(std::vector<FSTMutationResult *>)mutationResults
+              mutationResults:(std::vector<MutationResult>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTMutationBatchResult {
   SnapshotVersion _commitVersion;
-  std::vector<FSTMutationResult *> _mutationResults;
+  std::vector<MutationResult> _mutationResults;
   DocumentVersionMap _docVersions;
 }
 
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(std::vector<FSTMutationResult *>)mutationResults
+              mutationResults:(std::vector<MutationResult>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions {
   if (self = [super init]) {
@@ -218,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _commitVersion;
 }
 
-- (const std::vector<FSTMutationResult *> &)mutationResults {
+- (const std::vector<MutationResult> &)mutationResults {
   return _mutationResults;
 }
 
@@ -228,23 +223,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(SnapshotVersion)commitVersion
-                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
+                mutationResults:(std::vector<MutationResult>)mutationResults
                     streamToken:(nullable NSData *)streamToken {
   HARD_ASSERT(batch.mutations.size() == mutationResults.size(),
               "Mutations sent %s must equal results received %s", batch.mutations.size(),
               mutationResults.size());
 
   DocumentVersionMap docVersions;
-  std::vector<FSTMutation *> mutations = batch.mutations;
+  std::vector<Mutation> mutations = batch.mutations;
   for (size_t i = 0; i < mutations.size(); i++) {
-    absl::optional<SnapshotVersion> version = mutationResults[i].version;
+    absl::optional<SnapshotVersion> version = mutationResults[i].version();
     if (!version) {
       // deletes don't have a version, so we substitute the commitVersion
       // of the entire batch.
       version = commitVersion;
     }
 
-    docVersions[mutations[i].key] = version.value();
+    docVersions[mutations[i].key()] = version.value();
   }
 
   return [[FSTMutationBatchResult alloc] initWithBatch:batch

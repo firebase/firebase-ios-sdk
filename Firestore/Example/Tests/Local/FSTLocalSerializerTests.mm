@@ -32,7 +32,6 @@
 #import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
@@ -55,7 +54,9 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::NoDocument;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -66,8 +67,10 @@ using firebase::firestore::testutil::Version;
 
 using testutil::DeletedDoc;
 using testutil::Doc;
+using testutil::Key;
 using testutil::Map;
 using testutil::UnknownDoc;
+using testutil::WrapObject;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -86,17 +89,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMutationBatch {
-  FSTMutation *base = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                                  fieldMask:FieldMask{Field("a")}
-                                                      value:FSTTestObjectValue(@{@"a" : @"b"})
-                                               precondition:Precondition::Exists(true)];
-  FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
-  FSTMutation *patch =
-      [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                  fieldMask:FieldMask{Field("a")}
-                                      value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
-                               precondition:Precondition::Exists(true)];
-  FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
+  Mutation base = PatchMutation(Key("bar/baz"), WrapObject("a", "b"), FieldMask{Field("a")},
+                                Precondition::Exists(true));
+
+  Mutation set = testutil::SetMutation("foo/bar", Map("a", "b", "num", 1));
+  Mutation patch = PatchMutation(Key("bar/baz"), WrapObject("a", "b", "num", 1),
+                                 FieldMask{Field("a")}, Precondition::Exists(true));
+  Mutation del = testutil::DeleteMutation("baz/quux");
+
   Timestamp writeTime = Timestamp::Now();
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
@@ -144,8 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
   XCTAssertEqual(decoded.batchID, model.batchID);
   XCTAssertEqual(decoded.localWriteTime, model.localWriteTime);
-  FSTAssertEqualVectors(decoded.baseMutations, model.baseMutations);
-  FSTAssertEqualVectors(decoded.mutations, model.mutations);
+  XCTAssertEqual(decoded.baseMutations, model.baseMutations);
+  XCTAssertEqual(decoded.mutations, model.mutations);
   XCTAssertEqual([decoded keys], [model keys]);
 }
 

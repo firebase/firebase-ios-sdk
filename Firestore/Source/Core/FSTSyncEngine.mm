@@ -63,8 +63,9 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
@@ -268,7 +269,7 @@ class LimboResolution {
   [self removeAndCleanupQuery:queryView];
 }
 
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
+- (void)writeMutations:(std::vector<Mutation> &&)mutations
             completion:(FSTVoidErrorBlock)completion {
   [self assertDelegateExistsForSelector:_cmd];
 

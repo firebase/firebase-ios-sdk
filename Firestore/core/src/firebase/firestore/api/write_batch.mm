@@ -19,12 +19,12 @@
 #include <algorithm>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,12 +32,16 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+using model::DeleteMutation;
+using model::Mutation;
+using model::Precondition;
+
 void WriteBatch::SetData(const DocumentReference& reference,
                          core::ParsedSetData&& setData) {
   VerifyNotCommitted();
   ValidateReference(reference);
 
-  std::vector<FSTMutation*> append_mutations = std::move(setData).ToMutations(
+  std::vector<Mutation> append_mutations = std::move(setData).ToMutations(
       reference.key(), model::Precondition::None());
   std::move(append_mutations.begin(), append_mutations.end(),
             std::back_inserter(mutations_));
@@ -48,7 +52,7 @@ void WriteBatch::UpdateData(const DocumentReference& reference,
   VerifyNotCommitted();
   ValidateReference(reference);
 
-  std::vector<FSTMutation*> append_mutations =
+  std::vector<Mutation> append_mutations =
       std::move(updateData)
           .ToMutations(reference.key(), model::Precondition::Exists(true));
   std::move(append_mutations.begin(), append_mutations.end(),
@@ -59,9 +63,7 @@ void WriteBatch::DeleteData(const DocumentReference& reference) {
   VerifyNotCommitted();
   ValidateReference(reference);
 
-  mutations_.push_back([[FSTDeleteMutation alloc]
-       initWithKey:reference.key()
-      precondition:model::Precondition::None()]);
+  mutations_.push_back(DeleteMutation(reference.key(), Precondition::None()));
 }
 
 void WriteBatch::Commit(util::StatusCallback callback) {

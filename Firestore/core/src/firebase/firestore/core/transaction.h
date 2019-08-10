@@ -24,18 +24,14 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/any.h"
 #include "absl/types/optional.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FSTMutation);
 
 namespace firebase {
 namespace firestore {
@@ -112,7 +108,7 @@ class Transaction {
   util::Status RecordVersion(const model::MaybeDocument& doc);
 
   /** Stores mutations to be written when `Commit` is called. */
-  void WriteMutations(std::vector<FSTMutation*>&& mutations);
+  void WriteMutations(std::vector<model::Mutation>&& mutations);
 
   /**
    * Returns version of this doc when it was read in this transaction as a
@@ -134,7 +130,7 @@ class Transaction {
 
   remote::Datastore* datastore_ = nullptr;
 
-  std::vector<FSTMutation*> mutations_;
+  std::vector<model::Mutation> mutations_;
   bool committed_ = false;
   bool permanentError_ = false;
 
@@ -175,7 +171,5 @@ using TransactionUpdateCallback = std::function<void(
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_H_

@@ -98,7 +98,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   virtual std::shared_ptr<WriteStream> CreateWriteStream(
       WriteStreamCallback* callback);
 
-  void CommitMutations(const std::vector<FSTMutation*>& mutations,
+  void CommitMutations(const std::vector<model::Mutation>& mutations,
                        CommitCallback&& callback);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        LookupCallback&& callback);
@@ -163,7 +163,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void CommitMutationsWithCredentials(
       const auth::Token& token,
-      const std::vector<FSTMutation*>& mutations,
+      const std::vector<model::Mutation>& mutations,
       CommitCallback&& callback);
 
   void LookupDocumentsWithCredentials(

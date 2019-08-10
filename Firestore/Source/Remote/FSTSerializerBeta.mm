@@ -34,7 +34,6 @@
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -44,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -52,8 +52,11 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -81,6 +84,7 @@ using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
@@ -89,14 +93,19 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::TransformMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
@@ -719,10 +728,10 @@ absl::any Wrap(GCFSDocument *doc) {
   return elements;
 }
 
-#pragma mark - FSTMutationResult <= GCFSWriteResult proto
+#pragma mark - MutationResult <= GCFSWriteResult proto
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const SnapshotVersion &)commitVersion {
+- (MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
+                          commitVersion:(const SnapshotVersion &)commitVersion {
   // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
   SnapshotVersion version =
       mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
@@ -733,8 +742,7 @@ absl::any Wrap(GCFSDocument *doc) {
       transformResults->push_back([self decodedFieldValue:result]);
     }
   }
-  return [[FSTMutationResult alloc] initWithVersion:std::move(version)
-                                   transformResults:std::move(transformResults)];
+  return MutationResult(std::move(version), std::move(transformResults));
 }
 
 #pragma mark - FSTQueryData => GCFSTarget proto

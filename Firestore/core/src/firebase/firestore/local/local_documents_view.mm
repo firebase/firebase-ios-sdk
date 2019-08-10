@@ -19,7 +19,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
@@ -45,6 +44,7 @@ using model::DocumentKeySet;
 using model::DocumentMap;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
+using model::Mutation;
 using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
@@ -178,13 +178,13 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   results = AddMissingBaseDocuments(matchingBatches, std::move(results));
 
   for (FSTMutationBatch* batch : matchingBatches) {
-    for (FSTMutation* mutation : [batch mutations]) {
+    for (const Mutation& mutation : [batch mutations]) {
       // Only process documents belonging to the collection.
-      if (!query.path().IsImmediateParentOf(mutation.key.path())) {
+      if (!query.path().IsImmediateParentOf(mutation.key().path())) {
         continue;
       }
 
-      const DocumentKey& key = mutation.key;
+      const DocumentKey& key = mutation.key();
       // base_doc may be unset for the documents that weren't yet written to
       // the backend.
       absl::optional<MaybeDocument> base_doc;
@@ -194,9 +194,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       }
 
       absl::optional<MaybeDocument> mutated_doc =
-          [mutation applyToLocalDocument:base_doc
-                            baseDocument:base_doc
-                          localWriteTime:batch.localWriteTime];
+          mutation.ApplyToLocalView(base_doc, base_doc, batch.localWriteTime);
 
       if (mutated_doc && mutated_doc->is_document()) {
         results = results.insert(key, Document(*mutated_doc));

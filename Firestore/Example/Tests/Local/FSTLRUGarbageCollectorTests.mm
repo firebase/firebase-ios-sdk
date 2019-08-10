@@ -26,7 +26,6 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -36,7 +35,9 @@
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
@@ -56,8 +57,10 @@ using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::TargetId;
 
 using testutil::Key;
@@ -231,10 +234,8 @@ NS_ASSUME_NONNULL_BEGIN
   return doc;
 }
 
-- (FSTSetMutation *)mutationForDocument:(const DocumentKey &)docKey {
-  return [[FSTSetMutation alloc] initWithKey:docKey
-                                       value:_testValue
-                                precondition:Precondition::None()];
+- (SetMutation)mutationForDocument:(const DocumentKey &)docKey {
+  return SetMutation(docKey, _testValue, Precondition::None());
 }
 
 - (DocumentKey)nextTestDocKey {
@@ -418,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
   // as any documents with pending mutations.
   std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
   // we add two mutations later, for now track them in an array.
-  std::vector<FSTMutation *> mutations;
+  std::vector<Mutation> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
