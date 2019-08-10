@@ -175,9 +175,9 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_Precondition& precondition);
 
-  static google_firestore_v1_DocumentMask EncodeDocumentMask(
+  static google_firestore_v1_DocumentMask EncodeFieldMask(
       const model::FieldMask& mask);
-  static model::FieldMask DecodeDocumentMask(
+  static model::FieldMask DecodeFieldMask(
       const google_firestore_v1_DocumentMask& mask);
 
   /**

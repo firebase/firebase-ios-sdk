@@ -547,7 +547,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
-      result.update_mask = EncodeDocumentMask(patch_mutation.mask());
+      result.update_mask = EncodeFieldMask(patch_mutation.mask());
       return result;
     }
 
@@ -592,7 +592,7 @@ Mutation Serializer::DecodeMutation(
       DocumentKey key = DecodeKey(reader, DecodeString(mutation.update.name));
       ObjectValue value = ObjectValue::FromMap(DecodeFields(
           reader, mutation.update.fields_count, mutation.update.fields));
-      FieldMask mask = DecodeDocumentMask(mutation.update_mask);
+      FieldMask mask = DecodeFieldMask(mutation.update_mask);
       if (mask.size() > 0) {
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
                              std::move(precondition));
@@ -687,7 +687,7 @@ Precondition Serializer::DecodePrecondition(
 }
 
 /* static */
-google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
+google_firestore_v1_DocumentMask Serializer::EncodeFieldMask(
     const FieldMask& mask) {
   google_firestore_v1_DocumentMask result{};
 
@@ -705,14 +705,13 @@ google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
 }
 
 /* static */
-model::FieldMask Serializer::DecodeDocumentMask(
+FieldMask Serializer::DecodeFieldMask(
     const google_firestore_v1_DocumentMask& mask) {
   std::set<FieldPath> fields;
   for (size_t i = 0; i < mask.field_paths_count; i++) {
-    auto path = DecodeString(mask.field_paths[i]);
-    fields.insert(FieldPath::FromServerFormat(path));
+    fields.insert(DecodeFieldPath(mask.field_paths[i]));
   }
-  return model::FieldMask(std::move(fields));
+  return FieldMask(std::move(fields));
 }
 
 google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
