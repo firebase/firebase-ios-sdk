@@ -265,8 +265,8 @@ static NSInteger target = 1337;
   NSData *storageData;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
-                                              requiringSecureCoding:YES
-                                                              error:nil];
+                                        requiringSecureCoding:YES
+                                                        error:nil];
   } else {
 #if !defined(TARGET_OS_MACCATALYST)
     storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
@@ -283,8 +283,8 @@ static NSInteger target = 1337;
   NSError *error;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
-                                                                    fromData:storageData
-                                                                       error:&error];
+                                                          fromData:storageData
+                                                             error:&error];
   } else {
 #if !defined(TARGET_OS_MACCATALYST)
     unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
@@ -303,8 +303,8 @@ static NSInteger target = 1337;
   NSData *storageData;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
-                                              requiringSecureCoding:YES
-                                                              error:nil];
+                                        requiringSecureCoding:YES
+                                                        error:nil];
   } else {
 #if !defined(TARGET_OS_MACCATALYST)
     storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
@@ -320,8 +320,8 @@ static NSInteger target = 1337;
   GDTStorage *unarchivedStorage;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
-                                                                    fromData:storageData
-                                                                       error:nil];
+                                                          fromData:storageData
+                                                             error:nil];
   } else {
 #if !defined(TARGET_OS_MACCATALYST)
     unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
