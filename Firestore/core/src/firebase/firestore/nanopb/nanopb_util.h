@@ -64,6 +64,11 @@ inline pb_bytes_array_t* MakeBytesArray(const std::vector<uint8_t>& bytes) {
 /**
  * Creates a string_view of the given nanopb bytes.
  */
+absl::string_view MakeStringView(const pb_bytes_array_t* str);
+
+/**
+ * Creates a string_view of the given nanopb bytes.
+ */
 absl::string_view MakeStringView(const ByteString& bytes);
 
 inline pb_bytes_array_t* MakeBytesArray(const std::string& str) {
