@@ -155,8 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
   // done in `applyToLocalDocument:documentKey:`), we can reduce the complexity to O(n).
 
   MaybeDocumentMap mutatedDocuments = documentSet;
-  for (FSTMutation *mutation : _mutations) {
-    const DocumentKey &key = mutation.key;
+  for (const Mutation &mutation : _mutations) {
+    const DocumentKey &key = mutation.key();
 
     absl::optional<MaybeDocument> previousDocument = mutatedDocuments.get(key);
     absl::optional<MaybeDocument> mutatedDocument =

@@ -54,12 +54,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Holds an outstanding write and its result. */
 @interface FSTOutstandingWrite : NSObject
+
 /** The write that is outstanding. */
-@property(nonatomic, strong, readwrite) FSTMutation *write;
+- (const model::Mutation &)write;
+- (void)setWrite:(model::Mutation)write;
+
 /** Whether this write is done (regardless of whether it was successful or not). */
 @property(nonatomic, assign, readwrite) BOOL done;
+
 /** The error - if any - of this write. */
 @property(nonatomic, strong, nullable, readwrite) NSError *error;
+
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */

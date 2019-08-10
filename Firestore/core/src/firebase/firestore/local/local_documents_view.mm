@@ -187,11 +187,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       const DocumentKey& key = mutation.key();
       // base_doc may be unset for the documents that weren't yet written to
       // the backend.
-      absl::optional<MaybeDocument> base_doc;
-      auto found = results.underlying_map().find(key);
-      if (found != results.underlying_map().end()) {
-        base_doc = found->second;
-      }
+      absl::optional<MaybeDocument> base_doc =
+          results.underlying_map().get(key);
 
       absl::optional<MaybeDocument> mutated_doc =
           mutation.ApplyToLocalView(base_doc, base_doc, batch.localWriteTime);
@@ -225,11 +222,11 @@ DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
     DocumentMap existing_docs) {
   DocumentKeySet missing_doc_keys;
   for (FSTMutationBatch* batch : matching_batches) {
-    for (FSTMutation* mutation : [batch mutations]) {
-      if ([mutation isKindOfClass:[FSTPatchMutation class]] &&
-          existing_docs.underlying_map().find([mutation key]) ==
-              existing_docs.underlying_map().end()) {
-        missing_doc_keys = missing_doc_keys.insert([mutation key]);
+    for (const Mutation& mutation : [batch mutations]) {
+      const DocumentKey& key = mutation.key();
+      if (mutation.type() == Mutation::Type::Patch &&
+          !existing_docs.underlying_map().contains(key)) {
+        missing_doc_keys = missing_doc_keys.insert(key);
       }
     }
   }

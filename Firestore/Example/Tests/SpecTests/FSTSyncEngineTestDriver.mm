@@ -105,7 +105,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTOutstandingWrite
+@implementation FSTOutstandingWrite {
+  Mutation _write;
+}
+
+- (const model::Mutation &)write {
+  return _write;
+}
+
+- (void)setWrite:(model::Mutation)write {
+  _write = std::move(write);
+}
+
 @end
 
 @interface FSTSyncEngineTestDriver ()
@@ -389,9 +400,7 @@ NS_ASSUME_NONNULL_BEGIN
                            write.done = YES;
                            write.error = error;
 
-                           NSString *mutationKey =
-                               [NSString stringWithCString:mutation.key.ToString().c_str()
-                                                  encoding:[NSString defaultCStringEncoding]];
+                           NSString *mutationKey = util::MakeNSString(mutation.key().ToString());
                            if (error) {
                              [self.rejectedDocs addObject:mutationKey];
                            } else {

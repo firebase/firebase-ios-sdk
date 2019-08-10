@@ -177,15 +177,13 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
                                            databaseID:DatabaseId(projectID, database)];
 }
 
-FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  return [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(path)
-                                       value:FSTTestObjectValue(values)
-                                precondition:Precondition::None()];
+SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
+  return SetMutation(FSTTestDocKey(path), FSTTestObjectValue(values), Precondition::None());
 }
 
-FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
-                                       NSDictionary<NSString *, id> *values,
-                                       const std::vector<FieldPath> &updateMask) {
+PatchMutation FSTTestPatchMutation(const absl::string_view path,
+                                   NSDictionary<NSString *, id> *values,
+                                   const std::vector<FieldPath> &updateMask) {
   BOOL merge = !updateMask.empty();
 
   __block ObjectValue objectValue = ObjectValue::Empty();
@@ -200,27 +198,23 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   }];
 
   DocumentKey key = testutil::Key(path);
+  Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
   FieldMask mask(merge ? std::set<FieldPath>(updateMask.begin(), updateMask.end())
                        : fieldMaskPaths);
-  return [[FSTPatchMutation alloc]
-       initWithKey:key
-         fieldMask:mask
-             value:objectValue
-      precondition:merge ? Precondition::None() : Precondition::Exists(true)];
+  return PatchMutation(key, objectValue, mask, precondition);
 }
 
-FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
+TransformMutation FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
   DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   ParsedUpdateData result = [converter parsedUpdateData:data];
   HARD_ASSERT(result.data().size() == 0,
               "FSTTestTransformMutation() only expects transforms; no other data");
-  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:result.field_transforms()];
+  return TransformMutation(key, result.field_transforms());
 }
 
-FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
-                                   precondition:Precondition::None()];
+DeleteMutation FSTTestDeleteMutation(NSString *path) {
+  return DeleteMutation(FSTTestDocKey(path), Precondition::None());
 }
 
 MaybeDocumentMap FSTTestDocUpdates(const std::vector<MaybeDocument> &docs) {
