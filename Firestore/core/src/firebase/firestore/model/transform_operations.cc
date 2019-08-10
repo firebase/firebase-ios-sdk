@@ -166,7 +166,7 @@ double AsDouble(const FieldValue& value) {
 
 NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
     : operand_(operand) {
-  HARD_ASSERT(FieldValue::IsNumber(operand.type()));
+  HARD_ASSERT(operand.is_number());
 }
 
 FieldValue NumericIncrementTransform::ApplyToLocalView(
@@ -182,7 +182,7 @@ FieldValue NumericIncrementTransform::ApplyToLocalView(
         SafeIncrement(base_value->integer_value(), operand_.integer_value());
     return FieldValue::FromInteger(sum);
   } else {
-    HARD_ASSERT(base_value && FieldValue::IsNumber(base_value->type()),
+    HARD_ASSERT(base_value && base_value->is_number(),
                 "'base_value' is not of numeric type");
     double sum = AsDouble(*base_value) + AsDouble(operand_);
     return FieldValue::FromDouble(sum);
@@ -197,7 +197,7 @@ FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
 
 absl::optional<FieldValue> NumericIncrementTransform::ComputeBaseValue(
     const absl::optional<FieldValue>& previous_value) const {
-  return previous_value && FieldValue::IsNumber(previous_value->type())
+  return previous_value && previous_value->is_number()
              ? previous_value
              : absl::optional<FieldValue>{FieldValue::FromInteger(0)};
 }
