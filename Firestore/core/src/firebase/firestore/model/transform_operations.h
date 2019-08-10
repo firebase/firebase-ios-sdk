@@ -37,7 +37,6 @@ class TransformOperation {
     ArrayUnion,
     ArrayRemove,
     Increment,
-    Test,  // Purely for test purpose.
   };
 
   virtual ~TransformOperation() {

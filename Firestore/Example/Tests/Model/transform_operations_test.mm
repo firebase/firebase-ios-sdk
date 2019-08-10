@@ -17,55 +17,25 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class DummyOperation : public TransformOperation {
- public:
-  DummyOperation() {
-  }
+using testutil::Value;
 
-  Type type() const override {
-    return Type::Test;
-  }
+using Type = TransformOperation::Type;
 
-  FieldValue ApplyToLocalView(const absl::optional<model::FieldValue>& /* previous_value */,
-                              const Timestamp& /* local_write_time */) const override {
-    return FieldValue::Null();
-  }
-
-  FieldValue ApplyToRemoteDocument(const absl::optional<model::FieldValue>& /* previous_value */,
-                                   const FieldValue& /* transform_result */) const override {
-    return FieldValue::Null();
-  }
-
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& previous_value) const override {
-    return absl::nullopt;
-  }
-
-  bool operator==(const TransformOperation& other) const override {
-    return this == &other;
-  }
-
-  NSUInteger Hash() const override {
-    // arbitrary number, the same as used in ObjC implementation, since all
-    // instances are equal.
-    return 37;
-  }
-};
-
-TEST(TransformOperations, ServerTimestamp) {
+TEST(TransformOperationsTest, ServerTimestamp) {
   ServerTimestampTransform transform = ServerTimestampTransform::Get();
-  EXPECT_EQ(TransformOperation::Type::ServerTimestamp, transform.type());
+  EXPECT_EQ(Type::ServerTimestamp, transform.type());
 
   ServerTimestampTransform another = ServerTimestampTransform::Get();
-  DummyOperation dummy;
+  NumericIncrementTransform other(Value(1));
   EXPECT_EQ(transform, another);
-  EXPECT_NE(transform, dummy);
+  EXPECT_NE(transform, other);
 }
 
 // TODO(mikelehen): Add ArrayTransform test once it no longer depends on
