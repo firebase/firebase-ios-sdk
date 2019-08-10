@@ -697,7 +697,7 @@ google_firestore_v1_DocumentMask Serializer::EncodeFieldMask(
 
   int i = 0;
   for (const FieldPath& path : mask) {
-    result.field_paths[i] = EncodeString(path.CanonicalString());
+    result.field_paths[i] = EncodeFieldPath(path);
     i++;
   }
 
@@ -712,6 +712,17 @@ FieldMask Serializer::DecodeFieldMask(
     fields.insert(DecodeFieldPath(mask.field_paths[i]));
   }
   return FieldMask(std::move(fields));
+}
+
+/* static */
+pb_bytes_array_t* Serializer::EncodeFieldPath(const FieldPath& field_path) {
+  return EncodeString(field_path.CanonicalString());
+}
+
+/* static */
+FieldPath Serializer::DecodeFieldPath(const pb_bytes_array_t* field_path) {
+  absl::string_view str = MakeStringView(field_path);
+  return FieldPath::FromServerFormat(str);
 }
 
 google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
