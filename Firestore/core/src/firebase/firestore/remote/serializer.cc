@@ -552,24 +552,23 @@ google_firestore_v1_Write Serializer::EncodeMutation(
     }
 
     case Mutation::Type::Transform: {
-      // TODO(rsgowman): Implement transform mutations. Probably like this:
-      abort();
-      /*
-        result.which_operation = google_firestore_v1_Write_transform_tag;
-        auto transform = static_cast<const TransformMutation&>(mutation);
-        result.transform.document = EncodeKey(transform.key());
+      result.which_operation = google_firestore_v1_Write_transform_tag;
+      auto transform = static_cast<const TransformMutation&>(mutation);
+      result.transform.document = EncodeString(EncodeKey(transform.key()));
 
-        size_t count = transform.field_transforms.size();
-        result.transform.field_transforms_count = count;
-        result.transform.field_transforms =
-      MakeArray<google_firestore_v1_DocumentTransform_FieldTransform>(count);
-        int i = 0;
-        for (const FieldTransform& field_transform :
-      transform.field_transforms()) { result.transform.field_transforms[i] =
-      EncodeFieldTransform(field_transform); i++;
-        }
-        return result;
-      */
+      pb_size_t count = CheckedSize(transform.field_transforms().size());
+      result.transform.field_transforms_count = count;
+      result.transform.field_transforms =
+          MakeArray<google_firestore_v1_DocumentTransform_FieldTransform>(
+              count);
+      int i = 0;
+      for (const FieldTransform& field_transform :
+           transform.field_transforms()) {
+        result.transform.field_transforms[i] =
+            EncodeFieldTransform(field_transform);
+        i++;
+      }
+      return result;
     }
 
     case Mutation::Type::Delete: {
@@ -606,22 +605,21 @@ Mutation Serializer::DecodeMutation(
       return DeleteMutation(DecodeKey(reader, DecodeString(mutation.delete_)),
                             std::move(precondition));
 
-      // TODO(rsgowman): Implement transform. Probably like this:
-      /*
-      case google_firestore_v1_Write_transform_tag:
-        std::vector<FieldTransform> field_transforms;
-        for (size_t i = 0; i<mutation.transform.field_transforms_count; i++) {
-          field_transforms.push_back(DecodeFieldTransform(mutation.transform.field_transforms[i]));
-        }
+    case google_firestore_v1_Write_transform_tag: {
+      std::vector<FieldTransform> field_transforms;
+      for (size_t i = 0; i < mutation.transform.field_transforms_count; i++) {
+        field_transforms.push_back(DecodeFieldTransform(
+            reader, mutation.transform.field_transforms[i]));
+      }
 
-        HARD_ASSERT(precondition.type() == Precondition::Type::Exists &&
-      precondition.exists(), "Transforms only support precondition \"exists ==
-      true\"");
+      HARD_ASSERT(precondition.type() == Precondition::Type::Exists &&
+                      precondition.exists(),
+                  "Transforms only support precondition \"exists == true\"");
 
-        return absl::make_unique<TransformMutation>(
-              DecodeKey(reader, mutation.transform.document),
-              field_transforms);
-      */
+      return TransformMutation(
+          DecodeKey(reader, MakeStringView(mutation.transform.document)),
+          field_transforms);
+    }
 
     default:
       reader->Fail(StringFormat("Unknown mutation operation: %s",
@@ -712,6 +710,88 @@ FieldMask Serializer::DecodeFieldMask(
     fields.insert(DecodeFieldPath(mask.field_paths[i]));
   }
   return FieldMask(std::move(fields));
+}
+
+/* static */
+google_firestore_v1_DocumentTransform_FieldTransform
+Serializer::EncodeFieldTransform(const FieldTransform& field_transform) {
+  using Type = TransformOperation::Type;
+
+  google_firestore_v1_DocumentTransform_FieldTransform proto{};
+  proto.field_path = EncodeFieldPath(field_transform.path());
+
+  switch (field_transform.transformation().type()) {
+    case Type::ServerTimestamp:
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag;  // NOLINT
+      proto.set_to_server_value =
+          google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME;  // NOLINT
+      return proto;
+
+    case Type::ArrayUnion:
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag;  // NOLINT
+      proto.append_missing_elements = EncodeArray(
+          ArrayTransform(field_transform.transformation()).elements());
+      return proto;
+
+    case Type::ArrayRemove:
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag;  // NOLINT
+      proto.remove_all_from_array = EncodeArray(
+          ArrayTransform(field_transform.transformation()).elements());
+      return proto;
+
+    case Type::Increment: {
+      const auto& increment = static_cast<const NumericIncrementTransform&>(
+          field_transform.transformation());
+      proto.increment = EncodeFieldValue(increment.operand());
+      return proto;
+    }
+  }
+
+  UNREACHABLE();
+}
+
+/* static */ FieldTransform Serializer::DecodeFieldTransform(
+    nanopb::Reader* reader,
+    const google_firestore_v1_DocumentTransform_FieldTransform& proto) {
+  switch (proto.which_transform_type) {
+    case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag: {  // NOLINT
+      HARD_ASSERT(
+          proto.set_to_server_value ==
+              google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_REQUEST_TIME,  // NOLINT
+          "Unknown transform setToServerValue: %s", proto.set_to_server_value);
+
+      return FieldTransform(DecodeFieldPath(proto.field_path),
+                            ServerTimestampTransform());
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag: {  // NOLINT
+      std::vector<FieldValue> elements =
+          DecodeArray(reader, proto.append_missing_elements);
+      return FieldTransform(DecodeFieldPath(proto.field_path),
+                            ArrayTransform(TransformOperation::Type::ArrayUnion,
+                                           std::move(elements)));
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag: {  // NOLINT
+      std::vector<FieldValue> elements =
+          DecodeArray(reader, proto.remove_all_from_array);
+      return FieldTransform(
+          DecodeFieldPath(proto.field_path),
+          ArrayTransform(TransformOperation::Type::ArrayRemove,
+                         std::move(elements)));
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
+      FieldValue operand = DecodeFieldValue(reader, proto.increment);
+      return FieldTransform(DecodeFieldPath(proto.field_path),
+                            NumericIncrementTransform(std::move(operand)));
+    }
+  }
+
+  UNREACHABLE();
 }
 
 /* static */
