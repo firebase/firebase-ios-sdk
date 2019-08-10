@@ -67,13 +67,13 @@ class Precondition {
    */
   bool IsValidFor(const absl::optional<MaybeDocument>& maybe_doc) const;
 
-  /** Returns whether this Precondition represents no precondition. */
-  bool IsNone() const {
-    return type_ == Type::None;
-  }
-
   Type type() const {
     return type_;
+  }
+
+  /** Returns whether this Precondition represents no precondition. */
+  bool is_none() const {
+    return type_ == Type::None;
   }
 
   const SnapshotVersion& update_time() const {

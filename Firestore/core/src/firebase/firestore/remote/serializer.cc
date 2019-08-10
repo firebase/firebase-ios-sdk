@@ -521,7 +521,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
     const model::Mutation& mutation) const {
   google_firestore_v1_Write result{};
 
-  if (!mutation.precondition().IsNone()) {
+  if (!mutation.precondition().is_none()) {
     result.current_document = EncodePrecondition(mutation.precondition());
   }
 
