@@ -37,10 +37,21 @@ DeleteMutation::DeleteMutation(const Mutation& mutation) : Mutation(mutation) {
 }
 
 MaybeDocument DeleteMutation::Rep::ApplyToRemoteDocument(
-    const absl::optional<MaybeDocument>& /*maybe_doc*/,
-    const MutationResult& /*mutation_result*/) const {
-  // TODO(rsgowman): Implement.
-  abort();
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const MutationResult& mutation_result) const {
+  VerifyKeyMatches(maybe_doc);
+
+  HARD_ASSERT(mutation_result.transform_results() == nullptr,
+              "Transform results received by DeleteMutation.");
+
+  // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
+  // the server has accepted the mutation so the precondition must have held.
+
+  // We store the deleted document at the commit version of the delete. Any
+  // document version that the server sends us before the delete was applied is
+  // discarded.
+  return NoDocument(key(), mutation_result.version(),
+                    /* has_committed_mutations= */ true);
 }
 
 absl::optional<MaybeDocument> DeleteMutation::Rep::ApplyToLocalView(
