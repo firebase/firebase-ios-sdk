@@ -113,7 +113,7 @@ static NSString *GDTStoragePath() {
     if (bgID != GDTBackgroundIdentifierInvalid) {
 #if TARGET_OS_MACCATALYST
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:NO
+                                           requiringSecureCoding:YES
                                                            error:nil];
       [data writeToFile:[GDTStorage archivePath] atomically:YES];
 #else
@@ -215,7 +215,7 @@ static NSString *GDTStoragePath() {
   self->_runningInBackground = YES;
 #if TARGET_OS_MACCATALYST
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                       requiringSecureCoding:NO
+                                       requiringSecureCoding:YES
                                                        error:nil];
   [data writeToFile:[GDTStorage archivePath] atomically:YES];
 #else
@@ -233,7 +233,7 @@ static NSString *GDTStoragePath() {
 - (void)appWillTerminate:(GDTApplication *)application {
 #if TARGET_OS_MACCATALYST
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                       requiringSecureCoding:NO
+                                       requiringSecureCoding:YES
                                                        error:nil];
   [data writeToFile:[GDTStorage archivePath] atomically:YES];
 #else
@@ -260,10 +260,12 @@ static NSString *const kGDTStorageUploadCoordinatorKey = @"GDTStorageUploadCoord
   // Create the singleton and populate its ivars.
   GDTStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
-    sharedInstance->_storedEvents = [aDecoder decodeObjectOfClass:[NSMutableOrderedSet class]
+    NSSet *classes = [NSSet setWithObjects:[NSMutableOrderedSet class], [GDTStoredEvent class], nil];
+    sharedInstance->_storedEvents = [aDecoder decodeObjectOfClasses:classes
                                                            forKey:kGDTStorageStoredEventsKey];
+    classes = [NSSet setWithObjects:[NSMutableDictionary class], [NSMutableSet class], [GDTStoredEvent class], nil];
     sharedInstance->_targetToEventSet =
-        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+        [aDecoder decodeObjectOfClasses:classes
                                forKey:kGDTStorageTargetToEventSetKey];
     sharedInstance->_uploadCoordinator =
         [aDecoder decodeObjectOfClass:[GDTUploadCoordinator class]

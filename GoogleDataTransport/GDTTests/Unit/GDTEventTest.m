@@ -46,10 +46,12 @@
   NSData *archiveData;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:event
-                                        requiringSecureCoding:NO
+                                        requiringSecureCoding:YES
                                                         error:nil];
   } else {
+#if !defined(TARGET_OS_MACCATALYST)
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
+#endif
   }
   // To ensure that all the objects being retained by the original event are dealloc'd.
   event = nil;
@@ -59,7 +61,9 @@
                                                      fromData:archiveData
                                                         error:nil];
   } else {
+#if !defined(TARGET_OS_MACCATALYST)
     decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+#endif
   }
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
