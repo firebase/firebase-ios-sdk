@@ -47,7 +47,7 @@ class MutationResult {
  public:
   MutationResult(
       SnapshotVersion version,
-      std::shared_ptr<const std::vector<FieldValue>> transform_results)
+      absl::optional<const std::vector<FieldValue>> transform_results)
       : version_(version), transform_results_(std::move(transform_results)) {
   }
 
@@ -67,19 +67,19 @@ class MutationResult {
 
   /**
    * The resulting fields returned from the backend after a TransformMutation
-   * has been committed.  Contains one FieldValue for each FieldTransform that
+   * has been committed. Contains one FieldValue for each FieldTransform that
    * was in the mutation.
    *
-   * Will be null if the mutation was not a TransformMutation.
+   * Will be nullopt if the mutation was not a TransformMutation.
    */
-  const std::shared_ptr<const std::vector<FieldValue>>& transform_results()
+  const absl::optional<const std::vector<FieldValue>>& transform_results()
       const {
     return transform_results_;
   }
 
  private:
   SnapshotVersion version_;
-  std::shared_ptr<const std::vector<FieldValue>> transform_results_;
+  absl::optional<const std::vector<FieldValue>> transform_results_;
 };
 
 /**

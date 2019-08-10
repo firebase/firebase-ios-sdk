@@ -261,9 +261,9 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
   result.writes_count = count;
   result.writes = MakeArray<google_firestore_v1_Write>(count);
   int i = 0;
-  for (const std::unique_ptr<Mutation>& mutation : mutation_batch.mutations()) {
-    HARD_ASSERT(mutation, "Null mutation encountered.");
-    result.writes[i] = rpc_serializer_.EncodeMutation(*mutation.get());
+  for (const auto& mutation : mutation_batch.mutations()) {
+    HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
+    result.writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
   result.local_write_time =
@@ -277,7 +277,7 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   int batch_id = proto.batch_id;
   Timestamp local_write_time =
       rpc_serializer_.DecodeTimestamp(reader, proto.local_write_time);
-  std::vector<std::unique_ptr<Mutation>> mutations;
+  std::vector<Mutation> mutations;
   for (size_t i = 0; i < proto.writes_count; i++) {
     mutations.push_back(
         rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
