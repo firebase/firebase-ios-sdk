@@ -76,11 +76,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (UIActivityIndicatorView *)createSpinner {
   UIActivityIndicatorViewStyle spinnerStyle;
-  if (@available(iOS 13.0, tvOS 13.0, *)) {
+#if defined(TARGET_OS_MACCATALYST)
+  if (@available(iOS 13.0, *)) {
     spinnerStyle = UIActivityIndicatorViewStyleMedium;
   } else {
     spinnerStyle = UIActivityIndicatorViewStyleGray;
   }
+#else
+  spinnerStyle = UIActivityIndicatorViewStyleGray;
+#endif
   UIActivityIndicatorView *spinner =
       [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
   return spinner;
