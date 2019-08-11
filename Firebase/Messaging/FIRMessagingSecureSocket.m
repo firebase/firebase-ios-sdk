@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 
 #import <Protobuf/GPBMessage.h>
 #import <Protobuf/GPBCodedOutputStream.h>
 #import <Protobuf/GPBUtilities.h>
 
-#import "FIRMessagingCodedInputStream.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingPacketQueue.h"
+#import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingPacketQueue.h"
 
 static const NSUInteger kMaxBufferLength = 1024 * 1024;  // 1M
 static const NSUInteger kBufferLengthIncrement = 16 * 1024;  // 16k

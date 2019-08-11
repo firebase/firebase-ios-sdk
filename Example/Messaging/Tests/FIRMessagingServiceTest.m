@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingPubSub.h"
 #import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-#import "Firebase/Messaging/InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "FIRMessagingTestUtilities.h"
-
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
     @"yUTTzK6dhIvLqzqqCSabaa4TQVM0pGTmF6r7tmMHPe6VYiGMHuCwJFgj5v97xl78sUNMLwuPPhoci8z_"
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
 static NSString *const kFakeID = @"fE1e1PZJFSQ";
-
-NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
+static NSString *const kFIRMessagingSDKClassString = @"FIRMessaging";
+static NSString *const kFIRMessagingSDKVersionSelectorString = @"FIRMessagingSDKVersion";
+static NSString *const kFIRMessagingSDKLocaleSelectorString = @"FIRMessagingSDKCurrentLocale";
+static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
 
 @interface FIRMessaging () <FIRMessagingClientDelegate>
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;

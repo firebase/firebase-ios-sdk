@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingFakeConnection.h"
+#import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
 
 #import <OCMock/OCMock.h>
 

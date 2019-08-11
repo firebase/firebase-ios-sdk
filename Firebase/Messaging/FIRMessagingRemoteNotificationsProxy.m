@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingRemoteNotificationsProxy.h"
+#import "Firebase/Messaging/FIRMessagingRemoteNotificationsProxy.h"
 
 #import <objc/runtime.h>
 
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
-#import "FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 static void * UserNotificationObserverContext = &UserNotificationObserverContext;
