@@ -27,12 +27,12 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+namespace {
 
 using testing::ElementsAre;
 using testing::Eq;
 using testutil::Doc;
 using testutil::DocComparator;
-using testutil::DocSet;
 using testutil::Map;
 
 class DocumentSetTest : public testing::Test {
@@ -41,15 +41,19 @@ class DocumentSetTest : public testing::Test {
   Document doc1_ = Doc("docs/1", 0, Map("sort", 2));
   Document doc2_ = Doc("docs/2", 0, Map("sort", 3));
   Document doc3_ = Doc("docs/3", 0, Map("sort", 1));
+
+  DocumentSet DocSet(initializer_list<Document> docs) const {
+    return testutil::DocSet(comp_, docs);
+  }
 };
 
 TEST_F(DocumentSetTest, Count) {
-  EXPECT_EQ(DocSet(comp_, {}).size(), 0);
-  EXPECT_EQ(DocSet(comp_, {doc1_, doc2_, doc3_}).size(), 3);
+  EXPECT_EQ(DocSet({}).size(), 0);
+  EXPECT_EQ(DocSet({doc1_, doc2_, doc3_}).size(), 3);
 }
 
 TEST_F(DocumentSetTest, HasKey) {
-  DocumentSet set = DocSet(comp_, {doc1_, doc2_});
+  DocumentSet set = DocSet({doc1_, doc2_});
 
   EXPECT_TRUE(set.ContainsKey(doc1_.key()));
   EXPECT_TRUE(set.ContainsKey(doc2_.key()));
@@ -57,7 +61,7 @@ TEST_F(DocumentSetTest, HasKey) {
 }
 
 TEST_F(DocumentSetTest, DocumentForKey) {
-  DocumentSet set = DocSet(comp_, {doc1_, doc2_});
+  DocumentSet set = DocSet({doc1_, doc2_});
 
   EXPECT_EQ(set.GetDocument(doc1_.key()), doc1_);
   EXPECT_EQ(set.GetDocument(doc2_.key()), doc2_);
@@ -65,22 +69,22 @@ TEST_F(DocumentSetTest, DocumentForKey) {
 }
 
 TEST_F(DocumentSetTest, FirstAndLastDocument) {
-  DocumentSet set = DocSet(comp_, {});
+  DocumentSet set = DocSet({});
   EXPECT_EQ(set.GetFirstDocument(), absl::nullopt);
   EXPECT_EQ(set.GetLastDocument(), absl::nullopt);
 
-  set = DocSet(comp_, {doc1_, doc2_, doc3_});
+  set = DocSet({doc1_, doc2_, doc3_});
   EXPECT_EQ(set.GetFirstDocument(), doc3_);
   EXPECT_EQ(set.GetLastDocument(), doc2_);
 }
 
 TEST_F(DocumentSetTest, KeepsDocumentsInTheRightOrder) {
-  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
   ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_));
 }
 
 TEST_F(DocumentSetTest, Deletes) {
-  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
 
   DocumentSet setWithoutDoc1 = set.erase(doc1_.key());
   ASSERT_THAT(setWithoutDoc1, ElementsAre(doc3_, doc2_));
@@ -95,7 +99,7 @@ TEST_F(DocumentSetTest, Deletes) {
 }
 
 TEST_F(DocumentSetTest, Updates) {
-  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
 
   Document doc2Prime = Doc("docs/2", 0, Map("sort", 9));
 
@@ -108,7 +112,7 @@ TEST_F(DocumentSetTest, Updates) {
 TEST_F(DocumentSetTest, AddsDocsWithEqualComparisonValues) {
   Document doc4 = Doc("docs/4", 0, Map("sort", 2));
 
-  DocumentSet set = DocSet(comp_, {doc1_, doc4});
+  DocumentSet set = DocSet({doc1_, doc4});
   ASSERT_THAT(set, ElementsAre(doc1_, doc4));
 }
 
@@ -120,8 +124,8 @@ TEST_F(DocumentSetTest, Equality) {
   EXPECT_EQ(set1, set2);
   EXPECT_NE(set1, empty);
 
-  DocumentSet sortedSet1 = DocSet(comp_, {doc1_, doc2_, doc3_});
-  DocumentSet sortedSet2 = DocSet(comp_, {doc1_, doc2_, doc3_});
+  DocumentSet sortedSet1 = DocSet({doc1_, doc2_, doc3_});
+  DocumentSet sortedSet2 = DocSet({doc1_, doc2_, doc3_});
   EXPECT_EQ(sortedSet1, sortedSet1);
   EXPECT_EQ(sortedSet1, sortedSet2);
   EXPECT_NE(sortedSet1, empty);
@@ -131,6 +135,7 @@ TEST_F(DocumentSetTest, Equality) {
   EXPECT_NE(set1, sortedSet1);
 }
 
+}  // namespace
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
