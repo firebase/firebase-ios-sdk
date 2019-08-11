@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingVersionUtilities.h"
+#import "Firebase/Messaging/FIRMessagingVersionUtilities.h"
 
-#import "FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
 
 // Convert the macro to a string
 #define STR_EXPAND(x) #x

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingRmq2PersistentStore.h"
+#import "Firebase/Messaging/FIRMessagingRmq2PersistentStore.h"
 
 #import <sqlite3.h>
 
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingPersistentSyncMessage.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 #ifndef _FIRMessagingRmqLogAndExit
 #define _FIRMessagingRmqLogAndExit(stmt, return_value)   \

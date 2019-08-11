@@ -350,7 +350,7 @@ class SerializerTest : public ::testing::Test {
         // test for UnknownDocument. However, we'll defer that until after
         // nanopb-master is merged to master.
         abort();
-      case MaybeDocument::Type::Unknown:
+      case MaybeDocument::Type::Invalid:
         FAIL() << "We somehow created an invalid model object";
     }
   }

@@ -16,6 +16,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 #import <GoogleDataTransport/GDTPlatform.h>
 #import <GoogleDataTransport/GDTRegistrar.h>
 
@@ -86,15 +87,20 @@
 
 - (void)uploadPackage:(GDTUploadPackage *)package {
   dispatch_async(_uploaderQueue, ^{
-    NSAssert(!self->_currentTask, @"An upload shouldn't be initiated with another in progress.");
-    NSAssert(!self->_currentUploadPackage, @"An upload shouldn't be initiated with a new package.");
+    if (self->_currentTask || self->_currentUploadPackage) {
+      GDTLogWarning(GDTMCWUploadFailed, @"%@",
+                    @"An upload shouldn't be initiated with another in progress.");
+      return;
+    }
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.HTTPMethod = @"POST";
 
     id completionHandler =
         ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
-          NSAssert(!error, @"There should be no errors uploading events: %@", error);
+          if (error) {
+            GDTLogWarning(GDTMCWUploadFailed, @"There was an error uploading events: %@", error);
+          }
           NSError *decodingError;
           gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
           if (!decodingError && logResponse.has_next_request_wait_millis) {

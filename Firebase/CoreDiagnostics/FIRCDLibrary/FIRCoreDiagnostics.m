@@ -17,6 +17,7 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 #import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTTargets.h>
 #import <GoogleDataTransport/GDTTransport.h>
@@ -116,7 +117,8 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
 
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTLogError(GDTMCETransportBytesError, @"Error in nanopb encoding for size: %s",
+                PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -124,7 +126,8 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTLogError(GDTMCETransportBytesError, @"Error in nanopb encoding for bytes: %s",
+                PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -370,8 +373,9 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
   config->pod_name = logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_FIREBASE;
   config->has_pod_name = 1;
 
-  NSCAssert(diagnosticObjects[kFIRCDllAppsCountKey],
-            @"App count is a required value in the data dict.");
+  if (!diagnosticObjects[kFIRCDllAppsCountKey]) {
+    GDTLogError(GDTMCEGeneralError, @"%@", @"App count is a required value in the data dict.");
+  }
   config->app_count = (int32_t)[diagnosticObjects[kFIRCDllAppsCountKey] integerValue];
   config->has_app_count = 1;
 

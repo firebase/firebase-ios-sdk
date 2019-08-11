@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-
 #import <FirebaseMessaging/FIRMessaging.h>
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingConnection.h"
 #import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
@@ -31,6 +30,7 @@
 #import "Firebase/Messaging/FIRMessagingConstants.h"
 #import "Firebase/Messaging/FIRMessagingDefines.h"
 #import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kMessagePersistentID = @"abcdef123";
 static NSString *const kMessageFrom = @"com.example.gcm";

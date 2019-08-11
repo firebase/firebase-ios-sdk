@@ -33,6 +33,19 @@ namespace model {
 /**
  * The result of a lookup for a given path may be an existing document or a
  * tombstone that marks the path deleted.
+ *
+ * Note: MaybeDocument and its subclasses are specially designed to avoid
+ * slicing. You can assign a subclass of MaybeDocument to an instance of
+ * MaybeDocument and the full value is preserved, unsliced. Each subclass
+ * declares an explicit constructor that can recover the derived type. This
+ * means that code like this will work:
+ *
+ *     Document doc(...);
+ *     MaybeDocument maybe_doc = doc;
+ *     Document recovered(maybe_doc);
+ *
+ * The final line results in an explicit check that will fail if the type of
+ * the underlying data is not actually Type::Document.
  */
 class MaybeDocument {
  public:
@@ -47,7 +60,7 @@ class MaybeDocument {
     // TODO(rsgowman): Since it's no longer possible to directly create
     // MaybeDocument's, we can likely remove this value entirely. But
     // investigate impact on the serializers first.
-    Unknown,
+    Invalid,
 
     Document,
     NoDocument,
@@ -62,7 +75,7 @@ class MaybeDocument {
 
   /** The runtime type of this document. */
   Type type() const {
-    return rep_ ? rep_->type() : Type::Unknown;
+    return rep_ ? rep_->type() : Type::Invalid;
   }
 
   bool is_document() const {
@@ -138,7 +151,7 @@ class MaybeDocument {
     virtual std::string ToString() const = 0;
 
    private:
-    Type type_ = Type::Unknown;
+    Type type_ = Type::Invalid;
     DocumentKey key_;
     SnapshotVersion version_;
   };
@@ -153,7 +166,7 @@ class MaybeDocument {
   friend bool operator==(const MaybeDocument& lhs, const MaybeDocument& rhs);
 
  private:
-  std::shared_ptr<Rep> rep_;
+  std::shared_ptr<const Rep> rep_;
 };
 
 inline bool operator!=(const MaybeDocument& lhs, const MaybeDocument& rhs) {

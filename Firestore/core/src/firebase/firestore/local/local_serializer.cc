@@ -84,7 +84,7 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
       // result.has_committed_mutations = true;
       return result;
 
-    case MaybeDocument::Type::Unknown:
+    case MaybeDocument::Type::Invalid:
       // TODO(rsgowman): Error handling
       abort();
   }

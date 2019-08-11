@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTLibrary/Private/GDTAssert.h"
+#import <Foundation/Foundation.h>
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.
@@ -34,6 +34,9 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
   /** For warning messages concerning a forced event upload. */
   GDTMCWForcedUpload = 3,
 
+  /** For warning messages concerning a failed reachability call. */
+  GDTMCWReachabilityFailed = 4,
+
   /** For error messages concerning transform: not being implemented by an event transformer. */
   GDTMCETransformerDoesntImplementTransform = 1000,
 
@@ -41,7 +44,19 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
   GDTMCEDirectoryCreationError = 1001,
 
   /** For error messages concerning the writing of a event file. */
-  GDTMCEFileWriteError = 1002
+  GDTMCEFileWriteError = 1002,
+
+  /** For error messages concerning the lack of a prioritizer for a given backend. */
+  GDTMCEPrioritizerError = 1003,
+
+  /** For error messages concerning a package delivery API violation. */
+  GDTMCEDeliverTwice = 1004,
+
+  /** For error messages concerning an error in an implementation of -transportBytes. */
+  GDTMCETransportBytesError = 1005,
+
+  /** For general purpose error messages in a dependency. */
+  GDTMCEGeneralError = 1006
 };
 
 /** */
@@ -61,5 +76,4 @@ FOUNDATION_EXPORT NSString *_Nonnull GDTMessageCodeEnumToString(GDTMessageCode c
 
 // A define to wrap GULLogError with slightly more convenient usage and a failing assert.
 #define GDTLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...) \
-  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);   \
-  GDTAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);
+  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);

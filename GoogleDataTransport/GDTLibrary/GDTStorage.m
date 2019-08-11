@@ -17,12 +17,12 @@
 #import "GDTLibrary/Private/GDTStorage.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 #import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTPrioritizer.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
 #import "GDTLibrary/Private/GDTAssert.h"
-#import "GDTLibrary/Private/GDTConsoleLogger.h"
 #import "GDTLibrary/Private/GDTEvent_Private.h"
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"

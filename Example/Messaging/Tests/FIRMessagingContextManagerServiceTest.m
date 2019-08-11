@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
-
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import "Firebase/Messaging/FIRMessagingContextManagerService.h"
 

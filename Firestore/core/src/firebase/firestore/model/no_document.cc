@@ -26,6 +26,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(MaybeDocument) == sizeof(NoDocument),
+    "NoDocument may not have additional members (everything goes in Rep)");
+
 class NoDocument::Rep : public MaybeDocument::Rep {
  public:
   Rep(DocumentKey key, SnapshotVersion version, bool has_committed_mutations)
@@ -45,7 +49,7 @@ class NoDocument::Rep : public MaybeDocument::Rep {
   }
 
   size_t Hash() const override {
-    return util::Hash(type(), key(), version(), has_committed_mutations_);
+    return util::Hash(MaybeDocument::Rep::Hash(), has_committed_mutations_);
   }
 
   std::string ToString() const override {

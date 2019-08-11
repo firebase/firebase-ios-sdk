@@ -107,14 +107,14 @@ class MutationResult {
  * DeleteMutation     NoDocument(v3)  NoDocument(v0)
  * DeleteMutation     null            NoDocument(v0)
  *
- * For acknowledged mutations, we use the updateTime of the WriteResponse as the
- * resulting version for Set, Patch, and Transform mutations. As deletes have no
- * explicit update time, we use the commitTime of the WriteResponse for
- * acknowledged deletes.
+ * For acknowledged mutations, we use the update_time of the WriteResponse as
+ * the resulting version for Set, Patch, and Transform mutations. As deletes
+ * have no explicit update time, we use the commit_time of the WriteResponse
+ * for acknowledged deletes.
  *
- * If a mutation is acknowledged by the backend but fails the precondition check
- * locally, we return an `UnknownDocument` and rely on Watch to send us the
- * updated version.
+ * If a mutation is acknowledged by the backend but fails the precondition
+ * check locally, we return an `UnknownDocument` and rely on Watch to send us
+ * the updated version.
  *
  * Note that TransformMutations don't create Documents (in the case of being
  * applied to a NoDocument), even though they would on the backend. This is
@@ -144,38 +144,52 @@ class Mutation {
 
   /**
    * Applies this mutation to the given MaybeDocument for the purposes of
-   * computing a new remote document. If the input document doesn't match the
-   * expected state (e.g. it is null or outdated), an `UnknownDocument` can be
-   * returned.
+   * computing the committed state of the document after the server has
+   * acknowledged that this mutation has been successfully committed.  This
+   * means that if the input document doesn't match the expected state (e.g. it
+   * is `nullopt` or outdated), the local cache must have been incorrect so an
+   * `UnknownDocument` is returned.
    *
-   * @param maybe_doc The document to mutate. The input document can be nullptr
-   *     if the client has no knowledge of the pre-mutation state of the
-   *     document.
-   * @param mutation_result The result of applying the mutation from the
-   *     backend.
-   * @return The mutated document. The returned document may be an
-   *     UnknownDocument if the mutation could not be applied to the locally
-   *     cached base document.
+   * @param maybe_doc The document to mutate. The input document can be
+   *     `nullopt` if the client has no knowledge of the pre-mutation state of
+   *     the document.
+   * @param mutation_result The backend's response of successfully applying the
+   *     mutation.
+   * @return The mutated document. The returned document is not optional
+   *     because the server successfully committed this mutation. If the local
+   *     cache might have caused a `nullopt` result, this method will return an
+   *     `UnknownDocument` instead.
    */
   virtual MaybeDocument ApplyToRemoteDocument(
       const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const = 0;
 
   /**
-   * Applies this mutation to the given MaybeDocument for the purposes of
-   * computing the new local view of a document. Both the input and returned
-   * documents can be nullptr.
+   * Estimates the latency compensated view of this mutation applied to the
+   * given MaybeDocument.
    *
-   * @param maybe_doc The document to mutate. The input document can be nullptr
-   *     if the client has no knowledge of the pre-mutation state of the
-   *     document.
+   * Unlike ApplyToRemoteDocument, this method is used before the mutation has
+   * been committed and so it's possible that the mutation is operating on a
+   * locally non-existent document and may produce a non-existent document.
+   *
+   * Note: `maybe_doc` and `base_doc` are similar but not the same. When
+   * applying a series of mutations within a mutation batch, `maybe_doc`
+   * advances with each Mutation: the result of one mutation's ApplyToLocalView
+   * is passed into the next as `maybe_doc. `base_doc` always refers to the
+   * state prior to the start of all the mutations in the batch. This
+   * distinction helps ServerTimestampTransform determine the "previous" value
+   * in a way that makes sense to users.
+   *
+   * @param maybe_doc The document to mutate. The input document can be
+   *     `nullopt` if the client has no knowledge of the pre-mutation state of
+   *     the document.
    * @param base_doc The state of the document prior to this mutation batch. The
-   *     input document can be nullptr if the client has no knowledge of the
+   *     input document can be nullopt if the client has no knowledge of the
    *     pre-mutation state of the document.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
-   * @return The mutated document. The returned document may be nullptr, but
-   *     only if maybe_doc was nullptr and the mutation would not create a new
+   * @return The mutated document. The returned document may be nullopt, but
+   *     only if maybe_doc was nullopt and the mutation would not create a new
    *     document.
    */
   virtual absl::optional<MaybeDocument> ApplyToLocalView(

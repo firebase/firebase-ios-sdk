@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAnalytics.h"
-#import "FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingAnalytics.h"
 
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+
 
 static NSString *const kLogTag = @"FIRMessagingAnalytics";
 
