@@ -23,6 +23,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(MaybeDocument) == sizeof(UnknownDocument),
+    "UnknownDocument may not have additional members (everything goes in Rep)");
+
 class UnknownDocument::Rep : public MaybeDocument::Rep {
  public:
   Rep(DocumentKey key, SnapshotVersion version)
@@ -30,11 +34,13 @@ class UnknownDocument::Rep : public MaybeDocument::Rep {
   }
 
   bool has_pending_writes() const override {
+    // Unknown documents can only exist because of a logical inconsistency
+    // between the server successfully committing a mutation that our local
+    // cache believes should not apply. We record UnknownDocuments to prevent
+    // flicker after the committed mutation is removed from the queue. If we
+    // ever read an UnknownDocument back, this means the cache entry for that
+    // document must be dirty.
     return true;
-  }
-
-  size_t Hash() const override {
-    return util::Hash(type(), key(), version());
   }
 
   std::string ToString() const override {

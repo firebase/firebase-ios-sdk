@@ -26,6 +26,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(MaybeDocument) == sizeof(Document),
+    "Document may not have additional members (everything goes in Rep)");
+
 class Document::Rep : public MaybeDocument::Rep {
  public:
   Rep(ObjectValue&& data,
@@ -75,7 +79,7 @@ class Document::Rep : public MaybeDocument::Rep {
   }
 
   size_t Hash() const override {
-    return util::Hash(type(), key(), version(), data_, document_state_);
+    return util::Hash(MaybeDocument::Rep::Hash(), data_, document_state_);
   }
 
   std::string ToString() const override {
@@ -151,7 +155,7 @@ std::ostream& operator<<(std::ostream& os, DocumentState state) {
     case DocumentState::kLocalMutations:
       return os << "kLocalMutations";
     case DocumentState::kSynced:
-      return os << "kLocalMutations";
+      return os << "kLocalSynced";
   }
 
   UNREACHABLE();

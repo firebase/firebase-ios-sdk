@@ -35,7 +35,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Describes the `hasPendingWrites` state of a document. */
+/** Describes the `has_pending_writes` state of a document. */
 enum class DocumentState {
   /**
    * Local mutations applied via the mutation queue. Document is potentially
@@ -64,7 +64,7 @@ class Document : public MaybeDocument {
   Document() = default;
 
   /**
-   * Construct a document. ObjectValue must be passed by rvalue.
+   * Constructs a document.
    */
   Document(ObjectValue data,
            DocumentKey key,
@@ -72,7 +72,7 @@ class Document : public MaybeDocument {
            DocumentState document_state);
 
   /**
-   * Construct a document. ObjectValue must be passed by rvalue.
+   * Constructs a document.
    */
   Document(ObjectValue data,
            DocumentKey key,
