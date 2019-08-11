@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Encodes an MaybeDocument model to the equivalent protocol buffer for local storage. */
+/** Encodes a MaybeDocument model to the equivalent protocol buffer for local storage. */
 - (FSTPBMaybeDocument *)encodedMaybeDocument:(const model::MaybeDocument &)document;
 
 /** Decodes an FSTPBMaybeDocument proto to the equivalent model. */

@@ -289,7 +289,7 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
  * Creates an DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
  */
-model::DocumentComparator DocComparator(const absl::string_view field_path);
+model::DocumentComparator DocComparator(absl::string_view field_path);
 
 /**
  * Creates a DocumentSet based on the given comparator, initially containing the

@@ -30,7 +30,7 @@ QueryData::QueryData(Query&& query,
                      model::TargetId target_id,
                      model::ListenSequenceNumber sequence_number,
                      QueryPurpose purpose,
-                     SnapshotVersion&& snapshot_version,
+                     SnapshotVersion snapshot_version,
                      ByteString&& resume_token)
     : query_(std::move(query)),
       target_id_(target_id),

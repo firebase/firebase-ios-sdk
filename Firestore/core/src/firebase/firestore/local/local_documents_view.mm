@@ -162,8 +162,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
         GetDocumentsMatchingCollectionQuery(collection_query);
     for (const auto& kv : collection_results.underlying_map()) {
       const DocumentKey& key = kv.first;
-      Document doc = Document(kv.second);
-      results = results.insert(key, std::move(doc));
+      results = results.insert(key, Document(kv.second));
     }
   }
   return results;
@@ -214,7 +213,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap unfiltered = results;
   for (const auto& kv : unfiltered.underlying_map()) {
     const DocumentKey& key = kv.first;
-    auto doc = Document(kv.second);
+    Document doc(kv.second);
     if (!query.Matches(doc)) {
       results = results.erase(key);
     }

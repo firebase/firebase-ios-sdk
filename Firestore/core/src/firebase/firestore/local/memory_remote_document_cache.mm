@@ -100,12 +100,12 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
     if (!query.path().IsPrefixOf(key.path())) {
       break;
     }
-    const MaybeDocument& maybeDoc = it->second;
-    if (!maybeDoc.is_document()) {
+    const MaybeDocument& maybe_doc = it->second;
+    if (!maybe_doc.is_document()) {
       continue;
     }
 
-    Document doc(maybeDoc);
+    Document doc(maybe_doc);
     if (query.Matches(doc)) {
       results = results.insert(key, std::move(doc));
     }

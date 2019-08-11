@@ -158,7 +158,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
   [self startMutationQueue];
 
-  return self.persistence.run("NewBatches", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("NewBatches", [&] {
     std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
@@ -187,7 +187,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     keys = keys.insert(mutation.key);
   }
 
-  return self.persistence.run("Locally write mutations", [&]() -> LocalWriteResult {
+  return self.persistence.run("Locally write mutations", [&] {
     // Load and apply all existing mutations. This lets us compute the current base state for
     // all non-idempotent transforms before applying any additional user-provided writes.
     MaybeDocumentMap existingDocuments = _localDocuments->GetDocuments(keys);
@@ -219,7 +219,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
-  return self.persistence.run("Acknowledge batch", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Acknowledge batch", [&] {
     FSTMutationBatch *batch = batchResult.batch;
     _mutationQueue->AcknowledgeBatch(batch, batchResult.streamToken);
     [self applyBatchResult:batchResult];
@@ -230,7 +230,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)rejectBatchID:(BatchId)batchID {
-  return self.persistence.run("Reject batch", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Reject batch", [&] {
     FSTMutationBatch *toReject = _mutationQueue->LookupMutationBatch(batchID);
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
@@ -255,7 +255,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
-  return self.persistence.run("Apply remote event", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Apply remote event", [&] {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
 
@@ -411,21 +411,18 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
-  FSTMutationBatch *result =
-      self.persistence.run("NextMutationBatchAfterBatchID", [&]() -> FSTMutationBatch * {
-        return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
-      });
+  FSTMutationBatch *result = self.persistence.run("NextMutationBatchAfterBatchID", [&] {
+    return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
+  });
   return result;
 }
 
 - (absl::optional<MaybeDocument>)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> absl::optional<MaybeDocument> {
-    return _localDocuments->GetDocument(key);
-  });
+  return self.persistence.run("ReadDocument", [&] { return _localDocuments->GetDocument(key); });
 }
 
 - (FSTQueryData *)allocateQuery:(Query)query {
-  FSTQueryData *queryData = self.persistence.run("Allocate query", [&]() -> FSTQueryData * {
+  FSTQueryData *queryData = self.persistence.run("Allocate query", [&] {
     FSTQueryData *cached = _queryCache->GetTarget(query);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
@@ -479,15 +476,13 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (DocumentMap)executeQuery:(const Query &)query {
-  return self.persistence.run("ExecuteQuery", [&]() -> DocumentMap {
-    return _localDocuments->GetDocumentsMatchingQuery(query);
-  });
+  return self.persistence.run("ExecuteQuery",
+                              [&] { return _localDocuments->GetDocumentsMatchingQuery(query); });
 }
 
 - (DocumentKeySet)remoteDocumentKeysForTarget:(TargetId)targetID {
-  return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
-    return _queryCache->GetMatchingKeys(targetID);
-  });
+  return self.persistence.run("RemoteDocumentKeysForTarget",
+                              [&] { return _queryCache->GetMatchingKeys(targetID); });
 }
 
 - (void)applyBatchResult:(FSTMutationBatchResult *)batchResult {
@@ -505,8 +500,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     if (!doc || doc->version() < ackVersion) {
       doc = [batch applyToRemoteDocument:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
-        HARD_ASSERT(!doc, "Mutation batch %s applied to document %s resulted in nil.", batch,
-                    util::ToString(remoteDoc));
+        HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nullopt.",
+                    batch, util::ToString(remoteDoc));
       } else {
         _remoteDocumentCache->Add(*doc);
       }
@@ -517,9 +512,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector {
-  return self.persistence.run("Collect garbage", [&]() -> LruResults {
-    return [garbageCollector collectWithLiveTargets:_targetIDs];
-  });
+  return self.persistence.run("Collect garbage",
+                              [&] { return [garbageCollector collectWithLiveTargets:_targetIDs]; });
 }
 
 @end

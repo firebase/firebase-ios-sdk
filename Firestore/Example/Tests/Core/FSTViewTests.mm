@@ -77,7 +77,7 @@ MATCHER_P(ContainsDocs, expected, "") {
 
 /** Constructs `ContainsDocs` instances with an initializer list. */
 inline ContainsDocsMatcherP<std::vector<Document>> ContainsDocs(std::vector<Document> docs) {
-  return ContainsDocsMatcherP<std::vector<Document>>(docs);
+  return ContainsDocsMatcherP<std::vector<Document>>(std::move(docs));
 }
 
 /** Returns a new empty query to use for testing. */

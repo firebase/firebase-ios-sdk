@@ -270,7 +270,7 @@ class SortedMap : public SortedMapBase {
     if (found != end()) {
       return found->second;
     } else {
-      return {};
+      return absl::nullopt;
     }
   }
 

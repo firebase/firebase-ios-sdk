@@ -67,6 +67,7 @@ void ExpectMapHasDocs(XCTestCase *self,
   }
   for (const Document &doc : expected) {
     absl::optional<MaybeDocument> actual = map.get(doc.key());
+    XCTAssertTrue(actual.has_value());
     XCTAssertEqual(*actual, doc);
   }
 }
@@ -80,6 +81,7 @@ void ExpectMapHasDocs(XCTestCase *self,
   }
   for (const Document &doc : expected) {
     absl::optional<absl::optional<MaybeDocument>> actual = map.get(doc.key());
+    XCTAssertTrue(actual.has_value());
     XCTAssertEqual(**actual, doc);
   }
 }
@@ -102,14 +104,14 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testReadDocumentNotInCache", [&]() {
+  self.persistence.run("testReadDocumentNotInCache", [&] {
     XCTAssertEqual(absl::nullopt, self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
 }
 
 // Helper for next two tests.
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
-  self.persistence.run("setAndReadADocumentAtPath", [&]() {
+  self.persistence.run("setAndReadADocumentAtPath", [&] {
     Document written = [self setTestDocumentAtPath:path];
     absl::optional<MaybeDocument> read = self.remoteDocumentCache->Get(testutil::Key(path));
     XCTAssertEqual(*read, written);
@@ -125,7 +127,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadSeveralDocuments {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadSeveralDocuments", [=]() {
+  self.persistence.run("testSetAndReadSeveralDocuments", [=] {
     std::vector<Document> written = {
         [self setTestDocumentAtPath:kDocPath],
         [self setTestDocumentAtPath:kLongDocPath],
@@ -139,7 +141,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadSeveralDocumentsIncludingMissingDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=]() {
+  self.persistence.run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=] {
     std::vector<Document> written = {
         [self setTestDocumentAtPath:kDocPath],
         [self setTestDocumentAtPath:kLongDocPath],
@@ -165,7 +167,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadDeletedDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadDeletedDocument", [&]() {
+  self.persistence.run("testSetAndReadDeletedDocument", [&] {
     absl::optional<MaybeDocument> deletedDoc = DeletedDoc(kDocPath, kVersion);
     self.remoteDocumentCache->Add(*deletedDoc);
 
@@ -176,7 +178,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetDocumentToNewValue {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetDocumentToNewValue", [&]() {
+  self.persistence.run("testSetDocumentToNewValue", [&] {
     [self setTestDocumentAtPath:kDocPath];
     absl::optional<MaybeDocument> newDoc = Doc(kDocPath, kVersion, Map("data", 2));
     self.remoteDocumentCache->Add(*newDoc);
@@ -187,7 +189,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testRemoveDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testRemoveDocument", [&]() {
+  self.persistence.run("testRemoveDocument", [&] {
     [self setTestDocumentAtPath:kDocPath];
     self.remoteDocumentCache->Remove(testutil::Key(kDocPath));
 
@@ -198,7 +200,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testRemoveNonExistentDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testRemoveNonExistentDocument", [&]() {
+  self.persistence.run("testRemoveNonExistentDocument", [&] {
     // no-op, but make sure it doesn't throw.
     XCTAssertNoThrow(self.remoteDocumentCache->Remove(testutil::Key(kDocPath)));
   });
@@ -208,7 +210,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testDocumentsMatchingQuery", [&]() {
+  self.persistence.run("testDocumentsMatchingQuery", [&] {
     // TODO(rsgowman): This just verifies that we do a prefix scan against the
     // query path. We'll need more tests once we add index support.
     [self setTestDocumentAtPath:"a/1"];

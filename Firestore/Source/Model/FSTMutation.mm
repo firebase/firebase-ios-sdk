@@ -396,7 +396,7 @@ NS_ASSUME_NONNULL_BEGIN
   // document
   HARD_ASSERT(maybeDoc && maybeDoc->is_document(), "Unknown MaybeDocument type %s",
               maybeDoc->type());
-  Document doc = Document(*maybeDoc);
+  Document doc(*maybeDoc);
 
   std::vector<FieldValue> transformResults =
       [self localTransformResultsWithLocalDocument:maybeDoc
@@ -425,7 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
   // document
   HARD_ASSERT(maybeDoc && maybeDoc->is_document(), "Unknown MaybeDocument type %s",
               maybeDoc->type());
-  Document doc = Document(*maybeDoc);
+  Document doc(*maybeDoc);
 
   HARD_ASSERT(mutationResult.transformResults.has_value());
 

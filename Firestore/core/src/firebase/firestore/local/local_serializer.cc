@@ -165,7 +165,7 @@ NoDocument LocalSerializer::DecodeNoDocument(
   // we'll defer until the nanopb-master gets merged to master.
   return NoDocument(rpc_serializer_.DecodeKey(
                         reader, rpc_serializer_.DecodeString(proto.name)),
-                    std::move(version),
+                    version,
                     /*has_committed_mutations=*/false);
 }
 
@@ -187,7 +187,7 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
 
   return UnknownDocument(rpc_serializer_.DecodeKey(
                              reader, rpc_serializer_.DecodeString(proto.name)),
-                         std::move(version));
+                         version);
 }
 
 firestore_client_Target LocalSerializer::EncodeQueryData(
@@ -249,8 +249,7 @@ QueryData LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return QueryData::Invalid();
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::kListen, std::move(version),
-                   std::move(resume_token));
+                   QueryPurpose::kListen, version, std::move(resume_token));
 }
 
 firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
@@ -284,8 +283,7 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
         rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
   }
 
-  return MutationBatch(batch_id, std::move(local_write_time),
-                       std::move(mutations));
+  return MutationBatch(batch_id, local_write_time, std::move(mutations));
 }
 
 }  // namespace local

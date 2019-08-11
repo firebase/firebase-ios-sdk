@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
-FIROptions* OptionsForUnitTesting(const absl::string_view project_id) {
+FIROptions* OptionsForUnitTesting(absl::string_view project_id) {
   FIROptions* options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123ab"
                                   GCMSenderID:@"gcm_sender_id"];
@@ -32,7 +32,7 @@ FIROptions* OptionsForUnitTesting(const absl::string_view project_id) {
   return options;
 }
 
-FIRApp* AppForUnitTesting(const absl::string_view project_id) {
+FIRApp* AppForUnitTesting(absl::string_view project_id) {
   static int counter = 0;
 
   NSString* appName =

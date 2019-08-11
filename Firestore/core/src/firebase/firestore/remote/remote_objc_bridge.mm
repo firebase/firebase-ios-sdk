@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <map>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -284,7 +285,7 @@ std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
       return {};
     }
     MaybeDocument doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
-    results[doc.key()] = doc;
+    results[doc.key()] = std::move(doc);
   }
 
   std::vector<MaybeDocument> docs;

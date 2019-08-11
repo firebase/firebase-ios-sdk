@@ -33,6 +33,7 @@ using testing::ElementsAre;
 using testing::Eq;
 using testutil::Doc;
 using testutil::DocComparator;
+using testutil::DocSet;
 using testutil::Map;
 
 class DocumentSetTest : public testing::Test {
@@ -41,19 +42,15 @@ class DocumentSetTest : public testing::Test {
   Document doc1_ = Doc("docs/1", 0, Map("sort", 2));
   Document doc2_ = Doc("docs/2", 0, Map("sort", 3));
   Document doc3_ = Doc("docs/3", 0, Map("sort", 1));
-
-  DocumentSet DocSet(initializer_list<Document> docs) const {
-    return testutil::DocSet(comp_, docs);
-  }
 };
 
 TEST_F(DocumentSetTest, Count) {
-  EXPECT_EQ(DocSet({}).size(), 0);
-  EXPECT_EQ(DocSet({doc1_, doc2_, doc3_}).size(), 3);
+  EXPECT_EQ(DocSet(comp_, {}).size(), 0);
+  EXPECT_EQ(DocSet(comp_, {doc1_, doc2_, doc3_}).size(), 3);
 }
 
 TEST_F(DocumentSetTest, HasKey) {
-  DocumentSet set = DocSet({doc1_, doc2_});
+  DocumentSet set = DocSet(comp_, {doc1_, doc2_});
 
   EXPECT_TRUE(set.ContainsKey(doc1_.key()));
   EXPECT_TRUE(set.ContainsKey(doc2_.key()));
@@ -61,7 +58,7 @@ TEST_F(DocumentSetTest, HasKey) {
 }
 
 TEST_F(DocumentSetTest, DocumentForKey) {
-  DocumentSet set = DocSet({doc1_, doc2_});
+  DocumentSet set = DocSet(comp_, {doc1_, doc2_});
 
   EXPECT_EQ(set.GetDocument(doc1_.key()), doc1_);
   EXPECT_EQ(set.GetDocument(doc2_.key()), doc2_);
@@ -69,50 +66,50 @@ TEST_F(DocumentSetTest, DocumentForKey) {
 }
 
 TEST_F(DocumentSetTest, FirstAndLastDocument) {
-  DocumentSet set = DocSet({});
+  DocumentSet set = DocSet(comp_, {});
   EXPECT_EQ(set.GetFirstDocument(), absl::nullopt);
   EXPECT_EQ(set.GetLastDocument(), absl::nullopt);
 
-  set = DocSet({doc1_, doc2_, doc3_});
+  set = DocSet(comp_, {doc1_, doc2_, doc3_});
   EXPECT_EQ(set.GetFirstDocument(), doc3_);
   EXPECT_EQ(set.GetLastDocument(), doc2_);
 }
 
 TEST_F(DocumentSetTest, KeepsDocumentsInTheRightOrder) {
-  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
   ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_));
 }
 
 TEST_F(DocumentSetTest, Deletes) {
-  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
 
-  DocumentSet setWithoutDoc1 = set.erase(doc1_.key());
-  ASSERT_THAT(setWithoutDoc1, ElementsAre(doc3_, doc2_));
-  EXPECT_EQ(setWithoutDoc1.size(), 2);
+  DocumentSet set_without_doc1 = set.erase(doc1_.key());
+  ASSERT_THAT(set_without_doc1, ElementsAre(doc3_, doc2_));
+  EXPECT_EQ(set_without_doc1.size(), 2);
 
   // Original remains unchanged
   ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_));
 
-  DocumentSet setWithoutDoc3 = setWithoutDoc1.erase(doc3_.key());
-  ASSERT_THAT(setWithoutDoc3, ElementsAre(doc2_));
-  EXPECT_EQ(setWithoutDoc3.size(), 1);
+  DocumentSet set_without_doc3 = set_without_doc1.erase(doc3_.key());
+  ASSERT_THAT(set_without_doc3, ElementsAre(doc2_));
+  EXPECT_EQ(set_without_doc3.size(), 1);
 }
 
 TEST_F(DocumentSetTest, Updates) {
-  DocumentSet set = DocSet({doc1_, doc2_, doc3_});
+  DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
 
-  Document doc2Prime = Doc("docs/2", 0, Map("sort", 9));
+  Document doc2_prime = Doc("docs/2", 0, Map("sort", 9));
 
-  set = set.insert(doc2Prime);
+  set = set.insert(doc2_prime);
   ASSERT_EQ(set.size(), 3);
-  EXPECT_EQ(set.GetDocument(doc2Prime.key()), doc2Prime);
-  ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2Prime));
+  EXPECT_EQ(set.GetDocument(doc2_prime.key()), doc2_prime);
+  ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_prime));
 }
 
 TEST_F(DocumentSetTest, AddsDocsWithEqualComparisonValues) {
   Document doc4 = Doc("docs/4", 0, Map("sort", 2));
 
-  DocumentSet set = DocSet({doc1_, doc4});
+  DocumentSet set = DocSet(comp_, {doc1_, doc4});
   ASSERT_THAT(set, ElementsAre(doc1_, doc4));
 }
 
@@ -124,15 +121,15 @@ TEST_F(DocumentSetTest, Equality) {
   EXPECT_EQ(set1, set2);
   EXPECT_NE(set1, empty);
 
-  DocumentSet sortedSet1 = DocSet({doc1_, doc2_, doc3_});
-  DocumentSet sortedSet2 = DocSet({doc1_, doc2_, doc3_});
-  EXPECT_EQ(sortedSet1, sortedSet1);
-  EXPECT_EQ(sortedSet1, sortedSet2);
-  EXPECT_NE(sortedSet1, empty);
+  DocumentSet sorted_set1 = DocSet(comp_, {doc1_, doc2_, doc3_});
+  DocumentSet sorted_set2 = DocSet(comp_, {doc1_, doc2_, doc3_});
+  EXPECT_EQ(sorted_set1, sorted_set1);
+  EXPECT_EQ(sorted_set1, sorted_set2);
+  EXPECT_NE(sorted_set1, empty);
 
-  DocumentSet shortSet = DocSet(DocumentComparator::ByKey(), {doc1_, doc2_});
-  EXPECT_NE(set1, shortSet);
-  EXPECT_NE(set1, sortedSet1);
+  DocumentSet short_set = DocSet(DocumentComparator::ByKey(), {doc1_, doc2_});
+  EXPECT_NE(set1, short_set);
+  EXPECT_NE(set1, sorted_set1);
 }
 
 }  // namespace

@@ -337,7 +337,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(version, actual_model.version());
     switch (actual_model.type()) {
       case MaybeDocument::Type::Document: {
-        Document actual_doc_model = Document(actual_model);
+        Document actual_doc_model(actual_model);
         EXPECT_EQ(value, actual_doc_model.data());
         break;
       }

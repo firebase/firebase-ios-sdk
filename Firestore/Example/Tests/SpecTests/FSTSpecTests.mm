@@ -326,12 +326,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
     MaybeDocument doc;
     if (value) {
-      doc = Document(*std::move(value), key, std::move(version), DocumentState::kSynced);
+      doc = Document(*std::move(value), key, version, DocumentState::kSynced);
     } else {
-      doc = NoDocument(key, std::move(version), /* has_committed_mutations= */ false);
+      doc = NoDocument(key, version, /* has_committed_mutations= */ false);
     }
     DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
-                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key(), doc};
+                               ConvertTargetsArray(watchEntity[@"removedTargets"]), std::move(key),
+                               std::move(doc)};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);

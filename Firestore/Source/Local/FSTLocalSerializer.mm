@@ -72,7 +72,7 @@ using firebase::firestore::model::UnknownDocument;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument message];
 
   if (document.is_no_document()) {
-    NoDocument deletedDocument = NoDocument(document);
+    NoDocument deletedDocument(document);
     proto.noDocument = [self encodedDeletedDocument:deletedDocument];
     proto.hasCommittedMutations = deletedDocument.has_committed_mutations();
   } else if (document.is_document()) {
@@ -85,7 +85,7 @@ using firebase::firestore::model::UnknownDocument;
     }
     proto.hasCommittedMutations = existingDocument.has_committed_mutations();
   } else if (document.is_unknown_document()) {
-    UnknownDocument unknownDocument = UnknownDocument(document);
+    UnknownDocument unknownDocument(document);
     proto.unknownDocument = [self encodedUnknownDocument:unknownDocument];
     proto.hasCommittedMutations = YES;
   } else {

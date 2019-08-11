@@ -484,7 +484,7 @@ model::Document Serializer::DecodeFoundDocument(
   }
 
   return Document(ObjectValue::FromMap(std::move(value)), std::move(key),
-                  std::move(version), DocumentState::kSynced);
+                  version, DocumentState::kSynced);
 }
 
 model::NoDocument Serializer::DecodeMissingDocument(
@@ -502,8 +502,8 @@ model::NoDocument Serializer::DecodeMissingDocument(
     return {};
   }
 
-  return NoDocument(std::move(key), std::move(version),
-                    /*hasCommittedMutations=*/false);
+  return NoDocument(std::move(key), version,
+                    /*has_committed_mutations=*/false);
 }
 
 Document Serializer::DecodeDocument(
@@ -513,8 +513,8 @@ Document Serializer::DecodeDocument(
   SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
 
   return Document(ObjectValue::FromMap(std::move(fields_internal)),
-                  DecodeKey(reader, DecodeString(proto.name)),
-                  std::move(version), DocumentState::kSynced);
+                  DecodeKey(reader, DecodeString(proto.name)), version,
+                  DocumentState::kSynced);
 }
 
 google_firestore_v1_Write Serializer::EncodeMutation(

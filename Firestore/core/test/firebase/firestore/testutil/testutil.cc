@@ -26,7 +26,7 @@ using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
 
-DocumentComparator DocComparator(const absl::string_view field_path) {
+DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
 }
 

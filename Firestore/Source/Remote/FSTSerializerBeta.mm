@@ -484,7 +484,7 @@ absl::any Wrap(GCFSDocument *doc) {
 
 - (NoDocument)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
   HARD_ASSERT(!!response.missing, "Tried to deserialize a deleted document from a found document.");
-  const DocumentKey key = [self decodedDocumentKey:response.missing];
+  DocumentKey key = [self decodedDocumentKey:response.missing];
   SnapshotVersion version = [self decodedVersion:response.readTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a no document response with no snapshot version");

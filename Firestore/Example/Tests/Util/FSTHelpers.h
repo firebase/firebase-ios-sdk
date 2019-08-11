@@ -258,7 +258,7 @@ FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> 
 
 /** Creates a patch mutation for the document key at the given path. */
 FSTPatchMutation *FSTTestPatchMutation(
-    const absl::string_view path,
+    absl::string_view path,
     NSDictionary<NSString *, id> *values,
     const std::vector<firebase::firestore::model::FieldPath> &updateMask);
 

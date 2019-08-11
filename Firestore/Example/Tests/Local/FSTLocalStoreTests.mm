@@ -78,7 +78,9 @@ using testutil::Query;
 using testutil::UnknownDoc;
 using testutil::Vector;
 
-static std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap &docs) {
+namespace {
+
+std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap &docs) {
   std::vector<MaybeDocument> result;
   for (const auto &kv : docs) {
     result.push_back(kv.second);
@@ -86,13 +88,15 @@ static std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap &docs) {
   return result;
 }
 
-static std::vector<Document> DocMapToArray(const DocumentMap &docs) {
+std::vector<Document> DocMapToArray(const DocumentMap &docs) {
   std::vector<Document> result;
   for (const auto &kv : docs.underlying_map()) {
     result.push_back(Document(kv.second));
   }
   return result;
 }
+
+}  // namespace
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -48,13 +48,11 @@ TEST(DocumentTest, Constructor) {
   EXPECT_EQ(doc.has_local_mutations(), false);
   EXPECT_EQ(doc.has_pending_writes(), false);
 
-  Document doc2(data, key, version,
-                DocumentState::kLocalMutations);
+  Document doc2(data, key, version, DocumentState::kLocalMutations);
   EXPECT_EQ(doc2.has_local_mutations(), true);
   EXPECT_EQ(doc2.has_pending_writes(), true);
 
-  Document doc3(data, key, version,
-                DocumentState::kCommittedMutations);
+  Document doc3(data, key, version, DocumentState::kCommittedMutations);
   EXPECT_EQ(doc3.has_committed_mutations(), true);
   EXPECT_EQ(doc3.has_pending_writes(), true);
 }

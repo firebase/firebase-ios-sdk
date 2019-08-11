@@ -66,7 +66,7 @@ class QueryData {
             model::TargetId target_id,
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose,
-            model::SnapshotVersion&& snapshot_version,
+            model::SnapshotVersion snapshot_version,
             nanopb::ByteString&& resume_token);
 
   /**

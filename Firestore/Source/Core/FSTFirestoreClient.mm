@@ -361,7 +361,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
     if (maybeDoc && maybeDoc->is_document()) {
-      Document document = Document(*maybeDoc);
+      Document document(*maybeDoc);
       maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), document,
                                         /*from_cache=*/true,
                                         /*has_pending_writes=*/document.has_local_mutations()};

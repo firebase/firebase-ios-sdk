@@ -163,14 +163,9 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTMutation *mutation : _mutations) {
     const DocumentKey &key = mutation.key;
 
-    absl::optional<MaybeDocument> previousDocument;
-    auto found = mutatedDocuments.find(key);
-    if (found != mutatedDocuments.end()) {
-      previousDocument = found->second;
-    }
-
-    absl::optional<MaybeDocument> mutatedDocument = [self applyToLocalDocument:previousDocument
-                                                                   documentKey:key];
+    absl::optional<MaybeDocument> previousDocument = mutatedDocuments.get(key);
+    absl::optional<MaybeDocument> mutatedDocument =
+        [self applyToLocalDocument:std::move(previousDocument) documentKey:key];
     if (mutatedDocument) {
       mutatedDocuments = mutatedDocuments.insert(key, *mutatedDocument);
     }

@@ -29,11 +29,10 @@ namespace firestore {
 namespace testutil {
 
 /** Creates a set of default Firebase Options for testing. */
-FIROptions* OptionsForUnitTesting(
-    const absl::string_view project_id = "project_id");
+FIROptions* OptionsForUnitTesting(absl::string_view project_id = "project_id");
 
 /** Creates a new Firebase App for testing. */
-FIRApp* AppForUnitTesting(const absl::string_view project_id = "project_id");
+FIRApp* AppForUnitTesting(absl::string_view project_id = "project_id");
 
 }  // namespace testutil
 }  // namespace firestore
