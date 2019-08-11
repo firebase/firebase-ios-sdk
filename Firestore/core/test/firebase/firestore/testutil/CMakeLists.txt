@@ -41,5 +41,6 @@ cc_library(
     firebase_firestore_nanopb
 
     ${TESTUTIL_DEPENDS}
+    firebase_firestore_core
     firebase_firestore_model
 )
