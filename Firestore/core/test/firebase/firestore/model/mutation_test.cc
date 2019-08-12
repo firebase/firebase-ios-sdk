@@ -180,15 +180,16 @@ void TransformBaseDoc(const FieldValue::Map& base_data,
   EXPECT_EQ(current_doc, expected_doc);
 }
 
-TransformOperation Increment(int value) {
-  return NumericIncrementTransform(Value(value));
-}
-
-TransformOperation Increment(long value) {
-  return NumericIncrementTransform(Value(value));
-}
-
-TransformOperation Increment(double value) {
+/**
+ * Creates a NumericIncrementTransform for the given value. Only defined for
+ * types for which `Value(T)` is already defined, though any types that don't
+ * result in Type::Integer or Type::Double will result in a run-time failure.
+ *
+ * (This is defined in this way to reuse all the overload disambiguation that's
+ * already built into `Value`.)
+ */
+template <typename T>
+auto Increment(T value) -> decltype(NumericIncrementTransform(Value(value))) {
   return NumericIncrementTransform(Value(value));
 }
 
