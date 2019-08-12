@@ -149,11 +149,15 @@ public extension CarthageUtils {
       // Sort the manifest based on the key, $0 and $1 are the parameters and 0 is the first item in
       // the tuple (key).
       let sortedManifest = jsonManifest.sorted { $0.0 < $1.0 }
-      var contents: String = "{\n"
-      sortedManifest.forEach { key, value in
-        contents += "  \"\(key)\": \"\(value.absoluteString)\"\n"
+
+      // Generate the JSON format and combine all the lines afterwards.
+      let manifestLines = sortedManifest.map { (version, url) -> String in
+        // Two spaces at the beginning of the String are intentional.
+        "  \"\(version)\": \"\(url.absoluteString)\""
       }
-      contents += "}\n"
+
+      // Join all the lines with a comma and newline to make things easier to read.
+      let contents = "{\n" + manifestLines.joined(separator: ",\n") + "}\n"
       guard let encodedManifest = contents.data(using: .utf8) else {
         fatalError("Could not encode Carthage JSON manifest for \(product) - UTF8 encoding failed.")
       }
