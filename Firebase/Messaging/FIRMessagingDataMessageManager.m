@@ -96,6 +96,9 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 }
 
 - (void)setDeviceAuthID:(NSString *)deviceAuthID secretToken:(NSString *)secretToken {
+  if (deviceAuthID.length == 0 || secretToken.length == 0) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager013, @"Invalid credentials: deviceAuthID: %@, secrectToken: %@", deviceAuthID, secretToken);
+  }
   self.deviceAuthID = deviceAuthID;
   self.secretToken = secretToken;
 }
@@ -133,24 +136,24 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 - (NSDictionary *)parseDataMessage:(GtalkDataMessageStanza *)dataMessage {
   NSMutableDictionary *message = [NSMutableDictionary dictionary];
   NSString *from = [dataMessage from];
-  if ([from length]) {
+  if (from.length) {
     message[kFIRMessagingFromKey] = from;
   }
 
   // raw data
   NSData *rawData = [dataMessage rawData];
-  if ([rawData length]) {
+  if (rawData.length) {
     message[kFIRMessagingRawDataKey] = rawData;
   }
 
   NSString *token = [dataMessage token];
-  if ([token length]) {
+  if (token.length) {
     message[kFIRMessagingCollapseKey] = token;
   }
 
   // Add the persistent_id. This would be removed later before sending the message to the device.
   NSString *persistentID = [dataMessage persistentId];
-  if ([persistentID length]) {
+  if (persistentID.length) {
     message[kFIRMessagingMessageIDKey] = persistentID;
   }
 

@@ -131,7 +131,9 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (void)teardown {
-  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient000, @"");
+  if (![NSThread isMainThread]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient000, @"FIRMessagingClient should be called from main thread only.");
+  }
   self.stayConnected = NO;
 
   // Clear all the handlers
@@ -178,7 +180,9 @@ static NSUInteger FIRMessagingServerPort() {
                                @"Successfully subscribed to topic %@", topic);
       }
     }
-    handler(error);
+    if (handler) {
+      handler(error);
+    }
   };
 
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {

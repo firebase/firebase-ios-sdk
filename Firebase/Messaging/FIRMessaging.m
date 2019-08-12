@@ -825,8 +825,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                                                                        withID:messageID
                                                                    timeToLive:ttl
                                                                         delay:0];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@",
-                         message, messageID);
+  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@ to %@.",
+                         message, messageID, to);
   [self.dataMessageManager sendDataMessageStanza:fcmMessage];
 }
 

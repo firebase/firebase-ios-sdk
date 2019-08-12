@@ -106,6 +106,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeDataMessageManager010 = 7010,  // I-FCM007010
   kFIRMessagingMessageCodeDataMessageManager011 = 7011,  // I-FCM007011
   kFIRMessagingMessageCodeDataMessageManager012 = 7012,  // I-FCM007012
+  kFIRMessagingMessageCodeDataMessageManager013 = 7013,
+
   // FIRMessagingPendingTopicsList.m
   kFIRMessagingMessageCodePendingTopicsList000 = 8000,  // I-FCM008000
   // FIRMessagingPubSub.m

@@ -104,7 +104,6 @@ static NSString *const kPendingSubscriptionsListKey =
     handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
-
   token = [token copy];
   topic = [topic copy];
   if (![options count]) {
