@@ -48,6 +48,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -80,6 +81,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
 using firebase::firestore::util::Status;
@@ -121,7 +123,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::shared_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<RemoteStore> _remoteStore;
-  std::unique_ptr<EventManager> _eventManager;
+  DelayedConstructor<EventManager> _eventManager;
 
   std::shared_ptr<Executor> _userExecutor;
   std::shared_ptr<CredentialsProvider> _credentialsProvider;
@@ -254,7 +256,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                                               remoteStore:_remoteStore.get()
                                               initialUser:user];
 
-  _eventManager = absl::make_unique<EventManager>(_syncEngine);
+  _eventManager.Init(_syncEngine);
 
   // Setup wiring for remote store.
   _remoteStore->set_sync_engine(_syncEngine);

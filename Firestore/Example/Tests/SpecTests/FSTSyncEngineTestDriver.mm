@@ -43,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -73,13 +74,14 @@ using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::TimerId;
+using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::StringFormat;
+using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ToString;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -137,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::unique_ptr<RemoteStore> _remoteStore;
 
-  std::unique_ptr<EventManager> _eventManager;
+  DelayedConstructor<EventManager> _eventManager;
 
   std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
 
@@ -193,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 remoteStore:_remoteStore.get()
                                                 initialUser:initialUser];
     _remoteStore->set_sync_engine(_syncEngine);
-    _eventManager = absl::make_unique<EventManager>(_syncEngine);
+    _eventManager.Init(_syncEngine);
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
