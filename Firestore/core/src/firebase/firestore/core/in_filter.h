@@ -33,11 +33,8 @@ class InFilter : public FieldFilter {
  public:
   InFilter(model::FieldPath field, model::FieldValue value);
 
-  Type type() const override {
-    return Type::kInFilter;
-  }
-
-  bool Matches(const model::Document& doc) const override;
+ private:
+  class Rep;
 };
 
 }  // namespace core

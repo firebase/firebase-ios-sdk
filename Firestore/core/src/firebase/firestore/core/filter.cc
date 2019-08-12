@@ -22,6 +22,12 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+bool operator==(const Filter& lhs, const Filter& rhs) {
+  return lhs.rep_ == nullptr
+             ? rhs.rep_ == nullptr
+             : (rhs.rep_ != nullptr && lhs.rep_->Equals(*rhs.rep_));
+}
+
 std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
 }

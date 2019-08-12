@@ -32,11 +32,8 @@ class KeyFieldInFilter : public FieldFilter {
  public:
   KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
 
-  Type type() const override {
-    return Type::kKeyFieldInFilter;
-  }
-
-  bool Matches(const model::Document& doc) const override;
+ private:
+  class Rep;
 };
 
 }  // namespace core
