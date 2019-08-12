@@ -177,7 +177,8 @@ class LimboResolution {
   /** The remote store for sending writes, watches, etc. to the backend. */
   RemoteStore *_remoteStore;
 
-  /** A callback to be notified when queries being listened to produce new view snapshots or errors.
+  /**
+   * A callback to be notified when queries being listened to produce new view snapshots or errors.
    */
   SyncEngineCallback *_callback;
 
