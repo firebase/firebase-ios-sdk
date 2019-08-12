@@ -63,7 +63,7 @@ public struct TableUpdate: Encodable {
         var row = [String]()
         row.append(target.name.components(separatedBy: "_")[0])
         row.append(String(pullRequest))
-        row.append(String(target.coverage))
+        row.append(String(target.lineCoverage))
         row.append(currentTime)
         metrics.append(row)
       } else {

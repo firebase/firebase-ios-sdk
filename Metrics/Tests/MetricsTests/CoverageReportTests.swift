@@ -17,20 +17,20 @@
 import MetricsLib
 import XCTest
 
-let EXAMPLE_REPORT = "Tests/MetricsTests/example_report.json"
+let EXAMPLE_REPORT = "Tests/MetricsTests/new_report.json"
 
 final class CoverageReportTests: XCTestCase {
   func testShouldParseTotalCoverage() throws {
     let report = try CoverageReport.load(path: EXAMPLE_REPORT)
-    XCTAssertEqual(report.coverage, 0.5490569575543673)
+    XCTAssertEqual(report.lineCoverage, 0.6008475906451106)
   }
 
   func testShouldParseTargets() throws {
     let report = try CoverageReport.load(path: EXAMPLE_REPORT)
-    XCTAssertEqual(report.targets.count, 14)
-    XCTAssertEqual(report.targets[0].name, "Auth_Example_iOS.app")
-    XCTAssertEqual(report.targets[0].coverage, 0.8241201927002532)
-    XCTAssertEqual(report.targets[0].files.count, 97)
+    XCTAssertEqual(report.targets.count, 3)
+    XCTAssertEqual(report.targets[0].name, "leveldb.framework")
+    XCTAssertEqual(report.targets[0].lineCoverage, 0.5040833234702332)
+    XCTAssertEqual(report.targets[0].files.count, 73)
   }
 
   func testShouldFailOnMissingFile() throws {

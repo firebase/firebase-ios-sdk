@@ -30,9 +30,9 @@ final class UploadMetricsTests: XCTestCase {
     XCTAssertEqual(metricsUpdate.table_name, TABLE_NAME)
     XCTAssertEqual(metricsUpdate.replace_measurements.count, 2)
     XCTAssertEqual(metricsUpdate.replace_measurements[0],
-                   ["Auth", String(PULL_REQUEST), String(target_one.coverage), CURRENT_TIME])
+                   ["Auth", String(PULL_REQUEST), String(target_one.lineCoverage), CURRENT_TIME])
     XCTAssertEqual(metricsUpdate.replace_measurements[1],
-                   ["Core", String(PULL_REQUEST), String(target_two.coverage), CURRENT_TIME])
+                   ["Core", String(PULL_REQUEST), String(target_two.lineCoverage), CURRENT_TIME])
   }
 
   func testShouldIgnoreUnkownTargets() {
