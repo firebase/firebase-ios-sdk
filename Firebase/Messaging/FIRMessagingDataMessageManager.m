@@ -96,8 +96,6 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 }
 
 - (void)setDeviceAuthID:(NSString *)deviceAuthID secretToken:(NSString *)secretToken {
-  _FIRMessagingDevAssert([deviceAuthID length] && [secretToken length],
-                @"Invalid credentials for FIRMessaging");
   self.deviceAuthID = deviceAuthID;
   self.secretToken = secretToken;
 }
@@ -152,14 +150,12 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
   // Add the persistent_id. This would be removed later before sending the message to the device.
   NSString *persistentID = [dataMessage persistentId];
-  _FIRMessagingDevAssert([persistentID length], @"Invalid MCS message without persistentID");
   if ([persistentID length]) {
     message[kFIRMessagingMessageIDKey] = persistentID;
   }
 
   // third-party data
   for (GtalkAppData *item in dataMessage.appDataArray) {
-    _FIRMessagingDevAssert(item.hasKey && item.hasValue, @"Invalid AppData");
 
     // do not process the "from" key -- is not useful
     if ([kFIRMessagingFromKey isEqualToString:item.key]) {
@@ -175,7 +171,6 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
         }
         message[kDataMessageNotificationKey][key] = item.value;
       } else {
-        _FIRMessagingDevAssert([key length], @"Invalid key in MCS message: %@", key);
         FIRMessagingLoggerError(kFIRMessagingMessageCodeDataMessageManager001,
                                 @"Invalid key in MCS message: %@", key);
       }

@@ -59,8 +59,6 @@ static NSString *const kPendingSubscriptionsListKey =
                      topic:(NSString *)topic
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
-  _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
-  _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
   if (!self.client) {
     handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
@@ -102,9 +100,6 @@ static NSString *const kPendingSubscriptionsListKey =
                        topic:(NSString *)topic
                      options:(NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
-  _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
-  _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
-
   if (!self.client) {
     handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;

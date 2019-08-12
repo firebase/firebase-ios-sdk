@@ -32,7 +32,6 @@ static BOOL CheckSize(BufferState *state, size_t size) {
 }
 
 static BOOL ReadRawByte(BufferState *state, int8_t *output) {
-  _FIRMessagingDevAssert(output != NULL && state != NULL, @"Invalid parameters");
 
   if (CheckSize(state, sizeof(int8_t))) {
     *output = ((int8_t *)state->bytes)[state->bufferPos++];
@@ -42,7 +41,6 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
 }
 
 static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
-  _FIRMessagingDevAssert(output != NULL && state != NULL, @"Invalid parameters");
 
   int8_t tmp = 0;
   if (!ReadRawByte(state, &tmp)) {
