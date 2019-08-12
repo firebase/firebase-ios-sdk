@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
@@ -31,7 +30,6 @@ namespace core {
 
 using model::OnlineState;
 using model::TargetId;
-using util::MakeStatus;
 using util::Status;
 
 QueryListener::QueryListener(Query query,
@@ -91,8 +89,9 @@ void QueryListener::OnOnlineStateChanged(OnlineState online_state) {
 
 bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
                                             OnlineState online_state) const {
-  HARD_ASSERT(!raised_initial_event_, "Determining whether to raise initial "
-                                      "event, but already had first event.");
+  HARD_ASSERT(!raised_initial_event_,
+              "Determining whether to raise initial event, but already had "
+              "first event.");
 
   // Always raise the first event when we're synced
   if (!snapshot.from_cache()) {

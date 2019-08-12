@@ -18,16 +18,14 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
-using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::TargetId;
+using core::DocumentViewChange;
+using core::ViewSnapshot;
+using model::DocumentKeySet;
+using model::TargetId;
 
 LocalViewChanges LocalViewChanges::FromViewSnapshot(
     const core::ViewSnapshot& snapshot, model::TargetId target_id) {
@@ -57,5 +55,3 @@ LocalViewChanges LocalViewChanges::FromViewSnapshot(
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

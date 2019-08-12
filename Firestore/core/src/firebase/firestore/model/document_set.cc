@@ -21,11 +21,9 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/algorithm/container.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -123,5 +121,3 @@ DocumentSet DocumentSet::erase(const DocumentKey& key) const {
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
