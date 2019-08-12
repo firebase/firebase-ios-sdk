@@ -23,6 +23,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -39,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
          listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                      purpose:(FSTQueryPurpose)purpose
+                      purpose:(QueryPurpose)purpose
               snapshotVersion:(SnapshotVersion)snapshotVersion
                   resumeToken:(ByteString)resumeToken {
   self = [super init];
@@ -57,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
          listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                      purpose:(FSTQueryPurpose)purpose {
+                      purpose:(QueryPurpose)purpose {
   return [self initWithQuery:std::move(query)
                     targetID:targetID
         listenSequenceNumber:sequenceNumber

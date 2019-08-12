@@ -17,26 +17,16 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace core = firebase::firestore::core;
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace nanopb = firebase::firestore::nanopb;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** An enumeration of the different purposes we have for queries. */
-typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
-  /** A regular, normal query. */
-  FSTQueryPurposeListen,
-
-  /** The query was used to refill a query after an existence filter mismatch. */
-  FSTQueryPurposeExistenceFilterMismatch,
-
-  /** The query was used to resolve a limbo document. */
-  FSTQueryPurposeLimboResolution,
-};
 
 /** An immutable set of metadata that the store will need to keep track of for each query. */
 @interface FSTQueryData : NSObject
@@ -44,7 +34,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 - (instancetype)initWithQuery:(core::Query)query
                      targetID:(model::TargetId)targetID
          listenSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
-                      purpose:(FSTQueryPurpose)purpose
+                      purpose:(local::QueryPurpose)purpose
               snapshotVersion:(model::SnapshotVersion)snapshotVersion
                   resumeToken:(nanopb::ByteString)resumeToken NS_DESIGNATED_INITIALIZER;
 
@@ -52,7 +42,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 - (instancetype)initWithQuery:(core::Query)query
                      targetID:(model::TargetId)targetID
          listenSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
-                      purpose:(FSTQueryPurpose)purpose;
+                      purpose:(local::QueryPurpose)purpose;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -79,7 +69,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 @property(nonatomic, assign, readonly) model::ListenSequenceNumber sequenceNumber;
 
 /** The purpose of the query. */
-@property(nonatomic, assign, readonly) FSTQueryPurpose purpose;
+@property(nonatomic, assign, readonly) local::QueryPurpose purpose;
 
 /**
  * An opaque, server-assigned token that allows watching a query to be resumed after disconnecting

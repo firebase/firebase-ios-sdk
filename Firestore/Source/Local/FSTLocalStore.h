@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -44,7 +45,6 @@ class RemoteEvent;
 @class FSTLocalWriteResult;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
-@class FSTQueryData;
 @protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;
@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.
  * A query must be allocated in the local store before the store can be used to manage its view.
  */
-- (FSTQueryData *)allocateQuery:(core::Query)query;
+- (local::QueryData)allocateQuery:(core::Query)query;
 
 /** Unpin all the documents associated with @a query. */
 - (void)releaseQuery:(const core::Query &)query;

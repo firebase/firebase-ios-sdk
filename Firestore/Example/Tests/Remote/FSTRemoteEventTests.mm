@@ -21,8 +21,7 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTQueryData.h"
-
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -34,7 +33,11 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
+namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
+
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -113,15 +116,12 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * Creates a map with query data for the provided target IDs. All targets are considered active
  * and query a collection named "coll".
  */
-- (std::unordered_map<TargetId, FSTQueryData *>)queryDataForTargets:
+- (std::unordered_map<TargetId, QueryData>)queryDataForTargets:
     (std::initializer_list<TargetId>)targetIDs {
-  std::unordered_map<TargetId, FSTQueryData *> targets;
+  std::unordered_map<TargetId, QueryData> targets;
   for (TargetId targetID : targetIDs) {
     core::Query query = Query("coll");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                                   targetID:targetID
-                                       listenSequenceNumber:0
-                                                    purpose:FSTQueryPurposeListen];
+    targets[targetID] = QueryData(std::move(query), targetID, 0, QueryPurpose::Listen);
   }
   return targets;
 }
@@ -130,15 +130,12 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * Creates a map with query data for the provided target IDs. All targets are marked as limbo
  * queries for the document at "coll/limbo".
  */
-- (std::unordered_map<TargetId, FSTQueryData *>)queryDataForLimboTargets:
+- (std::unordered_map<TargetId, QueryData>)queryDataForLimboTargets:
     (std::initializer_list<TargetId>)targetIDs {
-  std::unordered_map<TargetId, FSTQueryData *> targets;
+  std::unordered_map<TargetId, QueryData> targets;
   for (TargetId targetID : targetIDs) {
     core::Query query = Query("coll/limbo");
-    targets[targetID] = [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                                   targetID:targetID
-                                       listenSequenceNumber:0
-                                                    purpose:FSTQueryPurposeLimboResolution];
+    targets[targetID] = QueryData(std::move(query), targetID, 0, QueryPurpose::LimboResolution);
   }
   return targets;
 }
@@ -158,7 +155,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * changes are `DocumentWatchChange` and `WatchTargetChange`.
  */
 - (WatchChangeAggregator)
-    aggregatorWithTargetMap:(const std::unordered_map<TargetId, FSTQueryData *> &)targetMap
+    aggregatorWithTargetMap:(const std::unordered_map<TargetId, QueryData> &)targetMap
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
                     changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
@@ -167,7 +164,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::vector<TargetId> targetIDs;
   for (const auto &kv : targetMap) {
     TargetId targetID = kv.first;
-    FSTQueryData *queryData = kv.second;
+    const QueryData &queryData = kv.second;
 
     targetIDs.push_back(targetID);
     _targetMetadataProvider.SetSyncedKeys(existingKeys, queryData);
@@ -218,7 +215,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  */
 - (RemoteEvent)
     remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
-                       targetMap:(std::unordered_map<TargetId, FSTQueryData *>)targetMap
+                       targetMap:(std::unordered_map<TargetId, QueryData>)targetMap
             outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                     existingKeys:(DocumentKeySet)existingKeys
                          changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
@@ -233,8 +230,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // The target map that contains an entry for every target in this test. If a target ID is
   // omitted, the target is considered inactive and `TestTargetMetadataProvider` will fail on
   // access.
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{
-      [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
 
   Document existingDoc = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1, 2, 3}, {4, 5, 6}, existingDoc.key(), existingDoc);
@@ -286,7 +282,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -315,7 +311,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -339,7 +335,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -380,7 +376,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testWillHandleSingleReset {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   // Reset target
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
@@ -404,7 +400,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 2}]};
 
   Document doc1a = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {2}, doc1a.key(), doc1a);
@@ -434,7 +430,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testTargetCurrentChangeWillMarkTheTargetCurrent {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   auto change = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
@@ -454,7 +450,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 3}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 3}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1, 3}, {2}, doc1.key(), doc1);
@@ -498,7 +494,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testNoChangeWillStillMarkTheAffectedTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
                                               outstandingResponses:_noOutstandingResponses
@@ -520,7 +516,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testExistenceFilterMismatchClearsTarget {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 2}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -568,7 +564,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testExistenceFilterMismatchRemovesCurrentChanges {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
                                               outstandingResponses:_noOutstandingResponses
@@ -602,7 +598,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testDocumentUpdate {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   Document doc1 = Doc("docs/1", 1, Map("value", 1));
   auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
@@ -656,7 +652,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testResumeTokensHandledPerTarget {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 2}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
                                               outstandingResponses:_noOutstandingResponses
@@ -683,7 +679,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testLastResumeTokenWins {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1, 2}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
                                               outstandingResponses:_noOutstandingResponses
@@ -714,7 +710,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testSynthesizeDeletes {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForLimboTargets:{1}]};
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget = MakeTargetChange(WatchTargetChangeState::Current, {1});
@@ -730,7 +726,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testDoesntSynthesizeDeletesForWrongState {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{1}]};
 
   auto wrongState = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
 
@@ -745,7 +741,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{3}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForTargets:{3}]};
 
   auto hasDocument = MakeTargetChange(WatchTargetChangeState::Current, {3});
 
@@ -761,7 +757,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testSeparatesDocumentUpdates {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
+  std::unordered_map<TargetId, QueryData> targetMap{[self queryDataForLimboTargets:{1}]};
 
   Document newDoc = Doc("docs/new", 1, Map("key", "value"));
   auto newDocChange = MakeDocChange({1}, {}, newDoc.key(), newDoc);
@@ -791,7 +787,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 }
 
 - (void)testTracksLimboDocuments {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap = [self queryDataForTargets:{1}];
+  std::unordered_map<TargetId, QueryData> targetMap = [self queryDataForTargets:{1}];
   auto additionalTargets = [self queryDataForLimboTargets:{2}];
   targetMap.insert(additionalTargets.begin(), additionalTargets.end());
 

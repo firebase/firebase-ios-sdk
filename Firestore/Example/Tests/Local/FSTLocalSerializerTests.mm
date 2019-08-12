@@ -31,13 +31,13 @@
 #import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -50,6 +50,8 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentState;
@@ -204,12 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion version = Version(1039);
   ByteString resumeToken = testutil::ResumeToken(1039);
 
-  FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                       targetID:targetID
-                                           listenSequenceNumber:10
-                                                        purpose:FSTQueryPurposeListen
-                                                snapshotVersion:version
-                                                    resumeToken:resumeToken];
+  QueryData queryData(query, targetID, 10, QueryPurpose::Listen, version, resumeToken);
 
   // Let the RPC serializer test various permutations of query serialization.
   GCFSTarget_QueryTarget *queryTarget = [self.remoteSerializer encodedQueryTarget:query];
@@ -223,8 +220,8 @@ NS_ASSUME_NONNULL_BEGIN
   expected.query.structuredQuery = queryTarget.structuredQuery;
 
   XCTAssertEqualObjects([self.serializer encodedQueryData:queryData], expected);
-  FSTQueryData *decoded = [self.serializer decodedQueryData:expected];
-  XCTAssertEqualObjects(decoded, queryData);
+  QueryData decoded = [self.serializer decodedQueryData:expected];
+  XCTAssertEqual(decoded, queryData);
 }
 
 @end

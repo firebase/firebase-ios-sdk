@@ -63,6 +63,7 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -153,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   DelayedConstructor<EventManager> _eventManager;
 
-  std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
+  std::unordered_map<TargetId, QueryData> _expectedActiveTargets;
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
@@ -435,15 +436,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.syncEngine currentLimboDocuments];
 }
 
-- (const std::unordered_map<TargetId, FSTQueryData *> &)activeTargets {
+- (const std::unordered_map<TargetId, QueryData> &)activeTargets {
   return _datastore->ActiveTargets();
 }
 
-- (const std::unordered_map<TargetId, FSTQueryData *> &)expectedActiveTargets {
+- (const std::unordered_map<TargetId, QueryData> &)expectedActiveTargets {
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData *> &)targets {
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, QueryData> &)targets {
   _expectedActiveTargets = targets;
 }
 

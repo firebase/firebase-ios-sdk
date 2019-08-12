@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -31,10 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTQueryData;
 @protocol FSTPersistence;
 
 namespace core = firebase::firestore::core;
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -302,14 +303,14 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /** The set of active targets as observed on the watch stream. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)activeTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)
+- (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)
     expectedActiveTargets;
 
 - (void)setExpectedActiveTargets:
-    (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
+    (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)targets;
 
 @end
 

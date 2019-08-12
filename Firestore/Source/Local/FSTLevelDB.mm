@@ -74,6 +74,7 @@ using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::OrphanedDocumentCallback;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::local::TargetCallback;
@@ -168,12 +169,10 @@ static const char *kReservedPathComponent = "firestore";
   _additionalReferences = set;
 }
 
-- (void)removeTarget:(FSTQueryData *)queryData {
-  FSTQueryData *updated =
-      [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
-                                         resumeToken:queryData.resumeToken
-                                      sequenceNumber:[self currentSequenceNumber]];
-  _db.queryCache->UpdateTarget(updated);
+- (void)removeTarget:(const QueryData &)queryData {
+  QueryData updated = queryData.Copy(queryData.snapshot_version(), queryData.resume_token(),
+                                     [self currentSequenceNumber]);
+  _db.queryCache->UpdateTarget(std::move(updated));
 }
 
 - (void)addReference:(const DocumentKey &)key {
@@ -239,8 +238,8 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
-                                              liveQueries {
+                              liveQueries:
+                                  (const std::unordered_map<TargetId, QueryData> &)liveQueries {
   return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 

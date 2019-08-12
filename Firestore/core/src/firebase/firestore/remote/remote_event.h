@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -39,8 +40,6 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-
-@class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,10 +64,10 @@ class TargetMetadataProvider {
       model::TargetId target_id) const = 0;
 
   /**
-   * Returns the FSTQueryData for an active target ID or 'null' if this query
-   * has become inactive
+   * Returns the QueryData for an active target ID or 'null' if this query has
+   * become inactive
    */
-  virtual FSTQueryData* GetQueryDataForTarget(
+  virtual absl::optional<local::QueryData> GetQueryDataForTarget(
       model::TargetId target_id) const = 0;
 };
 
@@ -399,11 +398,11 @@ class WatchChangeAggregator {
   bool IsActiveTarget(model::TargetId target_id) const;
 
   /**
-   * Returns the `FSTQueryData` for an active target (i.e., a target that the
-   * user is still interested in that has no outstanding target change
-   * requests).
+   * Returns the `QueryData` for an active target (i.e., a target that the user
+   * is still interested in that has no outstanding target change requests).
    */
-  FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
+  absl::optional<local::QueryData> QueryDataForActiveTarget(
+      model::TargetId target_id) const;
 
   /**
    * Resets the state of a Watch target to its initial state (e.g. sets

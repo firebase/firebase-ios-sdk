@@ -15,13 +15,13 @@
  */
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -31,6 +31,8 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::local::LevelDbQueryCache;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -92,10 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   db1.run("add query data", [&]() {
     core::Query query = Query("some/path");
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                                         targetID:lastTargetId
-                                             listenSequenceNumber:minimumSequenceNumber
-                                                          purpose:FSTQueryPurposeListen];
+    QueryData queryData(std::move(query), lastTargetId, minimumSequenceNumber,
+                        QueryPurpose::Listen);
     queryCache->AddTarget(queryData);
     queryCache->SetLastRemoteSnapshotVersion(lastVersion);
   });

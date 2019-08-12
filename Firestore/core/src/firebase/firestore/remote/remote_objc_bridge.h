@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -36,7 +37,6 @@
 
 #import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
@@ -67,7 +67,7 @@ class WatchStreamSerializer {
       : serializer_{serializer} {
   }
 
-  GCFSListenRequest* CreateWatchRequest(FSTQueryData* query) const;
+  GCFSListenRequest* CreateWatchRequest(const local::QueryData& query) const;
   GCFSListenRequest* CreateUnwatchRequest(model::TargetId target_id) const;
   static grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request);
 
