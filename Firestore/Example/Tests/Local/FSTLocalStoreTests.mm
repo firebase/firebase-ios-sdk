@@ -31,8 +31,6 @@
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"
-#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
