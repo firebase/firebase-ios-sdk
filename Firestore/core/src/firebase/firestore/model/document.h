@@ -63,17 +63,11 @@ class Document : public MaybeDocument {
  public:
   Document() = default;
 
-  /**
-   * Constructs a document.
-   */
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state);
 
-  /**
-   * Constructs a document.
-   */
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,

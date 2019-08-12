@@ -172,13 +172,20 @@ class Mutation {
    * been committed and so it's possible that the mutation is operating on a
    * locally non-existent document and may produce a non-existent document.
    *
-   * Note: `maybe_doc` and `base_doc` are similar but not the same. When
-   * applying a series of mutations within a mutation batch, `maybe_doc`
-   * advances with each Mutation: the result of one mutation's ApplyToLocalView
-   * is passed into the next as `maybe_doc. `base_doc` always refers to the
-   * state prior to the start of all the mutations in the batch. This
-   * distinction helps ServerTimestampTransform determine the "previous" value
-   * in a way that makes sense to users.
+   * Note: `maybe_doc` and `base_doc` are similar but not the same:
+   *
+   *   - `base_doc` is the pristine version of the document as it was _before_
+   *     applying any of the mutations in the batch. This means that for each
+   *     mutation in the batch, `base_doc` stays unchanged;
+   *   - `maybe_doc` is the state of the document _after_ applying all the
+   *     preceding mutations from the batch. In other words, `maybe_doc` is
+   *     passed on from one mutation in the batch to the next, accumulating
+   *     changes.
+   *
+   * The only time `maybe_doc` and `base_doc` are guaranteed to be the same is
+   * for the very first mutation in the batch. The distinction between
+   * `maybe_doc` and `base_doc` helps ServerTimestampTransform determine the
+   * "previous" value in a way that makes sense to users.
    *
    * @param maybe_doc The document to mutate. The input document can be
    *     `nullopt` if the client has no knowledge of the pre-mutation state of
