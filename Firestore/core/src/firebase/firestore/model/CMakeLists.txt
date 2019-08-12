@@ -58,8 +58,8 @@ cc_library(
     snapshot_version.h
     transform_mutation.cc
     transform_mutation.h
-    transform_operations.cc
-    transform_operations.h
+    transform_operation.cc
+    transform_operation.h
     types.h
     unknown_document.cc
     unknown_document.h

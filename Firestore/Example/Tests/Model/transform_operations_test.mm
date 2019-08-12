@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"

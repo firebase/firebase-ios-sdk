@@ -15,7 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 #include "absl/memory/memory.h"
