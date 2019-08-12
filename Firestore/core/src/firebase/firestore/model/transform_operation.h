@@ -17,15 +17,19 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATION_H_
 
+#include <iosfwd>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
+
+class Timestamp;
+
 namespace firestore {
 namespace model {
 
@@ -40,27 +44,32 @@ class TransformOperation {
     Increment,
   };
 
-  virtual ~TransformOperation() {
-  }
+  TransformOperation() = default;
 
   /** Returns the actual type. */
-  virtual Type type() const = 0;
+  Type type() const {
+    return rep_->type();
+  }
 
   /**
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  virtual model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& local_write_time) const = 0;
+  FieldValue ApplyToLocalView(
+      const absl::optional<FieldValue>& previous_value,
+      const Timestamp& local_write_time) const {
+    return rep_->ApplyToLocalView(previous_value, local_write_time);
+  }
 
   /**
    * Computes a final transform result after the transform has been acknowledged
    * by the server, potentially using the server-provided transform_result.
    */
-  virtual model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& previous_value,
-      const model::FieldValue& transform_result) const = 0;
+  FieldValue ApplyToRemoteDocument(
+      const absl::optional<FieldValue>& previous_value,
+      const FieldValue& transform_result) const {
+    return rep_->ApplyToRemoteDocument(previous_value, transform_result);
+  }
 
   /**
    * If this transform operation is not idempotent, returns the base value to
@@ -77,54 +86,70 @@ class TransformOperation {
    * @return a base value to store along with the mutation, or empty for
    *     idempotent transforms.
    */
-  virtual absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& previous_value) const = 0;
-
-  /** Returns whether the two are equal. */
-  virtual bool operator==(const TransformOperation& other) const = 0;
-
-  /** Returns whether the two are not equal. */
-  bool operator!=(const TransformOperation& other) const {
-    return !operator==(other);
+  absl::optional<FieldValue> ComputeBaseValue(
+      const absl::optional<FieldValue>& previous_value) const {
+    return rep_->ComputeBaseValue(previous_value);
   }
 
-  virtual size_t Hash() const = 0;
+  /** Returns whether the two are equal. */
+  friend bool operator==(const TransformOperation& lhs,
+                         const TransformOperation& rhs);
 
-  virtual std::string ToString() const = 0;
+  size_t Hash() const {
+    return rep_->Hash();
+  }
+
+  std::string ToString() const {
+    return rep_->ToString();
+  }
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const TransformOperation& op);
+
+ protected:
+  class Rep {
+   public:
+    virtual ~Rep() = default;
+
+    virtual Type type() const = 0;
+
+    virtual FieldValue ApplyToLocalView(
+        const absl::optional<FieldValue>& previous_value,
+        const Timestamp& local_write_time) const = 0;
+
+    virtual FieldValue ApplyToRemoteDocument(
+        const absl::optional<FieldValue>& previous_value,
+        const FieldValue& transform_result) const = 0;
+
+    virtual absl::optional<FieldValue> ComputeBaseValue(
+        const absl::optional<FieldValue>& previous_value) const = 0;
+
+    virtual bool Equals(const TransformOperation::Rep& other) const = 0;
+
+    virtual size_t Hash() const = 0;
+
+    virtual std::string ToString() const = 0;
+  };
+
+  explicit TransformOperation(std::shared_ptr<const Rep> rep);
+
+  const Rep& rep() const {
+    return *rep_;
+  }
+
+ private:
+  std::shared_ptr<const Rep> rep_;
 };
 
 /** Transforms a value into a server-generated timestamp. */
 class ServerTimestampTransform : public TransformOperation {
  public:
-  Type type() const override {
-    return Type::ServerTimestamp;
-  }
-
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& local_write_time) const override;
-
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& previous_value,
-      const model::FieldValue& transform_result) const override;
-
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& /* previous_value */)
-      const override {
-    return absl::nullopt;  // Server timestamps are idempotent and don't require
-                           // a base value.
-  }
-
-  bool operator==(const TransformOperation& other) const override;
-
   static const ServerTimestampTransform& Get();
 
-  size_t Hash() const override;
-
-  std::string ToString() const override;
-
  private:
-  ServerTimestampTransform() = default;
+  class Rep;
+
+  ServerTimestampTransform();
 };
 
 /**
@@ -133,56 +158,19 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<model::FieldValue> elements)
-      : type_(type), elements_(std::move(elements)) {
-  }
+  ArrayTransform(Type type, std::vector<FieldValue> elements);
 
-  Type type() const override {
-    return type_;
-  }
+  explicit ArrayTransform(const TransformOperation& op);
 
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& local_write_time) const override;
+  ArrayTransform() = default;
 
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& previous_value,
-      const model::FieldValue& transform_result) const override;
-
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& /* previous_value */)
-      const override {
-    return absl::nullopt;  // Array transforms are idempotent and don't require
-                           // a base value.
-  }
-
-  const std::vector<model::FieldValue>& elements() const {
-    return elements_;
-  }
-
-  bool operator==(const TransformOperation& other) const override;
-
-  size_t Hash() const override;
-
-  std::string ToString() const override;
-
-  static const std::vector<model::FieldValue>& Elements(
+  static const std::vector<FieldValue>& Elements(
       const TransformOperation& op);
 
  private:
-  /**
-   * Inspects the provided value, returning a mutable copy of the internal array
-   * if it's of type Array and an empty mutable array if it's nil or any other
-   * type of FieldValue.
-   */
-  static std::vector<model::FieldValue> CoercedFieldValuesArray(
-      const absl::optional<model::FieldValue>& value);
+  class Rep;
 
-  model::FieldValue Apply(
-      const absl::optional<model::FieldValue>& previous_value) const;
-
-  Type type_;
-  std::vector<model::FieldValue> elements_;
+  const Rep& array_rep() const;
 };
 
 /**
@@ -192,36 +180,19 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  explicit NumericIncrementTransform(model::FieldValue operand);
+  explicit NumericIncrementTransform(FieldValue operand);
 
-  Type type() const override {
-    return Type::Increment;
-  }
-
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
-      const Timestamp& local_write_time) const override;
-
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& previous_value,
-      const model::FieldValue& transform_result) const override;
-
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& previous_value) const override;
-
-  model::FieldValue operand() const {
-    return operand_;
-  }
-
-  bool operator==(const TransformOperation& other) const override;
-
-  size_t Hash() const override;
-
-  std::string ToString() const override;
+  const FieldValue& operand() const;
 
  private:
-  model::FieldValue operand_;
+  class Rep;
 };
+
+/** Returns whether the two are not equal. */
+inline bool operator!=(const TransformOperation& lhs,
+                       const TransformOperation& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace model
 }  // namespace firestore

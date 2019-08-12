@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 
+#include <memory>
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -30,22 +32,66 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-FieldValue ServerTimestampTransform::ApplyToLocalView(
-    const absl::optional<FieldValue>& previous_value,
-    const Timestamp& local_write_time) const {
-  return FieldValue::FromServerTimestamp(local_write_time, previous_value);
+// MARK: - TransformOperation
+
+TransformOperation::TransformOperation(std::shared_ptr<const Rep> rep)
+    : rep_(std::move(rep)) {
 }
 
-FieldValue ServerTimestampTransform::ApplyToRemoteDocument(
-    const absl::optional<FieldValue>& /* previous_value */,
-    const FieldValue& transform_result) const {
-  return transform_result;
+/** Returns whether the two are equal. */
+bool operator==(const TransformOperation& lhs, const TransformOperation& rhs) {
+  return lhs.rep_ == nullptr
+             ? rhs.rep_ == nullptr
+             : (rhs.rep_ != nullptr && lhs.rep_->Equals(*rhs.rep_));
 }
 
-bool ServerTimestampTransform::operator==(
-    const TransformOperation& other) const {
-  // All ServerTimestampTransform objects are equal.
-  return other.type() == Type::ServerTimestamp;
+std::ostream& operator<<(std::ostream& os, const TransformOperation& op) {
+  return os << op.rep_->ToString();
+}
+
+// MARK: - ServerTimestampTransform
+
+class ServerTimestampTransform::Rep : public TransformOperation::Rep {
+ public:
+  Type type() const override {
+    return Type::ServerTimestamp;
+  }
+
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
+      const Timestamp& local_write_time) const override {
+    return FieldValue::FromServerTimestamp(local_write_time, previous_value);
+  }
+
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>&,
+      const model::FieldValue& transform_result) const override {
+    return transform_result;
+  }
+
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>&) const override {
+    // Server timestamps are idempotent and don't require a base value.
+    return absl::nullopt;
+  }
+
+  bool Equals(const TransformOperation::Rep& other) const override {
+    // All ServerTimestampTransform objects are equal.
+    return other.type() == Type::ServerTimestamp;
+  }
+
+  size_t Hash() const override {
+    // An arbitrary number, since all instances are equal.
+    return 37;
+  }
+
+  std::string ToString() const override {
+    return "ServerTimestamp";
+  }
+};
+
+ServerTimestampTransform::ServerTimestampTransform()
+    : TransformOperation(std::make_shared<const Rep>()) {
 }
 
 const ServerTimestampTransform& ServerTimestampTransform::Get() {
@@ -53,48 +99,111 @@ const ServerTimestampTransform& ServerTimestampTransform::Get() {
   return shared_instance;
 }
 
-size_t ServerTimestampTransform::Hash() const {
-  // arbitrary number, the same as used in ObjC implementation, since all
-  // instances are equal.
-  return 37;
+// MARK: - ArrayTransform
+
+/**
+ * Transforms an array via a union or remove operation (for convenience, we use
+ * this class for both Type::ArrayUnion and Type::ArrayRemove).
+ */
+class ArrayTransform::Rep : public TransformOperation::Rep {
+ public:
+  Rep(Type type, std::vector<model::FieldValue> elements)
+      : type_(type), elements_(std::move(elements)) {
+  }
+
+  Type type() const override {
+    return type_;
+  }
+
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
+      const Timestamp&) const override {
+    return Apply(previous_value);
+  }
+
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>& previous_value,
+      const model::FieldValue&) const override {
+    // The server just sends null as the transform result for array operations,
+    // so we have to calculate a result the same as we do for local
+    // applications.
+    return Apply(previous_value);
+  }
+
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>&) const override {
+    // Array transforms are idempotent and don't require a base value.
+    return absl::nullopt;
+  }
+
+  const std::vector<model::FieldValue>& elements() const {
+    return elements_;
+  }
+
+  bool Equals(const TransformOperation::Rep& other) const override;
+
+  size_t Hash() const override;
+
+  std::string ToString() const override;
+
+  static const std::vector<model::FieldValue>& Elements(
+      const TransformOperation& op);
+
+ private:
+  friend class ArrayTransform;
+
+  /**
+   * Inspects the provided value, returning a mutable copy of the internal array
+   * if it's of type Array and an empty mutable array if it's nil or any other
+   * type of FieldValue.
+   */
+  static std::vector<model::FieldValue> CoercedFieldValuesArray(
+      const absl::optional<model::FieldValue>& value);
+
+  model::FieldValue Apply(
+      const absl::optional<model::FieldValue>& previous_value) const;
+
+  Type type_;
+  std::vector<model::FieldValue> elements_;
+};
+
+ArrayTransform::ArrayTransform(Type type,
+                               std::vector<model::FieldValue> elements)
+    : TransformOperation(
+          std::make_shared<const Rep>(type, std::move(elements))) {
 }
 
-std::string ServerTimestampTransform::ToString() const {
-  return "ServerTimestamp";
+ArrayTransform::ArrayTransform(const TransformOperation& op)
+    : TransformOperation(op) {
 }
 
-FieldValue ArrayTransform::ApplyToLocalView(
-    const absl::optional<FieldValue>& previous_value,
-    const Timestamp& /* local_write_time */) const {
-  return Apply(previous_value);
+const std::vector<FieldValue>& ArrayTransform::Elements(
+    const TransformOperation& op) {
+  HARD_ASSERT(op.type() == Type::ArrayUnion || op.type() == Type::ArrayRemove);
+  return ArrayTransform(op).array_rep().elements_;
 }
 
-FieldValue ArrayTransform::ApplyToRemoteDocument(
-    const absl::optional<FieldValue>& previous_value,
-    const FieldValue& /* transform_result */) const {
-  // The server just sends null as the transform result for array operations,
-  // so we have to calculate a result the same as we do for local
-  // applications.
-  return Apply(previous_value);
+const ArrayTransform::Rep& ArrayTransform::array_rep() const {
+  return static_cast<const ArrayTransform::Rep&>(rep());
 }
 
-bool ArrayTransform::operator==(const TransformOperation& other) const {
+bool ArrayTransform::Rep::Equals(const TransformOperation::Rep& other) const {
   if (other.type() != type()) {
     return false;
   }
-  auto array_transform = static_cast<const ArrayTransform&>(other);
-  if (array_transform.elements_.size() != elements_.size()) {
+  auto other_rep = static_cast<const ArrayTransform::Rep&>(other);
+  if (other_rep.elements_.size() != elements_.size()) {
     return false;
   }
   for (size_t i = 0; i < elements_.size(); i++) {
-    if (array_transform.elements_[i] != elements_[i]) {
+    if (other_rep.elements_[i] != elements_[i]) {
       return false;
     }
   }
   return true;
 }
 
-size_t ArrayTransform::Hash() const {
+size_t ArrayTransform::Rep::Hash() const {
   size_t result = 37;
   result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
   for (const FieldValue& element : elements_) {
@@ -103,18 +212,12 @@ size_t ArrayTransform::Hash() const {
   return result;
 }
 
-std::string ArrayTransform::ToString() const {
+std::string ArrayTransform::Rep::ToString() const {
   const char* name = type_ == Type::ArrayUnion ? "ArrayUnion" : "ArrayRemove";
   return absl::StrCat(name, "(", util::ToString(elements_), ")");
 }
 
-const std::vector<FieldValue>& ArrayTransform::Elements(
-    const TransformOperation& op) {
-  HARD_ASSERT(op.type() == Type::ArrayUnion || op.type() == Type::ArrayRemove);
-  return static_cast<const ArrayTransform&>(op).elements();
-}
-
-FieldValue::Array ArrayTransform::CoercedFieldValuesArray(
+FieldValue::Array ArrayTransform::Rep::CoercedFieldValuesArray(
     const absl::optional<model::FieldValue>& value) {
   if (value && value->type() == FieldValue::Type::Array) {
     return value->array_value();
@@ -124,10 +227,9 @@ FieldValue::Array ArrayTransform::CoercedFieldValuesArray(
   }
 }
 
-FieldValue ArrayTransform::Apply(
+FieldValue ArrayTransform::Rep::Apply(
     const absl::optional<FieldValue>& previous_value) const {
-  FieldValue::Array result =
-      ArrayTransform::CoercedFieldValuesArray(previous_value);
+  FieldValue::Array result = CoercedFieldValuesArray(previous_value);
   for (const FieldValue& element : elements_) {
     auto pos = absl::c_find(result, element);
     if (type_ == Type::ArrayUnion) {
@@ -142,6 +244,59 @@ FieldValue ArrayTransform::Apply(
     }
   }
   return FieldValue::FromArray(std::move(result));
+}
+
+// MARK: - NumericIncrementTransform
+
+class NumericIncrementTransform::Rep : public TransformOperation::Rep {
+ public:
+  explicit Rep(model::FieldValue operand) : operand_(std::move(operand)) {
+  }
+
+  Type type() const override {
+    return Type::Increment;
+  }
+
+  model::FieldValue ApplyToLocalView(
+      const absl::optional<model::FieldValue>& previous_value,
+      const Timestamp& local_write_time) const override;
+
+  model::FieldValue ApplyToRemoteDocument(
+      const absl::optional<model::FieldValue>&,
+      const model::FieldValue& transform_result) const override {
+    return transform_result;
+  }
+
+  absl::optional<model::FieldValue> ComputeBaseValue(
+      const absl::optional<model::FieldValue>& previous_value) const override;
+
+  model::FieldValue operand() const {
+    return operand_;
+  }
+
+  bool Equals(const TransformOperation::Rep& other) const override;
+
+  size_t Hash() const override {
+    return operand_.Hash();
+  }
+
+  std::string ToString() const override {
+    return absl::StrCat("NumericIncrement(", operand_.ToString(), ")");
+  }
+
+ private:
+  friend class NumericIncrementTransform;
+
+  model::FieldValue operand_;
+};
+
+NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
+    : TransformOperation(std::make_shared<Rep>(operand)) {
+  HARD_ASSERT(operand.is_number());
+}
+
+const FieldValue& NumericIncrementTransform::operand() const {
+  return static_cast<const Rep&>(rep()).operand_;
 }
 
 namespace {
@@ -175,12 +330,7 @@ double AsDouble(const FieldValue& value) {
 
 }  // namespace
 
-NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
-    : operand_(operand) {
-  HARD_ASSERT(operand.is_number());
-}
-
-FieldValue NumericIncrementTransform::ApplyToLocalView(
+FieldValue NumericIncrementTransform::Rep::ApplyToLocalView(
     const absl::optional<FieldValue>& previous_value,
     const Timestamp& /* local_write_time */) const {
   absl::optional<FieldValue> base_value = ComputeBaseValue(previous_value);
@@ -200,34 +350,21 @@ FieldValue NumericIncrementTransform::ApplyToLocalView(
   }
 }
 
-FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
-    const absl::optional<FieldValue>&,
-    const FieldValue& transform_result) const {
-  return transform_result;
-}
-
-absl::optional<FieldValue> NumericIncrementTransform::ComputeBaseValue(
+absl::optional<FieldValue> NumericIncrementTransform::Rep::ComputeBaseValue(
     const absl::optional<FieldValue>& previous_value) const {
   return previous_value && previous_value->is_number()
              ? previous_value
              : absl::optional<FieldValue>{FieldValue::FromInteger(0)};
 }
 
-bool NumericIncrementTransform::operator==(
-    const TransformOperation& other) const {
+bool NumericIncrementTransform::Rep::Equals(
+    const TransformOperation::Rep& other) const {
   if (other.type() != type()) {
     return false;
   }
-  auto numeric_add = static_cast<const NumericIncrementTransform&>(other);
-  return operand_ == numeric_add.operand_;
-}
 
-size_t NumericIncrementTransform::Hash() const {
-  return operand_.Hash();
-}
-
-std::string NumericIncrementTransform::ToString() const {
-  return absl::StrCat("NumericIncrement(", operand_.ToString(), ")");
+  auto other_rep = static_cast<const NumericIncrementTransform::Rep&>(other);
+  return operand_ == other_rep.operand_;
 }
 
 }  // namespace model

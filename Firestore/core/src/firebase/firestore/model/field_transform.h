@@ -17,30 +17,26 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_TRANSFORM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_TRANSFORM_H_
 
-#include <memory>
 #include <string>
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class TransformOperation;
-
 /** A field path and the TransformOperation to perform upon it. */
 class FieldTransform {
  public:
-  FieldTransform(FieldPath path,
-                 std::unique_ptr<TransformOperation> transformation) noexcept;
+  FieldTransform(FieldPath path, TransformOperation transformation) noexcept;
 
   const FieldPath& path() const {
     return path_;
   }
 
   const TransformOperation& transformation() const {
-    return *transformation_.get();
+    return transformation_;
   }
 
   bool operator==(const FieldTransform& other) const;
@@ -51,8 +47,7 @@ class FieldTransform {
 
  private:
   FieldPath path_;
-  // Shared by copies of the same FieldTransform.
-  std::shared_ptr<const TransformOperation> transformation_;
+  TransformOperation transformation_;
 };
 
 }  // namespace model

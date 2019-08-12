@@ -18,6 +18,9 @@
 
 #include <set>
 
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
+
 namespace firebase {
 namespace firestore {
 namespace testutil {
@@ -71,6 +74,21 @@ model::PatchMutation PatchMutation(
 
   return model::PatchMutation(Key(path), std::move(object_value),
                               std::move(mask), precondition);
+}
+
+model::TransformMutation TransformMutation(
+    absl::string_view key,
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  std::vector<FieldTransform> field_transforms;
+
+  for (auto&& pair : transforms) {
+    auto path = Field(std::move(pair.first));
+    TransformOperation&& op_ptr = std::move(pair.second);
+    FieldTransform transform(std::move(path), std::move(op_ptr));
+    field_transforms.push_back(std::move(transform));
+  }
+
+  return model::TransformMutation(Key(key), std::move(field_transforms));
 }
 
 }  // namespace testutil

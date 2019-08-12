@@ -350,28 +350,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
   } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-    context.AddToFieldTransforms(*context.path(), absl::make_unique<ServerTimestampTransform>(
-                                                      ServerTimestampTransform::Get()));
+    context.AddToFieldTransforms(*context.path(), ServerTimestampTransform::Get());
 
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
     std::vector<FieldValue> parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    auto array_union = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
-                                                         std::move(parsedElements));
+    ArrayTransform array_union(TransformOperation::Type::ArrayUnion, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(array_union));
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
     std::vector<FieldValue> parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    auto array_remove = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
-                                                          std::move(parsedElements));
+    ArrayTransform array_remove(TransformOperation::Type::ArrayRemove, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(array_remove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     FSTNumericIncrementFieldValue *numericIncrementFieldValue =
         (FSTNumericIncrementFieldValue *)fieldValue;
     FieldValue operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
-    auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
+    NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
 

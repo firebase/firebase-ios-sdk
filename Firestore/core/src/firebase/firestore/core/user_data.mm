@@ -71,8 +71,7 @@ void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
 }
 
 void ParseAccumulator::AddToFieldTransforms(
-    FieldPath field_path,
-    std::unique_ptr<TransformOperation> transform_operation) {
+    FieldPath field_path, TransformOperation transform_operation) {
   field_transforms_.emplace_back(std::move(field_path),
                                  std::move(transform_operation));
 }
@@ -194,8 +193,7 @@ void ParseContext::AddToFieldMask(FieldPath field_path) {
 }
 
 void ParseContext::AddToFieldTransforms(
-    FieldPath field_path,
-    std::unique_ptr<TransformOperation> transform_operation) {
+    FieldPath field_path, TransformOperation transform_operation) {
   accumulator_->AddToFieldTransforms(std::move(field_path),
                                      std::move(transform_operation));
 }

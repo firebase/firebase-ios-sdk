@@ -684,9 +684,8 @@ absl::any Wrap(GCFSDocument *doc) {
         HARD_ASSERT(
             proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
             "Unknown transform setToServerValue: %s", proto.setToServerValue);
-        fieldTransforms.emplace_back(
-            FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-            absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+        fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+                                     ServerTimestampTransform::Get());
         break;
       }
 
@@ -695,8 +694,7 @@ absl::any Wrap(GCFSDocument *doc) {
             [self decodedArrayTransformElements:proto.appendMissingElements];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
-                                              std::move(elements)));
+            ArrayTransform(TransformOperation::Type::ArrayUnion, std::move(elements)));
         break;
       }
 
@@ -705,15 +703,14 @@ absl::any Wrap(GCFSDocument *doc) {
             [self decodedArrayTransformElements:proto.removeAllFromArray_p];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
-                                              std::move(elements)));
+            ArrayTransform(TransformOperation::Type::ArrayRemove, std::move(elements)));
         break;
       }
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_Increment: {
         FieldValue operand = [self decodedFieldValue:proto.increment];
         fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-                                     absl::make_unique<NumericIncrementTransform>(operand));
+                                     NumericIncrementTransform(std::move(operand)));
         break;
       }
 

@@ -115,9 +115,8 @@ class ParseAccumulator {
   /**
    * Adds a transformation for the given field path.
    */
-  void AddToFieldTransforms(
-      model::FieldPath field_path,
-      std::unique_ptr<model::TransformOperation> transform_operation);
+  void AddToFieldTransforms(model::FieldPath field_path,
+                            model::TransformOperation transform_operation);
 
   /**
    * Wraps the given `data` along with any accumulated field mask and transforms
@@ -235,9 +234,8 @@ class ParseContext {
 
   void AddToFieldMask(model::FieldPath field_path);
 
-  void AddToFieldTransforms(
-      model::FieldPath field_path,
-      std::unique_ptr<model::TransformOperation> transform_operation);
+  void AddToFieldTransforms(model::FieldPath field_path,
+                            model::TransformOperation transform_operation);
 
  private:
   void ValidatePath() const;

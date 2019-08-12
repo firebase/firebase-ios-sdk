@@ -27,22 +27,22 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-FieldTransform::FieldTransform(
-    FieldPath path, std::unique_ptr<TransformOperation> transformation) noexcept
+FieldTransform::FieldTransform(FieldPath path,
+                               TransformOperation transformation) noexcept
     : path_{std::move(path)}, transformation_{std::move(transformation)} {
 }
 
 bool FieldTransform::operator==(const FieldTransform& other) const {
-  return path_ == other.path_ && *transformation_ == *other.transformation_;
+  return path_ == other.path_ && transformation_ == other.transformation_;
 }
 
 size_t FieldTransform::Hash() const {
-  return util::Hash(path_, transformation_->Hash());
+  return util::Hash(path_, transformation_);
 }
 
 std::string FieldTransform::ToString() const {
   return absl::StrCat("FieldTransform(path=", path_.CanonicalString(),
-                      "transformation=", transformation_->ToString(), ")");
+                      "transformation=", transformation_.ToString(), ")");
 }
 
 }  // namespace model
