@@ -444,3 +444,4 @@ jobs:
 branches:
   only:
     - master
+    - release-6.6.0
