@@ -97,7 +97,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
 - (void)setDeviceAuthID:(NSString *)deviceAuthID secretToken:(NSString *)secretToken {
   if (deviceAuthID.length == 0 || secretToken.length == 0) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager013, @"Invalid credentials: deviceAuthID: %@, secrectToken: %@", deviceAuthID, secretToken);
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeDataMessageManager013, @"Invalid credentials: deviceAuthID: %@, secrectToken: %@", deviceAuthID, secretToken);
   }
   self.deviceAuthID = deviceAuthID;
   self.secretToken = secretToken;

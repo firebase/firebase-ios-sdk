@@ -47,6 +47,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented = 2023, // I-FCM002023
   kFIRMessagingMessageCodeTopicFormatIsDeprecated = 2024,
   kFIRMessagingMessageCodeDirectChannelConnectionFailed = 2025,
+  kFIRMessagingMessageCodeInvalidClient = 2026,
   // FIRMessagingClient.m
   kFIRMessagingMessageCodeClient000 = 4000,  // I-FCM004000
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004001
@@ -60,6 +61,9 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeClient009 = 4009,  // I-FCM004009
   kFIRMessagingMessageCodeClient010 = 4010,  // I-FCM004010
   kFIRMessagingMessageCodeClient011 = 4011,  // I-FCM004011
+  kFIRMessagingMessageCodeClientInvalidState = 4012,
+  kFIRMessagingMessageCodeClientInvalidStateTimeout = 4013,
+
   // FIRMessagingConnection.m
   kFIRMessagingMessageCodeConnection000 = 5000,  // I-FCM005000
   kFIRMessagingMessageCodeConnection001 = 5001,  // I-FCM005001
@@ -197,5 +201,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingServiceExtensionImageNotDownloaded = 20001,
   kFIRMessagingServiceExtensionLocalFileNotCreated = 20002,
   kFIRMessagingServiceExtensionImageNotAttached = 20003,
+
+  // FIRMessagingCodedInputStream.m
+  kFIRMessagingCodeInputStreamInvalidParameters = 21000,
 
 };

@@ -345,6 +345,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)setupTopics {
+  if (!self.client) {
+     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient, @"Invalid nil client before init pubsub.");
+  }
   self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
 }
 

@@ -15,7 +15,9 @@
  */
 
 #import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
+
+#import "Firebase/Messaging/FIRMMessageCode.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
 
 typedef struct {
   const void *bytes;
@@ -32,7 +34,9 @@ static BOOL CheckSize(BufferState *state, size_t size) {
 }
 
 static BOOL ReadRawByte(BufferState *state, int8_t *output) {
-
+  if (!state || !output) {
+    FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
+  }
   if (CheckSize(state, sizeof(int8_t))) {
     *output = ((int8_t *)state->bytes)[state->bufferPos++];
     return YES;
@@ -41,7 +45,9 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
 }
 
 static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
-
+  if (!state || !output) {
+    FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
+  }
   int8_t tmp = 0;
   if (!ReadRawByte(state, &tmp)) {
     return NO;

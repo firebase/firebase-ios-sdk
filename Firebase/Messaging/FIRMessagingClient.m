@@ -443,7 +443,13 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
-
+    NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
+    NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+  if (deviceAuthID.length == 0 || secretToken.length == 0 ||
+      !self.connection) {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeClientInvalidState, @"Invalid state to connect, deviceAuthID: %@, secretToken: %@, connection state: %ld", deviceAuthID, secretToken, (long)self.connection.state);
+      return;
+  }
   // Do not re-sign in if there is already a connection in progress.
   if (self.connection.state != kFIRMessagingConnectionNotConnected) {
     return;
@@ -457,7 +463,9 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (void)didConnectTimeout {
-
+  if (self.connection.state == kFIRMessagingConnectionSignedIn) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeClientInvalidStateTimeout, @"Invalid state for connection timeout.");
+  }
   if (self.stayConnected) {
     [self.connection signOut];
     [self scheduleConnectRetry];
