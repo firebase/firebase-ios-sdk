@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#import "Firestore/Source/Core/FSTSyncEngine.h"
+
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -49,16 +51,15 @@ model::TargetId EventManager::AddQueryListener(
   return query_info.target_id;
 }
 
-bool EventManager::RemoveQueryListener(
+void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const Query& query = listener->query();
   bool last_listen = false;
-  bool found = false;
-
+    
   auto found_iter = queries_.find(query);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
-    found = query_info.Erase(listener);
+    query_info.Erase(listener);
     last_listen = query_info.listeners.empty();
   }
 
@@ -66,8 +67,6 @@ bool EventManager::RemoveQueryListener(
     queries_.erase(found_iter);
     [sync_engine_ stopListeningToQuery:query];
   }
-
-  return found;
 }
 
 void EventManager::HandleOnlineStateChange(model::OnlineState online_state) {
@@ -101,7 +100,7 @@ void EventManager::OnError(const core::Query& query, util::Status error) {
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
     for (const auto& listener : query_info.listeners) {
-      listener->OnError(error);
+      listener->OnError(std::move(error));
     }
 
     // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine

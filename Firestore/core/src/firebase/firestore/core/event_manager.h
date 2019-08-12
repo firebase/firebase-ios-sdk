@@ -23,17 +23,15 @@
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/algorithm/container.h"
+#include "absl/types/optional.h"
 
-#import "Firestore/Source/Core/FSTSyncEngine.h"
-
-namespace core = firebase::firestore::core;
-namespace model = firebase::firestore::model;
-namespace util = firebase::firestore::util;
-namespace objc = firebase::firestore::objc;
+OBJC_CLASS(FSTSyncEngine);
 
 namespace firebase {
 namespace firestore {
@@ -41,8 +39,8 @@ namespace core {
 
 /**
  * EventManager is responsible for mapping queries to query event listeners.
- * It handles "fan-out" (Identical queries will re-use the same watch on the
- * back end).
+ * It handles "fan-out". (Identical queries will re-use the same watch on the
+ * backend.)
  */
 class EventManager : public SyncEngineCallback {
  public:
@@ -59,16 +57,13 @@ class EventManager : public SyncEngineCallback {
   model::TargetId AddQueryListener(
       std::shared_ptr<core::QueryListener> listener);
 
-  /**
-   * Removes a previously added listener and returns true if the listener was
-   * found.
-   */
-  bool RemoveQueryListener(std::shared_ptr<core::QueryListener> listener);
+  /** Removes a previously added listener. It's a no-op if the listener is not found. */
+  void RemoveQueryListener(std::shared_ptr<core::QueryListener> listener);
 
   // Implements `SyncEngineCallback`.
-  void HandleOnlineStateChange(model::OnlineState online_state);
-  void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots);
-  void OnError(const core::Query& query, util::Status error);
+  void HandleOnlineStateChange(model::OnlineState online_state) override;
+  void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) override;
+  void OnError(const core::Query& query, util::Status error) override;
 
  private:
   /**

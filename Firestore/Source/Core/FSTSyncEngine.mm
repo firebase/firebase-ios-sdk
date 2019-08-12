@@ -53,6 +53,7 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
@@ -176,7 +177,7 @@ class LimboResolution {
   /** The remote store for sending writes, watches, etc. to the backend. */
   RemoteStore *_remoteStore;
 
-  /** The callback to sync engine events like incoming snapshots, errors, and online state change.
+  /** A callback to be notified when queries being listened to produce new view snapshots or errors.
    */
   SyncEngineCallback *_callback;
 

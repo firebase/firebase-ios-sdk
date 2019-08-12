@@ -38,6 +38,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
@@ -76,7 +77,7 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
-  EventManager eventManager = EventManager(syncEngineMock);
+  EventManager eventManager(syncEngineMock);
 
   OCMExpect([syncEngineMock listenToQuery:query]);
   eventManager.AddQueryListener(listener1);
@@ -96,7 +97,7 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
-  EventManager eventManager = EventManager(syncEngineMock);
+  EventManager eventManager(syncEngineMock);
 
   eventManager.RemoveQueryListener(listener);
   OCMVerifyAll((id)syncEngineMock);
@@ -125,7 +126,7 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
       query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener3"]; });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
-  EventManager eventManager = EventManager(syncEngineMock);
+  EventManager eventManager(syncEngineMock);
 
   eventManager.AddQueryListener(listener1);
   eventManager.AddQueryListener(listener2);
@@ -162,7 +163,7 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setCallback:static_cast<SyncEngineCallback *>([OCMArg anyPointer])]);
-  EventManager eventManager = EventManager(syncEngineMock);
+  EventManager eventManager(syncEngineMock);
 
   eventManager.AddQueryListener(fake_listener);
   XC_ASSERT_THAT(fake_listener->events, ElementsAre(OnlineState::Unknown));
