@@ -57,7 +57,8 @@ class EventManager : public SyncEngineCallback {
   model::TargetId AddQueryListener(
       std::shared_ptr<core::QueryListener> listener);
 
-  /** Removes a previously added listener. It's a no-op if the listener is not found. */
+  /** Removes a previously added listener. It's a no-op if the listener is not
+   * found. */
   void RemoveQueryListener(std::shared_ptr<core::QueryListener> listener);
 
   // Implements `SyncEngineCallback`.

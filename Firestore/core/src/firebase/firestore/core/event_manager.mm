@@ -55,7 +55,7 @@ void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const Query& query = listener->query();
   bool last_listen = false;
-    
+
   auto found_iter = queries_.find(query);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
