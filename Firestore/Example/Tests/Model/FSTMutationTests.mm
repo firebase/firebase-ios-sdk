@@ -239,52 +239,6 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
-// NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
-// unit tests for it currently. We could consider removing this test once we have integration tests.
-- (void)testCreateArrayUnionTransform {
-  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
-    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
-    @"bar.baz" :
-        [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
-  });
-  XCTAssertEqual(transform.field_transforms().size(), 2);
-
-  const FieldTransform &first = transform.field_transforms()[0];
-  XCTAssertEqual(first.path(), FieldPath({"foo"}));
-  {
-    std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
-    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
-  }
-
-  const FieldTransform &second = transform.field_transforms()[1];
-  XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
-  {
-    std::vector<FieldValue> expectedElements {
-      FSTTestFieldValue(@YES), FSTTestFieldValue(@{@"nested" : @{@"a" : @[ @1, @2 ]}})
-    };
-    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
-  }
-}
-
-// NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
-// unit tests for it currently. We could consider removing this test once we have integration tests.
-- (void)testCreateArrayRemoveTransform {
-  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
-    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
-  });
-  XCTAssertEqual(transform.field_transforms().size(), 1);
-
-  const FieldTransform &first = transform.field_transforms()[0];
-  XCTAssertEqual(first.path(), FieldPath({"foo"}));
-  {
-    std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
-    const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
-  }
-}
-
 - (void)testAppliesLocalArrayUnionTransformToMissingField {
   auto baseDoc = Map();
   auto transform = @{@"missing" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]};
