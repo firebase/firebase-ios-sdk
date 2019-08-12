@@ -157,7 +157,7 @@ public extension CarthageUtils {
       }
 
       // Join all the lines with a comma and newline to make things easier to read.
-      let contents = "{\n" + manifestLines.joined(separator: ",\n") + "}\n"
+      let contents = "{\n" + manifestLines.joined(separator: ",\n") + "\n}\n"
       guard let encodedManifest = contents.data(using: .utf8) else {
         fatalError("Could not encode Carthage JSON manifest for \(product) - UTF8 encoding failed.")
       }
