@@ -57,17 +57,11 @@ std::ostream& operator<<(std::ostream& os, DocumentState state);
  */
 class Document : public MaybeDocument {
  public:
-  /**
-   * Constructs a document.
-   */
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
            DocumentState document_state);
 
-  /**
-   * Constructs a document.
-   */
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,

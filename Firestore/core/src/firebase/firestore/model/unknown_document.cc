@@ -35,11 +35,11 @@ class UnknownDocument::Rep : public MaybeDocument::Rep {
 
   bool has_pending_writes() const override {
     // Unknown documents can only exist because of a logical inconsistency
-    // between the server successfully committing a mutation that our local
-    // cache believes should not apply. We record UnknownDocuments to prevent
-    // flicker after the committed mutation is removed from the queue. If we
-    // ever read an UnknownDocument back, this means the cache entry for that
-    // document must be dirty.
+    // between the server successfully committing a mutation and our local
+    // cache believing it should not apply. We record UnknownDocuments to
+    // prevent flicker after the committed mutation is removed from the queue.
+    // If we ever read an UnknownDocument back, this means the cache entry for
+    // that document must be dirty.
     return true;
   }
 
