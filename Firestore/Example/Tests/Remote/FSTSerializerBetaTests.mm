@@ -57,6 +57,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -86,6 +87,8 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformMutation;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
@@ -94,6 +97,7 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
+using testutil::Bytes;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
@@ -840,7 +844,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
                                             snapshotVersion:SnapshotVersion::None()
-                                                resumeToken:FSTTestData(1, 2, 3, -1)];
+                                                resumeToken:testutil::Bytes(1, 2, 3)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -850,7 +854,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expected.query.structuredQuery.orderByArray
       addObject:[GCFSStructuredQuery_Order messageWithProperty:kDocumentKeyPath ascending:YES]];
   expected.targetId = 1;
-  expected.resumeToken = FSTTestData(1, 2, 3, -1);
+  expected.resumeToken = MakeNSData(testutil::Bytes(1, 2, 3));
 
   [self assertRoundTripForQueryData:model proto:expected];
 }
@@ -861,7 +865,7 @@ NS_ASSUME_NONNULL_BEGIN
                         listenSequenceNumber:0
                                      purpose:FSTQueryPurposeListen
                              snapshotVersion:SnapshotVersion::None()
-                                 resumeToken:[NSData data]];
+                                 resumeToken:ByteString()];
 }
 
 - (void)assertRoundTripForQueryData:(FSTQueryData *)queryData proto:(GCFSTarget *)proto {
@@ -894,14 +898,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsTargetChangeWithRemoved {
   WatchTargetChange expected{WatchTargetChangeState::Removed,
                              {1, 4},
-                             FSTTestData(0, 1, 2, -1),
+                             Bytes(0, 1, 2),
                              Status{Error::PermissionDenied, "Error message"}};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;
   listenResponse.targetChange.cause.code = FIRFirestoreErrorCodePermissionDenied;
   listenResponse.targetChange.cause.message = @"Error message";
-  listenResponse.targetChange.resumeToken = FSTTestData(0, 1, 2, -1);
+  listenResponse.targetChange.resumeToken = MakeNSData(Bytes(0, 1, 2));
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 

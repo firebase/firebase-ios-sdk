@@ -176,10 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)updateTargetInTransaction:(FSTQueryData *)queryData {
-  NSData *token = [@"hello" dataUsingEncoding:NSUTF8StringEncoding];
   FSTQueryData *updated =
       [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
-                                         resumeToken:token
+                                         resumeToken:testutil::ResumeToken(7)
                                       sequenceNumber:_persistence.currentSequenceNumber];
   _queryCache->UpdateTarget(updated);
 }

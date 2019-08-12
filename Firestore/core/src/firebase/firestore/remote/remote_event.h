@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 @class FSTQueryData;
@@ -84,7 +85,7 @@ class TargetChange {
  public:
   TargetChange() = default;
 
-  TargetChange(NSData* resume_token,
+  TargetChange(nanopb::ByteString resume_token,
                bool current,
                model::DocumentKeySet added_documents,
                model::DocumentKeySet modified_documents,
@@ -102,7 +103,7 @@ class TargetChange {
    * query. The resume token essentially identifies a point in time from which
    * the server should resume sending results.
    */
-  NSData* resume_token() const {
+  const nanopb::ByteString& resume_token() const {
     return resume_token_;
   }
 
@@ -140,7 +141,7 @@ class TargetChange {
   }
 
  private:
-  NSData* resume_token_ = nil;
+  nanopb::ByteString resume_token_;
   bool current_ = false;
   model::DocumentKeySet added_documents_;
   model::DocumentKeySet modified_documents_;
@@ -167,7 +168,7 @@ class TargetState {
   }
 
   /** The last resume token sent to us for this target. */
-  NSData* resume_token() const {
+  const nanopb::ByteString& resume_token() const {
     return resume_token_;
   }
 
@@ -185,7 +186,7 @@ class TargetState {
    * Applies the resume token to the `TargetChange`, but only when it has a new
    * value. Empty resume tokens are discarded.
    */
-  void UpdateResumeToken(NSData* resume_token);
+  void UpdateResumeToken(nanopb::ByteString resume_token);
 
   /**
    * Creates a target change from the current set of changes.
@@ -223,7 +224,7 @@ class TargetState {
                      model::DocumentKeyHash>
       document_changes_;
 
-  NSData* resume_token_;
+  nanopb::ByteString resume_token_;
 
   bool current_ = false;
 

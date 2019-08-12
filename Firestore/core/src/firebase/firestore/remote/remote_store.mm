@@ -37,6 +37,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::kBatchIdUnknown;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -281,9 +282,9 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // view of these when applying the completed `RemoteEvent`.
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
-    NSData* resumeToken = target_change.resume_token();
+    const ByteString& resumeToken = target_change.resume_token();
 
-    if (resumeToken.length > 0) {
+    if (resumeToken.size() > 0) {
       TargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
       FSTQueryData* query_data =

@@ -26,9 +26,9 @@ cc_library(
     document_key.h
     document_key_set.h
     document_map.h
-    document_map.mm
+    document_map.cc
     document_set.h
-    document_set.mm
+    document_set.cc
     field_mask.cc
     field_mask.h
     field_path.cc

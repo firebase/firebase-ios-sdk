@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -61,6 +62,8 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::UnknownDocument;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Query;
 using firebase::firestore::testutil::Version;
@@ -199,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("room");
   TargetId targetID = 42;
   SnapshotVersion version = Version(1039);
-  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);
+  ByteString resumeToken = testutil::ResumeToken(1039);
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:targetID
@@ -215,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
   expected.targetId = targetID;
   expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
-  expected.resumeToken = [resumeToken copy];
+  expected.resumeToken = MakeNSData(resumeToken);
   expected.query.parent = queryTarget.parent;
   expected.query.structuredQuery = queryTarget.structuredQuery;
 

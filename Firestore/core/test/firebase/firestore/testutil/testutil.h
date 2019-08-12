@@ -66,6 +66,11 @@ constexpr const char* kDeleteSentinel = "<DELETE>";
 
 // Convenience methods for creating instances for tests.
 
+template <typename... Ints>
+nanopb::ByteString Bytes(Ints... octets) {
+  return nanopb::ByteString{static_cast<uint8_t>(octets)...};
+}
+
 inline model::FieldValue Value(std::nullptr_t) {
   return model::FieldValue::Null();
 }

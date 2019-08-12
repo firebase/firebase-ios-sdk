@@ -43,6 +43,7 @@ using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -89,8 +90,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
 std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
                                                     std::vector<TargetId> target_ids,
-                                                    NSData *token) {
-  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids), token);
+                                                    ByteString token) {
+  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids), std::move(token));
 }
 
 }  // namespace
@@ -99,13 +100,13 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 @end
 
 @implementation FSTRemoteEventTests {
-  NSData *_resumeToken1;
+  ByteString _resumeToken1;
   TestTargetMetadataProvider _targetMetadataProvider;
   std::unordered_map<TargetId, int> _noOutstandingResponses;
 }
 
 - (void)setUp {
-  _resumeToken1 = [@"resume1" dataUsingEncoding:NSUTF8StringEncoding];
+  _resumeToken1 = testutil::ResumeToken(7);
 }
 
 /**
@@ -397,8 +398,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   XCTAssertEqual(event.target_changes().size(), 1);
 
   // Reset mapping is empty
-  TargetChange expectedChange{
-      [NSData data], false, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
+  TargetChange expectedChange{ByteString(), false, DocumentKeySet{}, DocumentKeySet{},
+                              DocumentKeySet{}};
   XCTAssertTrue(event.target_changes().at(1) == expectedChange);
 }
 
@@ -557,10 +558,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   event = aggregator.CreateRemoteEvent(testutil::Version(4));
 
-  TargetChange targetChange3{[NSData data],
-                             false,
-                             DocumentKeySet{},
-                             DocumentKeySet{},
+  TargetChange targetChange3{ByteString(), false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{doc1.key(), doc2.key()}};
   XCTAssertTrue(event.target_changes().at(1) == targetChange3);
 
@@ -598,8 +596,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   XCTAssertEqual(event.target_changes().size(), 1);
 
-  TargetChange targetChange1{
-      [NSData data], false, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
+  TargetChange targetChange1{ByteString(), false, DocumentKeySet{}, DocumentKeySet{},
+                             DocumentKeySet{}};
   XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 }
 
@@ -668,7 +666,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change1);
 
-  NSData *resumeToken2 = [@"resume2" dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken2 = testutil::ResumeToken(7);
   WatchTargetChange change2{WatchTargetChangeState::Current, {2}, resumeToken2};
   aggregator.HandleTargetChange(change2);
 
@@ -695,11 +693,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change1);
 
-  NSData *resumeToken2 = [@"resume2" dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken2 = testutil::ResumeToken(2);
   WatchTargetChange change2{WatchTargetChangeState::NoChange, {1}, resumeToken2};
   aggregator.HandleTargetChange(change2);
 
-  NSData *resumeToken3 = [@"resume3" dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken3 = testutil::ResumeToken(3);
   WatchTargetChange change3{WatchTargetChangeState::NoChange, {2}, resumeToken3};
   aggregator.HandleTargetChange(change3);
 

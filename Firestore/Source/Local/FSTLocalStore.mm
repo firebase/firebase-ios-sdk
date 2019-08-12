@@ -80,6 +80,7 @@ using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 
@@ -292,8 +293,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
-      NSData *resumeToken = change.resume_token();
-      if (resumeToken.length > 0) {
+      const ByteString &resumeToken = change.resume_token();
+      if (!resumeToken.empty()) {
         FSTQueryData *oldQueryData = queryData;
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshot_version()
                                                        resumeToken:resumeToken
@@ -381,10 +382,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                   oldQueryData:(FSTQueryData *)oldQueryData
                         change:(const TargetChange &)change {
   // Avoid clearing any existing value
-  if (newQueryData.resumeToken.length == 0) return NO;
+  if (newQueryData.resumeToken.empty()) return NO;
 
   // Any resume token is interesting if there isn't one already.
-  if (oldQueryData.resumeToken.length == 0) return YES;
+  if (oldQueryData.resumeToken.empty()) return YES;
 
   // Don't allow resume token changes to be buffered indefinitely. This allows us to be reasonably
   // up-to-date after a crash and avoids needing to loop over all active queries on shutdown.

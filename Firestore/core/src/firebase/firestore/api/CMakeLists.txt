@@ -40,9 +40,13 @@ cc_library(
   firebase_firestore_api
   SOURCES
     collection_reference.h
-    collection_reference.mm
+    collection_reference.cc
+    document_change.cc
+    document_snapshot.cc
     query_core.h
     query_core.mm
+    query_snapshot.cc
+    query_snapshot.h
     settings.cc
     settings.h
     snapshot_metadata.cc
