@@ -21,6 +21,8 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -29,6 +31,7 @@ namespace firestore {
 namespace model {
 namespace {
 
+using testutil::Array;
 using testutil::DeletedDoc;
 using testutil::DeleteMutation;
 using testutil::Doc;
@@ -37,6 +40,10 @@ using testutil::Map;
 using testutil::MutationResult;
 using testutil::PatchMutation;
 using testutil::SetMutation;
+using testutil::TransformMutation;
+using testutil::Value;
+using testutil::Version;
+using testutil::WrapObject;
 
 const Timestamp now = Timestamp::Now();
 
@@ -68,7 +75,7 @@ TEST(MutationTest, AppliesPatchToDocuments) {
                 DocumentState::kLocalMutations));
 }
 
-TEST(MutationTest, AppliesPatchWithMergeToDocuments) {
+TEST(MutationTest, AppliesPatchWithMergeToNoDocuments) {
   NoDocument base_doc = DeletedDoc("collection/key", 0);
 
   Mutation upsert = PatchMutation(
@@ -80,7 +87,7 @@ TEST(MutationTest, AppliesPatchWithMergeToDocuments) {
                 DocumentState::kLocalMutations));
 }
 
-TEST(MutationTest, AppliesPatchToNullDocWithMergeToDocuments) {
+TEST(MutationTest, AppliesPatchWithMergeToNullDocuments) {
   absl::optional<MaybeDocument> base_doc;
 
   Mutation upsert = PatchMutation(
@@ -128,98 +135,325 @@ TEST(MutationTest, PatchingDeletedDocumentsDoesNothing) {
   EXPECT_EQ(result, base_doc);
 }
 
-TEST(MutationTest, AppliesLocalServerTimestampTransformsToDocuments) {
-  // TODO(rsgowman)
+TEST(MutationTest, AppliesLocalServerTimestampTransformToDocuments) {
+  Document base_doc =
+      Doc("collection/key", 0,
+          Map("foo", Map("bar", "bar-value"), "baz", "baz-value"));
+
+  Mutation transform = TransformMutation(
+      "collection/key", {{"foo.bar", ServerTimestampTransform()}});
+  auto result = transform.ApplyToLocalView(base_doc, base_doc, now);
+
+  // Server timestamps aren't parsed, so we manually insert it.
+  ObjectValue expected_data =
+      WrapObject("foo", Map("bar", "<server-timestamp>"), "baz", "baz-value");
+  expected_data =
+      expected_data.Set(Field("foo.bar"), FieldValue::FromServerTimestamp(now));
+
+  Document expected_doc =
+      Doc("collection/key", 0, expected_data, DocumentState::kLocalMutations);
+
+  EXPECT_EQ(result, expected_doc);
 }
 
+namespace {
+
+using TransformPairs = std::vector<std::pair<std::string, TransformOperation>>;
+
+// Helper to test a particular transform scenario.
+void TransformBaseDoc(const FieldValue::Map& base_data,
+                      TransformPairs transforms,
+                      const FieldValue::Map& expected_data) {
+  Document current_doc = Doc("collection/key", 0, base_data);
+
+  for (auto transform : transforms) {
+    Mutation mutation = TransformMutation("collection/key", {transform});
+    auto result = mutation.ApplyToLocalView(current_doc, current_doc, now);
+    ASSERT_NE(result, absl::nullopt);
+    ASSERT_EQ(result->type(), MaybeDocument::Type::Document);
+    current_doc = Document(*result);
+  }
+
+  Document expected_doc =
+      Doc("collection/key", 0, expected_data, DocumentState::kLocalMutations);
+
+  EXPECT_EQ(current_doc, expected_doc);
+}
+
+TransformOperation Increment(int value) {
+  return NumericIncrementTransform(Value(value));
+}
+
+TransformOperation Increment(long value) {
+  return NumericIncrementTransform(Value(value));
+}
+
+TransformOperation Increment(double value) {
+  return NumericIncrementTransform(Value(value));
+}
+
+template <typename... Args>
+TransformOperation ArrayUnion(Args... args) {
+  std::vector<FieldValue> values = {Value(args)...};
+  return ArrayTransform(TransformOperation::Type::ArrayUnion,
+                        std::move(values));
+}
+
+template <typename... Args>
+TransformOperation ArrayRemove(Args... args) {
+  std::vector<FieldValue> values = {Value(args)...};
+  return ArrayTransform(TransformOperation::Type::ArrayRemove,
+                        std::move(values));
+}
+
+/**
+ * Converts the input arguments to a vector of FieldValues wrapping the input
+ * types.
+ */
+template <typename... Args>
+static std::vector<FieldValue> FieldValueVector(Args... values) {
+  return Array(values...).array_value();
+}
+
+}  // namespace
+
 TEST(MutationTest, AppliesIncrementTransformToDocument) {
-  // TODO(rsgowman)
+  auto base_data =
+      Map("long_plus_long", 1, "long_plus_double", 2, "double_plus_long", 3.3,
+          "double_plus_double", 4.0, "long_plus_nan", 5, "double_plus_nan", 6.6,
+          "long_plus_infinity", 7, "double_plus_infinity", 8.8);
+  TransformPairs transforms = {
+      {"long_plus_long", Increment(1)},
+      {"long_plus_double", Increment(2.2)},
+      {"double_plus_long", Increment(3)},
+      {"double_plus_double", Increment(4.4)},
+      {"long_plus_nan", Increment(NAN)},
+      {"double_plus_nan", Increment(NAN)},
+      {"long_plus_infinity", Increment(INFINITY)},
+      {"double_plus_infinity", Increment(INFINITY)},
+  };
+  auto expected = Map(
+      "long_plus_long", 2L, "long_plus_double", 4.2, "double_plus_long", 6.3,
+      "double_plus_double", 8.4, "long_plus_nan", NAN, "double_plus_nan", NAN,
+      "long_plus_infinity", INFINITY, "double_plus_infinity", INFINITY);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesIncrementTransformToUnexpectedType) {
-  // TODO(rsgowman)
+  auto base_data = Map("string", "zero");
+  TransformPairs transforms = {
+      {"string", Increment(1)},
+  };
+  auto expected = Map("string", 1);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesIncrementTransformToMissingField) {
-  // TODO(rsgowman)
+  auto base_data = Map();
+  TransformPairs transforms = {
+      {"missing", Increment(1)},
+  };
+  auto expected = Map("missing", 1);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesIncrementTransformsConsecutively) {
-  // TODO(rsgowman)
+  auto base_data = Map("number", 1);
+  TransformPairs transforms = {
+      {"number", Increment(2)},
+      {"number", Increment(3)},
+      {"number", Increment(4)},
+  };
+  auto expected = Map("number", 10);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesIncrementWithoutOverflow) {
-  // TODO(rsgowman)
+  auto base_data =
+      Map("a", LONG_MAX - 1, "b", LONG_MAX - 1, "c", LONG_MAX, "d", LONG_MAX);
+  TransformPairs transforms = {
+      {"a", Increment(1)},
+      {"b", Increment(LONG_MAX)},
+      {"c", Increment(1)},
+      {"d", Increment(LONG_MAX)},
+  };
+  auto expected =
+      Map("a", LONG_MAX, "b", LONG_MAX, "c", LONG_MAX, "d", LONG_MAX);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesIncrementWithoutUnderflow) {
-  // TODO(rsgowman)
-}
-
-TEST(MutationTest, CreatesArrayUnionTransform) {
-  // TODO(rsgowman)
+  auto base_data =
+      Map("a", LONG_MIN + 1, "b", LONG_MIN + 1, "c", LONG_MIN, "d", LONG_MIN);
+  TransformPairs transforms = {
+      {"a", Increment(-1)},
+      {"b", Increment(LONG_MIN)},
+      {"c", Increment(-1)},
+      {"d", Increment(LONG_MIN)},
+  };
+  auto expected =
+      Map("a", LONG_MIN, "b", LONG_MIN, "c", LONG_MIN, "d", LONG_MIN);
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformToMissingField) {
-  // TODO(rsgowman)
+  auto base_data = Map();
+  TransformPairs transforms = {{"missing", ArrayUnion(1, 2)}};
+  auto expected = Map("missing", Array(1, 2));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformToNonArrayField) {
-  // TODO(rsgowman)
+  auto base_data = Map("non-array", 42);
+  TransformPairs transforms = {{"non-array", ArrayUnion(1, 2)}};
+  auto expected = Map("non-array", Array(1, 2));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithNonExistingElements) {
-  // TODO(rsgowman)
+  auto base_data = Map("array", Array(1, 3));
+  TransformPairs transforms = {{"array", ArrayUnion(2, 4)}};
+  auto expected = Map("array", Array(1, 3, 2, 4));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElements) {
-  // TODO(rsgowman)
+  auto base_data = Map("array", Array(1, 3));
+  TransformPairs transforms = {{"array", ArrayUnion(1, 3)}};
+  auto expected = Map("array", Array(1, 3));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest,
      AppliesLocalArrayUnionTransformWithDuplicateExistingElements) {
-  // TODO(rsgowman)
+  // Duplicate entries in your existing array should be preserved.
+  auto base_data = Map("array", Array(1, 2, 2, 3));
+  TransformPairs transforms = {{"array", ArrayUnion(2)}};
+  auto expected = Map("array", Array(1, 2, 2, 3));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
-  // TODO(rsgowman)
+  // Duplicate entries in your union array should only be added once.
+  auto base_data = Map("array", Array(1, 3));
+  TransformPairs transforms = {{"array", ArrayUnion(2, 2)}};
+  auto expected = Map("array", Array(1, 3, 2));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithNonPrimitiveElements) {
-  // TODO(rsgowman)
+  // Union nested object values (one existing, one not).
+  auto base_data = Map("array", Array(1, Map("a", "b")));
+  TransformPairs transforms = {
+      {"array", ArrayUnion(WrapObject("a", "b"), WrapObject("c", "d"))}};
+  auto expected = Map("array", Array(1, Map("a", "b"), Map("c", "d")));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest,
      AppliesLocalArrayUnionTransformWithPartiallyOverlappingElements) {
-  // TODO(rsgowman)
+  // Union objects that partially overlap an existing object.
+  auto base_data = Map("array", Array(1, Map("a", "b", "c", "d")));
+  TransformPairs transforms = {
+      {"array", ArrayUnion(WrapObject("a", "b"), WrapObject("c", "d"))}};
+  auto expected = Map(
+      "array", Array(1, Map("a", "b", "c", "d"), Map("a", "b"), Map("c", "d")));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformToMissingField) {
-  // TODO(rsgowman)
+  auto base_data = Map();
+  TransformPairs transforms = {{"missing", ArrayRemove(1, 2)}};
+  auto expected = Map("missing", Array());
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformToNonArrayField) {
-  // TODO(rsgowman)
+  auto base_data = Map("non-array", 42);
+  TransformPairs transforms = {{"non-array", ArrayRemove(1, 2)}};
+  auto expected = Map("non-array", Array());
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithNonExistingElements) {
-  // TODO(rsgowman)
+  auto base_data = Map("array", Array(1, 3));
+  TransformPairs transforms = {{"array", ArrayRemove(2, 4)}};
+  auto expected = Map("array", Array(1, 3));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithExistingElements) {
-  // TODO(rsgowman)
+  auto base_data = Map("array", Array(1, 2, 3, 4));
+  TransformPairs transforms = {{"array", ArrayRemove(1, 3)}};
+  auto expected = Map("array", Array(2, 4));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithNonPrimitiveElements) {
-  // TODO(rsgowman)
+  // Remove nested object values (one existing, one not).
+  auto base_data = Map("array", Array(1, Map("a", "b")));
+  TransformPairs transforms = {
+      {"array", ArrayRemove(WrapObject("a", "b"), WrapObject("c", "d"))}};
+  auto expected = Map("array", Array(1));
+  TransformBaseDoc(base_data, transforms, expected);
 }
 
-TEST(MutationTest, AppliesServerAckedServerTimestampTransformsToDocuments) {
-  // TODO(rsgowman)
+TEST(MutationTest, AppliesServerAckedIncrementTransformToDocuments) {
+  Document base_doc = Doc("collection/key", 0, Map("sum", 1));
+
+  Mutation transform =
+      TransformMutation("collection/key", {{"sum", Increment(2)}});
+
+  model::MutationResult mutation_result(Version(1), FieldValueVector(3));
+
+  MaybeDocument result =
+      transform.ApplyToRemoteDocument(base_doc, mutation_result);
+
+  EXPECT_EQ(result, Doc("collection/key", 1, Map("sum", 3),
+                        DocumentState::kCommittedMutations));
+}
+
+TEST(MutationTest, AppliesServerAckedServerTimestampTransformToDocuments) {
+  Document base_doc =
+      Doc("collection/key", 0,
+          Map("foo", Map("bar", "bar-value"), "baz", "baz-value"));
+
+  Mutation transform = TransformMutation(
+      "collection/key", {{"foo.bar", ServerTimestampTransform()}});
+
+  model::MutationResult mutation_result(Version(1), FieldValueVector(now));
+
+  MaybeDocument result =
+      transform.ApplyToRemoteDocument(base_doc, mutation_result);
+
+  Document expected_doc =
+      Doc("collection/key", 1, Map("foo", Map("bar", now), "baz", "baz-value"),
+          DocumentState::kCommittedMutations);
+
+  EXPECT_EQ(result, expected_doc);
 }
 
 TEST(MutationTest, AppliesServerAckedArrayTransformsToDocuments) {
-  // TODO(rsgowman)
+  Document base_doc =
+      Doc("collection/key", 0,
+          Map("array_1", Array(1, 2), "array_2", Array("a", "b")));
+
+  Mutation transform = TransformMutation("collection/key",
+                                         {
+                                             {"array_1", ArrayUnion(2, 3)},
+                                             {"array_2", ArrayRemove("a", "c")},
+                                         });
+
+  // Server just sends null transform results for array operations.
+  model::MutationResult mutation_result(Version(1),
+                                        FieldValueVector(nullptr, nullptr));
+
+  MaybeDocument result =
+      transform.ApplyToRemoteDocument(base_doc, mutation_result);
+
+  EXPECT_EQ(result, Doc("collection/key", 1,
+                        Map("array_1", Array(1, 2, 3), "array_2", Array("b")),
+                        DocumentState::kCommittedMutations));
 }
 
 TEST(MutationTest, DeleteDeletes) {

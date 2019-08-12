@@ -49,6 +49,13 @@
 
 namespace firebase {
 namespace firestore {
+namespace model {
+
+class TransformMutation;
+class TransformOperation;
+
+}  // namespace model
+
 namespace testutil {
 
 /**
@@ -402,6 +409,10 @@ model::PatchMutation PatchMutation(
     absl::string_view path,
     model::FieldValue::Map values = model::FieldValue::Map(),
     std::vector<model::FieldPath> update_mask = {});
+
+model::TransformMutation TransformMutation(
+    absl::string_view path,
+    std::vector<std::pair<std::string, model::TransformOperation>> transforms);
 
 inline model::DeleteMutation DeleteMutation(absl::string_view path) {
   return model::DeleteMutation(Key(path), model::Precondition::None());
