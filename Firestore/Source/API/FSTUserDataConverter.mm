@@ -350,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
   } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-    context.AddToFieldTransforms(*context.path(), ServerTimestampTransform::Get());
+    context.AddToFieldTransforms(*context.path(), ServerTimestampTransform());
 
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
     std::vector<FieldValue> parsedElements =

@@ -94,11 +94,6 @@ ServerTimestampTransform::ServerTimestampTransform()
     : TransformOperation(std::make_shared<const Rep>()) {
 }
 
-const ServerTimestampTransform& ServerTimestampTransform::Get() {
-  static ServerTimestampTransform shared_instance;
-  return shared_instance;
-}
-
 // MARK: - ArrayTransform
 
 /**

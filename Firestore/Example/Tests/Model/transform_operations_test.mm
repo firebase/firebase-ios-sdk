@@ -29,10 +29,10 @@ using testutil::Value;
 using Type = TransformOperation::Type;
 
 TEST(TransformOperationsTest, ServerTimestamp) {
-  ServerTimestampTransform transform = ServerTimestampTransform::Get();
+  ServerTimestampTransform transform;
   EXPECT_EQ(Type::ServerTimestamp, transform.type());
 
-  ServerTimestampTransform another = ServerTimestampTransform::Get();
+  ServerTimestampTransform another;
   NumericIncrementTransform other(Value(1));
   EXPECT_EQ(transform, another);
   EXPECT_NE(transform, other);

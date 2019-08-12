@@ -143,12 +143,10 @@ class TransformOperation {
 /** Transforms a value into a server-generated timestamp. */
 class ServerTimestampTransform : public TransformOperation {
  public:
-  static const ServerTimestampTransform& Get();
+  ServerTimestampTransform();
 
  private:
   class Rep;
-
-  ServerTimestampTransform();
 };
 
 /**

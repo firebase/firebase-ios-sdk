@@ -685,7 +685,7 @@ absl::any Wrap(GCFSDocument *doc) {
             proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
             "Unknown transform setToServerValue: %s", proto.setToServerValue);
         fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-                                     ServerTimestampTransform::Get());
+                                     ServerTimestampTransform());
         break;
       }
 
