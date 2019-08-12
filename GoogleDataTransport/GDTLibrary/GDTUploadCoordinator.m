@@ -208,11 +208,10 @@ static NSString *const ktargetToInFlightPackagesKey =
 #pragma mark - GDTUploadPackageProtocol
 
 - (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
-  dispatch_queue_t coordinationQueue = _coordinationQueue;
   if (!_coordinationQueue) {
     return;
   }
-  dispatch_async(coordinationQueue, ^{
+  dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
     NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages =
         self->_targetToInFlightPackages;
@@ -235,11 +234,10 @@ static NSString *const ktargetToInFlightPackagesKey =
 }
 
 - (void)packageExpired:(GDTUploadPackage *)package {
-  dispatch_queue_t coordinationQueue = _coordinationQueue;
   if (!_coordinationQueue) {
     return;
   }
-  dispatch_async(coordinationQueue, ^{
+  dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
     NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages =
         self->_targetToInFlightPackages;

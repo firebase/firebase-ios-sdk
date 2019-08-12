@@ -258,12 +258,11 @@ static NSString *const kGDTStorageUploadCoordinatorKey = @"GDTStorageUploadCoord
     NSMutableDictionary<NSNumber *, NSMutableSet<GDTStoredEvent *> *> *targetToEventSet =
         sharedInstance->_targetToEventSet;
     if (targetToEventSet) {
-      [aCoder encodeObject:sharedInstance->_targetToEventSet forKey:kGDTStorageTargetToEventSetKey];
+      [aCoder encodeObject:targetToEventSet forKey:kGDTStorageTargetToEventSetKey];
     }
     GDTUploadCoordinator *uploadCoordinator = sharedInstance->_uploadCoordinator;
     if (uploadCoordinator) {
-      [aCoder encodeObject:sharedInstance->_uploadCoordinator
-                    forKey:kGDTStorageUploadCoordinatorKey];
+      [aCoder encodeObject:uploadCoordinator forKey:kGDTStorageUploadCoordinatorKey];
     }
   });
 }
