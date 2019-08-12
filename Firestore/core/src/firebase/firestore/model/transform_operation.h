@@ -55,9 +55,8 @@ class TransformOperation {
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  FieldValue ApplyToLocalView(
-      const absl::optional<FieldValue>& previous_value,
-      const Timestamp& local_write_time) const {
+  FieldValue ApplyToLocalView(const absl::optional<FieldValue>& previous_value,
+                              const Timestamp& local_write_time) const {
     return rep_->ApplyToLocalView(previous_value, local_write_time);
   }
 
@@ -164,8 +163,7 @@ class ArrayTransform : public TransformOperation {
 
   ArrayTransform() = default;
 
-  static const std::vector<FieldValue>& Elements(
-      const TransformOperation& op);
+  static const std::vector<FieldValue>& Elements(const TransformOperation& op);
 
  private:
   class Rep;
