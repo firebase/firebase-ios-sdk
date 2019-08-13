@@ -51,8 +51,20 @@
 /** Tests encoding and decoding a clock using a keyed archiver. */
 - (void)testEncoding {
   GDTClock *clock = [GDTClock snapshot];
-  NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
-  GDTClock *unarchivedClock = [NSKeyedUnarchiver unarchiveObjectWithData:clockData];
+  GDTClock *unarchivedClock;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock
+                                              requiringSecureCoding:YES
+                                                              error:nil];
+    unarchivedClock = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTClock class]
+                                                        fromData:clockData
+                                                           error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
+    unarchivedClock = [NSKeyedUnarchiver unarchiveObjectWithData:clockData];
+#endif
+  }
   XCTAssertEqual([clock hash], [unarchivedClock hash]);
   XCTAssertEqualObjects(clock, unarchivedClock);
 }
