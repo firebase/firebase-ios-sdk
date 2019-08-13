@@ -334,9 +334,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         changedDocs = changedDocs.insert(key, doc);
       } else if (doc.type() == MaybeDocument::Type::NoDocument &&
                  doc.version() == SnapshotVersion::None()) {
-        // FSTDeletedDocuments with SnapshotVersion.MIN are used in manufactured events (e.g. in
-        // the case of a limbo document resolution failing). We remove these documents from
-        // cache since we lost access.
+        // NoDocuments with SnapshotVersion.MIN are used in manufactured events (e.g. in the case
+        // of a limbo document resolution failing). We remove these documents from cache since we
+        // lost access.
         _remoteDocumentCache->Remove(key);
         changedDocs = changedDocs.insert(key, doc);
       } else {
