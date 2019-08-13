@@ -34,7 +34,7 @@ static BOOL CheckSize(BufferState *state, size_t size) {
 }
 
 static BOOL ReadRawByte(BufferState *state, int8_t *output) {
-  if (!state || !output) {
+  if (state == NULL || output == NULL) {
     FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
   }
   if (CheckSize(state, sizeof(int8_t))) {
@@ -45,7 +45,7 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
 }
 
 static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
-  if (!state || !output) {
+  if (state == NULL || output == NULL) {
     FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
   }
   int8_t tmp = 0;
