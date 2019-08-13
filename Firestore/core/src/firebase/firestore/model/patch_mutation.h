@@ -61,7 +61,7 @@ class PatchMutation : public Mutation {
    */
   explicit PatchMutation(const Mutation& mutation);
 
-  /** Creates an invalid PatchMutation instances. */
+  /** Creates an invalid PatchMutation instance. */
   PatchMutation() = default;
 
   /**

@@ -124,6 +124,19 @@ class MutationResult {
  * or PatchMutation and we only want to apply the transform if the prior
  * mutation resulted in a Document (always true for a SetMutation, but not
  * necessarily for an PatchMutation).
+ *
+ * Note: Mutation and its subclasses are specially designed to avoid slicing.
+ * You can assign a subclass of Mutation to an instance of Mutation and the
+ * full value is preserved, unsliced. Each subclass declares an explicit
+ * constructor that can recover the derived type. This means that code like
+ * this will work:
+ *
+ *     SetMutation set(...);
+ *     Mutation mutation = set;
+ *     SetMutation recovered(mutation);
+ *
+ * The final line results in an explicit check that will fail if the type of
+ * the underlying data is not actually Type::Set.
  */
 class Mutation {
  public:

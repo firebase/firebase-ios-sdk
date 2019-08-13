@@ -31,6 +31,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(Mutation) == sizeof(SetMutation),
+    "SetMutation may not have additional members (everything goes in Rep)");
+
 SetMutation::SetMutation(DocumentKey key,
                          ObjectValue value,
                          Precondition precondition)
@@ -39,6 +43,7 @@ SetMutation::SetMutation(DocumentKey key,
 }
 
 SetMutation::SetMutation(const Mutation& mutation) : Mutation(mutation) {
+  HARD_ASSERT(type() == Type::Set);
 }
 
 SetMutation::Rep::Rep(DocumentKey&& key,
