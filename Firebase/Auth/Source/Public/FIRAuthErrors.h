@@ -299,11 +299,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidClientID = 17060,
 
-    /** Indicates that a network request within a SFSafariViewController or UIWebview failed.
+    /** Indicates that a network request within a SFSafariViewController or WKWebView failed.
      */
     FIRAuthErrorCodeWebNetworkRequestFailed = 17061,
 
-    /** Indicates that an internal error occurred within a SFSafariViewController or UIWebview.
+    /** Indicates that an internal error occurred within a SFSafariViewController or WKWebView.
      */
     FIRAuthErrorCodeWebInternalError = 17062,
 

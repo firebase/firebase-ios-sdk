@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
@@ -39,17 +40,7 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTSyncEngineDelegate
-
-/**
- * A delegate to be notified when the client's online state changes or when the sync engine produces
- * new view snapshots or errors.
- */
-@protocol FSTSyncEngineDelegate
-- (void)handleViewSnapshots:(std::vector<core::ViewSnapshot> &&)viewSnapshots;
-- (void)handleError:(NSError *)error forQuery:(const core::Query &)query;
-- (void)applyChangedOnlineState:(model::OnlineState)onlineState;
-@end
+#pragma mark - SyncEngineCallback
 
 /**
  * SyncEngine is the central controller in the client SDK architecture. It is the glue code
@@ -72,10 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                        remoteStore:(remote::RemoteStore *)remoteStore
                        initialUser:(const auth::User &)user NS_DESIGNATED_INITIALIZER;
 
-/**
- * A delegate to be notified when queries being listened to produce new view snapshots or errors.
- */
-@property(nonatomic, weak) id<FSTSyncEngineDelegate> syncEngineDelegate;
+- (void)setCallback:(core::SyncEngineCallback *)callback;
 
 /**
  * Initiates a new listen. The FSTLocalStore will be queried for initial data and the listen will
