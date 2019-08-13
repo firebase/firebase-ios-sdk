@@ -51,6 +51,7 @@ using core::EventListener;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::Document;
 using model::DocumentKey;
 using model::Precondition;
 using model::ResourcePath;
@@ -214,7 +215,8 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
       ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
       HARD_ASSERT(snapshot.documents().size() <= 1,
                   "Too many documents returned on a document query");
-      FSTDocument* document = snapshot.documents().GetDocument(key_);
+      absl::optional<Document> document =
+          snapshot.documents().GetDocument(key_);
 
       bool has_pending_writes =
           document ? snapshot.mutated_keys().contains(key_)

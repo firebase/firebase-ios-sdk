@@ -26,7 +26,6 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -51,6 +50,7 @@ using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
@@ -60,7 +60,9 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
+using testutil::Key;
 using testutil::Query;
+using testutil::Version;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -223,8 +225,8 @@ NS_ASSUME_NONNULL_BEGIN
  * - added to a target
  * - now has or previously had a pending mutation
  */
-- (FSTDocument *)cacheADocumentInTransaction {
-  FSTDocument *doc = [self nextTestDocument];
+- (Document)cacheADocumentInTransaction {
+  Document doc = [self nextTestDocument];
   _documentCache->Add(doc);
   return doc;
 }
@@ -236,19 +238,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentKey)nextTestDocKey {
-  return testutil::Key("docs/doc_" + std::to_string(++_previousDocNum));
+  return Key("docs/doc_" + std::to_string(++_previousDocNum));
 }
 
-- (FSTDocument *)nextTestDocumentWithValue:(ObjectValue)value {
+- (Document)nextTestDocumentWithValue:(ObjectValue)value {
   DocumentKey key = [self nextTestDocKey];
   FSTTestSnapshotVersion version = 2;
-  return [FSTDocument documentWithData:value
-                                   key:key
-                               version:testutil::Version(version)
-                                 state:DocumentState::kSynced];
+  return Document(std::move(value), std::move(key), Version(version), DocumentState::kSynced);
 }
 
-- (FSTDocument *)nextTestDocument {
+- (Document)nextTestDocument {
   return [self nextTestDocumentWithValue:_testValue];
 }
 
@@ -361,11 +360,11 @@ NS_ASSUME_NONNULL_BEGIN
   // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
   // Expect 3 past the initial value: the mutations not part of a query, and two queries
   [self newTestResources];
-  FSTDocument *docInQuery = [self nextTestDocument];
+  Document docInQuery = [self nextTestDocument];
   _persistence.run("mark mutations", [&]() {
     // Adding 9 doc keys in a transaction. If we remove one of them, we'll have room for two actual
     // queries.
-    [self markDocumentEligibleForGCInTransaction:docInQuery.key];
+    [self markDocumentEligibleForGCInTransaction:docInQuery.key()];
     for (int i = 0; i < 8; i++) {
       [self markADocumentEligibleForGCInTransaction];
     }
@@ -376,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("query with mutation", [&]() {
     FSTQueryData *queryData = [self addNextQueryInTransaction];
     // This should keep the document from getting GC'd, since it is no longer orphaned.
-    [self addDocument:docInQuery.key toTarget:queryData.targetID];
+    [self addDocument:docInQuery.key() toTarget:queryData.targetID];
   });
 
   // This should catch the remaining 8 documents, plus the first two queries we added.
@@ -426,29 +425,29 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("add a target and add two documents to it", [&]() {
     // Add two documents to first target, queue a mutation on the second document
     FSTQueryData *queryData = [self addNextQueryInTransaction];
-    FSTDocument *doc1 = [self cacheADocumentInTransaction];
-    [self addDocument:doc1.key toTarget:queryData.targetID];
-    expectedRetained.insert(doc1.key);
+    Document doc1 = [self cacheADocumentInTransaction];
+    [self addDocument:doc1.key() toTarget:queryData.targetID];
+    expectedRetained.insert(doc1.key());
 
-    FSTDocument *doc2 = [self cacheADocumentInTransaction];
-    [self addDocument:doc2.key toTarget:queryData.targetID];
-    expectedRetained.insert(doc2.key);
-    mutations.push_back([self mutationForDocument:doc2.key]);
+    Document doc2 = [self cacheADocumentInTransaction];
+    [self addDocument:doc2.key() toTarget:queryData.targetID];
+    expectedRetained.insert(doc2.key());
+    mutations.push_back([self mutationForDocument:doc2.key()]);
   });
 
   // Add a second query and register a third document on it
   _persistence.run("second query", [&]() {
     FSTQueryData *queryData = [self addNextQueryInTransaction];
-    FSTDocument *doc3 = [self cacheADocumentInTransaction];
-    expectedRetained.insert(doc3.key);
-    [self addDocument:doc3.key toTarget:queryData.targetID];
+    Document doc3 = [self cacheADocumentInTransaction];
+    expectedRetained.insert(doc3.key());
+    [self addDocument:doc3.key() toTarget:queryData.targetID];
   });
 
   // cache another document and prepare a mutation on it.
   _persistence.run("queue a mutation", [&]() {
-    FSTDocument *doc4 = [self cacheADocumentInTransaction];
-    mutations.push_back([self mutationForDocument:doc4.key]);
-    expectedRetained.insert(doc4.key);
+    Document doc4 = [self cacheADocumentInTransaction];
+    mutations.push_back([self mutationForDocument:doc4.key()]);
+    expectedRetained.insert(doc4.key());
   });
 
   // Insert the mutations. These operations don't have a sequence number, they just
@@ -464,9 +463,9 @@ NS_ASSUME_NONNULL_BEGIN
   std::unordered_set<DocumentKey, DocumentKeyHash> toBeRemoved;
   _persistence.run("add orphaned docs (previously mutated, then ack'd)", [&]() {
     for (int i = 0; i < 5; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      toBeRemoved.insert(doc.key);
-      [self markDocumentEligibleForGCInTransaction:doc.key];
+      Document doc = [self cacheADocumentInTransaction];
+      toBeRemoved.insert(doc.key());
+      [self markDocumentEligibleForGCInTransaction:doc.key()];
     }
   });
 
@@ -477,11 +476,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(toBeRemoved.size(), removed);
   _persistence.run("verify", [&]() {
     for (const DocumentKey &key : toBeRemoved) {
-      XCTAssertNil(_documentCache->Get(key));
+      XCTAssertEqual(_documentCache->Get(key), absl::nullopt);
       XCTAssertFalse(_queryCache->Contains(key));
     }
     for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotNil(_documentCache->Get(key), @"Missing document %s", key.ToString().c_str());
+      XCTAssertNotEqual(_documentCache->Get(key), absl::nullopt, @"Missing document %s",
+                        key.ToString().c_str());
     }
   });
   [_persistence shutdown];
@@ -524,9 +524,9 @@ NS_ASSUME_NONNULL_BEGIN
       _persistence.run("Add oldest target and docs", [&]() -> FSTQueryData * {
         FSTQueryData *queryData = [self addNextQueryInTransaction];
         for (int i = 0; i < 5; i++) {
-          FSTDocument *doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toTarget:queryData.targetID];
+          Document doc = [self cacheADocumentInTransaction];
+          expectedRetained.insert(doc.key());
+          [self addDocument:doc.key() toTarget:queryData.targetID];
         }
         return queryData;
       });
@@ -543,24 +543,24 @@ NS_ASSUME_NONNULL_BEGIN
         // to their sequence numbers. Since they will not be a part of the target, we
         // expect them to be removed.
         for (int i = 0; i < 2; i++) {
-          FSTDocument *doc = [self cacheADocumentInTransaction];
-          expectedRemoved.insert(doc.key);
-          [self addDocument:doc.key toTarget:middleTarget.targetID];
-          middleDocsToRemove = middleDocsToRemove.insert(doc.key);
+          Document doc = [self cacheADocumentInTransaction];
+          expectedRemoved.insert(doc.key());
+          [self addDocument:doc.key() toTarget:middleTarget.targetID];
+          middleDocsToRemove = middleDocsToRemove.insert(doc.key());
         }
         // these docs stay in this target and only this target. There presence in this
         // target prevents them from being GC'd, so they are also expected to be retained.
         for (int i = 2; i < 4; i++) {
-          FSTDocument *doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toTarget:middleTarget.targetID];
+          Document doc = [self cacheADocumentInTransaction];
+          expectedRetained.insert(doc.key());
+          [self addDocument:doc.key() toTarget:middleTarget.targetID];
         }
         // This doc stays in this target, but gets updated.
         {
-          FSTDocument *doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toTarget:middleTarget.targetID];
-          middleDocToUpdate = doc.key;
+          Document doc = [self cacheADocumentInTransaction];
+          expectedRetained.insert(doc.key());
+          [self addDocument:doc.key() toTarget:middleTarget.targetID];
+          middleDocToUpdate = doc.key();
         }
         return middleTarget;
       });
@@ -575,16 +575,16 @@ NS_ASSUME_NONNULL_BEGIN
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
     for (int i = 0; i < 3; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      expectedRemoved.insert(doc.key);
-      [self addDocument:doc.key toTarget:newestTarget.targetID];
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRemoved.insert(doc.key());
+      [self addDocument:doc.key() toTarget:newestTarget.targetID];
     }
     // docs to add to the oldest target in addition to this target. They will be retained
     for (int i = 3; i < 5; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      expectedRetained.insert(doc.key);
-      [self addDocument:doc.key toTarget:newestTarget.targetID];
-      newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key);
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRetained.insert(doc.key());
+      [self addDocument:doc.key() toTarget:newestTarget.targetID];
+      newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key());
     }
   });
 
@@ -593,17 +593,17 @@ NS_ASSUME_NONNULL_BEGIN
     // write two docs and have them ack'd by the server. can skip mutation queue
     // and set them in document cache. Add potentially orphaned first, also add one
     // doc to a target.
-    FSTDocument *doc1 = [self cacheADocumentInTransaction];
-    [self markDocumentEligibleForGCInTransaction:doc1.key];
+    Document doc1 = [self cacheADocumentInTransaction];
+    [self markDocumentEligibleForGCInTransaction:doc1.key()];
     [self updateTargetInTransaction:oldestTarget];
-    [self addDocument:doc1.key toTarget:oldestTarget.targetID];
+    [self addDocument:doc1.key() toTarget:oldestTarget.targetID];
     // doc1 should be retained by being added to oldestTarget.
-    expectedRetained.insert(doc1.key);
+    expectedRetained.insert(doc1.key());
 
-    FSTDocument *doc2 = [self cacheADocumentInTransaction];
-    [self markDocumentEligibleForGCInTransaction:doc2.key];
+    Document doc2 = [self cacheADocumentInTransaction];
+    [self markDocumentEligibleForGCInTransaction:doc2.key()];
     // nothing is keeping doc2 around, it should be removed
-    expectedRemoved.insert(doc2.key);
+    expectedRemoved.insert(doc2.key());
   });
 
   // Remove some documents from the middle target.
@@ -629,10 +629,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Update a doc in the middle target
   _persistence.run("Update a doc in the middle target", [&]() {
     FSTTestSnapshotVersion version = 3;
-    FSTDocument *doc = [FSTDocument documentWithData:_testValue
-                                                 key:middleDocToUpdate
-                                             version:testutil::Version(version)
-                                               state:DocumentState::kSynced];
+    Document doc(ObjectValue(_testValue), middleDocToUpdate, Version(version),
+                 DocumentState::kSynced);
     _documentCache->Add(doc);
     [self updateTargetInTransaction:middleTarget];
   });
@@ -641,11 +639,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Write a doc and get an ack, not part of a target.
   _persistence.run("Write a doc and get an ack, not part of a target", [&]() {
-    FSTDocument *doc = [self cacheADocumentInTransaction];
+    Document doc = [self cacheADocumentInTransaction];
     // Mark it as eligible for GC, but this is after our upper bound for what we will collect.
-    [self markDocumentEligibleForGCInTransaction:doc.key];
+    [self markDocumentEligibleForGCInTransaction:doc.key()];
     // This should be retained, it's too new to get removed.
-    expectedRetained.insert(doc.key);
+    expectedRetained.insert(doc.key());
   });
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
@@ -657,15 +655,15 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(expectedRemoved.size(), docsRemoved);
   _persistence.run("verify results", [&]() {
     for (const DocumentKey &key : expectedRemoved) {
-      XCTAssertNil(_documentCache->Get(key), @"Did not expect to find %s in document cache",
-                   key.ToString().c_str());
+      XCTAssertEqual(_documentCache->Get(key), absl::nullopt,
+                     @"Did not expect to find %s in document cache", key.ToString().c_str());
       XCTAssertFalse(_queryCache->Contains(key), @"Did not expect to find %s in queryCache",
                      key.ToString().c_str());
       [self expectSentinelRemoved:key];
     }
     for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotNil(_documentCache->Get(key), @"Expected to find %s in document cache",
-                      key.ToString().c_str());
+      XCTAssertNotEqual(_documentCache->Get(key), absl::nullopt,
+                        @"Expected to find %s in document cache", key.ToString().c_str());
     }
   });
 
@@ -682,8 +680,8 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key];
+      Document doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key()];
     }
   });
 
@@ -702,8 +700,8 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 500; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key];
+      Document doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key()];
     }
   });
 
@@ -723,8 +721,8 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
-      FSTDocument *doc = [self cacheADocumentInTransaction];
-      [self markDocumentEligibleForGCInTransaction:doc.key];
+      Document doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key()];
     }
   });
 
@@ -755,8 +753,8 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence.run("Add a target and some documents", [&]() {
       FSTQueryData *queryData = [self addNextQueryInTransaction];
       for (int j = 0; j < 10; j++) {
-        FSTDocument *doc = [self cacheADocumentInTransaction];
-        [self addDocument:doc.key toTarget:queryData.targetID];
+        Document doc = [self cacheADocumentInTransaction];
+        [self addDocument:doc.key() toTarget:queryData.targetID];
       }
     });
   }

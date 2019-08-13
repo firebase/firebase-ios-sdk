@@ -16,33 +16,18 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
-#import <Foundation/Foundation.h>
-
-#import "Firestore/Source/Model/FSTDocument.h"
-
 namespace firebase {
 namespace firestore {
 namespace model {
 
-ABSL_MUST_USE_RESULT DocumentMap DocumentMap::insert(const DocumentKey& key,
-                                                     FSTDocument* value) const {
+ABSL_MUST_USE_RESULT DocumentMap
+DocumentMap::insert(const DocumentKey& key, const Document& value) const {
   return DocumentMap{map_.insert(key, value)};
 }
 
 ABSL_MUST_USE_RESULT DocumentMap
 DocumentMap::erase(const DocumentKey& key) const {
   return DocumentMap{map_.erase(key)};
-}
-
-FSTDocument* GetFSTDocumentOrNil(FSTMaybeDocument* maybeDoc) {
-  if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-    return static_cast<FSTDocument*>(maybeDoc);
-  }
-  return nil;
-}
-
-FSTDocument* GetFSTDocumentOrNil(FSTDocument* doc) {
-  return doc;
 }
 
 }  // namespace model

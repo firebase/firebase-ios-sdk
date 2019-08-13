@@ -34,7 +34,6 @@
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
@@ -45,14 +44,18 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -78,12 +81,15 @@ using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
@@ -92,6 +98,7 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::MakeNSData;
@@ -105,6 +112,14 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using Operator = Filter::Operator;
 
 NS_ASSUME_NONNULL_BEGIN
+
+namespace {
+
+absl::any Wrap(GCFSDocument *doc) {
+  return absl::make_any<GCFSDocument *>(doc);
+}
+
+}  // namespace
 
 @implementation FSTSerializerBeta {
   DatabaseId _databaseID;
@@ -442,9 +457,9 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-#pragma mark - FSTMaybeDocument <= BatchGetDocumentsResponse proto
+#pragma mark - MaybeDocument <= BatchGetDocumentsResponse proto
 
-- (FSTMaybeDocument *)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response {
+- (MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response {
   switch (response.resultOneOfCase) {
     case GCFSBatchGetDocumentsResponse_Result_OneOfCase_Found:
       return [self decodedFoundDocument:response];
@@ -455,28 +470,25 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTDocument *)decodedFoundDocument:(GCFSBatchGetDocumentsResponse *)response {
+- (Document)decodedFoundDocument:(GCFSBatchGetDocumentsResponse *)response {
   HARD_ASSERT(!!response.found, "Tried to deserialize a found document from a deleted document.");
-  const DocumentKey key = [self decodedDocumentKey:response.found.name];
+  DocumentKey key = [self decodedDocumentKey:response.found.name];
   ObjectValue value = [self decodedFields:response.found.fields];
   SnapshotVersion version = [self decodedVersion:response.found.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value
-                                   key:key
-                               version:version
-                                 state:DocumentState::kSynced
-                                 proto:response.found];
+  return Document(std::move(value), std::move(key), version, DocumentState::kSynced,
+                  Wrap(response.found));
 }
 
-- (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
+- (NoDocument)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
   HARD_ASSERT(!!response.missing, "Tried to deserialize a deleted document from a found document.");
-  const DocumentKey key = [self decodedDocumentKey:response.missing];
+  DocumentKey key = [self decodedDocumentKey:response.missing];
   SnapshotVersion version = [self decodedVersion:response.readTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a no document response with no snapshot version");
-  return [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  return NoDocument(std::move(key), version, /* has_commited_mutations= */ false);
 }
 
 #pragma mark - FSTMutation => GCFSWrite proto
@@ -1195,39 +1207,34 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
   // The document may soon be re-serialized back to protos in order to store it in local
   // persistence. Memoize the encoded form to avoid encoding it again.
-  FSTMaybeDocument *document = [FSTDocument documentWithData:value
-                                                         key:key
-                                                     version:version
-                                                       state:DocumentState::kSynced
-                                                       proto:change.document];
+  Document document(std::move(value), key, version, DocumentState::kSynced, Wrap(change.document));
 
   std::vector<TargetId> updatedTargetIDs = [self decodedIntegerArray:change.targetIdsArray];
   std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return absl::make_unique<DocumentWatchChange>(
-      std::move(updatedTargetIDs), std::move(removedTargetIDs), std::move(key), document);
+  return absl::make_unique<DocumentWatchChange>(std::move(updatedTargetIDs),
+                                                std::move(removedTargetIDs), std::move(key),
+                                                std::move(document));
 }
 
 - (std::unique_ptr<WatchChange>)decodedDocumentDelete:(GCFSDocumentDelete *)change {
   DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
-                                                           version:version
-                                             hasCommittedMutations:NO];
+  NoDocument document(key, version, /* has_committed_mutations= */ false);
 
   std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
   return absl::make_unique<DocumentWatchChange>(
-      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), document);
+      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), std::move(document));
 }
 
 - (std::unique_ptr<WatchChange>)decodedDocumentRemove:(GCFSDocumentRemove *)change {
   DocumentKey key = [self decodedDocumentKey:change.document];
   std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
-                                                std::move(removedTargetIDs), std::move(key), nil);
+  return absl::make_unique<DocumentWatchChange>(
+      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), absl::nullopt);
 }
 
 - (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {

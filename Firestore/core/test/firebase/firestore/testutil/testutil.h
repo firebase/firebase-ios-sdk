@@ -77,6 +77,10 @@ inline model::FieldValue Value(int value) {
   return model::FieldValue::FromInteger(value);
 }
 
+inline model::FieldValue Value(long value) {  // NOLINT(runtime/int)
+  return model::FieldValue::FromInteger(value);
+}
+
 inline model::FieldValue Value(int64_t value) {
   return model::FieldValue::FromInteger(value);
 }
@@ -280,6 +284,19 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
                                          int64_t version) {
   return model::UnknownDocument(Key(key), Version(version));
 }
+
+/**
+ * Creates an DocumentComparator that will compare Documents by the given
+ * fieldPath string then by key.
+ */
+model::DocumentComparator DocComparator(absl::string_view field_path);
+
+/**
+ * Creates a DocumentSet based on the given comparator, initially containing the
+ * given documents.
+ */
+model::DocumentSet DocSet(model::DocumentComparator comp,
+                          std::vector<model::Document> docs);
 
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {

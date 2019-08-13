@@ -20,8 +20,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -37,9 +35,11 @@ using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncState;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
@@ -244,7 +244,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   return self;
 }
 
-- (ComparisonResult)compare:(FSTDocument *)document with:(FSTDocument *)otherDocument {
+- (ComparisonResult)compare:(const Document &)document with:(const Document &)otherDocument {
   return _documentSet->comparator().Compare(document, otherDocument);
 }
 
@@ -278,74 +278,74 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   //
   // Note that this should never get used in a refill (when previousChanges is set), because there
   // will only be adds -- no deletes or updates.
-  FSTDocument *_Nullable lastDocInLimit =
-      (_query.limit() != Query::kNoLimit && oldDocumentSet.size() == _query.limit())
-          ? oldDocumentSet.GetLastDocument()
-          : nil;
+  absl::optional<Document> lastDocInLimit;
+  if (_query.limit() != Query::kNoLimit && oldDocumentSet.size() == _query.limit()) {
+    lastDocInLimit = oldDocumentSet.GetLastDocument();
+  }
 
   for (const auto &kv : docChanges) {
     const DocumentKey &key = kv.first;
-    FSTMaybeDocument *maybeNewDoc = kv.second;
+    const MaybeDocument &maybeNewDoc = kv.second;
 
-    FSTDocument *_Nullable oldDoc = oldDocumentSet.GetDocument(key);
-    FSTDocument *_Nullable newDoc = nil;
-    if ([maybeNewDoc isKindOfClass:[FSTDocument class]]) {
-      newDoc = (FSTDocument *)maybeNewDoc;
+    absl::optional<Document> oldDoc = oldDocumentSet.GetDocument(key);
+    absl::optional<Document> newDoc;
+    if (maybeNewDoc.is_document()) {
+      newDoc = Document(maybeNewDoc);
     }
     if (newDoc) {
-      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s",
-                  key.ToString(), newDoc.key.ToString());
-      if (!_query.Matches(newDoc)) {
-        newDoc = nil;
+      HARD_ASSERT(key == newDoc->key(), "Mismatching key in document changes: %s != %s",
+                  key.ToString(), newDoc->key().ToString());
+      if (!_query.Matches(*newDoc)) {
+        newDoc = absl::nullopt;
       }
     }
 
-    BOOL oldDocHadPendingMutations = oldDoc && oldMutatedKeys.contains(oldDoc.key);
+    bool oldDocHadPendingMutations = oldDoc && oldMutatedKeys.contains(key);
 
     // We only consider committed mutations for documents that were mutated during the lifetime of
     // the view.
-    BOOL newDocHasPendingMutations =
-        newDoc && (newDoc.hasLocalMutations ||
-                   (oldMutatedKeys.contains(newDoc.key) && newDoc.hasCommittedMutations));
+    bool newDocHasPendingMutations =
+        newDoc && (newDoc->has_local_mutations() ||
+                   (oldMutatedKeys.contains(key) && newDoc->has_committed_mutations()));
 
-    BOOL changeApplied = NO;
+    bool changeApplied = false;
     // Calculate change
     if (oldDoc && newDoc) {
-      BOOL docsEqual = oldDoc.data == newDoc.data;
+      bool docsEqual = oldDoc->data() == newDoc->data();
       if (!docsEqual) {
-        if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
-          changeSet.AddChange(DocumentViewChange{newDoc, DocumentViewChange::Type::kModified});
-          changeApplied = YES;
+        if (![self shouldWaitForSyncedDocument:*newDoc oldDocument:*oldDoc]) {
+          changeSet.AddChange(DocumentViewChange{*newDoc, DocumentViewChange::Type::kModified});
+          changeApplied = true;
 
-          if (lastDocInLimit && util::Descending([self compare:newDoc with:lastDocInLimit])) {
+          if (lastDocInLimit && util::Descending([self compare:*newDoc with:*lastDocInLimit])) {
             // This doc moved from inside the limit to after the limit. That means there may be
             // some doc in the local cache that's actually less than this one.
-            needsRefill = YES;
+            needsRefill = true;
           }
         }
       } else if (oldDocHadPendingMutations != newDocHasPendingMutations) {
-        changeSet.AddChange(DocumentViewChange{newDoc, DocumentViewChange::Type::kMetadata});
-        changeApplied = YES;
+        changeSet.AddChange(DocumentViewChange{*newDoc, DocumentViewChange::Type::kMetadata});
+        changeApplied = true;
       }
 
     } else if (!oldDoc && newDoc) {
-      changeSet.AddChange(DocumentViewChange{newDoc, DocumentViewChange::Type::kAdded});
-      changeApplied = YES;
+      changeSet.AddChange(DocumentViewChange{*newDoc, DocumentViewChange::Type::kAdded});
+      changeApplied = true;
     } else if (oldDoc && !newDoc) {
-      changeSet.AddChange(DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved});
-      changeApplied = YES;
+      changeSet.AddChange(DocumentViewChange{*oldDoc, DocumentViewChange::Type::kRemoved});
+      changeApplied = true;
 
       if (lastDocInLimit) {
         // A doc was removed from a full limit query. We'll need to re-query from the local cache
         // to see if we know about some other doc that should be in the results.
-        needsRefill = YES;
+        needsRefill = true;
       }
     }
 
     if (changeApplied) {
       if (newDoc) {
         newDocumentSet = newDocumentSet.insert(newDoc);
-        if (newDoc.hasLocalMutations) {
+        if (newDoc->has_local_mutations()) {
           newMutatedKeys = newMutatedKeys.insert(key);
         } else {
           newMutatedKeys = newMutatedKeys.erase(key);
@@ -360,9 +360,9 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   int32_t limit = _query.limit();
   if (limit != Query::kNoLimit && newDocumentSet.size() > limit) {
     for (size_t i = newDocumentSet.size() - limit; i > 0; --i) {
-      FSTDocument *oldDoc = newDocumentSet.GetLastDocument();
-      newDocumentSet = newDocumentSet.erase(oldDoc.key);
-      newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
+      const Document &oldDoc = *newDocumentSet.GetLastDocument();
+      newDocumentSet = newDocumentSet.erase(oldDoc.key());
+      newMutatedKeys = newMutatedKeys.erase(oldDoc.key());
       changeSet.AddChange(DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved});
     }
   }
@@ -376,14 +376,15 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
                                                  mutatedKeys:newMutatedKeys];
 }
 
-- (BOOL)shouldWaitForSyncedDocument:(FSTDocument *)newDoc oldDocument:(FSTDocument *)oldDoc {
+- (BOOL)shouldWaitForSyncedDocument:(const Document &)newDoc oldDocument:(const Document &)oldDoc {
   // We suppress the initial change event for documents that were modified as part of a write
   // acknowledgment (e.g. when the value of a server transform is applied) as Watch will send us
   // the same document again. By suppressing the event, we only raise two user visible events (one
   // with `hasPendingWrites` and the final state of the document) instead of three (one with
   // `hasPendingWrites`, the modified document with `hasPendingWrites` and the final state of the
   // document).
-  return (oldDoc.hasLocalMutations && newDoc.hasCommittedMutations && !newDoc.hasLocalMutations);
+  return (oldDoc.has_local_mutations() && newDoc.has_committed_mutations() &&
+          !newDoc.has_local_mutations());
 }
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges {
@@ -467,7 +468,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   // part of the query. So don't put it in limbo.
   // TODO(klimt): Ideally, we would only consider changes that might actually affect this specific
   // query.
-  if (_documentSet->GetDocument(key).hasLocalMutations) {
+  if (_documentSet->GetDocument(key)->has_local_mutations()) {
     return NO;
   }
   // Everything else is in limbo.
@@ -506,9 +507,9 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
   DocumentKeySet oldLimboDocuments = std::move(_limboDocuments);
   _limboDocuments = DocumentKeySet{};
-  for (FSTDocument *doc : *_documentSet) {
-    if ([self shouldBeLimboDocumentKey:doc.key]) {
-      _limboDocuments = _limboDocuments.insert(doc.key);
+  for (const Document &doc : *_documentSet) {
+    if ([self shouldBeLimboDocumentKey:doc.key()]) {
+      _limboDocuments = _limboDocuments.insert(doc.key());
     }
   }
 

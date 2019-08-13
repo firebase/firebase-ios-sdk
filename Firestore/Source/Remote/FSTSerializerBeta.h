@@ -27,11 +27,11 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-@class FSTMaybeDocument;
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationResult;
@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (model::ObjectValue)decodedFields:(NSDictionary<NSString *, GCFSValue *> *)fields;
 
-- (FSTMaybeDocument *)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
+- (model::MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
 
 @end
 

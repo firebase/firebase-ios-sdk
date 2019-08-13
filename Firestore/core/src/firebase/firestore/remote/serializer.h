@@ -159,7 +159,7 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model Document format.
    */
-  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
+  model::MaybeDocument DecodeMaybeDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
@@ -186,7 +186,7 @@ class Serializer {
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Query& query) const;
 
-  std::unique_ptr<model::Document> DecodeDocument(
+  model::Document DecodeDocument(
       nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
 
   static google_protobuf_Timestamp EncodeVersion(
@@ -216,10 +216,10 @@ class Serializer {
       const google_firestore_v1_ArrayValue& array_proto);
 
  private:
-  std::unique_ptr<model::Document> DecodeFoundDocument(
+  model::Document DecodeFoundDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
-  std::unique_ptr<model::NoDocument> DecodeMissingDocument(
+  model::NoDocument DecodeMissingDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 

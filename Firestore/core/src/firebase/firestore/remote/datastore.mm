@@ -50,6 +50,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
 using model::DocumentKey;
+using model::MaybeDocument;
 using util::AsyncQueue;
 using util::Status;
 using util::StatusOr;
@@ -253,7 +254,7 @@ void Datastore::OnLookupDocumentsResponse(
 
   Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  std::vector<FSTMaybeDocument*> docs =
+  std::vector<MaybeDocument> docs =
       serializer_bridge_.MergeLookupResponses(responses, &parse_status);
   callback(docs, parse_status);
 }

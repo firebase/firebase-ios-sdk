@@ -22,6 +22,22 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
+using model::Document;
+using model::DocumentComparator;
+using model::DocumentSet;
+
+DocumentComparator DocComparator(absl::string_view field_path) {
+  return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
+}
+
+DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
+  DocumentSet set{std::move(comp)};
+  for (const Document& doc : docs) {
+    set = set.insert(doc);
+  }
+  return set;
+}
+
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
     const model::FieldValue::Map& values,

@@ -23,7 +23,6 @@
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -34,10 +33,13 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::MaybeDocument;
 using model::MaybeDocumentMap;
+using model::OptionalMaybeDocumentMap;
 using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
@@ -45,12 +47,12 @@ LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     : db_(db), serializer_(serializer) {
 }
 
-void LevelDbRemoteDocumentCache::Add(FSTMaybeDocument* document) {
-  std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key);
+void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
+  std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
   db_.currentTransaction->Put(ldb_key,
                               [serializer_ encodedMaybeDocument:document]);
 
-  db_.indexManager->AddToCollectionParentIndex(document.key.path().PopLast());
+  db_.indexManager->AddToCollectionParentIndex(document.key().path().PopLast());
 }
 
 void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
@@ -58,13 +60,13 @@ void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
   db_.currentTransaction->Delete(ldb_key);
 }
 
-FSTMaybeDocument* _Nullable LevelDbRemoteDocumentCache::Get(
+absl::optional<MaybeDocument> LevelDbRemoteDocumentCache::Get(
     const DocumentKey& key) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(key);
   std::string value;
   Status status = db_.currentTransaction->Get(ldb_key, &value);
   if (status.IsNotFound()) {
-    return nil;
+    return absl::nullopt;
   } else if (status.ok()) {
     return DecodeMaybeDocument(value, key);
   } else {
@@ -73,9 +75,9 @@ FSTMaybeDocument* _Nullable LevelDbRemoteDocumentCache::Get(
   }
 }
 
-MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
+OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
-  MaybeDocumentMap results;
+  OptionalMaybeDocumentMap results;
 
   LevelDbRemoteDocumentKey currentKey;
   auto it = db_.currentTransaction->NewIterator();
@@ -84,7 +86,7 @@ MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
     if (!it->Valid() || !currentKey.Decode(it->key()) ||
         currentKey.document_key() != key) {
-      results = results.insert(key, nil);
+      results = results.insert(key, absl::nullopt);
     } else {
       results = results.insert(key, DecodeMaybeDocument(it->value(), key));
     }
@@ -122,20 +124,18 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
       continue;
     }
 
-    FSTMaybeDocument* maybe_doc =
-        DecodeMaybeDocument(it->value(), document_key);
-    if (!query_path.IsPrefixOf(maybe_doc.key.path())) {
+    MaybeDocument maybe_doc = DecodeMaybeDocument(it->value(), document_key);
+    if (!query_path.IsPrefixOf(maybe_doc.key().path())) {
       break;
-    } else if ([maybe_doc isKindOfClass:[FSTDocument class]]) {
-      results =
-          results.insert(maybe_doc.key, static_cast<FSTDocument*>(maybe_doc));
+    } else if (maybe_doc.is_document()) {
+      results = results.insert(maybe_doc.key(), Document(maybe_doc));
     }
   }
 
   return results;
 }
 
-FSTMaybeDocument* LevelDbRemoteDocumentCache::DecodeMaybeDocument(
+MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     absl::string_view encoded, const DocumentKey& key) {
   NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
                                               length:encoded.size()
@@ -148,10 +148,10 @@ FSTMaybeDocument* LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }
 
-  FSTMaybeDocument* maybeDocument = [serializer_ decodedMaybeDocument:proto];
-  HARD_ASSERT(maybeDocument.key == key,
+  MaybeDocument maybeDocument = [serializer_ decodedMaybeDocument:proto];
+  HARD_ASSERT(maybeDocument.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
-              maybeDocument.key.ToString(), key.ToString());
+              maybeDocument.key().ToString(), key.ToString());
   return maybeDocument;
 }
 

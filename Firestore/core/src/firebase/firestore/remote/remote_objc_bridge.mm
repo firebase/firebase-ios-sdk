@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <map>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -36,6 +37,7 @@ namespace bridge {
 
 using core::DatabaseInfo;
 using model::DocumentKey;
+using model::MaybeDocument;
 using model::TargetId;
 using model::SnapshotVersion;
 using util::MakeString;
@@ -272,21 +274,21 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
+std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
   // Sort by key.
-  std::map<DocumentKey, FSTMaybeDocument*> results;
+  std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
     auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
     if (!out_status->ok()) {
       return {};
     }
-    FSTMaybeDocument* doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
-    results[doc.key] = doc;
+    MaybeDocument doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
+    results[doc.key()] = std::move(doc);
   }
 
-  std::vector<FSTMaybeDocument*> docs;
+  std::vector<MaybeDocument> docs;
   docs.reserve(results.size());
   for (const auto& kv : results) {
     docs.push_back(kv.second);
@@ -294,7 +296,7 @@ std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
   return docs;
 }
 
-FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
+MaybeDocument DatastoreSerializer::ToMaybeDocument(
     GCFSBatchGetDocumentsResponse* response) const {
   return [serializer_ decodedMaybeDocumentFromBatch:response];
 }

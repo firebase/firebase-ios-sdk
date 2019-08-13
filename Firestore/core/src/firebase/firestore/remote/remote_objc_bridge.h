@@ -157,10 +157,10 @@ class DatastoreSerializer {
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  std::vector<FSTMaybeDocument*> MergeLookupResponses(
+  std::vector<model::MaybeDocument> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses,
       util::Status* out_status) const;
-  FSTMaybeDocument* ToMaybeDocument(
+  model::MaybeDocument ToMaybeDocument(
       GCFSBatchGetDocumentsResponse* response) const;
 
   FSTSerializerBeta* GetSerializer() {

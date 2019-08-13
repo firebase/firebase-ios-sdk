@@ -34,7 +34,6 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
@@ -71,6 +70,8 @@ using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
@@ -460,8 +461,8 @@ FIRQuery *Wrap(Query &&query) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using a document "
                          "that doesn't exist.");
   }
-  FSTDocument *document = snapshot.internalDocument;
-  const model::DatabaseId &databaseID = self.firestore.databaseID;
+  const Document &document = *snapshot.internalDocument;
+  const DatabaseId &databaseID = self.firestore.databaseID;
   std::vector<FieldValue> components;
 
   // Because people expect to continue/end a query at the exact document provided, we need to
@@ -471,9 +472,9 @@ FIRQuery *Wrap(Query &&query) {
   // orders), multiple documents could match the position, yielding duplicate results.
   for (const OrderBy &orderBy : self.query.order_bys()) {
     if (orderBy.field() == FieldPath::KeyFieldPath()) {
-      components.push_back(FieldValue::FromReference(databaseID, document.key));
+      components.push_back(FieldValue::FromReference(databaseID, document.key()));
     } else {
-      absl::optional<FieldValue> value = [document fieldForPath:orderBy.field()];
+      absl::optional<FieldValue> value = document.field(orderBy.field());
 
       if (value) {
         if (value->type() == FieldValue::Type::ServerTimestamp) {

@@ -26,7 +26,6 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
@@ -34,17 +33,23 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::core::Query;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::UnknownDocument;
 
 @interface FSTLocalSerializer ()
 
@@ -63,33 +68,34 @@ using firebase::firestore::model::TargetId;
   return self;
 }
 
-- (FSTPBMaybeDocument *)encodedMaybeDocument:(FSTMaybeDocument *)document {
+- (FSTPBMaybeDocument *)encodedMaybeDocument:(const MaybeDocument &)document {
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument message];
 
-  if ([document isKindOfClass:[FSTDeletedDocument class]]) {
-    FSTDeletedDocument *deletedDocument = (FSTDeletedDocument *)document;
+  if (document.is_no_document()) {
+    NoDocument deletedDocument(document);
     proto.noDocument = [self encodedDeletedDocument:deletedDocument];
-    proto.hasCommittedMutations = deletedDocument.hasCommittedMutations;
-  } else if ([document isKindOfClass:[FSTDocument class]]) {
-    FSTDocument *existingDocument = (FSTDocument *)document;
-    if (existingDocument.proto != nil) {
-      proto.document = existingDocument.proto;
+    proto.hasCommittedMutations = deletedDocument.has_committed_mutations();
+  } else if (document.is_document()) {
+    Document existingDocument(document);
+    const absl::any &docProto = existingDocument.proto();
+    if (docProto.has_value()) {
+      proto.document = absl::any_cast<GCFSDocument *>(docProto);
     } else {
       proto.document = [self encodedDocument:existingDocument];
     }
-    proto.hasCommittedMutations = existingDocument.hasCommittedMutations;
-  } else if ([document isKindOfClass:[FSTUnknownDocument class]]) {
-    FSTUnknownDocument *unknownDocument = (FSTUnknownDocument *)document;
+    proto.hasCommittedMutations = existingDocument.has_committed_mutations();
+  } else if (document.is_unknown_document()) {
+    UnknownDocument unknownDocument(document);
     proto.unknownDocument = [self encodedUnknownDocument:unknownDocument];
     proto.hasCommittedMutations = YES;
   } else {
-    HARD_FAIL("Unknown document type %s", NSStringFromClass([document class]));
+    HARD_FAIL("Unknown document type %s", document.type());
   }
 
   return proto;
 }
 
-- (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
+- (MaybeDocument)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
   switch (proto.documentTypeOneOfCase) {
     case FSTPBMaybeDocument_DocumentType_OneOfCase_Document:
       return [self decodedDocument:proto.document
@@ -111,71 +117,67 @@ using firebase::firestore::model::TargetId;
  * Encodes a Document for local storage. This differs from the v1 RPC serializer for Documents in
  * that it preserves the updateTime, which is considered an output only value by the server.
  */
-- (GCFSDocument *)encodedDocument:(FSTDocument *)document {
+- (GCFSDocument *)encodedDocument:(const Document &)document {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   GCFSDocument *proto = [GCFSDocument message];
-  proto.name = [remoteSerializer encodedDocumentKey:document.key];
-  proto.fields = [remoteSerializer encodedFields:document.data];
-  proto.updateTime = [remoteSerializer encodedVersion:document.version];
+  proto.name = [remoteSerializer encodedDocumentKey:document.key()];
+  proto.fields = [remoteSerializer encodedFields:document.data()];
+  proto.updateTime = [remoteSerializer encodedVersion:document.version()];
 
   return proto;
 }
 
 /** Decodes a Document proto to the equivalent model. */
-- (FSTDocument *)decodedDocument:(GCFSDocument *)document
-          withCommittedMutations:(BOOL)committedMutations {
+- (Document)decodedDocument:(GCFSDocument *)document
+     withCommittedMutations:(BOOL)committedMutations {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   ObjectValue data = [remoteSerializer decodedFields:document.fields];
   DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
-  return [FSTDocument documentWithData:std::move(data)
-                                   key:std::move(key)
-                               version:version
-                                 state:committedMutations ? DocumentState::kCommittedMutations
-                                                          : DocumentState::kSynced];
+  DocumentState state =
+      committedMutations ? DocumentState::kCommittedMutations : DocumentState::kSynced;
+  return Document(std::move(data), std::move(key), version, state);
 }
 
 /** Encodes a NoDocument value to the equivalent proto. */
-- (FSTPBNoDocument *)encodedDeletedDocument:(FSTDeletedDocument *)document {
+- (FSTPBNoDocument *)encodedDeletedDocument:(const NoDocument &)document {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTPBNoDocument *proto = [FSTPBNoDocument message];
-  proto.name = [remoteSerializer encodedDocumentKey:document.key];
-  proto.readTime = [remoteSerializer encodedVersion:document.version];
+  proto.name = [remoteSerializer encodedDocumentKey:document.key()];
+  proto.readTime = [remoteSerializer encodedVersion:document.version()];
   return proto;
 }
 
 /** Decodes a NoDocument proto to the equivalent model. */
-- (FSTDeletedDocument *)decodedDeletedDocument:(FSTPBNoDocument *)proto
-                        withCommittedMutations:(BOOL)committedMutations {
+- (NoDocument)decodedDeletedDocument:(FSTPBNoDocument *)proto
+              withCommittedMutations:(BOOL)committedMutations {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:proto.readTime];
-  return [FSTDeletedDocument documentWithKey:key
-                                     version:version
-                       hasCommittedMutations:committedMutations];
+  return NoDocument(std::move(key), version, committedMutations);
 }
 
 /** Encodes an UnknownDocument value to the equivalent proto. */
-- (FSTPBUnknownDocument *)encodedUnknownDocument:(FSTUnknownDocument *)document {
+- (FSTPBUnknownDocument *)encodedUnknownDocument:(const UnknownDocument &)document {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTPBUnknownDocument *proto = [FSTPBUnknownDocument message];
-  proto.name = [remoteSerializer encodedDocumentKey:document.key];
-  proto.version = [remoteSerializer encodedVersion:document.version];
+  proto.name = [remoteSerializer encodedDocumentKey:document.key()];
+  proto.version = [remoteSerializer encodedVersion:document.version()];
   return proto;
 }
 
 /** Decodes an UnknownDocument proto to the equivalent model. */
-- (FSTUnknownDocument *)decodedUnknownDocument:(FSTPBUnknownDocument *)proto {
+- (UnknownDocument)decodedUnknownDocument:(FSTPBUnknownDocument *)proto {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:proto.version];
-  return [FSTUnknownDocument documentWithKey:key version:version];
+  return UnknownDocument(std::move(key), version);
 }
 
 - (FSTPBWriteBatch *)encodedMutationBatch:(FSTMutationBatch *)batch {

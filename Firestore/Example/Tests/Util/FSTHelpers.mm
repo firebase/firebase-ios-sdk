@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -61,6 +60,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -70,7 +70,9 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
@@ -78,6 +80,7 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
@@ -162,47 +165,9 @@ DocumentKey FSTTestDocKey(NSString *path) {
   return DocumentKey::FromPathString(util::MakeString(path));
 }
 
-FSTDocument *FSTTestDoc(const absl::string_view path,
-                        FSTTestSnapshotVersion version,
-                        NSDictionary<NSString *, id> *data,
-                        DocumentState documentState) {
-  DocumentKey key = testutil::Key(path);
-  return [FSTDocument documentWithData:FSTTestObjectValue(data)
-                                   key:key
-                               version:testutil::Version(version)
-                                 state:documentState];
-}
-
-FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
-                                      FSTTestSnapshotVersion version,
-                                      BOOL hasCommittedMutations) {
-  DocumentKey key = testutil::Key(path);
-  return [FSTDeletedDocument documentWithKey:key
-                                     version:testutil::Version(version)
-                       hasCommittedMutations:hasCommittedMutations];
-}
-
-FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
-                                      FSTTestSnapshotVersion version) {
-  DocumentKey key = testutil::Key(path);
-  return [FSTUnknownDocument documentWithKey:key version:testutil::Version(version)];
-}
-
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:DatabaseId(projectID, database)];
-}
-
-DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
-  return Query("docs").AddingOrderBy(OrderBy(fieldPath)).Comparator();
-}
-
-DocumentSet FSTTestDocSet(DocumentComparator comp, NSArray<FSTDocument *> *docs) {
-  DocumentSet docSet{std::move(comp)};
-  for (FSTDocument *doc in docs) {
-    docSet = docSet.insert(doc);
-  }
-  return docSet;
 }
 
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
@@ -251,16 +216,16 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
                                    precondition:Precondition::None()];
 }
 
-MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
+MaybeDocumentMap FSTTestDocUpdates(const std::vector<MaybeDocument> &docs) {
   MaybeDocumentMap updates;
-  for (FSTMaybeDocument *doc in docs) {
-    updates = updates.insert(doc.key, doc);
+  for (const MaybeDocument &doc : docs) {
+    updates = updates.insert(doc.key(), doc);
   }
   return updates;
 }
 
 absl::optional<ViewSnapshot> FSTTestApplyChanges(FSTView *view,
-                                                 NSArray<FSTMaybeDocument *> *docs,
+                                                 const std::vector<MaybeDocument> &docs,
                                                  const absl::optional<TargetChange> &targetChange) {
   FSTViewChange *change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
@@ -341,16 +306,16 @@ FSTQueryData *TestTargetMetadataProvider::GetQueryDataForTarget(TargetId target_
 
 using firebase::firestore::remote::TestTargetMetadataProvider;
 
-RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
+RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
                                     const std::vector<TargetId> &addedToTargets) {
-  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+  HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
               "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
+  DocumentWatchChange change{addedToTargets, {}, doc.key(), doc};
   auto metadataProvider =
-      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key, addedToTargets);
+      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key(), addedToTargets);
   WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version);
+  return aggregator.CreateRemoteEvent(doc.version());
 }
 
 TargetChange FSTTestTargetChangeMarkCurrent() {
@@ -370,25 +335,25 @@ TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
 }
 
 RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
-    FSTMaybeDocument *doc,
+    const MaybeDocument &doc,
     const std::vector<TargetId> &updatedInTargets,
     const std::vector<TargetId> &removedFromTargets,
     const std::vector<TargetId> &limboTargets) {
-  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+  HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
               "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key, doc};
+  DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key(), doc};
 
   std::vector<TargetId> listens = updatedInTargets;
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
   auto metadataProvider =
-      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key, listens, limboTargets);
+      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens, limboTargets);
   WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version);
+  return aggregator.CreateRemoteEvent(doc.version());
 }
 
-RemoteEvent FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
+RemoteEvent FSTTestUpdateRemoteEvent(const MaybeDocument &doc,
                                      const std::vector<TargetId> &updatedInTargets,
                                      const std::vector<TargetId> &removedFromTargets) {
   return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, {});

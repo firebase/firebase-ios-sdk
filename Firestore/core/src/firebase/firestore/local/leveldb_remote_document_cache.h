@@ -27,12 +27,12 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTMaybeDocument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,16 +45,18 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
   LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
-  void Add(FSTMaybeDocument* document) override;
+  void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
 
-  FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) override;
-  model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) override;
+  absl::optional<model::MaybeDocument> Get(
+      const model::DocumentKey& key) override;
+  model::OptionalMaybeDocumentMap GetAll(
+      const model::DocumentKeySet& keys) override;
   model::DocumentMap GetMatching(const core::Query& query) override;
 
  private:
-  FSTMaybeDocument* DecodeMaybeDocument(absl::string_view encoded,
-                                        const model::DocumentKey& key);
+  model::MaybeDocument DecodeMaybeDocument(absl::string_view encoded,
+                                           const model::DocumentKey& key);
 
   // This instance is owned by FSTLevelDB; avoid a retain cycle.
   __weak FSTLevelDB* db_;
