@@ -49,7 +49,7 @@ class SetMutation : public Mutation {
    */
   explicit SetMutation(const Mutation& mutation);
 
-  /** Creates an invalid SetMutation instances. */
+  /** Creates an invalid SetMutation instance. */
   SetMutation() = default;
 
   /** Returns the object value to use when setting the document. */

@@ -45,7 +45,7 @@ class DeleteMutation : public Mutation {
    */
   explicit DeleteMutation(const Mutation& mutation);
 
-  /** Creates an invalid DeleteMutation instances. */
+  /** Creates an invalid DeleteMutation instance. */
   DeleteMutation() = default;
 
  private:
@@ -66,7 +66,7 @@ class DeleteMutation : public Mutation {
         const absl::optional<MaybeDocument>&,
         const Timestamp&) const override;
 
-    // Does not override Equals; Mutation's version is sufficient.
+    // Does not override Equals or Hash; Mutation's versions are sufficient.
 
     std::string ToString() const override;
   };

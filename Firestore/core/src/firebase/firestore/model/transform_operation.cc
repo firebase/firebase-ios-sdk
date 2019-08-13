@@ -51,6 +51,9 @@ std::ostream& operator<<(std::ostream& os, const TransformOperation& op) {
 
 // MARK: - ServerTimestampTransform
 
+static_assert(sizeof(TransformOperation) == sizeof(ServerTimestampTransform),
+              "No additional members allowed (everything must go in Rep)");
+
 class ServerTimestampTransform::Rep : public TransformOperation::Rep {
  public:
   Type type() const override {
@@ -95,6 +98,9 @@ ServerTimestampTransform::ServerTimestampTransform()
 }
 
 // MARK: - ArrayTransform
+
+static_assert(sizeof(TransformOperation) == sizeof(ArrayTransform),
+              "No additional members allowed (everything must go in Rep)");
 
 /**
  * Transforms an array via a union or remove operation (for convenience, we use
@@ -166,6 +172,7 @@ ArrayTransform::ArrayTransform(Type type,
                                std::vector<model::FieldValue> elements)
     : TransformOperation(
           std::make_shared<const Rep>(type, std::move(elements))) {
+  HARD_ASSERT(type == Type::ArrayUnion || type == Type::ArrayRemove);
 }
 
 ArrayTransform::ArrayTransform(const TransformOperation& op)
@@ -242,6 +249,9 @@ FieldValue ArrayTransform::Rep::Apply(
 }
 
 // MARK: - NumericIncrementTransform
+
+static_assert(sizeof(TransformOperation) == sizeof(NumericIncrementTransform),
+              "No additional members allowed (everything must go in Rep)");
 
 class NumericIncrementTransform::Rep : public TransformOperation::Rep {
  public:

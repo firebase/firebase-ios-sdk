@@ -29,11 +29,16 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(Mutation) == sizeof(DeleteMutation),
+    "DeleteMutation may not have additional members (everything goes in Rep)");
+
 DeleteMutation::DeleteMutation(DocumentKey key, Precondition precondition)
     : Mutation(std::make_shared<Rep>(std::move(key), std::move(precondition))) {
 }
 
 DeleteMutation::DeleteMutation(const Mutation& mutation) : Mutation(mutation) {
+  HARD_ASSERT(type() == Type::Delete);
 }
 
 MaybeDocument DeleteMutation::Rep::ApplyToRemoteDocument(

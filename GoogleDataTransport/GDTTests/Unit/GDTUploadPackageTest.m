@@ -110,9 +110,23 @@
   NSMutableSet<GDTStoredEvent *> *set = [GDTEventGenerator generate3StoredEvents];
   uploadPackage.events = set;
   uploadPackage.handler = self;
+  GDTUploadPackage *recreatedPackage;
+  NSError *error;
 
-  NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
-  GDTUploadPackage *recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage
+                                                requiringSecureCoding:YES
+                                                                error:&error];
+    recreatedPackage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTUploadPackage class]
+                                                         fromData:packageData
+                                                            error:&error];
+    XCTAssertNil(error);
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
+    recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
+#endif
+  }
   XCTAssertEqualObjects(uploadPackage, recreatedPackage);
 }
 
