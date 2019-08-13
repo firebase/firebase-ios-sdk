@@ -51,8 +51,6 @@ model::PatchMutation PatchMutation(
     model::FieldValue::Map values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
     std::vector<model::FieldPath> update_mask) {
-  bool merge = !update_mask.empty();
-
   ObjectValue object_value = ObjectValue::Empty();
   std::set<FieldPath> field_mask_paths;
 
@@ -65,6 +63,8 @@ model::PatchMutation PatchMutation(
       object_value = object_value.Set(field_path, value);
     }
   }
+
+  bool merge = !update_mask.empty();
 
   Precondition precondition =
       merge ? Precondition::None() : Precondition::Exists(true);
