@@ -96,7 +96,7 @@
   (static_cast<void>(ABSL_PREDICT_FALSE((ptr) == nullptr)                  \
                          ? INVOKE_INTERNAL_FAIL("Expected non-null " #ptr) \
                          : static_cast<void>(0)),                          \
-   (ptr))
+   (ptr))  // NOLINT(whitespace/indent)
 
 namespace firebase {
 namespace firestore {
