@@ -295,8 +295,7 @@ class Mutation {
         const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractBaseValue(
-        const absl::optional<MaybeDocument>& maybe_doc) const {
-      (void)maybe_doc;
+        const absl::optional<MaybeDocument>&) const {
       return absl::nullopt;
     }
 
