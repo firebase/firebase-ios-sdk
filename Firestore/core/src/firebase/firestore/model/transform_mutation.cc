@@ -120,7 +120,7 @@ absl::optional<MaybeDocument> TransformMutation::Rep::ApplyToLocalView(
 
 absl::optional<ObjectValue> TransformMutation::Rep::ExtractBaseValue(
     const absl::optional<MaybeDocument>& maybe_doc) const {
-  absl::optional<ObjectValue> base_object = absl::nullopt;
+  absl::optional<ObjectValue> base_object;
 
   for (const FieldTransform& transform : field_transforms_) {
     absl::optional<FieldValue> existing_value;

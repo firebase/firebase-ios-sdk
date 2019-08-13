@@ -443,4 +443,5 @@ jobs:
 
 branches:
   only:
+    - firestore-master
     - master

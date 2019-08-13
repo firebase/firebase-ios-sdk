@@ -44,7 +44,7 @@ NS_SWIFT_NAME(LifecycleEvents)
 /// experiment payload.
 @property(nonatomic, copy) NSString *activateExperimentEventName;
 
-/// Event name for when an experiment is clearred. It is default to FIRClearExperimentEventName and
+/// Event name for when an experiment is cleared. It is default to FIRClearExperimentEventName and
 /// can be overridden. If experiment payload has a valid string of this field, always use experiment
 /// payload.
 @property(nonatomic, copy) NSString *clearExperimentEventName;
