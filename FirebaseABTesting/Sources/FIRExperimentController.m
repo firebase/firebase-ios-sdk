@@ -91,9 +91,9 @@ NSArray<ABTExperimentPayload *> *ABTExperimentsToSetFromPayloads(
   return [experimentsToSet copy];
 }
 
-/// Returns a list of experiments to be clearred given the payloads and current list of
+/// Returns a list of experiments to be cleared given the payloads and current list of
 /// experiments from Firebase Analytics. If an experiment is in experiments but not in payloads, it
-/// should be clearred in Firebase Analytics.
+/// should be cleared in Firebase Analytics.
 NSArray *ABTExperimentsToClearFromPayloads(
     NSArray<NSData *> *payloads,
     NSArray<NSDictionary<NSString *, NSString *> *> *experiments,
