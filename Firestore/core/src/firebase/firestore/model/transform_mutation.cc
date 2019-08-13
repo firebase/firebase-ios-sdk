@@ -34,6 +34,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(sizeof(Mutation) == sizeof(TransformMutation),
+              "TransformMutation may not have additional members (everything "
+              "goes in Rep)");
+
 TransformMutation::TransformMutation(
     DocumentKey key, std::vector<FieldTransform> field_transforms)
     : Mutation(
@@ -42,6 +46,7 @@ TransformMutation::TransformMutation(
 
 TransformMutation::TransformMutation(const Mutation& mutation)
     : Mutation(mutation) {
+  HARD_ASSERT(type() == Type::Transform);
 }
 
 TransformMutation::Rep::Rep(DocumentKey&& key,

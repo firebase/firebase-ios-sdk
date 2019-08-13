@@ -49,10 +49,49 @@ let builder = ZipBuilder(paths: paths,
 
 do {
   // Build the zip file and get the path.
-  let location = try builder.buildAndAssembleReleaseDir()
-  print("Location of directory to be packaged: \(location)")
+  let projectDir = FileManager.default.temporaryDirectory(withName: "project")
+  let artifacts = try builder.buildAndAssembleRelease(inProjectDir: projectDir)
+  let firebaseVersion = artifacts.firebaseVersion
+  let location = artifacts.outputDir
+  print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
-  // TODO: Package the Carthage distribution with the current Zip structure.
+  // Package carthage if it's enabled.
+  var carthageRoot: URL?
+  if let carthageJSONDir = args.carthageDir {
+    do {
+      print("Creating Carthage release...")
+      // Create a copy of the release directory since we'll be modifying it.
+      let carthagePath =
+        location.deletingLastPathComponent().appendingPathComponent("carthage_build")
+      let fileManager = FileManager.default
+      fileManager.removeDirectoryIfExists(at: carthagePath)
+      try fileManager.copyItem(at: location, to: carthagePath)
+
+      // Package the Carthage distribution with the current directory structure.
+      let carthageDir = location.deletingLastPathComponent().appendingPathComponent("carthage")
+      fileManager.removeDirectoryIfExists(at: carthageDir)
+      var output = carthageDir.appendingPathComponent(firebaseVersion)
+      if let rcNumber = args.rcNumber {
+        output.appendPathComponent("rc\(rcNumber)")
+      }
+      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
+      CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
+                                            templateDir: args.templateDir,
+                                            jsonDir: carthageJSONDir,
+                                            firebaseVersion: firebaseVersion,
+                                            coreDiagnosticsPath: artifacts.carthageDiagnostics,
+                                            outputDir: output)
+
+      // Remove the duplicated Carthage build directory.
+      fileManager.removeDirectoryIfExists(at: carthagePath)
+      print("Done creating Carthage release! Files written to \(output)")
+
+      // Save the directory for later copying.
+      carthageRoot = carthageDir
+    } catch {
+      fatalError("Could not copy output directory for Carthage build: \(error)")
+    }
+  }
 
   // Prepare the release directory for zip packaging.
   do {
@@ -81,16 +120,40 @@ do {
   }
 
   print("Attempting to Zip the directory...")
-  let zipped = Zip.zipContents(ofDir: location)
+  var candidateName = "Firebase-\(firebaseVersion)"
+  if let rcNumber = args.rcNumber {
+    candidateName += "-rc\(rcNumber)"
+  }
+  candidateName += ".zip"
+  let zipped = Zip.zipContents(ofDir: location, name: candidateName)
 
   // If an output directory was specified, copy the Zip file to that directory. Otherwise just print
   // the location for further use.
   if let outputDir = args.outputDir {
     do {
-      let destination = outputDir.appendingPathComponent(zipped.lastPathComponent)
+      // Clear out the output directory if it exists.
+      FileManager.default.removeDirectoryIfExists(at: outputDir)
+      try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+
+      // We want the output to be in the X_Y_Z directory.
+      let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")
+      let versionedOutputDir = outputDir.appendingPathComponent(underscoredVersion)
+      try FileManager.default.createDirectory(at: versionedOutputDir,
+                                              withIntermediateDirectories: true)
+      let destination = versionedOutputDir.appendingPathComponent(zipped.lastPathComponent)
       try FileManager.default.copyItem(at: zipped, to: destination)
     } catch {
       fatalError("Could not copy Zip file to output directory: \(error)")
+    }
+
+    // Move the Carthage directory, if it exists.
+    if let carthageOutput = carthageRoot {
+      do {
+        let carthageDir = outputDir.appendingPathComponent("carthage")
+        try FileManager.default.copyItem(at: carthageOutput, to: carthageDir)
+      } catch {
+        fatalError("Could not copy Carthage output to directory: \(error)")
+      }
     }
   } else {
     print("Success! Zip file can be found at \(zipped.path)")
