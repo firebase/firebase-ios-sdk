@@ -325,7 +325,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         existingDoc = *foundExisting;
       }
 
-      if (!existingDoc
+      if (!existingDoc ||
           (authoritativeUpdates.contains(doc.key()) && !existingDoc->has_pending_writes()) ||
           doc.version() >= existingDoc->version()) {
         // If a document update isn't authoritative, make sure we don't apply an old document
