@@ -83,6 +83,7 @@ static NSInteger target = 1337;
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+    event.clockSnapshot = [GDTClock snapshot];
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
@@ -103,6 +104,7 @@ static NSInteger target = 1337;
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+    event.clockSnapshot = [GDTClock snapshot];
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
   __block NSURL *eventFile;
@@ -223,7 +225,7 @@ static NSInteger target = 1337;
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     weakEvent = event;
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-
+    event.clockSnapshot = [GDTClock snapshot];
     // Store the event and wait for the expectation.
     [[GDTStorage sharedInstance] storeEvent:event];
     GDTDataFuture *dataFuture =
@@ -256,10 +258,20 @@ static NSInteger target = 1337;
 - (void)testNSSecureCoding {
   XCTAssertTrue([GDTStorage supportsSecureCoding]);
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
+  event.clockSnapshot = [GDTClock snapshot];
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
-  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+  NSData *storageData;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                        requiringSecureCoding:YES
+                                                        error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+#endif
+  }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
@@ -267,8 +279,17 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
-
-  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+  GDTStorage *unarchivedStorage;
+  NSError *error;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
+                                                          fromData:storageData
+                                                             error:&error];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+#endif
+  }
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
@@ -276,9 +297,19 @@ static NSInteger target = 1337;
 - (void)testNSSecureCodingWithSharedInstance {
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+  event.clockSnapshot = [GDTClock snapshot];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
-  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+  NSData *storageData;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                        requiringSecureCoding:YES
+                                                        error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+#endif
+  }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
@@ -286,8 +317,16 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
-
-  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+  GDTStorage *unarchivedStorage;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    unarchivedStorage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTStorage class]
+                                                          fromData:storageData
+                                                             error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+#endif
+  }
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
@@ -298,6 +337,7 @@ static NSInteger target = 1337;
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
     event.qosTier = GDTEventQoSFast;
+    event.clockSnapshot = [GDTClock snapshot];
     XCTAssertFalse(self.uploaderFake.forceUploadCalled);
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
