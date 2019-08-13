@@ -33,7 +33,22 @@ class Timestamp;
 namespace firestore {
 namespace model {
 
-/** Represents a transform within a TransformMutation. */
+/**
+ * Represents a transform within a TransformMutation.
+ *
+ * Note: TransformOperation and its subclasses are specially designed to avoid
+ * slicing. You can assign a subclass of TransformOperation to an instance of
+ * TransformOperation and the full value is preserved, unsliced. Each subclass
+ * declares an explicit constructor that can recover the derived type. This
+ * means that code like this will work:
+ *
+ *     ArrayTransform array_transform(...);
+ *     TransformOperation transform = array_transform;
+ *     ArrayTransform recovered(transform);
+ *
+ * The final line results in an explicit check that will fail if the type of
+ * the underlying data is not actually an ArrayTransform.
+ */
 class TransformOperation {
  public:
   /** All the different kinds to TransformOperation. */
