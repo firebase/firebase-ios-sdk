@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -158,14 +159,14 @@ class Mutation {
 
   /** The runtime type of this mutation. */
   Type type() const {
-    return rep_->type();
+    return rep().type();
   }
 
   const DocumentKey& key() const {
-    return rep_->key();
+    return rep().key();
   }
   const Precondition& precondition() const {
-    return rep_->precondition();
+    return rep().precondition();
   }
 
   /**
@@ -189,7 +190,7 @@ class Mutation {
   MaybeDocument ApplyToRemoteDocument(
       const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const {
-    return rep_->ApplyToRemoteDocument(maybe_doc, mutation_result);
+    return rep().ApplyToRemoteDocument(maybe_doc, mutation_result);
   }
 
   /**
@@ -231,17 +232,17 @@ class Mutation {
       const absl::optional<MaybeDocument>& maybe_doc,
       const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const {
-    return rep_->ApplyToLocalView(maybe_doc, base_doc, local_write_time);
+    return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
   }
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
   size_t Hash() const {
-    return rep_->Hash();
+    return rep().Hash();
   }
 
   std::string ToString() const {
-    return rep_ ? rep_->ToString() : "(invalid)";
+    return rep_ ? rep().ToString() : "(invalid)";
   }
 
   friend std::ostream& operator<<(std::ostream& os, const Mutation& mutation);
@@ -293,7 +294,7 @@ class Mutation {
   }
 
   const Rep& rep() const {
-    return *rep_;
+    return *NOT_NULL(rep_);
   }
 
  private:
