@@ -30,6 +30,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(Mutation) == sizeof(PatchMutation),
+    "PatchMutation may not have additional members (everything goes in Rep)");
+
 PatchMutation::PatchMutation(DocumentKey key,
                              ObjectValue value,
                              FieldMask mask,
@@ -41,6 +45,7 @@ PatchMutation::PatchMutation(DocumentKey key,
 }
 
 PatchMutation::PatchMutation(const Mutation& mutation) : Mutation(mutation) {
+  HARD_ASSERT(type() == Type::Patch);
 }
 
 PatchMutation::Rep::Rep(DocumentKey&& key,
