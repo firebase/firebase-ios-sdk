@@ -227,13 +227,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
-
-      RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
-        -scheme "Auth_E2eTests" \
-        "${xcb_flags[@]}" \
-        build \
-        test
     fi
     ;;
 
