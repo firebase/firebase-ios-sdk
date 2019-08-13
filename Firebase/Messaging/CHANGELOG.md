@@ -1,6 +1,6 @@
 # 2019-08-20 -- v4.1.3
-- [changed] Clean up the documents, unused macros, and folders. (#3490, #3537, #3556, #3498)
-- [changed] Update the header path to pod repo relative. (#3527)
+- [changed] Cleaned up the documents, unused macros, and folders. (#3490, #3537, #3556, #3498)
+- [changed] Updated the header path to pod repo relative. (#3527)
 
 # 2019-08-08 -- v4.1.2
 - [fixed] Fix hang when token is not available before topic subscription and unsubscription. (#3438)
