@@ -42,7 +42,6 @@
 		DE800B8822A592B100AC9A23 /* AccountInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B7D22A592B100AC9A23 /* AccountInfoTests.m */; };
 		DE800B8922A592B100AC9A23 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B7F22A592B100AC9A23 /* FacebookAuthTests.m */; };
 		DE800B8A22A592B100AC9A23 /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8022A592B100AC9A23 /* CustomAuthTests.m */; };
-		DE800B8B22A592B100AC9A23 /* GoogleAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */; };
 		DE800B8C22A592B100AC9A23 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8322A592B100AC9A23 /* AnonymousAuthTests.m */; };
 		DE800B8E22A592B100AC9A23 /* FIRAuthApiTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */; };
 		DE800B8F22A592B100AC9A23 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B8622A592B100AC9A23 /* GoogleAuthTests.m */; };
@@ -141,7 +140,6 @@
 		DE800B7F22A592B100AC9A23 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FacebookAuthTests.m; path = ../../ApiTests/FacebookAuthTests.m; sourceTree = "<group>"; };
 		DE800B8022A592B100AC9A23 /* CustomAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CustomAuthTests.m; path = ../../ApiTests/CustomAuthTests.m; sourceTree = "<group>"; };
 		DE800B8122A592B100AC9A23 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthApiTestsBase.h; path = ../../ApiTests/FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
-		DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GoogleAuthTests.swift; path = ../../ApiTests/GoogleAuthTests.swift; sourceTree = "<group>"; };
 		DE800B8322A592B100AC9A23 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnonymousAuthTests.m; path = ../../ApiTests/AnonymousAuthTests.m; sourceTree = "<group>"; };
 		DE800B8422A592B100AC9A23 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../ApiTests/Info.plist; sourceTree = "<group>"; };
 		DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthApiTestsBase.m; path = ../../ApiTests/FIRAuthApiTestsBase.m; sourceTree = "<group>"; };
@@ -293,7 +291,6 @@
 				DE800B8122A592B100AC9A23 /* FIRAuthApiTestsBase.h */,
 				DE800B8522A592B100AC9A23 /* FIRAuthApiTestsBase.m */,
 				DE800B8622A592B100AC9A23 /* GoogleAuthTests.m */,
-				DE800B8222A592B100AC9A23 /* GoogleAuthTests.swift */,
 				DE800B8422A592B100AC9A23 /* Info.plist */,
 			);
 			path = Auth_ApiTests;
@@ -483,7 +480,6 @@
 				DE800B8722A592B100AC9A23 /* EmailPasswordAuthTests.m in Sources */,
 				DE800B8E22A592B100AC9A23 /* FIRAuthApiTestsBase.m in Sources */,
 				DE800B8922A592B100AC9A23 /* FacebookAuthTests.m in Sources */,
-				DE800B8B22A592B100AC9A23 /* GoogleAuthTests.swift in Sources */,
 				DE800B8F22A592B100AC9A23 /* GoogleAuthTests.m in Sources */,
 				DE800B8822A592B100AC9A23 /* AccountInfoTests.m in Sources */,
 			);
