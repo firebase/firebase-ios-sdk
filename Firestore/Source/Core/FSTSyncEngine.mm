@@ -53,6 +53,7 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
@@ -176,6 +177,11 @@ class LimboResolution {
   /** The remote store for sending writes, watches, etc. to the backend. */
   RemoteStore *_remoteStore;
 
+  /**
+   * A callback to be notified when queries being listened to produce new view snapshots or errors.
+   */
+  SyncEngineCallback *_callback;
+
   /** Used for creating the TargetId for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
 
@@ -220,14 +226,18 @@ class LimboResolution {
   return self;
 }
 
+- (void)setCallback:(SyncEngineCallback *)callback {
+  _callback = callback;
+}
+
 - (TargetId)listenToQuery:(Query)query {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
   HARD_ASSERT(_queryViewsByQuery.find(query) == _queryViewsByQuery.end(),
               "We already listen to query: %s", query.ToString());
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   ViewSnapshot viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
-  [self.syncEngineDelegate handleViewSnapshots:{viewSnapshot}];
+  _callback->OnViewSnapshots({viewSnapshot});
 
   _remoteStore->Listen(queryData);
   return queryData.targetID;
@@ -257,7 +267,7 @@ class LimboResolution {
 }
 
 - (void)stopListeningToQuery:(const Query &)query {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
 
   FSTQueryView *queryView = _queryViewsByQuery[query];
   HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
@@ -269,7 +279,7 @@ class LimboResolution {
 
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(FSTVoidErrorBlock)completion {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
 
   LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutations)];
   [self addMutationCompletionBlock:completion batchID:result.batch_id()];
@@ -345,7 +355,7 @@ class LimboResolution {
 }
 
 - (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
 
   // Update `receivedDocument` as appropriate for any limbo targets.
   for (const auto &entry : remoteEvent.target_changes()) {
@@ -381,6 +391,8 @@ class LimboResolution {
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
+  [self assertCallbackExistsForSelector:_cmd];
+
   std::vector<ViewSnapshot> newViewSnapshots;
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
@@ -392,12 +404,12 @@ class LimboResolution {
     }
   }
 
-  [self.syncEngineDelegate handleViewSnapshots:std::move(newViewSnapshots)];
-  [self.syncEngineDelegate applyChangedOnlineState:onlineState];
+  _callback->OnViewSnapshots(std::move(newViewSnapshots));
+  _callback->HandleOnlineStateChange(onlineState);
 }
 
 - (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
 
   const auto iter = _limboResolutionsByTarget.find(targetID);
   if (iter != _limboResolutionsByTarget.end()) {
@@ -430,12 +442,12 @@ class LimboResolution {
       LOG_WARN("Listen for query at %s failed: %s", query.path().CanonicalString(),
                error.localizedDescription);
     }
-    [self.syncEngineDelegate handleError:error forQuery:query];
+    _callback->OnError(query, Status::FromNSError(error));
   }
 }
 
 - (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
 
   // The local store may or may not be able to apply the write result and raise events immediately
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
@@ -447,7 +459,7 @@ class LimboResolution {
 }
 
 - (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
-  [self assertDelegateExistsForSelector:_cmd];
+  [self assertCallbackExistsForSelector:_cmd];
   MaybeDocumentMap changes = [self.localStore rejectBatchID:batchID];
 
   if (!changes.empty() && [self errorIsInteresting:error]) {
@@ -479,8 +491,8 @@ class LimboResolution {
   }
 }
 
-- (void)assertDelegateExistsForSelector:(SEL)methodSelector {
-  HARD_ASSERT(self.syncEngineDelegate, "Tried to call '%s' before delegate was registered.",
+- (void)assertCallbackExistsForSelector:(SEL)methodSelector {
+  HARD_ASSERT(_callback, "Tried to call '%s' before callback was registered.",
               NSStringFromSelector(methodSelector));
 }
 
@@ -542,7 +554,7 @@ class LimboResolution {
     }
   }
 
-  [self.syncEngineDelegate handleViewSnapshots:std::move(newSnapshots)];
+  _callback->OnViewSnapshots(std::move(newSnapshots));
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
 }
 
