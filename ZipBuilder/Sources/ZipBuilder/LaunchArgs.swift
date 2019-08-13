@@ -40,11 +40,13 @@ struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
     case cacheEnabled
+    case carthageDir
     case customSpecRepos
     case deleteCache
     case existingVersions
     case outputDir
     case releasingSDKs
+    case rc
     case templateDir
     case updatePodRepo
 
@@ -53,6 +55,9 @@ struct LaunchArgs {
       switch self {
       case .cacheEnabled:
         return "A flag to control using the cache for frameworks."
+      case .carthageDir:
+        return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
+          "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
       case .deleteCache:
@@ -63,6 +68,8 @@ struct LaunchArgs {
           "of type `ZipBuilder_FirebaseSDKs`."
       case .outputDir:
         return "The directory to copy the built Zip file to."
+      case .rc:
+        return "The release candidate number, zero indexed."
       case .releasingSDKs:
         return "The file path to a textproto file containing all the releasing SDKs, of type " +
           "`ZipBuilder_Release`."
@@ -78,6 +85,10 @@ struct LaunchArgs {
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
   let allSDKsPath: URL?
+
+  /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
+  /// build.
+  let carthageDir: URL?
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
@@ -100,6 +111,9 @@ struct LaunchArgs {
 
   /// A flag to delete the cache from the cache directory.
   let deleteCache: Bool
+
+  /// The release candidate number, zero indexed.
+  let rcNumber: Int?
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
@@ -166,6 +180,26 @@ struct LaunchArgs {
       outputDir = nil
     }
 
+    // Parse the release candidate number. This should only be used in conjunction with the other
+    // release related flags.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue) {
+      guard let parsedFlag = Int(rcFlag) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.rc) key: value passed in is not " +
+          "an integer. Value: \(rcFlag)")
+      }
+
+      rcNumber = parsedFlag
+    } else {
+      // TEMPORARY REMOVAL: We don't currently pass in the RC to Kokoro, so ignore the missing flag.
+      // Check if we have other release related flags. If so, fail since we need an RC number.
+//      guard currentReleasePath == nil else {
+//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed " +
+//          "in when specifiying \(Key.releasingSDKs).")
+//      }
+
+      rcNumber = nil
+    }
+
     // Parse the custom specs key.
     if let customSpecs = defaults.string(forKey: Key.customSpecRepos.rawValue) {
       // Custom specs are passed in as a comma separated list of URLs. Split the String by each
@@ -182,6 +216,20 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       customSpecRepos = nil
+    }
+
+    // Parse the Carthage directory key.
+    if let carthagePath = defaults.string(forKey: Key.carthageDir.rawValue) {
+      let url = URL(fileURLWithPath: carthagePath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.carthageDir) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(carthagePath)")
+      }
+
+      carthageDir = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      carthageDir = nil
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
