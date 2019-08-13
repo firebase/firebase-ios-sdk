@@ -16,18 +16,16 @@
 
 import Foundation
 
+// Delete the cache directory, if it exists.
+do {
+  let cacheDir = try FileManager.default.firebaseCacheDirectory()
+  FileManager.default.removeDirectoryIfExists(at: cacheDir)
+} catch {
+  fatalError("Could not remove the cache before packaging the release: \(error)")
+}
+
 // Get the launch arguments, parsed by user defaults.
 let args = LaunchArgs()
-
-// Clear the cache if requested.
-if args.deleteCache {
-  do {
-    let cacheDir = try FileManager.default.firebaseCacheDirectory()
-    try FileManager.default.removeItem(at: cacheDir)
-  } catch {
-    fatalError("Could not empty the cache before building the zip file: \(error)")
-  }
-}
 
 // Keep timing for how long it takes to build the zip file for information purposes.
 let buildStart = Date()
@@ -43,9 +41,7 @@ var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir)
 paths.allSDKsPath = args.allSDKsPath
 paths.currentReleasePath = args.currentReleasePath
 paths.logsOutputDir = args.outputDir?.appendingPathComponent("build_logs")
-let builder = ZipBuilder(paths: paths,
-                         customSpecRepos: args.customSpecRepos,
-                         useCache: args.cacheEnabled)
+let builder = ZipBuilder(paths: paths, customSpecRepos: args.customSpecRepos)
 
 do {
   // Build the zip file and get the path.

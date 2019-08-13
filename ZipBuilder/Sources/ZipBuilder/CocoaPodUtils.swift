@@ -32,15 +32,11 @@ public enum CocoaPodUtils {
     /// The location of the pod on disk.
     var installedLocation: URL
 
-    /// A key that can be generated and used for identifying pods due to binary differences.
-    var cacheKey: String?
-
     /// Default initializer. Explicitly declared to take advantage of default arguments.
-    init(name: String, version: String, installedLocation: URL, cacheKey: String? = nil) {
+    init(name: String, version: String, installedLocation: URL) {
       self.name = name
       self.version = version
       self.installedLocation = installedLocation
-      self.cacheKey = cacheKey
     }
   }
 
@@ -97,14 +93,9 @@ public enum CocoaPodUtils {
           "information for installed Pods.")
       }
 
-      // Generate the cache key for this framework. We will use the list of subspecs used in the Pod
-      // to generate this, since a Pod like GoogleUtilities could build different sources based on
-      // what subspecs are included.
-      let cacheKey = self.cacheKey(forPod: podName, fromPodfileLock: podfileLock)
       let podInfo = PodInfo(name: podName,
                             version: version,
-                            installedLocation: podDir,
-                            cacheKey: cacheKey)
+                            installedLocation: podDir)
       installedPods.append(podInfo)
     }
 
@@ -226,73 +217,6 @@ public enum CocoaPodUtils {
     let version = nsString.substring(with: match.range(at: 2)) as String
 
     return (framework, version)
-  }
-
-  /// Generates a key representing the unique combination of all subspecs used for that Pod. This is
-  /// necessary for Pods like GoogleUtilities, where we will need to include all subspecs as part of
-  /// a build. Otherwise we could accidentally use a cached framework that doesn't include all the
-  /// code necessary to function.
-  ///
-  /// - Parameters:
-  ///   - framework: The framework being built.
-  ///   - podfileLock: The contents of the Podfile.lock for the project.
-  /// - Returns: A key to describe the full set of subspecs used to build the framework, or an empty
-  ///            String if there were no specific subspecs used.
-  private static func cacheKey(forPod podName: String,
-                               fromPodfileLock podfileLock: String) -> String? {
-    // Ignore the umbrella Firebase pod, cacheing doesn't make sense.
-    guard podName != "Firebase" else { return nil }
-
-    // Get the first section of the Podfile containing only Pods installed, the only thing we care
-    // about.
-    guard let podsInstalled = podfileLock.components(separatedBy: "DEPENDENCIES:").first else {
-      fatalError("""
-      Could not generate cache key for \(podName) from Podfile.lock contents - is this a valid
-      Podfile.lock?
-      ---------- Podfile.lock contents ----------
-      \(podfileLock)
-      -------------------------------------------
-      """)
-    }
-
-    // Only get the lines that start with "  - ", and have the framework we're looking for since
-    // they are the top level pods that are installed.
-    // Example result of a single line: `- GoogleUtilities/Environment (~> 5.2)`.
-    let lines = podsInstalled.components(separatedBy: .newlines).filter {
-      $0.hasPrefix("  - ") && $0.contains(podName)
-    }
-
-    // Get a list of all the subspecs used to build this framework, and use that to generate the
-    // cache key.
-    var uniqueSubspecs = Set<String>()
-    for line in lines.sorted() {
-      // Separate the line into readable chunks, using a space and quote as a separator.
-      // Example result: `["-", "GoogleUtilities/Environment", "(~>", "5.2)"]`.
-      let components = line.components(separatedBy: CharacterSet(charactersIn: " \""))
-
-      // The Pod and subspec will be the only variables we care about, filter out the rest.
-      // Example result: 'GoogleUtilities/Environment' or `FirebaseCore`. Only Pods with a subspec
-      // should be included here, which are always in the format of `PodName/SubspecName`.
-      guard let fullPodName = components.filter({ $0.contains("\(podName)/") }).first else {
-        continue
-      }
-
-      // The fullPodName will be something like `GoogleUtilities/UserDefaults`, get the subspec
-      // name.
-      let subspec = fullPodName.replacingOccurrences(of: "\(podName)/", with: "")
-      if !subspec.isEmpty {
-        uniqueSubspecs.insert(subspec)
-      }
-    }
-
-    // Return nil if there are no subpsecs used, since no cache key is necessary.
-    guard !uniqueSubspecs.isEmpty else {
-      return nil
-    }
-
-    // Assemble the cache key based on the framework name, and all subspecs (sorted alphabetically
-    // for repeatability) separated by a `+` (as was previously used).
-    return podName + "+" + uniqueSubspecs.sorted().joined(separator: "+")
   }
 
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
