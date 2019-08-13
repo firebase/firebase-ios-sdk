@@ -31,13 +31,6 @@ public enum CocoaPodUtils {
 
     /// The location of the pod on disk.
     var installedLocation: URL
-
-    /// Default initializer. Explicitly declared to take advantage of default arguments.
-    init(name: String, version: String, installedLocation: URL) {
-      self.name = name
-      self.version = version
-      self.installedLocation = installedLocation
-    }
   }
 
   /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
