@@ -166,6 +166,7 @@ ArrayTransform::ArrayTransform(Type type,
                                std::vector<model::FieldValue> elements)
     : TransformOperation(
           std::make_shared<const Rep>(type, std::move(elements))) {
+  HARD_ASSERT(type == Type::ArrayUnion || type == Type::ArrayRemove);
 }
 
 ArrayTransform::ArrayTransform(const TransformOperation& op)

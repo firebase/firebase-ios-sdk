@@ -49,7 +49,7 @@ class TransformMutation : public Mutation {
    */
   explicit TransformMutation(const Mutation& mutation);
 
-  /** Creates an invalid TransformMutation instances. */
+  /** Creates an invalid TransformMutation instance. */
   TransformMutation() = default;
 
   /** Returns the field transforms to use when transforming the document. */
