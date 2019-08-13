@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -58,7 +59,7 @@ class Precondition {
    * Returns true if the precondition is valid for the given document (and the
    * document is available).
    */
-  bool IsValidFor(const MaybeDocument* maybe_doc) const;
+  bool IsValidFor(const absl::optional<MaybeDocument>& maybe_doc) const;
 
   /** Returns whether this Precondition represents no precondition. */
   bool IsNone() const {
@@ -110,12 +111,10 @@ class Precondition {
     UNREACHABLE();
   }
 
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
-  NSUInteger Hash() const {
-    NSUInteger hash = std::hash<Timestamp>()(update_time_.timestamp());
-    hash = hash * 31 + exists_;
-    hash = hash * 31 + static_cast<NSUInteger>(type_);
+  size_t Hash() const {
+    size_t hash = std::hash<Timestamp>()(update_time_.timestamp());
+    hash = hash * 31u + exists_;
+    hash = hash * 31u + static_cast<size_t>(type_);
     return hash;
   }
 

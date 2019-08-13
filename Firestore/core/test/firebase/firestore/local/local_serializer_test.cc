@@ -76,6 +76,7 @@ using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Key;
+using testutil::Map;
 using testutil::Query;
 using testutil::UnknownDoc;
 using util::Status;
@@ -270,8 +271,7 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
 }
 
 TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = *Doc("some/path", /*version=*/42,
-                      {{"foo", FieldValue::FromString("bar")}});
+  Document doc = Doc("some/path", /*version=*/42, Map("foo", "bar"));
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
@@ -287,7 +287,7 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
-  NoDocument no_doc = *DeletedDoc("some/path", /*version=*/42);
+  NoDocument no_doc = DeletedDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_no_document()->set_name(
@@ -299,7 +299,7 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
-  UnknownDocument unknown_doc = *UnknownDoc("some/path", /*version=*/42);
+  UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_unknown_document()->set_name(

@@ -33,7 +33,8 @@ Mutation::Mutation(DocumentKey&& key, Precondition&& precondition)
     : key_(std::move(key)), precondition_(std::move(precondition)) {
 }
 
-void Mutation::VerifyKeyMatches(const MaybeDocument* maybe_doc) const {
+void Mutation::VerifyKeyMatches(
+    const absl::optional<MaybeDocument>& maybe_doc) const {
   if (maybe_doc) {
     HARD_ASSERT(maybe_doc->key() == key(),
                 "Can only apply a mutation to a document with the same key");
@@ -41,7 +42,7 @@ void Mutation::VerifyKeyMatches(const MaybeDocument* maybe_doc) const {
 }
 
 SnapshotVersion Mutation::GetPostMutationVersion(
-    const MaybeDocument* maybe_doc) {
+    const absl::optional<MaybeDocument>& maybe_doc) {
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
     return maybe_doc->version();
   } else {
@@ -61,10 +62,10 @@ SetMutation::SetMutation(DocumentKey&& key,
       value_(std::move(value)) {
 }
 
-MaybeDocumentPtr SetMutation::ApplyToRemoteDocument(
-    const MaybeDocumentPtr& maybe_doc,
+MaybeDocument SetMutation::ApplyToRemoteDocument(
+    const absl::optional<MaybeDocument>& maybe_doc,
     const MutationResult& mutation_result) const {
-  VerifyKeyMatches(maybe_doc.get());
+  VerifyKeyMatches(maybe_doc);
 
   HARD_ASSERT(mutation_result.transform_results() == nullptr,
               "Transform results received by SetMutation.");
@@ -73,23 +74,21 @@ MaybeDocumentPtr SetMutation::ApplyToRemoteDocument(
   // the server has accepted the mutation so the precondition must have held.
 
   const SnapshotVersion& version = mutation_result.version();
-  return absl::make_unique<Document>(ObjectValue(value_), key(), version,
-                                     DocumentState::kCommittedMutations);
+  return Document(value_, key(), version, DocumentState::kCommittedMutations);
 }
 
-MaybeDocumentPtr SetMutation::ApplyToLocalView(
-    const MaybeDocumentPtr& maybe_doc,
-    const MaybeDocument*,
+absl::optional<MaybeDocument> SetMutation::ApplyToLocalView(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
-  VerifyKeyMatches(maybe_doc.get());
+  VerifyKeyMatches(maybe_doc);
 
-  if (!precondition().IsValidFor(maybe_doc.get())) {
+  if (!precondition().IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
-  SnapshotVersion version = GetPostMutationVersion(maybe_doc.get());
-  return absl::make_unique<Document>(ObjectValue(value_), key(), version,
-                                     DocumentState::kLocalMutations);
+  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
+  return Document(value_, key(), version, DocumentState::kLocalMutations);
 }
 
 bool SetMutation::equal_to(const Mutation& other) const {
@@ -106,14 +105,14 @@ PatchMutation::PatchMutation(DocumentKey&& key,
       mask_(std::move(mask)) {
 }
 
-MaybeDocumentPtr PatchMutation::ApplyToRemoteDocument(
-    const MaybeDocumentPtr& maybe_doc,
+MaybeDocument PatchMutation::ApplyToRemoteDocument(
+    const absl::optional<MaybeDocument>& maybe_doc,
     const MutationResult& mutation_result) const {
-  VerifyKeyMatches(maybe_doc.get());
+  VerifyKeyMatches(maybe_doc);
   HARD_ASSERT(mutation_result.transform_results() == nullptr,
               "Transform results received by PatchMutation.");
 
-  if (!precondition().IsValidFor(maybe_doc.get())) {
+  if (!precondition().IsValidFor(maybe_doc)) {
     // Since the mutation was not rejected, we know that the precondition
     // matched on the backend. We therefore must not have the expected version
     // of the document in our cache and return an UnknownDocument with the known
@@ -128,30 +127,31 @@ MaybeDocumentPtr PatchMutation::ApplyToRemoteDocument(
   }
 
   const SnapshotVersion& version = mutation_result.version();
-  ObjectValue new_data = PatchDocument(maybe_doc.get());
-  return absl::make_unique<Document>(std::move(new_data), key(), version,
-                                     DocumentState::kCommittedMutations);
+  ObjectValue new_data = PatchDocument(maybe_doc);
+  return Document(std::move(new_data), key(), version,
+                  DocumentState::kCommittedMutations);
 }
 
-MaybeDocumentPtr PatchMutation::ApplyToLocalView(
-    const MaybeDocumentPtr& maybe_doc,
-    const MaybeDocument*,
+absl::optional<MaybeDocument> PatchMutation::ApplyToLocalView(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
-  VerifyKeyMatches(maybe_doc.get());
+  VerifyKeyMatches(maybe_doc);
 
-  if (!precondition().IsValidFor(maybe_doc.get())) {
+  if (!precondition().IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
-  SnapshotVersion version = GetPostMutationVersion(maybe_doc.get());
-  ObjectValue new_data = PatchDocument(maybe_doc.get());
-  return absl::make_unique<Document>(std::move(new_data), key(), version,
-                                     DocumentState::kLocalMutations);
+  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
+  ObjectValue new_data = PatchDocument(maybe_doc);
+  return Document(std::move(new_data), key(), version,
+                  DocumentState::kLocalMutations);
 }
 
-ObjectValue PatchMutation::PatchDocument(const MaybeDocument* maybe_doc) const {
+ObjectValue PatchMutation::PatchDocument(
+    const absl::optional<MaybeDocument>& maybe_doc) const {
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
-    return PatchObject(static_cast<const Document*>(maybe_doc)->data());
+    return PatchObject(Document(*maybe_doc).data());
   } else {
     return PatchObject(ObjectValue::Empty());
   }
@@ -181,25 +181,25 @@ DeleteMutation::DeleteMutation(DocumentKey&& key, Precondition&& precondition)
     : Mutation(std::move(key), std::move(precondition)) {
 }
 
-MaybeDocumentPtr DeleteMutation::ApplyToRemoteDocument(
-    const MaybeDocumentPtr& /*maybe_doc*/,
+MaybeDocument DeleteMutation::ApplyToRemoteDocument(
+    const absl::optional<MaybeDocument>& /*maybe_doc*/,
     const MutationResult& /*mutation_result*/) const {
   // TODO(rsgowman): Implement.
   abort();
 }
 
-MaybeDocumentPtr DeleteMutation::ApplyToLocalView(
-    const MaybeDocumentPtr& maybe_doc,
-    const MaybeDocument*,
+absl::optional<MaybeDocument> DeleteMutation::ApplyToLocalView(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
-  VerifyKeyMatches(maybe_doc.get());
+  VerifyKeyMatches(maybe_doc);
 
-  if (!precondition().IsValidFor(maybe_doc.get())) {
+  if (!precondition().IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
-  return absl::make_unique<NoDocument>(key(), SnapshotVersion::None(),
-                                       /*hasCommittedMutations=*/false);
+  return NoDocument(key(), SnapshotVersion::None(),
+                    /* has_committed_mutations= */ false);
 }
 
 }  // namespace model

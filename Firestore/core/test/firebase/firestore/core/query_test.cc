@@ -87,9 +87,9 @@ TEST(QueryTest, OrderBy) {
 }
 
 TEST(QueryTest, MatchesBasedOnDocumentKey) {
-  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
-  auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
+  auto doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  auto doc3 = Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
   auto query = testutil::Query("rooms/eros/messages/1");
   EXPECT_THAT(query, Matches(doc1));
@@ -98,10 +98,10 @@ TEST(QueryTest, MatchesBasedOnDocumentKey) {
 }
 
 TEST(QueryTest, MatchesShallowAncestorQuery) {
-  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  auto doc1_meta = *Doc("rooms/eros/messages/1/meta/1", 0, Map("meta", "mv"));
-  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
-  auto doc3 = *Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
+  auto doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc1_meta = Doc("rooms/eros/messages/1/meta/1", 0, Map("meta", "mv"));
+  auto doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  auto doc3 = Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
   auto query = testutil::Query("rooms/eros/messages");
   EXPECT_THAT(query, Matches(doc1));
@@ -111,8 +111,8 @@ TEST(QueryTest, MatchesShallowAncestorQuery) {
 }
 
 TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
-  auto doc1 = *Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  auto doc2 = *Doc("rooms/eros/messages/2", 0, Map());
+  auto doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  auto doc2 = Doc("rooms/eros/messages/2", 0, Map());
 
   auto query = testutil::Query("rooms/eros/messages")
                    .AddingFilter(Filter("text", "==", "msg1"));
@@ -126,12 +126,12 @@ TEST(QueryTest, PrimitiveValueFilter) {
   auto query2 =
       testutil::Query("collection").AddingFilter(Filter("sort", "<=", 2));
 
-  auto doc1 = *Doc("collection/1", 0, Map("sort", 1));
-  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
-  auto doc3 = *Doc("collection/3", 0, Map("sort", 3));
-  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
-  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
-  auto doc6 = *Doc("collection/6", 0, Map());
+  auto doc1 = Doc("collection/1", 0, Map("sort", 1));
+  auto doc2 = Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = Doc("collection/3", 0, Map("sort", 3));
+  auto doc4 = Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = Doc("collection/5", 0, Map("sort", "string"));
+  auto doc6 = Doc("collection/6", 0, Map());
 
   EXPECT_THAT(query1, Not(Matches(doc1)));
   EXPECT_THAT(query1, Matches(doc2));
@@ -149,11 +149,11 @@ TEST(QueryTest, PrimitiveValueFilter) {
 TEST(QueryTest, NullFilter) {
   auto query =
       testutil::Query("collection").AddingFilter(Filter("sort", "==", nullptr));
-  auto doc1 = *Doc("collection/1", 0, Map("sort", nullptr));
-  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
-  auto doc3 = *Doc("collection/2", 0, Map("sort", 3.1));
-  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
-  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
+  auto doc1 = Doc("collection/1", 0, Map("sort", nullptr));
+  auto doc2 = Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = Doc("collection/2", 0, Map("sort", 3.1));
+  auto doc4 = Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = Doc("collection/5", 0, Map("sort", "string"));
 
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
@@ -166,11 +166,11 @@ TEST(QueryTest, NanFilter) {
   auto query =
       testutil::Query("collection").AddingFilter(Filter("sort", "==", NAN));
 
-  auto doc1 = *Doc("collection/1", 0, Map("sort", NAN));
-  auto doc2 = *Doc("collection/2", 0, Map("sort", 2));
-  auto doc3 = *Doc("collection/3", 0, Map("sort", 3.1));
-  auto doc4 = *Doc("collection/4", 0, Map("sort", false));
-  auto doc5 = *Doc("collection/5", 0, Map("sort", "string"));
+  auto doc1 = Doc("collection/1", 0, Map("sort", NAN));
+  auto doc2 = Doc("collection/2", 0, Map("sort", 2));
+  auto doc3 = Doc("collection/3", 0, Map("sort", 3.1));
+  auto doc4 = Doc("collection/4", 0, Map("sort", false));
+  auto doc5 = Doc("collection/5", 0, Map("sort", "string"));
 
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
@@ -184,22 +184,22 @@ TEST(QueryTest, ArrayContainsFilter) {
                    .AddingFilter(Filter("array", "array_contains", 42));
 
   // not an array.
-  auto doc = *Doc("collection/1", 0, Map("array", 1));
+  auto doc = Doc("collection/1", 0, Map("array", 1));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // empty array.
-  doc = *Doc("collection/1", 0, Map("array", Array()));
+  doc = Doc("collection/1", 0, Map("array", Array()));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // array without element (and make sure it doesn't match in a nested field or
   // a different field).
-  doc = *Doc("collection/1", 0,
-             Map("array", Array(41, "42", Map("a", 42, "b", Array(42))),
-                 "different", Array(42)));
+  doc = Doc("collection/1", 0,
+            Map("array", Array(41, "42", Map("a", 42, "b", Array(42))),
+                "different", Array(42)));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // array with element.
-  doc = *Doc("collection/1", 0, Map("array", Array(1, "2", 42, Map("a", 1))));
+  doc = Doc("collection/1", 0, Map("array", Array(1, "2", 42, Map("a", 1))));
   EXPECT_THAT(query, Matches(doc));
 }
 
@@ -210,15 +210,15 @@ TEST(QueryTest, ArrayContainsFilterWithObjectValues) {
           .AddingFilter(Filter("array", "array_contains", Map("a", Array(42))));
 
   // array without element.
-  auto doc = *Doc(
+  auto doc = Doc(
       "collection/1", 0,
       Map("array", Array(Map("a", 42), Map("a", Array(42, 43)),
                          Map("b", Array(42)), Map("a", Array(42), "b", 42))));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // array with element.
-  doc = *Doc("collection/1", 0,
-             Map("array", Array(1, "2", 42, Map("a", Array(42)))));
+  doc = Doc("collection/1", 0,
+            Map("array", Array(1, "2", 42, Map("a", Array(42)))));
   EXPECT_THAT(query, Matches(doc));
 }
 
@@ -226,19 +226,19 @@ TEST(QueryTest, InFilters) {
   auto query = testutil::Query("collection")
                    .AddingFilter(Filter("zip", "in", Array(12345)));
 
-  auto doc = *Doc("collection/1", 0, Map("zip", 12345));
+  auto doc = Doc("collection/1", 0, Map("zip", 12345));
   EXPECT_THAT(query, Matches(doc));
 
   // Value matches in array.
-  doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
+  doc = Doc("collection/1", 0, Map("zip", Array(12345)));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // Non-type match.
-  doc = *Doc("collection/1", 0, Map("zip", "12345"));
+  doc = Doc("collection/1", 0, Map("zip", "12345"));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // Nested match.
-  doc = *Doc("collection/1", 0, Map("zip", Array("12345", Map("zip", 12345))));
+  doc = Doc("collection/1", 0, Map("zip", Array("12345", Map("zip", 12345))));
   EXPECT_THAT(query, Not(Matches(doc)));
 }
 
@@ -248,11 +248,11 @@ TEST(QueryTest, InFiltersWithObjectValues) {
           .AddingFilter(Filter("zip", "in", Array(Map("a", Array(42)))));
 
   // Containing object in array.
-  auto doc = *Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
+  auto doc = Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // Containing object.
-  doc = *Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
+  doc = Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
   EXPECT_THAT(query, Matches(doc));
 }
 
@@ -261,20 +261,20 @@ TEST(QueryTest, ArrayContainsAnyFilters) {
       testutil::Query("collection")
           .AddingFilter(Filter("zip", "array-contains-any", Array(12345)));
 
-  auto doc = *Doc("collection/1", 0, Map("zip", Array(12345)));
+  auto doc = Doc("collection/1", 0, Map("zip", Array(12345)));
   EXPECT_THAT(query, Matches(doc));
 
   // Value matches in non-array.
-  doc = *Doc("collection/1", 0, Map("zip", 12345));
+  doc = Doc("collection/1", 0, Map("zip", 12345));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // Non-type match.
-  doc = *Doc("collection/1", 0, Map("zip", Array("12345")));
+  doc = Doc("collection/1", 0, Map("zip", Array("12345")));
   EXPECT_THAT(query, Not(Matches(doc)));
 
   // Nested match.
-  doc = *Doc("collection/1", 0,
-             Map("zip", Array("12345", Map("zip", Array(12345)))));
+  doc = Doc("collection/1", 0,
+            Map("zip", Array("12345", Map("zip", Array(12345)))));
   EXPECT_THAT(query, Not(Matches(doc)));
 }
 
@@ -284,11 +284,11 @@ TEST(QueryTest, ArrayContainsAnyFiltersWithObjectValues) {
                                         Array(Map("a", Array(42)))));
 
   // Containing object in array.
-  auto doc = *Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
+  auto doc = Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
   EXPECT_THAT(query, Matches(doc));
 
   // Containing object.
-  doc = *Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
+  doc = Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
   EXPECT_THAT(query, Not(Matches(doc)));
 }
 
@@ -298,13 +298,13 @@ TEST(QueryTest, DoesNotMatchComplexObjectsForFilters) {
   auto query2 =
       testutil::Query("collection").AddingFilter(Filter("sort", ">=", 2));
 
-  auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
-  auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
-  auto doc3 = *Doc("collection/3", 0, Map("sort", Array(1)));
-  auto doc4 = *Doc("collection/4", 0, Map("sort", Map("foo", 2)));
-  auto doc5 = *Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
-  auto doc6 = *Doc("collection/6", 0, Map("sort", Map()));  // no sort field
-  auto doc7 = *Doc("collection/7", 0, Map("sort", Array(3, 1)));
+  auto doc1 = Doc("collection/1", 0, Map("sort", 2));
+  auto doc2 = Doc("collection/2", 0, Map("sort", Array()));
+  auto doc3 = Doc("collection/3", 0, Map("sort", Array(1)));
+  auto doc4 = Doc("collection/4", 0, Map("sort", Map("foo", 2)));
+  auto doc5 = Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
+  auto doc6 = Doc("collection/6", 0, Map("sort", Map()));  // no sort field
+  auto doc7 = Doc("collection/7", 0, Map("sort", Array(3, 1)));
 
   EXPECT_THAT(query1, Matches(doc1));
   EXPECT_THAT(query1, Not(Matches(doc2)));
@@ -327,12 +327,12 @@ TEST(QueryTest, DoesntRemoveComplexObjectsWithOrderBy) {
   auto query1 =
       testutil::Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
 
-  auto doc1 = *Doc("collection/1", 0, Map("sort", 2));
-  auto doc2 = *Doc("collection/2", 0, Map("sort", Array()));
-  auto doc3 = *Doc("collection/3", 0, Map("sort", Array(1)));
-  auto doc4 = *Doc("collection/4", 0, Map("sort", Map("foo", 2)));
-  auto doc5 = *Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
-  auto doc6 = *Doc("collection/6", 0, Map());
+  auto doc1 = Doc("collection/1", 0, Map("sort", 2));
+  auto doc2 = Doc("collection/2", 0, Map("sort", Array()));
+  auto doc3 = Doc("collection/3", 0, Map("sort", Array(1)));
+  auto doc4 = Doc("collection/4", 0, Map("sort", Map("foo", 2)));
+  auto doc5 = Doc("collection/5", 0, Map("sort", Map("foo", "bar")));
+  auto doc6 = Doc("collection/6", 0, Map());
 
   EXPECT_THAT(query1, Matches(doc1));
   EXPECT_THAT(query1, Matches(doc2));
@@ -344,7 +344,7 @@ TEST(QueryTest, DoesntRemoveComplexObjectsWithOrderBy) {
 
 TEST(QueryTest, FiltersBasedOnArrayValue) {
   auto base_query = testutil::Query("collection");
-  auto doc1 = *Doc("collection/doc", 0, Map("tags", Array("foo", 1, true)));
+  auto doc1 = Doc("collection/doc", 0, Map("tags", Array("foo", 1, true)));
 
   FilterList matching_filters = {Filter("tags", "==", Array("foo", 1, true))};
 
@@ -365,8 +365,8 @@ TEST(QueryTest, FiltersBasedOnArrayValue) {
 
 TEST(QueryTest, FiltersBasedOnObjectValue) {
   auto base_query = testutil::Query("collection");
-  auto doc1 = *Doc("collection/doc", 0,
-                   Map("tags", Map("foo", "foo", "a", 0, "b", true, "c", NAN)));
+  auto doc1 = Doc("collection/doc", 0,
+                  Map("tags", Map("foo", "foo", "a", 0, "b", true, "c", NAN)));
 
   FilterList matching_filters = {
       Filter("tags", "==", Map("foo", "foo", "a", 0, "b", true, "c", NAN)),
@@ -413,20 +413,20 @@ TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
 
   // clang-format off
   std::vector<Document> docs = {
-      *Doc("collection/1", 0, Map("sort", nullptr)),
-      *Doc("collection/1", 0, Map("sort", false)),
-      *Doc("collection/1", 0, Map("sort", true)),
-      *Doc("collection/1", 0, Map("sort", 1)),
-      *Doc("collection/2", 0, Map("sort", 1)),  // by key
-      *Doc("collection/3", 0, Map("sort", 1)),  // by key
-      *Doc("collection/1", 0, Map("sort", 1.9)),
-      *Doc("collection/1", 0, Map("sort", 2)),
-      *Doc("collection/1", 0, Map("sort", 2.1)),
-      *Doc("collection/1", 0, Map("sort", "")),
-      *Doc("collection/1", 0, Map("sort", "a")),
-      *Doc("collection/1", 0, Map("sort", "ab")),
-      *Doc("collection/1", 0, Map("sort", "b")),
-      *Doc("collection/1", 0, Map("sort", Ref("project", "collection/id1"))),
+      Doc("collection/1", 0, Map("sort", nullptr)),
+      Doc("collection/1", 0, Map("sort", false)),
+      Doc("collection/1", 0, Map("sort", true)),
+      Doc("collection/1", 0, Map("sort", 1)),
+      Doc("collection/2", 0, Map("sort", 1)),  // by key
+      Doc("collection/3", 0, Map("sort", 1)),  // by key
+      Doc("collection/1", 0, Map("sort", 1.9)),
+      Doc("collection/1", 0, Map("sort", 2)),
+      Doc("collection/1", 0, Map("sort", 2.1)),
+      Doc("collection/1", 0, Map("sort", "")),
+      Doc("collection/1", 0, Map("sort", "a")),
+      Doc("collection/1", 0, Map("sort", "ab")),
+      Doc("collection/1", 0, Map("sort", "b")),
+      Doc("collection/1", 0, Map("sort", Ref("project", "collection/id1"))),
   };
   // clang-format on
 
@@ -440,16 +440,16 @@ TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
 
   // clang-format off
   std::vector<Document> docs = {
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),
-      *Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
-      *Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),
-      *Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
-      *Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),
+      Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),
+      Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
   };
   // clang-format on
 
@@ -463,16 +463,16 @@ TEST(QueryTest, SortsDocumentsWithDescendingToo) {
 
   // clang-format off
   std::vector<Document> docs = {
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
-      *Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),
-      *Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
-      *Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),
-      *Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),  // by key
-      *Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
+      Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),
+      Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 2, "sort2", 1)),
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 3)),
+      Doc("collection/3", 0, Map("sort1", 1, "sort2", 2)),
+      Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),  // by key
+      Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
   };
   // clang-format on
 
