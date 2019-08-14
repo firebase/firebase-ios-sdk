@@ -182,6 +182,21 @@ class FirestoreEncoderTests: XCTestCase {
     assertRoundTrip(model: model, encoded: ["date": date])
   }
 
+  func testTimestampCanDecodeAsDate() {
+    struct EncodingModel: Codable, Equatable {
+      let date: Timestamp
+    }
+    struct DecodingModel: Codable, Equatable {
+      let date: Date
+    }
+    let date = Date(timeIntervalSinceReferenceDate: 0)
+    let timestamp = Timestamp(date: date)
+    let model = EncodingModel(date: timestamp)
+    let decoded = DecodingModel(date: date)
+    let encoded = assertEncodes(model, encoded: ["date": timestamp])
+    assertDecodes(encoded, encoded: decoded)
+  }
+
   func testDocumentReference() {
     struct Model: Codable, Equatable {
       let doc: DocumentReference
