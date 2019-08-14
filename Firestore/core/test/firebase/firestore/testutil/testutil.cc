@@ -30,9 +30,11 @@ using model::DocumentComparator;
 using model::DocumentSet;
 using model::FieldMask;
 using model::FieldPath;
+using model::FieldTransform;
 using model::FieldValue;
 using model::ObjectValue;
 using model::Precondition;
+using model::TransformOperation;
 
 DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
@@ -51,8 +53,6 @@ model::PatchMutation PatchMutation(
     model::FieldValue::Map values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
     std::vector<model::FieldPath> update_mask) {
-  bool merge = !update_mask.empty();
-
   ObjectValue object_value = ObjectValue::Empty();
   std::set<FieldPath> field_mask_paths;
 
@@ -65,6 +65,8 @@ model::PatchMutation PatchMutation(
       object_value = object_value.Set(field_path, value);
     }
   }
+
+  bool merge = !update_mask.empty();
 
   Precondition precondition =
       merge ? Precondition::None() : Precondition::Exists(true);
