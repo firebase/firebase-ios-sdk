@@ -945,6 +945,16 @@ static FIRInstanceID *gInstanceID;
     [self.installations
         installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
           FIRInstanceID_STRONGIFY(self);
+          if (self == nil) {
+            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID017,
+                                     @"Instance ID shut down during token reset. Aborting");
+            return;
+          }
+          if (self.apnsTokenData == nil) {
+            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID018,
+                                     @"apnsTokenData was set to nil during token reset. Aborting");
+            return;
+          }
 
           NSMutableDictionary *tokenOptions = [@{
             kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
