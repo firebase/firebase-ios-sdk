@@ -30,11 +30,14 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -526,14 +529,14 @@ google_firestore_v1_Write Serializer::EncodeMutation(
   }
 
   switch (mutation.type()) {
-    case Mutation::Type::kSet: {
+    case Mutation::Type::Set: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       result.update = EncodeDocument(
           mutation.key(), static_cast<const SetMutation&>(mutation).value());
       return result;
     }
 
-    case Mutation::Type::kPatch: {
+    case Mutation::Type::Patch: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
@@ -560,7 +563,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
         return result;
       */
 
-    case Mutation::Type::kDelete: {
+    case Mutation::Type::Delete: {
       result.which_operation = google_firestore_v1_Write_delete_tag;
       result.delete_ = EncodeString(EncodeKey(mutation.key()));
       return result;
