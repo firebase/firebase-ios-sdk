@@ -349,7 +349,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
-  [self verifyNotShutdown];
+  // Checks for shutdown but does not throw error, allowing it to be an no-op if client is
+  // already shutdown.
+  if (self.isShutdown) {
+    return;
+  }
   _workerQueue->Enqueue([self, listener] { _eventManager->RemoveQueryListener(listener); });
 }
 
