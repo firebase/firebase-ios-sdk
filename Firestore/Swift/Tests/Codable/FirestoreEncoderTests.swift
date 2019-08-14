@@ -193,8 +193,8 @@ class FirestoreEncoderTests: XCTestCase {
     let timestamp = Timestamp(date: date)
     let model = EncodingModel(date: timestamp)
     let decoded = DecodingModel(date: date)
-    let encoded = assertEncodes(model, encoded: ["date": timestamp])
-    assertDecodes(encoded, encoded: decoded)
+    let encoded = assertEncodes(model, to: ["date": timestamp])
+    assertDecodes(encoded, to: decoded)
   }
 
   func testDocumentReference() {
