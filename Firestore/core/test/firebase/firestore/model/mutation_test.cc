@@ -36,24 +36,23 @@ using testutil::PatchMutation;
 using testutil::SetMutation;
 
 TEST(Mutation, AppliesSetsToDocuments) {
-  MaybeDocumentPtr base_doc =
-      Doc("collection/key", 0,
-          {{"foo", FieldValue::FromString("foo-value")},
-           {"baz", FieldValue::FromString("baz-value")}});
+  Document base_doc = Doc("collection/key", 0,
+                          {{"foo", FieldValue::FromString("foo-value")},
+                           {"baz", FieldValue::FromString("baz-value")}});
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"bar", FieldValue::FromString("bar-value")}});
-  MaybeDocumentPtr set_doc =
-      set->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(set_doc, nullptr);
+  absl::optional<MaybeDocument> set_doc =
+      set->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(set_doc, absl::nullopt);
   ASSERT_EQ(set_doc->type(), MaybeDocument::Type::Document);
-  EXPECT_EQ(*set_doc, *Doc("collection/key", 0,
-                           {{"bar", FieldValue::FromString("bar-value")}},
-                           DocumentState::kLocalMutations));
+  EXPECT_EQ(*set_doc, Doc("collection/key", 0,
+                          {{"bar", FieldValue::FromString("bar-value")}},
+                          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToDocuments) {
-  MaybeDocumentPtr base_doc = Doc(
+  Document base_doc = Doc(
       "collection/key", 0,
       {{"foo",
         FieldValue::FromMap({{"bar", FieldValue::FromString("bar-value")}})},
@@ -61,54 +60,54 @@ TEST(Mutation, AppliesPatchToDocuments) {
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
-  MaybeDocumentPtr local =
-      patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(local, nullptr);
+  absl::optional<MaybeDocument> local =
+      patch->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(local, absl::nullopt);
   EXPECT_EQ(
       *local,
-      *Doc("collection/key", 0,
-           {{"foo", FieldValue::FromMap(
-                        {{"bar", FieldValue::FromString("new-bar-value")}})},
-            {"baz", FieldValue::FromString("baz-value")}},
-           DocumentState::kLocalMutations));
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})},
+           {"baz", FieldValue::FromString("baz-value")}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchWithMergeToDocuments) {
-  MaybeDocumentPtr base_doc = DeletedDoc("collection/key", 0);
+  NoDocument base_doc = DeletedDoc("collection/key", 0);
 
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  MaybeDocumentPtr new_doc =
-      upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(new_doc, nullptr);
+  absl::optional<MaybeDocument> new_doc =
+      upsert->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(new_doc, absl::nullopt);
   EXPECT_EQ(
       *new_doc,
-      *Doc("collection/key", 0,
-           {{"foo", FieldValue::FromMap(
-                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
-           DocumentState::kLocalMutations));
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
-  std::shared_ptr<NoDocument> base_doc = nullptr;
+  absl::optional<MaybeDocument> base_doc;
 
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  MaybeDocumentPtr new_doc =
-      upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(new_doc, nullptr);
+  absl::optional<MaybeDocument> new_doc =
+      upsert->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(new_doc, absl::nullopt);
   EXPECT_EQ(
       *new_doc,
-      *Doc("collection/key", 0,
-           {{"foo", FieldValue::FromMap(
-                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
-           DocumentState::kLocalMutations));
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, DeletesValuesFromTheFieldMask) {
-  MaybeDocumentPtr base_doc = Doc(
+  Document base_doc = Doc(
       "collection/key", 0,
       {{"foo",
         FieldValue::FromMap({{"bar", FieldValue::FromString("bar-value")},
@@ -117,43 +116,42 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", FieldValue::Map(), {Field("foo.bar")});
 
-  MaybeDocumentPtr patch_doc =
-      patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(patch_doc, nullptr);
+  absl::optional<MaybeDocument> patch_doc =
+      patch->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(patch_doc, absl::nullopt);
   EXPECT_EQ(*patch_doc,
-            *Doc("collection/key", 0,
-                 {{"foo", FieldValue::FromMap(
-                              {{"baz", FieldValue::FromString("baz-value")}})}},
-                 DocumentState::kLocalMutations));
+            Doc("collection/key", 0,
+                {{"foo", FieldValue::FromMap(
+                             {{"baz", FieldValue::FromString("baz-value")}})}},
+                DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, PatchesPrimitiveValue) {
-  MaybeDocumentPtr base_doc =
-      Doc("collection/key", 0,
-          {{"foo", FieldValue::FromString("foo-value")},
-           {"baz", FieldValue::FromString("baz-value")}});
+  Document base_doc = Doc("collection/key", 0,
+                          {{"foo", FieldValue::FromString("foo-value")},
+                           {"baz", FieldValue::FromString("baz-value")}});
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
 
-  MaybeDocumentPtr patched_doc =
-      patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_NE(patched_doc, nullptr);
+  absl::optional<MaybeDocument> patched_doc =
+      patch->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
+  ASSERT_NE(patched_doc, absl::nullopt);
   EXPECT_EQ(
       *patched_doc,
-      *Doc("collection/key", 0,
-           {{"foo", FieldValue::FromMap(
-                        {{"bar", FieldValue::FromString("new-bar-value")}})},
-            {"baz", FieldValue::FromString("baz-value")}},
-           DocumentState::kLocalMutations));
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})},
+           {"baz", FieldValue::FromString("baz-value")}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
-  MaybeDocumentPtr base_doc = testutil::DeletedDoc("collection/key", 0);
+  NoDocument base_doc = testutil::DeletedDoc("collection/key", 0);
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", {{"foo", FieldValue::FromString("bar")}});
-  MaybeDocumentPtr patched_doc =
-      patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
+  absl::optional<MaybeDocument> patched_doc =
+      patch->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
   EXPECT_EQ(base_doc, patched_doc);
 }
 
@@ -251,45 +249,43 @@ TEST(Mutation, AppliesServerAckedArrayTransformsToDocuments) {
 }
 
 TEST(Mutation, DeleteDeletes) {
-  MaybeDocumentPtr base_doc =
+  Document base_doc =
       Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}});
 
   std::unique_ptr<Mutation> del = testutil::DeleteMutation("collection/key");
-  MaybeDocumentPtr deleted_doc =
-      del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
+  absl::optional<MaybeDocument> deleted_doc =
+      del->ApplyToLocalView(base_doc, base_doc, Timestamp::Now());
 
-  ASSERT_NE(deleted_doc, nullptr);
-  EXPECT_EQ(*deleted_doc, *testutil::DeletedDoc("collection/key", 0));
+  ASSERT_NE(deleted_doc, absl::nullopt);
+  EXPECT_EQ(*deleted_doc, testutil::DeletedDoc("collection/key", 0));
 }
 
 TEST(Mutation, SetWithMutationResult) {
-  MaybeDocumentPtr base_doc =
+  Document base_doc =
       Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}});
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
-  MaybeDocumentPtr set_doc =
+  MaybeDocument set_doc =
       set->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
-  ASSERT_NE(set_doc, nullptr);
-  EXPECT_EQ(*set_doc, *Doc("collection/key", 4,
-                           {{"foo", FieldValue::FromString("new-bar")}},
-                           DocumentState::kCommittedMutations));
+  EXPECT_EQ(set_doc, Doc("collection/key", 4,
+                         {{"foo", FieldValue::FromString("new-bar")}},
+                         DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, PatchWithMutationResult) {
-  MaybeDocumentPtr base_doc =
+  Document base_doc =
       Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}});
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
-  MaybeDocumentPtr patch_doc =
+  MaybeDocument patch_doc =
       patch->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
-  ASSERT_NE(patch_doc, nullptr);
-  EXPECT_EQ(*patch_doc, *Doc("collection/key", 4,
-                             {{"foo", FieldValue::FromString("new-bar")}},
-                             DocumentState::kCommittedMutations));
+  EXPECT_EQ(patch_doc, Doc("collection/key", 4,
+                           {{"foo", FieldValue::FromString("new-bar")}},
+                           DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, Transitions) {

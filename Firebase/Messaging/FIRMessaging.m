@@ -345,7 +345,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)setupTopics {
-  _FIRMessagingDevAssert(self.client, @"Invalid nil client before init pubsub.");
+  if (!self.client) {
+     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient, @"Invalid nil client before init pubsub.");
+  }
   self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
 }
 
@@ -364,8 +366,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)teardown {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging should be called from main thread only.");
   [self.client teardown];
   self.pubsub = nil;
   self.syncMessageManager = nil;
@@ -823,15 +823,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                  to:(NSString *)to
       withMessageID:(NSString *)messageID
          timeToLive:(int64_t)ttl {
-  _FIRMessagingDevAssert([to length] != 0, @"Invalid receiver id for FIRMessaging-message");
-
   NSMutableDictionary *fcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
                                                                            to:to
                                                                        withID:messageID
                                                                    timeToLive:ttl
                                                                         delay:0];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@",
-                         message, messageID);
+  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@ to %@.",
+                         message, messageID, to);
   [self.dataMessageManager sendDataMessageStanza:fcmMessage];
 }
 

@@ -22,6 +22,9 @@ public extension FileManager {
 
   /// Describes a type of file to be searched for.
   enum SearchFileType {
+    /// All files, not including folders.
+    case allFiles
+
     /// All folders with a `.bundle` extension.
     case bundles
 
@@ -141,6 +144,11 @@ public extension FileManager {
     var matches: [URL] = []
     while let fileURL = dirEnumerator.nextObject() as? URL {
       switch type {
+      case .allFiles:
+        // Skip directories, include everything else.
+        guard !isDirectory(at: fileURL) else { continue }
+
+        matches.append(fileURL)
       case let .directories(name):
         // Skip any non-directories.
         guard directoryExists(at: fileURL) else { continue }

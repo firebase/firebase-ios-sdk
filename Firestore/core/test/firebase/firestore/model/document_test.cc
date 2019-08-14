@@ -48,7 +48,7 @@ TEST(Document, Getter) {
             doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
-  EXPECT_TRUE(doc.HasLocalMutations());
+  EXPECT_TRUE(doc.has_local_mutations());
 }
 
 TEST(Document, Comparison) {

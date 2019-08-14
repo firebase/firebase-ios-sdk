@@ -76,7 +76,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
                              object:nil];
 
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13, *)) {
+    if (@available(iOS 13, tvOS 13.0, *)) {
       [notificationCenter addObserver:self
                              selector:@selector(iOSApplicationWillEnterForeground:)
                                  name:UISceneWillEnterForegroundNotification

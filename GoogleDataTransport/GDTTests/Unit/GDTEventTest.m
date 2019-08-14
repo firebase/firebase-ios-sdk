@@ -43,12 +43,28 @@
   event.qosTier = GDTEventQoSTelemetry;
   event.clockSnapshot = clockSnapshot;
 
-  NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
-
+  NSData *archiveData;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    archiveData = [NSKeyedArchiver archivedDataWithRootObject:event
+                                        requiringSecureCoding:YES
+                                                        error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    archiveData = [NSKeyedArchiver archivedDataWithRootObject:event];
+#endif
+  }
   // To ensure that all the objects being retained by the original event are dealloc'd.
   event = nil;
-
-  GDTEvent *decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+  GDTEvent *decodedEvent;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    decodedEvent = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTEvent class]
+                                                     fromData:archiveData
+                                                        error:nil];
+  } else {
+#if !defined(TARGET_OS_MACCATALYST)
+    decodedEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+#endif
+  }
   XCTAssertEqualObjects(decodedEvent.mappingID, @"testID");
   XCTAssertEqual(decodedEvent.target, 42);
   XCTAssertEqualObjects(decodedEvent.dataObjectTransportBytes,

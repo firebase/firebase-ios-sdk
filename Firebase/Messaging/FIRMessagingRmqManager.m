@@ -51,7 +51,6 @@ static NSString *const kFCMRmqTag = @"FIRMessagingRmq:";
 - (instancetype)initWithDatabaseName:(NSString *)databaseName {
   self = [super init];
   if (self) {
-    _FIRMessagingDevAssert([databaseName length] > 0, @"RMQ: Invalid rmq db name");
     _rmq2Store = [[FIRMessagingRmq2PersistentStore alloc] initWithDatabaseName:databaseName];
     _outstandingMessages = [NSMutableDictionary dictionaryWithCapacity:2];
     _rmqId = -1;

@@ -52,13 +52,13 @@ static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oau
 
 /** @var kURLResponseErrorCodeNetworkRequestFailed
     @brief Error code that indicates that a network request within the SFSafariViewController or
-        UIWebView failed.
+        WKWebView failed.
  */
 static NSString *const kURLResponseErrorCodeNetworkRequestFailed = @"auth/network-request-failed";
 
 /** @var kURLResponseErrorCodeInternalError
     @brief Error code that indicates that an internal error occurred within the
-        SFSafariViewController or UIWebView failed.
+        SFSafariViewController or WKWebView failed.
  */
 static NSString *const kURLResponseErrorCodeInternalError = @"auth/internal-error";
 
@@ -412,7 +412,7 @@ static NSString *const kFIRAuthErrorMessageWebRequestFailed = @"A network error 
     @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
  */
 static NSString *const kFIRAuthErrorMessageWebInternalError = @"An internal error has occurred "
-    "within the SFSafariViewController or UIWebView.";
+    "within the SFSafariViewController or WKWebView.";
 
 /** @var kFIRAuthErrorMessageAppVerificationUserInteractionFailure
     @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
