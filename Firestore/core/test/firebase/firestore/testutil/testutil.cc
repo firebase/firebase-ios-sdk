@@ -30,9 +30,11 @@ using model::DocumentComparator;
 using model::DocumentSet;
 using model::FieldMask;
 using model::FieldPath;
+using model::FieldTransform;
 using model::FieldValue;
 using model::ObjectValue;
 using model::Precondition;
+using model::TransformOperation;
 
 DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
