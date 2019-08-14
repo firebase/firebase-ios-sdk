@@ -39,7 +39,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
       'FIRABTesting_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 1.4'
   s.dependency 'FirebaseCore', '~> 6.1'
   s.dependency 'Protobuf', '~> 3.8'
 
