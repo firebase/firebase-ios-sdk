@@ -1,4 +1,6 @@
-# Unreleased
+# 2019-08-20 -- v4.1.3
+- [changed] Cleaned up the documents, unused macros, and folders. (#3490, #3537, #3556, #3498)
+- [changed] Updated the header path to pod repo relative. (#3527)
 - [fixed] Fix singleton functionality after a FirebaseApp is deleted and recreated. (#3579)
 
 # 2019-08-08 -- v4.1.2

@@ -16,18 +16,72 @@
 
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
+#include <string>
 #include <utility>
+
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
+static_assert(
+    sizeof(MaybeDocument) == sizeof(NoDocument),
+    "NoDocument may not have additional members (everything goes in Rep)");
+
+class NoDocument::Rep : public MaybeDocument::Rep {
+ public:
+  Rep(DocumentKey key, SnapshotVersion version, bool has_committed_mutations)
+      : MaybeDocument::Rep(Type::NoDocument, std::move(key), version),
+        has_committed_mutations_(has_committed_mutations) {
+  }
+
+  bool has_pending_writes() const override {
+    return has_committed_mutations_;
+  }
+
+  bool Equals(const MaybeDocument::Rep& other) const override {
+    if (!MaybeDocument::Rep::Equals(other)) return false;
+
+    const auto& other_rep = static_cast<const Rep&>(other);
+    return has_committed_mutations_ == other_rep.has_committed_mutations_;
+  }
+
+  size_t Hash() const override {
+    return util::Hash(MaybeDocument::Rep::Hash(), has_committed_mutations_);
+  }
+
+  std::string ToString() const override {
+    return absl::StrCat(
+        "NoDocument(key=", key().ToString(), ", version=", version().ToString(),
+        ", has_committed_mutations=", has_committed_mutations_, ")");
+  }
+
+ private:
+  friend class NoDocument;
+
+  bool has_committed_mutations_ = false;
+};
+
 NoDocument::NoDocument(DocumentKey key,
                        SnapshotVersion version,
                        bool has_committed_mutations)
-    : MaybeDocument(std::move(key), std::move(version)),
-      has_committed_mutations_(has_committed_mutations) {
-  set_type(Type::NoDocument);
+    : MaybeDocument(std::make_shared<Rep>(
+          std::move(key), version, has_committed_mutations)) {
+}
+
+NoDocument::NoDocument(const MaybeDocument& document)
+    : MaybeDocument(document) {
+  HARD_ASSERT(type() == Type::NoDocument);
+}
+
+bool NoDocument::has_committed_mutations() const {
+  return doc_rep().has_committed_mutations_;
+}
+
+const NoDocument::Rep& NoDocument::doc_rep() const {
+  return static_cast<const Rep&>(MaybeDocument::rep());
 }
 
 }  // namespace model

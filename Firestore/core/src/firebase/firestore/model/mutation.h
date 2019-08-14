@@ -27,12 +27,11 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
-
-using MaybeDocumentPtr = std::shared_ptr<const MaybeDocument>;
 
 /**
  * The result of applying a mutation to the server. This is a model of the
@@ -45,10 +44,9 @@ using MaybeDocumentPtr = std::shared_ptr<const MaybeDocument>;
 class MutationResult {
  public:
   MutationResult(
-      SnapshotVersion&& version,
-      const std::shared_ptr<const std::vector<ObjectValue>>& transform_results)
-      : version_(std::move(version)),
-        transform_results_(std::move(transform_results)) {
+      SnapshotVersion version,
+      std::shared_ptr<const std::vector<ObjectValue>> transform_results)
+      : version_(version), transform_results_(std::move(transform_results)) {
   }
 
   /**
@@ -78,8 +76,8 @@ class MutationResult {
   }
 
  private:
-  const SnapshotVersion version_;
-  const std::shared_ptr<const std::vector<ObjectValue>> transform_results_;
+  SnapshotVersion version_;
+  std::shared_ptr<const std::vector<ObjectValue>> transform_results_;
 };
 
 /**
@@ -109,14 +107,14 @@ class MutationResult {
  * DeleteMutation     NoDocument(v3)  NoDocument(v0)
  * DeleteMutation     null            NoDocument(v0)
  *
- * For acknowledged mutations, we use the updateTime of the WriteResponse as the
- * resulting version for Set, Patch, and Transform mutations. As deletes have no
- * explicit update time, we use the commitTime of the WriteResponse for
- * acknowledged deletes.
+ * For acknowledged mutations, we use the update_time of the WriteResponse as
+ * the resulting version for Set, Patch, and Transform mutations. As deletes
+ * have no explicit update time, we use the commit_time of the WriteResponse
+ * for acknowledged deletes.
  *
- * If a mutation is acknowledged by the backend but fails the precondition check
- * locally, we return an `UnknownDocument` and rely on Watch to send us the
- * updated version.
+ * If a mutation is acknowledged by the backend but fails the precondition
+ * check locally, we return an `UnknownDocument` and rely on Watch to send us
+ * the updated version.
  *
  * Note that TransformMutations don't create Documents (in the case of being
  * applied to a NoDocument), even though they would on the backend. This is
@@ -132,8 +130,7 @@ class Mutation {
    */
   enum class Type { kSet, kPatch, kDelete };
 
-  virtual ~Mutation() {
-  }
+  virtual ~Mutation() = default;
 
   const DocumentKey& key() const {
     return key_;
@@ -147,43 +144,64 @@ class Mutation {
 
   /**
    * Applies this mutation to the given MaybeDocument for the purposes of
-   * computing a new remote document. If the input document doesn't match the
-   * expected state (e.g. it is null or outdated), an `UnknownDocument` can be
-   * returned.
+   * computing the committed state of the document after the server has
+   * acknowledged that this mutation has been successfully committed.  This
+   * means that if the input document doesn't match the expected state (e.g. it
+   * is `nullopt` or outdated), the local cache must have been incorrect so an
+   * `UnknownDocument` is returned.
    *
-   * @param maybe_doc The document to mutate. The input document can be nullptr
-   *     if the client has no knowledge of the pre-mutation state of the
-   *     document.
-   * @param mutation_result The result of applying the mutation from the
-   *     backend.
-   * @return The mutated document. The returned document may be an
-   *     UnknownDocument if the mutation could not be applied to the locally
-   *     cached base document.
+   * @param maybe_doc The document to mutate. The input document can be
+   *     `nullopt` if the client has no knowledge of the pre-mutation state of
+   *     the document.
+   * @param mutation_result The backend's response of successfully applying the
+   *     mutation.
+   * @return The mutated document. The returned document is not optional
+   *     because the server successfully committed this mutation. If the local
+   *     cache might have caused a `nullopt` result, this method will return an
+   *     `UnknownDocument` instead.
    */
-  virtual MaybeDocumentPtr ApplyToRemoteDocument(
-      const MaybeDocumentPtr& maybe_doc,
+  virtual MaybeDocument ApplyToRemoteDocument(
+      const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const = 0;
 
   /**
-   * Applies this mutation to the given MaybeDocument for the purposes of
-   * computing the new local view of a document. Both the input and returned
-   * documents can be nullptr.
+   * Estimates the latency compensated view of this mutation applied to the
+   * given MaybeDocument.
    *
-   * @param maybe_doc The document to mutate. The input document can be nullptr
-   *     if the client has no knowledge of the pre-mutation state of the
-   *     document.
+   * Unlike ApplyToRemoteDocument, this method is used before the mutation has
+   * been committed and so it's possible that the mutation is operating on a
+   * locally non-existent document and may produce a non-existent document.
+   *
+   * Note: `maybe_doc` and `base_doc` are similar but not the same:
+   *
+   *   - `base_doc` is the pristine version of the document as it was _before_
+   *     applying any of the mutations in the batch. This means that for each
+   *     mutation in the batch, `base_doc` stays unchanged;
+   *   - `maybe_doc` is the state of the document _after_ applying all the
+   *     preceding mutations from the batch. In other words, `maybe_doc` is
+   *     passed on from one mutation in the batch to the next, accumulating
+   *     changes.
+   *
+   * The only time `maybe_doc` and `base_doc` are guaranteed to be the same is
+   * for the very first mutation in the batch. The distinction between
+   * `maybe_doc` and `base_doc` helps ServerTimestampTransform determine the
+   * "previous" value in a way that makes sense to users.
+   *
+   * @param maybe_doc The document to mutate. The input document can be
+   *     `nullopt` if the client has no knowledge of the pre-mutation state of
+   *     the document.
    * @param base_doc The state of the document prior to this mutation batch. The
-   *     input document can be nullptr if the client has no knowledge of the
+   *     input document can be nullopt if the client has no knowledge of the
    *     pre-mutation state of the document.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
-   * @return The mutated document. The returned document may be nullptr, but
-   *     only if maybe_doc was nullptr and the mutation would not create a new
+   * @return The mutated document. The returned document may be nullopt, but
+   *     only if maybe_doc was nullopt and the mutation would not create a new
    *     document.
    */
-  virtual MaybeDocumentPtr ApplyToLocalView(
-      const MaybeDocumentPtr& maybe_doc,
-      const MaybeDocument* base_doc,
+  virtual absl::optional<MaybeDocument> ApplyToLocalView(
+      const absl::optional<MaybeDocument>& maybe_doc,
+      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const = 0;
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
@@ -191,9 +209,10 @@ class Mutation {
  protected:
   Mutation(DocumentKey&& key, Precondition&& precondition);
 
-  void VerifyKeyMatches(const MaybeDocument* maybe_doc) const;
+  void VerifyKeyMatches(const absl::optional<MaybeDocument>& maybe_doc) const;
 
-  static SnapshotVersion GetPostMutationVersion(const MaybeDocument* maybe_doc);
+  static SnapshotVersion GetPostMutationVersion(
+      const absl::optional<MaybeDocument>& maybe_doc);
 
   virtual bool equal_to(const Mutation& other) const;
 
@@ -224,13 +243,13 @@ class SetMutation : public Mutation {
     return Mutation::Type::kSet;
   }
 
-  MaybeDocumentPtr ApplyToRemoteDocument(
-      const MaybeDocumentPtr& maybe_doc,
+  MaybeDocument ApplyToRemoteDocument(
+      const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  MaybeDocumentPtr ApplyToLocalView(
-      const MaybeDocumentPtr& maybe_doc,
-      const MaybeDocument* base_doc,
+  absl::optional<MaybeDocument> ApplyToLocalView(
+      const absl::optional<MaybeDocument>& maybe_doc,
+      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const override;
 
   /** Returns the object value to use when setting the document. */
@@ -269,13 +288,13 @@ class PatchMutation : public Mutation {
     return Mutation::Type::kPatch;
   }
 
-  MaybeDocumentPtr ApplyToRemoteDocument(
-      const MaybeDocumentPtr& maybe_doc,
+  MaybeDocument ApplyToRemoteDocument(
+      const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  MaybeDocumentPtr ApplyToLocalView(
-      const MaybeDocumentPtr& maybe_doc,
-      const MaybeDocument* base_doc,
+  absl::optional<MaybeDocument> ApplyToLocalView(
+      const absl::optional<MaybeDocument>& maybe_doc,
+      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const override;
 
   /**
@@ -297,7 +316,8 @@ class PatchMutation : public Mutation {
   bool equal_to(const Mutation& other) const override;
 
  private:
-  ObjectValue PatchDocument(const MaybeDocument* maybe_doc) const;
+  ObjectValue PatchDocument(
+      const absl::optional<MaybeDocument>& maybe_doc) const;
   ObjectValue PatchObject(ObjectValue obj) const;
 
   const ObjectValue value_;
@@ -313,13 +333,13 @@ class DeleteMutation : public Mutation {
     return Mutation::Type::kDelete;
   }
 
-  MaybeDocumentPtr ApplyToRemoteDocument(
-      const MaybeDocumentPtr& maybe_doc,
+  MaybeDocument ApplyToRemoteDocument(
+      const absl::optional<MaybeDocument>& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  MaybeDocumentPtr ApplyToLocalView(
-      const MaybeDocumentPtr& maybe_doc,
-      const MaybeDocument* base_doc,
+  absl::optional<MaybeDocument> ApplyToLocalView(
+      const absl::optional<MaybeDocument>& maybe_doc,
+      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const override;
 };
 
