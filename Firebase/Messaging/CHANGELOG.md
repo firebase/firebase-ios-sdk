@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix singleton functionality after a FirebaseApp is deleted and recreated. (#3579)
+
 # 2019-08-08 -- v4.1.2
 - [fixed] Fix hang when token is not available before topic subscription and unsubscription. (#3438)
 
