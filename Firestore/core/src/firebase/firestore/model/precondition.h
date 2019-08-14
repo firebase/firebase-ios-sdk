@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 
+#include <string>
 #include <utility>
 
 #if defined(__OBJC__)
@@ -55,18 +56,24 @@ class Precondition {
   static Precondition None();
 
   /**
+   * Default constructor which is equivalent to Precondition::None(). Prefer
+   * calling Precondition::None for readability.
+   */
+  Precondition() = default;
+
+  /**
    * Returns true if the precondition is valid for the given document (and the
    * document is available).
    */
   bool IsValidFor(const absl::optional<MaybeDocument>& maybe_doc) const;
 
-  /** Returns whether this Precondition represents no precondition. */
-  bool IsNone() const {
-    return type_ == Type::None;
-  }
-
   Type type() const {
     return type_;
+  }
+
+  /** Returns whether this Precondition represents no precondition. */
+  bool is_none() const {
+    return type_ == Type::None;
   }
 
   const SnapshotVersion& update_time() const {
@@ -82,38 +89,9 @@ class Precondition {
            exists_ == other.exists_;
   }
 
-#if defined(__OBJC__)
-  // Objective-C requires a default constructor.
-  Precondition()
-      : type_(Type::None),
-        update_time_(SnapshotVersion::None()),
-        exists_(false) {
-  }
+  size_t Hash() const;
 
-  size_t Hash() const {
-    size_t hash = std::hash<Timestamp>()(update_time_.timestamp());
-    hash = hash * 31u + exists_;
-    hash = hash * 31u + static_cast<size_t>(type_);
-    return hash;
-  }
-
-  NSString* description() const {
-    switch (type_) {
-      case Type::None:
-        return @"<Precondition <none>>";
-      case Type::Exists:
-        if (exists_) {
-          return @"<Precondition exists=yes>";
-        } else {
-          return @"<Precondition exists=no>";
-        }
-      case Type::UpdateTime:
-        return [NSString stringWithFormat:@"<Precondition update_time=%s>",
-                                          update_time_.ToString().c_str()];
-    }
-    UNREACHABLE();
-  }
-#endif  // defined(__OBJC__)
+  std::string ToString() const;
 
  private:
   Precondition(Type type, SnapshotVersion update_time, bool exists);
@@ -126,7 +104,7 @@ class Precondition {
 
   // For Exists type, preconditions a mutation based on whether the document
   // exists.
-  bool exists_;
+  bool exists_ = false;
 };
 
 }  // namespace model

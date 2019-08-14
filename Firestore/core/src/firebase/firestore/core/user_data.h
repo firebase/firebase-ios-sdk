@@ -23,17 +23,26 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 @class FSTMutation;
 
 namespace firebase {
 namespace firestore {
+namespace model {
+
+class Precondition;
+
+}  // namespace model
+
 namespace core {
+
+class ParseContext;
+class ParsedSetData;
+class ParsedUpdateData;
 
 /**
  * Represents what type of API method provided the data being parsed; useful for
@@ -54,10 +63,6 @@ enum class UserDataSource {
    */
   Argument,
 };
-
-class ParseContext;
-class ParsedSetData;
-class ParsedUpdateData;
 
 /**
  * Accumulates the side-effect results of parsing user input. These include:

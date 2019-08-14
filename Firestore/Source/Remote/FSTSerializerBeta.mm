@@ -525,7 +525,7 @@ absl::any Wrap(GCFSDocument *doc) {
     HARD_FAIL("Unknown mutation type %s", NSStringFromClass(mutationClass));
   }
 
-  if (!mutation.precondition.IsNone()) {
+  if (!mutation.precondition.is_none()) {
     proto.currentDocument = [self encodedPrecondition:mutation.precondition];
   }
 
@@ -570,14 +570,14 @@ absl::any Wrap(GCFSDocument *doc) {
 }
 
 - (GCFSPrecondition *)encodedPrecondition:(const Precondition &)precondition {
-  HARD_ASSERT(!precondition.IsNone(), "Can't serialize an empty precondition");
+  HARD_ASSERT(!precondition.is_none(), "Can't serialize an empty precondition");
   GCFSPrecondition *message = [GCFSPrecondition message];
   if (precondition.type() == Precondition::Type::UpdateTime) {
     message.updateTime = [self encodedVersion:precondition.update_time()];
   } else if (precondition.type() == Precondition::Type::Exists) {
     message.exists = precondition == Precondition::Exists(true);
   } else {
-    HARD_FAIL("Unknown precondition: %s", precondition.description());
+    HARD_FAIL("Unknown precondition: %s", precondition.ToString());
   }
   return message;
 }

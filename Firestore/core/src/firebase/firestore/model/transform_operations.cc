@@ -22,7 +22,9 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,6 +57,10 @@ size_t ServerTimestampTransform::Hash() const {
   // arbitrary number, the same as used in ObjC implementation, since all
   // instances are equal.
   return 37;
+}
+
+std::string ServerTimestampTransform::ToString() const {
+  return "ServerTimestamp";
 }
 
 FieldValue ArrayTransform::ApplyToLocalView(
@@ -95,6 +101,11 @@ size_t ArrayTransform::Hash() const {
     result = 31 * result + element.Hash();
   }
   return result;
+}
+
+std::string ArrayTransform::ToString() const {
+  const char* name = type_ == Type::ArrayUnion ? "ArrayUnion" : "ArrayRemove";
+  return absl::StrCat(name, "(", util::ToString(elements_), ")");
 }
 
 const std::vector<FieldValue>& ArrayTransform::Elements(
@@ -166,7 +177,7 @@ double AsDouble(const FieldValue& value) {
 
 NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
     : operand_(operand) {
-  HARD_ASSERT(FieldValue::IsNumber(operand.type()));
+  HARD_ASSERT(operand.is_number());
 }
 
 FieldValue NumericIncrementTransform::ApplyToLocalView(
@@ -182,7 +193,7 @@ FieldValue NumericIncrementTransform::ApplyToLocalView(
         SafeIncrement(base_value->integer_value(), operand_.integer_value());
     return FieldValue::FromInteger(sum);
   } else {
-    HARD_ASSERT(base_value && FieldValue::IsNumber(base_value->type()),
+    HARD_ASSERT(base_value && base_value->is_number(),
                 "'base_value' is not of numeric type");
     double sum = AsDouble(*base_value) + AsDouble(operand_);
     return FieldValue::FromDouble(sum);
@@ -197,7 +208,7 @@ FieldValue NumericIncrementTransform::ApplyToRemoteDocument(
 
 absl::optional<FieldValue> NumericIncrementTransform::ComputeBaseValue(
     const absl::optional<FieldValue>& previous_value) const {
-  return previous_value && FieldValue::IsNumber(previous_value->type())
+  return previous_value && previous_value->is_number()
              ? previous_value
              : absl::optional<FieldValue>{FieldValue::FromInteger(0)};
 }
@@ -213,6 +224,10 @@ bool NumericIncrementTransform::operator==(
 
 size_t NumericIncrementTransform::Hash() const {
   return operand_.Hash();
+}
+
+std::string NumericIncrementTransform::ToString() const {
+  return absl::StrCat("NumericIncrement(", operand_.ToString(), ")");
 }
 
 }  // namespace model
