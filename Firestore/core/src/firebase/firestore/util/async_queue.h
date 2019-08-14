@@ -22,7 +22,9 @@
 #include <functional>
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
+#include <vector>
 
+#include "Firestore/core/src/firebase/firestore/immutable/append_only_list.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 
 namespace firebase {
@@ -58,7 +60,12 @@ enum class TimerId {
   /**
    * A timer used to periodically attempt LRU Garbage collection
    */
-  GarbageCollectionDelay
+  GarbageCollectionDelay,
+  /**
+   * A timer used to retry transactions. Since there can be multiple concurrent
+   * transactions, multiple of these may be in the queue at a given time.
+   */
+  RetryTransaction
 };
 
 // A serial queue that executes given operations asynchronously, one at a time.
@@ -173,6 +180,9 @@ class AsyncQueue {
   // queue.
   void RunScheduledOperationsUntil(TimerId last_timer_id);
 
+  // For tests: Skip all subsequent delays for a TimerId.
+  void SkipDelaysForTimerId(TimerId timer_id);
+
  private:
   Operation Wrap(const Operation& operation);
 
@@ -185,6 +195,8 @@ class AsyncQueue {
 
   bool is_shutting_down_ = false;
   mutable std::mutex shut_down_mutex_;
+
+  std::vector<TimerId> timer_ids_to_skip_ = {};
 };
 
 }  // namespace util

@@ -27,6 +27,19 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using Milliseconds = util::AsyncQueue::Milliseconds;
+
+/**
+ * Initial backoff time in milliseconds after an error. Set to 1s according to
+ * https://cloud.google.com/apis/design/errors.
+ */
+const Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
+
+const double kDefaultBackoffFactor = 1.5;
+
+/** Maximum backoff time in milliseconds. */
+const Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
+
 /**
  *
  * A helper for running delayed operations following an exponential backoff
@@ -62,6 +75,12 @@ class ExponentialBackoff {
                      util::AsyncQueue::Milliseconds max_delay);
 
   /**
+   * Instantiates the exponential backoff with the default values.
+   */
+  ExponentialBackoff(const std::shared_ptr<util::AsyncQueue>& queue,
+                     util::TimerId timer_id);
+
+  /**
    * Resets the backoff delay.
    *
    * The very next `backoffAndRun` will have no delay. If it is called again
@@ -93,8 +112,6 @@ class ExponentialBackoff {
   }
 
  private:
-  using Milliseconds = util::AsyncQueue::Milliseconds;
-
   // Returns a random value in the range [-current_base_/2, current_base_/2].
   Milliseconds GetDelayWithJitter();
   Milliseconds ClampDelay(Milliseconds delay) const;

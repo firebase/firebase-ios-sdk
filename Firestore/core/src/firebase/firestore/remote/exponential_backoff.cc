@@ -53,6 +53,15 @@ ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
               "Initial delay can't be greater than max delay");
 }
 
+ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
+                                       TimerId timer_id)
+    : ExponentialBackoff(queue,
+                         timer_id,
+                         kDefaultBackoffFactor,
+                         kDefaultBackoffInitialDelay,
+                         kDefaultBackoffMaxDelay) {
+}
+
 void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
   Cancel();
 
@@ -89,15 +98,14 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
       chr::duration_cast<Milliseconds>(current_base_ * backoff_factor_));
 }
 
-ExponentialBackoff::Milliseconds ExponentialBackoff::GetDelayWithJitter() {
+Milliseconds ExponentialBackoff::GetDelayWithJitter() {
   std::uniform_real_distribution<double> distribution;
   double random_double = distribution(secure_random_);
   return chr::duration_cast<Milliseconds>((random_double - 0.5) *
                                           current_base_);
 }
 
-ExponentialBackoff::Milliseconds ExponentialBackoff::ClampDelay(
-    Milliseconds delay) const {
+Milliseconds ExponentialBackoff::ClampDelay(Milliseconds delay) const {
   if (delay < initial_delay_) {
     return initial_delay_;
   }
