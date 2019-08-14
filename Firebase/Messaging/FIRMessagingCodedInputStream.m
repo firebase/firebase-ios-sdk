@@ -37,7 +37,7 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
   if (state == NULL || output == NULL) {
     FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
   }
-  if (CheckSize(state, sizeof(int8_t))) {
+  if (output != nil && CheckSize(state, sizeof(int8_t))) {
     *output = ((int8_t *)state->bytes)[state->bufferPos++];
     return YES;
   }
@@ -47,6 +47,7 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
 static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
   if (state == NULL || output == NULL) {
     FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
+    return NO;
   }
   int8_t tmp = 0;
   if (!ReadRawByte(state, &tmp)) {
