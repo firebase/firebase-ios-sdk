@@ -978,6 +978,9 @@ extension _FirestoreDecoder {
 
   func unbox(_ value: Any, as type: Date.Type) throws -> Date? {
     guard !(value is NSNull) else { return nil }
+    if let timestamp = value as? Timestamp {
+      return timestamp.dateValue()
+    }
     guard let date = value as? Date else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
