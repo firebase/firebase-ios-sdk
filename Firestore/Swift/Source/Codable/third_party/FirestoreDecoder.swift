@@ -978,6 +978,7 @@ extension _FirestoreDecoder {
 
   func unbox(_ value: Any, as type: Date.Type) throws -> Date? {
     guard !(value is NSNull) else { return nil }
+    // Firestore returns all dates as Timestamp, converting it to Date so it can be used in custom objects.
     if let timestamp = value as? Timestamp {
       return timestamp.dateValue()
     }
