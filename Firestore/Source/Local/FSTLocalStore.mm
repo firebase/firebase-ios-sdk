@@ -325,13 +325,19 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         existingDoc = *foundExisting;
       }
 
-      // If a document update isn't authoritative, make sure we don't apply an old document version
-      // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
-      // manufactured events (e.g. in the case of a limbo document resolution failing).
-      if (!existingDoc || doc.version() == SnapshotVersion::None() ||
+      if (!existingDoc ||
           (authoritativeUpdates.contains(doc.key()) && !existingDoc->has_pending_writes()) ||
           doc.version() >= existingDoc->version()) {
+        // If a document update isn't authoritative, make sure we don't apply an old document
+        // version to the remote cache.
         _remoteDocumentCache->Add(doc);
+        changedDocs = changedDocs.insert(key, doc);
+      } else if (doc.type() == MaybeDocument::Type::NoDocument &&
+                 doc.version() == SnapshotVersion::None()) {
+        // NoDocuments with SnapshotVersion.MIN are used in manufactured events (e.g. in the case
+        // of a limbo document resolution failing). We remove these documents from cache since we
+        // lost access.
+        _remoteDocumentCache->Remove(key);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
