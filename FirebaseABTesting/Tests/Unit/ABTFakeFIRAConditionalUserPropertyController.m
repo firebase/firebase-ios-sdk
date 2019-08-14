@@ -137,4 +137,6 @@
 - (void)unregisterAnalyticsListenerWithOrigin:(nonnull NSString *)origin {
 }
 
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
+}
 @end
