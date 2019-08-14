@@ -3,11 +3,11 @@
 - Add initial support for Catalyst.
 
 # v1.1.1
-- Fixes #3547, a crash in GDTUploadPackage and GDTStorage.
+- Fixes a crash in GDTUploadPackage and GDTStorage. (#3547)
 
 # v1.1.0
 - Remove almost all NSAsserts and NSCAsserts for a better development
-experience. Fixes #3530.
+experience. (#3530)
 
 # v1.0.0
 - Initial Release--for Google-use only. This library is the foundation of a
