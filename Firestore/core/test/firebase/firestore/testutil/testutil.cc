@@ -26,6 +26,8 @@ using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
 
+#if __APPLE__
+
 DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
 }
@@ -37,6 +39,8 @@ DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
   }
   return set;
 }
+
+#endif  // __APPLE__
 
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
