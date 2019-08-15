@@ -64,7 +64,7 @@ class TransformOperation {
 
   /** Returns the actual type. */
   Type type() const {
-    return rep_->type();
+    return rep().type();
   }
 
   /**
@@ -73,7 +73,7 @@ class TransformOperation {
    */
   FieldValue ApplyToLocalView(const absl::optional<FieldValue>& previous_value,
                               const Timestamp& local_write_time) const {
-    return rep_->ApplyToLocalView(previous_value, local_write_time);
+    return rep().ApplyToLocalView(previous_value, local_write_time);
   }
 
   /**
@@ -83,7 +83,7 @@ class TransformOperation {
   FieldValue ApplyToRemoteDocument(
       const absl::optional<FieldValue>& previous_value,
       const FieldValue& transform_result) const {
-    return rep_->ApplyToRemoteDocument(previous_value, transform_result);
+    return rep().ApplyToRemoteDocument(previous_value, transform_result);
   }
 
   /**
@@ -103,7 +103,7 @@ class TransformOperation {
    */
   absl::optional<FieldValue> ComputeBaseValue(
       const absl::optional<FieldValue>& previous_value) const {
-    return rep_->ComputeBaseValue(previous_value);
+    return rep().ComputeBaseValue(previous_value);
   }
 
   /** Returns whether the two are equal. */
@@ -111,11 +111,11 @@ class TransformOperation {
                          const TransformOperation& rhs);
 
   size_t Hash() const {
-    return rep_->Hash();
+    return rep().Hash();
   }
 
   std::string ToString() const {
-    return rep_->ToString();
+    return rep().ToString();
   }
 
   friend std::ostream& operator<<(std::ostream& os,

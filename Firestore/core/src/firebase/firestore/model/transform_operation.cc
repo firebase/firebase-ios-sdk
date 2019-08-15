@@ -346,6 +346,12 @@ double AsDouble(const FieldValue& value) {
 
 }  // namespace
 
+NumericIncrementTransform::NumericIncrementTransform(const TransformOperation& op)
+    : TransformOperation(op) {
+  HARD_ASSERT(op.type() == Type::Increment,
+              "Expected increment type; got %s", op.type());
+}
+
 FieldValue NumericIncrementTransform::Rep::ApplyToLocalView(
     const absl::optional<FieldValue>& previous_value,
     const Timestamp& /* local_write_time */) const {
