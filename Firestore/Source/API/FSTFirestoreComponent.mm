@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSString *projectID = self.app.options.projectID;
   if (!projectID) {
-    ThrowInvalidArgument("FIROptions.projectID must be set to a vaild project ID.");
+    ThrowInvalidArgument("FIROptions.projectID must be set to a valid project ID.");
   }
 
   NSString *key = [self keyForDatabase:database];
