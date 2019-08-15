@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -67,18 +68,12 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
     // Since the mutation was not rejected, we know that the precondition
     // matched on the backend. We therefore must not have the expected version
     // of the document in our cache and return an UnknownDocument with the known
-    // updateTime.
-
-    // TODO(rsgowman): heldwriteacks: Implement. Like this (once UnknownDocument
-    // is ported):
-    // return absl::make_unique<UnknownDocument>(key(),
-    // mutation_result.version());
-
-    abort();
+    // update_time.
+    return UnknownDocument(key(), mutation_result.version());
   }
 
-  const SnapshotVersion& version = mutation_result.version();
   ObjectValue new_data = PatchDocument(maybe_doc);
+  const SnapshotVersion& version = mutation_result.version();
   return Document(std::move(new_data), key(), version,
                   DocumentState::kCommittedMutations);
 }
@@ -93,8 +88,8 @@ absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
     return maybe_doc;
   }
 
-  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
   ObjectValue new_data = PatchDocument(maybe_doc);
+  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
   return Document(std::move(new_data), key(), version,
                   DocumentState::kLocalMutations);
 }

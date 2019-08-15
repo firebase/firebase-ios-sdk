@@ -117,6 +117,7 @@ class PatchMutation : public Mutation {
    private:
     ObjectValue PatchDocument(
         const absl::optional<MaybeDocument>& maybe_doc) const;
+
     ObjectValue PatchObject(ObjectValue obj) const;
 
     ObjectValue value_;
