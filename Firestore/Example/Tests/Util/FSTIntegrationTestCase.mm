@@ -86,7 +86,7 @@ static bool runningAgainstEmulator = false;
 - (void)setUp {
   [super setUp];
 
-  [self clearPersistence];
+  [self clearPersistenceOnce];
   [self primeBackend];
 
   _firestores = [NSMutableArray array];
@@ -105,10 +105,23 @@ static bool runningAgainstEmulator = false;
   }
 }
 
-- (void)clearPersistence {
-  Path levelDBDir = [FSTLevelDB documentsDirectory];
-  Status status = util::RecursivelyDelete(levelDBDir);
-  ASSERT_OK(status);
+/**
+ * Clears persistence, but only the first time. This ensures that each test
+ * run is isolated from the last test run, but doesn't allow tests to interfere
+ * with each other.
+ */
+- (void)clearPersistenceOnce {
+  static bool clearedPersistence = false;
+
+  @synchronized ([FSTIntegrationTestCase class]) {
+    if (clearedPersistence) return;
+
+    Path levelDBDir = [FSTLevelDB documentsDirectory];
+    Status status = util::RecursivelyDelete(levelDBDir);
+    ASSERT_OK(status);
+
+    clearedPersistence = true;
+  }
 }
 
 - (FIRFirestore *)firestore {
