@@ -76,8 +76,8 @@ using EnableForExactlyBool =
  */
 template <typename T, typename V>
 using EnableForInts =
-typename std::enable_if<std::is_integral<T>{} && !std::is_same<bool, T>{},
-    V>::type;
+    typename std::enable_if<std::is_integral<T>{} && !std::is_same<bool, T>{},
+                            V>::type;
 
 /**
  * Creates a boolean FieldValue.
