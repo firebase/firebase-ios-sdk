@@ -64,8 +64,8 @@ class TargetMetadataProvider {
       model::TargetId target_id) const = 0;
 
   /**
-   * Returns the QueryData for an active target ID or 'null' if this query has
-   * become inactive
+   * Returns the QueryData for an active target ID or `nullopt` if this query
+   * has become inactive.
    */
   virtual absl::optional<local::QueryData> GetQueryDataForTarget(
       model::TargetId target_id) const = 0;

@@ -81,7 +81,8 @@ class QueryData {
             model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose);
 
-  /** Creates an invalid QueryData. Prefer QueryData::Invalid() for readability.
+  /**
+   * Creates an invalid QueryData. Prefer QueryData::Invalid() for readability.
    */
   QueryData() = default;
 
