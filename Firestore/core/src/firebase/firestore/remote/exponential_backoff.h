@@ -30,17 +30,6 @@ namespace remote {
 using Milliseconds = util::AsyncQueue::Milliseconds;
 
 /**
- * Initial backoff time in milliseconds after an error. Set to 1s according to
- * https://cloud.google.com/apis/design/errors.
- */
-static const Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
-
-static const double kDefaultBackoffFactor = 1.5;
-
-/** Maximum backoff time in milliseconds. */
-static const Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
-
-/**
  *
  * A helper for running delayed operations following an exponential backoff
  * curve between attempts.

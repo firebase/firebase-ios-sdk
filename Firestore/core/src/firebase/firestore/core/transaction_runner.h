@@ -31,8 +31,6 @@ namespace core {
 
 NS_ASSUME_NONNULL_BEGIN
 
-static const int kRetryCount = 5;
-
 /**
  * TransactionRunner encapsulates the logic needed to run and retry transactions
  * with backoff.
@@ -57,6 +55,7 @@ class TransactionRunner
   core::TransactionResultCallback result_callback_;
   int retries_left_;
   remote::ExponentialBackoff backoff_;
+  static constexpr int kRetryCount = 5;
 
   bool IsRetryableTransactionError(const util::Status& error);
 

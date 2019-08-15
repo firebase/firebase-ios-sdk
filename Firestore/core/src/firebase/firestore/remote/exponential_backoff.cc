@@ -32,6 +32,17 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 namespace chr = std::chrono;
 
+/**
+ * Initial backoff time in milliseconds after an error. Set to 1s according to
+ * https://cloud.google.com/apis/design/errors.
+ */
+constexpr Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
+
+constexpr double kDefaultBackoffFactor = 1.5;
+
+/** Maximum backoff time in milliseconds. */
+constexpr Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
+
 ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
                                        TimerId timer_id,
                                        double backoff_factor,

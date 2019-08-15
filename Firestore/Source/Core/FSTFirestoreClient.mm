@@ -76,7 +76,6 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::Datastore;
-using firebase::firestore::remote::ExponentialBackoff;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::AsyncQueue;
