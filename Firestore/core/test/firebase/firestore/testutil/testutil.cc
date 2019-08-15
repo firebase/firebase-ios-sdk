@@ -25,6 +25,11 @@ namespace testutil {
 using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
+using model::FieldMask;
+using model::FieldPath;
+using model::FieldValue;
+using model::ObjectValue;
+using model::Precondition;
 
 DocumentComparator DocComparator(absl::string_view field_path) {
   return Query("docs").AddingOrderBy(OrderBy(field_path)).Comparator();
@@ -38,36 +43,34 @@ DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
   return set;
 }
 
-std::unique_ptr<model::PatchMutation> PatchMutation(
+model::PatchMutation PatchMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values,
+    model::FieldValue::Map values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
-    const std::vector<model::FieldPath>* update_mask) {
-  model::ObjectValue object_value = model::ObjectValue::Empty();
-  std::set<model::FieldPath> object_mask;
+    std::vector<model::FieldPath> update_mask) {
+  ObjectValue object_value = ObjectValue::Empty();
+  std::set<FieldPath> field_mask_paths;
 
   for (const auto& kv : values) {
-    model::FieldPath field_path = Field(kv.first);
-    object_mask.insert(field_path);
-    // TODO(rsgowman): This will abort if kv.second.string_value.type() !=
-    // String
-    if (kv.second.string_value() != kDeleteSentinel) {
-      object_value = object_value.Set(field_path, kv.second);
+    FieldPath field_path = Field(kv.first);
+    field_mask_paths.insert(field_path);
+
+    const FieldValue& value = kv.second;
+    if (!value.is_string() || value.string_value() != kDeleteSentinel) {
+      object_value = object_value.Set(field_path, value);
     }
   }
 
-  bool merge = update_mask != nullptr;
+  bool merge = !update_mask.empty();
 
-  if (merge) {
-    return absl::make_unique<model::PatchMutation>(
-        Key(path), std::move(object_value),
-        model::FieldMask(update_mask->begin(), update_mask->end()),
-        model::Precondition::None());
-  } else {
-    return absl::make_unique<model::PatchMutation>(
-        Key(path), std::move(object_value), model::FieldMask(object_mask),
-        model::Precondition::Exists(true));
-  }
+  Precondition precondition =
+      merge ? Precondition::None() : Precondition::Exists(true);
+  FieldMask mask(
+      merge ? std::set<FieldPath>(update_mask.begin(), update_mask.end())
+            : field_mask_paths);
+
+  return model::PatchMutation(Key(path), std::move(object_value),
+                              std::move(mask), precondition);
 }
 
 }  // namespace testutil

@@ -46,7 +46,7 @@ MaybeDocument DeleteMutation::Rep::ApplyToRemoteDocument(
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
 
-  HARD_ASSERT(mutation_result.transform_results() == nullptr,
+  HARD_ASSERT(mutation_result.transform_results() == absl::nullopt,
               "Transform results received by DeleteMutation.");
 
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document

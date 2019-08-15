@@ -16,41 +16,19 @@
 
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 
+#include <ostream>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-namespace {
-
-/**
- * Compares two vectors of unique pointers, and ensures the Mutation contents of
- * the pointer (not just the memory address itself) is equal.
- */
-bool deep_equals(const std::vector<std::unique_ptr<Mutation>>& lhs,
-                 const std::vector<std::unique_ptr<Mutation>>& rhs) {
-  if (lhs.size() != rhs.size()) return false;
-
-  for (size_t i = 0; i < lhs.size(); i++) {
-    if (!lhs[i] && !rhs[i])
-      continue;
-    else if (!lhs[i] || !rhs[i])
-      return false;
-    else if (*lhs[i] != *rhs[i])
-      return false;
-  }
-
-  return true;
-}
-
-}  // namespace
-
 MutationBatch::MutationBatch(int batch_id,
                              Timestamp local_write_time,
-                             std::vector<std::unique_ptr<Mutation>>&& mutations)
+                             std::vector<Mutation>&& mutations)
     : batch_id_(batch_id),
       local_write_time_(std::move(local_write_time)),
       mutations_(std::move(mutations)) {
@@ -60,7 +38,13 @@ MutationBatch::MutationBatch(int batch_id,
 bool operator==(const MutationBatch& lhs, const MutationBatch& rhs) {
   return lhs.batch_id() == rhs.batch_id() &&
          lhs.local_write_time() == rhs.local_write_time() &&
-         deep_equals(lhs.mutations(), rhs.mutations());
+         lhs.mutations() == rhs.mutations();
+}
+
+std::ostream& operator<<(std::ostream& os, const MutationBatch& batch) {
+  return os << "MutationBatch(id=" << batch.batch_id_
+            << ", local_write_time=" << batch.local_write_time_
+            << ", mutations=" << util::ToString(batch.mutations_) << ")";
 }
 
 }  // namespace model

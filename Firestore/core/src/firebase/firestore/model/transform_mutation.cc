@@ -66,7 +66,7 @@ MaybeDocument TransformMutation::Rep::ApplyToRemoteDocument(
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
 
-  HARD_ASSERT(mutation_result.transform_results() != nullptr,
+  HARD_ASSERT(mutation_result.transform_results() != absl::nullopt,
               "Transform results missing from TransformMutation.");
 
   if (!precondition().IsValidFor(maybe_doc)) {
@@ -83,7 +83,7 @@ MaybeDocument TransformMutation::Rep::ApplyToRemoteDocument(
               "Unknown MaybeDocument type %s", maybe_doc->type());
   Document doc(*maybe_doc);
 
-  HARD_ASSERT(mutation_result.transform_results() != nullptr);
+  HARD_ASSERT(mutation_result.transform_results() != absl::nullopt);
 
   std::vector<FieldValue> transform_results =
       ServerTransformResults(maybe_doc, *mutation_result.transform_results());
