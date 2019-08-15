@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -70,6 +69,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
@@ -390,8 +390,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
-                                                                transformResults:absl::nullopt];
+  MutationResult mutationResult(version, absl::nullopt);
   [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
 }
 

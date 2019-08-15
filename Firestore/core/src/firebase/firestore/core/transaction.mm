@@ -20,19 +20,20 @@
 #include <unordered_set>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::Error;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::Datastore;
@@ -106,9 +107,9 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
       });
 }
 
-void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
+void Transaction::WriteMutations(std::vector<Mutation>&& mutations) {
   EnsureCommitNotCalled();
-  // `move` will become appropriate once `FSTMutation` is replaced by the C++
+  // `move` will become appropriate once `Mutation` is replaced by the C++
   // equivalent.
   std::move(mutations.begin(), mutations.end(), std::back_inserter(mutations_));
 }
@@ -169,9 +170,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
 }
 
 void Transaction::Delete(const DocumentKey& key) {
-  FSTMutation* mutation =
-      [[FSTDeleteMutation alloc] initWithKey:key
-                                precondition:CreatePrecondition(key)];
+  Mutation mutation = DeleteMutation(key, CreatePrecondition(key));
   WriteMutations({mutation});
   written_docs_.insert(key);
 }
@@ -191,8 +190,8 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
-  for (FSTMutation* mutation : mutations_) {
-    unwritten.erase(mutation.key);
+  for (const Mutation& mutation : mutations_) {
+    unwritten.erase(mutation.key());
   }
 
   if (!unwritten.empty()) {

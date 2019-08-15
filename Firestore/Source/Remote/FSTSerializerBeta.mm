@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+#include <algorithm>
 #include <cinttypes>
 #include <set>
 #include <string>
@@ -34,7 +35,6 @@
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -52,8 +53,11 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -81,6 +85,7 @@ using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
@@ -89,14 +94,19 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::TransformMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
@@ -491,48 +501,55 @@ absl::any Wrap(GCFSDocument *doc) {
   return NoDocument(std::move(key), version, /* has_commited_mutations= */ false);
 }
 
-#pragma mark - FSTMutation => GCFSWrite proto
+#pragma mark - Mutation => GCFSWrite proto
 
-- (GCFSWrite *)encodedMutation:(FSTMutation *)mutation {
+- (GCFSWrite *)encodedMutation:(const Mutation &)mutation {
+  using Type = Mutation::Type;
   GCFSWrite *proto = [GCFSWrite message];
 
-  Class mutationClass = [mutation class];
-  if (mutationClass == [FSTSetMutation class]) {
-    FSTSetMutation *set = (FSTSetMutation *)mutation;
-    proto.update = [self encodedDocumentWithFields:set.value key:set.key];
-
-  } else if (mutationClass == [FSTPatchMutation class]) {
-    FSTPatchMutation *patch = (FSTPatchMutation *)mutation;
-    proto.update = [self encodedDocumentWithFields:patch.value key:patch.key];
-    proto.updateMask = [self encodedFieldMask:*(patch.fieldMask)];
-
-  } else if (mutationClass == [FSTTransformMutation class]) {
-    FSTTransformMutation *transform = (FSTTransformMutation *)mutation;
-
-    proto.transform = [GCFSDocumentTransform message];
-    proto.transform.document = [self encodedDocumentKey:transform.key];
-    proto.transform.fieldTransformsArray = [self encodedFieldTransforms:transform.fieldTransforms];
-    // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
-    // FSTTransformMutations with an FSTSetMutation or FSTPatchMutation which (if successful) should
-    // end up with an existing document.
-    proto.currentDocument.exists = YES;
-
-  } else if (mutationClass == [FSTDeleteMutation class]) {
-    FSTDeleteMutation *deleteMutation = (FSTDeleteMutation *)mutation;
-    proto.delete_p = [self encodedDocumentKey:deleteMutation.key];
-
-  } else {
-    HARD_FAIL("Unknown mutation type %s", NSStringFromClass(mutationClass));
+  if (!mutation.precondition().is_none()) {
+    proto.currentDocument = [self encodedPrecondition:mutation.precondition()];
   }
 
-  if (!mutation.precondition.is_none()) {
-    proto.currentDocument = [self encodedPrecondition:mutation.precondition];
+  switch (mutation.type()) {
+    case Type::Set: {
+      SetMutation set(mutation);
+      proto.update = [self encodedDocumentWithFields:set.value() key:set.key()];
+      return proto;
+    }
+
+    case Type::Patch: {
+      PatchMutation patch(mutation);
+      proto.update = [self encodedDocumentWithFields:patch.value() key:patch.key()];
+      proto.updateMask = [self encodedFieldMask:patch.mask()];
+      return proto;
+    }
+
+    case Type::Transform: {
+      TransformMutation transform(mutation);
+
+      proto.transform = [GCFSDocumentTransform message];
+      proto.transform.document = [self encodedDocumentKey:transform.key()];
+      proto.transform.fieldTransformsArray =
+          [self encodedFieldTransforms:transform.field_transforms()];
+      // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
+      // TransformMutations with an SetMutation or PatchMutation which (if successful) should
+      // end up with an existing document.
+      proto.currentDocument.exists = YES;
+      return proto;
+    }
+
+    case Type::Delete: {
+      DeleteMutation deleteMutation(mutation);
+      proto.delete_p = [self encodedDocumentKey:deleteMutation.key()];
+      return proto;
+    }
   }
 
-  return proto;
+  UNREACHABLE();
 }
 
-- (FSTMutation *)decodedMutation:(GCFSWrite *)mutation {
+- (Mutation)decodedMutation:(GCFSWrite *)mutation {
   Precondition precondition = [mutation hasCurrentDocument]
                                   ? [self decodedPrecondition:mutation.currentDocument]
                                   : Precondition::None();
@@ -540,27 +557,24 @@ absl::any Wrap(GCFSDocument *doc) {
   switch (mutation.operationOneOfCase) {
     case GCFSWrite_Operation_OneOfCase_Update:
       if (mutation.hasUpdateMask) {
-        return [[FSTPatchMutation alloc] initWithKey:[self decodedDocumentKey:mutation.update.name]
-                                           fieldMask:[self decodedFieldMask:mutation.updateMask]
-                                               value:[self decodedFields:mutation.update.fields]
-                                        precondition:precondition];
+        return PatchMutation([self decodedDocumentKey:mutation.update.name],
+                             [self decodedFields:mutation.update.fields],
+                             [self decodedFieldMask:mutation.updateMask], precondition);
       } else {
-        return [[FSTSetMutation alloc] initWithKey:[self decodedDocumentKey:mutation.update.name]
-                                             value:[self decodedFields:mutation.update.fields]
-                                      precondition:precondition];
+        return SetMutation([self decodedDocumentKey:mutation.update.name],
+                           [self decodedFields:mutation.update.fields], precondition);
       }
 
     case GCFSWrite_Operation_OneOfCase_Delete_p:
-      return [[FSTDeleteMutation alloc] initWithKey:[self decodedDocumentKey:mutation.delete_p]
-                                       precondition:precondition];
+      return DeleteMutation([self decodedDocumentKey:mutation.delete_p], precondition);
 
     case GCFSWrite_Operation_OneOfCase_Transform: {
       HARD_ASSERT(precondition == Precondition::Exists(true),
                   "Transforms must have precondition \"exists == true\"");
 
-      return [[FSTTransformMutation alloc]
-              initWithKey:[self decodedDocumentKey:mutation.transform.document]
-          fieldTransforms:[self decodedFieldTransforms:mutation.transform.fieldTransformsArray]];
+      return TransformMutation(
+          [self decodedDocumentKey:mutation.transform.document],
+          [self decodedFieldTransforms:mutation.transform.fieldTransformsArray]);
     }
 
     default:
@@ -719,10 +733,10 @@ absl::any Wrap(GCFSDocument *doc) {
   return elements;
 }
 
-#pragma mark - FSTMutationResult <= GCFSWriteResult proto
+#pragma mark - MutationResult <= GCFSWriteResult proto
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const SnapshotVersion &)commitVersion {
+- (MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
+                          commitVersion:(const SnapshotVersion &)commitVersion {
   // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
   SnapshotVersion version =
       mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
@@ -733,8 +747,7 @@ absl::any Wrap(GCFSDocument *doc) {
       transformResults->push_back([self decodedFieldValue:result]);
     }
   }
-  return [[FSTMutationResult alloc] initWithVersion:std::move(version)
-                                   transformResults:std::move(transformResults)];
+  return MutationResult(std::move(version), std::move(transformResults));
 }
 
 #pragma mark - FSTQueryData => GCFSTarget proto

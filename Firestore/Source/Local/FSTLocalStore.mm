@@ -26,7 +26,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -42,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -73,8 +73,10 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::OptionalMaybeDocumentMap;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -169,8 +171,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet changedKeys;
     for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
       for (FSTMutationBatch *batch : batches) {
-        for (FSTMutation *mutation : [batch mutations]) {
-          changedKeys = changedKeys.insert(mutation.key);
+        for (const Mutation &mutation : [batch mutations]) {
+          changedKeys = changedKeys.insert(mutation.key());
         }
       }
     }
@@ -180,11 +182,11 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
+- (LocalWriteResult)locallyWriteMutations:(std::vector<Mutation> &&)mutations {
   Timestamp localWriteTime = Timestamp::Now();
   DocumentKeySet keys;
-  for (FSTMutation *mutation : mutations) {
-    keys = keys.insert(mutation.key);
+  for (const Mutation &mutation : mutations) {
+    keys = keys.insert(mutation.key());
   }
 
   return self.persistence.run("Locally write mutations", [&] {
@@ -196,18 +198,16 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // state in a separate patch mutation. This is later used to guarantee consistent values
     // and prevents flicker even if the backend sends us an update that already includes our
     // transform.
-    std::vector<FSTMutation *> baseMutations;
-    for (FSTMutation *mutation : mutations) {
-      absl::optional<MaybeDocument> base_document = existingDocuments.get(mutation.key);
+    std::vector<Mutation> baseMutations;
+    for (const Mutation &mutation : mutations) {
+      absl::optional<MaybeDocument> base_document = existingDocuments.get(mutation.key());
 
-      absl::optional<ObjectValue> base_value = [mutation extractBaseValue:base_document];
+      absl::optional<ObjectValue> base_value = mutation.ExtractBaseValue(base_document);
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing document to
         // override, so use a Precondition of exists=true
-        baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
-                                                            fieldMask:base_value->ToFieldMask()
-                                                                value:*base_value
-                                                         precondition:Precondition::Exists(true)]);
+        baseMutations.push_back(PatchMutation(
+            mutation.key(), *base_value, base_value->ToFieldMask(), Precondition::Exists(true)));
       }
     }
 

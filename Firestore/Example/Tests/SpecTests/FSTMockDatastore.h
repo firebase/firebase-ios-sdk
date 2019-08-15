@@ -78,12 +78,12 @@ class MockDatastore : public Datastore {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  std::vector<FSTMutation*> NextSentWrite();
+  std::vector<model::Mutation> NextSentWrite();
   /** Returns the number of writes that have been sent to the backend but not waited on yet. */
   int WritesSent() const;
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const model::SnapshotVersion& version, std::vector<FSTMutationResult*> results);
+  void AckWrite(const model::SnapshotVersion& version, std::vector<model::MutationResult> results);
 
   /** Injects a stream failure as though it had come from the backend. */
   void FailWrite(const util::Status& error);

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
@@ -28,11 +26,16 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
@@ -43,6 +46,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
 using firebase::firestore::model::ArrayTransform;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
@@ -51,9 +55,14 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SetMutation;
+using firebase::firestore::model::TransformMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::testutil::Array;
@@ -91,8 +100,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "foo-value", "baz", "baz-value");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"bar" : @"bar-value"});
-  auto setDoc = [set applyToLocalDocument:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
+  Mutation set = FSTTestSetMutation(@"collection/key", @{@"bar" : @"bar-value"});
+  auto setDoc = set.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
 
   auto expectedData = Map("bar", "bar-value");
   XCTAssertEqual(setDoc, Doc("collection/key", 0, expectedData, DocumentState::kLocalMutations));
@@ -102,10 +111,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", Map("bar", "bar-value"), "baz", "baz-value");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
-  auto patchedDoc = [patch applyToLocalDocument:baseDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:_timestamp];
+  Mutation patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
+  auto patchedDoc = patch.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
 
   auto expectedData = Map("foo", Map("bar", "new-bar-value"), "baz", "baz-value");
   XCTAssertEqual(patchedDoc,
@@ -117,13 +124,9 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   Document baseDoc = Doc("collection/key", 0, docData);
 
   DocumentKey key = Key("collection/key");
-  FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:key
-                                                   fieldMask:{Field("foo.bar")}
-                                                       value:ObjectValue::Empty()
-                                                precondition:Precondition::None()];
-  auto patchedDoc = [patch applyToLocalDocument:baseDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:_timestamp];
+  Mutation patch =
+      PatchMutation(key, ObjectValue::Empty(), {Field("foo.bar")}, Precondition::None());
+  auto patchedDoc = patch.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
 
   auto expectedData = Map("foo", Map("baz", "baz-value"));
   XCTAssertEqual(patchedDoc,
@@ -134,10 +137,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "foo-value", "baz", "baz-value");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
-  auto patchedDoc = [patch applyToLocalDocument:baseDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:_timestamp];
+  Mutation patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
+  auto patchedDoc = patch.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
 
   auto expectedData = Map("foo", Map("bar", "new-bar-value"), "baz", "baz-value");
   XCTAssertEqual(patchedDoc,
@@ -146,10 +147,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 
 - (void)testPatchingDeletedDocumentsDoesNothing {
   MaybeDocument baseDoc = DeletedDoc("collection/key");
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
-  auto patchedDoc = [patch applyToLocalDocument:baseDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:_timestamp];
+  Mutation patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
+  auto patchedDoc = patch.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
   XCTAssertEqual(patchedDoc, baseDoc);
 }
 
@@ -157,11 +156,9 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", Map("bar", "bar-value"), "baz", "baz-value");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(
+  Mutation transform = FSTTestTransformMutation(
       @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
-  auto transformedDoc = [transform applyToLocalDocument:baseDoc
-                                           baseDocument:baseDoc
-                                         localWriteTime:_timestamp];
+  auto transformedDoc = transform.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
 
   // Server timestamps aren't parsed, so we manually insert it.
   ObjectValue expectedData =
@@ -245,14 +242,14 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 // NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
 // unit tests for it currently. We could consider removing this test once we have integration tests.
 - (void)testCreateArrayUnionTransform {
-  FSTTransformMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
     @"bar.baz" :
         [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
   });
-  XCTAssertEqual(transform.fieldTransforms.size(), 2);
+  XCTAssertEqual(transform.field_transforms().size(), 2);
 
-  const FieldTransform &first = transform.fieldTransforms[0];
+  const FieldTransform &first = transform.field_transforms()[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));
   {
     std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
@@ -260,7 +257,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
     XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
   }
 
-  const FieldTransform &second = transform.fieldTransforms[1];
+  const FieldTransform &second = transform.field_transforms()[1];
   XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
   {
     std::vector<FieldValue> expectedElements {
@@ -274,12 +271,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
 // NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
 // unit tests for it currently. We could consider removing this test once we have integration tests.
 - (void)testCreateArrayRemoveTransform {
-  FSTTransformMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
   });
-  XCTAssertEqual(transform.fieldTransforms.size(), 1);
+  XCTAssertEqual(transform.field_transforms().size(), 1);
 
-  const FieldTransform &first = transform.fieldTransforms[0];
+  const FieldTransform &first = transform.field_transforms()[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));
   {
     std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
@@ -394,10 +391,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   absl::optional<MaybeDocument> currentDoc = Doc("collection/key", 0, baseData);
 
   for (NSDictionary<NSString *, id> *transformData in transforms) {
-    FSTMutation *transform = FSTTestTransformMutation(@"collection/key", transformData);
-    currentDoc = [transform applyToLocalDocument:currentDoc
-                                    baseDocument:currentDoc
-                                  localWriteTime:_timestamp];
+    Mutation transform = FSTTestTransformMutation(@"collection/key", transformData);
+    currentDoc = transform.ApplyToLocalView(currentDoc, currentDoc, _timestamp);
   }
 
   Document expectedDoc = Doc("collection/key", 0, expectedData, DocumentState::kLocalMutations);
@@ -415,14 +410,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("sum", 1);
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(
+  Mutation transform = FSTTestTransformMutation(
       @"collection/key", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]});
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:Version(1) transformResults:FieldValueVector(3)];
+  MutationResult mutationResult(Version(1), FieldValueVector(3));
 
-  MaybeDocument transformedDoc = [transform applyToRemoteDocument:baseDoc
-                                                   mutationResult:mutationResult];
+  MaybeDocument transformedDoc = transform.ApplyToRemoteDocument(baseDoc, mutationResult);
 
   auto expectedData = Map("sum", 3);
   XCTAssertEqual(transformedDoc,
@@ -433,15 +426,12 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", Map("bar", "bar-value"), "baz", "baz-value");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(
+  Mutation transform = FSTTestTransformMutation(
       @"collection/key", @{@"foo.bar" : [FIRFieldValue fieldValueForServerTimestamp]});
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:Version(1)
-                                transformResults:FieldValueVector(_timestamp)];
+  MutationResult mutationResult(Version(1), FieldValueVector(_timestamp));
 
-  MaybeDocument transformedDoc = [transform applyToRemoteDocument:baseDoc
-                                                   mutationResult:mutationResult];
+  MaybeDocument transformedDoc = transform.ApplyToRemoteDocument(baseDoc, mutationResult);
 
   auto expectedData = Map("foo", Map("bar", _timestamp), "baz", "baz-value");
   Document expectedDoc = Doc("collection/key", 1, expectedData, DocumentState::kCommittedMutations);
@@ -453,18 +443,15 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("array_1", Array(1, 2), "array_2", Array("a", "b"));
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+  Mutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"array_1" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @3 ]],
     @"array_2" : [FIRFieldValue fieldValueForArrayRemove:@[ @"a", @"c" ]]
   });
 
   // Server just sends null transform results for array operations.
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:Version(1)
-                                transformResults:FieldValueVector(nullptr, nullptr)];
+  MutationResult mutationResult(Version(1), FieldValueVector(nullptr, nullptr));
 
-  MaybeDocument transformedDoc = [transform applyToRemoteDocument:baseDoc
-                                                   mutationResult:mutationResult];
+  MaybeDocument transformedDoc = transform.ApplyToRemoteDocument(baseDoc, mutationResult);
 
   auto expectedData = Map("array_1", Array(1, 2, 3), "array_2", Array("b"));
   XCTAssertEqual(transformedDoc,
@@ -475,10 +462,8 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "bar");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *mutation = FSTTestDeleteMutation(@"collection/key");
-  auto result = [mutation applyToLocalDocument:baseDoc
-                                  baseDocument:baseDoc
-                                localWriteTime:_timestamp];
+  Mutation mutation = FSTTestDeleteMutation(@"collection/key");
+  auto result = mutation.ApplyToLocalView(baseDoc, baseDoc, _timestamp);
   XCTAssertEqual(result, DeletedDoc("collection/key"));
 }
 
@@ -486,10 +471,9 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "bar");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"new-bar"});
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(4)
-                                                                transformResults:absl::nullopt];
-  MaybeDocument setDoc = [set applyToRemoteDocument:baseDoc mutationResult:mutationResult];
+  Mutation set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"new-bar"});
+  MutationResult mutationResult(Version(4), absl::nullopt);
+  MaybeDocument setDoc = set.ApplyToRemoteDocument(baseDoc, mutationResult);
 
   auto expectedData = Map("foo", "new-bar");
   XCTAssertEqual(setDoc,
@@ -500,10 +484,9 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "bar");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"new-bar"}, {});
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(4)
-                                                                transformResults:absl::nullopt];
-  MaybeDocument patchedDoc = [patch applyToRemoteDocument:baseDoc mutationResult:mutationResult];
+  Mutation patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"new-bar"}, {});
+  MutationResult mutationResult(Version(4), absl::nullopt);
+  MaybeDocument patchedDoc = patch.ApplyToRemoteDocument(baseDoc, mutationResult);
 
   auto expectedData = Map("foo", "new-bar");
   XCTAssertEqual(patchedDoc,
@@ -514,27 +497,27 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   auto docData = Map("foo", "foo");
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"bar"});
-  XCTAssertFalse([set extractBaseValue:baseDoc]);
+  Mutation set = FSTTestSetMutation(@"collection/key", @{@"foo" : @"bar"});
+  XCTAssertFalse(set.ExtractBaseValue(baseDoc));
 
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
-  XCTAssertFalse([patch extractBaseValue:baseDoc]);
+  Mutation patch = FSTTestPatchMutation("collection/key", @{@"foo" : @"bar"}, {});
+  XCTAssertFalse(patch.ExtractBaseValue(baseDoc));
 
-  FSTMutation *deleter = FSTTestDeleteMutation(@"collection/key");
-  XCTAssertFalse([deleter extractBaseValue:baseDoc]);
+  Mutation deleter = FSTTestDeleteMutation(@"collection/key");
+  XCTAssertFalse(deleter.ExtractBaseValue(baseDoc));
 }
 
 - (void)testServerTimestampBaseValue {
   auto docData = Map("time", "foo", "nested", Map("time", "foo"));
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+  Mutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"time" : [FIRFieldValue fieldValueForServerTimestamp],
     @"nested.time" : [FIRFieldValue fieldValueForServerTimestamp]
   });
 
   // Server timestamps are idempotent and don't require base values.
-  XCTAssertFalse([transform extractBaseValue:baseDoc]);
+  XCTAssertFalse(transform.ExtractBaseValue(baseDoc));
 }
 
 - (void)testNumericIncrementBaseValue {
@@ -543,7 +526,7 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
           Map("ignore", "foo", "double", 42.0, "long", 42, "string", "foo", "map", Map()));
   Document baseDoc = Doc("collection/key", 0, docData);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+  Mutation transform = FSTTestTransformMutation(@"collection/key", @{
     @"double" : [FIRFieldValue fieldValueForIntegerIncrement:1],
     @"long" : [FIRFieldValue fieldValueForIntegerIncrement:1],
     @"string" : [FIRFieldValue fieldValueForIntegerIncrement:1],
@@ -561,15 +544,15 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
                  Map("double", 42.0, "long", 42, "string", 0, "map", 0, "missing", 0));
 
   // Server timestamps are idempotent and don't require base values.
-  absl::optional<ObjectValue> actualBaseValue = [transform extractBaseValue:baseDoc];
-  XCTAssertTrue([transform extractBaseValue:baseDoc]);
+  absl::optional<ObjectValue> actualBaseValue = transform.ExtractBaseValue(baseDoc);
+  XCTAssertTrue(transform.ExtractBaseValue(baseDoc));
   XCTAssertEqual(expectedBaseValue, *actualBaseValue);
 }
 
-#define ASSERT_VERSION_TRANSITION(mutation, base, result, expected)            \
-  do {                                                                         \
-    auto actual = [mutation applyToRemoteDocument:base mutationResult:result]; \
-    XCTAssertEqual(actual, expected);                                          \
+#define ASSERT_VERSION_TRANSITION(mutation, base, result, expected) \
+  do {                                                              \
+    auto actual = mutation.ApplyToRemoteDocument(base, result);     \
+    XCTAssertEqual(actual, expected);                               \
   } while (0);
 
 /**
@@ -579,19 +562,17 @@ static std::vector<FieldValue> FieldValueVector(Args... values) {
   Document docV3 = Doc("collection/key", 3, Map());
   NoDocument deletedV3 = DeletedDoc("collection/key", 3);
 
-  FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
-  FSTMutation *patchMutation = FSTTestPatchMutation("collection/key", @{}, {});
-  FSTMutation *transformMutation = FSTTestTransformMutation(@"collection/key", @{});
-  FSTMutation *deleteMutation = FSTTestDeleteMutation(@"collection/key");
+  Mutation setMutation = FSTTestSetMutation(@"collection/key", @{});
+  Mutation patchMutation = FSTTestPatchMutation("collection/key", @{}, {});
+  Mutation transformMutation = FSTTestTransformMutation(@"collection/key", @{});
+  Mutation deleteMutation = FSTTestDeleteMutation(@"collection/key");
 
   NoDocument docV7Deleted = DeletedDoc("collection/key", 7, /* has_committed_mutations= */ true);
   Document docV7Committed = Doc("collection/key", 7, Map(), DocumentState::kCommittedMutations);
   UnknownDocument docV7Unknown = UnknownDoc("collection/key", 7);
 
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:Version(7)
-                                                                transformResults:absl::nullopt];
-  FSTMutationResult *transformResult =
-      [[FSTMutationResult alloc] initWithVersion:Version(7) transformResults:FieldValueVector()];
+  MutationResult mutationResult(Version(7), absl::nullopt);
+  MutationResult transformResult(Version(7), FieldValueVector());
 
   ASSERT_VERSION_TRANSITION(setMutation, docV3, mutationResult, docV7Committed);
   ASSERT_VERSION_TRANSITION(setMutation, deletedV3, mutationResult, docV7Committed);

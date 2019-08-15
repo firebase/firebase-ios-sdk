@@ -31,7 +31,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/converters.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"

@@ -28,13 +28,12 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-@class FSTMutation;
-
 namespace firebase {
 namespace firestore {
 namespace model {
 
 class Precondition;
+class Mutation;
 
 }  // namespace model
 
@@ -270,7 +269,7 @@ class ParsedSetData {
    *
    * This method consumes the values stored in the ParsedSetData
    */
-  std::vector<FSTMutation*> ToMutations(
+  std::vector<model::Mutation> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 
@@ -303,7 +302,7 @@ class ParsedUpdateData {
    *
    * This method consumes the values stored in the ParsedUpdateData
    */
-  std::vector<FSTMutation*> ToMutations(
+  std::vector<model::Mutation> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 

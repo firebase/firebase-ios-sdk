@@ -22,7 +22,6 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
@@ -47,6 +46,7 @@ using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
+using model::Mutation;
 using model::ResourcePath;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
@@ -157,8 +157,8 @@ void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
 
 FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
-    std::vector<FSTMutation*>&& base_mutations,
-    std::vector<FSTMutation*>&& mutations) {
+    std::vector<Mutation>&& base_mutations,
+    std::vector<Mutation>&& mutations) {
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 
@@ -176,11 +176,12 @@ FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
   // buffer (and the parser will see all default values).
   std::string empty_buffer;
 
-  for (FSTMutation* mutation : [batch mutations]) {
-    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
+  for (const Mutation& mutation : [batch mutations]) {
+    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key(), batch_id);
     db_.currentTransaction->Put(key, empty_buffer);
 
-    db_.indexManager->AddToCollectionParentIndex(mutation.key.path().PopLast());
+    db_.indexManager->AddToCollectionParentIndex(
+        mutation.key().path().PopLast());
   }
 
   return batch;
@@ -204,10 +205,10 @@ void LevelDbMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
 
   db_.currentTransaction->Delete(key);
 
-  for (FSTMutation* mutation : [batch mutations]) {
-    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
+  for (const Mutation& mutation : [batch mutations]) {
+    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key(), batch_id);
     db_.currentTransaction->Delete(key);
-    [db_.referenceDelegate removeMutationReference:mutation.key];
+    [db_.referenceDelegate removeMutationReference:mutation.key()];
   }
 }
 

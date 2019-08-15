@@ -38,6 +38,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -63,8 +64,10 @@ using model::Document;
 using model::DocumentKey;
 using model::FieldValue;
 using model::MaybeDocument;
+using model::Mutation;
 using model::NoDocument;
 using model::ObjectValue;
+using model::SetMutation;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
@@ -74,6 +77,7 @@ using nanopb::Reader;
 using nanopb::Writer;
 using remote::Serializer;
 using testutil::Key;
+using testutil::Map;
 using util::Status;
 using util::StatusOr;
 

@@ -29,12 +29,12 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -42,8 +42,11 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -60,6 +63,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
@@ -74,11 +78,14 @@ using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::TransformMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -170,15 +177,13 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
                                            databaseID:DatabaseId(projectID, database)];
 }
 
-FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  return [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(path)
-                                       value:FSTTestObjectValue(values)
-                                precondition:Precondition::None()];
+SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
+  return SetMutation(FSTTestDocKey(path), FSTTestObjectValue(values), Precondition::None());
 }
 
-FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
-                                       NSDictionary<NSString *, id> *values,
-                                       const std::vector<FieldPath> &updateMask) {
+PatchMutation FSTTestPatchMutation(const absl::string_view path,
+                                   NSDictionary<NSString *, id> *values,
+                                   const std::vector<FieldPath> &updateMask) {
   BOOL merge = !updateMask.empty();
 
   __block ObjectValue objectValue = ObjectValue::Empty();
@@ -193,27 +198,23 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   }];
 
   DocumentKey key = testutil::Key(path);
+  Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
   FieldMask mask(merge ? std::set<FieldPath>(updateMask.begin(), updateMask.end())
                        : fieldMaskPaths);
-  return [[FSTPatchMutation alloc]
-       initWithKey:key
-         fieldMask:mask
-             value:objectValue
-      precondition:merge ? Precondition::None() : Precondition::Exists(true)];
+  return PatchMutation(key, objectValue, mask, precondition);
 }
 
-FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
+TransformMutation FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
   DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   ParsedUpdateData result = [converter parsedUpdateData:data];
   HARD_ASSERT(result.data().size() == 0,
               "FSTTestTransformMutation() only expects transforms; no other data");
-  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:result.field_transforms()];
+  return TransformMutation(key, result.field_transforms());
 }
 
-FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
-                                   precondition:Precondition::None()];
+DeleteMutation FSTTestDeleteMutation(NSString *path) {
+  return DeleteMutation(FSTTestDocKey(path), Precondition::None());
 }
 
 MaybeDocumentMap FSTTestDocUpdates(const std::vector<MaybeDocument> &docs) {

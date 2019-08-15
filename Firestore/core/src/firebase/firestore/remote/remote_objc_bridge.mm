@@ -38,6 +38,8 @@ namespace bridge {
 using core::DatabaseInfo;
 using model::DocumentKey;
 using model::MaybeDocument;
+using model::Mutation;
+using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
 using util::MakeString;
@@ -180,10 +182,10 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
-    const std::vector<FSTMutation*>& mutations) const {
+    const std::vector<Mutation>& mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.size()];
-  for (FSTMutation* mutation : mutations) {
+  for (const Mutation& mutation : mutations) {
     [protos addObject:[serializer_ encodedMutation:mutation]];
   };
 
@@ -209,10 +211,10 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
-std::vector<FSTMutationResult*> WriteStreamSerializer::ToMutationResults(
+std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* response) const {
   NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
-  std::vector<FSTMutationResult*> results;
+  std::vector<MutationResult> results;
   results.reserve(responses.count);
 
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
@@ -239,12 +241,12 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 }
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
-    const std::vector<FSTMutation*>& mutations) const {
+    const std::vector<Mutation>& mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
   request.database = [serializer_ encodedDatabaseID];
 
   NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (FSTMutation* mutation : mutations) {
+  for (const Mutation& mutation : mutations) {
     [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
   }
   request.writesArray = mutationProtos;

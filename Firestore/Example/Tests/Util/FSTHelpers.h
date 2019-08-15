@@ -23,14 +23,19 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
@@ -39,12 +44,8 @@
 
 @class FIRGeoPoint;
 @class FIRTimestamp;
-@class FSTDeleteMutation;
 @class FSTDocumentKeyReference;
 @class FSTLocalViewChanges;
-@class FSTPatchMutation;
-@class FSTSetMutation;
-@class FSTTransformMutation;
 @class FSTUserDataConverter;
 @class FSTView;
 
@@ -254,23 +255,24 @@ absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(
     const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
 
 /** Creates a set mutation for the document key at the given path. */
-FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
+model::SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
 
 /** Creates a patch mutation for the document key at the given path. */
-FSTPatchMutation *FSTTestPatchMutation(
+model::PatchMutation FSTTestPatchMutation(
     absl::string_view path,
     NSDictionary<NSString *, id> *values,
     const std::vector<firebase::firestore::model::FieldPath> &updateMask);
 
 /**
- * Creates a FSTTransformMutation by parsing any FIRFieldValue sentinels in the provided data. The
+ * Creates a TransformMutation by parsing any FIRFieldValue sentinels in the provided data. The
  * data is expected to use dotted-notation for nested fields (i.e.
  * @{ @"foo.bar": [FIRFieldValue ...] } and must not contain any non-sentinel data.
  */
-FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data);
+model::TransformMutation FSTTestTransformMutation(NSString *path,
+                                                  NSDictionary<NSString *, id> *data);
 
 /** Creates a delete mutation for the document key at the given path. */
-FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
+model::DeleteMutation FSTTestDeleteMutation(NSString *path);
 
 /** Converts a list of documents to a sorted map. */
 firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(

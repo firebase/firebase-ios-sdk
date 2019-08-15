@@ -30,6 +30,7 @@ namespace remote {
 
 using auth::CredentialsProvider;
 using auth::Token;
+using model::Mutation;
 using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
@@ -68,7 +69,7 @@ void WriteStream::WriteHandshake() {
   // stream token on the handshake, ignoring any stream token we might have.
 }
 
-void WriteStream::WriteMutations(const std::vector<FSTMutation*>& mutations) {
+void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing mutations requires an opened stream");
   HARD_ASSERT(handshake_complete(),
