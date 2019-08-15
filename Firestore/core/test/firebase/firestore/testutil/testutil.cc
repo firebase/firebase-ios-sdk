@@ -34,7 +34,6 @@ using model::FieldTransform;
 using model::FieldValue;
 using model::ObjectValue;
 using model::Precondition;
-using model::TransformMutation;
 using model::TransformOperation;
 
 DocumentComparator DocComparator(absl::string_view field_path) {

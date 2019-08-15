@@ -54,8 +54,6 @@ TEST(MutationTest, AppliesSetsToDocuments) {
   Mutation set = SetMutation("collection/key", Map("bar", "bar-value"));
   auto result = set.ApplyToLocalView(base_doc, base_doc, now);
 
-  ASSERT_NE(result, absl::nullopt);
-  ASSERT_EQ(result->type(), MaybeDocument::Type::Document);
   EXPECT_EQ(result, Doc("collection/key", 0, Map("bar", "bar-value"),
                         DocumentState::kLocalMutations));
 }
@@ -158,15 +156,24 @@ TEST(MutationTest, AppliesLocalServerTimestampTransformToDocuments) {
 
 namespace {
 
+/**
+ * A list of pairs, where each pair is the field path to transform and the
+ * TransformOperation to apply.
+ */
 using TransformPairs = std::vector<std::pair<std::string, TransformOperation>>;
 
-// Helper to test a particular transform scenario.
+/**
+ * Builds a document around the given `base_data`, then applies each transform
+ * pair to the document as a separate `TransformMutation`. The result of each
+ * transformation is used as the input to the next. The result of applying all
+ * transformations is then compared to the given `expected_data`.
+ */
 void TransformBaseDoc(const FieldValue::Map& base_data,
-                      TransformPairs transforms,
+                      const TransformPairs& transforms,
                       const FieldValue::Map& expected_data) {
   Document current_doc = Doc("collection/key", 0, base_data);
 
-  for (auto transform : transforms) {
+  for (const auto& transform : transforms) {
     Mutation mutation = TransformMutation("collection/key", {transform});
     auto result = mutation.ApplyToLocalView(current_doc, current_doc, now);
     ASSERT_NE(result, absl::nullopt);
