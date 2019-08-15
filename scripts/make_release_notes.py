@@ -20,12 +20,14 @@
 import argparse
 import re
 import subprocess
+import string
 
 
 NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 
 PRODUCTS = {
+    'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
     'Firebase/Auth/CHANGELOG.md': '{{auth}}',
     'Firebase/Core/CHANGELOG.md': NO_HEADING,
     'Firebase/Database/CHANGELOG.md': '{{database}}',
@@ -135,14 +137,20 @@ class Renderer(object):
 
     return url
 
-  def local_issue_link(self, issue):
+  def local_issue_link(self, issues):
     """Renders a local issue link as a proper markdown URL.
 
-    Transforms (#1234) into
-    ([#1234](//github.com/firebase/firebase-ios-sdk/issues/1234)).
+    Transforms (#1234, #1235) into
+    ([#1234](//github.com/firebase/firebase-ios-sdk/issues/1234),
+    [#1235](//github.com/firebase/firebase-ios-sdk/issues/1235)).
     """
-    link = '//github.com/%s/issues/%s' % (self.local_repo, issue)
-    return '([#%s](%s))' % (issue, link)
+    issue_link_list = []
+    issue_list = issues.split(", ")
+    for issue in issue_list:
+      issue = issue.translate(None, string.punctuation)
+      link = '//github.com/%s/issues/%s' % (self.local_repo, issue)
+      issue_link_list.append('[#%s](%s)' % (issue, link))
+    return "(" + ", ".join(issue_link_list) + ")"
 
   def text(self, text):
     """Passes through any other text."""
@@ -172,7 +180,7 @@ class Translator(object):
     return result
 
   heading = re.compile(
-      r'^#.*'
+      r'^#{1,6} .*'
   )
 
   def parse_heading(self, m):
@@ -187,7 +195,7 @@ class Translator(object):
 
   change_type = re.compile(
       r'\['           # opening square bracket
-      r'(\w+)'        # tag word (like "feature" or "changed"
+      r'(\w+)'        # tag word (like "feature" or "changed")
       r'\]'           # closing square bracket
       r'(?!\()'       # not followed by opening paren (that would be a link)
   )
@@ -201,13 +209,13 @@ class Translator(object):
     return self.renderer.url(m.group(1))
 
   local_issue_link = re.compile(
-      r'\('           # opening paren
-      r'#(\d+)'       # hash and issue number
-      r'\)'           # closing paren
+      r'\('              # opening paren
+      r'(#(\d+)(, )?)+'  # list of hash and issue number, comma-delimited
+      r'\)'              # closing paren
   )
 
   def parse_local_issue_link(self, m):
-    return self.renderer.local_issue_link(m.group(1))
+    return self.renderer.local_issue_link(m.group(0))
 
   text = re.compile(
       r'^[\s\S]+?(?=[(\[\n]|https?://|$)'
@@ -244,11 +252,11 @@ def read_changelog_section(filename, single_version=None):
     # Discard all lines until we see a heading that either has the version the
     # user asked for or any version.
     if single_version:
-      initial_heading = re.compile(r'^#.*%s' % re.escape(single_version))
+      initial_heading = re.compile(r'^#{1,6} .*%s' % re.escape(single_version))
     else:
-      initial_heading = re.compile(r'^#([^\d]*)\d')
+      initial_heading = re.compile(r'^#{1,6} ([^\d]*)\d')
 
-    heading = re.compile(r'^#')
+    heading = re.compile(r'^#{1,6} ')
 
     initial = True
     result = []
