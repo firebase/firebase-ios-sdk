@@ -284,7 +284,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     const TargetChange& target_change = entry.second;
     const ByteString& resumeToken = target_change.resume_token();
 
-    if (resumeToken.size() > 0) {
+    if (!resumeToken.empty()) {
       TargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
       FSTQueryData* query_data =

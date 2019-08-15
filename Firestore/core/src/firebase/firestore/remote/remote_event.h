@@ -153,8 +153,6 @@ bool operator==(const TargetChange& lhs, const TargetChange& rhs);
 /** Tracks the internal state of a Watch target. */
 class TargetState {
  public:
-  TargetState();
-
   /**
    * Whether this target has been marked 'current'.
    *

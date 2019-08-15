@@ -48,9 +48,6 @@ bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
 
 // TargetState
 
-TargetState::TargetState() {
-}
-
 void TargetState::UpdateResumeToken(ByteString resume_token) {
   if (!resume_token.empty()) {
     has_pending_changes_ = true;
