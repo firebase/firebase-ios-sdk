@@ -82,8 +82,8 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    serializer.h
     serializer.cc
+    serializer.h
     watch_change.cc
     watch_change.h
 

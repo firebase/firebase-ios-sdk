@@ -788,7 +788,7 @@ absl::any Wrap(GCFSDocument *doc) {
   }
 
   result.targetId = queryData.target_id();
-  if (queryData.resume_token().size() > 0) {
+  if (!queryData.resume_token().empty()) {
     result.resumeToken = MakeNSData(queryData.resume_token());
   }
 
