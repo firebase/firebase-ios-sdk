@@ -423,8 +423,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(5.0)}];
 
   // Skip backoff delays.
-  FSTFirestoreClient *client = firestore.wrapped->client();
-  [client workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -469,8 +468,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(5.0), @"other" : @"yes"}];
 
   // Skip backoff delays.
-  FSTFirestoreClient *client = firestore.wrapped->client();
-  [client workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -518,8 +516,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
 
   // Skip backoff delays.
-  FSTFirestoreClient *client = firestore.wrapped->client();
-  [client workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -571,8 +568,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(15.0)}];
 
   // Skip backoff delays.
-  FSTFirestoreClient *client = firestore.wrapped->client();
-  [client workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore

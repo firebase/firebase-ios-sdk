@@ -33,12 +33,12 @@ using Milliseconds = util::AsyncQueue::Milliseconds;
  * Initial backoff time in milliseconds after an error. Set to 1s according to
  * https://cloud.google.com/apis/design/errors.
  */
-const Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
+static const Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
 
-const double kDefaultBackoffFactor = 1.5;
+static const double kDefaultBackoffFactor = 1.5;
 
 /** Maximum backoff time in milliseconds. */
-const Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
+static const Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
 
 /**
  *

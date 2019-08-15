@@ -25,15 +25,13 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-namespace core = firebase::firestore::core;
-namespace util = firebase::firestore::util;
-namespace remote = firebase::firestore::remote;
-
 namespace firebase {
 namespace firestore {
 namespace core {
 
-const int kRetryCount = 5;
+NS_ASSUME_NONNULL_BEGIN
+
+static const int kRetryCount = 5;
 
 /**
  * TransactionRunner encapsulates the logic needed to run and retry transactions
@@ -48,7 +46,7 @@ class TransactionRunner
                     core::TransactionResultCallback result_callback);
 
   /**
-   * Runs the transaction and calls the resultCallBack with the result.
+   * Runs the transaction and calls the result_callback_ with the result.
    */
   void Run();
 
@@ -62,8 +60,8 @@ class TransactionRunner
 
   bool IsRetryableTransactionError(const util::Status& error);
 
-  void RunTransaction(const std::shared_ptr<Transaction> transaction,
-                      const util::StatusOr<absl::any> maybe_result);
+  void CheckUpdateCallbackResult(const std::shared_ptr<Transaction> transaction,
+                                 const util::StatusOr<absl::any> maybe_result);
 
   void CheckCommitResult(const std::shared_ptr<Transaction> transaction,
                          util::Status status,
@@ -76,5 +74,7 @@ class TransactionRunner
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_RUNNER_H_

@@ -19,7 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {

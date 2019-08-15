@@ -32,6 +32,7 @@ using firebase::firestore::util::Status;
 namespace firebase {
 namespace firestore {
 namespace core {
+
 TransactionRunner::TransactionRunner(const std::shared_ptr<AsyncQueue>& queue,
                                      RemoteStore* remote_store,
                                      TransactionUpdateCallback update_callback,
@@ -54,20 +55,19 @@ void TransactionRunner::Run() {
     shared_this->update_callback_(
         transaction,
         [transaction, shared_this](util::StatusOr<absl::any> maybe_result) {
-          shared_this->queue_->Enqueue(
-              [transaction, shared_this, maybe_result] {
-                shared_this->RunTransaction(transaction, maybe_result);
-              });
+          shared_this->queue_->Enqueue([transaction, shared_this,
+                                        maybe_result] {
+            shared_this->CheckUpdateCallbackResult(transaction, maybe_result);
+          });
         });
   });
 }
 
-void TransactionRunner::RunTransaction(
+void TransactionRunner::CheckUpdateCallbackResult(
     const std::shared_ptr<Transaction> transaction,
     const util::StatusOr<absl::any> maybe_result) {
   if (!maybe_result.ok()) {
-    TransactionRunner::HandleTransactionError(transaction,
-                                              maybe_result.status());
+    HandleTransactionError(transaction, maybe_result.status());
   } else {
     auto shared_this = this->shared_from_this();
     transaction->Commit(
@@ -84,7 +84,7 @@ void TransactionRunner::CheckCommitResult(
   if (status.ok()) {
     result_callback_(std::move(maybe_result));
   } else {
-    TransactionRunner::HandleTransactionError(transaction, status);
+    HandleTransactionError(transaction, status);
   }
 }
 
@@ -94,7 +94,7 @@ void TransactionRunner::HandleTransactionError(
       TransactionRunner::IsRetryableTransactionError(status) &&
       !transaction->IsPermanentlyFailed()) {
     retries_left_ -= 1;
-    TransactionRunner::Run();
+    Run();
   } else {
     result_callback_(std::move(status));
   }
