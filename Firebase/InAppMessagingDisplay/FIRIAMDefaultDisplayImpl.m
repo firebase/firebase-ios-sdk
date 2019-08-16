@@ -58,6 +58,14 @@
     // This is assuming the display resource bundle is contained in the main bundle
     NSURL *bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
                                           withExtension:@"bundle"];
+    if (bundleURL == nil) {
+      FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
+                    @"FIAM Display Resource bundle "
+                     "is missing: not contained within bundle %@",
+                    containingBundle);
+      return;
+    }
+
     resourceBundle = [NSBundle bundleWithURL:bundleURL];
 
     if (resourceBundle == nil) {

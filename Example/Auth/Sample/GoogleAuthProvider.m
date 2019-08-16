@@ -35,7 +35,7 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 /** @class GoogleAuthDelegate
     @brief The designated delegate class for Google Sign-In.
  */
-@interface GoogleAuthDelegate : NSObject <GIDSignInDelegate, GIDSignInUIDelegate, OpenURLDelegate>
+@interface GoogleAuthDelegate : NSObject <GIDSignInDelegate, OpenURLDelegate>
 
 /** @fn initWithPresentingViewController:callback:
     @brief Initializes the new instance with the callback.
@@ -73,18 +73,8 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
   }
 }
 
-- (void)signIn:(GIDSignIn *)signIn presentViewController:(UIViewController *)viewController {
-  [_presentingViewController presentViewController:viewController animated:YES completion:nil];
-}
-
-- (void)signIn:(GIDSignIn *)signIn dismissViewController:(UIViewController *)viewController {
-  [_presentingViewController dismissViewControllerAnimated:YES completion:nil];
-}
-
 - (BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication {
-  return [[GIDSignIn sharedInstance] handleURL:url
-                             sourceApplication:sourceApplication
-                                    annotation:nil];
+  return [[GIDSignIn sharedInstance] handleURL:url];
 }
 
 @end
@@ -114,7 +104,7 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
   signIn.clientID = [self googleClientID];
   signIn.shouldFetchBasicProfile = YES;
   signIn.delegate = delegate;
-  signIn.uiDelegate = delegate;
+  signIn.presentingViewController = viewController;
   [ApplicationDelegate setOpenURLDelegate:delegate];
   [signIn signIn];
 }
