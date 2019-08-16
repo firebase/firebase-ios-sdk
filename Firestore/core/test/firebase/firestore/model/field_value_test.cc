@@ -87,6 +87,10 @@ TEST(FieldValueTest, ValueHelpers) {
   ASSERT_EQ(long_value.type(), Type::Integer);
   EXPECT_EQ(long_value.integer_value(), LONG_MAX);
 
+  FieldValue long_long_value = Value(LLONG_MAX);
+  ASSERT_EQ(long_long_value.type(), Type::Integer);
+  EXPECT_EQ(long_long_value.integer_value(), LLONG_MAX);
+
   FieldValue double_value = Value(2.0);
   ASSERT_EQ(double_value.type(), Type::Double);
   EXPECT_EQ(double_value.double_value(), 2.0);
