@@ -63,6 +63,7 @@
                     @"FIAM Display Resource bundle "
                      "is missing: not contained within bundle %@",
                     containingBundle);
+      return;
     }
 
     resourceBundle = [NSBundle bundleWithURL:bundleURL];
