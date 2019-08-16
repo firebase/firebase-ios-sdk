@@ -60,8 +60,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos
-        # TODO (renkelvin) Uncomment next line when Auth backend is fixed for the integration tests.
-        # - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -204,7 +203,10 @@ jobs:
         - PROJECT=FirebasePllCron3 PLATFORM=iOS METHOD=pod-lib-lint
       script:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries.
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings
+        # FirebaseMessaging includes Swift unit tests so it is not testable with --use-libraries.
+        # TODO(paulb777): Migrate FirebaseMessaging to pod gen driven tests with a separate test
+        # target for Swift.
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-libraries --allow-warnings --skip-tests
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
@@ -443,5 +445,4 @@ jobs:
 
 branches:
   only:
-    - firestore-master
     - master

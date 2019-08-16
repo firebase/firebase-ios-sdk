@@ -1381,4 +1381,25 @@ using firebase::firestore::util::TimerId;
       NSException, @"The client has already been shutdown.");
 }
 
+- (void)testCanRemoveListenerAfterShutdown {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  firestore.settings = [FSTIntegrationTestCase settings];
+
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"rooms"] documentWithAutoID];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [self writeDocumentRef:doc data:@{}];
+  id<FIRListenerRegistration> listenerRegistration =
+      [doc addSnapshotListener:[accumulator valueEventHandler]];
+  [accumulator awaitEventWithName:@"Snapshot"];
+
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+  [self awaitExpectations];
+
+  // This should proceed without error.
+  [listenerRegistration remove];
+  // Multiple calls should proceed as well.
+  [listenerRegistration remove];
+}
+
 @end
