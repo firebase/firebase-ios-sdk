@@ -33,7 +33,7 @@ MutationBatchResult::MutationBatchResult(
     MutationBatch batch,
     model::SnapshotVersion commit_version,
     std::vector<model::MutationResult> mutation_results,
-    absl::optional<nanopb::ByteString> stream_token)
+    nanopb::ByteString stream_token)
     : batch_(std::move(batch)),
       commit_version_(commit_version),
       mutation_results_(std::move(mutation_results)),

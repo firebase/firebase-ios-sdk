@@ -42,14 +42,14 @@ using DocumentVersionMap =
 class MutationBatchResult {
  public:
   /**
-   * Creates a new FSTMutationBatchResult for the given batch and results. There
+   * Creates a new MutationBatchResult for the given batch and results. There
    * must be one result for each mutation in the batch. This static factory
    * caches a document=>version mapping (as docVersions).
    */
   MutationBatchResult(MutationBatch batch,
                       SnapshotVersion commit_version,
                       std::vector<MutationResult> mutation_results,
-                      absl::optional<nanopb::ByteString> stream_token);
+                      nanopb::ByteString stream_token);
 
   const MutationBatch& batch() const {
     return batch_;
@@ -63,7 +63,7 @@ class MutationBatchResult {
     return mutation_results_;
   }
 
-  const absl::optional<nanopb::ByteString> stream_token() const {
+  const nanopb::ByteString stream_token() const {
     return stream_token_;
   }
 
@@ -80,7 +80,7 @@ class MutationBatchResult {
   MutationBatch batch_;
   SnapshotVersion commit_version_;
   std::vector<MutationResult> mutation_results_;
-  absl::optional<nanopb::ByteString> stream_token_;
+  nanopb::ByteString stream_token_;
   DocumentVersionMap doc_versions_;
 };
 

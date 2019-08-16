@@ -111,26 +111,27 @@ class MutationBatch {
   absl::optional<MaybeDocument> ApplyToRemoteDocument(
       absl::optional<MaybeDocument> maybe_doc,
       const DocumentKey& document_key,
-      const MutationBatchResult& mutation_batch_result);
+      const MutationBatchResult& mutation_batch_result) const;
 
   /**
    * A helper version of applyTo for applying mutations locally (without a
    * mutation batch result from the backend).
    */
   absl::optional<MaybeDocument> ApplyToLocalDocument(
-      absl::optional<MaybeDocument> maybe_doc, const DocumentKey& document_key);
+      absl::optional<MaybeDocument> maybe_doc,
+      const DocumentKey& document_key) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in
    * this batch.
    */
   MaybeDocumentMap ApplyToLocalDocumentSet(
-      const MaybeDocumentMap& document_set);
+      const MaybeDocumentMap& document_set) const;
 
   /**
    * Returns the set of unique keys referenced by all mutations in the batch.
    */
-  DocumentKeySet keys();
+  DocumentKeySet keys() const;
 
   friend bool operator==(const MutationBatch& lhs, const MutationBatch& rhs);
 
@@ -140,7 +141,7 @@ class MutationBatch {
 
  private:
   int batch_id_;
-  const Timestamp local_write_time_;
+  Timestamp local_write_time_;
   std::vector<Mutation> base_mutations_;
   std::vector<Mutation> mutations_;
 };

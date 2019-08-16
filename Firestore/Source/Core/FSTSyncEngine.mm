@@ -26,7 +26,6 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -73,6 +72,7 @@ using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
@@ -477,15 +477,15 @@ class LimboResolution {
   }
 }
 
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
+- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
   [self assertCallbackExistsForSelector:_cmd];
 
   // The local store may or may not be able to apply the write result and raise events immediately
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
   // consistently happen before listen events.
-  [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
+  [self processUserCallbacksForBatchID:batchResult.batch().batch_id() error:nil];
 
-  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch.batchID];
+  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch().batch_id()];
 
   MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
