@@ -32,6 +32,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using Type = TransformOperation::Type;
+
 // MARK: - TransformOperation
 
 TransformOperation::TransformOperation(std::shared_ptr<const Rep> rep)
@@ -46,7 +48,7 @@ bool operator==(const TransformOperation& lhs, const TransformOperation& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& os, const TransformOperation& op) {
-  return os << op.rep_->ToString();
+  return os << op.ToString();
 }
 
 // MARK: - ServerTimestampTransform
@@ -168,21 +170,30 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
   std::vector<model::FieldValue> elements_;
 };
 
+namespace {
+
+constexpr bool IsArrayTransform(Type type) {
+  return type == Type::ArrayUnion || type == Type::ArrayRemove;
+}
+
+}  // namespace
+
 ArrayTransform::ArrayTransform(Type type,
                                std::vector<model::FieldValue> elements)
     : TransformOperation(
           std::make_shared<const Rep>(type, std::move(elements))) {
-  HARD_ASSERT(type == Type::ArrayUnion || type == Type::ArrayRemove);
+  HARD_ASSERT(IsArrayTransform(type), "Expected array transform type; got %s",
+              type);
 }
 
 ArrayTransform::ArrayTransform(const TransformOperation& op)
     : TransformOperation(op) {
+  HARD_ASSERT(IsArrayTransform(op.type()),
+              "Expected array transform type; got %s", op.type());
 }
 
-const std::vector<FieldValue>& ArrayTransform::Elements(
-    const TransformOperation& op) {
-  HARD_ASSERT(op.type() == Type::ArrayUnion || op.type() == Type::ArrayRemove);
-  return ArrayTransform(op).array_rep().elements_;
+const std::vector<FieldValue>& ArrayTransform::elements() const {
+  return array_rep().elements_;
 }
 
 const ArrayTransform::Rep& ArrayTransform::array_rep() const {
@@ -298,6 +309,13 @@ class NumericIncrementTransform::Rep : public TransformOperation::Rep {
 NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
     : TransformOperation(std::make_shared<Rep>(operand)) {
   HARD_ASSERT(operand.is_number());
+}
+
+NumericIncrementTransform::NumericIncrementTransform(
+    const TransformOperation& op)
+    : TransformOperation(op) {
+  HARD_ASSERT(op.type() == Type::Increment, "Expected increment type; got %s",
+              op.type());
 }
 
 const FieldValue& NumericIncrementTransform::operand() const {
