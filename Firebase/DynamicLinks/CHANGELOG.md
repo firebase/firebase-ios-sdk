@@ -1,8 +1,11 @@
+# v4.0.3
+- [added] Added support for custom domains for internal Google apps. (#3540)
+
 # v4.0.2
 - [changed] Updated to maintain compatibility with Firebase Core in 6.6.0.
 
 # v4.0.1
-- [changed] Removed deprecated internal log method (#3333)
+- [changed] Removed deprecated internal log method. (#3333)
 
 # v4.0
 - [feature] FirebaseAnalytics is no longer a hard dependency in the DynamicLinks pod. If you were installing Dynamic Links via pod ''Firebase/DynamicLinks'', you should add 'pod 'Firebase/Analytics'' to the Podfile to maintain full Dynamic Links functionality. If you previously have 'pod 'Firebase/Core'' in the Podfile, no change is necessary. (#2738)

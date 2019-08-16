@@ -95,6 +95,8 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *, id> *)conditionalUserProperty {
 }
 
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
+}
 @end
 
 @interface FIRDLScionLoggingTest : XCTestCase
