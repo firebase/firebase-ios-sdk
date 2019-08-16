@@ -75,10 +75,12 @@ using nanopb::Reader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
+using testutil::Field;
 using testutil::Key;
 using testutil::Map;
 using testutil::Query;
 using testutil::UnknownDoc;
+using testutil::WrapObject;
 using util::Status;
 
 class LocalSerializerTest : public ::testing::Test {
@@ -124,13 +126,12 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_MaybeDocument nanopb_proto{};
     reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
-    std::unique_ptr<MaybeDocument> actual_model =
-        serializer.DecodeMaybeDocument(&reader, nanopb_proto);
+    auto actual_model = serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     reader.FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model->type());
-    EXPECT_EQ(model, *actual_model);
+    EXPECT_EQ(type, actual_model.type());
+    EXPECT_EQ(model, actual_model);
   }
 
   ByteString EncodeMaybeDocument(local::LocalSerializer* serializer,
@@ -215,18 +216,14 @@ class LocalSerializerTest : public ::testing::Test {
 };
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
-  std::unique_ptr<Mutation> set =
-      testutil::SetMutation("foo/bar", {{"a", FieldValue::FromString("b")},
-                                        {"num", FieldValue::FromInteger(1)}});
-  std::unique_ptr<Mutation> patch = absl::make_unique<PatchMutation>(
-      Key("bar/baz"),
-      ObjectValue::FromMap({{"a", FieldValue::FromString("b")},
-                            {"num", FieldValue::FromInteger(1)}}),
-      FieldMask({FieldPath({"a"})}), Precondition::Exists(true));
-  std::unique_ptr<Mutation> del = testutil::DeleteMutation("baz/quux");
+  Mutation set = testutil::SetMutation("foo/bar", Map("a", "b", "num", 1));
+  Mutation patch =
+      PatchMutation(Key("bar/baz"), WrapObject("a", "b", "num", 1),
+                    FieldMask{Field("a")}, Precondition::Exists(true));
+  Mutation del = testutil::DeleteMutation("baz/quux");
 
   Timestamp write_time = Timestamp::Now();
-  std::vector<std::unique_ptr<Mutation>> mutations;
+  std::vector<Mutation> mutations;
   mutations.push_back(std::move(set));
   mutations.push_back(std::move(patch));
   mutations.push_back(std::move(del));

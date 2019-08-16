@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/API/converters.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
@@ -53,6 +52,7 @@ using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldValueOptions;
@@ -97,7 +97,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 - (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
-                         document:(nullable FSTDocument *)document
+                         document:(const absl::optional<Document> &)document
                          metadata:(SnapshotMetadata)metadata {
   DocumentSnapshot wrapped{firestore, std::move(documentKey), document, std::move(metadata)};
   return [self initWithSnapshot:std::move(wrapped)];
@@ -105,7 +105,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 - (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
-                         document:(nullable FSTDocument *)document
+                         document:(const absl::optional<Document> &)document
                         fromCache:(bool)fromCache
                  hasPendingWrites:(bool)hasPendingWrites {
   return [self initWithFirestore:firestore
@@ -133,7 +133,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return _snapshot.exists();
 }
 
-- (nullable FSTDocument *)internalDocument {
+- (const absl::optional<Document> &)internalDocument {
   return _snapshot.internal_document();
 }
 

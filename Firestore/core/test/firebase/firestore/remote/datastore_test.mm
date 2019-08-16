@@ -39,6 +39,8 @@ namespace remote {
 using auth::CredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using model::Document;
+using model::MaybeDocument;
 using util::AsyncQueue;
 using util::MakeByteBuffer;
 using util::CompletionEndState;
@@ -192,11 +194,11 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
 
 TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   bool done = false;
-  std::vector<FSTMaybeDocument*> resulting_docs;
+  std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
-              const Status& status) {
+      {},
+      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
         done = true;
         resulting_docs = documents;
         resulting_status = status;
@@ -211,17 +213,17 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
 
   EXPECT_TRUE(done);
   EXPECT_EQ(resulting_docs.size(), 1);
-  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[0].key().ToString(), "foo/1");
   EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   bool done = false;
-  std::vector<FSTMaybeDocument*> resulting_docs;
+  std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
-              const Status& status) {
+      {},
+      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
         done = true;
         resulting_docs = documents;
         resulting_status = status;
@@ -237,8 +239,8 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
 
   EXPECT_TRUE(done);
   EXPECT_EQ(resulting_docs.size(), 2);
-  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
-  EXPECT_EQ(resulting_docs[1].key.ToString(), "foo/2");
+  EXPECT_EQ(resulting_docs[0].key().ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[1].key().ToString(), "foo/2");
   EXPECT_TRUE(resulting_status.ok());
 }
 
@@ -265,8 +267,8 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   bool done = false;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
-              const Status& status) {
+      {},
+      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
         done = true;
         resulting_status = status;
       });
@@ -283,11 +285,11 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   bool done = false;
-  std::vector<FSTMaybeDocument*> resulting_docs;
+  std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
-              const Status& status) {
+      {},
+      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
         done = true;
         resulting_status = status;
       });
@@ -322,7 +324,7 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>&, const Status& status) {
+      {}, [&](const std::vector<MaybeDocument>&, const Status& status) {
         resulting_status = status;
       });
   worker_queue->EnqueueBlocking([] {});

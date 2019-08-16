@@ -30,13 +30,16 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -74,6 +77,10 @@ inline model::FieldValue Value(T bool_value) {
 // Overload that captures integer literals. Without this, int64_t and double
 // are equally applicable conversions.
 inline model::FieldValue Value(int value) {
+  return model::FieldValue::FromInteger(value);
+}
+
+inline model::FieldValue Value(long value) {  // NOLINT(runtime/int)
   return model::FieldValue::FromInteger(value);
 }
 
@@ -281,6 +288,19 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
+/**
+ * Creates an DocumentComparator that will compare Documents by the given
+ * fieldPath string then by key.
+ */
+model::DocumentComparator DocComparator(absl::string_view field_path);
+
+/**
+ * Creates a DocumentSet based on the given comparator, initially containing the
+ * given documents.
+ */
+model::DocumentSet DocSet(model::DocumentComparator comp,
+                          std::vector<model::Document> docs);
+
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {
     return core::Filter::Operator::LessThan;
@@ -368,34 +388,24 @@ inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
                      std::make_shared<const std::string>(collection_id));
 }
 
-inline std::unique_ptr<model::SetMutation> SetMutation(
+inline model::SetMutation SetMutation(
     absl::string_view path,
     const model::FieldValue::Map& values = model::FieldValue::Map()) {
-  return absl::make_unique<model::SetMutation>(
-      Key(path), model::ObjectValue::FromMap(values),
-      model::Precondition::None());
+  return model::SetMutation(Key(path), model::ObjectValue::FromMap(values),
+                            model::Precondition::None());
 }
 
-std::unique_ptr<model::PatchMutation> PatchMutation(
+model::PatchMutation PatchMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values = model::FieldValue::Map(),
-    const std::vector<model::FieldPath>* update_mask = nullptr);
+    model::FieldValue::Map values = model::FieldValue::Map(),
+    std::vector<model::FieldPath> update_mask = {});
 
-inline std::unique_ptr<model::PatchMutation> PatchMutation(
-    absl::string_view path,
-    const model::FieldValue::Map& values,
-    const std::vector<model::FieldPath>& update_mask) {
-  return PatchMutation(path, values, &update_mask);
-}
-
-inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
-    absl::string_view path) {
-  return absl::make_unique<model::DeleteMutation>(Key(path),
-                                                  model::Precondition::None());
+inline model::DeleteMutation DeleteMutation(absl::string_view path) {
+  return model::DeleteMutation(Key(path), model::Precondition::None());
 }
 
 inline model::MutationResult MutationResult(int64_t version) {
-  return model::MutationResult(Version(version), nullptr);
+  return model::MutationResult(Version(version), absl::nullopt);
 }
 
 inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {

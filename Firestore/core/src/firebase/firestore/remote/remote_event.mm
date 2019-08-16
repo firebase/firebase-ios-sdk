@@ -19,7 +19,8 @@
 #include <utility>
 
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
+
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,6 +30,8 @@ using core::DocumentViewChange;
 using core::Query;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::MaybeDocument;
+using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;
 
@@ -122,10 +125,10 @@ WatchChangeAggregator::WatchChangeAggregator(
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
   for (TargetId target_id : document_change.updated_target_ids()) {
-    if ([document_change.new_document() isKindOfClass:[FSTDocument class]]) {
-      AddDocumentToTarget(target_id, document_change.new_document());
-    } else if ([document_change.new_document()
-                   isKindOfClass:[FSTDeletedDocument class]]) {
+    const auto& new_doc = document_change.new_document();
+    if (new_doc && new_doc->is_document()) {
+      AddDocumentToTarget(target_id, *new_doc);
+    } else if (new_doc && new_doc->is_no_document()) {
       RemoveDocumentFromTarget(target_id, document_change.document_key(),
                                document_change.new_document());
     }
@@ -226,9 +229,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
         DocumentKey key{query.path()};
         RemoveDocumentFromTarget(
             target_id, key,
-            [FSTDeletedDocument documentWithKey:key
-                                        version:SnapshotVersion::None()
-                          hasCommittedMutations:NO]);
+            NoDocument(key, SnapshotVersion::None(),
+                       /* has_committed_mutations= */ false));
       } else {
         HARD_ASSERT(expected_count == 1,
                     "Single document existence filter with count: %s",
@@ -267,9 +269,8 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
             !TargetContainsDocument(target_id, key)) {
           RemoveDocumentFromTarget(
               target_id, key,
-              [FSTDeletedDocument documentWithKey:key
-                                          version:snapshot_version
-                            hasCommittedMutations:NO]);
+              NoDocument(key, snapshot_version,
+                         /* has_committed_mutations= */ false));
         }
       }
 
@@ -317,27 +318,27 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
 }
 
 void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
-                                                FSTMaybeDocument* document) {
+                                                const MaybeDocument& document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
 
   DocumentViewChange::Type change_type =
-      TargetContainsDocument(target_id, document.key)
+      TargetContainsDocument(target_id, document.key())
           ? DocumentViewChange::Type::kModified
           : DocumentViewChange::Type::kAdded;
 
   TargetState& target_state = EnsureTargetState(target_id);
-  target_state.AddDocumentChange(document.key, change_type);
+  target_state.AddDocumentChange(document.key(), change_type);
 
-  pending_document_updates_[document.key] = document;
-  pending_document_target_mappings_[document.key].insert(target_id);
+  pending_document_updates_[document.key()] = document;
+  pending_document_target_mappings_[document.key()].insert(target_id);
 }
 
 void WatchChangeAggregator::RemoveDocumentFromTarget(
     TargetId target_id,
     const DocumentKey& key,
-    FSTMaybeDocument* _Nullable updated_document) {
+    const absl::optional<MaybeDocument>& updated_document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -353,7 +354,7 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
   pending_document_target_mappings_[key].insert(target_id);
 
   if (updated_document) {
-    pending_document_updates_[key] = updated_document;
+    pending_document_updates_[key] = *updated_document;
   }
 }
 
@@ -408,7 +409,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existingKeys) {
-    RemoveDocumentFromTarget(target_id, key, nil);
+    RemoveDocumentFromTarget(target_id, key, absl::nullopt);
   }
 }
 

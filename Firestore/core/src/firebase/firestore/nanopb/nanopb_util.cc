@@ -55,6 +55,14 @@ std::string MakeString(const pb_bytes_array_t* str) {
   return std::string{bytes, size};
 }
 
+absl::string_view MakeStringView(const pb_bytes_array_t* str) {
+  if (str == nullptr) return absl::string_view(nullptr, 0);
+
+  auto bytes = reinterpret_cast<const char*>(str->bytes);
+  auto size = static_cast<size_t>(str->size);
+  return absl::string_view{bytes, size};
+}
+
 absl::string_view MakeStringView(const ByteString& bytes) {
   const char* str = reinterpret_cast<const char*>(bytes.data());
   return absl::string_view{str, bytes.size()};

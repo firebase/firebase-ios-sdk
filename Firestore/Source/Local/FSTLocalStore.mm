@@ -26,8 +26,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -43,13 +41,16 @@
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 #include "absl/types/optional.h"
 
+namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::Query;
@@ -70,8 +71,12 @@ using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::OptionalMaybeDocumentMap;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -155,7 +160,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
   [self startMutationQueue];
 
-  return self.persistence.run("NewBatches", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("NewBatches", [&] {
     std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
@@ -166,8 +171,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet changedKeys;
     for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
       for (FSTMutationBatch *batch : batches) {
-        for (FSTMutation *mutation : [batch mutations]) {
-          changedKeys = changedKeys.insert(mutation.key);
+        for (const Mutation &mutation : [batch mutations]) {
+          changedKeys = changedKeys.insert(mutation.key());
         }
       }
     }
@@ -177,14 +182,14 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
+- (LocalWriteResult)locallyWriteMutations:(std::vector<Mutation> &&)mutations {
   Timestamp localWriteTime = Timestamp::Now();
   DocumentKeySet keys;
-  for (FSTMutation *mutation : mutations) {
-    keys = keys.insert(mutation.key);
+  for (const Mutation &mutation : mutations) {
+    keys = keys.insert(mutation.key());
   }
 
-  return self.persistence.run("Locally write mutations", [&]() -> LocalWriteResult {
+  return self.persistence.run("Locally write mutations", [&] {
     // Load and apply all existing mutations. This lets us compute the current base state for
     // all non-idempotent transforms before applying any additional user-provided writes.
     MaybeDocumentMap existingDocuments = _localDocuments->GetDocuments(keys);
@@ -193,20 +198,16 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // state in a separate patch mutation. This is later used to guarantee consistent values
     // and prevents flicker even if the backend sends us an update that already includes our
     // transform.
-    std::vector<FSTMutation *> baseMutations;
-    for (FSTMutation *mutation : mutations) {
-      auto base_document_it = existingDocuments.find(mutation.key);
-      FSTMaybeDocument *base_document =
-          base_document_it != existingDocuments.end() ? base_document_it->second : nil;
+    std::vector<Mutation> baseMutations;
+    for (const Mutation &mutation : mutations) {
+      absl::optional<MaybeDocument> base_document = existingDocuments.get(mutation.key());
 
-      absl::optional<ObjectValue> base_value = [mutation extractBaseValue:base_document];
+      absl::optional<ObjectValue> base_value = mutation.ExtractBaseValue(base_document);
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing document to
         // override, so use a Precondition of exists=true
-        baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
-                                                            fieldMask:base_value->ToFieldMask()
-                                                                value:*base_value
-                                                         precondition:Precondition::Exists(true)]);
+        baseMutations.push_back(PatchMutation(
+            mutation.key(), *base_value, base_value->ToFieldMask(), Precondition::Exists(true)));
       }
     }
 
@@ -218,7 +219,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
-  return self.persistence.run("Acknowledge batch", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Acknowledge batch", [&] {
     FSTMutationBatch *batch = batchResult.batch;
     _mutationQueue->AcknowledgeBatch(batch, batchResult.streamToken);
     [self applyBatchResult:batchResult];
@@ -229,7 +230,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)rejectBatchID:(BatchId)batchID {
-  return self.persistence.run("Reject batch", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Reject batch", [&] {
     FSTMutationBatch *toReject = _mutationQueue->LookupMutationBatch(batchID);
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
@@ -254,7 +255,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
-  return self.persistence.run("Apply remote event", [&]() -> MaybeDocumentMap {
+  return self.persistence.run("Apply remote event", [&] {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
 
@@ -305,7 +306,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       }
     }
 
-    MaybeDocumentMap changedDocs;
+    OptionalMaybeDocumentMap changedDocs;
     const DocumentKeySet &limboDocuments = remoteEvent.limbo_document_changes();
     DocumentKeySet updatedKeys;
     for (const auto &kv : remoteEvent.document_updates()) {
@@ -313,30 +314,35 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
     // documents in advance in a single call.
-    MaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
+    OptionalMaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
 
     for (const auto &kv : remoteEvent.document_updates()) {
       const DocumentKey &key = kv.first;
-      FSTMaybeDocument *doc = kv.second;
-      FSTMaybeDocument *existingDoc = nil;
-      auto foundExisting = existingDocs.find(key);
-      if (foundExisting != existingDocs.end()) {
-        existingDoc = foundExisting->second;
+      const MaybeDocument &doc = kv.second;
+      absl::optional<MaybeDocument> existingDoc;
+      auto foundExisting = existingDocs.get(key);
+      if (foundExisting) {
+        existingDoc = *foundExisting;
       }
 
-      // If a document update isn't authoritative, make sure we don't apply an old document version
-      // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
-      // manufactured events (e.g. in the case of a limbo document resolution failing).
-      if (!existingDoc || doc.version == SnapshotVersion::None() ||
-          (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
-          doc.version >= existingDoc.version) {
+      if (!existingDoc ||
+          (authoritativeUpdates.contains(doc.key()) && !existingDoc->has_pending_writes()) ||
+          doc.version() >= existingDoc->version()) {
+        // If a document update isn't authoritative, make sure we don't apply an old document
+        // version to the remote cache.
         _remoteDocumentCache->Add(doc);
+        changedDocs = changedDocs.insert(key, doc);
+      } else if (doc.type() == MaybeDocument::Type::NoDocument &&
+                 doc.version() == SnapshotVersion::None()) {
+        // NoDocuments with SnapshotVersion.MIN are used in manufactured events (e.g. in the case
+        // of a limbo document resolution failing). We remove these documents from cache since we
+        // lost access.
+        _remoteDocumentCache->Remove(key);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
                   "Current version: %s  Watch version: %s",
-                  key.ToString(), existingDoc.version.timestamp().ToString(),
-                  doc.version.timestamp().ToString());
+                  key.ToString(), existingDoc->version().ToString(), doc.version().ToString());
       }
 
       // If this was a limbo resolution, make sure we mark when it was accessed.
@@ -411,21 +417,18 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
-  FSTMutationBatch *result =
-      self.persistence.run("NextMutationBatchAfterBatchID", [&]() -> FSTMutationBatch * {
-        return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
-      });
+  FSTMutationBatch *result = self.persistence.run("NextMutationBatchAfterBatchID", [&] {
+    return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
+  });
   return result;
 }
 
-- (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return _localDocuments->GetDocument(key);
-  });
+- (absl::optional<MaybeDocument>)readDocument:(const DocumentKey &)key {
+  return self.persistence.run("ReadDocument", [&] { return _localDocuments->GetDocument(key); });
 }
 
 - (FSTQueryData *)allocateQuery:(Query)query {
-  FSTQueryData *queryData = self.persistence.run("Allocate query", [&]() -> FSTQueryData * {
+  FSTQueryData *queryData = self.persistence.run("Allocate query", [&] {
     FSTQueryData *cached = _queryCache->GetTarget(query);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
@@ -479,15 +482,13 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (DocumentMap)executeQuery:(const Query &)query {
-  return self.persistence.run("ExecuteQuery", [&]() -> DocumentMap {
-    return _localDocuments->GetDocumentsMatchingQuery(query);
-  });
+  return self.persistence.run("ExecuteQuery",
+                              [&] { return _localDocuments->GetDocumentsMatchingQuery(query); });
 }
 
 - (DocumentKeySet)remoteDocumentKeysForTarget:(TargetId)targetID {
-  return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
-    return _queryCache->GetMatchingKeys(targetID);
-  });
+  return self.persistence.run("RemoteDocumentKeysForTarget",
+                              [&] { return _queryCache->GetMatchingKeys(targetID); });
 }
 
 - (void)applyBatchResult:(FSTMutationBatchResult *)batchResult {
@@ -495,20 +496,20 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   DocumentKeySet docKeys = batch.keys;
   const DocumentVersionMap &versions = batchResult.docVersions;
   for (const DocumentKey &docKey : docKeys) {
-    FSTMaybeDocument *_Nullable remoteDoc = _remoteDocumentCache->Get(docKey);
-    FSTMaybeDocument *_Nullable doc = remoteDoc;
+    absl::optional<MaybeDocument> remoteDoc = _remoteDocumentCache->Get(docKey);
+    absl::optional<MaybeDocument> doc = remoteDoc;
 
     auto ackVersionIter = versions.find(docKey);
     HARD_ASSERT(ackVersionIter != versions.end(),
                 "docVersions should contain every doc in the write.");
     const SnapshotVersion &ackVersion = ackVersionIter->second;
-    if (!doc || doc.version < ackVersion) {
+    if (!doc || doc->version() < ackVersion) {
       doc = [batch applyToRemoteDocument:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
-        HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nil.", batch,
-                    remoteDoc);
+        HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nullopt.",
+                    batch, util::ToString(remoteDoc));
       } else {
-        _remoteDocumentCache->Add(doc);
+        _remoteDocumentCache->Add(*doc);
       }
     }
   }
@@ -517,9 +518,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector {
-  return self.persistence.run("Collect garbage", [&]() -> LruResults {
-    return [garbageCollector collectWithLiveTargets:_targetIDs];
-  });
+  return self.persistence.run("Collect garbage",
+                              [&] { return [garbageCollector collectWithLiveTargets:_targetIDs]; });
 }
 
 @end

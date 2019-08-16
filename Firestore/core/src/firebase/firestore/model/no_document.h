@@ -39,6 +39,9 @@ class NoDocument : public MaybeDocument {
    */
   explicit NoDocument(const MaybeDocument& document);
 
+  /** Creates an invalid NoDocument instance. */
+  NoDocument() = default;
+
   bool has_committed_mutations() const;
 
  private:

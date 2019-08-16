@@ -19,6 +19,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -56,6 +57,23 @@ bool Precondition::IsValidFor(
                           maybe_doc->type() == MaybeDocument::Type::Document));
     case Type::None:
       return true;
+  }
+  UNREACHABLE();
+}
+
+size_t Precondition::Hash() const {
+  return util::Hash(update_time_, exists_, type_);
+}
+
+std::string Precondition::ToString() const {
+  switch (type_) {
+    case Type::None:
+      return "Precondition(<none>)";
+    case Type::Exists:
+      return absl::StrCat("Precondition(exists=", exists_, ")");
+    case Type::UpdateTime:
+      return absl::StrCat("Precondition(update_time=", update_time_.ToString(),
+                          ")");
   }
   UNREACHABLE();
 }

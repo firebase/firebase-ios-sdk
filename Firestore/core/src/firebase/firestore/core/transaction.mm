@@ -20,19 +20,20 @@
 #include <unordered_set>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::Error;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::Datastore;
@@ -47,21 +48,20 @@ Transaction::Transaction(Datastore* datastore)
     : datastore_{NOT_NULL(datastore)} {
 }
 
-Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
+Status Transaction::RecordVersion(const MaybeDocument& doc) {
   SnapshotVersion doc_version;
 
-  if ([doc isKindOfClass:[FSTDocument class]]) {
-    doc_version = doc.version;
-  } else if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
+  if (doc.is_document()) {
+    doc_version = doc.version();
+  } else if (doc.is_no_document()) {
     // For deleted docs, we must record an explicit no version to build the
     // right precondition when writing.
     doc_version = SnapshotVersion::None();
   } else {
-    HARD_FAIL("Unexpected document type in transaction: %s",
-              NSStringFromClass([doc class]));
+    HARD_FAIL("Unexpected document type in transaction: %s", doc.type());
   }
 
-  absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key);
+  absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key());
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
@@ -70,7 +70,7 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
     }
     return Status::OK();
   } else {
-    read_versions_[doc.key] = doc_version;
+    read_versions_[doc.key()] = doc_version;
     return Status::OK();
   }
 }
@@ -88,14 +88,14 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   }
 
   datastore_->LookupDocuments(
-      keys, [this, callback](const std::vector<FSTMaybeDocument*>& documents,
+      keys, [this, callback](const std::vector<MaybeDocument>& documents,
                              const Status& status) {
         if (!status.ok()) {
           callback({}, status);
           return;
         }
 
-        for (FSTMaybeDocument* doc : documents) {
+        for (const MaybeDocument& doc : documents) {
           Status record_error = RecordVersion(doc);
           if (!record_error.ok()) {
             callback({}, record_error);
@@ -107,9 +107,9 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
       });
 }
 
-void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
+void Transaction::WriteMutations(std::vector<Mutation>&& mutations) {
   EnsureCommitNotCalled();
-  // `move` will become appropriate once `FSTMutation` is replaced by the C++
+  // `move` will become appropriate once `Mutation` is replaced by the C++
   // equivalent.
   std::move(mutations.begin(), mutations.end(), std::back_inserter(mutations_));
 }
@@ -170,9 +170,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
 }
 
 void Transaction::Delete(const DocumentKey& key) {
-  FSTMutation* mutation =
-      [[FSTDeleteMutation alloc] initWithKey:key
-                                precondition:CreatePrecondition(key)];
+  Mutation mutation = DeleteMutation(key, CreatePrecondition(key));
   WriteMutations({mutation});
   written_docs_.insert(key);
 }
@@ -192,8 +190,8 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
-  for (FSTMutation* mutation : mutations_) {
-    unwritten.erase(mutation.key);
+  for (const Mutation& mutation : mutations_) {
+    unwritten.erase(mutation.key());
   }
 
   if (!unwritten.empty()) {

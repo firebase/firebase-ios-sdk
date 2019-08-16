@@ -37,8 +37,6 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
@@ -50,11 +48,15 @@
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -69,15 +71,21 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::OrderBy;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TransformMutation;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
@@ -86,11 +94,17 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
+using testutil::DeletedDoc;
+using testutil::Doc;
 using testutil::Filter;
+using testutil::Key;
+using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
 using testutil::Ref;
 using testutil::Value;
+using testutil::Version;
+using testutil::WrapObject;
 
 namespace {
 
@@ -379,26 +393,26 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSetMutation {
-  FSTSetMutation *mutation = FSTTestSetMutation(@"docs/1", @{@"a" : @"b", @"num" : @1});
+  SetMutation mutation = FSTTestSetMutation(@"docs/1", @{@"a" : @"b", @"num" : @1});
   GCFSWrite *proto = [GCFSWrite message];
-  proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
+  proto.update = [self.serializer encodedDocumentWithFields:mutation.value() key:mutation.key()];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
 - (void)testEncodesPatchMutation {
-  FSTPatchMutation *mutation = FSTTestPatchMutation(
+  PatchMutation mutation = FSTTestPatchMutation(
       "docs/1", @{@"a" : @"b", @"num" : @1, @"some.de\\\\ep.th\\ing'" : @2}, {});
   GCFSWrite *proto = [GCFSWrite message];
-  proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
-  proto.updateMask = [self.serializer encodedFieldMask:*(mutation.fieldMask)];
+  proto.update = [self.serializer encodedDocumentWithFields:mutation.value() key:mutation.key()];
+  proto.updateMask = [self.serializer encodedFieldMask:mutation.mask()];
   proto.currentDocument.exists = YES;
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
 - (void)testEncodesDeleteMutation {
-  FSTDeleteMutation *mutation = FSTTestDeleteMutation(@"docs/1");
+  DeleteMutation mutation = FSTTestDeleteMutation(@"docs/1");
   GCFSWrite *proto = [GCFSWrite message];
   proto.delete_p = @"projects/p/databases/d/documents/docs/1";
 
@@ -406,28 +420,28 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesServerTimestampTransformMutation {
-  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForServerTimestamp],
     @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
   });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
-  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key()];
   proto.transform.fieldTransformsArray =
-      [self.serializer encodedFieldTransforms:mutation.fieldTransforms];
+      [self.serializer encodedFieldTransforms:mutation.field_transforms()];
   proto.currentDocument.exists = YES;
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
 - (void)testEncodesArrayTransformMutations {
-  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
     @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"x" : @1} ]]
   });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
-  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key()];
 
   GCFSDocumentTransform_FieldTransform *arrayUnion = [GCFSDocumentTransform_FieldTransform message];
   arrayUnion.fieldPath = @"a";
@@ -451,23 +465,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSetMutationWithPrecondition {
-  FSTSetMutation *mutation =
-      [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
-                                    value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
-                             precondition:Precondition::UpdateTime(testutil::Version(4))];
+  SetMutation mutation(Key("foo/bar"), WrapObject("a", "b", "num", 1),
+                       Precondition::UpdateTime(Version(4)));
   GCFSWrite *proto = [GCFSWrite message];
-  proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
+  proto.update = [self.serializer encodedDocumentWithFields:mutation.value() key:mutation.key()];
   proto.currentDocument.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
-- (void)assertRoundTripForMutation:(FSTMutation *)mutation proto:(GCFSWrite *)proto {
+- (void)assertRoundTripForMutation:(const Mutation &)mutation proto:(GCFSWrite *)proto {
   GCFSWrite *actualProto = [self.serializer encodedMutation:mutation];
   XCTAssertEqualObjects(actualProto, proto);
 
-  FSTMutation *actualMutation = [self.serializer decodedMutation:proto];
-  XCTAssertEqualObjects(actualMutation, mutation);
+  Mutation actualMutation = [self.serializer decodedMutation:proto];
+  XCTAssertEqual(actualMutation, mutation);
 }
 
 - (void)testDecodesMutationResult {
@@ -477,35 +489,33 @@ NS_ASSUME_NONNULL_BEGIN
   proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
   [proto.transformResultsArray addObject:[self.serializer encodedString:"result"]];
 
-  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
-                                                       commitVersion:commitVersion];
+  MutationResult result = [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
 
-  XCTAssertEqual(result.version, updateVersion);
-  XCTAssertTrue(result.transformResults.has_value());
+  XCTAssertEqual(result.version(), updateVersion);
+  XCTAssertTrue(result.transform_results().has_value());
 
-  XCTAssertEqual(*result.transformResults, Array("result").array_value());
+  XCTAssertEqual(*result.transform_results(), Array("result").array_value());
 }
 
 - (void)testDecodesDeleteMutationResult {
   GCFSWriteResult *proto = [GCFSWriteResult message];
   SnapshotVersion commitVersion = testutil::Version(4000);
 
-  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
-                                                       commitVersion:commitVersion];
+  MutationResult result = [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
 
-  XCTAssertEqual(result.version, commitVersion);
-  XCTAssertFalse(result.transformResults.has_value());
+  XCTAssertEqual(result.version(), commitVersion);
+  XCTAssertFalse(result.transform_results().has_value());
 }
 
 - (void)testRoundTripSpecialFieldNames {
-  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{
+  Mutation set = FSTTestSetMutation(@"collection/key", @{
     @"field" : [NSString stringWithFormat:@"field %d", 1],
     @"field.dot" : @2,
     @"field\\slash" : @3
   });
   GCFSWrite *encoded = [self.serializer encodedMutation:set];
-  FSTMutation *decoded = [self.serializer decodedMutation:encoded];
-  XCTAssertEqualObjects(set, decoded);
+  Mutation decoded = [self.serializer decodedMutation:encoded];
+  XCTAssertEqual(set, decoded);
 }
 
 - (void)testEncodesListenRequestLabels {
@@ -911,10 +921,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithTargetIds {
-  DocumentWatchChange expected {
-    {1, 2}, {}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
-  };
+  DocumentWatchChange expected{
+      {1, 2}, {}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -929,10 +937,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
-  DocumentWatchChange expected {
-    {2}, {1}, FSTTestDocKey(@"coll/1"),
-        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, DocumentState::kSynced)
-  };
+  DocumentWatchChange expected{
+      {2}, {1}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
@@ -948,8 +954,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  DocumentWatchChange expected{
-      {}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), DeletedDoc("coll/1", 5)};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
@@ -962,7 +967,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithRemoves {
-  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), nil};
+  DocumentWatchChange expected{{}, {1, 2}, Key("coll/1"), absl::nullopt};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentRemove.document = @"projects/p/databases/d/documents/coll/1";

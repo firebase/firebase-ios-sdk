@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <map>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -36,6 +37,9 @@ namespace bridge {
 
 using core::DatabaseInfo;
 using model::DocumentKey;
+using model::MaybeDocument;
+using model::Mutation;
+using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
 using util::MakeString;
@@ -178,10 +182,10 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
-    const std::vector<FSTMutation*>& mutations) const {
+    const std::vector<Mutation>& mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.size()];
-  for (FSTMutation* mutation : mutations) {
+  for (const Mutation& mutation : mutations) {
     [protos addObject:[serializer_ encodedMutation:mutation]];
   };
 
@@ -207,10 +211,10 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
-std::vector<FSTMutationResult*> WriteStreamSerializer::ToMutationResults(
+std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* response) const {
   NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
-  std::vector<FSTMutationResult*> results;
+  std::vector<MutationResult> results;
   results.reserve(responses.count);
 
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
@@ -237,12 +241,12 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 }
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
-    const std::vector<FSTMutation*>& mutations) const {
+    const std::vector<Mutation>& mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
   request.database = [serializer_ encodedDatabaseID];
 
   NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (FSTMutation* mutation : mutations) {
+  for (const Mutation& mutation : mutations) {
     [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
   }
   request.writesArray = mutationProtos;
@@ -272,21 +276,21 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
+std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
   // Sort by key.
-  std::map<DocumentKey, FSTMaybeDocument*> results;
+  std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
     auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
     if (!out_status->ok()) {
       return {};
     }
-    FSTMaybeDocument* doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
-    results[doc.key] = doc;
+    MaybeDocument doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
+    results[doc.key()] = std::move(doc);
   }
 
-  std::vector<FSTMaybeDocument*> docs;
+  std::vector<MaybeDocument> docs;
   docs.reserve(results.size());
   for (const auto& kv : results) {
     docs.push_back(kv.second);
@@ -294,7 +298,7 @@ std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
   return docs;
 }
 
-FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
+MaybeDocument DatastoreSerializer::ToMaybeDocument(
     GCFSBatchGetDocumentsResponse* response) const {
   return [serializer_ decodedMaybeDocumentFromBatch:response];
 }

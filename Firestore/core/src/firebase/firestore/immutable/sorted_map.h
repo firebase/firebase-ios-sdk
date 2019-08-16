@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "absl/base/attributes.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -262,6 +263,15 @@ class SortedMap : public SortedMapBase {
         return tree_.find_index(key);
     }
     UNREACHABLE();
+  }
+
+  absl::optional<V> get(const K& key) const {
+    auto found = find(key);
+    if (found != end()) {
+      return found->second;
+    } else {
+      return absl::nullopt;
+    }
   }
 
   /**

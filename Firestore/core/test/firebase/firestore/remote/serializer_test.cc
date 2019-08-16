@@ -38,6 +38,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -63,8 +64,10 @@ using model::Document;
 using model::DocumentKey;
 using model::FieldValue;
 using model::MaybeDocument;
+using model::Mutation;
 using model::NoDocument;
 using model::ObjectValue;
+using model::SetMutation;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
@@ -74,6 +77,7 @@ using nanopb::Reader;
 using nanopb::Writer;
 using remote::Serializer;
 using testutil::Key;
+using testutil::Map;
 using util::Status;
 using util::StatusOr;
 
@@ -325,21 +329,20 @@ class SerializerTest : public ::testing::Test {
     google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
     reader.ReadNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
-    StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
+    StatusOr<MaybeDocument> actual_model_status =
         serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     reader.FreeNanopbMessage(
         google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
 
     EXPECT_OK(actual_model_status);
-    std::unique_ptr<MaybeDocument> actual_model =
-        std::move(actual_model_status).ValueOrDie();
+    MaybeDocument actual_model = std::move(actual_model_status).ValueOrDie();
 
-    EXPECT_EQ(key, actual_model->key());
-    EXPECT_EQ(version, actual_model->version());
-    switch (actual_model->type()) {
+    EXPECT_EQ(key, actual_model.key());
+    EXPECT_EQ(version, actual_model.version());
+    switch (actual_model.type()) {
       case MaybeDocument::Type::Document: {
-        Document* actual_doc_model = static_cast<Document*>(actual_model.get());
-        EXPECT_EQ(value, actual_doc_model->data());
+        Document actual_doc_model(actual_model);
+        EXPECT_EQ(value, actual_doc_model.data());
         break;
       }
       case MaybeDocument::Type::NoDocument:

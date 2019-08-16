@@ -18,9 +18,12 @@
 
 #include <utility>
 
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
@@ -32,8 +35,12 @@ using model::DocumentKey;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldTransform;
+using model::Mutation;
 using model::ObjectValue;
+using model::PatchMutation;
 using model::Precondition;
+using model::SetMutation;
+using model::TransformMutation;
 using model::TransformOperation;
 
 #pragma mark - ParseAccumulator
@@ -64,8 +71,7 @@ void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
 }
 
 void ParseAccumulator::AddToFieldTransforms(
-    FieldPath field_path,
-    std::unique_ptr<TransformOperation> transform_operation) {
+    FieldPath field_path, TransformOperation transform_operation) {
   field_transforms_.emplace_back(std::move(field_path),
                                  std::move(transform_operation));
 }
@@ -187,8 +193,7 @@ void ParseContext::AddToFieldMask(FieldPath field_path) {
 }
 
 void ParseContext::AddToFieldTransforms(
-    FieldPath field_path,
-    std::unique_ptr<TransformOperation> transform_operation) {
+    FieldPath field_path, TransformOperation transform_operation) {
   accumulator_->AddToFieldTransforms(std::move(field_path),
                                      std::move(transform_operation));
 }
@@ -211,27 +216,20 @@ ParsedSetData::ParsedSetData(ObjectValue data,
       patch_{true} {
 }
 
-std::vector<FSTMutation*> ParsedSetData::ToMutations(
+std::vector<Mutation> ParsedSetData::ToMutations(
     const DocumentKey& key, const Precondition& precondition) && {
-  std::vector<FSTMutation*> mutations;
+  std::vector<Mutation> mutations;
   if (patch_) {
-    FSTMutation* mutation =
-        [[FSTPatchMutation alloc] initWithKey:key
-                                    fieldMask:std::move(field_mask_)
-                                        value:data_
-                                 precondition:precondition];
+    PatchMutation mutation(key, std::move(data_), std::move(field_mask_),
+                           precondition);
     mutations.push_back(mutation);
   } else {
-    FSTMutation* mutation = [[FSTSetMutation alloc] initWithKey:key
-                                                          value:std::move(data_)
-                                                   precondition:precondition];
+    SetMutation mutation(key, std::move(data_), precondition);
     mutations.push_back(mutation);
   }
 
   if (!field_transforms_.empty()) {
-    FSTMutation* mutation =
-        [[FSTTransformMutation alloc] initWithKey:key
-                                  fieldTransforms:field_transforms_];
+    TransformMutation mutation(key, std::move(field_transforms_));
     mutations.push_back(mutation);
   }
 
@@ -249,21 +247,16 @@ ParsedUpdateData::ParsedUpdateData(
       field_transforms_{std::move(field_transforms)} {
 }
 
-std::vector<FSTMutation*> ParsedUpdateData::ToMutations(
+std::vector<Mutation> ParsedUpdateData::ToMutations(
     const DocumentKey& key, const Precondition& precondition) && {
-  std::vector<FSTMutation*> mutations;
+  std::vector<Mutation> mutations;
 
-  FSTMutation* mutation =
-      [[FSTPatchMutation alloc] initWithKey:key
-                                  fieldMask:std::move(field_mask_)
-                                      value:std::move(data_)
-                               precondition:precondition];
+  PatchMutation mutation(key, std::move(data_), std::move(field_mask_),
+                         precondition);
   mutations.push_back(mutation);
 
   if (!field_transforms_.empty()) {
-    FSTMutation* mutation =
-        [[FSTTransformMutation alloc] initWithKey:key
-                                  fieldTransforms:std::move(field_transforms_)];
+    TransformMutation mutation(key, std::move(field_transforms_));
     mutations.push_back(mutation);
   }
 

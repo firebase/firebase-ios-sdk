@@ -27,7 +27,7 @@ namespace model {
 
 namespace {
 
-inline NoDocument MakeNoDocument(const absl::string_view path,
+inline NoDocument MakeNoDocument(absl::string_view path,
                                  const Timestamp& timestamp) {
   return NoDocument(DocumentKey::FromPathString(path.data()),
                     SnapshotVersion(timestamp),

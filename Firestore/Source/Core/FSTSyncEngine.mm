@@ -27,7 +27,6 @@
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -41,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -64,8 +64,10 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -277,7 +279,7 @@ class LimboResolution {
   [self removeAndCleanupQuery:queryView];
 }
 
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
+- (void)writeMutations:(std::vector<Mutation> &&)mutations
             completion:(FSTVoidErrorBlock)completion {
   [self assertCallbackExistsForSelector:_cmd];
 
@@ -424,10 +426,8 @@ class LimboResolution {
     // It's a limbo doc. Create a synthetic event saying it was deleted. This is kind of a hack.
     // Ideally, we would have a method in the local store to purge a document. However, it would
     // be tricky to keep all of the local store's invariants with another method.
-    FSTDeletedDocument *doc = [FSTDeletedDocument documentWithKey:limboKey
-                                                          version:SnapshotVersion::None()
-                                            hasCommittedMutations:NO];
-    DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
+    NoDocument doc(limboKey, SnapshotVersion::None(), /* has_committed_mutations= */ false);
+    DocumentKeySet limboDocuments = DocumentKeySet{limboKey};
     RemoteEvent event{SnapshotVersion::None(), /*target_changes=*/{}, /*target_mismatches=*/{},
                       /*document_updates=*/{{limboKey, doc}}, std::move(limboDocuments)};
     [self applyRemoteEvent:event];

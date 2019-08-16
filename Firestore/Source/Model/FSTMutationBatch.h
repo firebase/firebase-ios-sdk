@@ -23,12 +23,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTMaybeDocument;
-@class FSTMutation;
-@class FSTMutationResult;
 @class FSTMutationBatchResult;
 
 namespace model = firebase::firestore::model;
@@ -59,8 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithBatchID:(model::BatchId)batchID
                  localWriteTime:(const firebase::Timestamp &)localWriteTime
-                  baseMutations:(std::vector<FSTMutation *> &&)baseMutations
-                      mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
+                  baseMutations:(std::vector<model::Mutation> &&)baseMutations
+                      mutations:(std::vector<model::Mutation> &&)mutations
+    NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
 
@@ -74,17 +74,18 @@ NS_ASSUME_NONNULL_BEGIN
  *   it's assumed that this is a local (latency-compensated) application and documents will have
  *   their hasLocalMutations flag set.
  */
-- (FSTMaybeDocument *_Nullable)applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc
-                                         documentKey:(const model::DocumentKey &)documentKey
-                                 mutationBatchResult:
-                                     (FSTMutationBatchResult *_Nullable)mutationBatchResult;
+- (absl::optional<model::MaybeDocument>)
+    applyToRemoteDocument:(absl::optional<model::MaybeDocument>)maybeDoc
+              documentKey:(const model::DocumentKey &)documentKey
+      mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult;
 
 /**
  * A helper version of applyTo for applying mutations locally (without a mutation batch result from
  * the backend).
  */
-- (FSTMaybeDocument *_Nullable)applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
-                                        documentKey:(const model::DocumentKey &)documentKey;
+- (absl::optional<model::MaybeDocument>)
+    applyToLocalDocument:(absl::optional<model::MaybeDocument>)maybeDoc
+             documentKey:(const model::DocumentKey &)documentKey;
 
 /** Computes the local view for all provided documents given the mutations in this batch. */
 - (model::MaybeDocumentMap)applyToLocalDocumentSet:(const model::MaybeDocumentMap &)documentSet;
@@ -103,13 +104,13 @@ NS_ASSUME_NONNULL_BEGIN
  * can be used to locally overwrite values that are persisted in the remote document cache. Base
  * mutations are never sent to the backend.
  */
-- (const std::vector<FSTMutation *> &)baseMutations;
+- (const std::vector<model::Mutation> &)baseMutations;
 
 /**
  * The user-provided mutations in this mutation batch. User-provided mutations are applied both
  * locally and remotely on the backend.
  */
-- (const std::vector<FSTMutation *> &)mutations;
+- (const std::vector<model::Mutation> &)mutations;
 
 @end
 
@@ -127,11 +128,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(model::SnapshotVersion)commitVersion
-                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
+                mutationResults:(std::vector<model::MutationResult>)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
 - (const model::SnapshotVersion &)commitVersion;
-- (const std::vector<FSTMutationResult *> &)mutationResults;
+- (const std::vector<model::MutationResult> &)mutationResults;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;

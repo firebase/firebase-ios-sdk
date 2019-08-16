@@ -25,17 +25,17 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTMutation;
-@class FSTMutationResult;
 @class FSTQueryData;
 @protocol FSTPersistence;
 
 namespace core = firebase::firestore::core;
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,12 +54,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Holds an outstanding write and its result. */
 @interface FSTOutstandingWrite : NSObject
+
 /** The write that is outstanding. */
-@property(nonatomic, strong, readwrite) FSTMutation *write;
+- (const model::Mutation &)write;
+- (void)setWrite:(model::Mutation)write;
+
 /** Whether this write is done (regardless of whether it was successful or not). */
 @property(nonatomic, assign, readwrite) BOOL done;
+
 /** The error - if any - of this write. */
 @property(nonatomic, strong, nullable, readwrite) NSError *error;
+
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */
@@ -172,7 +177,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * @param mutation Any type of valid mutation.
  */
-- (void)writeUserMutation:(FSTMutation *)mutation;
+- (void)writeUserMutation:(model::Mutation)mutation;
 
 /**
  * Delivers a write error as if the Streaming Write backend has generated some kind of error.
@@ -200,7 +205,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  */
 - (FSTOutstandingWrite *)
     receiveWriteAckWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
-               mutationResults:(std::vector<FSTMutationResult *>)mutationResults;
+               mutationResults:(std::vector<model::MutationResult>)mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet
