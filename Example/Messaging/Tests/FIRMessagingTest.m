@@ -61,7 +61,6 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
-
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);

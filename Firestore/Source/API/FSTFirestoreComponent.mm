@@ -81,6 +81,11 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Database identifier may not be nil.");
   }
 
+  NSString *projectID = self.app.options.projectID;
+  if (!projectID) {
+    ThrowInvalidArgument("FIROptions.projectID must be set to a valid project ID.");
+  }
+
   NSString *key = [self keyForDatabase:database];
 
   // Get the component from the container.
@@ -99,8 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);
 
-      model::DatabaseId databaseID{util::MakeString(self.app.options.projectID),
-                                   util::MakeString(database)};
+      model::DatabaseId databaseID{util::MakeString(projectID), util::MakeString(database)};
       std::string persistenceKey = util::MakeString(self.app.name);
       firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
                                             persistenceKey:std::move(persistenceKey)

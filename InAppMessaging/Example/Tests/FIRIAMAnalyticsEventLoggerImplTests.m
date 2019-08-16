@@ -130,6 +130,8 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
 - (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *, id> *)conditionalUserProperty {
 }
 
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
+}
 @end
 
 @implementation FIRIAMAnalyticsEventLoggerImplTests

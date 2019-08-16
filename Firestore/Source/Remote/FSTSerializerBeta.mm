@@ -647,11 +647,11 @@ absl::any Wrap(GCFSDocument *doc) {
 
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
     proto.appendMissingElements = [self
-        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+        encodedArrayTransformElements:ArrayTransform(fieldTransform.transformation()).elements()];
 
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
     proto.removeAllFromArray_p = [self
-        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+        encodedArrayTransformElements:ArrayTransform(fieldTransform.transformation()).elements()];
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::Increment) {
     const NumericIncrementTransform &incrementTransform =
         static_cast<const NumericIncrementTransform &>(fieldTransform.transformation());
