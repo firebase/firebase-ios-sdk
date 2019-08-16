@@ -71,23 +71,21 @@ const char* CanonicalName(Filter::Operator op) {
 
 }  // namespace
 
-std::shared_ptr<const FieldFilter> FieldFilter::Create(FieldPath path,
-                                                       Operator op,
-                                                       FieldValue value_rhs) {
+FieldFilter FieldFilter::Create(FieldPath path,
+                                Operator op,
+                                FieldValue value_rhs) {
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
       HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
                   "Comparing on key with IN, but the value was not an Array");
-      return std::make_shared<KeyFieldInFilter>(std::move(path),
-                                                std::move(value_rhs));
+      return KeyFieldInFilter(std::move(path), std::move(value_rhs));
     } else {
       HARD_ASSERT(value_rhs.type() == FieldValue::Type::Reference,
                   "Comparing on key, but filter value not a Reference.");
       HARD_ASSERT(!IsArrayOperator(op),
                   "%s queries don't make sense on document keys.",
                   CanonicalName(op));
-      return std::make_shared<KeyFieldFilter>(std::move(path), op,
-                                              std::move(value_rhs));
+      return KeyFieldFilter(std::move(path), op, std::move(value_rhs));
     }
 
   } else if (value_rhs.type() == FieldValue::Type::Null) {
@@ -95,47 +93,54 @@ std::shared_ptr<const FieldFilter> FieldFilter::Create(FieldPath path,
       ThrowInvalidArgument(
           "Invalid Query. Null supports only equality comparisons.");
     }
-    FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    Rep filter(std::move(path), op, std::move(value_rhs));
+    return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
 
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument(
           "Invalid Query. NaN supports only equality comparisons.");
     }
-    FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    Rep filter(std::move(path), op, std::move(value_rhs));
+    return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
 
   } else if (op == Operator::ArrayContains) {
-    return std::make_shared<ArrayContainsFilter>(std::move(path),
-                                                 std::move(value_rhs));
+    return ArrayContainsFilter(std::move(path), std::move(value_rhs));
 
   } else if (op == Operator::In) {
     HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
                 "IN filter has invalid value: %s", value_rhs.type());
-    return std::make_shared<InFilter>(std::move(path), std::move(value_rhs));
+    return InFilter(std::move(path), std::move(value_rhs));
 
   } else if (op == Operator::ArrayContainsAny) {
     HARD_ASSERT(value_rhs.type() == FieldValue::Type::Array,
                 "arrayContainsAny filter has invalid value: %s",
                 value_rhs.type());
-    return std::make_shared<ArrayContainsAnyFilter>(std::move(path),
-                                                    std::move(value_rhs));
+    return ArrayContainsAnyFilter(std::move(path), std::move(value_rhs));
   } else {
-    FieldFilter filter(std::move(path), op, std::move(value_rhs));
-    return std::make_shared<FieldFilter>(std::move(filter));
+    Rep filter(std::move(path), op, std::move(value_rhs));
+    return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
   }
 }
 
-FieldFilter::FieldFilter(FieldPath field, Operator op, FieldValue value_rhs)
+FieldFilter::FieldFilter(const Filter& other) : Filter(other) {
+  HARD_ASSERT(IsAFieldFilter());
+}
+
+FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
+    : Filter(std::move(rep)) {
+}
+
+FieldFilter::Rep::Rep(FieldPath field, Operator op, FieldValue value_rhs)
     : field_(std::move(field)), op_(op), value_rhs_(std::move(value_rhs)) {
 }
 
-const FieldPath& FieldFilter::field() const {
-  return field_;
+bool FieldFilter::Rep::IsInequality() const {
+  return op_ == Operator::LessThan || op_ == Operator::LessThanOrEqual ||
+         op_ == Operator::GreaterThan || op_ == Operator::GreaterThanOrEqual;
 }
 
-bool FieldFilter::Matches(const model::Document& doc) const {
+bool FieldFilter::Rep::Matches(const model::Document& doc) const {
   absl::optional<FieldValue> maybe_lhs = doc.field(field_);
   if (!maybe_lhs) return false;
 
@@ -146,7 +151,7 @@ bool FieldFilter::Matches(const model::Document& doc) const {
          MatchesComparison(lhs.CompareTo(value_rhs_));
 }
 
-bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
+bool FieldFilter::Rep::MatchesComparison(ComparisonResult comparison) const {
   switch (op_) {
     case Operator::LessThan:
       return comparison == ComparisonResult::Ascending;
@@ -165,31 +170,26 @@ bool FieldFilter::MatchesComparison(ComparisonResult comparison) const {
   }
 }
 
-std::string FieldFilter::CanonicalId() const {
+std::string FieldFilter::Rep::CanonicalId() const {
   return absl::StrCat(field_.CanonicalString(), CanonicalName(op_),
                       value_rhs_.ToString());
 }
 
-std::string FieldFilter::ToString() const {
+std::string FieldFilter::Rep::ToString() const {
   return util::StringFormat("%s %s %s", field_.CanonicalString(),
                             CanonicalName(op_), value_rhs_.ToString());
 }
 
-size_t FieldFilter::Hash() const {
+size_t FieldFilter::Rep::Hash() const {
   return util::Hash(field_, op_, value_rhs_);
 }
 
-bool FieldFilter::IsInequality() const {
-  return op_ == Operator::LessThan || op_ == Operator::LessThanOrEqual ||
-         op_ == Operator::GreaterThan || op_ == Operator::GreaterThanOrEqual;
-}
-
-bool FieldFilter::Equals(const Filter& other) const {
+bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
   if (type() != other.type()) return false;
 
-  const auto& other_filter = static_cast<const FieldFilter&>(other);
-  return op_ == other_filter.op_ && field_ == other_filter.field_ &&
-         value_rhs_ == other_filter.value_rhs_;
+  const auto& other_rep = static_cast<const FieldFilter::Rep&>(other);
+  return op_ == other_rep.op_ && field_ == other_rep.field_ &&
+         value_rhs_ == other_rep.value_rhs_;
 }
 
 }  // namespace core

@@ -38,65 +38,95 @@ class FieldFilter : public Filter {
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
-  static std::shared_ptr<const FieldFilter> Create(model::FieldPath path,
-                                                   Operator op,
-                                                   model::FieldValue value_rhs);
+  static FieldFilter Create(model::FieldPath path,
+                            Operator op,
+                            model::FieldValue value_rhs);
 
-  Type type() const override {
-    return Type::kFieldFilter;
+  explicit FieldFilter(const Filter& filter);
+
+  const model::FieldPath& field() const {
+    return field_filter_rep().field_;
   }
-
-  bool IsAFieldFilter() const override {
-    return true;
-  }
-
-  const model::FieldPath& field() const override;
 
   Operator op() const {
-    return op_;
+    return field_filter_rep().op_;
   }
 
   const model::FieldValue& value() const {
-    return value_rhs_;
+    return field_filter_rep().value_rhs_;
   }
 
-  bool Matches(const model::Document& doc) const override;
-
-  std::string CanonicalId() const override;
-  std::string ToString() const override;
-
-  size_t Hash() const override;
-
-  bool IsInequality() const override;
-
  protected:
-  /**
-   * Creates a new filter that compares fields and values. Only intended to be
-   * called from Filter::Create().
-   *
-   * @param field A path to a field in the document to filter on. The LHS of the
-   *     expression.
-   * @param op The binary operator to apply.
-   * @param value_rhs A constant value to compare `field` to. The RHS of the
-   *     expression.
-   */
-  FieldFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
+  class Rep : public Filter::Rep {
+   public:
+    Type type() const override {
+      return Type::kFieldFilter;
+    }
 
-  bool MatchesComparison(util::ComparisonResult result) const;
+    bool IsAFieldFilter() const override {
+      return true;
+    }
+
+    bool IsInequality() const override;
+
+    const model::FieldPath& field() const override {
+      return field_;
+    }
+
+    Operator op() const {
+      return op_;
+    }
+
+    const model::FieldValue& value() const {
+      return value_rhs_;
+    }
+
+    bool Matches(const model::Document& doc) const override;
+
+    std::string CanonicalId() const override;
+
+    std::string ToString() const override;
+
+    size_t Hash() const override;
+
+   protected:
+    /**
+     * Creates a new filter that compares fields and values. Only intended to be
+     * called from Filter::Create().
+     *
+     * @param field A path to a field in the document to filter on. The LHS of
+     * the expression.
+     * @param op The binary operator to apply.
+     * @param value_rhs A constant value to compare `field` to. The RHS of the
+     *     expression.
+     */
+    Rep(model::FieldPath field, Operator op, model::FieldValue value_rhs);
+
+    bool MatchesComparison(util::ComparisonResult result) const;
+
+   private:
+    friend class FieldFilter;
+
+    bool Equals(const Filter::Rep& other) const override;
+
+    bool MatchesValue(const model::FieldValue& lhs) const;
+
+    /** The left hand side of the relation. A path into a document field. */
+    model::FieldPath field_;
+
+    /** The type of equality/inequality operator to use in the relation. */
+    Operator op_;
+
+    /** The right hand side of the relation. A constant value to compare to. */
+    model::FieldValue value_rhs_;
+  };
+
+  explicit FieldFilter(std::shared_ptr<const Filter::Rep> rep);
 
  private:
-  bool Equals(const Filter& other) const override;
-
-  bool MatchesValue(const model::FieldValue& lhs) const;
-
-  /** The left hand side of the relation. A path into a document field. */
-  model::FieldPath field_;
-
-  /** The type of equality/inequality operator to use in the relation. */
-  Operator op_;
-
-  /** The right hand side of the relation. A constant value to compare to. */
-  model::FieldValue value_rhs_;
+  const Rep& field_filter_rep() const {
+    return static_cast<const Rep&>(rep());
+  }
 };
 
 }  // namespace core

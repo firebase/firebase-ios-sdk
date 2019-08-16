@@ -910,8 +910,8 @@ absl::any Wrap(GCFSDocument *doc) {
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
   for (const auto &filter : filters) {
-    if (filter->IsAFieldFilter()) {
-      [protos addObject:[self encodedUnaryOrFieldFilter:static_cast<const FieldFilter &>(*filter)]];
+    if (filter.IsAFieldFilter()) {
+      [protos addObject:[self encodedUnaryOrFieldFilter:FieldFilter(filter)]];
     }
   }
   if (protos.count == 1) {
@@ -983,14 +983,14 @@ absl::any Wrap(GCFSDocument *doc) {
   return proto;
 }
 
-- (std::shared_ptr<const FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
+- (const FieldFilter)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto {
   FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   Filter::Operator op = [self decodedFieldFilterOperator:proto.op];
   FieldValue value = [self decodedFieldValue:proto.value];
   return FieldFilter::Create(std::move(fieldPath), op, std::move(value));
 }
 
-- (std::shared_ptr<const FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (FieldFilter)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNull:

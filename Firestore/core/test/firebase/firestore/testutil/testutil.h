@@ -348,37 +348,40 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   }
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, model::FieldValue value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                model::FieldValue value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
                                    std::move(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, model::FieldValue::Map value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                model::FieldValue::Map value) {
   return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       std::nullptr_t) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                std::nullptr_t) {
   return Filter(key, op, model::FieldValue::Null());
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, const std::string& value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                const std::string& value) {
   return Filter(key, op, model::FieldValue::FromString(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       int value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       double value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                double value) {
   return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 

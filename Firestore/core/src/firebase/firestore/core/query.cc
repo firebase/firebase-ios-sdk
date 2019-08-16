@@ -59,8 +59,8 @@ bool Query::IsDocumentQuery() const {
 
 const FieldPath* Query::InequalityFilterField() const {
   for (const auto& filter : filters_) {
-    if (filter->IsInequality()) {
-      return &filter->field();
+    if (filter.IsInequality()) {
+      return &filter.field();
     }
   }
   return nullptr;
@@ -68,8 +68,8 @@ const FieldPath* Query::InequalityFilterField() const {
 
 absl::optional<Operator> Query::FirstArrayOperator() const {
   for (const auto& filter : filters_) {
-    if (filter->IsAFieldFilter()) {
-      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
+    if (filter.IsAFieldFilter()) {
+      FieldFilter relation_filter(filter);
       if (IsArrayOperator(relation_filter.op())) {
         return relation_filter.op();
       }
@@ -80,8 +80,8 @@ absl::optional<Operator> Query::FirstArrayOperator() const {
 
 absl::optional<Operator> Query::FirstDisjunctiveOperator() const {
   for (const auto& filter : filters_) {
-    if (filter->IsAFieldFilter()) {
-      const auto& relation_filter = static_cast<const FieldFilter&>(*filter);
+    if (filter.IsAFieldFilter()) {
+      FieldFilter relation_filter(filter);
       if (IsDisjunctiveOperator(relation_filter.op())) {
         return relation_filter.op();
       }
@@ -150,12 +150,12 @@ const FieldPath* Query::FirstOrderByField() const {
 
 // MARK: - Builder methods
 
-Query Query::AddingFilter(std::shared_ptr<const Filter> filter) const {
+Query Query::AddingFilter(Filter filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
   const FieldPath* new_inequality_field = nullptr;
-  if (filter->IsInequality()) {
-    new_inequality_field = &filter->field();
+  if (filter.IsInequality()) {
+    new_inequality_field = &filter.field();
   }
   const FieldPath* query_inequality_field = InequalityFilterField();
   HARD_ASSERT(!query_inequality_field || !new_inequality_field ||
@@ -227,7 +227,7 @@ bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
 
 bool Query::MatchesFilters(const Document& doc) const {
   for (const auto& filter : filters_) {
-    if (!filter->Matches(doc)) return false;
+    if (!filter.Matches(doc)) return false;
   }
   return true;
 }
@@ -291,7 +291,7 @@ const std::string& Query::CanonicalId() const {
   // Add filters.
   absl::StrAppend(&result, "|f:");
   for (const auto& filter : filters_) {
-    absl::StrAppend(&result, filter->CanonicalId());
+    absl::StrAppend(&result, filter.CanonicalId());
   }
 
   // Add order by.
@@ -332,9 +332,8 @@ std::ostream& operator<<(std::ostream& os, const Query& query) {
 bool operator==(const Query& lhs, const Query& rhs) {
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
-         absl::c_equal(lhs.filters(), rhs.filters(),
-                       util::Equals<std::shared_ptr<const Filter>>) &&
-         lhs.order_bys() == rhs.order_bys() && lhs.limit() == rhs.limit() &&
+         lhs.filters() == rhs.filters() && lhs.order_bys() == rhs.order_bys() &&
+         lhs.limit() == rhs.limit() &&
          util::Equals(lhs.start_at(), rhs.start_at()) &&
          util::Equals(lhs.end_at(), rhs.end_at());
 }

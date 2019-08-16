@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/key_field_in_filter.h"
 
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -32,17 +33,31 @@ using model::FieldValue;
 
 using Operator = Filter::Operator;
 
-KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
-    : FieldFilter(std::move(field), Operator::In, std::move(value)) {
-  const FieldValue::Array& array_value = this->value().array_value();
-  for (const auto& ref_value : array_value) {
-    HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
-                "Comparing on key with IN, but an array value was not"
-                " a Reference");
+class KeyFieldInFilter::Rep : public FieldFilter::Rep {
+ public:
+  Rep(FieldPath field, FieldValue value)
+      : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
+    const FieldValue::Array& array_value = this->value().array_value();
+    for (const auto& ref_value : array_value) {
+      HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
+                  "Comparing on key with IN, but an array value was not"
+                  " a Reference");
+    }
   }
+
+  Type type() const override {
+    return Type::kKeyFieldInFilter;
+  }
+
+  bool Matches(const model::Document& doc) const override;
+};
+
+KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
+    : FieldFilter(
+          std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
-bool KeyFieldInFilter::Matches(const Document& doc) const {
+bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
   const FieldValue::Array& array_value = value().array_value();
   for (const auto& rhs : array_value) {
     if (doc.key() == rhs.reference_value().key()) {

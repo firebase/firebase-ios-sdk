@@ -33,11 +33,8 @@ class ArrayContainsAnyFilter : public FieldFilter {
  public:
   ArrayContainsAnyFilter(model::FieldPath field, model::FieldValue value);
 
-  Type type() const override {
-    return Type::kArrayContainsAnyFilter;
-  }
-
-  bool Matches(const model::Document& doc) const override;
+ private:
+  class Rep;
 };
 
 }  // namespace core

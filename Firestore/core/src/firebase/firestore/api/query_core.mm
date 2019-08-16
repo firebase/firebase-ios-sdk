@@ -205,9 +205,8 @@ Query Query::Filter(FieldPath field_path,
     }
   }
 
-  std::shared_ptr<const FieldFilter> filter =
-      FieldFilter::Create(field_path, op, field_value);
-  ValidateNewFilter(*filter);
+  FieldFilter filter = FieldFilter::Create(field_path, op, field_value);
+  ValidateNewFilter(filter);
 
   return Wrap(query_.AddingFilter(std::move(filter)));
 }
@@ -249,7 +248,7 @@ Query Query::EndAt(Bound bound) const {
 
 void Query::ValidateNewFilter(const class Filter& filter) const {
   if (filter.IsAFieldFilter()) {
-    const auto& field_filter = static_cast<const FieldFilter&>(filter);
+    FieldFilter field_filter(filter);
 
     if (field_filter.IsInequality()) {
       const FieldPath* existing_inequality = query_.InequalityFilterField();

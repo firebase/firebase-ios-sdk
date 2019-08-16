@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/in_filter.h"
 
+#include <memory>
 #include <utility>
 
 #include "absl/algorithm/container.h"
@@ -30,11 +31,25 @@ using model::FieldValue;
 
 using Operator = Filter::Operator;
 
+class InFilter::Rep : public FieldFilter::Rep {
+ public:
+  Rep(FieldPath field, FieldValue value)
+      : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
+  }
+
+  Type type() const override {
+    return Type::kInFilter;
+  }
+
+  bool Matches(const model::Document& doc) const override;
+};
+
 InFilter::InFilter(FieldPath field, FieldValue value)
-    : FieldFilter(std::move(field), Operator::In, std::move(value)) {
+    : FieldFilter(
+          std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
-bool InFilter::Matches(const Document& doc) const {
+bool InFilter::Rep::Matches(const Document& doc) const {
   const FieldValue::Array& array_value = value().array_value();
   absl::optional<FieldValue> maybe_lhs = doc.field(field());
   if (!maybe_lhs) return false;

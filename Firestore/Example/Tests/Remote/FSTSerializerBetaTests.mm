@@ -546,7 +546,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesUnaryFilter {
   auto input = Filter("item", "==", nullptr);
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_UnaryFilter *prop = expected.unaryFilter;
@@ -555,12 +555,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedUnaryFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 - (void)testEncodesFieldFilter {
   auto input = Filter("item.part.top", "==", "food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -570,12 +570,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 - (void)testEncodesArrayContainsFilter {
   auto input = Filter("item.tags", "array_contains", "food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -585,12 +585,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 - (void)testEncodesArrayContainsAnyFilter {
   auto input = Filter("item.tags", "array-contains-any", Array("food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -600,12 +600,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 - (void)testEncodesInFilter {
   auto input = Filter("item.tags", "in", Array("food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -615,12 +615,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 - (void)testEncodesKeyFieldFilter {
   auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:*input];
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedUnaryOrFieldFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
@@ -630,7 +630,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 
   auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(*input, *roundTripped);
+  XCTAssertEqual(input, roundTripped);
 }
 
 #pragma mark - encodedQuery
