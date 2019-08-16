@@ -80,18 +80,18 @@
 
 + (void)displayCardViewWithMessageDefinition:(FIRInAppMessagingCardDisplay *)cardMessage
                              displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
-  NSBundle *resourceBundle = [self getViewResourceBundle];
-
-  if (resourceBundle == nil) {
-    NSError *error =
-        [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                        userInfo:@{NSLocalizedDescriptionKey : @"Resource bundle is missing."}];
-    [displayDelegate displayErrorForMessage:cardMessage error:error];
-    return;
-  }
-
   dispatch_async(dispatch_get_main_queue(), ^{
+    NSBundle *resourceBundle = [self getViewResourceBundle];
+    
+    if (resourceBundle == nil) {
+      NSError *error =
+      [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                          code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                      userInfo:@{NSLocalizedDescriptionKey : @"Resource bundle is missing."}];
+      [displayDelegate displayErrorForMessage:cardMessage error:error];
+      return;
+    }
+    
     FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
     FIDCardViewController *cardVC =
         [FIDCardViewController instantiateViewControllerWithResourceBundle:resourceBundle
@@ -119,17 +119,17 @@
 + (void)displayModalViewWithMessageDefinition:(FIRInAppMessagingModalDisplay *)modalMessage
                               displayDelegate:
                                   (id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
-  NSBundle *resourceBundle = [self getViewResourceBundle];
-
-  if (resourceBundle == nil) {
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                     userInfo:@{@"message" : @"resource bundle is missing"}];
-    [displayDelegate displayErrorForMessage:modalMessage error:error];
-    return;
-  }
-
   dispatch_async(dispatch_get_main_queue(), ^{
+    NSBundle *resourceBundle = [self getViewResourceBundle];
+    
+    if (resourceBundle == nil) {
+      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                                       userInfo:@{@"message" : @"resource bundle is missing"}];
+      [displayDelegate displayErrorForMessage:modalMessage error:error];
+      return;
+    }
+    
     FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
     FIDModalViewController *modalVC =
         [FIDModalViewController instantiateViewControllerWithResourceBundle:resourceBundle
@@ -156,17 +156,17 @@
 + (void)displayBannerViewWithMessageDefinition:(FIRInAppMessagingBannerDisplay *)bannerMessage
                                displayDelegate:
                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
-  NSBundle *resourceBundle = [self getViewResourceBundle];
-
-  if (resourceBundle == nil) {
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                     userInfo:@{}];
-    [displayDelegate displayErrorForMessage:bannerMessage error:error];
-    return;
-  }
-
   dispatch_async(dispatch_get_main_queue(), ^{
+    NSBundle *resourceBundle = [self getViewResourceBundle];
+    
+    if (resourceBundle == nil) {
+      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                                       userInfo:@{}];
+      [displayDelegate displayErrorForMessage:bannerMessage error:error];
+      return;
+    }
+    
     FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
     FIDBannerViewController *bannerVC =
         [FIDBannerViewController instantiateViewControllerWithResourceBundle:resourceBundle
@@ -194,17 +194,17 @@
             (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
                                   displayDelegate:
                                       (id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
-  NSBundle *resourceBundle = [self getViewResourceBundle];
-
-  if (resourceBundle == nil) {
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                     userInfo:@{}];
-    [displayDelegate displayErrorForMessage:imageOnlyMessage error:error];
-    return;
-  }
-
   dispatch_async(dispatch_get_main_queue(), ^{
+    NSBundle *resourceBundle = [self getViewResourceBundle];
+    
+    if (resourceBundle == nil) {
+      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                                       userInfo:@{}];
+      [displayDelegate displayErrorForMessage:imageOnlyMessage error:error];
+      return;
+    }
+    
     FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
     FIDImageOnlyViewController *imageOnlyVC =
         [FIDImageOnlyViewController instantiateViewControllerWithResourceBundle:resourceBundle
