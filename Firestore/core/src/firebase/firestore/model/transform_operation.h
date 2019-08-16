@@ -115,7 +115,7 @@ class TransformOperation {
   }
 
   std::string ToString() const {
-    return rep().ToString();
+    return rep_ ? rep().ToString() : "(invalid)";
   }
 
   friend std::ostream& operator<<(std::ostream& os,

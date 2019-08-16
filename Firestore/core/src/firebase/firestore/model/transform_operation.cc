@@ -48,7 +48,7 @@ bool operator==(const TransformOperation& lhs, const TransformOperation& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& os, const TransformOperation& op) {
-  return os << op.rep_->ToString();
+  return os << op.ToString();
 }
 
 // MARK: - ServerTimestampTransform
@@ -311,6 +311,13 @@ NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)
   HARD_ASSERT(operand.is_number());
 }
 
+NumericIncrementTransform::NumericIncrementTransform(
+    const TransformOperation& op)
+    : TransformOperation(op) {
+  HARD_ASSERT(op.type() == Type::Increment, "Expected increment type; got %s",
+              op.type());
+}
+
 const FieldValue& NumericIncrementTransform::operand() const {
   return static_cast<const Rep&>(rep()).operand_;
 }
@@ -345,12 +352,6 @@ double AsDouble(const FieldValue& value) {
 }
 
 }  // namespace
-
-NumericIncrementTransform::NumericIncrementTransform(const TransformOperation& op)
-    : TransformOperation(op) {
-  HARD_ASSERT(op.type() == Type::Increment,
-              "Expected increment type; got %s", op.type());
-}
 
 FieldValue NumericIncrementTransform::Rep::ApplyToLocalView(
     const absl::optional<FieldValue>& previous_value,
