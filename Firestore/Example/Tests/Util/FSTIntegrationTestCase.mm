@@ -113,7 +113,7 @@ static bool runningAgainstEmulator = false;
 - (void)clearPersistenceOnce {
   static bool clearedPersistence = false;
 
-  @synchronized ([FSTIntegrationTestCase class]) {
+  @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
 
     Path levelDBDir = [FSTLevelDB documentsDirectory];
