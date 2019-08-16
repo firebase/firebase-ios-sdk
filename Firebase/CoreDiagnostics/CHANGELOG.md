@@ -1,4 +1,4 @@
-# v0.1.0
+# v1.0.0
 Initial Release--for Google use only. This library collects diagnostics and
 usage data for internal use by Firebase. Data gathered by this library will
 only be uploaded at most once every 24 hours whilst on mobile data, and more
