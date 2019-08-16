@@ -197,7 +197,7 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWriteStreamClose(const util::Status& status) override;
   void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
-      std::vector<FSTMutationResult*> mutation_results) override;
+      std::vector<model::MutationResult> mutation_results) override;
 
  private:
   void DisableNetworkInternal();

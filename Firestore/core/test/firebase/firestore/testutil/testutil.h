@@ -411,34 +411,24 @@ inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
                      std::make_shared<const std::string>(collection_id));
 }
 
-inline std::unique_ptr<model::SetMutation> SetMutation(
+inline model::SetMutation SetMutation(
     absl::string_view path,
     const model::FieldValue::Map& values = model::FieldValue::Map()) {
-  return absl::make_unique<model::SetMutation>(
-      Key(path), model::ObjectValue::FromMap(values),
-      model::Precondition::None());
+  return model::SetMutation(Key(path), model::ObjectValue::FromMap(values),
+                            model::Precondition::None());
 }
 
-std::unique_ptr<model::PatchMutation> PatchMutation(
+model::PatchMutation PatchMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values = model::FieldValue::Map(),
-    const std::vector<model::FieldPath>* update_mask = nullptr);
+    model::FieldValue::Map values = model::FieldValue::Map(),
+    std::vector<model::FieldPath> update_mask = {});
 
-inline std::unique_ptr<model::PatchMutation> PatchMutation(
-    absl::string_view path,
-    const model::FieldValue::Map& values,
-    const std::vector<model::FieldPath>& update_mask) {
-  return PatchMutation(path, values, &update_mask);
-}
-
-inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
-    absl::string_view path) {
-  return absl::make_unique<model::DeleteMutation>(Key(path),
-                                                  model::Precondition::None());
+inline model::DeleteMutation DeleteMutation(absl::string_view path) {
+  return model::DeleteMutation(Key(path), model::Precondition::None());
 }
 
 inline model::MutationResult MutationResult(int64_t version) {
-  return model::MutationResult(Version(version), nullptr);
+  return model::MutationResult(Version(version), absl::nullopt);
 }
 
 inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {

@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -165,7 +166,7 @@ class Serializer {
 
   google_firestore_v1_Write EncodeMutation(
       const model::Mutation& mutation) const;
-  std::unique_ptr<model::Mutation> DecodeMutation(
+  model::Mutation DecodeMutation(
       nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const;
 
   static google_firestore_v1_Precondition EncodePrecondition(

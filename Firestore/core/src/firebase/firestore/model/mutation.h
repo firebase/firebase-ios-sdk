@@ -48,7 +48,7 @@ class MutationResult {
  public:
   MutationResult(
       SnapshotVersion version,
-      std::shared_ptr<const std::vector<FieldValue>> transform_results)
+      absl::optional<const std::vector<FieldValue>> transform_results)
       : version_(version), transform_results_(std::move(transform_results)) {
   }
 
@@ -68,19 +68,19 @@ class MutationResult {
 
   /**
    * The resulting fields returned from the backend after a TransformMutation
-   * has been committed.  Contains one FieldValue for each FieldTransform that
+   * has been committed. Contains one FieldValue for each FieldTransform that
    * was in the mutation.
    *
-   * Will be null if the mutation was not a TransformMutation.
+   * Will be nullopt if the mutation was not a TransformMutation.
    */
-  const std::shared_ptr<const std::vector<FieldValue>>& transform_results()
+  const absl::optional<const std::vector<FieldValue>>& transform_results()
       const {
     return transform_results_;
   }
 
  private:
   SnapshotVersion version_;
-  std::shared_ptr<const std::vector<FieldValue>> transform_results_;
+  absl::optional<const std::vector<FieldValue>> transform_results_;
 };
 
 /**
@@ -144,7 +144,7 @@ class Mutation {
   /**
    * Represents the mutation type. This is used in place of dynamic_cast.
    */
-  enum class Type { Set, Patch, Delete };
+  enum class Type { Set, Patch, Transform, Delete };
 
   /** Creates an invalid mutation. */
   Mutation() = default;
@@ -235,6 +235,27 @@ class Mutation {
     return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
   }
 
+  /**
+   * If this mutation is not idempotent, returns the base value to persist with
+   * this mutation.  If a base value is returned, the mutation is always
+   * applied to this base value, even if document has already been updated.
+   *
+   * The base value is a sparse object that consists of only the document
+   * fields for which this mutation contains a non-idempotent transformation
+   * (e.g. a numeric increment). The provided value guarantees consistent
+   * behavior for non-idempotent transforms and allow us to return the same
+   * latency-compensated value even if the backend has already applied the
+   * mutation. The base value is empty for idempotent mutations, as they can be
+   * re-played even if the backend has already applied them.
+   *
+   * @return a base value to store along with the mutation, or empty for
+   *     idempotent mutations.
+   */
+  absl::optional<ObjectValue> ExtractBaseValue(
+      const absl::optional<MaybeDocument>& maybe_doc) const {
+    return rep_->ExtractBaseValue(maybe_doc);
+  }
+
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
   size_t Hash() const {
@@ -272,6 +293,11 @@ class Mutation {
         const absl::optional<MaybeDocument>& maybe_doc,
         const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const = 0;
+
+    virtual absl::optional<ObjectValue> ExtractBaseValue(
+        const absl::optional<MaybeDocument>&) const {
+      return absl::nullopt;
+    }
 
     virtual bool Equals(const Rep& other) const;
 

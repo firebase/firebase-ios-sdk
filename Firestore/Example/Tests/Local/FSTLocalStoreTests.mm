@@ -26,7 +26,6 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -58,6 +57,8 @@ using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
@@ -154,11 +155,11 @@ NS_ASSUME_NONNULL_BEGIN
   return [self class] == [FSTLocalStoreTests class];
 }
 
-- (void)writeMutation:(FSTMutation *)mutation {
+- (void)writeMutation:(Mutation)mutation {
   [self writeMutations:{mutation}];
 }
 
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations {
+- (void)writeMutations:(std::vector<Mutation> &&)mutations {
   auto mutationsCopy = mutations;
   LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batch_id()
@@ -188,8 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
     mutationTransformResult = std::vector<FieldValue>{FSTTestFieldValue(transformResult)};
   }
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:version transformResults:mutationTransformResult];
+  MutationResult mutationResult(version, mutationTransformResult);
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
                                                              commitVersion:version
                                                            mutationResults:{mutationResult}
@@ -265,9 +265,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMutationBatchKeys {
   if ([self isTestBaseClass]) return;
 
-  FSTMutation *base = FSTTestSetMutation(@"foo/ignore", @{@"foo" : @"bar"});
-  FSTMutation *set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
-  FSTMutation *set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
+  Mutation base = FSTTestSetMutation(@"foo/ignore", @{@"foo" : @"bar"});
+  Mutation set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
+  Mutation set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:Timestamp::Now()
                                                         baseMutations:{base}

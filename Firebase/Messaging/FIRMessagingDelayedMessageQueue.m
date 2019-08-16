@@ -49,7 +49,6 @@ static const int kMaxQueuedMessageCount = 10;
 
 - (instancetype)initWithRmqScanner:(id<FIRMessagingRmqScanner>)rmqScanner
         sendDelayedMessagesHandler:(FIRMessagingSendDelayedMessagesHandler)sendDelayedMessagesHandler {
-  _FIRMessagingDevAssert(sendDelayedMessagesHandler, @"Invalid nil callback for delayed messages");
   self = [super init];
   if (self) {
     _rmqScanner = rmqScanner;

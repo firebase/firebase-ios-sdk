@@ -40,7 +40,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
 }
 
 - (instancetype)initWithRmqManager:(FIRMessagingRmqManager *)rmqManager {
-  _FIRMessagingDevAssert(rmqManager, @"Invalid nil rmq manager while initalizing sync message manager");
   self = [super init];
   if (self) {
     _rmqManager = rmqManager;
@@ -72,7 +71,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
                       viaAPNS:(BOOL)viaAPNS
                        viaMCS:(BOOL)viaMCS {
   NSString *rmqID = message[kFIRMessagingMessageIDKey];
-  _FIRMessagingDevAssert([rmqID length], @"Invalid nil rmqID for message");
   if (![rmqID length]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager002,
                             @"Invalid nil rmqID for sync message.");

@@ -177,57 +177,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                  }];
 }
 
-// TODO(chliangGoogle) Investigate why invalid token can't throw assertion but the rest can under
-// release build.
-- (void)testSubscribeWithInvalidTopic {
-
-  XCTestExpectation *exceptionExpectation =
-  [self expectationWithDescription:@"Should throw exception for invalid token"];
-  @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-    [_mockPubSub subscribeWithToken:kFakeToken
-                              topic:nil
-                            options:nil
-                            handler:^(NSError *error) {
-                              XCTFail(@"Should not invoke the handler");
-                            }];
-#pragma clang diagnostic pop
-  }
-  @catch (NSException *exception) {
-    [exceptionExpectation fulfill];
-  }
-  @finally {
-    [self waitForExpectationsWithTimeout:0.1 handler:^(NSError *error) {
-      XCTAssertNil(error);
-    }];
-  }
-}
-
-- (void)testUnsubscribeWithInvalidTopic {
-  XCTestExpectation *exceptionExpectation =
-      [self expectationWithDescription:@"Should throw exception for invalid token"];
-  @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-    [_mockPubSub unsubscribeWithToken:kFakeToken
-                                topic:nil
-                              options:nil
-                              handler:^(NSError *error) {
-                                XCTFail(@"Should not invoke the handler");
-                              }];
-#pragma clang diagnostic pop
-  }
-  @catch (NSException *exception) {
-    [exceptionExpectation fulfill];
-  }
-  @finally {
-    [self waitForExpectationsWithTimeout:0.1 handler:^(NSError *error) {
-      XCTAssertNil(error);
-    }];
-  }
-}
-
 - (void)testSubscribeWithNoTopicPrefix {
   OCMStub([_mockInstanceID
       instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);

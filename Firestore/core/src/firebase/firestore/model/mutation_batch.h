@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_BATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_BATCH_H_
 
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -57,7 +58,7 @@ class MutationBatch {
 
   MutationBatch(int batch_id,
                 Timestamp local_write_time,
-                std::vector<std::unique_ptr<Mutation>>&& mutations);
+                std::vector<Mutation>&& mutations);
 
   // TODO(rsgowman): Port ApplyToRemoteDocument()
   // TODO(rsgowman): Port ApplyToLocalView()
@@ -75,17 +76,19 @@ class MutationBatch {
     return local_write_time_;
   }
 
-  const std::vector<std::unique_ptr<Mutation>>& mutations() const {
+  const std::vector<Mutation>& mutations() const {
     return mutations_;
   }
+
+  friend bool operator==(const MutationBatch& lhs, const MutationBatch& rhs);
+
+  friend std::ostream& operator<<(std::ostream& os, const MutationBatch& batch);
 
  private:
   int batch_id_;
   const Timestamp local_write_time_;
-  std::vector<std::unique_ptr<Mutation>> mutations_;
+  std::vector<Mutation> mutations_;
 };
-
-bool operator==(const MutationBatch& lhs, const MutationBatch& rhs);
 
 inline bool operator!=(const MutationBatch& lhs, const MutationBatch& rhs) {
   return !(lhs == rhs);

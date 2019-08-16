@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -77,6 +78,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteStore;
@@ -350,7 +352,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
-  [self verifyNotShutdown];
+  // Checks for shutdown but does not throw error, allowing it to be an no-op if client is
+  // already shutdown.
+  if (self.isShutdown) {
+    return;
+  }
   _workerQueue->Enqueue([self, listener] { _eventManager->RemoveQueryListener(listener); });
 }
 
@@ -415,8 +421,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
-              callback:(util::StatusCallback)callback {
+- (void)writeMutations:(std::vector<Mutation> &&)mutations callback:(util::StatusCallback)callback {
   [self verifyNotShutdown];
   // TODO(c++14): move `mutations` into lambda (C++14).
   _workerQueue->Enqueue([self, mutations, callback]() mutable {

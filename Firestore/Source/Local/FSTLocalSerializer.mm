@@ -45,6 +45,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
@@ -188,11 +189,11 @@ using firebase::firestore::model::UnknownDocument;
   proto.localWriteTime = [remoteSerializer encodedTimestamp:batch.localWriteTime];
 
   NSMutableArray<GCFSWrite *> *baseWrites = proto.baseWritesArray;
-  for (FSTMutation *baseMutation : [batch baseMutations]) {
+  for (const Mutation &baseMutation : [batch baseMutations]) {
     [baseWrites addObject:[remoteSerializer encodedMutation:baseMutation]];
   }
   NSMutableArray<GCFSWrite *> *writes = proto.writesArray;
-  for (FSTMutation *mutation : [batch mutations]) {
+  for (const Mutation &mutation : [batch mutations]) {
     [writes addObject:[remoteSerializer encodedMutation:mutation]];
   }
   return proto;
@@ -203,11 +204,11 @@ using firebase::firestore::model::UnknownDocument;
 
   int batchID = batch.batchId;
 
-  std::vector<FSTMutation *> baseMutations;
+  std::vector<Mutation> baseMutations;
   for (GCFSWrite *write in batch.baseWritesArray) {
     baseMutations.push_back([remoteSerializer decodedMutation:write]);
   }
-  std::vector<FSTMutation *> mutations;
+  std::vector<Mutation> mutations;
   for (GCFSWrite *write in batch.writesArray) {
     mutations.push_back([remoteSerializer decodedMutation:write]);
   }

@@ -22,13 +22,13 @@
 #include <utility>
 
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -46,6 +46,8 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
@@ -195,13 +197,13 @@ class MockWriteStream : public WriteStream {
     callback_->OnWriteStreamHandshakeComplete();
   }
 
-  void WriteMutations(const std::vector<FSTMutation*>& mutations) override {
+  void WriteMutations(const std::vector<Mutation>& mutations) override {
     datastore_->IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion& commitVersion, std::vector<FSTMutationResult*> results) {
+  void AckWrite(const SnapshotVersion& commitVersion, std::vector<MutationResult> results) {
     callback_->OnWriteStreamMutationResult(commitVersion, std::move(results));
   }
 
@@ -214,10 +216,10 @@ class MockWriteStream : public WriteStream {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  std::vector<FSTMutation*> NextSentWrite() {
+  std::vector<Mutation> NextSentWrite() {
     HARD_ASSERT(!sent_mutations_.empty(),
                 "Writes need to happen before you can call NextSentWrite.");
-    std::vector<FSTMutation*> result = std::move(sent_mutations_.front());
+    std::vector<Mutation> result = std::move(sent_mutations_.front());
     sent_mutations_.pop();
     return result;
   }
@@ -232,7 +234,7 @@ class MockWriteStream : public WriteStream {
 
  private:
   bool open_ = false;
-  std::queue<std::vector<FSTMutation*>> sent_mutations_;
+  std::queue<std::vector<Mutation>> sent_mutations_;
   MockDatastore* datastore_ = nullptr;
   WriteStreamCallback* callback_ = nullptr;
 };
@@ -280,7 +282,7 @@ bool MockDatastore::IsWatchStreamOpen() const {
   return watch_stream_->IsOpen();
 }
 
-std::vector<FSTMutation*> MockDatastore::NextSentWrite() {
+std::vector<Mutation> MockDatastore::NextSentWrite() {
   return write_stream_->NextSentWrite();
 }
 
@@ -288,8 +290,7 @@ int MockDatastore::WritesSent() const {
   return write_stream_->sent_mutations_count();
 }
 
-void MockDatastore::AckWrite(const SnapshotVersion& version,
-                             std::vector<FSTMutationResult*> results) {
+void MockDatastore::AckWrite(const SnapshotVersion& version, std::vector<MutationResult> results) {
   write_stream_->AckWrite(version, std::move(results));
 }
 

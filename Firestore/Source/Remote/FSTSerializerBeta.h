@@ -28,13 +28,12 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-@class FSTMutation;
 @class FSTMutationBatch;
-@class FSTMutationResult;
 @class FSTQueryData;
 
 @class GCFSBatchGetDocumentsResponse;
@@ -99,16 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSValue *)encodedFieldValue:(const model::FieldValue &)fieldValue;
 - (model::FieldValue)decodedFieldValue:(GCFSValue *)valueProto;
 
-- (GCFSWrite *)encodedMutation:(FSTMutation *)mutation;
-- (FSTMutation *)decodedMutation:(GCFSWrite *)mutation;
+- (GCFSWrite *)encodedMutation:(const model::Mutation &)mutation;
+- (model::Mutation)decodedMutation:(GCFSWrite *)mutation;
 
 - (GCFSDocumentMask *)encodedFieldMask:(const model::FieldMask &)fieldMask;
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
     (const std::vector<model::FieldTransform> &)fieldTransforms;
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const model::SnapshotVersion &)commitVersion;
+- (model::MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
+                                 commitVersion:(const model::SnapshotVersion &)commitVersion;
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
     (FSTQueryData *)queryData;

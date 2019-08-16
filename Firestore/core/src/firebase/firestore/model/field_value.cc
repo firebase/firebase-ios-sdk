@@ -262,9 +262,8 @@ class TimestampValue : public BaseValue {
  *
  * Notes:
  *   - ServerTimestampValue instances are created as the result of applying an
- *     FSTTransformMutation (see [FSTTransformMutation applyTo]). They can only
- *     exist in the local view of a document. Therefore they do not need to be
- *     parsed or serialized.
+ *     TransformMutation. They can only exist in the local view of a document.
+ *     Therefore they do not need to be parsed or serialized.
  *   - When evaluated locally (e.g. via DocumentSnapshot data), they by default
  *     evaluate to null.
  *   - This behavior can be configured by passing custom FieldValueOptions to

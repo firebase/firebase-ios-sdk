@@ -28,7 +28,6 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
@@ -67,6 +66,8 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -107,7 +108,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTOutstandingWrite
+@implementation FSTOutstandingWrite {
+  Mutation _write;
+}
+
+- (const model::Mutation &)write {
+  return _write;
+}
+
+- (void)setWrite:(model::Mutation)write {
+  _write = std::move(write);
+}
+
 @end
 
 @interface FSTSyncEngineTestDriver ()
@@ -253,15 +265,15 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  std::vector<FSTMutation *> request = _datastore->NextSentWrite();
+- (void)validateNextWriteSent:(const Mutation &)expectedWrite {
+  std::vector<Mutation> request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
   HARD_ASSERT(request.size() == 1, "Only single mutation requests are supported at the moment");
-  FSTMutation *actualWrite = request[0];
-  HARD_ASSERT([actualWrite isEqual:expectedWrite],
-              "Mock datastore received write %s but first outstanding mutation was %s", actualWrite,
-              expectedWrite);
-  LOG_DEBUG("A write was sent: %s", actualWrite);
+  const Mutation &actualWrite = request[0];
+  HARD_ASSERT(actualWrite == expectedWrite,
+              "Mock datastore received write %s but first outstanding mutation was %s",
+              actualWrite.ToString(), expectedWrite.ToString());
+  LOG_DEBUG("A write was sent: %s", actualWrite.ToString());
 }
 
 - (int)sentWritesCount {
@@ -299,8 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const SnapshotVersion &)commitVersion
-                                    mutationResults:
-                                        (std::vector<FSTMutationResult *>)mutationResults {
+                                    mutationResults:(std::vector<MutationResult>)mutationResults {
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
@@ -381,7 +392,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)writeUserMutation:(FSTMutation *)mutation {
+- (void)writeUserMutation:(Mutation)mutation {
   FSTOutstandingWrite *write = [[FSTOutstandingWrite alloc] init];
   write.write = mutation;
   [[self currentOutstandingWrites] addObject:write];
@@ -393,9 +404,7 @@ NS_ASSUME_NONNULL_BEGIN
                            write.done = YES;
                            write.error = error;
 
-                           NSString *mutationKey =
-                               [NSString stringWithCString:mutation.key.ToString().c_str()
-                                                  encoding:[NSString defaultCStringEncoding]];
+                           NSString *mutationKey = util::MakeNSString(mutation.key().ToString());
                            if (error) {
                              [self.rejectedDocs addObject:mutationKey];
                            } else {
