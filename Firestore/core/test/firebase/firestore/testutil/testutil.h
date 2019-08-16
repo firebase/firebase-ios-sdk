@@ -64,27 +64,46 @@ inline model::FieldValue Value(std::nullptr_t) {
 }
 
 /**
+ * A type definition that evaluates to type V only if T is exactly type `bool`.
+ */
+template <typename T, typename V>
+using EnableForExactlyBool =
+    typename std::enable_if<std::is_same<bool, T>{}, V>::type;
+
+/**
+ * A type definition that evaluates to type V only if T is an integral type but
+ * not `bool`.
+ */
+template <typename T, typename V>
+using EnableForInts =
+    typename std::enable_if<std::is_integral<T>{} && !std::is_same<bool, T>{},
+                            V>::type;
+
+/**
  * Creates a boolean FieldValue.
  *
+ * @tparam T A type that must be exactly bool. Any T that is not bool causes
+ *     this declaration to be disabled.
  * @param bool_value A boolean value that disallows implicit conversions.
  */
-template <typename T,
-          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
-inline model::FieldValue Value(T bool_value) {
+template <typename T>
+EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
   return model::FieldValue::FromBoolean(bool_value);
 }
 
-// Overload that captures integer literals. Without this, int64_t and double
-// are equally applicable conversions.
-inline model::FieldValue Value(int value) {
-  return model::FieldValue::FromInteger(value);
-}
-
-inline model::FieldValue Value(long value) {  // NOLINT(runtime/int)
-  return model::FieldValue::FromInteger(value);
-}
-
-inline model::FieldValue Value(int64_t value) {
+/**
+ * Creates an integer FieldValue.
+ *
+ * This is defined as a template to capture all integer literals. Just defining
+ * this as taking int64_t would make integer literals ambiguous because int64_t
+ * and double are equally good choices according to the standard.
+ *
+ * @tparam T Any integral type (but not bool). Types larger than int64_t will
+ *     likely generate a warning.
+ * @param int_value An integer value.
+ */
+template <typename T>
+EnableForInts<T, model::FieldValue> Value(T value) {
   return model::FieldValue::FromInteger(value);
 }
 
@@ -288,6 +307,8 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
+#if __APPLE__
+
 /**
  * Creates an DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
@@ -300,6 +321,8 @@ model::DocumentComparator DocComparator(absl::string_view field_path);
  */
 model::DocumentSet DocSet(model::DocumentComparator comp,
                           std::vector<model::Document> docs);
+
+#endif  // __APPLE__
 
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {
