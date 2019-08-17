@@ -427,6 +427,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   return self.persistence.run("ReadDocument", [&] { return _localDocuments->GetDocument(key); });
 }
 
+- (model::BatchId)getHighestUnacknowledgedBatchId {
+  return self.persistence.run("getHighestUnacknowledgedBatchId", [&]() -> model::BatchId {
+    return _mutationQueue->GetHighestUnacknowledgedBatchId();
+  });
+}
+
 - (FSTQueryData *)allocateQuery:(Query)query {
   FSTQueryData *queryData = self.persistence.run("Allocate query", [&] {
     FSTQueryData *cached = _queryCache->GetTarget(query);
