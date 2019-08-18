@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(FieldPath)
 @interface FIRFieldPath : NSObject <NSCopying>
 
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
