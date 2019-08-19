@@ -61,6 +61,7 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -883,7 +884,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   ListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
   TargetId targetID = queryData.targetID;
-  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
+  ByteString resumeToken = testutil::ResumeToken(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
   auto metadataProvider = TestTargetMetadataProvider::CreateSingleResultProvider(
@@ -898,7 +899,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Should come back with the same resume token
   FSTQueryData *queryData2 = [self.localStore allocateQuery:query];
-  XCTAssertEqualObjects(queryData2.resumeToken, resumeToken);
+  XCTAssertEqual(queryData2.resumeToken, resumeToken);
 
   // The sequence number should have been bumped when we saved the new resume token.
   ListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;

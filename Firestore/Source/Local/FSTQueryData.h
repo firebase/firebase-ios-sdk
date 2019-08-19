@@ -22,6 +22,7 @@
 
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
+namespace nanopb = firebase::firestore::nanopb;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +46,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
          listenSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(model::SnapshotVersion)snapshotVersion
-                  resumeToken:(NSData *)resumeToken NS_DESIGNATED_INITIALIZER;
+                  resumeToken:(nanopb::ByteString)resumeToken NS_DESIGNATED_INITIALIZER;
 
 /** Convenience initializer for use when creating an FSTQueryData for the first time. */
 - (instancetype)initWithQuery:(core::Query)query
@@ -60,7 +61,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  * number.
  */
 - (instancetype)queryDataByReplacingSnapshotVersion:(model::SnapshotVersion)snapshotVersion
-                                        resumeToken:(NSData *)resumeToken
+                                        resumeToken:(nanopb::ByteString)resumeToken
                                      sequenceNumber:(model::ListenSequenceNumber)sequenceNumber;
 
 /** The latest snapshot version seen for this target. */
@@ -85,7 +86,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  * without retransmitting all the data that matches the query. The resume token essentially
  * identifies a point in time from which the server should resume sending results.
  */
-@property(nonatomic, copy, readonly) NSData *resumeToken;
+- (const nanopb::ByteString &)resumeToken;
 
 @end
 

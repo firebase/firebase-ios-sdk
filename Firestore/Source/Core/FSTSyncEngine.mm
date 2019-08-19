@@ -71,6 +71,7 @@ using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
@@ -95,7 +96,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
-                  resumeToken:(NSData *)resumeToken
+                  resumeToken:(ByteString)resumeToken
                          view:(FSTView *)view NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -111,7 +112,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
  * was received. This can be used to indicate where to continue receiving new doc changes for the
  * query.
  */
-@property(nonatomic, copy, readonly) NSData *resumeToken;
+- (const ByteString &)resumeToken;
 
 /**
  * The view is responsible for computing the final merged truth of what docs are in the query.
@@ -124,16 +125,17 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 @implementation FSTQueryView {
   Query _query;
+  ByteString _resumeToken;
 }
 
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
-                  resumeToken:(NSData *)resumeToken
+                  resumeToken:(ByteString)resumeToken
                          view:(FSTView *)view {
   if (self = [super init]) {
     _query = std::move(query);
     _targetID = targetID;
-    _resumeToken = resumeToken;
+    _resumeToken = std::move(resumeToken);
     _view = view;
   }
   return self;
@@ -141,6 +143,10 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (const Query &)query {
   return _query;
+}
+
+- (const ByteString &)resumeToken {
+  return _resumeToken;
 }
 
 @end

@@ -35,6 +35,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
 
 using testutil::Filter;
 using testutil::Query;
@@ -86,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);
     XCTAssertEqual(result.query, queryData.query);
     XCTAssertEqual(result.targetID, queryData.targetID);
-    XCTAssertEqualObjects(result.resumeToken, queryData.resumeToken);
+    XCTAssertEqual(result.resumeToken, queryData.resumeToken);
   });
 }
 
@@ -143,9 +144,9 @@ NS_ASSUME_NONNULL_BEGIN
     self.queryCache->AddTarget(queryData2);
 
     FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
+    XCTAssertNotEqual(queryData2.resumeToken, queryData1.resumeToken);
     XCTAssertNotEqual(queryData2.snapshotVersion, queryData1.snapshotVersion);
-    XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
+    XCTAssertEqual(result.resumeToken, queryData2.resumeToken);
     XCTAssertEqual(result.snapshotVersion, queryData2.snapshotVersion);
   });
 }
@@ -348,7 +349,7 @@ NS_ASSUME_NONNULL_BEGIN
                             targetID:(TargetId)targetID
                 listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                              version:(FSTTestSnapshotVersion)version {
-  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(version);
+  ByteString resumeToken = testutil::ResumeToken(version);
   return [[FSTQueryData alloc] initWithQuery:std::move(query)
                                     targetID:targetID
                         listenSequenceNumber:sequenceNumber

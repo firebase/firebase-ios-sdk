@@ -786,8 +786,8 @@ absl::any Wrap(GCFSDocument *doc) {
   }
 
   result.targetId = queryData.targetID;
-  if (queryData.resumeToken.length > 0) {
-    result.resumeToken = queryData.resumeToken;
+  if (!queryData.resumeToken.empty()) {
+    result.resumeToken = MakeNSData(queryData.resumeToken);
   }
 
   return result;
@@ -1172,7 +1172,7 @@ absl::any Wrap(GCFSDocument *doc) {
     targetIDs.push_back(value);
   }];
 
-  NSData *resumeToken = change.resumeToken;
+  ByteString resumeToken = MakeByteString(change.resumeToken);
 
   util::Status cause;
   if (change.hasCause) {
@@ -1180,7 +1180,7 @@ absl::any Wrap(GCFSDocument *doc) {
         util::Status{static_cast<Error>(change.cause.code), util::MakeString(change.cause.message)};
   }
 
-  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
+  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
                                               std::move(cause));
 }
 

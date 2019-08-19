@@ -34,11 +34,12 @@ using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;
+using nanopb::ByteString;
 
 // TargetChange
 
 bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
-  return [lhs.resume_token() isEqualToData:rhs.resume_token()] &&
+  return lhs.resume_token() == rhs.resume_token() &&
          lhs.current() == rhs.current() &&
          lhs.added_documents() == rhs.added_documents() &&
          lhs.modified_documents() == rhs.modified_documents() &&
@@ -47,13 +48,10 @@ bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
 
 // TargetState
 
-TargetState::TargetState() : resume_token_{[NSData data]} {
-}
-
-void TargetState::UpdateResumeToken(NSData* resume_token) {
-  if (resume_token.length > 0) {
+void TargetState::UpdateResumeToken(ByteString resume_token) {
+  if (!resume_token.empty()) {
     has_pending_changes_ = true;
-    resume_token_ = [resume_token copy];
+    resume_token_ = std::move(resume_token);
   }
 }
 

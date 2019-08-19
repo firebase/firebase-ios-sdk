@@ -47,14 +47,14 @@ cc_library(
 cc_library(
   firebase_firestore_local
   SOURCES
-    document_key_reference.h
     document_key_reference.cc
+    document_key_reference.h
     index_manager.h
     listen_sequence.h
     local_documents_view.h
     local_documents_view.mm
-    local_serializer.h
     local_serializer.cc
+    local_serializer.h
     local_view_changes.cc
     local_view_changes.h
     memory_index_manager.cc

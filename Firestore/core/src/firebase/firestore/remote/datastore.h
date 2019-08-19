@@ -21,8 +21,6 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
-#import <Foundation/Foundation.h>
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -44,8 +42,6 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/status.h"
-
-#import "Firestore/Source/Core/FSTTypes.h"
 
 namespace firebase {
 namespace firestore {

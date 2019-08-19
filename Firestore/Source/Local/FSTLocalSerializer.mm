@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
@@ -51,6 +52,9 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::UnknownDocument;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeByteString;
+using firebase::firestore::nanopb::MakeNSData;
 
 @interface FSTLocalSerializer ()
 
@@ -232,7 +236,7 @@ using firebase::firestore::model::UnknownDocument;
   proto.targetId = queryData.targetID;
   proto.lastListenSequenceNumber = queryData.sequenceNumber;
   proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshotVersion];
-  proto.resumeToken = queryData.resumeToken;
+  proto.resumeToken = MakeNSData(queryData.resumeToken);
 
   const Query &query = queryData.query;
   if (query.IsDocumentQuery()) {
@@ -250,7 +254,7 @@ using firebase::firestore::model::UnknownDocument;
   TargetId targetID = target.targetId;
   ListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
   SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
-  NSData *resumeToken = target.resumeToken;
+  ByteString resumeToken = MakeByteString(target.resumeToken);
 
   Query query;
   switch (target.targetTypeOneOfCase) {

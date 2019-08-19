@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -75,6 +76,8 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -116,16 +119,16 @@ NSString *const kDurablePersistence = @"durable-persistence";
 
 namespace {
 
-NSString *Describe(NSData *data) {
-  return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}
-
 std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   std::vector<TargetId> result;
   for (NSNumber *targetID in from) {
     result.push_back(targetID.intValue);
   }
   return result;
+}
+
+ByteString MakeResumeToken(NSString *specString) {
+  return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 }  // namespace
@@ -279,7 +282,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
-  NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(currentSpec[1]);
   WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
                            resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
@@ -365,7 +368,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   // set of target IDs.
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
-  NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(watchSnapshot[@"resumeToken"]);
   WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
                            resumeToken};
   [self.driver receiveWatchChange:change
@@ -620,23 +623,23 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     }
     if (expected[@"activeTargets"]) {
       __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
-      [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
-                                                                      NSDictionary *queryData,
-                                                                      BOOL *stop) {
-        TargetId targetID = [targetIDString intValue];
-        Query query = [self parseQuery:queryData[@"query"]];
-        NSData *resumeToken = [queryData[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
-        // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
-        // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
-        // the right value.
-        expectedActiveTargets[targetID] =
-            [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                       targetID:targetID
-                           listenSequenceNumber:0
-                                        purpose:FSTQueryPurposeListen
-                                snapshotVersion:SnapshotVersion::None()
-                                    resumeToken:resumeToken];
-      }];
+      [expected[@"activeTargets"]
+          enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
+                                              BOOL *stop) {
+            TargetId targetID = [targetIDString intValue];
+            Query query = [self parseQuery:queryData[@"query"]];
+            ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
+            // TODO(mcg): populate the purpose of the target once it's possible to encode that in
+            // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
+            // always the right value.
+            expectedActiveTargets[targetID] =
+                [[FSTQueryData alloc] initWithQuery:std::move(query)
+                                           targetID:targetID
+                               listenSequenceNumber:0
+                                            purpose:FSTQueryPurposeListen
+                                    snapshotVersion:SnapshotVersion::None()
+                                        resumeToken:resumeToken];
+          }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
   }
@@ -708,7 +711,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       XCTAssertEqual(actual.query, queryData.query);
       XCTAssertEqual(actual.targetID, queryData.targetID);
       XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
-      XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
+      XCTAssertEqual(actual.resumeToken, queryData.resumeToken);
     }
 
     actualTargets.erase(targetID);

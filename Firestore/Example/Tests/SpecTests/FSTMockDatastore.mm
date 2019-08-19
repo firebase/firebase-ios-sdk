@@ -101,7 +101,8 @@ class MockWatchStream : public WatchStream {
   }
 
   void WatchQuery(FSTQueryData* query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query.ToString(), query.resumeToken);
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query.ToString(),
+              query.resumeToken.ToString());
 
     // Snapshot version is ignored on the wire
     FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()

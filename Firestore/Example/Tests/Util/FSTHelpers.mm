@@ -88,6 +88,7 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
@@ -320,7 +321,7 @@ RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
 }
 
 TargetChange FSTTestTargetChangeMarkCurrent() {
-  return {[NSData data],
+  return {ByteString(),
           /*current=*/true,
           /*added_documents=*/DocumentKeySet{},
           /*modified_documents=*/DocumentKeySet{},
@@ -328,7 +329,7 @@ TargetChange FSTTestTargetChangeMarkCurrent() {
 }
 
 TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
-  return {[NSData data],
+  return {ByteString(),
           /*current=*/true,
           /*added_documents*/ std::move(docs),
           /*modified_documents*/ DocumentKeySet{},
