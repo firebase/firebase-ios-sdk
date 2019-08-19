@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
@@ -25,15 +26,22 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::MakeGeoPoint;
 using firebase::firestore::api::MakeTimestamp;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::TransformMutation;
+using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::testutil::Field;
 
@@ -206,6 +214,48 @@ union DoubleBits {
     XCTAssertTrue(found.has_value());
     XCTAssertEqual(found->type(), FieldValue::Type::Timestamp);
     XCTAssertEqual(found->timestamp_value(), MakeTimestamp(date));
+  }
+}
+
+- (void)testCreatesArrayUnionTransforms {
+  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
+    @"bar.baz" :
+        [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
+  });
+  XCTAssertEqual(transform.field_transforms().size(), 2);
+
+  const FieldTransform &first = transform.field_transforms()[0];
+  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  {
+    std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
+  }
+
+  const FieldTransform &second = transform.field_transforms()[1];
+  XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
+  {
+    std::vector<FieldValue> expectedElements {
+      FSTTestFieldValue(@YES), FSTTestFieldValue(@{@"nested" : @{@"a" : @[ @1, @2 ]}})
+    };
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
+  }
+}
+
+- (void)testCreatesArrayRemoveTransforms {
+  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
+  });
+  XCTAssertEqual(transform.field_transforms().size(), 1);
+
+  const FieldTransform &first = transform.field_transforms()[0];
+  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  {
+    std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
+    const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
   }
 }
 

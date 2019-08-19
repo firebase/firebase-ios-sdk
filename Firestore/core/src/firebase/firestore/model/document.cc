@@ -161,6 +161,10 @@ std::ostream& operator<<(std::ostream& os, DocumentState state) {
   UNREACHABLE();
 }
 
+std::ostream& operator<<(std::ostream& os, const Document& doc) {
+  return os << doc.doc_rep().ToString();
+}
+
 /** Compares against another Document. */
 bool operator==(const Document& lhs, const Document& rhs) {
   return lhs.doc_rep().Equals(rhs.doc_rep());

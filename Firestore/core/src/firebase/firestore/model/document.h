@@ -92,6 +92,8 @@ class Document : public MaybeDocument {
   /** Compares against another Document. */
   friend bool operator==(const Document& lhs, const Document& rhs);
 
+  friend std::ostream& operator<<(std::ostream& os, const Document& doc);
+
  private:
   class Rep;
 
