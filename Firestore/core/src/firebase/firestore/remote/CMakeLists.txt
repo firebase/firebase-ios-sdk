@@ -82,8 +82,10 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    serializer.h
     serializer.cc
+    serializer.h
+    watch_change.h
+    watch_change.mm
 
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.

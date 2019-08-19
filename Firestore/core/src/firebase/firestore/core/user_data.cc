@@ -43,7 +43,7 @@ using model::SetMutation;
 using model::TransformMutation;
 using model::TransformOperation;
 
-#pragma mark - ParseAccumulator
+// MARK: - ParseAccumulator
 
 ParseContext ParseAccumulator::RootContext() {
   return ParseContext{
@@ -104,7 +104,7 @@ ParsedUpdateData ParseAccumulator::UpdateData(ObjectValue data) && {
                           std::move(field_transforms_)};
 }
 
-#pragma mark - ParseContext
+// MARK: - ParseContext
 
 namespace {
 
@@ -198,7 +198,7 @@ void ParseContext::AddToFieldTransforms(
                                      std::move(transform_operation));
 }
 
-#pragma mark - ParsedSetData
+// MARK: - ParsedSetData
 
 ParsedSetData::ParsedSetData(ObjectValue data,
                              std::vector<FieldTransform> field_transforms)
@@ -236,7 +236,7 @@ std::vector<Mutation> ParsedSetData::ToMutations(
   return mutations;
 }
 
-#pragma mark - ParsedUpdateData
+// MARK: - ParsedUpdateData
 
 ParsedUpdateData::ParsedUpdateData(
     ObjectValue data,

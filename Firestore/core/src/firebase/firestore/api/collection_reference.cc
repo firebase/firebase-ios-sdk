@@ -37,9 +37,10 @@ using model::ResourcePath;
 
 Query MakeQuery(model::ResourcePath path) {
   if (path.size() % 2 != 1) {
-    ThrowInvalidArgument("Invalid collection reference. Collection references "
-                         "must have an odd number of segments, but %s has %s",
-                         path.CanonicalString(), path.size());
+    ThrowInvalidArgument(
+        "Invalid collection reference. Collection references "
+        "must have an odd number of segments, but %s has %s",
+        path.CanonicalString(), path.size());
   }
 
   return Query(std::move(path));

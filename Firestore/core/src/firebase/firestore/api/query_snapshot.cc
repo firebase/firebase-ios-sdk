@@ -26,8 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -99,9 +97,10 @@ void QuerySnapshot::ForEachChange(
     bool include_metadata_changes,
     const std::function<void(DocumentChange)>& callback) const {
   if (include_metadata_changes && snapshot_.excludes_metadata_changes()) {
-    ThrowInvalidArgument("To include metadata changes with your document "
-                         "changes, you must call "
-                         "addSnapshotListener(includeMetadataChanges:true).");
+    ThrowInvalidArgument(
+        "To include metadata changes with your document "
+        "changes, you must call "
+        "addSnapshotListener(includeMetadataChanges:true).");
   }
 
   if (snapshot_.old_documents().empty()) {
@@ -167,5 +166,3 @@ void QuerySnapshot::ForEachChange(
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

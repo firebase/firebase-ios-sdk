@@ -41,10 +41,14 @@ cc_library(
     order_by.h
     query.cc
     query.h
+    query_listener.cc
+    query_listener.h
     target_id_generator.cc
     target_id_generator.h
     user_data.h
-    user_data.mm
+    user_data.cc
+    view_snapshot.cc
+    view_snapshot.h
   DEPENDS
     absl_strings
     firebase_firestore_model

@@ -19,7 +19,6 @@
 #include <ostream>
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
@@ -187,8 +186,8 @@ std::string ViewSnapshot::ToString() const {
       "from_cache: %s mutated_keys: %s sync_state_changed: %s "
       "excludes_metadata_changes: %s>",
       query_.ToString(), documents_.ToString(), old_documents_.ToString(),
-      objc::Description(document_changes()), from_cache(),
-      mutated_keys().size(), sync_state_changed(), excludes_metadata_changes());
+      util::ToString(document_changes()), from_cache(), mutated_keys().size(),
+      sync_state_changed(), excludes_metadata_changes());
 }
 
 std::ostream& operator<<(std::ostream& out, const ViewSnapshot& value) {

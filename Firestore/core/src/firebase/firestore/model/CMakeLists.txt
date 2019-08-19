@@ -25,10 +25,10 @@ cc_library(
     document_key.cc
     document_key.h
     document_key_set.h
+    document_map.cc
     document_map.h
-    document_map.mm
+    document_set.cc
     document_set.h
-    document_set.mm
     field_mask.cc
     field_mask.h
     field_path.cc

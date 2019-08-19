@@ -21,6 +21,7 @@ cc_test(
     grpc_streaming_reader_test.cc
     grpc_unary_call_test.cc
     serializer_test.cc
+    watch_change_test.mm
   DEPENDS
     absl_base
     firebase_firestore_protos_libprotobuf

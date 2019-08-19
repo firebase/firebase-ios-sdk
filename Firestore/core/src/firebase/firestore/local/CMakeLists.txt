@@ -55,6 +55,8 @@ cc_library(
     local_documents_view.mm
     local_serializer.h
     local_serializer.cc
+    local_view_changes.cc
+    local_view_changes.h
     memory_index_manager.cc
     memory_index_manager.h
     memory_mutation_queue.h
