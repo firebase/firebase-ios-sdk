@@ -18,6 +18,7 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
+#import "FIRAuthUIDelegate.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -269,6 +270,20 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
                          " Objective-C or reauthenticate(withCredential:completion:)"
                          " for Swift instead.");
 
+/** @fn reauthenticateWithProvider:UIDelegate:completion:
+    @brief Renews the user's authentication using the provided auth provider instance.
+
+    @param provider An instance of an auth provider used to initiate the reauthenticate flow.
+    @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
+        protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
+        will be used.
+    @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
+        is canceled. Invoked asynchronously on the main thread in the future.
+ */
+- (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
+                        UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                        completion:(nullable FIRAuthDataResultCallback)completion;
+
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
@@ -358,6 +373,20 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
  */
 - (void)linkWithCredential:(FIRAuthCredential *)credential
                 completion:(nullable FIRAuthDataResultCallback)completion;
+
+/** @fn linkWithProvider:UIDelegate:completion:
+    @brief link the user with the provided auth provider instance.
+
+    @param provider An instance of an auth provider used to initiate the link flow.
+    @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
+        protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
+        will be used.
+    @param completion Optionally; a block which is invoked when the link flow finishes, or
+        is canceled. Invoked asynchronously on the main thread in the future.
+ */
+- (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
+              UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+              completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.

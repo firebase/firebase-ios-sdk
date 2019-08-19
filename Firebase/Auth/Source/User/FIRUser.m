@@ -36,6 +36,7 @@
 #import "FIREmailAuthProvider.h"
 #import "FIREmailPasswordAuthCredential.h"
 #import "FIREmailLinkSignInRequest.h"
+#import "FIRFederatedAuthProvider.h"
 #import "FIRGameCenterAuthCredential.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
@@ -791,6 +792,17 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+- (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
+                        UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                        completion:(nullable FIRAuthDataResultCallback)completion {
+  [provider getCredentialWithUIDelegate:UIDelegate
+                             completion:^(FIRAuthCredential *_Nullable credential,
+                                          NSError *_Nullable error) {
+                               [self reauthenticateWithCredential:credential
+                                                       completion:completion];
+                             }];
+}
+
 - (nullable NSString *)refreshToken {
   __block NSString *result;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -1232,6 +1244,17 @@ static void callInMainThreadWithAuthDataResultAndError(
       }];
     }];
   });
+}
+
+- (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
+              UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+              completion:(nullable FIRAuthDataResultCallback)completion {
+  [provider getCredentialWithUIDelegate:UIDelegate
+                             completion:^(FIRAuthCredential *_Nullable credential,
+                                          NSError *_Nullable error) {
+                               [self linkWithCredential:credential
+                                             completion:completion];
+                             }];
 }
 
 - (void)unlinkFromProvider:(NSString *)provider
