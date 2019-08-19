@@ -63,7 +63,8 @@ static NSInteger target = kGDTTargetCCT;
 
 - (void)tearDown {
   [super tearDown];
-  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{});
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+                });
   // Destroy these objects before the next test begins.
   self.testBackend = nil;
   self.testPrioritizer = nil;
@@ -270,9 +271,9 @@ static NSInteger target = kGDTTargetCCT;
                                           requiringSecureCoding:YES
                                                           error:nil];
     } else {
-  #if !defined(TARGET_OS_MACCATALYST)
+#if !defined(TARGET_OS_MACCATALYST)
       storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
-  #endif
+#endif
     }
   });
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
@@ -310,9 +311,9 @@ static NSInteger target = kGDTTargetCCT;
                                           requiringSecureCoding:YES
                                                           error:nil];
     } else {
-  #if !defined(TARGET_OS_MACCATALYST)
+#if !defined(TARGET_OS_MACCATALYST)
       storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
-  #endif
+#endif
     }
   });
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
@@ -369,7 +370,8 @@ static NSInteger target = kGDTTargetCCT;
     event.clockSnapshot = [GDTClock snapshot];
     [[GDTStorage sharedInstance] storeEvent:event];
   }
-  dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{});
+  dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                });
 }
 
 @end
