@@ -114,7 +114,9 @@
           [package completeDelivery];
           if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
             [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
-            self->_backgroundID = GDTBackgroundIdentifierInvalid;
+            @synchronized(self) {
+              self->_backgroundID = GDTBackgroundIdentifierInvalid;
+            }
           }
           self.currentTask = nil;
           self.currentUploadPackage = nil;
@@ -194,7 +196,9 @@
   _backgroundID = [app beginBackgroundTaskWithExpirationHandler:^{
     if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
       [app endBackgroundTask:self->_backgroundID];
-      self->_backgroundID = GDTBackgroundIdentifierInvalid;
+      @synchronized(self) {
+        self->_backgroundID = GDTBackgroundIdentifierInvalid;
+      }
     }
   }];
 }
