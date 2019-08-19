@@ -35,9 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** The upload coordinator instance used by this storage instance. */
 @property(nonatomic) GDTUploadCoordinator *uploadCoordinator;
 
-/** If YES, every call to -storeLog results in background task and serializes the singleton to disk.
- */
-@property(nonatomic, readonly) BOOL runningInBackground;
+/** The background identifier, not invalid if running in the background. */
+@property(nonatomic) GDTBackgroundIdentifier backgroundID;
 
 /** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
  * to disk during certain app lifecycle events.
