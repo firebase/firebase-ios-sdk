@@ -46,7 +46,8 @@ static NSString *const kMethodNameLatestStartTime =
     @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
 @interface RCNConfigExperiment ()
-@property(nonatomic, strong) NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
+@property(nonatomic, strong)
+    NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;   ///< Database Manager.
