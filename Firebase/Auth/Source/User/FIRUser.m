@@ -795,12 +795,16 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion {
-  [provider getCredentialWithUIDelegate:UIDelegate
-                             completion:^(FIRAuthCredential *_Nullable credential,
-                                          NSError *_Nullable error) {
-                               [self reauthenticateWithCredential:credential
-                                                       completion:completion];
-                             }];
+#if TARGET_OS_IOS
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    [provider getCredentialWithUIDelegate:UIDelegate
+                               completion:^(FIRAuthCredential *_Nullable credential,
+                                            NSError *_Nullable error) {
+                                 [self reauthenticateWithCredential:credential
+                                                         completion:completion];
+                               }];
+  });
+#endif  // TARGET_OS_IOS
 }
 
 - (nullable NSString *)refreshToken {
@@ -1249,12 +1253,16 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion {
-  [provider getCredentialWithUIDelegate:UIDelegate
-                             completion:^(FIRAuthCredential *_Nullable credential,
-                                          NSError *_Nullable error) {
-                               [self linkWithCredential:credential
-                                             completion:completion];
-                             }];
+#if TARGET_OS_IOS
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    [provider getCredentialWithUIDelegate:UIDelegate
+                               completion:^(FIRAuthCredential *_Nullable credential,
+                                            NSError *_Nullable error) {
+                                 [self linkWithCredential:credential
+                                               completion:completion];
+                               }];
+  });
+#endif  // TARGET_OS_IOS
 }
 
 - (void)unlinkFromProvider:(NSString *)provider
