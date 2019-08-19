@@ -20,13 +20,13 @@
 #import "FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
-#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 
