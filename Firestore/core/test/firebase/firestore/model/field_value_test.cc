@@ -73,6 +73,29 @@ MATCHER(IsNan, "a NaN") {
 
 }  // namespace
 
+TEST(FieldValueTest, ValueHelpers) {
+  // Validates that the Value helpers in testutil produce the right types
+  FieldValue bool_value = Value(true);
+  ASSERT_EQ(bool_value.type(), Type::Boolean);
+  EXPECT_EQ(bool_value.boolean_value(), true);
+
+  FieldValue int_value = Value(5);
+  ASSERT_EQ(int_value.type(), Type::Integer);
+  EXPECT_EQ(int_value.integer_value(), 5);
+
+  FieldValue long_value = Value(LONG_MAX);
+  ASSERT_EQ(long_value.type(), Type::Integer);
+  EXPECT_EQ(long_value.integer_value(), LONG_MAX);
+
+  FieldValue long_long_value = Value(LLONG_MAX);
+  ASSERT_EQ(long_long_value.type(), Type::Integer);
+  EXPECT_EQ(long_long_value.integer_value(), LLONG_MAX);
+
+  FieldValue double_value = Value(2.0);
+  ASSERT_EQ(double_value.type(), Type::Double);
+  EXPECT_EQ(double_value.double_value(), 2.0);
+}
+
 TEST(FieldValueTest, ExtractsFields) {
   ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
 

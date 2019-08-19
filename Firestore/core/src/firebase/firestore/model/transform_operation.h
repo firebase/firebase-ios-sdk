@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -63,7 +64,7 @@ class TransformOperation {
 
   /** Returns the actual type. */
   Type type() const {
-    return rep_->type();
+    return rep().type();
   }
 
   /**
@@ -72,7 +73,7 @@ class TransformOperation {
    */
   FieldValue ApplyToLocalView(const absl::optional<FieldValue>& previous_value,
                               const Timestamp& local_write_time) const {
-    return rep_->ApplyToLocalView(previous_value, local_write_time);
+    return rep().ApplyToLocalView(previous_value, local_write_time);
   }
 
   /**
@@ -82,7 +83,7 @@ class TransformOperation {
   FieldValue ApplyToRemoteDocument(
       const absl::optional<FieldValue>& previous_value,
       const FieldValue& transform_result) const {
-    return rep_->ApplyToRemoteDocument(previous_value, transform_result);
+    return rep().ApplyToRemoteDocument(previous_value, transform_result);
   }
 
   /**
@@ -102,7 +103,7 @@ class TransformOperation {
    */
   absl::optional<FieldValue> ComputeBaseValue(
       const absl::optional<FieldValue>& previous_value) const {
-    return rep_->ComputeBaseValue(previous_value);
+    return rep().ComputeBaseValue(previous_value);
   }
 
   /** Returns whether the two are equal. */
@@ -110,11 +111,11 @@ class TransformOperation {
                          const TransformOperation& rhs);
 
   size_t Hash() const {
-    return rep_->Hash();
+    return rep().Hash();
   }
 
   std::string ToString() const {
-    return rep_->ToString();
+    return rep_ ? rep().ToString() : "(invalid)";
   }
 
   friend std::ostream& operator<<(std::ostream& os,
@@ -148,7 +149,7 @@ class TransformOperation {
   explicit TransformOperation(std::shared_ptr<const Rep> rep);
 
   const Rep& rep() const {
-    return *rep_;
+    return *NOT_NULL(rep_);
   }
 
  private:
@@ -166,17 +167,22 @@ class ServerTimestampTransform : public TransformOperation {
 
 /**
  * Transforms an array via a union or remove operation (for convenience, we use
- * this class for both Type::ArrayUnion and Type::ArrayRemove).
+ * this class for both `Type::ArrayUnion` and `Type::ArrayRemove`).
  */
 class ArrayTransform : public TransformOperation {
  public:
   ArrayTransform(Type type, std::vector<FieldValue> elements);
 
+  /**
+   * Casts a TransformOperation to an ArrayTransform. This is a checked
+   * operation that will assert if the type of the TransformOperation isn't
+   * actually `Type::ArrayUnion` or `Type::ArrayRemove`.
+   */
   explicit ArrayTransform(const TransformOperation& op);
 
   ArrayTransform() = default;
 
-  static const std::vector<FieldValue>& Elements(const TransformOperation& op);
+  const std::vector<model::FieldValue>& elements() const;
 
  private:
   class Rep;
@@ -192,6 +198,13 @@ class ArrayTransform : public TransformOperation {
 class NumericIncrementTransform : public TransformOperation {
  public:
   explicit NumericIncrementTransform(FieldValue operand);
+
+  /**
+   * Casts a TransformOperation to a NumericIncrementTransform. This is a
+   * checked operation that will assert if the type of the TransformOperation
+   * isn't actually Type::Increment.
+   */
+  explicit NumericIncrementTransform(const TransformOperation& op);
 
   const FieldValue& operand() const;
 

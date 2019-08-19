@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.4.4
+- [changed] Internal improvements.
+
 # v1.4.3
 - [changed] Transactions are now more flexible. Some sequences of operations
   that were previously incorrectly disallowed are now allowed. For example,

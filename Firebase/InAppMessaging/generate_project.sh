@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,22 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-cc_test(
-  firebase_firestore_remote_test
-  SOURCES
-    exponential_backoff_test.cc
-    grpc_connection_test.cc
-    grpc_stream_test.cc
-    grpc_streaming_reader_test.cc
-    grpc_unary_call_test.cc
-    serializer_test.cc
-    watch_change_test.mm
-  DEPENDS
-    absl_base
-    firebase_firestore_protos_libprotobuf
-    firebase_firestore_core
-    firebase_firestore_remote
-    firebase_firestore_remote_test_util
-    firebase_firestore_util_async_std
-)
+readonly REPO_DIR="$( git rev-parse --show-toplevel )"
+
+"$REPO_DIR/Firebase/InAppMessaging/ProtoSupport/generate_nanopb_protos.sh" || {
+  echo "Something went wrong generating protos."
+  exit 1
+}
+
+pod gen "${REPO_DIR}/FirebaseInAppMessaging.podspec" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --clean

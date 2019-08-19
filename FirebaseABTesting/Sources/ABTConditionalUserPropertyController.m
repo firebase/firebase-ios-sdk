@@ -251,7 +251,8 @@
   if (payload && payload.setEventToLog && payload.setEventToLog.length) {
     setExperimentEventName = payload.setEventToLog;
   }
-  NSDictionary<NSString *, NSString *> *params = @{payload.experimentId : payload.variantId};
+  NSDictionary<NSString *, NSString *> *params;
+  params = payload.experimentId ? @{payload.experimentId : payload.variantId} : @{};
   [_analytics logEventWithOrigin:origin name:setExperimentEventName parameters:params];
 }
 

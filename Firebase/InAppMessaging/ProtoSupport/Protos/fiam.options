@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,22 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-cc_test(
-  firebase_firestore_remote_test
-  SOURCES
-    exponential_backoff_test.cc
-    grpc_connection_test.cc
-    grpc_stream_test.cc
-    grpc_streaming_reader_test.cc
-    grpc_unary_call_test.cc
-    serializer_test.cc
-    watch_change_test.mm
-  DEPENDS
-    absl_base
-    firebase_firestore_protos_libprotobuf
-    firebase_firestore_core
-    firebase_firestore_remote
-    firebase_firestore_remote_test_util
-    firebase_firestore_util_async_std
-)
+# Options for fiam.proto
+
+logs.proto.firebase.inappmessaging.CampaignAnalytics.project_number type:FT_POINTER
+logs.proto.firebase.inappmessaging.CampaignAnalytics.campaign_id type:FT_POINTER
+logs.proto.firebase.inappmessaging.CampaignAnalytics.fiam_sdk_version type:FT_POINTER
+logs.proto.firebase.inappmessaging.ClientAppInfo.google_app_id type:FT_POINTER
+logs.proto.firebase.inappmessaging.ClientAppInfo.firebase_instance_id type:FT_POINTER
