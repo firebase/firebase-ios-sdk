@@ -115,6 +115,8 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *,id> *)conditionalUserProperty {
 }
 
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
+}
 @end
 
 @interface FIRMessagingAnalytics (ExposedForTest)

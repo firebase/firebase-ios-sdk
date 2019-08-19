@@ -395,12 +395,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (int)deleteMessagesFromTable:(NSString *)tableName
                     withRmqIds:(NSArray *)rmqIds {
-  _FIRMessagingDevAssert([tableName isEqualToString:kTableOutgoingRmqMessages] ||
-                [tableName isEqualToString:kTableLastRmqId] ||
-                [tableName isEqualToString:kTableS2DRmqIds] ||
-                [tableName isEqualToString:kTableSyncMessages],
-                @"%@: Invalid Table Name %@", kFCMRmqStoreTag, tableName);
-
   BOOL isRmqIDString = NO;
   // RmqID is a string only for outgoing messages
   if ([tableName isEqualToString:kTableS2DRmqIds] ||
@@ -592,9 +586,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     int8_t type = sqlite3_column_int(statement, typeColumnNumber);
     const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
     int length = sqlite3_column_bytes(statement, dataColumnNumber);
-    _FIRMessagingDevAssert(bytes != NULL,
-                           @"%@ Message with no data being stored in Rmq",
-                           kFCMRmqStoreTag);
+
     NSData *data = [NSData dataWithBytes:bytes length:length];
     handler(rmqId, type, data);
   }
@@ -604,8 +596,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 #pragma mark - Sync Messages
 
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
-  _FIRMessagingDevAssert([rmqID length], @"Invalid rmqID key %@ to search in SYNC_RMQ", rmqID);
-
   NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = '%@'";
   NSString *query = [NSString stringWithFormat:queryFormat,
                      kSyncMessagesColumns, // SELECT (rmq_id, expiration_ts, apns_recv, mcs_recv)
@@ -645,12 +635,10 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   }
   sqlite3_finalize(stmt);
 
-  _FIRMessagingDevAssert(count <= 1, @"Found multiple messages in %@ with same RMQ ID", kTableSyncMessages);
   return persistentMessage;
 }
 
 - (BOOL)deleteSyncMessageWithRmqID:(NSString *)rmqID {
-  _FIRMessagingDevAssert([rmqID length], @"Invalid rmqID key %@ to delete in SYNC_RMQ", rmqID);
   return [self deleteMessagesFromTable:kTableSyncMessages withRmqIds:@[rmqID]] > 0;
 }
 
@@ -695,8 +683,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                     apnsReceived:(BOOL)apnsReceived
                      mcsReceived:(BOOL)mcsReceived
                            error:(NSError **)error {
-  _FIRMessagingDevAssert([rmqID length], @"Invalid nil message to persist to SYNC_RMQ");
-
   NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
   NSString *insertSQL = [NSString stringWithFormat:insertFormat,
                          kTableSyncMessages, // Table name
@@ -759,9 +745,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                             column:(NSString *)column
                              value:(BOOL)value
                              error:(NSError **)error {
-  _FIRMessagingDevAssert([column isEqualToString:kSyncMessageAPNSReceivedColumn] ||
-                [column isEqualToString:kSyncMessageMCSReceivedColumn],
-                @"Invalid column name %@ for SYNC_RMQ", column);
   NSString *queryFormat = @"UPDATE %@ "  // Table name
                           @"SET %@ = %d "  // column=value
                           @"WHERE %@ = ?";  // condition

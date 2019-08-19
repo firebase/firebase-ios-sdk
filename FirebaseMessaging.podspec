@@ -52,7 +52,7 @@ device, and it is completely free.
   s.dependency 'Protobuf', '~> 3.1'
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Example/Messaging/Tests/*.[mh]'
+    unit_tests.source_files = 'Example/Messaging/Tests/*.{m,h,swift}'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
