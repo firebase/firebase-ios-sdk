@@ -20,14 +20,14 @@ import FirebaseFirestoreSwift
 import XCTest
 
 private func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
-  let enc = assertEncodes(model, encoded: encoded)
-  assertDecodes(enc, encoded: model)
+  let enc = assertEncodes(model, to: encoded)
+  assertDecodes(enc, to: model)
 }
 
-private func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [String: Any]) -> [String: Any] {
+private func assertEncodes<X: Equatable & Codable>(_ model: X, to expected: [String: Any]) -> [String: Any] {
   do {
     let enc = try Firestore.Encoder().encode(model)
-    XCTAssertEqual(enc as NSDictionary, encoded as NSDictionary)
+    XCTAssertEqual(enc as NSDictionary, expected as NSDictionary)
     return enc
   } catch {
     XCTFail("Failed to encode \(X.self): error: \(error)")
@@ -35,10 +35,10 @@ private func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [String:
   return ["": -1]
 }
 
-private func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+private func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], to expected: X) -> Void {
   do {
     let decoded = try Firestore.Decoder().decode(X.self, from: model)
-    XCTAssertEqual(decoded, encoded)
+    XCTAssertEqual(decoded, expected)
   } catch {
     XCTFail("Failed to decode \(X.self): \(error)")
   }
@@ -74,7 +74,7 @@ class FirestoreEncoderTests: XCTestCase {
 
   func testEmpty() {
     struct Model: Codable, Equatable {}
-    _ = assertEncodes(Model(), encoded: [String: Any]())
+    _ = assertEncodes(Model(), to: [String: Any]())
   }
 
   func testString() {
@@ -93,7 +93,7 @@ class FirestoreEncoderTests: XCTestCase {
     }
     assertRoundTrip(model: Model(x: 42, opt: nil), encoded: ["x": 42])
     assertRoundTrip(model: Model(x: 42, opt: 7), encoded: ["x": 42, "opt": 7])
-    assertDecodes(["x": 42, "opt": 5], encoded: Model(x: 42, opt: 5))
+    assertDecodes(["x": 42, "opt": 5], to: Model(x: 42, opt: 5))
     assertDecodingThrows(["x": 42, "opt": true], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["x": 42, "opt": "abc"], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["x": 45.55, "opt": 5], encoded: Model(x: 42, opt: nil))
@@ -180,6 +180,21 @@ class FirestoreEncoderTests: XCTestCase {
     let date = Date(timeIntervalSinceReferenceDate: 0)
     let model = Model(date: date)
     assertRoundTrip(model: model, encoded: ["date": date])
+  }
+
+  func testTimestampCanDecodeAsDate() {
+    struct EncodingModel: Codable, Equatable {
+      let date: Timestamp
+    }
+    struct DecodingModel: Codable, Equatable {
+      let date: Date
+    }
+    let date = Date(timeIntervalSinceReferenceDate: 0)
+    let timestamp = Timestamp(date: date)
+    let model = EncodingModel(date: timestamp)
+    let decoded = DecodingModel(date: date)
+    let encoded = assertEncodes(model, to: ["date": timestamp])
+    assertDecodes(encoded, to: decoded)
   }
 
   func testDocumentReference() {

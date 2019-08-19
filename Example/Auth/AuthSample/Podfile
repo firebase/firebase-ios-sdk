@@ -17,7 +17,7 @@ target 'AuthSample' do
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstanceID', :path => '../../..'
   pod 'FBSDKLoginKit'
-  pod 'GoogleSignIn'
+  pod 'GoogleSignIn', '~> 5'
   pod 'GTMSessionFetcher/Core'
 
   target 'Auth_ApiTests' do
