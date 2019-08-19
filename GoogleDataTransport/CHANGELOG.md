@@ -1,6 +1,7 @@
 # v1.1.2
 - Add initial support for iOS 13.
 - Add initial support for Catalyst.
+- Backgrounding in GDTStorage is fixed. (#3627)
 
 # v1.1.1
 - Fixes a crash in GDTUploadPackage and GDTStorage. (#3547)
