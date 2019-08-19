@@ -163,7 +163,6 @@ def sync_firestore(test_only)
         'Firestore/Example/Tests/**',
         'Firestore/core/test/**',
         'Firestore/Protos/cpp/**',
-        'Firestore/third_party/Immutable/Tests/**',
       ]
       t.exclude_files = [
         # needs to be in project but not in target
@@ -183,7 +182,6 @@ def sync_firestore(test_only)
         'Firestore/Protos/cpp/**',
         'Firestore/Swift/Tests/**',
         'Firestore/core/test/**',
-        'Firestore/third_party/Immutable/Tests/**',
       ]
       t.exclude_files = [
         # needs to be in project but not in target

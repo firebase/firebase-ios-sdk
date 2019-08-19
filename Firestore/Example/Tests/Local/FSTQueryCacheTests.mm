@@ -24,7 +24,6 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
