@@ -24,6 +24,7 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -37,6 +38,7 @@ using core::Query;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::kBatchIdUnknown;
 using model::Mutation;
 using model::ResourcePath;
 
@@ -213,6 +215,10 @@ FSTMutationBatch* _Nullable MemoryMutationQueue::NextMutationBatchAfterBatchId(
   int raw_index = IndexOfBatchId(next_batch_id);
   int index = raw_index < 0 ? 0 : raw_index;
   return queue_.size() > index ? queue_[index] : nil;
+}
+
+BatchId MemoryMutationQueue::GetHighestUnacknowledgedBatchId() {
+  return IsEmpty() ? kBatchIdUnknown : next_batch_id_ - 1;
 }
 
 FSTMutationBatch* _Nullable MemoryMutationQueue::LookupMutationBatch(

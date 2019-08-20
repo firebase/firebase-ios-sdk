@@ -142,6 +142,11 @@ void Firestore::Shutdown(util::StatusCallback callback) {
   [client_ shutdownWithCallback:std::move(callback)];
 }
 
+void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
+  EnsureClientConfigured();
+  [client_ waitForPendingWritesWithCallback:std::move(callback)];
+}
+
 void Firestore::ClearPersistence(util::StatusCallback callback) {
   worker_queue()->EnqueueEvenAfterShutdown([this, callback] {
     auto Yield = [=](Status status) {

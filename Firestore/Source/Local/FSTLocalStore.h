@@ -192,6 +192,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(model::BatchId)batchID;
 
+/**
+ * Returns the largest (latest) batch id in mutation queue that is pending server response.
+ * Returns `kBatchIdUnknown` if the queue is empty.
+ */
+- (model::BatchId)getHighestUnacknowledgedBatchId;
+
 - (local::LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector;
 
 @end

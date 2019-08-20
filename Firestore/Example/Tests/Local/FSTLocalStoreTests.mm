@@ -1106,6 +1106,24 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
 }
 
+- (void)testGetHighestUnacknowledgeBatchId {
+  if ([self isTestBaseClass]) return;
+
+  XCTAssertEqual(-1, [self.localStore getHighestUnacknowledgedBatchId]);
+
+  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"abc" : @123})];
+  XCTAssertEqual(1, [self.localStore getHighestUnacknowledgedBatchId]);
+
+  [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"abc" : @321}, {})];
+  XCTAssertEqual(2, [self.localStore getHighestUnacknowledgedBatchId]);
+
+  [self acknowledgeMutationWithVersion:1];
+  XCTAssertEqual(2, [self.localStore getHighestUnacknowledgedBatchId]);
+
+  [self rejectMutation];
+  XCTAssertEqual(-1, [self.localStore getHighestUnacknowledgedBatchId]);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

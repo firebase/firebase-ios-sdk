@@ -25,6 +25,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * A block type used to handle snapshot updates.
+ */
 typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot,
                                          NSError *_Nullable error);
 

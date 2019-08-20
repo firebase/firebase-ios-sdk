@@ -167,13 +167,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
 
   // We know the instance coming from the container is a FIRMessaging instance, cast it and move on.
-  FIRMessaging *messaging = (FIRMessaging *)instance;
-
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [messaging start];
-  });
-  return messaging;
+  return (FIRMessaging *)instance;
 }
 
 + (FIRMessagingExtensionHelper *)extensionHelper {
@@ -220,9 +214,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-        return [[FIRMessaging alloc] initWithAnalytics:analytics
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[GULUserDefaults standardUserDefaults]];
+    FIRMessaging *messaging =
+        [[FIRMessaging alloc] initWithAnalytics:analytics
+                                 withInstanceID:[FIRInstanceID instanceID]
+                               withUserDefaults:[GULUserDefaults standardUserDefaults]];
+    [messaging start];
+    return messaging;
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
@@ -345,7 +342,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)setupTopics {
-  _FIRMessagingDevAssert(self.client, @"Invalid nil client before init pubsub.");
+  if (!self.client) {
+     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient, @"Invalid nil client before init pubsub.");
+  }
   self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
 }
 
@@ -364,8 +363,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)teardown {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging should be called from main thread only.");
   [self.client teardown];
   self.pubsub = nil;
   self.syncMessageManager = nil;
@@ -823,15 +820,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                  to:(NSString *)to
       withMessageID:(NSString *)messageID
          timeToLive:(int64_t)ttl {
-  _FIRMessagingDevAssert([to length] != 0, @"Invalid receiver id for FIRMessaging-message");
-
   NSMutableDictionary *fcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
                                                                            to:to
                                                                        withID:messageID
                                                                    timeToLive:ttl
                                                                         delay:0];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@",
-                         message, messageID);
+  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013, @"Sending message: %@ with id: %@ to %@.",
+                         message, messageID, to);
   [self.dataMessageManager sendDataMessageStanza:fcmMessage];
 }
 

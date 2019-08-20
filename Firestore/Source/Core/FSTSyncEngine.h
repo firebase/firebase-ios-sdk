@@ -87,6 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
             completion:(FSTVoidErrorBlock)completion;
 
 /**
+ * Registers a user callback that is called when all pending mutations at the moment of calling
+ * are acknowledged .
+ */
+- (void)registerPendingWritesCallback:(util::StatusCallback)callback;
+
+/**
  * Runs the given transaction block up to retries times and then calls completion.
  *
  * @param retries The number of times to try before giving up.

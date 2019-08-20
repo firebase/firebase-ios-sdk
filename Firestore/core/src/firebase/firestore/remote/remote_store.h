@@ -145,6 +145,8 @@ class RemoteStore : public TargetMetadataProvider,
    */
   void EnableNetwork();
 
+  bool CanUseNetwork() const;
+
   /**
    * Tells the `RemoteStore` that the currently authenticated user has changed.
    *
@@ -230,8 +232,6 @@ class RemoteStore : public TargetMetadataProvider,
 
   void HandleHandshakeError(const util::Status& status);
   void HandleWriteError(const util::Status& status);
-
-  bool CanUseNetwork() const;
 
   void StartWatchStream();
 
