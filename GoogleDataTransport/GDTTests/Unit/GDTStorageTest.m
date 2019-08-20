@@ -34,7 +34,7 @@
 #import "GDTTests/Common/Categories/GDTRegistrar+Testing.h"
 #import "GDTTests/Common/Categories/GDTStorage+Testing.h"
 
-static NSInteger target = 1337;
+static NSInteger target = kGDTTargetCCT;
 
 @interface GDTStorageTest : GDTTestCase
 
@@ -63,6 +63,8 @@ static NSInteger target = 1337;
 
 - (void)tearDown {
   [super tearDown];
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+                });
   // Destroy these objects before the next test begins.
   self.testBackend = nil;
   self.testPrioritizer = nil;
@@ -262,16 +264,18 @@ static NSInteger target = 1337;
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
-  NSData *storageData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
-                                        requiringSecureCoding:YES
-                                                        error:nil];
-  } else {
+  __block NSData *storageData;
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                          requiringSecureCoding:YES
+                                                          error:nil];
+    } else {
 #if !defined(TARGET_OS_MACCATALYST)
-    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
 #endif
-  }
+    }
+  });
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
@@ -300,16 +304,18 @@ static NSInteger target = 1337;
   event.clockSnapshot = [GDTClock snapshot];
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
-  NSData *storageData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
-                                        requiringSecureCoding:YES
-                                                        error:nil];
-  } else {
+  __block NSData *storageData;
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]
+                                          requiringSecureCoding:YES
+                                                          error:nil];
+    } else {
 #if !defined(TARGET_OS_MACCATALYST)
-    storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+      storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
 #endif
-  }
+    }
+  });
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });

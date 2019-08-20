@@ -111,6 +111,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)writeMutations:(std::vector<model::Mutation> &&)mutations
               callback:(util::StatusCallback)callback;
 
+/**
+ * Passes a callback that is triggered when all the pending writes at the
+ * time when this method is called received server acknowledgement.
+ * An acknowledgement can be either acceptance or rejections.
+ */
+- (void)waitForPendingWritesWithCallback:(util::StatusCallback)callback;
+
 /** Tries to execute the transaction in updateCallback up to retries times. */
 - (void)transactionWithRetries:(int)retries
                 updateCallback:(core::TransactionUpdateCallback)updateCallback

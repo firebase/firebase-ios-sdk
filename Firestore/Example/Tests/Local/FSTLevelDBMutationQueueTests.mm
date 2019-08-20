@@ -87,14 +87,14 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {
   // Initial seek is invalid
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 1);
 }
 
 - (void)testLoadNextBatchID_zeroWhenNoMutations {
   // Initial seek finds no mutations
   [self setDummyValueForKey:MutationLikeKey("mutationr", "foo", 20)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 1);
 }
 
 - (void)testLoadNextBatchID_findsSingleRow {

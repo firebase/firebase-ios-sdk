@@ -194,6 +194,10 @@ NS_ASSUME_NONNULL_BEGIN
                                          writeBatch:_firestore->GetBatch()];
 }
 
+- (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion {
+  _firestore->WaitForPendingWrites(util::MakeCallback(completion));
+}
+
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
                   dispatchQueue:(dispatch_queue_t)queue
                      completion:

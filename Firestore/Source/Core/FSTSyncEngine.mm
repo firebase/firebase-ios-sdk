@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
@@ -64,6 +65,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Mutation;
@@ -79,6 +81,7 @@ using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusCallback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -197,6 +200,9 @@ class LimboResolution {
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
 
+  /** Stores user callbacks waiting for pending writes to be acknowledged. */
+  std::unordered_map<model::BatchId, std::vector<StatusCallback>> _pendingWritesCallbacks;
+
   /** FSTQueryViews for all active queries, indexed by query. */
   std::unordered_map<Query, FSTQueryView *> _queryViewsByQuery;
 
@@ -294,6 +300,51 @@ class LimboResolution {
 
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes() remoteEvent:absl::nullopt];
   _remoteStore->FillWritePipeline();
+}
+
+- (void)registerPendingWritesCallback:(StatusCallback)callback {
+  if (!_remoteStore->CanUseNetwork()) {
+    LOG_DEBUG("The network is disabled. The task returned by 'awaitPendingWrites()' will not "
+              "complete until the network is enabled.");
+  }
+
+  int largestPendingBatchId = [self.localStore getHighestUnacknowledgedBatchId];
+
+  if (largestPendingBatchId == kBatchIdUnknown) {
+    // Trigger the callback right away if there is no pending writes at the moment.
+    callback(Status::OK());
+    return;
+  }
+
+  auto it = _pendingWritesCallbacks.find(largestPendingBatchId);
+  if (it != _pendingWritesCallbacks.end()) {
+    it->second.push_back(std::move(callback));
+  } else {
+    _pendingWritesCallbacks.emplace(largestPendingBatchId,
+                                    std::vector<StatusCallback>({std::move(callback)}));
+  }
+}
+
+/** Triggers callbacks waiting for this batch id to get acknowledged by server, if there are any. */
+- (void)triggerPendingWriteCallbacksWithBatchId:(int)batchId {
+  auto it = _pendingWritesCallbacks.find(batchId);
+  if (it != _pendingWritesCallbacks.end()) {
+    for (const auto &callback : it->second) {
+      callback(Status::OK());
+    }
+
+    _pendingWritesCallbacks.erase(it);
+  }
+}
+
+- (void)failOutstandingPendingWritesAwaitingCallbacks:(absl::string_view)errorMessage {
+  for (const auto &entry : _pendingWritesCallbacks) {
+    for (const auto &callback : entry.second) {
+      callback(Status(Error::Cancelled, errorMessage));
+    }
+  }
+
+  _pendingWritesCallbacks.clear();
 }
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(BatchId)batchID {
@@ -460,6 +511,8 @@ class LimboResolution {
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
 
+  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch.batchID];
+
   MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
 }
@@ -477,6 +530,8 @@ class LimboResolution {
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchID error:error];
+
+  [self triggerPendingWriteCallbacksWithBatchId:batchID];
 
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
 }
@@ -629,6 +684,9 @@ class LimboResolution {
   _currentUser = user;
 
   if (userChanged) {
+    // Fails callbacks waiting for pending writes requested by previous user.
+    [self failOutstandingPendingWritesAwaitingCallbacks:
+              "'waitForPendingWrites' callback is cancelled due to a user change."];
     // Notify local store and emit any resulting events from swapping out the mutation queue.
     MaybeDocumentMap changes = [self.localStore userDidChange:user];
     [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];

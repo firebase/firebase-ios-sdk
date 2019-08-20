@@ -151,6 +151,16 @@ class MutationQueue {
       model::BatchId batch_id) = 0;
 
   /**
+   * Gets the largest (latest) batch id in mutation queue for the current user
+   * that is pending server response, returns `kBatchIdUnknown` if the queue
+   * is empty.
+   *
+   * @return the largest batch id in the mutation queue that is not
+   * acknowledged.
+   */
+  virtual model::BatchId GetHighestUnacknowledgedBatchId() = 0;
+
+  /**
    * Performs a consistency check, examining the mutation queue for any leaks,
    * if possible.
    */

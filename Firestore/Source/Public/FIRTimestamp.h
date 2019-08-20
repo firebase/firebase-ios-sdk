@@ -62,6 +62,13 @@ NS_SWIFT_NAME(Timestamp)
 /** Returns a new NSDate corresponding to this timestamp. This may lose precision. */
 - (NSDate *)dateValue;
 
+/**
+ * Returns the result of comparing the receiver with another timestamp.
+ * @param other the other timestamp to compare.
+ * @return NSOrderedAscending if `other` is chronologically following self,
+ *     NSOrderedDescending if `other` is chronologically preceding self,
+ *     NSOrderedSame otherwise.
+ */
 - (NSComparisonResult)compare:(FIRTimestamp *)other;
 
 /**

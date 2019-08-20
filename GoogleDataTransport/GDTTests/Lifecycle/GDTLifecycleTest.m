@@ -107,7 +107,6 @@
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
-  XCTAssertTrue([GDTStorage sharedInstance].runningInBackground);
   XCTAssertTrue([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
       ^BOOL {
@@ -144,7 +143,6 @@
 
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   [notifCenter postNotificationName:kGDTApplicationWillEnterForegroundNotification object:nil];
-  XCTAssertFalse([GDTStorage sharedInstance].runningInBackground);
   XCTAssertFalse([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
       ^BOOL {
