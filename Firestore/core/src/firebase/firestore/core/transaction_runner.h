@@ -30,6 +30,9 @@ namespace firestore {
 namespace core {
 
 /**
+ * TransactionRunner encapsulates the logic needed to run and retry transactions
+ * with backoff.
+ *
  * TransactionRunner manages its own lifetime by keeping itself alive until all
  * retries are completed. It must be allocated via
  * std::make_shared<TransactionRunner> because the implementation expects to be
@@ -64,8 +67,8 @@ class TransactionRunner
   remote::RemoteStore* remote_store_;
   core::TransactionUpdateCallback update_callback_;
   core::TransactionResultCallback result_callback_;
-  int retries_left_;
   remote::ExponentialBackoff backoff_;
+  int retries_left_;
 };
 
 }  // namespace core
