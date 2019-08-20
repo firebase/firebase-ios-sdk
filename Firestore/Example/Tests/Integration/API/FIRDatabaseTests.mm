@@ -1441,9 +1441,7 @@ using firebase::firestore::util::TimerId;
 - (void)testWaitForPendingWritesCompletesWhenOfflineIfNoPending {
   FIRFirestore *firestore = self.db;
 
-  [firestore
-      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
-  [self awaitExpectations];
+  [self disableNetwork];
 
   [firestore waitForPendingWritesWithCompletion:
                  [self completionForExpectationWithName:@"Wait for pending writes"]];
