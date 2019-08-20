@@ -202,11 +202,11 @@ public extension CarthageUtils {
 
       // Generate the new modulemap since it differs from the Zip modulemap.
       let carthageModulemap = """
-          framework module Firebase {
-            header "Firebase.h"
-            export *
-          }
-          """
+      framework module Firebase {
+        header "Firebase.h"
+        export *
+      }
+      """
       let modulemapPath = modulesDir.appendingPathComponent("module.modulemap")
       try carthageModulemap.write(to: modulemapPath, atomically: true, encoding: .utf8)
     } catch {
