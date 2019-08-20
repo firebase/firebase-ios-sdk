@@ -25,6 +25,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -43,6 +44,8 @@ using model::Mutation;
 using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
+using nanopb::MakeByteString;
+using nanopb::MakeNSData;
 using util::MakeString;
 using util::MakeNSError;
 using util::Status;
@@ -172,7 +175,7 @@ NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
 // WriteStreamSerializer
 
 void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
-  last_stream_token_ = proto.streamToken;
+  last_stream_token_ = MakeByteString(proto.streamToken);
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
@@ -192,7 +195,7 @@ GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
 
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.writesArray = protos;
-  request.streamToken = last_stream_token_;
+  request.streamToken = MakeNullableNSData(last_stream_token_);
 
   return request;
 }

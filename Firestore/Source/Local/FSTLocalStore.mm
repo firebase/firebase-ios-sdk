@@ -43,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -224,7 +225,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
   return self.persistence.run("Acknowledge batch", [&] {
     FSTMutationBatch *batch = batchResult.batch;
-    _mutationQueue->AcknowledgeBatch(batch, batchResult.streamToken);
+    _mutationQueue->AcknowledgeBatch(batch, nanopb::MakeByteString(batchResult.streamToken));
     [self applyBatchResult:batchResult];
     _mutationQueue->PerformConsistencyCheck();
 
@@ -244,11 +245,11 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (nullable NSData *)lastStreamToken {
+- (ByteString)lastStreamToken {
   return _mutationQueue->GetLastStreamToken();
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken {
+- (void)setLastStreamToken:(const ByteString &)streamToken {
   self.persistence.run("Set stream token",
                        [&]() { _mutationQueue->SetLastStreamToken(streamToken); });
 }

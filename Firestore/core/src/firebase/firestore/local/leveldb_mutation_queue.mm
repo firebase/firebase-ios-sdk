@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
@@ -48,6 +49,9 @@ using model::DocumentKeySet;
 using model::kBatchIdUnknown;
 using model::Mutation;
 using model::ResourcePath;
+using nanopb::ByteString;
+using nanopb::MakeByteString;
+using nanopb::MakeNSData;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
   // TODO(gsoltis): implement Prev() and SeekToLast() on
@@ -151,7 +155,7 @@ bool LevelDbMutationQueue::IsEmpty() {
 }
 
 void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
-                                            NSData* _Nullable stream_token) {
+                                            const ByteString& stream_token) {
   SetLastStreamToken(stream_token);
 }
 
@@ -423,12 +427,12 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
       util::ToString(dangling_mutation_references));
 }
 
-NSData* _Nullable LevelDbMutationQueue::GetLastStreamToken() {
-  return metadata_.lastStreamToken;
+ByteString LevelDbMutationQueue::GetLastStreamToken() {
+  return MakeByteString(metadata_.lastStreamToken);
 }
 
-void LevelDbMutationQueue::SetLastStreamToken(NSData* _Nullable stream_token) {
-  metadata_.lastStreamToken = stream_token;
+void LevelDbMutationQueue::SetLastStreamToken(const ByteString& stream_token) {
+  metadata_.lastStreamToken = MakeNullableNSData(stream_token);
 
   db_.currentTransaction->Put(mutation_queue_key(), metadata_);
 }
