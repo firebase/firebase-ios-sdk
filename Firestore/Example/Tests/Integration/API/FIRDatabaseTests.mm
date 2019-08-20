@@ -1417,8 +1417,6 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testWaitForPendingWritesFailsWhenUserChanges {
-  // FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase
-  // projectID]));
   FIRFirestore *firestore = self.db;
 
   [self disableNetwork];
