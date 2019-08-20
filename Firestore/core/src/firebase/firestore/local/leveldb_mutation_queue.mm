@@ -58,7 +58,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
   std::string table_key = LevelDbMutationKey::KeyPrefix();
 
   LevelDbMutationKey row_key;
-  BatchId max_batch_id = kBatchIdUnknown;
+  BatchId max_batch_id = 0;
 
   bool more_user_ids = false;
   std::string next_user_id;
@@ -373,6 +373,25 @@ FSTMutationBatch* _Nullable LevelDbMutationQueue::NextMutationBatchAfterBatchId(
   HARD_ASSERT(row_key.batch_id() >= next_batch_id,
               "Should have found mutation after %s", next_batch_id);
   return ParseMutationBatch(it->value());
+}
+
+BatchId LevelDbMutationQueue::GetHighestUnacknowledgedBatchId() {
+  std::unique_ptr<Iterator> it(
+      db_.ptr->NewIterator(LevelDbTransaction::DefaultReadOptions()));
+
+  std::string next_user_key =
+      util::PrefixSuccessor(LevelDbMutationKey::KeyPrefix(user_id_));
+
+  LevelDbMutationKey row_key;
+
+  it->Seek(next_user_key);
+  it->Prev();
+  if (it->Valid() && row_key.Decode(MakeStringView(it->key())) &&
+      row_key.user_id() == user_id_) {
+    return row_key.batch_id();
+  }
+
+  return kBatchIdUnknown;
 }
 
 void LevelDbMutationQueue::PerformConsistencyCheck() {

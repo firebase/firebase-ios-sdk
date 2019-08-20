@@ -1402,4 +1402,50 @@ using firebase::firestore::util::TimerId;
   [listenerRegistration remove];
 }
 
+- (void)testWaitForPendingWritesCompletes {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [self disableNetwork];
+
+  [doc setData:@{@"foo" : @"bar"}];
+  [firestore waitForPendingWritesWithCompletion:
+                 [self completionForExpectationWithName:@"Wait for pending writes"]];
+
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+}
+
+- (void)testWaitForPendingWritesFailsWhenUserChanges {
+  FIRFirestore *firestore = self.db;
+
+  [self disableNetwork];
+
+  // Writes to local to prevent immediate call to the completion of waitForPendingWrites.
+  NSDictionary<NSString *, id> *data =
+      @{@"owner" : @{@"name" : @"Andy", @"email" : @"abc@example.com"}};
+  [[self documentRef] setData:data];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"waitForPendingWrites"];
+  [firestore waitForPendingWritesWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeCancelled);
+    [expectation fulfill];
+  }];
+
+  [self triggerUserChangeWithUid:@"user-to-fail-pending-writes"];
+  [self awaitExpectations];
+}
+
+- (void)testWaitForPendingWritesCompletesWhenOfflineIfNoPending {
+  FIRFirestore *firestore = self.db;
+
+  [self disableNetwork];
+
+  [firestore waitForPendingWritesWithCompletion:
+                 [self completionForExpectationWithName:@"Wait for pending writes"]];
+  [self awaitExpectations];
+}
+
 @end

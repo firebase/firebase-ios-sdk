@@ -81,6 +81,8 @@ class MemoryMutationQueue : public MutationQueue {
   FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
       model::BatchId batch_id) override;
 
+  model::BatchId GetHighestUnacknowledgedBatchId() override;
+
   void PerformConsistencyCheck() override;
 
   bool ContainsKey(const model::DocumentKey& key);
