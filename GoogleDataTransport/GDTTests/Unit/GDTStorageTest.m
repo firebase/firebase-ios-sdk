@@ -360,18 +360,4 @@ static NSInteger target = kGDTTargetCCT;
   });
 }
 
-/** Tests a deadlock condition in which a background signal is sent during -storeEvent:. */
-- (void)testStoreEventDeadlockFromBackgrounding {
-  [GDTStorage sharedInstance].backgroundID = 1234;
-  for (int i = 0; i < 10000; i++) {
-    GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:kGDTTargetCCT];
-    event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-    event.qosTier = GDTEventQoSFast;
-    event.clockSnapshot = [GDTClock snapshot];
-    [[GDTStorage sharedInstance] storeEvent:event];
-  }
-  dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                });
-}
-
 @end

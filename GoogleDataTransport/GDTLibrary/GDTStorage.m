@@ -76,11 +76,12 @@ static NSString *GDTStoragePath() {
 - (void)storeEvent:(GDTEvent *)event {
   [self createEventDirectoryIfNotExists];
 
-  if (_backgroundID == GDTBackgroundIdentifierInvalid) {
-    _backgroundID = [[GDTApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
-        [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
-        self->_backgroundID = GDTBackgroundIdentifierInvalid;
+  __block GDTBackgroundIdentifier bgID = GDTBackgroundIdentifierInvalid;
+  if (_runningInBackground) {
+    bgID = [[GDTApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      if (bgID != GDTBackgroundIdentifierInvalid) {
+        [[GDTApplication sharedApplication] endBackgroundTask:bgID];
+        bgID = GDTBackgroundIdentifierInvalid;
       }
     }];
   }
@@ -111,8 +112,8 @@ static NSString *GDTStoragePath() {
       [self.uploadCoordinator forceUploadForTarget:target];
     }
 
-    // If running in the background, save state to disk and end the associated background task.
-    if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
+    // Write state to disk.
+    if (self->_runningInBackground) {
       if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                              requiringSecureCoding:YES
@@ -123,8 +124,12 @@ static NSString *GDTStoragePath() {
         [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 #endif
       }
-      [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
-      self->_backgroundID = GDTBackgroundIdentifierInvalid;
+    }
+
+    // If running in the background, save state to disk and end the associated background task.
+    if (bgID != GDTBackgroundIdentifierInvalid) {
+      [[GDTApplication sharedApplication] endBackgroundTask:bgID];
+      bgID = GDTBackgroundIdentifierInvalid;
     }
   });
 }
@@ -216,30 +221,28 @@ static NSString *GDTStoragePath() {
 }
 
 - (void)appWillBackground:(GDTApplication *)app {
-  if (_backgroundID == GDTBackgroundIdentifierInvalid) {
-    _backgroundID = [[GDTApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
-        [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
-        self->_backgroundID = GDTBackgroundIdentifierInvalid;
-      }
-    }];
-  }
-  dispatch_async(_storageQueue, ^{
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                           requiringSecureCoding:YES
-                                                           error:nil];
-      [data writeToFile:[GDTStorage archivePath] atomically:YES];
-    } else {
+  self->_runningInBackground = YES;
+  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                         requiringSecureCoding:YES
+                                                         error:nil];
+    [data writeToFile:[GDTStorage archivePath] atomically:YES];
+  } else {
 #if !defined(TARGET_OS_MACCATALYST)
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+    [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 #endif
+  }
+  // Create an immediate background task to run until the end of the current queue of work.
+  __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+    if (bgID != GDTBackgroundIdentifierInvalid) {
+      [app endBackgroundTask:bgID];
+      bgID = GDTBackgroundIdentifierInvalid;
     }
-  });
+  }];
   dispatch_async(_storageQueue, ^{
-    if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:self->_backgroundID];
-      self->_backgroundID = GDTBackgroundIdentifierInvalid;
+    if (bgID != GDTBackgroundIdentifierInvalid) {
+      [app endBackgroundTask:bgID];
+      bgID = GDTBackgroundIdentifierInvalid;
     }
   });
 }

@@ -105,7 +105,9 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
-  [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
+  if (bgID != GDTBackgroundIdentifierInvalid) {
+    [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
+  }
 }
 
 #pragma mark - App environment helpers
