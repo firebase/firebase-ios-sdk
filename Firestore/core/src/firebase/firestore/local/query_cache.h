@@ -87,8 +87,8 @@ class QueryCache {
    * Looks up a QueryData entry in the cache.
    *
    * @param query The query corresponding to the entry to look up.
-   * @return The cached QueryData entry, or nullopt if the cache has no entry for
-   *     the query.
+   * @return The cached QueryData entry, or nullopt if the cache has no entry
+   * for the query.
    */
   virtual absl::optional<QueryData> GetTarget(const core::Query& query) = 0;
 
