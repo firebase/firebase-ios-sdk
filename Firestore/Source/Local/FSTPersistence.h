@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -27,7 +28,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-@class FSTQueryData;
 @protocol FSTReferenceDelegate;
 
 namespace auth = firebase::firestore::auth;
@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Notify the delegate that a target was removed.
  */
-- (void)removeTarget:(FSTQueryData *)queryData;
+- (void)removeTarget:(const local::QueryData &)queryData;
 
 /**
  * Notify the delegate that the given document was added to a target.

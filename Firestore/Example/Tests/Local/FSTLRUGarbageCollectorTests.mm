@@ -30,8 +30,10 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -42,6 +44,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
 
+namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
@@ -49,6 +52,8 @@ using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::QueryCache;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::Document;
@@ -144,8 +149,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
-                                              liveQueries {
+                              liveQueries:
+                                  (const std::unordered_map<TargetId, QueryData> &)liveQueries {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
   });
@@ -159,33 +164,27 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (FSTQueryData *)nextTestQuery {
+- (QueryData)nextTestQuery {
   TargetId targetID = ++_previousTargetID;
   ListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
   core::Query query = Query(absl::StrCat("path", targetID));
-  return [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                    targetID:targetID
-                        listenSequenceNumber:listenSequenceNumber
-                                     purpose:FSTQueryPurposeListen];
+  return QueryData(std::move(query), targetID, listenSequenceNumber, QueryPurpose::Listen);
 }
 
-- (FSTQueryData *)addNextQueryInTransaction {
-  FSTQueryData *queryData = [self nextTestQuery];
+- (QueryData)addNextQueryInTransaction {
+  QueryData queryData = [self nextTestQuery];
   _queryCache->AddTarget(queryData);
   return queryData;
 }
 
-- (void)updateTargetInTransaction:(FSTQueryData *)queryData {
-  FSTQueryData *updated =
-      [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
-                                         resumeToken:testutil::ResumeToken(7)
-                                      sequenceNumber:_persistence.currentSequenceNumber];
+- (void)updateTargetInTransaction:(const QueryData &)queryData {
+  QueryData updated = queryData.Copy(queryData.snapshot_version(), testutil::ResumeToken(7),
+                                     _persistence.currentSequenceNumber);
   _queryCache->UpdateTarget(updated);
 }
 
-- (FSTQueryData *)addNextQuery {
-  return _persistence.run("adding query",
-                          [&]() -> FSTQueryData * { return [self addNextQueryInTransaction]; });
+- (QueryData)addNextQuery {
+  return _persistence.run("adding query", [&] { return [self addNextQueryInTransaction]; });
 }
 
 // Simulates a document being mutated and then having that mutation ack'd.
@@ -373,9 +372,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self addNextQuery];
   }
   _persistence.run("query with mutation", [&]() {
-    FSTQueryData *queryData = [self addNextQueryInTransaction];
+    QueryData queryData = [self addNextQueryInTransaction];
     // This should keep the document from getting GC'd, since it is no longer orphaned.
-    [self addDocument:docInQuery.key() toTarget:queryData.targetID];
+    [self addDocument:docInQuery.key() toTarget:queryData.target_id()];
   });
 
   // This should catch the remaining 8 documents, plus the first two queries we added.
@@ -387,12 +386,12 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self newTestResources];
-  std::unordered_map<TargetId, FSTQueryData *> liveQueries;
+  std::unordered_map<TargetId, QueryData> liveQueries;
   for (int i = 0; i < 100; i++) {
-    FSTQueryData *queryData = [self addNextQuery];
+    QueryData queryData = [self addNextQuery];
     // Mark odd queries as live so we can test filtering out live queries.
-    if (queryData.targetID % 2 == 1) {
-      liveQueries[queryData.targetID] = queryData;
+    if (queryData.target_id() % 2 == 1) {
+      liveQueries[queryData.target_id()] = queryData;
     }
   }
   // GC up through 20th query, which is 20%.
@@ -402,8 +401,8 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
   _persistence.run("verify remaining targets are > 20 or odd", [&]() {
-    _queryCache->EnumerateTargets([&](FSTQueryData *queryData) {
-      XCTAssertTrue(queryData.targetID > 20 || queryData.targetID % 2 == 1);
+    _queryCache->EnumerateTargets([&](const QueryData &queryData) {
+      XCTAssertTrue(queryData.target_id() > 20 || queryData.target_id() % 2 == 1);
     });
   });
   [_persistence shutdown];
@@ -424,23 +423,23 @@ NS_ASSUME_NONNULL_BEGIN
   // retained, since their membership in the target keeps them alive.
   _persistence.run("add a target and add two documents to it", [&]() {
     // Add two documents to first target, queue a mutation on the second document
-    FSTQueryData *queryData = [self addNextQueryInTransaction];
+    QueryData queryData = [self addNextQueryInTransaction];
     Document doc1 = [self cacheADocumentInTransaction];
-    [self addDocument:doc1.key() toTarget:queryData.targetID];
+    [self addDocument:doc1.key() toTarget:queryData.target_id()];
     expectedRetained.insert(doc1.key());
 
     Document doc2 = [self cacheADocumentInTransaction];
-    [self addDocument:doc2.key() toTarget:queryData.targetID];
+    [self addDocument:doc2.key() toTarget:queryData.target_id()];
     expectedRetained.insert(doc2.key());
     mutations.push_back([self mutationForDocument:doc2.key()]);
   });
 
   // Add a second query and register a third document on it
   _persistence.run("second query", [&]() {
-    FSTQueryData *queryData = [self addNextQueryInTransaction];
+    QueryData queryData = [self addNextQueryInTransaction];
     Document doc3 = [self cacheADocumentInTransaction];
     expectedRetained.insert(doc3.key());
-    [self addDocument:doc3.key() toTarget:queryData.targetID];
+    [self addDocument:doc3.key() toTarget:queryData.target_id()];
   });
 
   // cache another document and prepare a mutation on it.
@@ -520,50 +519,48 @@ NS_ASSUME_NONNULL_BEGIN
   // Add oldest target, 5 documents, and add those documents to the target.
   // This target will not be removed, so all documents that are part of it will
   // be retained.
-  FSTQueryData *oldestTarget =
-      _persistence.run("Add oldest target and docs", [&]() -> FSTQueryData * {
-        FSTQueryData *queryData = [self addNextQueryInTransaction];
-        for (int i = 0; i < 5; i++) {
-          Document doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key());
-          [self addDocument:doc.key() toTarget:queryData.targetID];
-        }
-        return queryData;
-      });
+  QueryData oldestTarget = _persistence.run("Add oldest target and docs", [&] {
+    QueryData queryData = [self addNextQueryInTransaction];
+    for (int i = 0; i < 5; i++) {
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRetained.insert(doc.key());
+      [self addDocument:doc.key() toTarget:queryData.target_id()];
+    }
+    return queryData;
+  });
 
   // Add middle target and docs. Some docs will be removed from this target later,
   // which we track here.
   DocumentKeySet middleDocsToRemove;
   // This will be the document in this target that gets an update later
   DocumentKey middleDocToUpdate;
-  FSTQueryData *middleTarget =
-      _persistence.run("Add middle target and docs", [&]() -> FSTQueryData * {
-        FSTQueryData *middleTarget = [self addNextQueryInTransaction];
-        // these docs will be removed from this target later, triggering a bump
-        // to their sequence numbers. Since they will not be a part of the target, we
-        // expect them to be removed.
-        for (int i = 0; i < 2; i++) {
-          Document doc = [self cacheADocumentInTransaction];
-          expectedRemoved.insert(doc.key());
-          [self addDocument:doc.key() toTarget:middleTarget.targetID];
-          middleDocsToRemove = middleDocsToRemove.insert(doc.key());
-        }
-        // these docs stay in this target and only this target. There presence in this
-        // target prevents them from being GC'd, so they are also expected to be retained.
-        for (int i = 2; i < 4; i++) {
-          Document doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key());
-          [self addDocument:doc.key() toTarget:middleTarget.targetID];
-        }
-        // This doc stays in this target, but gets updated.
-        {
-          Document doc = [self cacheADocumentInTransaction];
-          expectedRetained.insert(doc.key());
-          [self addDocument:doc.key() toTarget:middleTarget.targetID];
-          middleDocToUpdate = doc.key();
-        }
-        return middleTarget;
-      });
+  QueryData middleTarget = _persistence.run("Add middle target and docs", [&] {
+    QueryData middleTarget = [self addNextQueryInTransaction];
+    // these docs will be removed from this target later, triggering a bump
+    // to their sequence numbers. Since they will not be a part of the target, we
+    // expect them to be removed.
+    for (int i = 0; i < 2; i++) {
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRemoved.insert(doc.key());
+      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
+      middleDocsToRemove = middleDocsToRemove.insert(doc.key());
+    }
+    // these docs stay in this target and only this target. There presence in this
+    // target prevents them from being GC'd, so they are also expected to be retained.
+    for (int i = 2; i < 4; i++) {
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRetained.insert(doc.key());
+      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
+    }
+    // This doc stays in this target, but gets updated.
+    {
+      Document doc = [self cacheADocumentInTransaction];
+      expectedRetained.insert(doc.key());
+      [self addDocument:doc.key() toTarget:middleTarget.target_id()];
+      middleDocToUpdate = doc.key();
+    }
+    return middleTarget;
+  });
 
   // Add the newest target and add 5 documents to it. Some of those documents will
   // additionally be added to the oldest target, which will cause those documents to
@@ -571,19 +568,19 @@ NS_ASSUME_NONNULL_BEGIN
   // will be removed.
   DocumentKeySet newestDocsToAddToOldest;
   _persistence.run("Add newest target and docs", [&]() {
-    FSTQueryData *newestTarget = [self addNextQueryInTransaction];
+    QueryData newestTarget = [self addNextQueryInTransaction];
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
     for (int i = 0; i < 3; i++) {
       Document doc = [self cacheADocumentInTransaction];
       expectedRemoved.insert(doc.key());
-      [self addDocument:doc.key() toTarget:newestTarget.targetID];
+      [self addDocument:doc.key() toTarget:newestTarget.target_id()];
     }
     // docs to add to the oldest target in addition to this target. They will be retained
     for (int i = 3; i < 5; i++) {
       Document doc = [self cacheADocumentInTransaction];
       expectedRetained.insert(doc.key());
-      [self addDocument:doc.key() toTarget:newestTarget.targetID];
+      [self addDocument:doc.key() toTarget:newestTarget.target_id()];
       newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key());
     }
   });
@@ -596,7 +593,7 @@ NS_ASSUME_NONNULL_BEGIN
     Document doc1 = [self cacheADocumentInTransaction];
     [self markDocumentEligibleForGCInTransaction:doc1.key()];
     [self updateTargetInTransaction:oldestTarget];
-    [self addDocument:doc1.key() toTarget:oldestTarget.targetID];
+    [self addDocument:doc1.key() toTarget:oldestTarget.target_id()];
     // doc1 should be retained by being added to oldestTarget.
     expectedRetained.insert(doc1.key());
 
@@ -610,7 +607,7 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("Remove some documents from the middle target", [&]() {
     [self updateTargetInTransaction:middleTarget];
     for (const DocumentKey &docKey : middleDocsToRemove) {
-      [self removeDocument:docKey fromTarget:middleTarget.targetID];
+      [self removeDocument:docKey fromTarget:middleTarget.target_id()];
     }
   });
 
@@ -621,7 +618,7 @@ NS_ASSUME_NONNULL_BEGIN
       "Add a couple docs from the newest target to the oldest", [&]() -> ListenSequenceNumber {
         [self updateTargetInTransaction:oldestTarget];
         for (const DocumentKey &docKey : newestDocsToAddToOldest) {
-          [self addDocument:docKey toTarget:oldestTarget.targetID];
+          [self addDocument:docKey toTarget:oldestTarget.target_id()];
         }
         return _persistence.currentSequenceNumber;
       });
@@ -647,7 +644,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
-  std::unordered_map<TargetId, FSTQueryData *> liveQueries{{oldestTarget.targetID, oldestTarget}};
+  std::unordered_map<TargetId, QueryData> liveQueries{{oldestTarget.target_id(), oldestTarget}};
 
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
@@ -751,10 +748,10 @@ NS_ASSUME_NONNULL_BEGIN
     // Use separate transactions so that each target and associated documents get their own
     // sequence number.
     _persistence.run("Add a target and some documents", [&]() {
-      FSTQueryData *queryData = [self addNextQueryInTransaction];
+      QueryData queryData = [self addNextQueryInTransaction];
       for (int j = 0; j < 10; j++) {
         Document doc = [self cacheADocumentInTransaction];
-        [self addDocument:doc.key() toTarget:queryData.targetID];
+        [self addDocument:doc.key() toTarget:queryData.target_id()];
       }
     });
   }

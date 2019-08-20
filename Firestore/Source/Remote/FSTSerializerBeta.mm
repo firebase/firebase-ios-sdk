@@ -34,7 +34,6 @@
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -43,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -83,6 +83,8 @@ using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
@@ -747,11 +749,11 @@ absl::any Wrap(GCFSDocument *doc) {
   return MutationResult(std::move(version), std::move(transformResults));
 }
 
-#pragma mark - FSTQueryData => GCFSTarget proto
+#pragma mark - QueryData => GCFSTarget proto
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (FSTQueryData *)queryData {
-  NSString *value = [self encodedLabelForPurpose:queryData.purpose];
+    (const QueryData &)queryData {
+  NSString *value = [self encodedLabelForPurpose:queryData.purpose()];
   if (!value) {
     return nil;
   }
@@ -762,22 +764,22 @@ absl::any Wrap(GCFSDocument *doc) {
   return result;
 }
 
-- (nullable NSString *)encodedLabelForPurpose:(FSTQueryPurpose)purpose {
+- (nullable NSString *)encodedLabelForPurpose:(QueryPurpose)purpose {
   switch (purpose) {
-    case FSTQueryPurposeListen:
+    case QueryPurpose::Listen:
       return nil;
-    case FSTQueryPurposeExistenceFilterMismatch:
+    case QueryPurpose::ExistenceFilterMismatch:
       return @"existence-filter-mismatch";
-    case FSTQueryPurposeLimboResolution:
+    case QueryPurpose::LimboResolution:
       return @"limbo-document";
     default:
       HARD_FAIL("Unrecognized query purpose: %s", purpose);
   }
 }
 
-- (GCFSTarget *)encodedTarget:(FSTQueryData *)queryData {
+- (GCFSTarget *)encodedTarget:(const QueryData &)queryData {
   GCFSTarget *result = [GCFSTarget message];
-  const Query &query = queryData.query;
+  const Query &query = queryData.query();
 
   if (query.IsDocumentQuery()) {
     result.documents = [self encodedDocumentsTarget:query];
@@ -785,9 +787,9 @@ absl::any Wrap(GCFSDocument *doc) {
     result.query = [self encodedQueryTarget:query];
   }
 
-  result.targetId = queryData.targetID;
-  if (!queryData.resumeToken.empty()) {
-    result.resumeToken = MakeNSData(queryData.resumeToken);
+  result.targetId = queryData.target_id();
+  if (!queryData.resume_token().empty()) {
+    result.resumeToken = MakeNSData(queryData.resume_token());
   }
 
   return result;

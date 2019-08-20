@@ -36,6 +36,7 @@ namespace remote {
 namespace bridge {
 
 using core::DatabaseInfo;
+using local::QueryData;
 using model::DocumentKey;
 using model::MaybeDocument;
 using model::Mutation;
@@ -124,7 +125,7 @@ bool IsLoggingEnabled() {
 // WatchStreamSerializer
 
 GCFSListenRequest* WatchStreamSerializer::CreateWatchRequest(
-    FSTQueryData* query) const {
+    const QueryData& query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.addTarget = [serializer_ encodedTarget:query];

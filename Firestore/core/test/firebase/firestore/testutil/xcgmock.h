@@ -165,7 +165,6 @@ OBJC_PRINT_TO(FSTMemoryPersistence);
 OBJC_PRINT_TO(FSTMutationBatch);
 OBJC_PRINT_TO(FSTMutationBatchResult);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
-OBJC_PRINT_TO(FSTQueryData);
 OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);
 OBJC_PRINT_TO(FSTStringValue);

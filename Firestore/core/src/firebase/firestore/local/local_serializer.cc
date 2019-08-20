@@ -249,7 +249,7 @@ QueryData LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return QueryData::Invalid();
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::kListen, version, std::move(resume_token));
+                   QueryPurpose::Listen, version, std::move(resume_token));
 }
 
 firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(

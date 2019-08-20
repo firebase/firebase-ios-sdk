@@ -27,7 +27,6 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -35,6 +34,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -64,6 +64,8 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -622,7 +624,7 @@ ByteString MakeResumeToken(NSString *specString) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
-      __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
+      __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
       [expected[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *stop) {
@@ -633,12 +635,8 @@ ByteString MakeResumeToken(NSString *specString) {
             // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
             // always the right value.
             expectedActiveTargets[targetID] =
-                [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                           targetID:targetID
-                               listenSequenceNumber:0
-                                            purpose:FSTQueryPurposeListen
-                                    snapshotVersion:SnapshotVersion::None()
-                                        resumeToken:resumeToken];
+                QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
+                          SnapshotVersion::None(), std::move(resumeToken));
           }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
@@ -693,26 +691,26 @@ ByteString MakeResumeToken(NSString *specString) {
     return;
   }
 
-  // Create a copy so we can modify it in tests
-  std::unordered_map<TargetId, FSTQueryData *> actualTargets = [self.driver activeTargets];
+  // Create a copy so we can modify it below
+  std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
 
   for (const auto &kv : [self.driver activeTargets]) {
     TargetId targetID = kv.first;
-    FSTQueryData *queryData = kv.second;
-    XCTAssertNotNil(actualTargets[targetID], @"Expected active target not found: %@", queryData);
+    const QueryData &queryData = kv.second;
+
+    auto found = actualTargets.find(targetID);
+    XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
+                      queryData.ToString().c_str());
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
     // spec tests. For now, only validate properties that can be validated.
     // XCTAssertEqualObjects(actualTargets[targetID], queryData);
 
-    FSTQueryData *actual = actualTargets[targetID];
-    XCTAssertNotNil(actual);
-    if (actual) {
-      XCTAssertEqual(actual.query, queryData.query);
-      XCTAssertEqual(actual.targetID, queryData.targetID);
-      XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
-      XCTAssertEqual(actual.resumeToken, queryData.resumeToken);
-    }
+    const QueryData &actual = found->second;
+    XCTAssertEqual(actual.query(), queryData.query());
+    XCTAssertEqual(actual.target_id(), queryData.target_id());
+    XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
+    XCTAssertEqual(actual.resume_token(), queryData.resume_token());
 
     actualTargets.erase(targetID);
   }

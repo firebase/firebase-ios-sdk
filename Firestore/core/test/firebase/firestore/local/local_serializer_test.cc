@@ -169,7 +169,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeQueryData(local::LocalSerializer* serializer,
                              const QueryData& query_data) {
-    EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
+    EXPECT_EQ(query_data.purpose(), QueryPurpose::Listen);
     ByteStringWriter writer;
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
@@ -316,7 +316,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   ByteString resume_token = testutil::ResumeToken(1039);
 
   QueryData query_data(core::Query(query), target_id, sequence_number,
-                       QueryPurpose::kListen, SnapshotVersion(version),
+                       QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.

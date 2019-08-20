@@ -22,8 +22,9 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -84,12 +85,12 @@ void LevelDbQueryCache::Start() {
       [serializer_ decodedVersion:metadata_.lastRemoteSnapshotVersion];
 }
 
-void LevelDbQueryCache::AddTarget(FSTQueryData* query_data) {
+void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
   Save(query_data);
 
-  const std::string& canonical_id = query_data.query.CanonicalId();
+  const std::string& canonical_id = query_data.query().CanonicalId();
   std::string index_key =
-      LevelDbQueryTargetKey::Key(canonical_id, query_data.targetID);
+      LevelDbQueryTargetKey::Key(canonical_id, query_data.target_id());
   std::string empty_buffer;
   db_.currentTransaction->Put(index_key, empty_buffer);
 
@@ -98,7 +99,7 @@ void LevelDbQueryCache::AddTarget(FSTQueryData* query_data) {
   SaveMetadata();
 }
 
-void LevelDbQueryCache::UpdateTarget(FSTQueryData* query_data) {
+void LevelDbQueryCache::UpdateTarget(const QueryData& query_data) {
   Save(query_data);
 
   if (UpdateMetadata(query_data)) {
@@ -106,8 +107,8 @@ void LevelDbQueryCache::UpdateTarget(FSTQueryData* query_data) {
   }
 }
 
-void LevelDbQueryCache::RemoveTarget(FSTQueryData* query_data) {
-  TargetId target_id = query_data.targetID;
+void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
+  TargetId target_id = query_data.target_id();
 
   RemoveAllKeysForTarget(target_id);
 
@@ -115,14 +116,14 @@ void LevelDbQueryCache::RemoveTarget(FSTQueryData* query_data) {
   db_.currentTransaction->Delete(key);
 
   std::string index_key =
-      LevelDbQueryTargetKey::Key(query_data.query.CanonicalId(), target_id);
+      LevelDbQueryTargetKey::Key(query_data.query().CanonicalId(), target_id);
   db_.currentTransaction->Delete(index_key);
 
   metadata_.targetCount--;
   SaveMetadata();
 }
 
-FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(const Query& query) {
+absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
   // Scan the query-target index starting with a prefix starting with the given
   // query's canonicalID. Note that this is a scan rather than a get because
   // canonicalIDs are not required to be unique per target.
@@ -161,13 +162,13 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(const Query& query) {
 
     // Finally after finding a potential match, check that the query is actually
     // equal to the requested query.
-    FSTQueryData* target = DecodeTarget(target_iterator->value());
-    if (target.query == query) {
+    QueryData target = DecodeTarget(target_iterator->value());
+    if (target.query() == query) {
       return target;
     }
   }
 
-  return nil;
+  return absl::nullopt;
 }
 
 void LevelDbQueryCache::EnumerateTargets(const TargetCallback& callback) {
@@ -177,23 +178,23 @@ void LevelDbQueryCache::EnumerateTargets(const TargetCallback& callback) {
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    FSTQueryData* target = DecodeTarget(it->value());
+    QueryData target = DecodeTarget(it->value());
     callback(target);
   }
 }
 
 int LevelDbQueryCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
-    const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) {
+    const std::unordered_map<model::TargetId, QueryData>& live_targets) {
   int count = 0;
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_.currentTransaction->NewIterator();
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    FSTQueryData* query_data = DecodeTarget(it->value());
-    if (query_data.sequenceNumber <= upper_bound &&
-        live_targets.find(query_data.targetID) == live_targets.end()) {
+    QueryData query_data = DecodeTarget(it->value());
+    if (query_data.sequence_number() <= upper_bound &&
+        live_targets.find(query_data.target_id()) == live_targets.end()) {
       RemoveTarget(query_data);
       count++;
     }
@@ -340,21 +341,21 @@ void LevelDbQueryCache::EnumerateOrphanedDocuments(
   }
 }
 
-void LevelDbQueryCache::Save(FSTQueryData* query_data) {
-  TargetId target_id = query_data.targetID;
+void LevelDbQueryCache::Save(const QueryData& query_data) {
+  TargetId target_id = query_data.target_id();
   std::string key = LevelDbTargetKey::Key(target_id);
   db_.currentTransaction->Put(key, [serializer_ encodedQueryData:query_data]);
 }
 
-bool LevelDbQueryCache::UpdateMetadata(FSTQueryData* query_data) {
+bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
   bool updated = false;
-  if (query_data.targetID > metadata_.highestTargetId) {
-    metadata_.highestTargetId = query_data.targetID;
+  if (query_data.target_id() > metadata_.highestTargetId) {
+    metadata_.highestTargetId = query_data.target_id();
     updated = true;
   }
 
-  if (query_data.sequenceNumber > metadata_.highestListenSequenceNumber) {
-    metadata_.highestListenSequenceNumber = query_data.sequenceNumber;
+  if (query_data.sequence_number() > metadata_.highestListenSequenceNumber) {
+    metadata_.highestListenSequenceNumber = query_data.sequence_number();
     updated = true;
   }
 
@@ -365,7 +366,7 @@ void LevelDbQueryCache::SaveMetadata() {
   db_.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), metadata_);
 }
 
-FSTQueryData* LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
+QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
   NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
                                               length:encoded.size()
                                         freeWhenDone:NO];

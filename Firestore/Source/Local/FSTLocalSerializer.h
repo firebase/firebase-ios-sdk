@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTMutationBatch;
-@class FSTQueryData;
 @class FSTSerializerBeta;
 
 @class FSTPBMaybeDocument;
@@ -29,6 +29,7 @@
 
 @class GPBTimestamp;
 
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,11 +59,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** Decodes an FSTPBWriteBatch proto into a MutationBatch model. */
 - (FSTMutationBatch *)decodedMutationBatch:(FSTPBWriteBatch *)batch;
 
-/** Encodes an FSTQueryData model for local storage in the query cache. */
-- (FSTPBTarget *)encodedQueryData:(FSTQueryData *)queryData;
+/** Encodes a QueryData model for local storage in the query cache. */
+- (FSTPBTarget *)encodedQueryData:(const local::QueryData &)queryData;
 
-/** Decodes an FSTPBTarget proto from local storage into an FSTQueryData model. */
-- (FSTQueryData *)decodedQueryData:(FSTPBTarget *)target;
+/** Decodes an FSTPBTarget proto from local storage into a QueryData model. */
+- (local::QueryData)decodedQueryData:(FSTPBTarget *)target;
 
 /** Encodes a SnapshotVersion model into a GPBTimestamp proto. */
 - (GPBTimestamp *)encodedVersion:(const model::SnapshotVersion &)version;

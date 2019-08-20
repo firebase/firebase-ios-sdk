@@ -28,11 +28,11 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -62,6 +62,8 @@ using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::Document;
@@ -247,17 +249,11 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvide
   core::Query query(document_key.path());
 
   for (TargetId target_id : listen_targets) {
-    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
-                                                          targetID:target_id
-                                              listenSequenceNumber:0
-                                                           purpose:FSTQueryPurposeListen];
+    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
     metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
   }
   for (TargetId target_id : limbo_targets) {
-    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
-                                                          targetID:target_id
-                                              listenSequenceNumber:0
-                                                           purpose:FSTQueryPurposeLimboResolution];
+    QueryData query_data(query, target_id, 0, QueryPurpose::LimboResolution);
     metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
   }
 
@@ -275,19 +271,16 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider
   core::Query query(document_key.path());
 
   for (TargetId target_id : targets) {
-    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
-                                                          targetID:target_id
-                                              listenSequenceNumber:0
-                                                           purpose:FSTQueryPurposeListen];
+    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
     metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
   }
 
   return metadata_provider;
 }
 
-void TestTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys, FSTQueryData *query_data) {
-  synced_keys_[query_data.targetID] = keys;
-  query_data_[query_data.targetID] = query_data;
+void TestTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys, QueryData query_data) {
+  synced_keys_[query_data.target_id()] = keys;
+  query_data_[query_data.target_id()] = std::move(query_data);
 }
 
 DocumentKeySet TestTargetMetadataProvider::GetRemoteKeysForTarget(TargetId target_id) const {
@@ -296,7 +289,8 @@ DocumentKeySet TestTargetMetadataProvider::GetRemoteKeysForTarget(TargetId targe
   return it->second;
 }
 
-FSTQueryData *TestTargetMetadataProvider::GetQueryDataForTarget(TargetId target_id) const {
+absl::optional<QueryData> TestTargetMetadataProvider::GetQueryDataForTarget(
+    TargetId target_id) const {
   auto it = query_data_.find(target_id);
   HARD_ASSERT(it != query_data_.end(), "Cannot process unknown target %s", target_id);
   return it->second;

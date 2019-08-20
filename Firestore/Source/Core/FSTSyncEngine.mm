@@ -26,7 +26,6 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -36,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -60,6 +60,8 @@ using firebase::firestore::core::Transaction;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -249,31 +251,31 @@ class LimboResolution {
   HARD_ASSERT(_queryViewsByQuery.find(query) == _queryViewsByQuery.end(),
               "We already listen to query: %s", query.ToString());
 
-  FSTQueryData *queryData = [self.localStore allocateQuery:query];
+  QueryData queryData = [self.localStore allocateQuery:query];
   ViewSnapshot viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
   _callback->OnViewSnapshots({viewSnapshot});
 
   _remoteStore->Listen(queryData);
-  return queryData.targetID;
+  return queryData.target_id();
 }
 
-- (ViewSnapshot)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
-  DocumentMap docs = [self.localStore executeQuery:queryData.query];
-  DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
+- (ViewSnapshot)initializeViewAndComputeSnapshotForQueryData:(const QueryData &)queryData {
+  DocumentMap docs = [self.localStore executeQuery:queryData.query()];
+  DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.target_id()];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:queryData.query
+  FSTView *view = [[FSTView alloc] initWithQuery:queryData.query()
                                  remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   HARD_ASSERT(viewChange.limboChanges.count == 0,
               "View returned limbo docs before target ack from the server.");
 
-  FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:queryData.query
-                                                       targetID:queryData.targetID
-                                                    resumeToken:queryData.resumeToken
+  FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:queryData.query()
+                                                       targetID:queryData.target_id()
+                                                    resumeToken:queryData.resume_token()
                                                            view:view];
-  _queryViewsByQuery[queryData.query] = queryView;
-  _queryViewsByTarget[queryData.targetID] = queryView;
+  _queryViewsByQuery[queryData.query()] = queryView;
+  _queryViewsByTarget[queryData.target_id()] = queryView;
 
   HARD_ASSERT(viewChange.snapshot.has_value(),
               "applyChangesToDocuments for new view should always return a snapshot");
@@ -651,10 +653,8 @@ class LimboResolution {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
     TargetId limboTargetID = _targetIdGenerator.NextId();
     Query query(key.path());
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                                         targetID:limboTargetID
-                                             listenSequenceNumber:kIrrelevantSequenceNumber
-                                                          purpose:FSTQueryPurposeLimboResolution];
+    QueryData queryData(std::move(query), limboTargetID, kIrrelevantSequenceNumber,
+                        QueryPurpose::LimboResolution);
     _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
     _remoteStore->Listen(queryData);
     _limboTargetsByKey[key] = limboTargetID;

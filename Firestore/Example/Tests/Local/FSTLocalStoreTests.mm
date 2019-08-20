@@ -25,7 +25,6 @@
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -36,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
@@ -48,6 +48,7 @@ using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -207,9 +208,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (TargetId)allocateQuery:(core::Query)query {
-  FSTQueryData *queryData = [self.localStore allocateQuery:std::move(query)];
-  self.lastTargetID = queryData.targetID;
-  return queryData.targetID;
+  QueryData queryData = [self.localStore allocateQuery:std::move(query)];
+  self.lastTargetID = queryData.target_id();
+  return queryData.target_id();
 }
 
 /** Asserts that the last target ID is the given number. */
@@ -881,9 +882,9 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self gcIsEager]) return;
 
   core::Query query = Query("foo/bar");
-  FSTQueryData *queryData = [self.localStore allocateQuery:query];
-  ListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
-  TargetId targetID = queryData.targetID;
+  QueryData queryData = [self.localStore allocateQuery:query];
+  ListenSequenceNumber initialSequenceNumber = queryData.sequence_number();
+  TargetId targetID = queryData.target_id();
   ByteString resumeToken = testutil::ResumeToken(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
@@ -898,11 +899,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.localStore releaseQuery:query];
 
   // Should come back with the same resume token
-  FSTQueryData *queryData2 = [self.localStore allocateQuery:query];
-  XCTAssertEqual(queryData2.resumeToken, resumeToken);
+  QueryData queryData2 = [self.localStore allocateQuery:query];
+  XCTAssertEqual(queryData2.resume_token(), resumeToken);
 
   // The sequence number should have been bumped when we saved the new resume token.
-  ListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;
+  ListenSequenceNumber newSequenceNumber = queryData2.sequence_number();
   XCTAssertGreaterThan(newSequenceNumber, initialSequenceNumber);
 }
 
