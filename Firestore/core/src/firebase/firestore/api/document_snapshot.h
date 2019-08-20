@@ -27,7 +27,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
