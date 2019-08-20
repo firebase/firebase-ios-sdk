@@ -27,8 +27,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using Milliseconds = util::AsyncQueue::Milliseconds;
-
 /**
  *
  * A helper for running delayed operations following an exponential backoff
@@ -77,7 +75,7 @@ class ExponentialBackoff {
    * subsequent ones will increase according to the `backoff_factor`.
    */
   void Reset() {
-    current_base_ = Milliseconds{0};
+    current_base_ = util::AsyncQueue::Milliseconds{0};
   }
 
   /**
@@ -102,17 +100,18 @@ class ExponentialBackoff {
 
  private:
   // Returns a random value in the range [-current_base_/2, current_base_/2].
-  Milliseconds GetDelayWithJitter();
-  Milliseconds ClampDelay(Milliseconds delay) const;
+  util::AsyncQueue::Milliseconds GetDelayWithJitter();
+  util::AsyncQueue::Milliseconds ClampDelay(
+      util::AsyncQueue::Milliseconds delay) const;
 
   std::shared_ptr<util::AsyncQueue> queue_;
   const util::TimerId timer_id_;
   util::DelayedOperation delayed_operation_;
 
   const double backoff_factor_;
-  Milliseconds current_base_{0};
-  const Milliseconds initial_delay_;
-  const Milliseconds max_delay_;
+  util::AsyncQueue::Milliseconds current_base_{0};
+  const util::AsyncQueue::Milliseconds initial_delay_;
+  const util::AsyncQueue::Milliseconds max_delay_;
   util::SecureRandom secure_random_;
   std::chrono::steady_clock::time_point last_attempt_time_;
 };

@@ -56,10 +56,12 @@ enum class TimerId {
    * indefinitely for success or failure.
    */
   OnlineStateTimeout,
+
   /**
    * A timer used to periodically attempt LRU Garbage collection
    */
   GarbageCollectionDelay,
+
   /**
    * A timer used to retry transactions. Since there can be multiple concurrent
    * transactions, multiple of these may be in the queue at a given time.
@@ -179,7 +181,8 @@ class AsyncQueue {
   // queue.
   void RunScheduledOperationsUntil(TimerId last_timer_id);
 
-  // For tests: Skip all subsequent delays for a TimerId.
+  // For tests: Skip all subsequent delays for a specific TimerId.
+  // NOTE: This does not work with TimerId::All.
   void SkipDelaysForTimerId(TimerId timer_id);
 
  private:

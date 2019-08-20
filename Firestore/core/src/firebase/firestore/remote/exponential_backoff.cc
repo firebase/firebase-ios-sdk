@@ -27,9 +27,10 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-
+namespace {
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
+using Milliseconds = util::AsyncQueue::Milliseconds;
 namespace chr = std::chrono;
 
 /**
@@ -42,6 +43,7 @@ constexpr double kDefaultBackoffFactor = 1.5;
 
 /** Maximum backoff time in milliseconds. */
 constexpr Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
+}  // namespace
 
 ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
                                        TimerId timer_id,

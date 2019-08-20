@@ -29,11 +29,12 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-NS_ASSUME_NONNULL_BEGIN
-
 /**
- * TransactionRunner encapsulates the logic needed to run and retry transactions
- * with backoff.
+ * TransactionRunner manages its own lifetime by keeping itself alive until all
+ * retries are completed. It must be allocated via
+ * std::make_shared<TransactionRunner> because the implementation expects to be
+ * able to call std::shared_from_this to create additional references that will
+ * keep it alive.
  */
 class TransactionRunner
     : public std::enable_shared_from_this<TransactionRunner> {
@@ -49,31 +50,26 @@ class TransactionRunner
   void Run();
 
  private:
+  void ContinueCommit(const std::shared_ptr<Transaction> transaction,
+                      const util::StatusOr<absl::any> maybe_result);
+
+  void DispatchResult(const std::shared_ptr<Transaction> transaction,
+                      util::Status status,
+                      const util::StatusOr<absl::any> maybe_result);
+
+  void HandleTransactionError(const std::shared_ptr<Transaction> transaction,
+                              util::Status status);
+
   std::shared_ptr<util::AsyncQueue> queue_;
   remote::RemoteStore* remote_store_;
   core::TransactionUpdateCallback update_callback_;
   core::TransactionResultCallback result_callback_;
   int retries_left_;
   remote::ExponentialBackoff backoff_;
-  static constexpr int kRetryCount = 5;
-
-  bool IsRetryableTransactionError(const util::Status& error);
-
-  void CheckUpdateCallbackResult(const std::shared_ptr<Transaction> transaction,
-                                 const util::StatusOr<absl::any> maybe_result);
-
-  void CheckCommitResult(const std::shared_ptr<Transaction> transaction,
-                         util::Status status,
-                         const util::StatusOr<absl::any> maybe_result);
-
-  void HandleTransactionError(const std::shared_ptr<Transaction> transaction,
-                              util::Status status);
 };
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_RUNNER_H_

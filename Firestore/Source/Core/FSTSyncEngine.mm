@@ -293,10 +293,10 @@ class LimboResolution {
 /**
  * Takes an updateCallback in which a set of reads and writes can be performed atomically. In the
  * updateCallback, user code can read and write values using a transaction object. After the
- * updateCallback, all changes will be committed. If a retryable error occurs (ex: some other
- * client has changed any of the data referenced), then the updateCallback will be called again
- * after a backoff. If the updateCallback still fails after all retries, then the transaction will
- * be rejected.
+ * updateCallback, all changes will be committed. If a retryable error occurs (for example, some
+ * other client has changed any of the data referenced), then the updateCallback will be called
+ * again after a backoff. If the updateCallback still fails after all retries, then the transaction
+ * will be rejected.
  *
  * The transaction object passed to the updateCallback contains methods for accessing documents
  * and collections. Unlike other firestore access, data accessed with the transaction will not
@@ -310,6 +310,7 @@ class LimboResolution {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
+  // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
   auto runner = std::make_shared<TransactionRunner>(workerQueue, _remoteStore, updateCallback,
                                                     resultCallback);
   runner->Run();

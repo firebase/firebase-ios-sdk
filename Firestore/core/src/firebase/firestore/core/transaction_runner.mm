@@ -18,20 +18,30 @@
 
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
-
 #include "absl/algorithm/container.h"
-
-using firebase::firestore::core::TransactionResultCallback;
-using firebase::firestore::core::TransactionUpdateCallback;
-using firebase::firestore::remote::Datastore;
-using firebase::firestore::remote::RemoteStore;
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::TimerId;
-using firebase::firestore::util::Status;
 
 namespace firebase {
 namespace firestore {
 namespace core {
+namespace {
+
+using remote::RemoteStore;
+using util::AsyncQueue;
+using util::TimerId;
+using util::Status;
+
+/** Maximum number of times a transaction can be retried before failing. */
+constexpr int kRetryCount = 5;
+
+bool IsRetryableTransactionError(const util::Status& error) {
+  // In transactions, the backend will fail outdated reads with
+  // FAILED_PRECONDITION and non-matching document versions with ABORTED. These
+  // errors should be retried.
+  Error code = error.code();
+  return code == Error::Aborted || code == Error::FailedPrecondition ||
+         !remote::Datastore::IsPermanentError(error);
+}
+}  // namespace
 
 TransactionRunner::TransactionRunner(const std::shared_ptr<AsyncQueue>& queue,
                                      RemoteStore* remote_store,
@@ -41,8 +51,8 @@ TransactionRunner::TransactionRunner(const std::shared_ptr<AsyncQueue>& queue,
       remote_store_{remote_store},
       update_callback_{update_callback},
       result_callback_{result_callback},
-      backoff_{queue_, TimerId::RetryTransaction} {
-  retries_left_ = kRetryCount;
+      backoff_{queue_, TimerId::RetryTransaction},
+      retries_left_{kRetryCount} {
 }
 
 void TransactionRunner::Run() {
@@ -55,15 +65,15 @@ void TransactionRunner::Run() {
     shared_this->update_callback_(
         transaction,
         [transaction, shared_this](util::StatusOr<absl::any> maybe_result) {
-          shared_this->queue_->Enqueue([transaction, shared_this,
-                                        maybe_result] {
-            shared_this->CheckUpdateCallbackResult(transaction, maybe_result);
-          });
+          shared_this->queue_->Enqueue(
+              [transaction, shared_this, maybe_result] {
+                shared_this->ContinueCommit(transaction, maybe_result);
+              });
         });
   });
 }
 
-void TransactionRunner::CheckUpdateCallbackResult(
+void TransactionRunner::ContinueCommit(
     const std::shared_ptr<Transaction> transaction,
     const util::StatusOr<absl::any> maybe_result) {
   if (!maybe_result.ok()) {
@@ -72,12 +82,12 @@ void TransactionRunner::CheckUpdateCallbackResult(
     auto shared_this = this->shared_from_this();
     transaction->Commit(
         [shared_this, transaction, maybe_result](Status status) {
-          shared_this->CheckCommitResult(transaction, status, maybe_result);
+          shared_this->DispatchResult(transaction, status, maybe_result);
         });
   }
 }
 
-void TransactionRunner::CheckCommitResult(
+void TransactionRunner::DispatchResult(
     const std::shared_ptr<Transaction> transaction,
     Status status,
     const util::StatusOr<absl::any> maybe_result) {
@@ -90,23 +100,13 @@ void TransactionRunner::CheckCommitResult(
 
 void TransactionRunner::HandleTransactionError(
     const std::shared_ptr<Transaction> transaction, Status status) {
-  if (retries_left_ > 0 &&
-      TransactionRunner::IsRetryableTransactionError(status) &&
+  if (retries_left_ > 0 && IsRetryableTransactionError(status) &&
       !transaction->IsPermanentlyFailed()) {
     retries_left_ -= 1;
     Run();
   } else {
     result_callback_(std::move(status));
   }
-}
-
-bool TransactionRunner::IsRetryableTransactionError(const util::Status& error) {
-  // In transactions, the backend will fail outdated reads with
-  // FAILED_PRECONDITION and non-matching document versions with ABORTED. These
-  // errors should be retried.
-  Error code = error.code();
-  return code == Error::Aborted || code == Error::FailedPrecondition ||
-         !Datastore::IsPermanentError(error);
 }
 
 }  // namespace core
