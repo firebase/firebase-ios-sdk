@@ -222,16 +222,19 @@ static NSString *GDTStoragePath() {
 
 - (void)appWillBackground:(GDTApplication *)app {
   self->_runningInBackground = YES;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
-                                         requiringSecureCoding:YES
-                                                         error:nil];
-    [data writeToFile:[GDTStorage archivePath] atomically:YES];
-  } else {
+  dispatch_async(_storageQueue, ^{
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
+                                           requiringSecureCoding:YES
+                                                           error:nil];
+      [data writeToFile:[GDTStorage archivePath] atomically:YES];
+    } else {
 #if !defined(TARGET_OS_MACCATALYST)
-    [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 #endif
-  }
+    }
+  });
+
   // Create an immediate background task to run until the end of the current queue of work.
   __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
     if (bgID != GDTBackgroundIdentifierInvalid) {
