@@ -192,7 +192,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
       } else if ([keyString isEqualToString:kFIRMessagingAPNSPayload]) {
           // Local timezone message is scheduled with FCM payload. APNS payload with
           // content_available should be ignored and not passed to the scheduled
-          // message.s
+          // messages.
           continue;
       }
     }
