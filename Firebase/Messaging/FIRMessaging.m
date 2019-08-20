@@ -386,6 +386,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSString *messageID = message[kFIRMessagingMessageIDKey];
   if ([messageID length]) {
     [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
+
+    BOOL isSyncMessage = [[self class] isAPNSSyncMessage:message];
+    if (isSyncMessage) {
+      isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
+    }
   }
   // Prevent duplicates by keeping a cache of all the logged messages during each session.
   // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
