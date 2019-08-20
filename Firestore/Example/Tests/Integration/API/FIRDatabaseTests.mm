@@ -1417,17 +1417,16 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testWaitForPendingWritesFailsWhenUserChanges {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [self firestoreWithApp:app];
+  // FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase
+  // projectID]));
+  FIRFirestore *firestore = self.db;
 
-  [firestore
-      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
-  [self awaitExpectations];
+  [self disableNetwork];
 
   // Writes to local to prevent immediate call to the completion of waitForPendingWrites.
   NSDictionary<NSString *, id> *data =
-      @{@"owner" : @{@"name" : @"Andy", @"email" : @"abc@xyz.com"}};
-  [[firestore documentWithPath:@"abc/123"] setData:data];
+      @{@"owner" : @{@"name" : @"Andy", @"email" : @"abc@example.com"}};
+  [[self documentRef] setData:data];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"waitForPendingWrites"];
   [firestore waitForPendingWritesWithCompletion:^(NSError *_Nullable error) {
@@ -1442,8 +1441,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testWaitForPendingWritesCompletesWhenOfflineIfNoPending {
-  FIRDocumentReference *doc = [self documentRef];
-  FIRFirestore *firestore = doc.firestore;
+  FIRFirestore *firestore = self.db;
 
   [firestore
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];

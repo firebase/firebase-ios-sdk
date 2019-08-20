@@ -383,16 +383,15 @@ BatchId LevelDbMutationQueue::GetHighestUnacknowledgedBatchId() {
       util::PrefixSuccessor(LevelDbMutationKey::KeyPrefix(user_id_));
 
   LevelDbMutationKey row_key;
-  BatchId max_batch_id = kBatchIdUnknown;
 
   it->Seek(next_user_key);
   it->Prev();
   if (it->Valid() && row_key.Decode(MakeStringView(it->key())) &&
       row_key.user_id() == user_id_) {
-    max_batch_id = row_key.batch_id();
+    return row_key.batch_id();
   }
 
-  return max_batch_id;
+  return kBatchIdUnknown;
 }
 
 void LevelDbMutationQueue::PerformConsistencyCheck() {

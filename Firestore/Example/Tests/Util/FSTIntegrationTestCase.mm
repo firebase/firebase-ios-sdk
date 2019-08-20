@@ -85,7 +85,7 @@ static bool runningAgainstEmulator = false;
 
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
-class MockCredentialsProvider : public EmptyCredentialsProvider {
+class FakeCredentialsProvider : public EmptyCredentialsProvider {
  public:
   void SetCredentialChangeListener(CredentialChangeListener changeListener) override {
     if (changeListener) {
@@ -106,13 +106,13 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
-  std::shared_ptr<MockCredentialsProvider> _mockCredProdiver;
+  std::shared_ptr<FakeCredentialsProvider> _fakeCredentialsProvider;
 }
 
 - (void)setUp {
   [super setUp];
 
-  _mockCredProdiver = std::make_shared<MockCredentialsProvider>();
+  _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
 
   [self clearPersistenceOnce];
   [self primeBackend];
@@ -271,7 +271,7 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
   FIRFirestore *firestore =
       [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
                                 persistenceKey:util::MakeString(persistenceKey)
-                           credentialsProvider:_mockCredProdiver
+                           credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:std::move(workerQueue)
                                    firebaseApp:app
                               instanceRegistry:nil];
@@ -282,7 +282,7 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (void)triggerUserChangeWithUid:(NSString *)uid {
-  _mockCredProdiver->ChangeUser(uid);
+  _fakeCredentialsProvider->ChangeUser(uid);
 }
 
 - (void)primeBackend {

@@ -428,9 +428,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (model::BatchId)getHighestUnacknowledgedBatchId {
-  return self.persistence.run("getHighestUnacknowledgedBatchId", [&]() -> model::BatchId {
-    return _mutationQueue->GetHighestUnacknowledgedBatchId();
-  });
+  return self.persistence.run("getHighestUnacknowledgedBatchId",
+                              [&]() { return _mutationQueue->GetHighestUnacknowledgedBatchId(); });
 }
 
 - (FSTQueryData *)allocateQuery:(Query)query {
