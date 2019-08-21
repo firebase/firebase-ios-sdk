@@ -211,8 +211,7 @@ class SerializerTest : public ::testing::Test {
   // int64_t and double are equally good overloads for integer literals so this
   // avoids ambiguity
   v1::Value ValueProto(int i) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromInteger(i));
-    return ProtobufParse<v1::Value>(bytes);
+    return ValueProto(static_cast<int64_t>(i));
   }
 
   v1::Value ValueProto(const char* s) {
