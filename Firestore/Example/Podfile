@@ -46,10 +46,14 @@ end
 # Adds local pod declarations for all Firestore's transitive dependencies if
 # required.
 def configure_local_pods()
+  # FirebaseCore must always be a local pod so that CI builds that make changes
+  # to it can still function. See Firestore-*-xcodebuild in
+  # scripts/install_prereqs.sh for more details.
+  pod 'FirebaseCore', :path => '../..'
+
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
   maybe_local_pod 'FirebaseAuthInterop'
-  maybe_local_pod 'FirebaseCore'
   maybe_local_pod 'FirebaseCoreDiagnostics'
   maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
   maybe_local_pod 'GoogleDataTransport'
@@ -75,7 +79,7 @@ target 'Firestore_Example_iOS' do
 
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
-  # corresponding podspec's.
+  # corresponding podspecs.
   pod 'Firebase/CoreOnly', '6.6.0'
 
   pod 'FirebaseFirestore', :path => '../../'
