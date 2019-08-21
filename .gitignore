@@ -9,6 +9,9 @@ Example/Database/App/GoogleService-Info.plist
 
 Example/Storage/App/GoogleService-Info.plist
 
+# FirebaseInstallations integration tests GoogleService-Info.plist
+FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
+
 Secrets.tar
 
 # OS X
