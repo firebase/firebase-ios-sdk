@@ -301,10 +301,6 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       result.timestamp_value = EncodeTimestamp(field_value.timestamp_value());
       return result;
 
-    case FieldValue::Type::ServerTimestamp:
-      // TODO(rsgowman): Implement
-      abort();
-
     case FieldValue::Type::String:
       result.which_value_type = google_firestore_v1_Value_string_value_tag;
       result.string_value = EncodeString(field_value.string_value());
@@ -318,8 +314,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       return result;
 
     case FieldValue::Type::Reference:
-      // TODO(rsgowman): Implement
-      abort();
+      result.which_value_type = google_firestore_v1_Value_reference_value_tag;
+      result.reference_value = EncodeString(EncodeReference(field_value.reference_value()));
+      return result;
 
     case FieldValue::Type::GeoPoint:
       result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
@@ -335,6 +332,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
       result.map_value = EncodeMapValue(ObjectValue(field_value));
       return result;
+
+    case FieldValue::Type::ServerTimestamp:
+      HARD_FAIL("Unhandled type %s on %s", field_value.type(), field_value.ToString());
   }
   UNREACHABLE();
 }
@@ -376,9 +376,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
       return FieldValue::FromBlob(ByteString(msg.bytes_value));
 
     case google_firestore_v1_Value_reference_value_tag:
-      // TODO(b/74243929): Implement remaining types.
-      HARD_FAIL("Unhandled message field number (tag): %i.",
-                msg.which_value_type);
+      return DecodeReference(msg.reference_value);
 
     case google_firestore_v1_Value_geo_point_value_tag:
       return FieldValue::FromGeoPoint(
@@ -404,27 +402,37 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
 }
 
-DocumentKey Serializer::DecodeKey(Reader* reader,
-                                  absl::string_view name) const {
-  ResourcePath resource = DecodeResourceName(reader, name);
-  if (resource.size() < 5) {
+void Serializer::ValidateDocumentKeyPath(Reader* reader,
+                                  const ResourcePath& resource_name) {
+  if (resource_name.size() < 5) {
     reader->Fail(
         StringFormat("Attempted to decode invalid key: '%s'. Should have at "
                      "least 5 segments.",
                      name));
-  } else if (resource[1] != database_id_.project_id()) {
+  } else if (resource_name[1] != database_id_.project_id()) {
     reader->Fail(
         StringFormat("Tried to deserialize key from different project. "
                      "Expected: '%s'. Found: '%s'. (Full key: '%s')",
-                     database_id_.project_id(), resource[1], name));
-  } else if (resource[3] != database_id_.database_id()) {
+                     database_id_.project_id(), resource_name[1], name));
+  } else if (resource_name[3] != database_id_.database_id()) {
     reader->Fail(
         StringFormat("Tried to deserialize key from different database. "
                      "Expected: '%s'. Found: '%s'. (Full key: '%s')",
-                     database_id_.database_id(), resource[3], name));
+                     database_id_.database_id(), resource_name[3], name));
   }
+}
 
-  ResourcePath local_path = ExtractLocalPathFromResourceName(reader, resource);
+DocumentKey Serializer::DecodeKey(Reader* reader,
+                                  absl::string_view name) const {
+  ResourcePath resource = DecodeResourceName(reader, name);
+  ValidateDocumentKeyPath(resource);
+
+  return DecodeKey(resource);
+}
+
+DocumentKey Serializer::DecodeKey(Reader* reader,
+                                  const ResourcePath& resource_name) const {
+  ResourcePath local_path = ExtractLocalPathFromResourceName(reader, resource_name);
 
   if (!DocumentKey::IsDocumentKey(local_path)) {
     reader->Fail(StringFormat("Invalid document key path: %s",
@@ -434,6 +442,19 @@ DocumentKey Serializer::DecodeKey(Reader* reader,
   // Avoid assertion failures in DocumentKey if local_path is invalid.
   if (!reader->status().ok()) return DocumentKey{};
   return DocumentKey{std::move(local_path)};
+}
+
+DatabaseId Serializer::DecodeDatabaseId(Reader* reader,
+                                  const ResourcePath& resource_name) const {
+  if (resource_name.size() < 5 || resource_name[4] != "documents") {
+    reader->Fail(StringFormat("Tried to deserialize invalid key %s",
+                              resource_name.CanonicalString()));
+    return DatabaseId{};
+  }
+
+  const std::string& project_id = resource_name[1];
+  const std::string& database_id = resource_name[3];
+  return DatabaseId{project_id, database_id};
 }
 
 google_firestore_v1_Document Serializer::EncodeDocument(
@@ -847,6 +868,21 @@ Timestamp Serializer::DecodeTimestamp(
 
   if (!reader->status().ok()) return Timestamp();
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
+}
+
+/* static */
+std::string Serializer::EncodeReference(const FieldValue::Reference& ref) {
+  return EncodeResourceName(ref.database_id(), ref.key().path());
+}
+
+/* static */
+FieldValue Serializer::DecodeReference(nanopb::Reader* reader, const std::string& full_path_raw) {
+  ResourcePath full_path = DecodeResourceName(reader, full_path_raw);
+  ValidateDocumentKeyPath(full_path);
+  DatabaseId database_id = DecodeDatabaseId(reader, full_path);
+  DocumentKey key = DecodeKey(reader, full_path);
+
+  return FieldValue::FromReference(std::move(database_id), std::move(key));
 }
 
 /* static */

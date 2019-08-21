@@ -210,6 +210,8 @@ class Serializer {
   static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
                                  const google_type_LatLng& latlng_proto);
 
+  static std::string EncodeReference(const model::FieldValue::Reference& ref);
+
   static google_firestore_v1_ArrayValue EncodeArray(
       const std::vector<model::FieldValue>& array_value);
   static std::vector<model::FieldValue> DecodeArray(
