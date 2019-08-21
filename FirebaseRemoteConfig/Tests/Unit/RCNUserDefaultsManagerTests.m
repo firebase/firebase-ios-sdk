@@ -1,0 +1,161 @@
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import <XCTest/XCTest.h>
+
+#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
+
+static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
+
+@interface RCNUserDefaultsManagerTests : XCTestCase
+
+@end
+
+@implementation RCNUserDefaultsManagerTests
+
+- (void)setUp {
+  [super setUp];
+
+  [[NSUserDefaults standardUserDefaults]
+      removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+  RCNUserDefaultsSampleTimeStamp = [[NSDate date] timeIntervalSince1970];
+}
+
+- (void)testUserDefaultsEtagWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setLastETag:@"eTag1"];
+  XCTAssertEqualObjects([manager lastETag], @"eTag1");
+
+  [manager setLastETag:@"eTag2"];
+  XCTAssertEqualObjects([manager lastETag], @"eTag2");
+}
+
+- (void)testUserDefaultsLastFetchTimeWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setLastFetchTime:RCNUserDefaultsSampleTimeStamp];
+  XCTAssertEqual([manager lastFetchTime], RCNUserDefaultsSampleTimeStamp);
+
+  [manager setLastFetchTime:RCNUserDefaultsSampleTimeStamp - 1000];
+  XCTAssertEqual([manager lastFetchTime], RCNUserDefaultsSampleTimeStamp - 1000);
+}
+
+- (void)testUserDefaultsLastFetchStatusWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setLastFetchStatus:@"Success"];
+  XCTAssertEqualObjects([manager lastFetchStatus], @"Success");
+
+  [manager setLastFetchStatus:@"Error"];
+  XCTAssertEqualObjects([manager lastFetchStatus], @"Error");
+}
+
+- (void)testUserDefaultsisClientThrottledWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setIsClientThrottledWithExponentialBackoff:YES];
+  XCTAssertEqual([manager isClientThrottledWithExponentialBackoff], YES);
+
+  [manager setIsClientThrottledWithExponentialBackoff:NO];
+  XCTAssertEqual([manager isClientThrottledWithExponentialBackoff], NO);
+}
+
+- (void)testUserDefaultsThrottleEndTimeWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 7.0];
+  XCTAssertEqual([manager throttleEndTime], RCNUserDefaultsSampleTimeStamp - 7.0);
+
+  [manager setThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 8.0];
+  XCTAssertEqual([manager throttleEndTime], RCNUserDefaultsSampleTimeStamp - 8.0);
+}
+
+- (void)testUserDefaultsCurrentThrottlingRetryIntervalWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setCurrentThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 1.0];
+  XCTAssertEqual([manager currentThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 1.0);
+
+  [manager setCurrentThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 2.0];
+  XCTAssertEqual([manager currentThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 2.0);
+}
+
+- (void)testUserDefaultsForMultipleNamespaces {
+  RCNUserDefaultsManager* manager1 =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+
+  RCNUserDefaultsManager* manager2 =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace2"];
+
+  /// Last ETag.
+  [manager1 setLastETag:@"eTag1ForNamespace1"];
+  [manager2 setLastETag:@"eTag1ForNamespace2"];
+  XCTAssertEqualObjects([manager1 lastETag], @"eTag1ForNamespace1");
+  XCTAssertEqualObjects([manager2 lastETag], @"eTag1ForNamespace2");
+
+  /// Last fetch time.
+  [manager1 setLastFetchTime:RCNUserDefaultsSampleTimeStamp - 1000.0];
+  [manager2 setLastFetchTime:RCNUserDefaultsSampleTimeStamp - 7000.0];
+  XCTAssertEqual([manager1 lastFetchTime], RCNUserDefaultsSampleTimeStamp - 1000);
+  XCTAssertEqual([manager2 lastFetchTime], RCNUserDefaultsSampleTimeStamp - 7000);
+
+  /// Last fetch status.
+  [manager1 setLastFetchStatus:@"Success"];
+  [manager2 setLastFetchStatus:@"Error"];
+  XCTAssertEqualObjects([manager1 lastFetchStatus], @"Success");
+  XCTAssertEqualObjects([manager2 lastFetchStatus], @"Error");
+
+  /// Is client throttled.
+  [manager1 setIsClientThrottledWithExponentialBackoff:YES];
+  [manager2 setIsClientThrottledWithExponentialBackoff:NO];
+  XCTAssertEqual([manager1 isClientThrottledWithExponentialBackoff], YES);
+  XCTAssertEqual([manager2 isClientThrottledWithExponentialBackoff], NO);
+
+  /// Throttle end time.
+  [manager1 setThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 7.0];
+  [manager2 setThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 8.0];
+  XCTAssertEqual([manager1 throttleEndTime], RCNUserDefaultsSampleTimeStamp - 7.0);
+  XCTAssertEqual([manager2 throttleEndTime], RCNUserDefaultsSampleTimeStamp - 8.0);
+
+  /// Throttling retry interval.
+  [manager1 setCurrentThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 1.0];
+  [manager2 setCurrentThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 2.0];
+  XCTAssertEqual([manager1 currentThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 1.0);
+  XCTAssertEqual([manager2 currentThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 2.0);
+}
+
+@end
