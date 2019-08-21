@@ -75,7 +75,7 @@ class ExponentialBackoff {
    * subsequent ones will increase according to the `backoff_factor`.
    */
   void Reset() {
-    current_base_ = util::AsyncQueue::Milliseconds{0};
+    current_base_ = Milliseconds{0};
   }
 
   /**
