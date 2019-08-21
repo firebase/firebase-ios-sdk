@@ -616,6 +616,6 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   dispatch_async(_queue, setConfigSettingsBlock);
 }
 
-#pragma clang diagnostic push // "-Wdeprecated-declarations"
+#pragma clang diagnostic push  // "-Wdeprecated-declarations"
 
 @end
