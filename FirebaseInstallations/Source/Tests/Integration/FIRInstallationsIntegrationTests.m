@@ -15,7 +15,7 @@
  */
 
 // Uncomment to enable integration tests.
-//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
+#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
 
 #ifdef FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
 
@@ -31,6 +31,8 @@
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
+static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
+
 @interface FIRInstallationsIntegrationTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
 @end
@@ -40,7 +42,7 @@
 - (void)setUp {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    [FIRApp configure];
+    [self configureFirebaseDefaultAppIfCan];
   });
 
   self.installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
@@ -59,14 +61,22 @@
 // TODO: Enable the test once Travis configured.
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
 // So far, let's run the tests locally.
-- (void)disabled_testGetFID {
+- (void)testGetFID {
+  if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
+    return;
+  }
+
   NSString *FID1 = [self getFID];
   NSString *FID2 = [self getFID];
 
   XCTAssertEqualObjects(FID1, FID2);
 }
 
-- (void)disabled_testAuthToken {
+- (void)testAuthToken {
+  if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
+    return;
+  }
+
   XCTestExpectation *authTokenExpectation =
       [self expectationWithDescription:@"authTokenExpectation"];
 
@@ -84,7 +94,11 @@
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 }
 
-- (void)disabled_testDeleteInstallation {
+- (void)testDeleteInstallation {
+  if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
+    return;
+  }
+
   NSString *FIDBefore = [self getFID];
   FIRInstallationsAuthTokenResult *authTokenBefore = [self getAuthToken];
 
@@ -195,6 +209,17 @@
   [FIRApp configureWithName:name options:options];
 
   return [FIRApp appNamed:name];
+}
+
+- (void)configureFirebaseDefaultAppIfCan {
+  NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  if (plistPath == nil) {
+    return;
+  }
+
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
+  [FIRApp configureWithOptions:options];
+  sFIRInstallationsFirebaseDefaultAppConfigured = YES;
 }
 
 @end
