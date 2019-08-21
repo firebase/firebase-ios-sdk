@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 
 OBJC_CLASS(FSTFirestoreClient);
 

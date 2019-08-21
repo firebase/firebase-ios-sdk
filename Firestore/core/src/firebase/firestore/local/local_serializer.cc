@@ -92,9 +92,9 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
   UNREACHABLE();
 }
 
-std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
+MaybeDocument LocalSerializer::DecodeMaybeDocument(
     Reader* reader, const firestore_client_MaybeDocument& proto) const {
-  if (!reader->status().ok()) return nullptr;
+  if (!reader->status().ok()) return {};
 
   switch (proto.which_document_type) {
     case firestore_client_MaybeDocument_document_tag:
@@ -113,7 +113,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
                        proto.which_document_type,
                        firestore_client_MaybeDocument_no_document_tag,
                        firestore_client_MaybeDocument_document_tag));
-      return nullptr;
+      return {};
   }
 
   UNREACHABLE();
@@ -155,7 +155,7 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
   return result;
 }
 
-std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
+NoDocument LocalSerializer::DecodeNoDocument(
     Reader* reader, const firestore_client_NoDocument& proto) const {
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
@@ -163,11 +163,10 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
   // we'll defer until the nanopb-master gets merged to master.
-  return absl::make_unique<NoDocument>(
-      rpc_serializer_.DecodeKey(reader,
-                                rpc_serializer_.DecodeString(proto.name)),
-      std::move(version),
-      /*has_committed_mutations=*/false);
+  return NoDocument(rpc_serializer_.DecodeKey(
+                        reader, rpc_serializer_.DecodeString(proto.name)),
+                    version,
+                    /*has_committed_mutations=*/false);
 }
 
 firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
@@ -181,15 +180,14 @@ firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
   return result;
 }
 
-std::unique_ptr<UnknownDocument> LocalSerializer::DecodeUnknownDocument(
+UnknownDocument LocalSerializer::DecodeUnknownDocument(
     Reader* reader, const firestore_client_UnknownDocument& proto) const {
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
 
-  return absl::make_unique<UnknownDocument>(
-      rpc_serializer_.DecodeKey(reader,
-                                rpc_serializer_.DecodeString(proto.name)),
-      std::move(version));
+  return UnknownDocument(rpc_serializer_.DecodeKey(
+                             reader, rpc_serializer_.DecodeString(proto.name)),
+                         version);
 }
 
 firestore_client_Target LocalSerializer::EncodeQueryData(
@@ -251,8 +249,7 @@ QueryData LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return QueryData::Invalid();
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::kListen, std::move(version),
-                   std::move(resume_token));
+                   QueryPurpose::Listen, version, std::move(resume_token));
 }
 
 firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
@@ -264,9 +261,9 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
   result.writes_count = count;
   result.writes = MakeArray<google_firestore_v1_Write>(count);
   int i = 0;
-  for (const std::unique_ptr<Mutation>& mutation : mutation_batch.mutations()) {
-    HARD_ASSERT(mutation, "Null mutation encountered.");
-    result.writes[i] = rpc_serializer_.EncodeMutation(*mutation.get());
+  for (const auto& mutation : mutation_batch.mutations()) {
+    HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
+    result.writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
   result.local_write_time =
@@ -280,14 +277,13 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   int batch_id = proto.batch_id;
   Timestamp local_write_time =
       rpc_serializer_.DecodeTimestamp(reader, proto.local_write_time);
-  std::vector<std::unique_ptr<Mutation>> mutations;
+  std::vector<Mutation> mutations;
   for (size_t i = 0; i < proto.writes_count; i++) {
     mutations.push_back(
         rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
   }
 
-  return MutationBatch(batch_id, std::move(local_write_time),
-                       std::move(mutations));
+  return MutationBatch(batch_id, local_write_time, std::move(mutations));
 }
 
 }  // namespace local

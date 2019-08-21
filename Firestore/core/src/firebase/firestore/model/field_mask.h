@@ -44,6 +44,8 @@ class FieldMask {
  public:
   using const_iterator = std::set<FieldPath>::const_iterator;
 
+  FieldMask() = default;
+
   FieldMask(std::initializer_list<FieldPath> list) : fields_{list} {
   }
   template <class InputIt>
@@ -75,11 +77,6 @@ class FieldMask {
   bool covers(const FieldPath& fieldPath) const;
 
   std::string ToString() const;
-
-#if defined(__OBJC__)
-  FieldMask() {
-  }
-#endif
 
   size_t Hash() const;
 

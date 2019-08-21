@@ -24,14 +24,13 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -47,9 +46,12 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+namespace testutil = firebase::firestore::testutil;
+
 using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -62,6 +64,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
+using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
@@ -219,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _remoteStore->set_sync_engine(capture);
 
-  FSTSetMutation *mutation = [self setMutation];
+  auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
                                                        localWriteTime:Timestamp::Now()
                                                         baseMutations:{}
@@ -241,12 +244,6 @@ NS_ASSUME_NONNULL_BEGIN
                                    XCTFail(@"Error waiting for timeout: %@", expectationError);
                                  }
                                }];
-}
-
-- (FSTSetMutation *)setMutation {
-  return [[FSTSetMutation alloc] initWithKey:DocumentKey::FromPathString("rooms/eros")
-                                       value:WrapObject("name", "Eros")
-                                precondition:Precondition::None()];
 }
 
 @end

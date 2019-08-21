@@ -167,13 +167,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
 
   // We know the instance coming from the container is a FIRMessaging instance, cast it and move on.
-  FIRMessaging *messaging = (FIRMessaging *)instance;
-
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [messaging start];
-  });
-  return messaging;
+  return (FIRMessaging *)instance;
 }
 
 + (FIRMessagingExtensionHelper *)extensionHelper {
@@ -220,9 +214,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-        return [[FIRMessaging alloc] initWithAnalytics:analytics
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[GULUserDefaults standardUserDefaults]];
+    FIRMessaging *messaging =
+        [[FIRMessaging alloc] initWithAnalytics:analytics
+                                 withInstanceID:[FIRInstanceID instanceID]
+                               withUserDefaults:[GULUserDefaults standardUserDefaults]];
+    [messaging start];
+    return messaging;
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)

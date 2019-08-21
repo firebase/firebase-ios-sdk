@@ -45,18 +45,19 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
 using model::DocumentKey;
+using model::MaybeDocument;
+using model::Mutation;
 using util::AsyncQueue;
 using util::Status;
 using util::StatusOr;
 using util::Executor;
 using util::ExecutorLibdispatch;
-
-namespace {
 
 const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
@@ -164,7 +165,7 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
                                        &grpc_connection_, callback);
 }
 
-void Datastore::CommitMutations(const std::vector<FSTMutation*>& mutations,
+void Datastore::CommitMutations(const std::vector<Mutation>& mutations,
                                 CommitCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
@@ -181,7 +182,7 @@ void Datastore::CommitMutations(const std::vector<FSTMutation*>& mutations,
 
 void Datastore::CommitMutationsWithCredentials(
     const Token& token,
-    const std::vector<FSTMutation*>& mutations,
+    const std::vector<Mutation>& mutations,
     CommitCallback&& callback) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateCommitRequest(mutations));
@@ -253,7 +254,7 @@ void Datastore::OnLookupDocumentsResponse(
 
   Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  std::vector<FSTMaybeDocument*> docs =
+  std::vector<MaybeDocument> docs =
       serializer_bridge_.MergeLookupResponses(responses, &parse_status);
   callback(docs, parse_status);
 }

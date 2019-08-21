@@ -18,8 +18,8 @@
 
 #include <utility>
 
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,15 +27,20 @@ namespace remote {
 
 using core::DocumentViewChange;
 using core::Query;
+using local::QueryData;
+using local::QueryPurpose;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::MaybeDocument;
+using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;
+using nanopb::ByteString;
 
 // TargetChange
 
 bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
-  return [lhs.resume_token() isEqualToData:rhs.resume_token()] &&
+  return lhs.resume_token() == rhs.resume_token() &&
          lhs.current() == rhs.current() &&
          lhs.added_documents() == rhs.added_documents() &&
          lhs.modified_documents() == rhs.modified_documents() &&
@@ -44,13 +49,10 @@ bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
 
 // TargetState
 
-TargetState::TargetState() : resume_token_{[NSData data]} {
-}
-
-void TargetState::UpdateResumeToken(NSData* resume_token) {
-  if (resume_token.length > 0) {
+void TargetState::UpdateResumeToken(ByteString resume_token) {
+  if (!resume_token.empty()) {
     has_pending_changes_ = true;
-    resume_token_ = [resume_token copy];
+    resume_token_ = std::move(resume_token);
   }
 }
 
@@ -122,10 +124,10 @@ WatchChangeAggregator::WatchChangeAggregator(
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
   for (TargetId target_id : document_change.updated_target_ids()) {
-    if ([document_change.new_document() isKindOfClass:[FSTDocument class]]) {
-      AddDocumentToTarget(target_id, document_change.new_document());
-    } else if ([document_change.new_document()
-                   isKindOfClass:[FSTDeletedDocument class]]) {
+    const auto& new_doc = document_change.new_document();
+    if (new_doc && new_doc->is_document()) {
+      AddDocumentToTarget(target_id, *new_doc);
+    } else if (new_doc && new_doc->is_no_document()) {
       RemoveDocumentFromTarget(target_id, document_change.document_key(),
                                document_change.new_document());
     }
@@ -212,9 +214,9 @@ void WatchChangeAggregator::HandleExistenceFilter(
   TargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
+  absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
   if (query_data) {
-    const Query& query = query_data.query;
+    const Query& query = query_data->query();
     if (query.IsDocumentQuery()) {
       if (expected_count == 0) {
         // The existence filter told us the document does not exist. We deduce
@@ -226,9 +228,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
         DocumentKey key{query.path()};
         RemoveDocumentFromTarget(
             target_id, key,
-            [FSTDeletedDocument documentWithKey:key
-                                        version:SnapshotVersion::None()
-                          hasCommittedMutations:NO]);
+            NoDocument(key, SnapshotVersion::None(),
+                       /* has_committed_mutations= */ false));
       } else {
         HARD_ASSERT(expected_count == 1,
                     "Single document existence filter with count: %s",
@@ -254,22 +255,21 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     TargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
+    absl::optional<QueryData> query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.current() && query_data.query.IsDocumentQuery()) {
+      if (target_state.current() && query_data->query().IsDocumentQuery()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from limboDocumentRefs.
-        DocumentKey key{query_data.query.path()};
+        DocumentKey key{query_data->query().path()};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {
           RemoveDocumentFromTarget(
               target_id, key,
-              [FSTDeletedDocument documentWithKey:key
-                                          version:snapshot_version
-                            hasCommittedMutations:NO]);
+              NoDocument(key, snapshot_version,
+                         /* has_committed_mutations= */ false));
         }
       }
 
@@ -290,8 +290,10 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     bool is_only_limbo_target = true;
 
     for (TargetId target_id : entry.second) {
-      FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
-      if (query_data && query_data.purpose != FSTQueryPurposeLimboResolution) {
+      absl::optional<QueryData> query_data =
+          QueryDataForActiveTarget(target_id);
+      if (query_data &&
+          query_data->purpose() != QueryPurpose::LimboResolution) {
         is_only_limbo_target = false;
         break;
       }
@@ -317,27 +319,27 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
 }
 
 void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
-                                                FSTMaybeDocument* document) {
+                                                const MaybeDocument& document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
 
   DocumentViewChange::Type change_type =
-      TargetContainsDocument(target_id, document.key)
+      TargetContainsDocument(target_id, document.key())
           ? DocumentViewChange::Type::kModified
           : DocumentViewChange::Type::kAdded;
 
   TargetState& target_state = EnsureTargetState(target_id);
-  target_state.AddDocumentChange(document.key, change_type);
+  target_state.AddDocumentChange(document.key(), change_type);
 
-  pending_document_updates_[document.key] = document;
-  pending_document_target_mappings_[document.key].insert(target_id);
+  pending_document_updates_[document.key()] = document;
+  pending_document_target_mappings_[document.key()].insert(target_id);
 }
 
 void WatchChangeAggregator::RemoveDocumentFromTarget(
     TargetId target_id,
     const DocumentKey& key,
-    FSTMaybeDocument* _Nullable updated_document) {
+    const absl::optional<MaybeDocument>& updated_document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -353,7 +355,7 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
   pending_document_target_mappings_[key].insert(target_id);
 
   if (updated_document) {
-    pending_document_updates_[key] = updated_document;
+    pending_document_updates_[key] = *updated_document;
   }
 }
 
@@ -381,15 +383,15 @@ TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
 }
 
 bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
-  return QueryDataForActiveTarget(target_id) != nil;
+  return QueryDataForActiveTarget(target_id) != absl::nullopt;
 }
 
-FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(
+absl::optional<QueryData> WatchChangeAggregator::QueryDataForActiveTarget(
     TargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
-             ? nil
+             ? absl::optional<QueryData>{}
              : target_metadata_provider_->GetQueryDataForTarget(target_id);
 }
 
@@ -408,7 +410,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existingKeys) {
-    RemoveDocumentFromTarget(target_id, key, nil);
+    RemoveDocumentFromTarget(target_id, key, absl::nullopt);
   }
 }
 

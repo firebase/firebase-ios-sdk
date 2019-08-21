@@ -23,7 +23,6 @@
 #include <vector>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -31,7 +30,9 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace core = firebase::firestore::core;
@@ -41,6 +42,8 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::kBatchIdUnknown;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::testutil::Query;
 
@@ -192,19 +195,21 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
-    NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"foi/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
-    ];
+    std::vector<Mutation> mutations = {
+        FSTTestSetMutation(@"foi/bar", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
+        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+    };
 
     // Store all the mutations.
-    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-    for (FSTMutation *mutation in mutations) {
+    std::vector<FSTMutationBatch *> batches;
+    for (const Mutation &mutation : mutations) {
       FSTMutationBatch *batch =
           self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
-      [batches addObject:batch];
+      batches.push_back(batch);
     }
 
     std::vector<FSTMutationBatch *> expected{batches[1], batches[2]};
@@ -219,19 +224,21 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
-    NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
-    ];
+    std::vector<Mutation> mutations = {
+        FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
+        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+    };
 
     // Store all the mutations.
-    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-    for (FSTMutation *mutation in mutations) {
+    std::vector<FSTMutationBatch *> batches;
+    for (const Mutation &mutation : mutations) {
       FSTMutationBatch *batch =
           self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
-      [batches addObject:batch];
+      batches.push_back(batch);
     }
 
     DocumentKeySet keys{
@@ -251,17 +258,17 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
-    std::vector<FSTMutation *> group1 = {
+    std::vector<Mutation> group1 = {
         FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
         FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
     };
     FSTMutationBatch *batch1 =
         self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, std::move(group1));
 
-    std::vector<FSTMutation *> group2 = {FSTTestSetMutation(@"food/bar", @{@"a" : @1})};
+    std::vector<Mutation> group2 = {FSTTestSetMutation(@"food/bar", @{@"a" : @1})};
     self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, std::move(group2));
 
-    std::vector<FSTMutation *> group3 = {
+    std::vector<Mutation> group3 = {
         FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
     };
     FSTMutationBatch *batch3 =
@@ -284,19 +291,21 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
-    NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
-    ];
+    std::vector<Mutation> mutations = {
+        FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+        FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+        FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
+        FSTTestSetMutation(@"food/bar", @{@"a" : @1}),
+    };
 
     // Store all the mutations.
-    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-    for (FSTMutation *mutation in mutations) {
+    std::vector<FSTMutationBatch *> batches;
+    for (const Mutation &mutation : mutations) {
       FSTMutationBatch *batch =
           self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
-      [batches addObject:batch];
+      batches.push_back(batch);
     }
 
     std::vector<FSTMutationBatch *> expected = {batches[1], batches[2], batches[4]};
@@ -396,7 +405,7 @@ NS_ASSUME_NONNULL_BEGIN
  * mutations.
  */
 - (FSTMutationBatch *)addMutationBatchWithKey:(NSString *)key {
-  FSTSetMutation *mutation = FSTTestSetMutation(key, @{@"a" : @1});
+  SetMutation mutation = FSTTestSetMutation(key, @{@"a" : @1});
 
   FSTMutationBatch *batch = self.mutationQueue->AddMutationBatch(Timestamp::Now(), {}, {mutation});
   return batch;

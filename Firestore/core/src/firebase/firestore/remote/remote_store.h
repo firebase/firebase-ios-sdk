@@ -43,7 +43,6 @@
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
-@class FSTQueryData;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -146,6 +145,8 @@ class RemoteStore : public TargetMetadataProvider,
    */
   void EnableNetwork();
 
+  bool CanUseNetwork() const;
+
   /**
    * Tells the `RemoteStore` that the currently authenticated user has changed.
    *
@@ -155,8 +156,8 @@ class RemoteStore : public TargetMetadataProvider,
    */
   void HandleCredentialChange();
 
-  /** Listens to the target identified by the given `FSTQueryData`. */
-  void Listen(FSTQueryData* query_data);
+  /** Listens to the target identified by the given `QueryData`. */
+  void Listen(const local::QueryData& query_data);
 
   /** Stops listening to the target with the given target ID. */
   void StopListening(model::TargetId target_id);
@@ -184,7 +185,8 @@ class RemoteStore : public TargetMetadataProvider,
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
-  FSTQueryData* GetQueryDataForTarget(model::TargetId target_id) const override;
+  absl::optional<local::QueryData> GetQueryDataForTarget(
+      model::TargetId target_id) const override;
 
   void OnWatchStreamOpen() override;
   void OnWatchStreamChange(
@@ -197,12 +199,12 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWriteStreamClose(const util::Status& status) override;
   void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
-      std::vector<FSTMutationResult*> mutation_results) override;
+      std::vector<model::MutationResult> mutation_results) override;
 
  private:
   void DisableNetworkInternal();
 
-  void SendWatchRequest(FSTQueryData* query_data);
+  void SendWatchRequest(const local::QueryData& query_data);
   void SendUnwatchRequest(model::TargetId target_id);
 
   /**
@@ -230,8 +232,6 @@ class RemoteStore : public TargetMetadataProvider,
 
   void HandleHandshakeError(const util::Status& status);
   void HandleWriteError(const util::Status& status);
-
-  bool CanUseNetwork() const;
 
   void StartWatchStream();
 
@@ -263,7 +263,7 @@ class RemoteStore : public TargetMetadataProvider,
    * to the server. The targets removed with unlistens are removed eagerly
    * without waiting for confirmation from the listen stream.
    */
-  std::unordered_map<model::TargetId, FSTQueryData*> listen_targets_;
+  std::unordered_map<model::TargetId, local::QueryData> listen_targets_;
 
   OnlineStateTracker online_state_tracker_;
 

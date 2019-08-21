@@ -1381,4 +1381,71 @@ using firebase::firestore::util::TimerId;
       NSException, @"The client has already been shutdown.");
 }
 
+- (void)testCanRemoveListenerAfterShutdown {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  firestore.settings = [FSTIntegrationTestCase settings];
+
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"rooms"] documentWithAutoID];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [self writeDocumentRef:doc data:@{}];
+  id<FIRListenerRegistration> listenerRegistration =
+      [doc addSnapshotListener:[accumulator valueEventHandler]];
+  [accumulator awaitEventWithName:@"Snapshot"];
+
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+  [self awaitExpectations];
+
+  // This should proceed without error.
+  [listenerRegistration remove];
+  // Multiple calls should proceed as well.
+  [listenerRegistration remove];
+}
+
+- (void)testWaitForPendingWritesCompletes {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [self disableNetwork];
+
+  [doc setData:@{@"foo" : @"bar"}];
+  [firestore waitForPendingWritesWithCompletion:
+                 [self completionForExpectationWithName:@"Wait for pending writes"]];
+
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+}
+
+- (void)testWaitForPendingWritesFailsWhenUserChanges {
+  FIRFirestore *firestore = self.db;
+
+  [self disableNetwork];
+
+  // Writes to local to prevent immediate call to the completion of waitForPendingWrites.
+  NSDictionary<NSString *, id> *data =
+      @{@"owner" : @{@"name" : @"Andy", @"email" : @"abc@example.com"}};
+  [[self documentRef] setData:data];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"waitForPendingWrites"];
+  [firestore waitForPendingWritesWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeCancelled);
+    [expectation fulfill];
+  }];
+
+  [self triggerUserChangeWithUid:@"user-to-fail-pending-writes"];
+  [self awaitExpectations];
+}
+
+- (void)testWaitForPendingWritesCompletesWhenOfflineIfNoPending {
+  FIRFirestore *firestore = self.db;
+
+  [self disableNetwork];
+
+  [firestore waitForPendingWritesWithCompletion:
+                 [self completionForExpectationWithName:@"Wait for pending writes"]];
+  [self awaitExpectations];
+}
+
 @end

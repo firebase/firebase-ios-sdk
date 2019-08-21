@@ -31,6 +31,7 @@ using Millis = std::chrono::milliseconds;
 using firebase::Timestamp;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
@@ -98,8 +99,7 @@ class RollingSequenceNumberBuffer {
   return self;
 }
 
-- (LruResults)collectWithLiveTargets:
-    (const std::unordered_map<TargetId, FSTQueryData *> &)liveTargets {
+- (LruResults)collectWithLiveTargets:(const std::unordered_map<TargetId, QueryData> &)liveTargets {
   if (_params.minBytesThreshold == api::Settings::CacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
@@ -117,8 +117,7 @@ class RollingSequenceNumberBuffer {
   }
 }
 
-- (LruResults)runGCWithLiveTargets:
-    (const std::unordered_map<TargetId, FSTQueryData *> &)liveTargets {
+- (LruResults)runGCWithLiveTargets:(const std::unordered_map<TargetId, QueryData> &)liveTargets {
   Timestamp start = Timestamp::Now();
   int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
   // Cap at the configured max
@@ -165,8 +164,8 @@ class RollingSequenceNumberBuffer {
   }
   RollingSequenceNumberBuffer buffer(queryCount);
 
-  [_delegate enumerateTargetsUsingCallback:[&buffer](FSTQueryData *queryData) {
-    buffer.AddElement(queryData.sequenceNumber);
+  [_delegate enumerateTargetsUsingCallback:[&buffer](const QueryData &queryData) {
+    buffer.AddElement(queryData.sequence_number());
   }];
   [_delegate enumerateMutationsUsingCallback:[&buffer](const DocumentKey &docKey,
                                                        ListenSequenceNumber sequenceNumber) {
@@ -176,8 +175,8 @@ class RollingSequenceNumberBuffer {
 }
 
 - (int)removeQueriesUpThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                                liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
-                                                liveQueries {
+                                liveQueries:
+                                    (const std::unordered_map<TargetId, QueryData> &)liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 

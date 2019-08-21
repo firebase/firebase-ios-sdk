@@ -27,9 +27,6 @@
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -37,12 +34,17 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -62,14 +64,22 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::MutationResult;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -79,6 +89,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
+using testutil::Doc;
 using testutil::Filter;
 using testutil::OrderBy;
 
@@ -110,16 +121,16 @@ NSString *const kDurablePersistence = @"durable-persistence";
 
 namespace {
 
-NSString *Describe(NSData *data) {
-  return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}
-
 std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   std::vector<TargetId> result;
   for (NSNumber *targetID in from) {
     result.push_back(targetID.intValue);
   }
   return result;
+}
+
+ByteString MakeResumeToken(NSString *specString) {
+  return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 }  // namespace
@@ -132,6 +143,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 @implementation FSTSpecTests {
   BOOL _gcEnabled;
   BOOL _networkEnabled;
+  FSTUserDataConverter *_converter;
 }
 
 - (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
@@ -150,6 +162,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  _converter = FSTTestUserDataConverter();
+
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   _gcEnabled = [GCEnabled boolValue];
@@ -192,12 +206,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       query = query.WithLimit(limit);
     }
     if (queryDict[@"filters"]) {
-      FSTUserDataConverter *converter = FSTTestUserDataConverter();
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
       for (NSArray<id> *filter in filters) {
         std::string key = util::MakeString(filter[0]);
         std::string op = util::MakeString(filter[1]);
-        FieldValue value = [converter parsedQueryValue:filter[2]];
+        FieldValue value = [_converter parsedQueryValue:filter[2]];
         query = query.AddingFilter(Filter(key, op, value));
       }
     }
@@ -230,8 +243,9 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                            : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
-                                version.longLongValue, jsonDoc[@"value"], documentState);
+  FieldValue data = [_converter parsedQueryValue:jsonDoc[@"value"]];
+  Document doc = Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data,
+                     documentState);
   return DocumentViewChange{doc, type};
 }
 
@@ -270,7 +284,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
-  NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(currentSpec[1]);
   WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
                            resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
@@ -315,20 +329,20 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                             ? absl::optional<ObjectValue>{}
                                             : FSTTestObjectValue(docSpec[@"value"]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
-    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:*value
-                                                              key:key
-                                                          version:std::move(version)
-                                                            state:DocumentState::kSynced]
-                                  : [FSTDeletedDocument documentWithKey:key
-                                                                version:std::move(version)
-                                                  hasCommittedMutations:NO];
+    MaybeDocument doc;
+    if (value) {
+      doc = Document(*std::move(value), key, version, DocumentState::kSynced);
+    } else {
+      doc = NoDocument(key, version, /* has_committed_mutations= */ false);
+    }
     DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
-                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key, doc};
+                               ConvertTargetsArray(watchEntity[@"removedTargets"]), std::move(key),
+                               std::move(doc)};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
     DocumentWatchChange change{
-        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, nil};
+        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, absl::nullopt};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
@@ -356,7 +370,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   // set of target IDs.
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
-  NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(watchSnapshot[@"resumeToken"]);
   WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
                            resumeToken};
   [self.driver receiveWatchChange:change
@@ -381,8 +395,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
-                                                                transformResults:absl::nullopt];
+  MutationResult mutationResult(version, absl::nullopt);
   [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
 }
 
@@ -611,24 +624,20 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
-      __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
-      [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
-                                                                      NSDictionary *queryData,
-                                                                      BOOL *stop) {
-        TargetId targetID = [targetIDString intValue];
-        Query query = [self parseQuery:queryData[@"query"]];
-        NSData *resumeToken = [queryData[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
-        // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
-        // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
-        // the right value.
-        expectedActiveTargets[targetID] =
-            [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                       targetID:targetID
-                           listenSequenceNumber:0
-                                        purpose:FSTQueryPurposeListen
-                                snapshotVersion:SnapshotVersion::None()
-                                    resumeToken:resumeToken];
-      }];
+      __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
+      [expected[@"activeTargets"]
+          enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
+                                              BOOL *stop) {
+            TargetId targetID = [targetIDString intValue];
+            Query query = [self parseQuery:queryData[@"query"]];
+            ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
+            // TODO(mcg): populate the purpose of the target once it's possible to encode that in
+            // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
+            // always the right value.
+            expectedActiveTargets[targetID] =
+                QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
+                          SnapshotVersion::None(), std::move(resumeToken));
+          }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
   }
@@ -682,26 +691,26 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     return;
   }
 
-  // Create a copy so we can modify it in tests
-  std::unordered_map<TargetId, FSTQueryData *> actualTargets = [self.driver activeTargets];
+  // Create a copy so we can modify it below
+  std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
 
   for (const auto &kv : [self.driver activeTargets]) {
     TargetId targetID = kv.first;
-    FSTQueryData *queryData = kv.second;
-    XCTAssertNotNil(actualTargets[targetID], @"Expected active target not found: %@", queryData);
+    const QueryData &queryData = kv.second;
+
+    auto found = actualTargets.find(targetID);
+    XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
+                      queryData.ToString().c_str());
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
     // spec tests. For now, only validate properties that can be validated.
     // XCTAssertEqualObjects(actualTargets[targetID], queryData);
 
-    FSTQueryData *actual = actualTargets[targetID];
-    XCTAssertNotNil(actual);
-    if (actual) {
-      XCTAssertEqual(actual.query, queryData.query);
-      XCTAssertEqual(actual.targetID, queryData.targetID);
-      XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
-      XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
-    }
+    const QueryData &actual = found->second;
+    XCTAssertEqual(actual.query(), queryData.query());
+    XCTAssertEqual(actual.target_id(), queryData.target_id());
+    XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
+    XCTAssertEqual(actual.resume_token(), queryData.resume_token());
 
     actualTargets.erase(targetID);
   }

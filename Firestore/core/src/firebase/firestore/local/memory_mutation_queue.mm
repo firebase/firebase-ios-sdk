@@ -21,10 +21,10 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -38,6 +38,8 @@ using core::Query;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::kBatchIdUnknown;
+using model::Mutation;
 using model::ResourcePath;
 
 MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
@@ -75,8 +77,8 @@ void MemoryMutationQueue::Start() {
 
 FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
-    std::vector<FSTMutation*>&& base_mutations,
-    std::vector<FSTMutation*>&& mutations) {
+    std::vector<Mutation>&& base_mutations,
+    std::vector<Mutation>&& mutations) {
   HARD_ASSERT(!mutations.empty(), "Mutation batches should not be empty");
 
   BatchId batch_id = next_batch_id_;
@@ -96,12 +98,12 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
   queue_.push_back(batch);
 
   // Track references by document key and index collection parents.
-  for (FSTMutation* mutation : [batch mutations]) {
+  for (const Mutation& mutation : [batch mutations]) {
     batches_by_document_key_ = batches_by_document_key_.insert(
-        DocumentKeyReference{mutation.key, batch_id});
+        DocumentKeyReference{mutation.key(), batch_id});
 
     persistence_.indexManager->AddToCollectionParentIndex(
-        mutation.key.path().PopLast());
+        mutation.key().path().PopLast());
   }
 
   return batch;
@@ -117,8 +119,8 @@ void MemoryMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
   queue_.erase(queue_.begin());
 
   // Remove entries from the index too.
-  for (FSTMutation* mutation : [batch mutations]) {
-    const DocumentKey& key = mutation.key;
+  for (const Mutation& mutation : [batch mutations]) {
+    const DocumentKey& key = mutation.key();
     [persistence_.referenceDelegate removeMutationReference:key];
 
     DocumentKeyReference reference{key, batch.batchID};
@@ -213,6 +215,10 @@ FSTMutationBatch* _Nullable MemoryMutationQueue::NextMutationBatchAfterBatchId(
   int raw_index = IndexOfBatchId(next_batch_id);
   int index = raw_index < 0 ? 0 : raw_index;
   return queue_.size() > index ? queue_[index] : nil;
+}
+
+BatchId MemoryMutationQueue::GetHighestUnacknowledgedBatchId() {
+  return IsEmpty() ? kBatchIdUnknown : next_batch_id_ - 1;
 }
 
 FSTMutationBatch* _Nullable MemoryMutationQueue::LookupMutationBatch(

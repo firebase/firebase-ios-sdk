@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
@@ -43,7 +44,6 @@
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
-@class FSTMutation;
 @class FSTTransaction;
 
 namespace api = firebase::firestore::api;
@@ -108,8 +108,15 @@ NS_ASSUME_NONNULL_BEGIN
                           callback:(api::QuerySnapshot::Listener &&)callback;
 
 /** Write mutations. callback will be notified when it's written to the backend. */
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
+- (void)writeMutations:(std::vector<model::Mutation> &&)mutations
               callback:(util::StatusCallback)callback;
+
+/**
+ * Passes a callback that is triggered when all the pending writes at the
+ * time when this method is called received server acknowledgement.
+ * An acknowledgement can be either acceptance or rejections.
+ */
+- (void)waitForPendingWritesWithCallback:(util::StatusCallback)callback;
 
 /** Tries to execute the transaction in updateCallback up to retries times. */
 - (void)transactionWithRetries:(int)retries

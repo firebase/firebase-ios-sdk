@@ -21,8 +21,6 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
-#import <Foundation/Foundation.h>
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -45,8 +43,6 @@
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/status.h"
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -68,10 +64,9 @@ namespace remote {
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
-  // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
-  // this function could take a single `StatusOr` parameter.
+  // TODO(varconst): change this to take a single `StatusOr` parameter.
   using LookupCallback = std::function<void(
-      const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
+      const std::vector<model::MaybeDocument>&, const util::Status&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
   Datastore(const core::DatabaseInfo& database_info,
@@ -99,7 +94,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   virtual std::shared_ptr<WriteStream> CreateWriteStream(
       WriteStreamCallback* callback);
 
-  void CommitMutations(const std::vector<FSTMutation*>& mutations,
+  void CommitMutations(const std::vector<model::Mutation>& mutations,
                        CommitCallback&& callback);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        LookupCallback&& callback);
@@ -164,7 +159,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void CommitMutationsWithCredentials(
       const auth::Token& token,
-      const std::vector<FSTMutation*>& mutations,
+      const std::vector<model::Mutation>& mutations,
       CommitCallback&& callback);
 
   void LookupDocumentsWithCredentials(

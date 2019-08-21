@@ -15,9 +15,8 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -25,12 +24,13 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-TEST(FieldTransform, Getter) {
-  FieldTransform transform{testutil::Field("foo"), absl::make_unique<ServerTimestampTransform>(
-                                                       ServerTimestampTransform::Get())};
+using testutil::Field;
 
-  EXPECT_EQ(testutil::Field("foo"), transform.path());
-  EXPECT_EQ(ServerTimestampTransform::Get(), transform.transformation());
+TEST(FieldTransform, Getter) {
+  FieldTransform transform{Field("foo"), ServerTimestampTransform()};
+
+  EXPECT_EQ(Field("foo"), transform.path());
+  EXPECT_EQ(ServerTimestampTransform(), transform.transformation());
 }
 
 }  // namespace model

@@ -31,7 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -45,11 +45,15 @@ using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
+using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::NoDocument;
 
+using testutil::Doc;
 using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -77,10 +81,14 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
-  FSTDocument *doc =
-      data ? FSTTestDoc(path, version, data,
-                        hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced)
-           : nil;
+  absl::optional<Document> doc;
+  if (data) {
+    FSTUserDataConverter *converter = FSTTestUserDataConverter();
+    FieldValue parsed = [converter parsedQueryValue:data];
+
+    doc = Doc(path, version, parsed,
+              hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced);
+  }
   return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
                                             documentKey:testutil::Key(path)
                                                document:doc
@@ -105,28 +113,33 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache) {
+  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
-  DocumentSet oldDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[]);
+  DocumentSet oldDocuments(DocumentComparator::ByKey());
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
+    FieldValue doc = [converter parsedQueryValue:oldDocs[key]];
+    std::string documentKey = util::StringFormat("%s/%s", path, key);
     oldDocuments = oldDocuments.insert(
-        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, oldDocs[key],
-                   hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced));
+        Doc(documentKey, 1, doc,
+            hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced));
     if (hasPendingWrites) {
-      const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
+
   DocumentSet newDocuments = oldDocuments;
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
-    FSTDocument *docToAdd =
-        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
-                   hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced);
+    FieldValue doc = [converter parsedQueryValue:docsToAdd[key]];
+    std::string documentKey = util::StringFormat("%s/%s", path, key);
+    Document docToAdd =
+        Doc(documentKey, 1, doc,
+            hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced);
     newDocuments = newDocuments.insert(docToAdd);
     documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
     if (hasPendingWrites) {
-      const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }

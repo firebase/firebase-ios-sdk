@@ -19,15 +19,15 @@
 #include <string>
 #include <unordered_map>
 
-#import "Firestore/Source/Local/FSTQueryData.h"
-
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTLRUGarbageCollector;
 
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
 extern const model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
@@ -102,7 +102,7 @@ namespace local = firebase::firestore::local;
  */
 - (int)removeTargetsThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                               liveQueries:
-                                  (const std::unordered_map<model::TargetId, FSTQueryData *> &)
+                                  (const std::unordered_map<model::TargetId, local::QueryData> &)
                                       liveQueries;
 
 - (size_t)byteSize;
@@ -144,7 +144,7 @@ namespace local = firebase::firestore::local;
  */
 - (int)removeQueriesUpThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                                 liveQueries:
-                                    (const std::unordered_map<model::TargetId, FSTQueryData *> &)
+                                    (const std::unordered_map<model::TargetId, local::QueryData> &)
                                         liveQueries;
 
 /**
@@ -156,6 +156,6 @@ namespace local = firebase::firestore::local;
 - (size_t)byteSize;
 
 - (local::LruResults)collectWithLiveTargets:
-    (const std::unordered_map<model::TargetId, FSTQueryData *> &)liveTargets;
+    (const std::unordered_map<model::TargetId, local::QueryData> &)liveTargets;
 
 @end

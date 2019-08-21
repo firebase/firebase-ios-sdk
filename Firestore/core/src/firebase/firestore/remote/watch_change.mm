@@ -16,10 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
-#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -29,7 +25,7 @@ bool operator==(const DocumentWatchChange& lhs,
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         objc::Equals(lhs.new_document(), rhs.new_document());
+         lhs.new_document() == rhs.new_document();
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
@@ -39,8 +35,7 @@ bool operator==(const ExistenceFilterWatchChange& lhs,
 
 bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
   return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
-         objc::Equals(lhs.resume_token(), rhs.resume_token()) &&
-         lhs.cause() == rhs.cause();
+         lhs.resume_token() == rhs.resume_token() && lhs.cause() == rhs.cause();
 }
 
 }  // namespace remote

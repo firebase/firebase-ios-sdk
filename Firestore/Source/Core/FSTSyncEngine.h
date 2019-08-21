@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 @class FSTLocalStore;
-@class FSTMutation;
 
 namespace auth = firebase::firestore::auth;
 namespace core = firebase::firestore::core;
@@ -84,8 +83,14 @@ NS_ASSUME_NONNULL_BEGIN
  * write caused. The provided completion block will be called once the write has been acked or
  * rejected by the backend (or failed locally for any other reason).
  */
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
+- (void)writeMutations:(std::vector<model::Mutation> &&)mutations
             completion:(FSTVoidErrorBlock)completion;
+
+/**
+ * Registers a user callback that is called when all pending mutations at the moment of calling
+ * are acknowledged .
+ */
+- (void)registerPendingWritesCallback:(util::StatusCallback)callback;
 
 /**
  * Runs the given transaction block up to retries times and then calls completion.

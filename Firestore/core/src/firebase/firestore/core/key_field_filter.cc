@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/key_field_filter.h"
 
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -32,11 +33,25 @@ using model::FieldValue;
 
 using Operator = Filter::Operator;
 
+class KeyFieldFilter::Rep : public FieldFilter::Rep {
+ public:
+  Rep(FieldPath field, Operator op, FieldValue value)
+      : FieldFilter::Rep(std::move(field), op, std::move(value)) {
+  }
+
+  Type type() const override {
+    return Type::kKeyFieldFilter;
+  }
+
+  bool Matches(const model::Document& doc) const override;
+};
+
 KeyFieldFilter::KeyFieldFilter(FieldPath field, Operator op, FieldValue value)
-    : FieldFilter(std::move(field), op, std::move(value)) {
+    : FieldFilter(
+          std::make_shared<const Rep>(std::move(field), op, std::move(value))) {
 }
 
-bool KeyFieldFilter::Matches(const Document& doc) const {
+bool KeyFieldFilter::Rep::Matches(const Document& doc) const {
   const DocumentKey& lhs_key = doc.key();
   const DocumentKey& rhs_key = value().reference_value().key();
 

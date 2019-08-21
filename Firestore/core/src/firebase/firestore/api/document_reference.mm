@@ -23,12 +23,12 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -51,6 +51,8 @@ using core::EventListener;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::DeleteMutation;
+using model::Document;
 using model::DocumentKey;
 using model::Precondition;
 using model::ResourcePath;
@@ -109,9 +111,7 @@ void DocumentReference::UpdateData(core::ParsedUpdateData&& update_data,
 }
 
 void DocumentReference::DeleteDocument(util::StatusCallback callback) {
-  FSTDeleteMutation* mutation =
-      [[FSTDeleteMutation alloc] initWithKey:key_
-                                precondition:Precondition::None()];
+  DeleteMutation mutation(key_, Precondition::None());
   [firestore_->client() writeMutations:{mutation} callback:std::move(callback)];
 }
 
@@ -214,7 +214,8 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
       ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
       HARD_ASSERT(snapshot.documents().size() <= 1,
                   "Too many documents returned on a document query");
-      FSTDocument* document = snapshot.documents().GetDocument(key_);
+      absl::optional<Document> document =
+          snapshot.documents().GetDocument(key_);
 
       bool has_pending_writes =
           document ? snapshot.mutated_keys().contains(key_)

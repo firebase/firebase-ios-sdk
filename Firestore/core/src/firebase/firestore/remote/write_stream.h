@@ -36,10 +36,7 @@
 #include "grpcpp/support/byte_buffer.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
-@class FSTMutationResult;
 
 namespace firebase {
 namespace firestore {
@@ -65,7 +62,7 @@ class WriteStreamCallback {
    */
   virtual void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
-      std::vector<FSTMutationResult*> results) = 0;
+      std::vector<model::MutationResult> results) = 0;
 
   /**
    * Called when the `WriteStream`'s underlying RPC is interrupted for whatever
@@ -131,7 +128,7 @@ class WriteStream : public Stream {
   virtual void WriteHandshake();
 
   /** Sends a group of mutations to the Firestore backend to apply. */
-  virtual void WriteMutations(const std::vector<FSTMutation*>& mutations);
+  virtual void WriteMutations(const std::vector<model::Mutation>& mutations);
 
  protected:
   // For tests only

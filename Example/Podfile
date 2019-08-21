@@ -134,7 +134,7 @@ target 'Auth_Sample' do
   pod 'FirebaseCoreDiagnostics', :path => '../'
   pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FBSDKLoginKit'
-  pod 'GoogleSignIn'
+  pod 'GoogleSignIn', '~> 5'
   pod 'FirebaseInstanceID', :path => '../'
   pod 'GoogleDataTransport', :path => '../'
   pod 'GoogleDataTransportCCTSupport', :path => '../'

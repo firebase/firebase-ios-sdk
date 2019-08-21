@@ -30,6 +30,7 @@ namespace remote {
 
 using auth::CredentialsProvider;
 using auth::Token;
+using local::QueryData;
 using model::TargetId;
 using util::AsyncQueue;
 using util::TimerId;
@@ -47,7 +48,7 @@ WatchStream::WatchStream(
       callback_{NOT_NULL(callback)} {
 }
 
-void WatchStream::WatchQuery(FSTQueryData* query) {
+void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
   GCFSListenRequest* request = serializer_bridge_.CreateWatchRequest(query);

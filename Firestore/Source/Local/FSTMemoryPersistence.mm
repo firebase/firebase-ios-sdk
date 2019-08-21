@@ -41,6 +41,7 @@ using firebase::firestore::local::MemoryIndexManager;
 using firebase::firestore::local::MemoryMutationQueue;
 using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::TargetCallback;
 using firebase::firestore::model::DocumentKey;
@@ -216,10 +217,9 @@ NS_ASSUME_NONNULL_BEGIN
   _additionalReferences = set;
 }
 
-- (void)removeTarget:(FSTQueryData *)queryData {
-  FSTQueryData *updated = [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
-                                                             resumeToken:queryData.resumeToken
-                                                          sequenceNumber:_currentSequenceNumber];
+- (void)removeTarget:(const QueryData &)queryData {
+  QueryData updated = queryData.Copy(queryData.snapshot_version(), queryData.resume_token(),
+                                     _currentSequenceNumber);
   _persistence.queryCache->UpdateTarget(updated);
 }
 
@@ -253,8 +253,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
-                                              liveQueries {
+                              liveQueries:
+                                  (const std::unordered_map<TargetId, QueryData> &)liveQueries {
   return _persistence.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
@@ -357,8 +357,9 @@ NS_ASSUME_NONNULL_BEGIN
   _additionalReferences = set;
 }
 
-- (void)removeTarget:(FSTQueryData *)queryData {
-  for (const DocumentKey &docKey : _persistence.queryCache->GetMatchingKeys(queryData.targetID)) {
+- (void)removeTarget:(const QueryData &)queryData {
+  for (const DocumentKey &docKey :
+       _persistence.queryCache->GetMatchingKeys(queryData.target_id())) {
     _orphaned->insert(docKey);
   }
   _persistence.queryCache->RemoveTarget(queryData);

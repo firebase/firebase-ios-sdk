@@ -154,20 +154,6 @@ bool Equals(const Handle<T>& lhs, const Handle<T>& rhs) {
 }
 #endif
 
-// Define NS_ASSUME_NONNULL_BEGIN for straight C++ so that everything gets the
-// correct nullability specifier.
-#if !defined(NS_ASSUME_NONNULL_BEGIN)
-#if __clang__
-#define NS_ASSUME_NONNULL_BEGIN _Pragma("clang assume_nonnull begin")
-#define NS_ASSUME_NONNULL_END _Pragma("clang assume_nonnull end")
-
-#else  // !__clang__
-#define NS_ASSUME_NONNULL_BEGIN
-#define NS_ASSUME_NONNULL_END
-#define _Nullable
-#endif  // __clang__
-#endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
-
 }  // namespace objc
 }  // namespace firestore
 }  // namespace firebase

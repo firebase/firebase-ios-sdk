@@ -23,9 +23,11 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -41,10 +43,8 @@ class RemoteEvent;
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
-@class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
-@class FSTQueryData;
 @protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;
@@ -110,10 +110,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (model::MaybeDocumentMap)userDidChange:(const auth::User &)user;
 
 /** Accepts locally generated Mutations and commits them to storage. */
-- (local::LocalWriteResult)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations;
+- (local::LocalWriteResult)locallyWriteMutations:(std::vector<model::Mutation> &&)mutations;
 
 /** Returns the current value of a document with a given key, or nil if not found. */
-- (nullable FSTMaybeDocument *)readDocument:(const model::DocumentKey &)key;
+- (absl::optional<model::MaybeDocument>)readDocument:(const model::DocumentKey &)key;
 
 /**
  * Acknowledges the given batch.
@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.
  * A query must be allocated in the local store before the store can be used to manage its view.
  */
-- (FSTQueryData *)allocateQuery:(core::Query)query;
+- (local::QueryData)allocateQuery:(core::Query)query;
 
 /** Unpin all the documents associated with @a query. */
 - (void)releaseQuery:(const core::Query &)query;
@@ -191,6 +191,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @return the next mutation or nil if there wasn't one.
  */
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(model::BatchId)batchID;
+
+/**
+ * Returns the largest (latest) batch id in mutation queue that is pending server response.
+ * Returns `kBatchIdUnknown` if the queue is empty.
+ */
+- (model::BatchId)getHighestUnacknowledgedBatchId;
 
 - (local::LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector;
 

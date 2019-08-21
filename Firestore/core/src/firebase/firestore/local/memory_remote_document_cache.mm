@@ -16,9 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 
+#include <utility>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -28,11 +29,14 @@ namespace local {
 namespace {
 
 using core::Query;
+using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::ListenSequenceNumber;
+using model::MaybeDocument;
 using model::MaybeDocumentMap;
+using model::OptionalMaybeDocumentMap;
 
 /**
  * Returns an estimate of the number of bytes used to store the given
@@ -53,28 +57,28 @@ MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
   persistence_ = persistence;
 }
 
-void MemoryRemoteDocumentCache::Add(FSTMaybeDocument* document) {
-  docs_ = docs_.insert(document.key, document);
+void MemoryRemoteDocumentCache::Add(const MaybeDocument& document) {
+  docs_ = docs_.insert(document.key(), document);
 
   persistence_.indexManager->AddToCollectionParentIndex(
-      document.key.path().PopLast());
+      document.key().path().PopLast());
 }
 
 void MemoryRemoteDocumentCache::Remove(const DocumentKey& key) {
   docs_ = docs_.erase(key);
 }
 
-FSTMaybeDocument* _Nullable MemoryRemoteDocumentCache::Get(
+absl::optional<MaybeDocument> MemoryRemoteDocumentCache::Get(
     const DocumentKey& key) {
-  auto found = docs_.find(key);
-  return found != docs_.end() ? found->second : nil;
+  return docs_.get(key);
 }
 
-MaybeDocumentMap MemoryRemoteDocumentCache::GetAll(const DocumentKeySet& keys) {
-  MaybeDocumentMap results;
+OptionalMaybeDocumentMap MemoryRemoteDocumentCache::GetAll(
+    const DocumentKeySet& keys) {
+  OptionalMaybeDocumentMap results;
   for (const DocumentKey& key : keys) {
-    // Make sure each key has a corresponding entry, which is null in case the
-    // document is not found.
+    // Make sure each key has a corresponding entry, which is nullopt in case
+    // the document is not found.
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     results = results.insert(key, Get(key));
   }
@@ -96,13 +100,14 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
     if (!query.path().IsPrefixOf(key.path())) {
       break;
     }
-    FSTMaybeDocument* maybeDoc = it->second;
-    if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
+    const MaybeDocument& maybe_doc = it->second;
+    if (!maybe_doc.is_document()) {
       continue;
     }
-    FSTDocument* doc = static_cast<FSTDocument*>(maybeDoc);
+
+    Document doc(maybe_doc);
     if (query.Matches(doc)) {
-      results = results.insert(key, doc);
+      results = results.insert(key, std::move(doc));
     }
   }
   return results;

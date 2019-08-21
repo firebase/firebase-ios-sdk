@@ -107,7 +107,7 @@ class Reader {
    * status will be set to Error::DataLoss with the specified
    * description.
    */
-  void Fail(const absl::string_view description) {
+  void Fail(absl::string_view description) {
     status_.Update(util::Status(Error::DataLoss, description));
   }
 

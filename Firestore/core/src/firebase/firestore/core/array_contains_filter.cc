@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/array_contains_filter.h"
 
+#include <memory>
 #include <utility>
 
 #include "absl/algorithm/container.h"
@@ -30,11 +31,26 @@ using model::FieldValue;
 
 using Operator = Filter::Operator;
 
+class ArrayContainsFilter::Rep : public FieldFilter::Rep {
+ public:
+  Rep(FieldPath field, FieldValue value)
+      : FieldFilter::Rep(
+            std::move(field), Operator::ArrayContains, std::move(value)) {
+  }
+
+  Type type() const override {
+    return Type::kArrayContainsFilter;
+  }
+
+  bool Matches(const model::Document& doc) const override;
+};
+
 ArrayContainsFilter::ArrayContainsFilter(FieldPath field, FieldValue value)
-    : FieldFilter(std::move(field), Operator::ArrayContains, std::move(value)) {
+    : FieldFilter(
+          std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
-bool ArrayContainsFilter::Matches(const Document& doc) const {
+bool ArrayContainsFilter::Rep::Matches(const Document& doc) const {
   absl::optional<FieldValue> maybe_lhs = doc.field(field());
   if (!maybe_lhs) return false;
 

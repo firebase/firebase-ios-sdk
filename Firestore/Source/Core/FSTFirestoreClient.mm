@@ -35,7 +35,6 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -45,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -73,9 +73,12 @@ using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteStore;
@@ -349,7 +352,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
-  [self verifyNotShutdown];
+  // Checks for shutdown but does not throw error, allowing it to be an no-op if client is
+  // already shutdown.
+  if (self.isShutdown) {
+    return;
+  }
   _workerQueue->Enqueue([self, listener] { _eventManager->RemoveQueryListener(listener); });
 }
 
@@ -360,16 +367,16 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   _workerQueue->Enqueue([self, doc, shared_callback] {
-    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
+    absl::optional<MaybeDocument> maybeDoc = [self.localStore readDocument:doc.key()];
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
-    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      FSTDocument *document = (FSTDocument *)maybeDoc;
+    if (maybeDoc && maybeDoc->is_document()) {
+      Document document(*maybeDoc);
       maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), document,
                                         /*from_cache=*/true,
-                                        /*has_pending_writes=*/document.hasLocalMutations};
-    } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), nil,
+                                        /*has_pending_writes=*/document.has_local_mutations()};
+    } else if (maybeDoc && maybeDoc->is_no_document()) {
+      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), absl::nullopt,
                                         /*from_cache=*/true,
                                         /*has_pending_writes=*/false};
     } else {
@@ -414,8 +421,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
-              callback:(util::StatusCallback)callback {
+- (void)writeMutations:(std::vector<Mutation> &&)mutations callback:(util::StatusCallback)callback {
   [self verifyNotShutdown];
   // TODO(c++14): move `mutations` into lambda (C++14).
   _workerQueue->Enqueue([self, mutations, callback]() mutable {
@@ -435,6 +441,20 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     }
   });
 };
+
+- (void)waitForPendingWritesWithCallback:(util::StatusCallback)callback {
+  [self verifyNotShutdown];
+  // Dispatch the result back onto the user dispatch queue.
+  auto async_callback = [self, callback](util::Status status) {
+    if (callback) {
+      self->_userExecutor->Execute([=] { callback(std::move(status)); });
+    }
+  };
+
+  _workerQueue->Enqueue([self, async_callback]() {
+    [self.syncEngine registerPendingWritesCallback:std::move(async_callback)];
+  });
+}
 
 - (void)transactionWithRetries:(int)retries
                 updateCallback:(core::TransactionUpdateCallback)update_callback

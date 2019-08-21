@@ -18,19 +18,22 @@ cc_library(
     base_path.h
     database_id.cc
     database_id.h
+    delete_mutation.cc
+    delete_mutation.h
     document.cc
     document.h
     document_key.cc
     document_key.h
     document_key_set.h
+    document_map.cc
     document_map.h
-    document_map.mm
+    document_set.cc
     document_set.h
-    document_set.mm
-    field_mask.h
     field_mask.cc
+    field_mask.h
     field_path.cc
     field_path.h
+    field_transform.cc
     field_transform.h
     field_value.cc
     field_value.h
@@ -43,14 +46,20 @@ cc_library(
     mutation_batch.h
     no_document.cc
     no_document.h
+    patch_mutation.cc
+    patch_mutation.h
     precondition.cc
     precondition.h
     resource_path.cc
     resource_path.h
+    set_mutation.cc
+    set_mutation.h
     snapshot_version.cc
     snapshot_version.h
-    transform_operations.h
-    transform_operations.cc
+    transform_mutation.cc
+    transform_mutation.h
+    transform_operation.cc
+    transform_operation.h
     types.h
     unknown_document.cc
     unknown_document.h

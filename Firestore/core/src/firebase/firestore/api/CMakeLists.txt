@@ -39,10 +39,17 @@ cc_select(
 cc_library(
   firebase_firestore_api
   SOURCES
+    collection_reference.cc
     collection_reference.h
-    collection_reference.mm
+    collection_reference.cc
+    document_change.cc
+    document_change.h
+    document_snapshot.cc
+    document_snapshot.h
     query_core.h
     query_core.mm
+    query_snapshot.cc
+    query_snapshot.h
     settings.cc
     settings.h
     snapshot_metadata.cc

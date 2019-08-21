@@ -28,8 +28,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "gmock/gmock.h"
 
@@ -146,9 +144,6 @@ OBJC_PRINT_TO(FSTArrayUnionFieldValue);
 OBJC_PRINT_TO(FSTArrayValue);
 OBJC_PRINT_TO(FSTDelegateValue);
 OBJC_PRINT_TO(FSTDeleteFieldValue);
-OBJC_PRINT_TO(FSTDeleteMutation);
-OBJC_PRINT_TO(FSTDeletedDocument);
-OBJC_PRINT_TO(FSTDocument);
 OBJC_PRINT_TO(FSTDocumentKeyReference);
 OBJC_PRINT_TO(FSTDocumentSet);
 OBJC_PRINT_TO(FSTEventManager);
@@ -164,24 +159,16 @@ OBJC_PRINT_TO(FSTLocalSerializer);
 OBJC_PRINT_TO(FSTLocalStore);
 OBJC_PRINT_TO(FSTLocalViewChanges);
 OBJC_PRINT_TO(FSTLocalWriteResult);
-OBJC_PRINT_TO(FSTMaybeDocument);
 OBJC_PRINT_TO(FSTMemoryEagerReferenceDelegate);
 OBJC_PRINT_TO(FSTMemoryLRUReferenceDelegate);
 OBJC_PRINT_TO(FSTMemoryPersistence);
-OBJC_PRINT_TO(FSTMutation);
 OBJC_PRINT_TO(FSTMutationBatch);
 OBJC_PRINT_TO(FSTMutationBatchResult);
-OBJC_PRINT_TO(FSTMutationResult);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
-OBJC_PRINT_TO(FSTPatchMutation);
-OBJC_PRINT_TO(FSTQueryData);
 OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);
-OBJC_PRINT_TO(FSTSetMutation);
 OBJC_PRINT_TO(FSTStringValue);
 OBJC_PRINT_TO(FSTSyncEngine);
-OBJC_PRINT_TO(FSTTransformMutation);
-OBJC_PRINT_TO(FSTUnknownDocument);
 OBJC_PRINT_TO(FSTUserDataConverter);
 OBJC_PRINT_TO(FSTView);
 OBJC_PRINT_TO(FSTViewChange);

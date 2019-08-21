@@ -30,13 +30,16 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -46,6 +49,13 @@
 
 namespace firebase {
 namespace firestore {
+namespace model {
+
+class TransformMutation;
+class TransformOperation;
+
+}  // namespace model
+
 namespace testutil {
 
 /**
@@ -56,28 +66,56 @@ constexpr const char* kDeleteSentinel = "<DELETE>";
 
 // Convenience methods for creating instances for tests.
 
+template <typename... Ints>
+nanopb::ByteString Bytes(Ints... octets) {
+  return nanopb::ByteString{static_cast<uint8_t>(octets)...};
+}
+
 inline model::FieldValue Value(std::nullptr_t) {
   return model::FieldValue::Null();
 }
 
 /**
+ * A type definition that evaluates to type V only if T is exactly type `bool`.
+ */
+template <typename T, typename V>
+using EnableForExactlyBool =
+    typename std::enable_if<std::is_same<bool, T>{}, V>::type;
+
+/**
+ * A type definition that evaluates to type V only if T is an integral type but
+ * not `bool`.
+ */
+template <typename T, typename V>
+using EnableForInts =
+    typename std::enable_if<std::is_integral<T>{} && !std::is_same<bool, T>{},
+                            V>::type;
+
+/**
  * Creates a boolean FieldValue.
  *
+ * @tparam T A type that must be exactly bool. Any T that is not bool causes
+ *     this declaration to be disabled.
  * @param bool_value A boolean value that disallows implicit conversions.
  */
-template <typename T,
-          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
-inline model::FieldValue Value(T bool_value) {
+template <typename T>
+EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
   return model::FieldValue::FromBoolean(bool_value);
 }
 
-// Overload that captures integer literals. Without this, int64_t and double
-// are equally applicable conversions.
-inline model::FieldValue Value(int value) {
-  return model::FieldValue::FromInteger(value);
-}
-
-inline model::FieldValue Value(int64_t value) {
+/**
+ * Creates an integer FieldValue.
+ *
+ * This is defined as a template to capture all integer literals. Just defining
+ * this as taking int64_t would make integer literals ambiguous because int64_t
+ * and double are equally good choices according to the standard.
+ *
+ * @tparam T Any integral type (but not bool). Types larger than int64_t will
+ *     likely generate a warning.
+ * @param int_value An integer value.
+ */
+template <typename T>
+EnableForInts<T, model::FieldValue> Value(T value) {
   return model::FieldValue::FromInteger(value);
 }
 
@@ -281,6 +319,23 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
   return model::UnknownDocument(Key(key), Version(version));
 }
 
+#if __APPLE__
+
+/**
+ * Creates an DocumentComparator that will compare Documents by the given
+ * fieldPath string then by key.
+ */
+model::DocumentComparator DocComparator(absl::string_view field_path);
+
+/**
+ * Creates a DocumentSet based on the given comparator, initially containing the
+ * given documents.
+ */
+model::DocumentSet DocSet(model::DocumentComparator comp,
+                          std::vector<model::Document> docs);
+
+#endif  // __APPLE__
+
 inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {
     return core::Filter::Operator::LessThan;
@@ -305,37 +360,40 @@ inline core::Filter::Operator OperatorFromString(absl::string_view s) {
   }
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, model::FieldValue value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                model::FieldValue value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
                                    std::move(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, model::FieldValue::Map value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                model::FieldValue::Map value) {
   return Filter(key, op, model::FieldValue::FromMap(std::move(value)));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       std::nullptr_t) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                std::nullptr_t) {
   return Filter(key, op, model::FieldValue::Null());
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(
-    absl::string_view key, absl::string_view op, const std::string& value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                const std::string& value) {
   return Filter(key, op, model::FieldValue::FromString(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       int value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
-inline std::shared_ptr<const core::FieldFilter> Filter(absl::string_view key,
-                                                       absl::string_view op,
-                                                       double value) {
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
+                                double value) {
   return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 
@@ -368,34 +426,28 @@ inline core::Query CollectionGroupQuery(absl::string_view collection_id) {
                      std::make_shared<const std::string>(collection_id));
 }
 
-inline std::unique_ptr<model::SetMutation> SetMutation(
+inline model::SetMutation SetMutation(
     absl::string_view path,
     const model::FieldValue::Map& values = model::FieldValue::Map()) {
-  return absl::make_unique<model::SetMutation>(
-      Key(path), model::ObjectValue::FromMap(values),
-      model::Precondition::None());
+  return model::SetMutation(Key(path), model::ObjectValue::FromMap(values),
+                            model::Precondition::None());
 }
 
-std::unique_ptr<model::PatchMutation> PatchMutation(
+model::PatchMutation PatchMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values = model::FieldValue::Map(),
-    const std::vector<model::FieldPath>* update_mask = nullptr);
+    model::FieldValue::Map values = model::FieldValue::Map(),
+    std::vector<model::FieldPath> update_mask = {});
 
-inline std::unique_ptr<model::PatchMutation> PatchMutation(
+model::TransformMutation TransformMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values,
-    const std::vector<model::FieldPath>& update_mask) {
-  return PatchMutation(path, values, &update_mask);
-}
+    std::vector<std::pair<std::string, model::TransformOperation>> transforms);
 
-inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
-    absl::string_view path) {
-  return absl::make_unique<model::DeleteMutation>(Key(path),
-                                                  model::Precondition::None());
+inline model::DeleteMutation DeleteMutation(absl::string_view path) {
+  return model::DeleteMutation(Key(path), model::Precondition::None());
 }
 
 inline model::MutationResult MutationResult(int64_t version) {
-  return model::MutationResult(Version(version), nullptr);
+  return model::MutationResult(Version(version), absl::nullopt);
 }
 
 inline nanopb::ByteString ResumeToken(int64_t snapshot_version) {

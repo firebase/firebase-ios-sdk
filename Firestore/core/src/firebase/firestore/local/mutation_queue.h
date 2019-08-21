@@ -29,9 +29,9 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTMutation;
 @class FSTMutationBatch;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -70,8 +70,8 @@ class MutationQueue {
    */
   virtual FSTMutationBatch* AddMutationBatch(
       const Timestamp& local_write_time,
-      std::vector<FSTMutation*>&& base_mutations,
-      std::vector<FSTMutation*>&& mutations) = 0;
+      std::vector<model::Mutation>&& base_mutations,
+      std::vector<model::Mutation>&& mutations) = 0;
 
   /**
    * Removes the given mutation batch from the queue. This is useful in two
@@ -125,7 +125,7 @@ class MutationQueue {
    * Note that because of this requirement implementations are free to return
    * mutation batches that don't match the query at all if it's convenient.
    *
-   * NOTE: A FSTPatchMutation does not need to include all fields in the query
+   * NOTE: A PatchMutation does not need to include all fields in the query
    * filter criteria in order to be a match (but any fields it does contain do
    * need to match).
    */
@@ -149,6 +149,16 @@ class MutationQueue {
    */
   virtual FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
       model::BatchId batch_id) = 0;
+
+  /**
+   * Gets the largest (latest) batch id in mutation queue for the current user
+   * that is pending server response, returns `kBatchIdUnknown` if the queue
+   * is empty.
+   *
+   * @return the largest batch id in the mutation queue that is not
+   * acknowledged.
+   */
+  virtual model::BatchId GetHighestUnacknowledgedBatchId() = 0;
 
   /**
    * Performs a consistency check, examining the mutation queue for any leaks,

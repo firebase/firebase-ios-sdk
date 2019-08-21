@@ -39,7 +39,6 @@
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTMutation;
 @class FSTMutationBatch;
 @class FSTPBMutationQueue;
 
@@ -70,8 +69,8 @@ class LevelDbMutationQueue : public MutationQueue {
 
   FSTMutationBatch* AddMutationBatch(
       const Timestamp& local_write_time,
-      std::vector<FSTMutation*>&& base_mutations,
-      std::vector<FSTMutation*>&& mutations) override;
+      std::vector<model::Mutation>&& base_mutations,
+      std::vector<model::Mutation>&& mutations) override;
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;
 
@@ -91,6 +90,8 @@ class LevelDbMutationQueue : public MutationQueue {
 
   FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
       model::BatchId batch_id) override;
+
+  model::BatchId GetHighestUnacknowledgedBatchId() override;
 
   void PerformConsistencyCheck() override;
 

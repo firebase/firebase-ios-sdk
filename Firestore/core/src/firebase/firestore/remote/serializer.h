@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -159,13 +160,13 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model Document format.
    */
-  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
+  model::MaybeDocument DecodeMaybeDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   google_firestore_v1_Write EncodeMutation(
       const model::Mutation& mutation) const;
-  std::unique_ptr<model::Mutation> DecodeMutation(
+  model::Mutation DecodeMutation(
       nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const;
 
   static google_firestore_v1_Precondition EncodePrecondition(
@@ -186,7 +187,7 @@ class Serializer {
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Query& query) const;
 
-  std::unique_ptr<model::Document> DecodeDocument(
+  model::Document DecodeDocument(
       nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
 
   static google_protobuf_Timestamp EncodeVersion(
@@ -216,10 +217,10 @@ class Serializer {
       const google_firestore_v1_ArrayValue& array_proto);
 
  private:
-  std::unique_ptr<model::Document> DecodeFoundDocument(
+  model::Document DecodeFoundDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
-  std::unique_ptr<model::NoDocument> DecodeMissingDocument(
+  model::NoDocument DecodeMissingDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 

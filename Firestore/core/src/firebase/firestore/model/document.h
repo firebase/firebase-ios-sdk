@@ -21,10 +21,6 @@
 #include <memory>
 #include <string>
 
-#if __OBJC__
-#import "Firestore/Source/Model/FSTDocument.h"
-#endif
-
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -61,8 +57,6 @@ std::ostream& operator<<(std::ostream& os, DocumentState state);
  */
 class Document : public MaybeDocument {
  public:
-  Document() = default;
-
   Document(ObjectValue data,
            DocumentKey key,
            SnapshotVersion version,
@@ -80,18 +74,8 @@ class Document : public MaybeDocument {
    */
   explicit Document(const MaybeDocument& document);
 
-#if __OBJC__
-  explicit Document(FSTDocument* doc)
-      : Document(doc.data, doc.key, doc.version, doc.documentState) {
-  }
-
-  FSTDocument* ToDocument() const {
-    return [FSTDocument documentWithData:data()
-                                     key:key()
-                                 version:version()
-                                   state:document_state()];
-  }
-#endif  // __OBJC__
+  /** Creates an invalid Document instance. */
+  Document() = default;
 
   const ObjectValue& data() const;
 
@@ -107,6 +91,8 @@ class Document : public MaybeDocument {
 
   /** Compares against another Document. */
   friend bool operator==(const Document& lhs, const Document& rhs);
+
+  friend std::ostream& operator<<(std::ostream& os, const Document& doc);
 
  private:
   class Rep;

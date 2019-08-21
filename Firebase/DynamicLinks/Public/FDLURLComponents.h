@@ -397,6 +397,12 @@ FIR_SWIFT_NAME(DynamicLinkOtherPlatformParameters)
  */
 + (instancetype)parameters NS_SWIFT_UNAVAILABLE("Use init()");
 
+/**
+ * @method init
+ * @abstract A method for creating the Other platform parameters object.
+ * @return Returns an object to be used with FIRDynamicLinkURLComponents to add Other Platform
+ *     parameters to a generated Dynamic Link URL.
+ */
 - (instancetype)init;
 
 @end

@@ -18,6 +18,7 @@
 
 #import "FIRGeoPoint.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "gtest/gtest.h"

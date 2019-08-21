@@ -30,7 +30,7 @@ namespace model {
 TEST(Precondition, None) {
   Precondition none = Precondition::None();
   EXPECT_EQ(Precondition::Type::None, none.type());
-  EXPECT_TRUE(none.IsNone());
+  EXPECT_TRUE(none.is_none());
   EXPECT_EQ(SnapshotVersion::None(), none.update_time());
 
   NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
@@ -45,8 +45,8 @@ TEST(Precondition, Exists) {
   Precondition no_exists = Precondition::Exists(false);
   EXPECT_EQ(Precondition::Type::Exists, exists.type());
   EXPECT_EQ(Precondition::Type::Exists, no_exists.type());
-  EXPECT_FALSE(exists.IsNone());
-  EXPECT_FALSE(no_exists.IsNone());
+  EXPECT_FALSE(exists.is_none());
+  EXPECT_FALSE(no_exists.is_none());
   EXPECT_EQ(SnapshotVersion::None(), exists.update_time());
   EXPECT_EQ(SnapshotVersion::None(), no_exists.update_time());
 
@@ -64,7 +64,7 @@ TEST(Precondition, UpdateTime) {
   Precondition update_time =
       Precondition::UpdateTime(testutil::Version(1234567));
   EXPECT_EQ(Precondition::Type::UpdateTime, update_time.type());
-  EXPECT_FALSE(update_time.IsNone());
+  EXPECT_FALSE(update_time.is_none());
   EXPECT_EQ(testutil::Version(1234567), update_time.update_time());
 
   NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);

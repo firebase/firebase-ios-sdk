@@ -33,10 +33,11 @@ namespace model {
  */
 class SnapshotVersion : public util::Comparable<SnapshotVersion> {
  public:
-#if __OBJC__
-  SnapshotVersion() {
-  }
-#endif  // __OBJC__
+  /**
+   * Creates a default SnapshotVersion equivalent to SnapshotVersion::None().
+   * Prefer SnapshotVersion::None() for readability.
+   */
+  SnapshotVersion() = default;
 
   explicit SnapshotVersion(const Timestamp& timestamp);
 
