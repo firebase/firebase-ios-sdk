@@ -27,11 +27,14 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
+#include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/algorithm/container.h"
 #include "absl/types/optional.h"
 
 OBJC_CLASS(FSTSyncEngine);
+
+NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -106,5 +109,7 @@ class EventManager : public SyncEngineCallback {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_EVENT_MANAGER_H_
