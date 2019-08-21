@@ -15,7 +15,7 @@
 	<key>BUNDLE_ID</key>
 	<string>com.google.firebase.config.testapp.dev</string>
 	<key>PROJECT_ID</key>
-	<string>icysummit-b0263</string>
+	<string>my-project</string>
 	<key>STORAGE_BUCKET</key>
 	<string>my.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>

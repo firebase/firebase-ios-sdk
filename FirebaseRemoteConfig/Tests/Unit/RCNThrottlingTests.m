@@ -98,7 +98,7 @@
                                       XCTAssertEqual(FIRRemoteConfigFetchStatusSuccess, status);
                                       [expectation fulfill];
                                     }];
-  // TODO(mandard): Investigate using a smaller timeout. b/122674668
+  // TODO(dmandar): Investigate using a smaller timeout. b/122674668
   [self waitForExpectationsWithTimeout:4.0 handler:nil];
 }
 
