@@ -75,9 +75,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * object construction, and an error will be thrown from any interaction
    * with this instance without calling it first.
    */
-  // The reason this is required it because of the shared_ptr usage to the
-  // instance in the initialization process. They cannot be obtained from within
-  // constructors.
+  // This is required because it uses shared_ptr to itself, and therefore cannot
+  // be in the constructor;
   void Initialize(const api::Settings& settings);
 
   /** Shuts down this client, cancels all writes / listeners, and releases all
