@@ -103,6 +103,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
+  Installations-*)
+    install_secrets
+    ;;
+
   InAppMessaging-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
