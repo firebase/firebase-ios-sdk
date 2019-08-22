@@ -886,7 +886,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
                                                          namespace:RCNTestsPerfNamespace]
                                 .stringValue,
-                             UTCToLocal(@"2016-02-28 18:33:31"));
+                            UTCToLocal(@"2016-02-28 18:33:31"));
       XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"
                                                   namespace:RCNTestsPerfNamespace]
                          .boolValue,
