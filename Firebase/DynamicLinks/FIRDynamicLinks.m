@@ -419,7 +419,9 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       if (parameters[kFIRDLParameterLink]) {
         FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] init];
         NSString *urlString = parameters[kFIRDLParameterLink];
-        NSURL *deepLinkURL = [NSURL URLWithString:urlString];
+        NSString *escapedUrlString =
+            [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSURL *deepLinkURL = [NSURL URLWithString:escapedUrlString];
         if (deepLinkURL) {
           dynamicLink.url = deepLinkURL;
           dynamicLink.matchType = FIRDLMatchTypeUnique;
