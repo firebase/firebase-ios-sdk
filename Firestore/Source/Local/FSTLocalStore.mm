@@ -258,11 +258,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
+  const SnapshotVersion &lastRemoteVersion = _queryCache->GetLastRemoteSnapshotVersion();
+
   return self.persistence.run("Apply remote event", [&] {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
 
-    DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.target_changes()) {
       TargetId targetID = entry.first;
       const TargetChange &change = entry.second;
@@ -270,24 +271,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
       auto found = _targetIDs.find(targetID);
       if (found == _targetIDs.end()) {
+        // We don't update the remote keys if the query is not active. This ensures that
+        // we persist the updated query data along with the updated assignment.
         continue;
       }
-      QueryData queryData = found->second;
 
-      // When a global snapshot contains updates (either add or modify) we can completely trust
-      // these updates as authoritative and blindly apply them to our cache (as a defensive measure
-      // to promote self-healing in the unfortunate case that our cache is ever somehow corrupted /
-      // out-of-sync).
-      //
-      // If the document is only updated while removing it from a target then watch isn't obligated
-      // to send the absolute latest version: it can send the first version that caused the document
-      // not to match.
-      for (const DocumentKey &key : change.added_documents()) {
-        authoritativeUpdates = authoritativeUpdates.insert(key);
-      }
-      for (const DocumentKey &key : change.modified_documents()) {
-        authoritativeUpdates = authoritativeUpdates.insert(key);
-      }
+      QueryData oldQueryData = found->second;
 
       _queryCache->RemoveMatchingKeys(change.removed_documents(), targetID);
       _queryCache->AddMatchingKeys(change.added_documents(), targetID);
@@ -296,13 +285,16 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
       const ByteString &resumeToken = change.resume_token();
+      // Update the resume token if the change includes one.
       if (!resumeToken.empty()) {
-        QueryData oldQueryData = queryData;
-        queryData = queryData.Copy(remoteEvent.snapshot_version(), resumeToken, sequenceNumber);
-        _targetIDs[targetID] = queryData;
+        QueryData newQueryData =
+            oldQueryData.Copy(remoteEvent.snapshot_version(), resumeToken, sequenceNumber);
+        _targetIDs[targetID] = newQueryData;
 
-        if ([self shouldPersistQueryData:queryData oldQueryData:oldQueryData change:change]) {
-          _queryCache->UpdateTarget(queryData);
+        // Update the query data if there are target changes (or if sufficient time has
+        // passed since the last update).
+        if ([self shouldPersistQueryData:newQueryData oldQueryData:oldQueryData change:change]) {
+          _queryCache->UpdateTarget(newQueryData);
         }
       }
     }
@@ -326,11 +318,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         existingDoc = *foundExisting;
       }
 
-      if (!existingDoc ||
-          (authoritativeUpdates.contains(doc.key()) && !existingDoc->has_pending_writes()) ||
-          doc.version() >= existingDoc->version()) {
-        // If a document update isn't authoritative, make sure we don't apply an old document
-        // version to the remote cache.
+      if (!existingDoc || doc.version() > existingDoc->version() ||
+          (doc.version() == existingDoc->version() && existingDoc->has_pending_writes())) {
         _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else if (doc.type() == MaybeDocument::Type::NoDocument &&
@@ -355,7 +344,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
-    const SnapshotVersion &lastRemoteVersion = _queryCache->GetLastRemoteSnapshotVersion();
     const SnapshotVersion &remoteVersion = remoteEvent.snapshot_version();
     if (remoteVersion != SnapshotVersion::None()) {
       HARD_ASSERT(remoteVersion >= lastRemoteVersion,
@@ -382,9 +370,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                   oldQueryData:(const QueryData &)oldQueryData
                         change:(const TargetChange &)change {
   // Avoid clearing any existing value
-  if (newQueryData.resume_token().empty()) return NO;
+  HARD_ASSERT(!newQueryData.resume_token().empty(),
+              "Attempted to persist query data with empty resume token");
 
-  // Any resume token is interesting if there isn't one already.
+  // Always persist query data if we don't already have a resume token.
   if (oldQueryData.resume_token().empty()) return YES;
 
   // Don't allow resume token changes to be buffered indefinitely. This allows us to be reasonably
