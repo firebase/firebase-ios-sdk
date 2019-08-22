@@ -46,10 +46,11 @@ end
 # Adds local pod declarations for all Firestore's transitive dependencies if
 # required.
 def configure_local_pods()
+  # Firestore is always local; that's what's under development here.
   pod 'FirebaseFirestore', :path => '../../'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
-  # to it can still function. See Firestore-*-xcodebuild in
+  # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
 
