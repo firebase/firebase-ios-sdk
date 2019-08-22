@@ -96,6 +96,19 @@ using util::StatusOr;
 using util::StatusOrCallback;
 using util::TimerId;
 
+std::shared_ptr<FirestoreClient> FirestoreClient::Create(
+    const DatabaseInfo& database_info,
+    const api::Settings& settings,
+    std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+    std::shared_ptr<util::Executor> user_executor,
+    std::shared_ptr<util::AsyncQueue> worker_queue) {
+  auto client = std::make_shared<FirestoreClient>(
+      database_info, std::move(credentials_provider), std::move(user_executor),
+      std::move(worker_queue));
+  client->Initialize(settings);
+  return client;
+}
+
 FirestoreClient::FirestoreClient(
     const DatabaseInfo& database_info,
     std::shared_ptr<auth::CredentialsProvider> credentials_provider,
@@ -103,8 +116,8 @@ FirestoreClient::FirestoreClient(
     std::shared_ptr<util::AsyncQueue> worker_queue)
     : database_info_(database_info),
       credentials_provider_(std::move(credentials_provider)),
-      user_executor_(std::move(user_executor)),
-      worker_queue_(std::move(worker_queue)) {
+      worker_queue_(std::move(worker_queue)),
+      user_executor_(std::move(user_executor)) {
 }
 
 void FirestoreClient::Initialize(const api::Settings& settings) {
@@ -115,8 +128,8 @@ void FirestoreClient::Initialize(const api::Settings& settings) {
   bool credentials_initialized = false;
 
   std::weak_ptr<FirestoreClient> weak_self(shared_from_this());
-  auto credentialChangeListener = [credentials_initialized, user_promise,
-                                   weak_self](User user) mutable {
+  auto credential_change_listener = [credentials_initialized, user_promise,
+                                     weak_self](User user) mutable {
     auto shared_self = weak_self.lock();
     if (!shared_self) return;
 
@@ -124,19 +137,24 @@ void FirestoreClient::Initialize(const api::Settings& settings) {
       credentials_initialized = true;
       user_promise->set_value(user);
     } else {
-      shared_self->worker_queue_->Enqueue(
-          [shared_self, user] { shared_self->CredentialsChanged(user); });
+      shared_self->worker_queue()->Enqueue([shared_self, user] {
+        shared_self->worker_queue()->VerifyIsCurrentQueue();
+
+        LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
+        [shared_self->sync_engine_ credentialDidChangeWithUser:user];
+      });
     }
   };
 
-  credentials_provider_->SetCredentialChangeListener(credentialChangeListener);
+  credentials_provider_->SetCredentialChangeListener(
+      credential_change_listener);
 
   // Defer initialization until we get the current user from the
-  // credentialChangeListener. This is guaranteed to be synchronously dispatched
-  // onto our worker queue, so we will be initialized before any subsequently
-  // queued work runs.
+  // credential_change_listener. This is guaranteed to be synchronously
+  // dispatched onto our worker queue, so we will be initialized before any
+  // subsequently queued work runs.
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, user_promise, settings] {
+  worker_queue()->Enqueue([shared_self, user_promise, settings] {
     User user = user_promise->get_future().get();
     shared_self->InitializeInternal(user, settings);
   });
@@ -144,24 +162,10 @@ void FirestoreClient::Initialize(const api::Settings& settings) {
   client_initialized_ = true;
 }
 
-void FirestoreClient::VerifyInitialized() {
-  if (!client_initialized_) {
-    ThrowIllegalState("The client has not been initialized yet, have you call "
-                      "'Initialize()' yet?");
-  }
-}
-
-void FirestoreClient::CredentialsChanged(const User& user) {
-  worker_queue_->VerifyIsCurrentQueue();
-
-  LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
-  [sync_engine_ credentialDidChangeWithUser:user];
-}
-
 void FirestoreClient::InitializeInternal(const User& user,
                                          const Settings& settings) {
   // Do all of our initialization on our own dispatch queue.
-  worker_queue_->VerifyIsCurrentQueue();
+  worker_queue()->VerifyIsCurrentQueue();
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
 
   // Note: The initialization work must all be synchronous (we can't dispatch
@@ -203,12 +207,12 @@ void FirestoreClient::InitializeInternal(const User& user,
   local_store_ = [[FSTLocalStore alloc] initWithPersistence:persistence_
                                                 initialUser:user];
 
-  auto datastore = std::make_shared<Datastore>(database_info_, worker_queue_,
+  auto datastore = std::make_shared<Datastore>(database_info_, worker_queue(),
                                                credentials_provider_);
 
   auto shared_self = shared_from_this();
   remote_store_ = absl::make_unique<RemoteStore>(
-      local_store_, std::move(datastore), worker_queue_,
+      local_store_, std::move(datastore), worker_queue(),
       [shared_self](OnlineState online_state) {
         [shared_self->sync_engine_ applyChangedOnlineState:online_state];
       });
@@ -236,8 +240,8 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
   std::chrono::milliseconds delay =
       gc_has_run_ ? regular_gc_delay_ : initial_gc_delay_;
   auto shared_self = shared_from_this();
-  lru_callback_ = worker_queue_->EnqueueAfterDelay(
-      delay, TimerId::GarbageCollectionDelay, [shared_self]() {
+  lru_callback_ = worker_queue()->EnqueueAfterDelay(
+      delay, TimerId::GarbageCollectionDelay, [shared_self] {
         [shared_self->local_store_
             collectGarbage:shared_self->lru_delegate_.gc];
         shared_self->gc_has_run_ = true;
@@ -246,33 +250,30 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
 }
 
 void FirestoreClient::DisableNetwork(StatusCallback callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, callback] {
+  worker_queue()->Enqueue([shared_self, callback] {
     shared_self->remote_store_->DisableNetwork();
     if (callback) {
-      shared_self->user_executor_->Execute([=] { callback(Status::OK()); });
+      shared_self->user_executor()->Execute([=] { callback(Status::OK()); });
     }
   });
 }
 
 void FirestoreClient::EnableNetwork(StatusCallback callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, callback] {
+  worker_queue()->Enqueue([shared_self, callback] {
     shared_self->remote_store_->EnableNetwork();
     if (callback) {
-      shared_self->user_executor_->Execute([=] { callback(Status::OK()); });
+      shared_self->user_executor()->Execute([=] { callback(Status::OK()); });
     }
   });
 }
 
 void FirestoreClient::Shutdown(StatusCallback callback) {
-  VerifyInitialized();
   auto shared_self = shared_from_this();
-  worker_queue_->EnqueueAndInitiateShutdown([shared_self, callback] {
+  worker_queue()->EnqueueAndInitiateShutdown([shared_self, callback] {
     shared_self->credentials_provider_->SetCredentialChangeListener(nullptr);
 
     // If we've scheduled LRU garbage collection, cancel it.
@@ -287,27 +288,26 @@ void FirestoreClient::Shutdown(StatusCallback callback) {
   // every time the callback is triggered. If it is in the above
   // enqueue, it might not get executed because after first shutdown
   // all operations are not executed.
-  worker_queue_->EnqueueEvenAfterShutdown([shared_self, callback] {
+  worker_queue()->EnqueueEvenAfterShutdown([shared_self, callback] {
     if (callback) {
-      shared_self->user_executor_->Execute([=] { callback(Status::OK()); });
+      shared_self->user_executor()->Execute([=] { callback(Status::OK()); });
     }
   });
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
 
   // Dispatch the result back onto the user dispatch queue.
   auto shared_self = shared_from_this();
   auto async_callback = [shared_self, callback](util::Status status) {
     if (callback) {
-      shared_self->user_executor_->Execute(
+      shared_self->user_executor()->Execute(
           [=] { callback(std::move(status)); });
     }
   };
 
-  worker_queue_->Enqueue([shared_self, async_callback]() {
+  worker_queue()->Enqueue([shared_self, async_callback] {
     [shared_self->sync_engine_
         registerPendingWritesCallback:std::move(async_callback)];
   });
@@ -323,19 +323,20 @@ bool FirestoreClient::is_shutdown() const {
   // Technically, the worker queue is still running, but only accepting tasks
   // related to shutdown or supposed to be run after shutdown. It is effectively
   // shut down to the eyes of users.
-  return worker_queue_->is_shutting_down();
+  return worker_queue()->is_shutting_down();
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
-    Query query, ListenOptions options, ViewSnapshot::SharedListener listener) {
-  VerifyInitialized();
+    Query query,
+    ListenOptions options,
+    ViewSnapshot::SharedListener&& listener) {
   VerifyNotShutdown();
 
   auto query_listener = QueryListener::Create(
       std::move(query), std::move(options), std::move(listener));
 
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, query_listener] {
+  worker_queue()->Enqueue([shared_self, query_listener] {
     shared_self->event_manager_->AddQueryListener(std::move(query_listener));
   });
 
@@ -344,38 +345,36 @@ std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
 
 void FirestoreClient::RemoveListener(
     const std::shared_ptr<QueryListener>& listener) {
-  VerifyInitialized();
   // Checks for shutdown but does not throw error, allowing it to be an no-op if
   // client is already shutdown.
   if (is_shutdown()) {
     return;
   }
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, listener] {
+  worker_queue()->Enqueue([shared_self, listener] {
     shared_self->event_manager_->RemoveQueryListener(listener);
   });
 }
 
 void FirestoreClient::GetDocumentFromLocalCache(
     const DocumentReference& doc, DocumentSnapshot::Listener&& callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, doc, shared_callback] {
-    absl::optional<MaybeDocument> maybe_doccument =
+  worker_queue()->Enqueue([shared_self, doc, shared_callback] {
+    absl::optional<MaybeDocument> maybe_document =
         [shared_self->local_store_ readDocument:doc.key()];
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
-    if (maybe_doccument && maybe_doccument->is_document()) {
-      Document document(*maybe_doccument);
+    if (maybe_document && maybe_document->is_document()) {
+      Document document(*maybe_document);
       maybe_snapshot = DocumentSnapshot{
           doc.firestore(), doc.key(), document,
           /*from_cache=*/true,
           /*has_pending_writes=*/document.has_local_mutations()};
-    } else if (maybe_doccument && maybe_doccument->is_no_document()) {
+    } else if (maybe_document && maybe_document->is_no_document()) {
       maybe_snapshot =
           DocumentSnapshot{doc.firestore(), doc.key(), absl::nullopt,
                            /*from_cache=*/true,
@@ -389,7 +388,7 @@ void FirestoreClient::GetDocumentFromLocalCache(
     }
 
     if (shared_callback) {
-      shared_self->user_executor_->Execute(
+      shared_self->user_executor()->Execute(
           [=] { shared_callback->OnEvent(std::move(maybe_snapshot)); });
     }
   });
@@ -397,13 +396,12 @@ void FirestoreClient::GetDocumentFromLocalCache(
 
 void FirestoreClient::GetDocumentsFromLocalCache(
     const api::Query& query, QuerySnapshot::Listener&& callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, query, shared_callback] {
+  worker_queue()->Enqueue([shared_self, query, shared_callback] {
     DocumentMap docs = [shared_self->local_store_ executeQuery:query.query()];
 
     FSTView* view = [[FSTView alloc] initWithQuery:query.query()
@@ -425,7 +423,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
                          std::move(metadata));
 
     if (shared_callback) {
-      shared_self->user_executor_->Execute(
+      shared_self->user_executor()->Execute(
           [=] { shared_callback->OnEvent(std::move(result)); });
     }
   });
@@ -433,15 +431,14 @@ void FirestoreClient::GetDocumentsFromLocalCache(
 
 void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
                                      StatusCallback callback) {
-  VerifyInitialized();
   VerifyNotShutdown();
 
   // TODO(c++14): move `mutations` into lambda (C++14).
   auto shared_self = shared_from_this();
-  worker_queue_->Enqueue([shared_self, mutations, callback]() mutable {
+  worker_queue()->Enqueue([shared_self, mutations, callback]() mutable {
     if (mutations.empty()) {
       if (callback) {
-        shared_self->user_executor_->Execute([=] { callback(Status::OK()); });
+        shared_self->user_executor()->Execute([=] { callback(Status::OK()); });
       }
     } else {
       [shared_self->sync_engine_
@@ -449,7 +446,7 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
               completion:^(NSError* error) {
                 // Dispatch the result back onto the user dispatch queue.
                 if (callback) {
-                  shared_self->user_executor_->Execute(
+                  shared_self->user_executor()->Execute(
                       [=] { callback(Status::FromNSError(error)); });
                 }
               }];
@@ -457,44 +454,31 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
   });
 }
 
-void FirestoreClient::TransactionWithRetries(
-    int retries,
-    TransactionUpdateCallback update_callback,
-    TransactionResultCallback result_callback) {
-  VerifyInitialized();
+void FirestoreClient::Transaction(int retries,
+                                  TransactionUpdateCallback update_callback,
+                                  TransactionResultCallback result_callback) {
   VerifyNotShutdown();
 
   // Dispatch the result back onto the user dispatch queue.
   auto shared_self = shared_from_this();
-  auto async_callback =
-      [shared_self, result_callback](util::StatusOr<absl::any> maybe_value) {
-        if (result_callback) {
-          shared_self->user_executor_->Execute(
-              [=] { result_callback(std::move(maybe_value)); });
-        }
-      };
+  auto async_callback = [shared_self,
+                         result_callback](StatusOr<absl::any> maybe_value) {
+    if (result_callback) {
+      shared_self->user_executor()->Execute(
+          [=] { result_callback(std::move(maybe_value)); });
+    }
+  };
 
-  worker_queue_->Enqueue(
+  worker_queue()->Enqueue(
       [shared_self, retries, update_callback, async_callback] {
         [shared_self->sync_engine_
             transactionWithRetries:retries
-                       workerQueue:shared_self->worker_queue_
+                       workerQueue:shared_self->worker_queue()
                     updateCallback:std::move(update_callback)
                     resultCallback:std::move(async_callback)];
       });
 }
 
-const DatabaseId& FirestoreClient::database_id() const {
-  return database_info_.database_id();
-}
-
-const std::shared_ptr<util::Executor>& FirestoreClient::user_executor() const {
-  return user_executor_;
-}
-
-const std::shared_ptr<util::AsyncQueue>& FirestoreClient::worker_queue() const {
-  return worker_queue_;
-}
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

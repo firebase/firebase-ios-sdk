@@ -142,9 +142,8 @@ NS_ASSUME_NONNULL_BEGIN
                          workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue {
   if (self = [super init]) {
     internalClient_ =
-        std::make_shared<FirestoreClient>(databaseInfo, std::move(credentialsProvider),
-                                          std::move(userExecutor), std::move(workerQueue));
-    internalClient_->Initialize(settings);
+        FirestoreClient::Create(databaseInfo, settings, std::move(credentialsProvider),
+                                std::move(userExecutor), std::move(workerQueue));
   }
   return self;
 }
@@ -192,8 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)transactionWithRetries:(int)retries
                 updateCallback:(core::TransactionUpdateCallback)update_callback
                 resultCallback:(core::TransactionResultCallback)resultCallback {
-  internalClient_->TransactionWithRetries(retries, std::move(update_callback),
-                                          std::move(resultCallback));
+  internalClient_->Transaction(retries, std::move(update_callback), std::move(resultCallback));
 }
 
 - (const DatabaseId &)databaseID {

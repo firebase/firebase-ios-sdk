@@ -59,30 +59,35 @@ namespace core {
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the
- * pieces of the client SDK architecture. It is responsible for creating the
- * worker queue that is shared by all of the other components in the system.
+ * pieces of the client SDK architecture.
  */
 class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
  public:
-  explicit FirestoreClient(
+  static std::shared_ptr<FirestoreClient> Create(
+      const DatabaseInfo& database_info,
+      const api::Settings& settings,
+      std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+      std::shared_ptr<util::Executor> user_executor,
+      std::shared_ptr<util::AsyncQueue> worker_queue);
+
+  // This is public because std::make_shared cannot access it otherwise.
+  FirestoreClient(
       const DatabaseInfo& database_info,
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
   /**
-   * Initializes this instance of the client. This should be called right after
-   * object construction, and an error will be thrown from any interaction
-   * with this instance without calling it first.
+   * Shuts down this client, cancels all writes / listeners, and releases all
+   * resources.
    */
-  // This is required because it uses shared_ptr to itself, and therefore cannot
-  // be in the constructor;
-  void Initialize(const api::Settings& settings);
-
-  /** Shuts down this client, cancels all writes / listeners, and releases all
-   * resources. */
   void Shutdown(util::StatusCallback callback);
 
+  /**
+   * Passes a callback that is triggered when all the pending writes at the
+   * time when this method is called received server acknowledgement.
+   * An acknowledgement can be either acceptance or rejections.
+   */
   void WaitForPendingWrites(util::StatusCallback callback);
 
   /** Disables the network connection. Pending operations will not complete. */
@@ -95,7 +100,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<QueryListener> ListenToQuery(
       Query query,
       ListenOptions options,
-      ViewSnapshot::SharedListener listener);
+      ViewSnapshot::SharedListener&& listener);
 
   /** Stops listening to a query previously listened to. */
   void RemoveListener(const std::shared_ptr<core::QueryListener>& listener);
@@ -109,53 +114,61 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /**
    * Retrieves a (possibly empty) set of documents from the cache via the
-   * indicated completion.
+   * indicated callback.
    */
   void GetDocumentsFromLocalCache(const api::Query& query,
                                   api::QuerySnapshot::Listener&& callback);
 
-  /** Write mutations. callback will be notified when it's written to the
-   * backend. */
+  /**
+   * Write mutations. callback will be notified when it's written to the
+   * backend.
+   */
   void WriteMutations(std::vector<model::Mutation>&& mutations,
                       util::StatusCallback callback);
 
-  /** Tries to execute the transaction in updateCallback up to retries times. */
-  void TransactionWithRetries(int retries,
-                              TransactionUpdateCallback update_callback,
-                              TransactionResultCallback result_callback);
+  /**
+   * Tries to execute the transaction in update_callback up to retries times.
+   */
+  void Transaction(int retries,
+                   TransactionUpdateCallback update_callback,
+                   TransactionResultCallback result_callback);
 
-  /** The database ID of the databaseInfo this client was initialized with. */
-  const model::DatabaseId& database_id() const;
+  /** The database ID of the DatabaseInfo this client was initialized with. */
+  const model::DatabaseId& database_id() const {
+    return database_info_.database_id();
+  }
 
   /**
    * Dispatch queue for user callbacks / events. This will often be the "Main
    * Dispatch Queue" of the app but the developer can configure it to a
    * different queue if they so choose.
    */
-  const std::shared_ptr<util::Executor>& user_executor() const;
+  const std::shared_ptr<util::Executor>& user_executor() const {
+    return user_executor_;
+  }
 
-  /** For testing only. */
-  const std::shared_ptr<util::AsyncQueue>& worker_queue() const;
+  /** For usage in this class and testing only. */
+  const std::shared_ptr<util::AsyncQueue>& worker_queue() const {
+    return worker_queue_;
+  }
   bool is_shutdown() const;
 
  private:
-  // Has this instance of client been initialized?
-  bool client_initialized_ = false;
-  // Verifies if this instance has been properly initialized.
-  void VerifyInitialized();
+  /**
+   * Initializes this instance of the client. This should be called right after
+   * object construction. This is required because it uses shared_ptr to itself,
+   * and therefore cannot be in the constructor;
+   */
+  void Initialize(const api::Settings& settings);
   void InitializeInternal(const auth::User& user,
                           const api::Settings& settings);
+  void VerifyNotShutdown();
+  void ScheduleLruGarbageCollection();
+
+  bool client_initialized_ = false;
 
   DatabaseInfo database_info_;
-  void CredentialsChanged(const auth::User& user);
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
-  std::shared_ptr<util::Executor> user_executor_;
-  std::unique_ptr<remote::RemoteStore> remote_store_;
-  util::DelayedConstructor<EventManager> event_manager_;
-  id<FSTPersistence> persistence_;
-  FSTSyncEngine* sync_engine_;
-  FSTLocalStore* local_store_;
-
   /**
    * Async queue responsible for all of our internal processing. When we get
    * incoming work from the user (via public API) or the network (incoming gRPC
@@ -164,13 +177,18 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    * simultaneously.
    */
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  void VerifyNotShutdown();
+  std::shared_ptr<util::Executor> user_executor_;
 
-  void ScheduleLruGarbageCollection();
-  std::chrono::milliseconds initial_gc_delay_;
-  std::chrono::milliseconds regular_gc_delay_;
-  bool gc_has_run_;
-  id<FSTLRUDelegate> lru_delegate_;
+  id<FSTPersistence> persistence_;
+  FSTLocalStore* local_store_;
+  std::unique_ptr<remote::RemoteStore> remote_store_;
+  FSTSyncEngine* sync_engine_;
+  util::DelayedConstructor<EventManager> event_manager_;
+
+  std::chrono::milliseconds initial_gc_delay_ = std::chrono::minutes(1);
+  std::chrono::milliseconds regular_gc_delay_ = std::chrono::minutes(5);
+  bool gc_has_run_ = false;
+  _Nullable id<FSTLRUDelegate> lru_delegate_;
   util::DelayedOperation lru_callback_;
 };
 
