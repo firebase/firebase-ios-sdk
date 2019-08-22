@@ -322,6 +322,14 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
     # linkage (it works if enabled together with ASan, but it's supposed to be
     # usable on its own, too).
@@ -423,6 +431,8 @@ jobs:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
     - env:
