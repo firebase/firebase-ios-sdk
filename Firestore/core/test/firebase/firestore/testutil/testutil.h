@@ -112,7 +112,7 @@ EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
  *
  * @tparam T Any integral type (but not bool). Types larger than int64_t will
  *     likely generate a warning.
- * @param int_value An integer value.
+ * @param value An integer value.
  */
 template <typename T>
 EnableForInts<T, model::FieldValue> Value(T value) {
