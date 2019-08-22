@@ -72,7 +72,6 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  @param queryList The NSURLQueryItem array.
  @return The value for the key.
  */
-
 + (nullable NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList;
 
 /** @fn dictionaryWithHttpArgumentsString:
