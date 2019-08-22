@@ -31,6 +31,8 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "absl/types/optional.h"
 
 @class FSTMutationBatch;
 
@@ -57,7 +59,7 @@ class MutationQueue {
 
   /** Acknowledges the given batch. */
   virtual void AcknowledgeBatch(FSTMutationBatch* batch,
-                                NSData* _Nullable stream_token) = 0;
+                                const nanopb::ByteString& stream_token) = 0;
 
   /**
    * Creates a new mutation batch and adds it to this mutation queue.
@@ -167,10 +169,10 @@ class MutationQueue {
   virtual void PerformConsistencyCheck() = 0;
 
   /** Returns the current stream token for this mutation queue. */
-  virtual NSData* _Nullable GetLastStreamToken() = 0;
+  virtual nanopb::ByteString GetLastStreamToken() = 0;
 
   /** Sets the stream token for this mutation queue. */
-  virtual void SetLastStreamToken(NSData* _Nullable stream_token) = 0;
+  virtual void SetLastStreamToken(const nanopb::ByteString& stream_token) = 0;
 };
 
 }  // namespace local

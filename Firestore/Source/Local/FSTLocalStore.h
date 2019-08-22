@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
 namespace firebase {
 namespace firestore {
@@ -51,6 +52,7 @@ namespace auth = firebase::firestore::auth;
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
+namespace nanopb = firebase::firestore::nanopb;
 namespace remote = firebase::firestore::remote;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -139,14 +141,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (model::MaybeDocumentMap)rejectBatchID:(model::BatchId)batchID;
 
 /** Returns the last recorded stream token for the current user. */
-- (nullable NSData *)lastStreamToken;
+- (nanopb::ByteString)lastStreamToken;
 
 /**
  * Sets the stream token for the current user without acknowledging any mutation batch. This is
  * usually only useful after a stream handshake or in response to an error that requires clearing
  * the stream token.
  */
-- (void)setLastStreamToken:(nullable NSData *)streamToken;
+- (void)setLastStreamToken:(const nanopb::ByteString &)streamToken;
 
 /**
  * Returns the last consistent snapshot processed (used by the RemoteStore to determine whether to

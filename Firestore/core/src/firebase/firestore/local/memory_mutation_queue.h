@@ -53,7 +53,7 @@ class MemoryMutationQueue : public MutationQueue {
   bool IsEmpty() override;
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
-                        NSData* _Nullable stream_token) override;
+                        const nanopb::ByteString& stream_token) override;
 
   FSTMutationBatch* AddMutationBatch(
       const Timestamp& local_write_time,
@@ -89,8 +89,8 @@ class MemoryMutationQueue : public MutationQueue {
 
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  NSData* _Nullable GetLastStreamToken() override;
-  void SetLastStreamToken(NSData* _Nullable token) override;
+  nanopb::ByteString GetLastStreamToken() override;
+  void SetLastStreamToken(const nanopb::ByteString& token) override;
 
  private:
   using DocumentKeyReferenceSet =
@@ -143,7 +143,7 @@ class MemoryMutationQueue : public MutationQueue {
    * responses the client has processed. Stream tokens are opaque checkpoint
    * markers whose only real value is their inclusion in the next request.
    */
-  NSData* _Nullable last_stream_token_;
+  nanopb::ByteString last_stream_token_;
 
   /** An ordered mapping between documents and the mutation batch IDs. */
   DocumentKeyReferenceSet batches_by_document_key_;

@@ -41,6 +41,7 @@ using model::DocumentKeySet;
 using model::kBatchIdUnknown;
 using model::Mutation;
 using model::ResourcePath;
+using nanopb::ByteString;
 
 MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
     : persistence_(persistence) {
@@ -53,7 +54,7 @@ bool MemoryMutationQueue::IsEmpty() {
 }
 
 void MemoryMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
-                                           NSData* _Nullable stream_token) {
+                                           const ByteString& stream_token) {
   HARD_ASSERT(!queue_.empty(), "Cannot acknowledge batch on an empty queue");
 
   // Guaranteed to exist, due to above assert
@@ -262,11 +263,11 @@ size_t MemoryMutationQueue::CalculateByteSize(FSTLocalSerializer* serializer) {
   return count;
 }
 
-NSData* _Nullable MemoryMutationQueue::GetLastStreamToken() {
+ByteString MemoryMutationQueue::GetLastStreamToken() {
   return last_stream_token_;
 }
 
-void MemoryMutationQueue::SetLastStreamToken(NSData* _Nullable token) {
+void MemoryMutationQueue::SetLastStreamToken(const ByteString& token) {
   last_stream_token_ = token;
 }
 
