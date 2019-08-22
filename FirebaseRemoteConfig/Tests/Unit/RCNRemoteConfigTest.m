@@ -839,11 +839,24 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   }
 }
 
+// Remote Config converts UTC times in the plists to local times. This utility function makes it
+// possible to check the times when running the tests in any timezone.
+static NSString *UTCToLocal(NSString *utcTime) {
+  // Create a UTC dateFormatter.
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+  [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+  NSDate *date = [dateFormatter dateFromString:utcTime];
+  [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+  return [dateFormatter stringFromDate:date];
+}
+
 - (void)testSetDefaultsFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+    FIRRemoteConfig *config = _configInstances[i];
+    [config setDefaultsFromPlistFileName:@"Defaults-testInfo"];
     XCTAssertEqualObjects(_configInstances[i][@"lastCheckTime"].stringValue,
-                          @"2016-02-28 10:33:31");
+                          UTCToLocal(@"2016-02-28 18:33:31"));
     XCTAssertEqual(_configInstances[i][@"isPaidUser"].boolValue, YES);
     XCTAssertEqualObjects(_configInstances[i][@"dataValue"].stringValue, @"2.4");
     XCTAssertEqualObjects(_configInstances[i][@"New item"].numberValue, @(2.4));
@@ -855,7 +868,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     // If given a wrong file name, the default will not be set and kept as previous results.
     [_configInstances[i] setDefaultsFromPlistFileName:@""];
     XCTAssertEqualObjects(_configInstances[i][@"lastCheckTime"].stringValue,
-                          @"2016-02-28 10:33:31");
+                          UTCToLocal(@"2016-02-28 18:33:31"));
     [_configInstances[i] setDefaultsFromPlistFileName:@"non-existed_file"];
     XCTAssertEqualObjects(_configInstances[i][@"dataValue"].stringValue, @"2.4");
     [_configInstances[i] setDefaultsFromPlistFileName:nil namespace:nil];
@@ -873,7 +886,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
                                                          namespace:RCNTestsPerfNamespace]
                                 .stringValue,
-                            @"2016-02-28 10:33:31");
+                             UTCToLocal(@"2016-02-28 18:33:31"));
       XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"
                                                   namespace:RCNTestsPerfNamespace]
                          .boolValue,
@@ -901,7 +914,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     } else {
       [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
-                            @"2016-02-28 10:33:31");
+                            UTCToLocal(@"2016-02-28 18:33:31"));
       XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue,
                             @"2.4");
