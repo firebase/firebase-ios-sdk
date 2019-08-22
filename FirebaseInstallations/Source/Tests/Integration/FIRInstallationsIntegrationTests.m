@@ -227,9 +227,11 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 - (BOOL)isDefaultAppConfigured {
   if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
 #if FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
-    XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to your project.");
+    XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to "
+            @"your project.");
 #else
-    NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@", self.name);
+    NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
+          self.name);
 #endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
   }
 
@@ -237,5 +239,3 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 }
 
 @end
-
-
