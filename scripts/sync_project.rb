@@ -171,7 +171,7 @@ def sync_firestore(test_only)
         # These files are integration tests, handled below
         'Firestore/Example/Tests/Integration/**',
       ]
-      t.xcconfig = xcconfig_objc
+      t.xcconfig = xcconfig_swift
     end
   end
 
