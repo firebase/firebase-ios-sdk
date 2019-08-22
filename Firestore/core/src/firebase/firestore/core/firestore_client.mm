@@ -102,9 +102,10 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     std::shared_ptr<auth::CredentialsProvider> credentials_provider,
     std::shared_ptr<util::Executor> user_executor,
     std::shared_ptr<util::AsyncQueue> worker_queue) {
-  auto client = std::make_shared<FirestoreClient>(
+  // Have to use `new` because `make_shared` cannot access private constructor.
+  std::shared_ptr<FirestoreClient> client(new FirestoreClient(
       database_info, std::move(credentials_provider), std::move(user_executor),
-      std::move(worker_queue));
+      std::move(worker_queue)));
   client->Initialize(settings);
   return client;
 }

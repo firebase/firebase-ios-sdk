@@ -70,13 +70,6 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
-  // This is public because std::make_shared cannot access it otherwise.
-  FirestoreClient(
-      const DatabaseInfo& database_info,
-      std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-      std::shared_ptr<util::Executor> user_executor,
-      std::shared_ptr<util::AsyncQueue> worker_queue);
-
   /**
    * Shuts down this client, cancels all writes / listeners, and releases all
    * resources.
@@ -154,6 +147,11 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   bool is_shutdown() const;
 
  private:
+  FirestoreClient(
+      const DatabaseInfo& database_info,
+      std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+      std::shared_ptr<util::Executor> user_executor,
+      std::shared_ptr<util::AsyncQueue> worker_queue);
   /**
    * Initializes this instance of the client. This should be called right after
    * object construction. This is required because it uses shared_ptr to itself,
