@@ -147,7 +147,10 @@ class ByteString : public util::Comparable<ByteString> {
 
   size_t Hash() const;
 
+  // Represents the value as hexademical values.
   std::string ToString() const;
+  // Tries to interpret the value as an ASCII string, intended for debugging.
+  std::string ToHumanReadableString() const;
   friend std::ostream& operator<<(std::ostream& out, const ByteString& str);
 
  private:

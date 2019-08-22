@@ -91,6 +91,14 @@ std::string ByteString::ToString() const {
   return absl::StrCat("<", hex, ">");
 }
 
+std::string ByteString::ToHumanReadableString() const {
+  std::string result;
+  for (uint8_t e : *this) {
+    result += static_cast<char>(e);
+  }
+  return result;
+}
+
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {
   return out << str.ToString();
 }

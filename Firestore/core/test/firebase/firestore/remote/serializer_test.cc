@@ -57,6 +57,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 namespace v1 = google::firestore::v1;
 using google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
@@ -81,6 +83,10 @@ using testutil::Map;
 using util::Status;
 using util::StatusOr;
 
+const char* kProjectId = "p";
+const char* kDatabaseId = "d";
+}
+
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
   // nanopb is concerned but that it can run at all is proof that all the
@@ -92,7 +98,7 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(DatabaseId("p", "d")) {
+  SerializerTest() : serializer(DatabaseId(kProjectId, kDatabaseId)) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
@@ -222,6 +228,12 @@ class SerializerTest : public ::testing::Test {
   v1::Value ValueProto(const ByteString& blob) {
     ByteString bytes =
         EncodeFieldValue(&serializer, FieldValue::FromBlob(blob));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
+  v1::Value ValueProto(const FieldValue::Reference& ref) {
+    ByteString bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromReference(ref.database_id(), ref.key()));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -502,6 +514,17 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
   auto parsed_proto = ProtobufParse<v1::Value>(bytes);
   std::string actual = parsed_proto.bytes_value();
   EXPECT_EQ(actual, "");
+}
+
+TEST_F(SerializerTest, EncodesReferences) {
+  std::vector<FieldValue::Reference> cases{
+    {DatabaseId{kProjectId, kDatabaseId}, DocumentKey::FromPathString("baz/a")},
+  };
+
+  for (const auto& value : cases) {
+    FieldValue model = FieldValue::FromReference(value.database_id(), value.key());
+    ExpectRoundTrip(model, ValueProto(value), FieldValue::Type::Reference);
+  }
 }
 
 TEST_F(SerializerTest, EncodesGeoPoint) {
