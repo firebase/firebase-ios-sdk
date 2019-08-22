@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 
+#include <string>
 #include <utility>
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
@@ -24,9 +25,11 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::core::Transaction;
@@ -429,7 +432,8 @@ void RemoteStore::OnWriteStreamMutationResult(
       resultWithBatch:batch
         commitVersion:commit_version
       mutationResults:std::move(mutation_results)
-          streamToken:write_stream_->GetLastStreamToken()];
+          streamToken:nanopb::MakeNullableNSData(
+                          write_stream_->GetLastStreamToken())];
   [sync_engine_ applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has
@@ -475,14 +479,13 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
   // no longer valid. Note that the handshake does not count as a write: see
   // comments on `Datastore::IsPermanentWriteError` for details.
   if (Datastore::IsPermanentError(status)) {
-    NSString* token =
-        [write_stream_->GetLastStreamToken() base64EncodedStringWithOptions:0];
+    std::string token = util::ToString(write_stream_->GetLastStreamToken());
     LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
               "stream token %s: "
               "error code: '%s', details: '%s'",
               this, token, status.code(), status.error_message());
-    write_stream_->SetLastStreamToken(nil);
-    [local_store_ setLastStreamToken:nil];
+    write_stream_->SetLastStreamToken({});
+    [local_store_ setLastStreamToken:{}];
   } else {
     // Some other error, don't reset stream token. Our stream logic will just
     // retry with exponential backoff.

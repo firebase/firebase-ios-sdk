@@ -238,7 +238,7 @@ using firebase::firestore::nanopb::MakeNSData;
   proto.targetId = queryData.target_id();
   proto.lastListenSequenceNumber = queryData.sequence_number();
   proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshot_version()];
-  proto.resumeToken = MakeNSData(queryData.resume_token());
+  proto.resumeToken = MakeNullableNSData(queryData.resume_token());
 
   const Query &query = queryData.query();
   if (query.IsDocumentQuery()) {

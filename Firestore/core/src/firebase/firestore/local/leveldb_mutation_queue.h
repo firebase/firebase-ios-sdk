@@ -65,7 +65,7 @@ class LevelDbMutationQueue : public MutationQueue {
   bool IsEmpty() override;
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
-                        NSData* _Nullable stream_token) override;
+                        const nanopb::ByteString& stream_token) override;
 
   FSTMutationBatch* AddMutationBatch(
       const Timestamp& local_write_time,
@@ -95,9 +95,9 @@ class LevelDbMutationQueue : public MutationQueue {
 
   void PerformConsistencyCheck() override;
 
-  NSData* _Nullable GetLastStreamToken() override;
+  nanopb::ByteString GetLastStreamToken() override;
 
-  void SetLastStreamToken(NSData* _Nullable stream_token) override;
+  void SetLastStreamToken(const nanopb::ByteString& stream_token) override;
 
  private:
   /**
