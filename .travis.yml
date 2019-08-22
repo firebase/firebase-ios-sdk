@@ -104,7 +104,7 @@ jobs:
       env:
         - PROJECT=RemoteConfig PLATFORM=iOS METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfigpodspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
 
@@ -224,10 +224,10 @@ jobs:
       env:
         - PROJECT=FirebasePllRemoteConfigCron PLATFORM=iOS METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfigpodspec --use-libraries --allow-warnings --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfigpodspec --use-modular-headers --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
 
