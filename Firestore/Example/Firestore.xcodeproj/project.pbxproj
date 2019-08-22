@@ -1930,12 +1930,12 @@
 				ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */,
 				39B832380209CC5BAF93BC52 /* Pods_Firestore_IntegrationTests_macOS.framework */,
 				2220F583583EFC28DE792ABE /* Pods_Firestore_IntegrationTests_tvOS.framework */,
+				D2F570F722723E4CEF7031DD /* Pods_Firestore_SwiftTests_iOS.framework */,
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
 				759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */,
 				D7DF4A6F740086A2D8C0E28E /* Pods_Firestore_Tests_tvOS.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				D2F570F722723E4CEF7031DD /* Pods_Firestore_SwiftTests_iOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2123,14 +2123,14 @@
 				B953604968FBF5483BD20F5A /* Pods-Firestore_IntegrationTests_macOS.release.xcconfig */,
 				74AC2ADBF1BAD9A8EF30CF41 /* Pods-Firestore_IntegrationTests_tvOS.debug.xcconfig */,
 				36D235D9F1240D5195CDB670 /* Pods-Firestore_IntegrationTests_tvOS.release.xcconfig */,
+				83DE894EA290E0E32E423DD0 /* Pods-Firestore_SwiftTests_iOS.debug.xcconfig */,
+				8A4A4702F07136A409F44FB6 /* Pods-Firestore_SwiftTests_iOS.release.xcconfig */,
 				E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */,
 				B3F5B3AAE791A5911B9EAA82 /* Pods-Firestore_Tests_iOS.release.xcconfig */,
 				BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */,
 				397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */,
 				2E48431B0EDA400BEA91D4AB /* Pods-Firestore_Tests_tvOS.debug.xcconfig */,
 				6AE927CDFC7A72BF825BE4CB /* Pods-Firestore_Tests_tvOS.release.xcconfig */,
-				83DE894EA290E0E32E423DD0 /* Pods-Firestore_SwiftTests_iOS.debug.xcconfig */,
-				8A4A4702F07136A409F44FB6 /* Pods-Firestore_SwiftTests_iOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
