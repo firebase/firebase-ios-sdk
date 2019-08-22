@@ -678,7 +678,6 @@
 		8403D519C916C72B9C7F2FA1 /* FIRValidationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06D202154D600B64F25 /* FIRValidationTests.mm */; };
 		8413BD9958F6DD52C466D70F /* sorted_set_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */; };
 		8460C97C9209D7DAF07090BD /* FIRFieldsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06A202154D500B64F25 /* FIRFieldsTests.mm */; };
-		84E7F0B38B3A77516CB12751 /* Pods_Firestore_SwiftTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F570F722723E4CEF7031DD /* Pods_Firestore_SwiftTests_iOS.framework */; };
 		84F5EC2591503B7A55BA113C /* FSTViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E05E202154B900B64F25 /* FSTViewTests.mm */; };
 		85B8918FC8C5DC62482E39C3 /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
 		85BC2AB572A400114BF59255 /* limbo_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */; };
@@ -916,6 +915,7 @@
 		C1549A65EA90BBA4AC9A066A /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */; };
 		C15F5F1E7427738F20C2D789 /* offline_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A11F315EE100DD57A1 /* offline_spec_test.json */; };
 		C19214F5B43AA745A7FC2FC1 /* maybe_document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */; };
+		C1AA536F90A0A576CA2816EB /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */; };
 		C1B4621C0820EEB0AC9CCD22 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		C1E35BCE2CFF9B56C28545A2 /* Pods_Firestore_Example_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62E103B28B48A81D682A0DE9 /* Pods_Firestore_Example_tvOS.framework */; };
 		C21B3A1CCB3AD42E57EA14FC /* Pods_Firestore_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */; };
@@ -1418,10 +1418,8 @@
 		759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = string_win_test.cc; sourceTree = "<group>"; };
 		7B65C996438B84DBC7616640 /* CodableTimestampTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CodableTimestampTests.swift; sourceTree = "<group>"; };
-		83DE894EA290E0E32E423DD0 /* Pods-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_SwiftTests_iOS/Pods-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		8A4A4702F07136A409F44FB6 /* Pods-Firestore_SwiftTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_SwiftTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_SwiftTests_iOS/Pods-Firestore_SwiftTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		8E002F4AD5D9B6197C940847 /* Firestore.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Firestore.podspec; path = ../Firestore.podspec; sourceTree = "<group>"; };
 		97C492D2524E92927C11F425 /* Pods-Firestore_FuzzTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		98366480BD1FD44A1FEDD982 /* Pods-Firestore_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1482,12 +1480,12 @@
 		B953604968FBF5483BD20F5A /* Pods-Firestore_IntegrationTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		B9C261C26C5D311E1E3C0CB9 /* query_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = query_test.cc; sourceTree = "<group>"; };
 		BA6E5B9D53CCF301F58A62D7 /* xcgmock.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = xcgmock.h; sourceTree = "<group>"; };
+		BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC3C788D290A935C353CEAA1 /* writer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = writer_test.cc; path = nanopb/writer_test.cc; sourceTree = "<group>"; };
 		BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
 		CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = equals_tester.h; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
-		D2F570F722723E4CEF7031DD /* Pods_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
 		D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRNumericTransformTests.mm; sourceTree = "<group>"; };
@@ -1569,7 +1567,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84E7F0B38B3A77516CB12751 /* Pods_Firestore_SwiftTests_iOS.framework in Frameworks */,
+				C1AA536F90A0A576CA2816EB /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1924,6 +1922,7 @@
 				6003F58D195388D20070C39A /* Foundation.framework */,
 				F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */,
 				5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */,
+				BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */,
 				E42355285B9EF55ABD785792 /* Pods_Firestore_Example_macOS.framework */,
 				62E103B28B48A81D682A0DE9 /* Pods_Firestore_Example_tvOS.framework */,
 				B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */,
@@ -1935,7 +1934,6 @@
 				D7DF4A6F740086A2D8C0E28E /* Pods_Firestore_Tests_tvOS.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				D2F570F722723E4CEF7031DD /* Pods_Firestore_SwiftTests_iOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2129,8 +2127,6 @@
 				397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */,
 				2E48431B0EDA400BEA91D4AB /* Pods-Firestore_Tests_tvOS.debug.xcconfig */,
 				6AE927CDFC7A72BF825BE4CB /* Pods-Firestore_Tests_tvOS.release.xcconfig */,
-				83DE894EA290E0E32E423DD0 /* Pods-Firestore_SwiftTests_iOS.debug.xcconfig */,
-				8A4A4702F07136A409F44FB6 /* Pods-Firestore_SwiftTests_iOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -3299,7 +3295,7 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Firestore_SwiftTests_iOS-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3318,7 +3314,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Firestore_SwiftTests_iOS/Pods-Firestore_SwiftTests_iOS-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -4742,7 +4738,7 @@
 		};
 		54C9EDF82040E16300A969CD /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 83DE894EA290E0E32E423DD0 /* Pods-Firestore_SwiftTests_iOS.debug.xcconfig */;
+			baseConfigurationReference = 69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -4777,7 +4773,7 @@
 		};
 		54C9EDF92040E16300A969CD /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8A4A4702F07136A409F44FB6 /* Pods-Firestore_SwiftTests_iOS.release.xcconfig */;
+			baseConfigurationReference = 11984BA0A99D7A7ABA5B0D90 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
