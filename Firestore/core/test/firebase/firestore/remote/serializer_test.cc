@@ -521,9 +521,9 @@ TEST_F(SerializerTest, EncodesReferences) {
     {DatabaseId{kProjectId, kDatabaseId}, DocumentKey::FromPathString("baz/a")},
   };
 
-  for (const auto& value : cases) {
-    FieldValue model = FieldValue::FromReference(value.database_id(), value.key());
-    ExpectRoundTrip(model, ValueProto(value), FieldValue::Type::Reference);
+  for (const auto& ref_value : cases) {
+    FieldValue model = FieldValue::FromReference(ref_value.database_id(), ref_value.key());
+    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
   }
 }
 

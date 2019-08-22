@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ostream>
+#include <sstream>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -92,11 +93,13 @@ std::string ByteString::ToString() const {
 }
 
 std::string ByteString::ToHumanReadableString() const {
-  std::string result;
+  std::stringstream stream;
   for (uint8_t e : *this) {
-    result += static_cast<char>(e);
+    // `stringstream` is supposed to handle the case where the unsigned value
+    // cannot be represented by signed char.
+    stream << static_cast<unsigned char>(e);
   }
-  return result;
+  return stream.str();
 }
 
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {

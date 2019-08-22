@@ -816,11 +816,11 @@ Query Serializer::DecodeQueryTarget(
     path = path.Append(query.from[0].collection_id);
   }
 
-  // TODO(rsgowman): Dencode the filters.
-  // TODO(rsgowman): Dencode the orders.
-  // TODO(rsgowman): Dencode the limit.
-  // TODO(rsgowman): Dencode the startat.
-  // TODO(rsgowman): Dencode the endat.
+  // TODO(rsgowman): Decode the filters.
+  // TODO(rsgowman): Decode the orders.
+  // TODO(rsgowman): Decode the limit.
+  // TODO(rsgowman): Decode the startat.
+  // TODO(rsgowman): Decode the endat.
 
   return Query(path);
 }
