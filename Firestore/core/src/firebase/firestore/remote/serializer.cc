@@ -776,9 +776,9 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) {
   UNREACHABLE();
 }
 
-/* static */ FieldTransform Serializer::DecodeFieldTransform(
+FieldTransform Serializer::DecodeFieldTransform(
     nanopb::Reader* reader,
-    const google_firestore_v1_DocumentTransform_FieldTransform& proto) {
+    const google_firestore_v1_DocumentTransform_FieldTransform& proto) const {
   switch (proto.which_transform_type) {
     case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag: {  // NOLINT
       HARD_ASSERT(

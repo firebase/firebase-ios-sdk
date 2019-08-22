@@ -182,9 +182,9 @@ class Serializer {
 
   static google_firestore_v1_DocumentTransform_FieldTransform
   EncodeFieldTransform(const model::FieldTransform& field_transform);
-  static model::FieldTransform DecodeFieldTransform(
+  model::FieldTransform DecodeFieldTransform(
       nanopb::Reader* reader,
-      const google_firestore_v1_DocumentTransform_FieldTransform& proto);
+      const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
   static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);

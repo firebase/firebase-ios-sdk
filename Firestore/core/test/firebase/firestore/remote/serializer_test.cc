@@ -241,7 +241,7 @@ class SerializerTest : public ::testing::Test {
 
   v1::Value ValueProto(const FieldValue::Reference& ref) {
     ByteString bytes = EncodeFieldValue(
-        &serializer, FieldValue::FromReference(ref.database_id(), ref.key()));
+        FieldValue::FromReference(ref.database_id(), ref.key()));
     return ProtobufParse<v1::Value>(bytes);
   }
 
