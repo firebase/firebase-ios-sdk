@@ -304,7 +304,7 @@ using firebase::firestore::remote::TestTargetMetadataProvider;
 
 RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
                                     const std::vector<TargetId> &addedToTargets) {
-  const std::vector<MaybeDocument> docs{doc};
+  std::vector<MaybeDocument> docs{doc};
   return FSTTestAddedRemoteEvent(docs, addedToTargets);
 }
 
