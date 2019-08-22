@@ -268,7 +268,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       TargetId targetID = entry.first;
       const TargetChange &change = entry.second;
 
-      // Do not ref/unref unassigned targetIDs - it may lead to leaks.
       auto found = _targetIDs.find(targetID);
       if (found == _targetIDs.end()) {
         // We don't update the remote keys if the query is not active. This ensures that
