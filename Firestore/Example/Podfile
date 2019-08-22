@@ -64,20 +64,6 @@ def configure_local_pods()
   maybe_local_pod 'GoogleUtilities'
 end
 
-# Configures a standard test target with our usual test dependencies.
-def configure_test()
-  inherit! :search_paths
-
-  pod 'FirebaseFirestoreSwift', :path => '../../'
-
-  pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-  pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-  pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
-
-  pod 'OCMock'
-  pod 'leveldb-library'
-end
-
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
@@ -89,11 +75,14 @@ target 'Firestore_Example_iOS' do
   configure_local_pods()
 
   target 'Firestore_Tests_iOS' do
-    configure_test()
-  end
+    inherit! :search_paths
 
-  target 'Firestore_IntegrationTests_iOS' do
-    configure_test()
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 
   target 'Firestore_Benchmarks_iOS' do
@@ -102,8 +91,20 @@ target 'Firestore_Example_iOS' do
     pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
   end
 
+  target 'Firestore_IntegrationTests_iOS' do
+    inherit! :search_paths
+
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
+  end
+
   target 'Firestore_SwiftTests_iOS' do
-    configure_test()
+    pod 'FirebaseFirestoreSwift', :path => '../../'
   end
 
   target 'Firestore_FuzzTests_iOS' do
@@ -121,11 +122,26 @@ target 'Firestore_Example_macOS' do
   configure_local_pods()
 
   target 'Firestore_Tests_macOS' do
-    configure_test()
+    inherit! :search_paths
+
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 
   target 'Firestore_IntegrationTests_macOS' do
-    configure_test()
+    inherit! :search_paths
+
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 end
 
@@ -135,10 +151,25 @@ target 'Firestore_Example_tvOS' do
   configure_local_pods()
 
   target 'Firestore_Tests_tvOS' do
-    configure_test()
+    inherit! :search_paths
+
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 
   target 'Firestore_IntegrationTests_tvOS' do
-    configure_test()
+    inherit! :search_paths
+
+    pod 'FirebaseFirestoreSwift', :path => '../../'
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 end
