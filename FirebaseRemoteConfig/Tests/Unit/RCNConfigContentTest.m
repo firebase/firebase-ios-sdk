@@ -229,7 +229,8 @@
                  numberValue]);
   NSDictionary<NSString *, NSString *> *sampleJSON = @{@"key1" : @"value1"};
   id configJSON = [(defaultConfig[@"default_namespace"][@"new_json_key"]) JSONValue];
-  XCTAssertEqualObjects([configJSON class], [sampleJSON class]);
+  XCTAssertTrue([configJSON isKindOfClass:[NSDictionary class]]);
+  XCTAssertTrue([sampleJSON isKindOfClass:[NSDictionary class]]);
   XCTAssertEqualObjects(sampleJSON, (NSDictionary *)configJSON);
   XCTAssertEqualObjects(dataValue,
                         [defaultConfig[@"default_namespace"][@"new_data_key"] dataValue]);

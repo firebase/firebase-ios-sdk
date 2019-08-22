@@ -404,9 +404,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   __block NSUInteger localValue;
   dispatch_sync(_queue, ^{
     localValue =
-        [self->_configContent.activeConfig[_FIRNamespace] countByEnumeratingWithState:state
-                                                                              objects:stackbuf
-                                                                                count:len];
+        [self->_configContent.activeConfig[self->_FIRNamespace] countByEnumeratingWithState:state
+                                                                                    objects:stackbuf
+                                                                                      count:len];
   });
   return localValue;
 }
