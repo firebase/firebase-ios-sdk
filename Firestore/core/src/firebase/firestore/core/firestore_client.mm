@@ -122,9 +122,6 @@ FirestoreClient::FirestoreClient(
 }
 
 void FirestoreClient::Initialize(const api::Settings& settings) {
-  if (client_initialized_) {
-    return;
-  }
   auto user_promise = std::make_shared<std::promise<User>>();
   bool credentials_initialized = false;
 
@@ -159,8 +156,6 @@ void FirestoreClient::Initialize(const api::Settings& settings) {
     User user = user_promise->get_future().get();
     shared_self->InitializeInternal(user, settings);
   });
-
-  client_initialized_ = true;
 }
 
 void FirestoreClient::InitializeInternal(const User& user,

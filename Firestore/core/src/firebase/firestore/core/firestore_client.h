@@ -63,6 +63,15 @@ namespace core {
  */
 class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
  public:
+  /**
+   * Creates a fully initialized `FirestoreClient`.
+   *
+   * PORTING NOTE: `FirestoreClient` is forced to use two-step initialization,
+   * because otherwise it would have to call `shared_from_this()` in its
+   * constructor, which is invalid. The factory function wraps that
+   * initialization and also enforces that `FirestoreClient` has to be managed
+   * by a shared pointer.
+   */
   static std::shared_ptr<FirestoreClient> Create(
       const DatabaseInfo& database_info,
       const api::Settings& settings,
@@ -152,18 +161,21 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
-  /**
-   * Initializes this instance of the client. This should be called right after
-   * object construction. This is required because it uses shared_ptr to itself,
-   * and therefore cannot be in the constructor;
-   */
+
+  // Registers to be notified on credential change -- `FirestoreClient` can only
+  // be fully initialized once there is a current user.
+  //
+  // PORTING NOTE: on other platforms, this is done in the constructor, but in
+  // C++, it would require calling `shared_from_this()` from the constructor,
+  // which is invalid. The actual initialization is done in `InitializeInternal`
+  // (called just `initialize` on other platforms).
   void Initialize(const api::Settings& settings);
   void InitializeInternal(const auth::User& user,
                           const api::Settings& settings);
-  void VerifyNotShutdown();
-  void ScheduleLruGarbageCollection();
 
-  bool client_initialized_ = false;
+  void VerifyNotShutdown();
+
+  void ScheduleLruGarbageCollection();
 
   DatabaseInfo database_info_;
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
