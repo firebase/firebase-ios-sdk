@@ -52,7 +52,7 @@
   id _DBManagerMock;
   NSArray<NSDictionary<NSString *, id> *> *_payloads;
   NSArray<NSData *> *_payloadsData;
-  NSDictionary<NSString *, NSString *> *_metadata;
+  NSDictionary<NSString *, NSNumber *> *_metadata;
   NSString *_DBPath;
 }
 @end
@@ -74,7 +74,7 @@
   NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload2 options:0 error:&error];
   _payloadsData = @[ payloadData1, payloadData2 ];
   _metadata = @{@"last_know_start_time" : @12348765};
-  NSDictionary<NSString *, NSString *> *mockResults = @{
+  NSDictionary<NSString *, id> *mockResults = @{
     @RCNExperimentTableKeyPayload : _payloadsData,
     @RCNExperimentTableKeyMetadata : _metadata,
   };

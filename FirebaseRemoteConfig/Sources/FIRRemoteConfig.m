@@ -49,6 +49,10 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 }
 @end
 
+// Implementations depend upon multiple deprecated APIs
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @implementation FIRRemoteConfigSettings
 - (instancetype)initWithDeveloperModeEnabled:(BOOL)developerModeEnabled {
   self = [self init];
@@ -400,9 +404,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   __block NSUInteger localValue;
   dispatch_sync(_queue, ^{
     localValue =
-        [self->_configContent.activeConfig[_FIRNamespace] countByEnumeratingWithState:state
-                                                                              objects:stackbuf
-                                                                                count:len];
+        [self->_configContent.activeConfig[self->_FIRNamespace] countByEnumeratingWithState:state
+                                                                                    objects:stackbuf
+                                                                                      count:len];
   });
   return localValue;
 }
@@ -611,5 +615,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   };
   dispatch_async(_queue, setConfigSettingsBlock);
 }
+
+#pragma clang diagnostic push  // "-Wdeprecated-declarations"
 
 @end
