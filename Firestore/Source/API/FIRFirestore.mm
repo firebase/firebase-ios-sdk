@@ -315,7 +315,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion {
-    _firestore->WaitForPendingWrites(util::MakeCallback(completion));
+  _firestore->WaitForPendingWrites(util::MakeCallback(completion));
 }
 
 @end
