@@ -392,9 +392,10 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - echo "ls ./FirebaseInstallations/Source/Tests/Integration/Resources "
-        - ls ./FirebaseInstallations/Source/Tests/Integration/Resources
+        - find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
         # TODO: Fix FBLPromises warnings for macOS.
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=macos --allow-warnings --ignore-local-podspecs=FirebaseInstanceID.podspec
