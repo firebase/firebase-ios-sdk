@@ -270,7 +270,8 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
 
     case FieldValue::Type::Reference:
       result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-      result.reference_value = EncodeString(EncodeReference(field_value.reference_value()));
+      result.reference_value =
+          EncodeString(EncodeReference(field_value.reference_value()));
       return result;
 
     case FieldValue::Type::GeoPoint:
@@ -289,13 +290,15 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       return result;
 
     case FieldValue::Type::ServerTimestamp:
-      HARD_FAIL("Unhandled type %s on %s", field_value.type(), field_value.ToString());
+      HARD_FAIL("Unhandled type %s on %s", field_value.type(),
+                field_value.ToString());
   }
   UNREACHABLE();
 }
 
 FieldValue::Map::value_type Serializer::DecodeFieldsEntry(
-    Reader* reader, const google_firestore_v1_Document_FieldsEntry& fields) const {
+    Reader* reader,
+    const google_firestore_v1_Document_FieldsEntry& fields) const {
   std::string key = DecodeString(fields.key);
   FieldValue value = DecodeFieldValue(reader, fields.value);
 
@@ -321,14 +324,13 @@ FieldValue::Map Serializer::DecodeFields(
   return result;
 }
 
-FieldValue::Map Serializer::DecodeMapValue(Reader* reader,
-                               const google_firestore_v1_MapValue& map_value) const {
+FieldValue::Map Serializer::DecodeMapValue(
+    Reader* reader, const google_firestore_v1_MapValue& map_value) const {
   FieldValue::Map result;
 
   for (size_t i = 0; i < map_value.fields_count; i++) {
     std::string key = DecodeString(map_value.fields[i].key);
-    FieldValue value =
-        DecodeFieldValue(reader, map_value.fields[i].value);
+    FieldValue value = DecodeFieldValue(reader, map_value.fields[i].value);
 
     result = result.insert(key, value);
   }
@@ -336,8 +338,8 @@ FieldValue::Map Serializer::DecodeMapValue(Reader* reader,
   return result;
 }
 
-FieldValue Serializer::DecodeFieldValue(Reader* reader,
-                                        const google_firestore_v1_Value& msg) const {
+FieldValue Serializer::DecodeFieldValue(
+    Reader* reader, const google_firestore_v1_Value& msg) const {
   switch (msg.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
       if (msg.null_value != google_protobuf_NullValue_NULL_VALUE) {
@@ -399,8 +401,8 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
 }
 
-void Serializer::ValidateDocumentKeyPath(Reader* reader,
-                                  const ResourcePath& resource_name) const {
+void Serializer::ValidateDocumentKeyPath(
+    Reader* reader, const ResourcePath& resource_name) const {
   if (resource_name.size() < 5) {
     reader->Fail(
         StringFormat("Attempted to decode invalid key: '%s'. Should have at "
@@ -410,12 +412,14 @@ void Serializer::ValidateDocumentKeyPath(Reader* reader,
     reader->Fail(
         StringFormat("Tried to deserialize key from different project. "
                      "Expected: '%s'. Found: '%s'. (Full key: '%s')",
-                     database_id_.project_id(), resource_name[1], resource_name.CanonicalString()));
+                     database_id_.project_id(), resource_name[1],
+                     resource_name.CanonicalString()));
   } else if (resource_name[3] != database_id_.database_id()) {
     reader->Fail(
         StringFormat("Tried to deserialize key from different database. "
                      "Expected: '%s'. Found: '%s'. (Full key: '%s')",
-                     database_id_.database_id(), resource_name[3], resource_name.CanonicalString()));
+                     database_id_.database_id(), resource_name[3],
+                     resource_name.CanonicalString()));
   }
 }
 
@@ -429,7 +433,8 @@ DocumentKey Serializer::DecodeKey(Reader* reader,
 
 DocumentKey Serializer::DecodeKey(Reader* reader,
                                   const ResourcePath& resource_name) const {
-  ResourcePath local_path = ExtractLocalPathFromResourceName(reader, resource_name);
+  ResourcePath local_path =
+      ExtractLocalPathFromResourceName(reader, resource_name);
 
   if (!DocumentKey::IsDocumentKey(local_path)) {
     reader->Fail(StringFormat("Invalid document key path: %s",
@@ -441,8 +446,8 @@ DocumentKey Serializer::DecodeKey(Reader* reader,
   return DocumentKey{std::move(local_path)};
 }
 
-DatabaseId Serializer::DecodeDatabaseId(Reader* reader,
-                                  const ResourcePath& resource_name) const {
+DatabaseId Serializer::DecodeDatabaseId(
+    Reader* reader, const ResourcePath& resource_name) const {
   if (resource_name.size() < 5 || resource_name[4] != "documents") {
     reader->Fail(StringFormat("Tried to deserialize invalid key %s",
                               resource_name.CanonicalString()));
@@ -872,7 +877,8 @@ std::string Serializer::EncodeReference(const FieldValue::Reference& ref) {
   return EncodeResourceName(ref.database_id(), ref.key().path());
 }
 
-FieldValue Serializer::DecodeReference(Reader* reader, absl::string_view resource_name_raw) const {
+FieldValue Serializer::DecodeReference(
+    Reader* reader, absl::string_view resource_name_raw) const {
   ResourcePath resource_name = DecodeResourceName(reader, resource_name_raw);
   ValidateDocumentKeyPath(reader, resource_name);
   DatabaseId database_id = DecodeDatabaseId(reader, resource_name);
@@ -927,7 +933,8 @@ google_firestore_v1_ArrayValue Serializer::EncodeArray(
 }
 
 std::vector<FieldValue> Serializer::DecodeArray(
-    nanopb::Reader* reader, const google_firestore_v1_ArrayValue& array_proto) const {
+    nanopb::Reader* reader,
+    const google_firestore_v1_ArrayValue& array_proto) const {
   std::vector<FieldValue> result;
   result.reserve(array_proto.values_count);
 

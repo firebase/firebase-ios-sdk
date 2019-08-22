@@ -227,24 +227,27 @@ class Serializer {
   std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
   void ValidateDocumentKeyPath(nanopb::Reader* reader,
-                                  const model::ResourcePath& resource_name) const;
+                               const model::ResourcePath& resource_name) const;
   model::DocumentKey DecodeKey(nanopb::Reader* reader,
-                                  const model::ResourcePath& resource_name) const;
+                               const model::ResourcePath& resource_name) const;
 
   model::FieldValue::Map::value_type DecodeFieldsEntry(
-    nanopb::Reader* reader, const google_firestore_v1_Document_FieldsEntry& fields) const;
+      nanopb::Reader* reader,
+      const google_firestore_v1_Document_FieldsEntry& fields) const;
   model::FieldValue::Map DecodeFields(
-    nanopb::Reader* reader,
-    size_t count,
-    const google_firestore_v1_Document_FieldsEntry* fields) const;
+      nanopb::Reader* reader,
+      size_t count,
+      const google_firestore_v1_Document_FieldsEntry* fields) const;
 
-  model::FieldValue::Map DecodeMapValue(nanopb::Reader* reader,
-                               const google_firestore_v1_MapValue& map_value) const;
+  model::FieldValue::Map DecodeMapValue(
+      nanopb::Reader* reader,
+      const google_firestore_v1_MapValue& map_value) const;
 
-  model::DatabaseId DecodeDatabaseId(nanopb::Reader* reader,
-                                  const model::ResourcePath& resource_name) const;
+  model::DatabaseId DecodeDatabaseId(
+      nanopb::Reader* reader, const model::ResourcePath& resource_name) const;
   static std::string EncodeReference(const model::FieldValue::Reference& ref);
-  model::FieldValue DecodeReference(nanopb::Reader* reader, absl::string_view resource_name_raw) const;
+  model::FieldValue DecodeReference(nanopb::Reader* reader,
+                                    absl::string_view resource_name_raw) const;
 
   model::DatabaseId database_id_;
   const std::string database_name_;

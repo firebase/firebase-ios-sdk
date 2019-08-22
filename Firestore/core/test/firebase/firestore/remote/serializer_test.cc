@@ -85,7 +85,7 @@ using util::StatusOr;
 
 const char* kProjectId = "p";
 const char* kDatabaseId = "d";
-}
+}  // namespace
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -232,8 +232,8 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(const FieldValue::Reference& ref) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromReference(ref.database_id(), ref.key()));
+    ByteString bytes = EncodeFieldValue(
+        &serializer, FieldValue::FromReference(ref.database_id(), ref.key()));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -518,11 +518,13 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
 
 TEST_F(SerializerTest, EncodesReferences) {
   std::vector<FieldValue::Reference> cases{
-    {DatabaseId{kProjectId, kDatabaseId}, DocumentKey::FromPathString("baz/a")},
+      {DatabaseId{kProjectId, kDatabaseId},
+       DocumentKey::FromPathString("baz/a")},
   };
 
   for (const auto& ref_value : cases) {
-    FieldValue model = FieldValue::FromReference(ref_value.database_id(), ref_value.key());
+    FieldValue model =
+        FieldValue::FromReference(ref_value.database_id(), ref_value.key());
     ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
   }
 }
