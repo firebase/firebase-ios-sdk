@@ -44,7 +44,7 @@ NSString *const kFIRMessagingContextManagerCategoryKey =
 NSString *const kFIRMessagingContextManagerSoundKey = kFIRMessagingContextManagerNotificationKeyPrefix @"sound";
 NSString *const kFIRMessagingContextManagerContentAvailableKey =
     kFIRMessagingContextManagerNotificationKeyPrefix @"content-available";
-NSString *const kFIRMessagingAPNSPayloadKey = @"aps";
+const NSString *const kFIRMessagingAPNSPayloadKey = @"aps";
 
 
 typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
