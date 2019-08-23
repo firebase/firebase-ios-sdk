@@ -20,13 +20,13 @@
 
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#import <OCMock/OCMock.h>
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
-#import <OCMock/OCMock.h>
 
 static NSString *const RCNFakeSenderID = @"855865492447";
 static NSString *const RCNFakeToken = @"ctToAh17Exk:"
