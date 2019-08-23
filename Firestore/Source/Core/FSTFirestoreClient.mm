@@ -70,6 +70,7 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
@@ -402,8 +403,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     DocumentMap docs = [self.localStore executeQuery:query.query()];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query() remoteDocuments:DocumentKeySet{}];
-    FSTViewDocumentChanges *viewDocChanges =
-        [view computeChangesWithDocuments:docs.underlying_map()];
+    ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     HARD_ASSERT(viewChange.limboChanges.count == 0,
                 "View returned limbo documents during local-only query execution.");

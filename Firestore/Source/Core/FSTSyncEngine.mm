@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
@@ -58,6 +59,7 @@ using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::TransactionRunner;
+using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
@@ -267,7 +269,7 @@ class LimboResolution {
 
   FSTView *view = [[FSTView alloc] initWithQuery:queryData.query()
                                  remoteDocuments:std::move(remoteKeys)];
-  FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
+  ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   HARD_ASSERT(viewChange.limboChanges.count == 0,
               "View returned limbo docs before target ack from the server.");
@@ -557,8 +559,8 @@ class LimboResolution {
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
     FSTView *view = queryView.view;
-    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
-    if (viewDocChanges.needsRefill) {
+    ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:changes];
+    if (viewDocChanges.needs_refill()) {
       // The query has a limit and some docs were removed/updated, so we need to re-run the
       // query against the local store to make sure we didn't lose any good docs that had been
       // past the limit.

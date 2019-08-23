@@ -28,6 +28,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -41,6 +42,7 @@ using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKeySet;
@@ -283,9 +285,9 @@ inline Query QueryForMessages() {
   // doc3 will be added
   // doc4 will be added + removed = nothing
   doc2 = Doc("rooms/eros/messages/2", 1, Map("num", 5));
-  FSTViewDocumentChanges *viewDocChanges =
+  ViewDocumentChanges viewDocChanges =
       [view computeChangesWithDocuments:FSTTestDocUpdates({doc2, doc3, doc4})];
-  XCTAssertTrue(viewDocChanges.needsRefill);
+  XCTAssertTrue(viewDocChanges.needs_refill());
   // Verify that all the docs still match.
   viewDocChanges = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2, doc3, doc4})
                                      previousChanges:viewDocChanges];
@@ -363,7 +365,7 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query
                                  remoteDocuments:DocumentKeySet{doc1.key(), doc2.key()}];
 
-  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates({})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({})];
   FSTViewChange *change = [view applyChangesToDocuments:changes
                                            targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(change.limboChanges, @[]);
@@ -376,24 +378,23 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/0")})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc2}));
-  XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc2}));
+  XCTAssertTrue(changes.needs_refill());
+  XCTAssertEqual(1, changes.change_set().GetChanges().size());
   // Refill it with just the one doc remaining.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc2}) previousChanges:changes];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(1, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -405,25 +406,25 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
+  ViewDocumentChanges changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2, doc3})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
   doc2 = Doc("rooms/eros/messages/1", 1, Map("order", 2000));
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc2})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertTrue(changes.needs_refill());
+  XCTAssertEqual(1, changes.change_set().GetChanges().size());
   // Refill it with all three current docs.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2, doc3})
                               previousChanges:changes];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc3}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc3}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -437,19 +438,19 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
+  ViewDocumentChanges changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2, doc3, doc4, doc5})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2, doc3}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2, doc3}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(3, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
   doc1 = Doc("rooms/eros/messages/0", 1, Map("order", 3));
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc2, doc3, doc1}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc2, doc3, doc1}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(1, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -463,19 +464,19 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
+  ViewDocumentChanges changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2, doc3, doc4, doc5})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2, doc3}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2, doc3}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(3, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
   doc4 = Doc("rooms/eros/messages/3", 1, Map("order", 6));
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc4})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2, doc3}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2, doc3}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(0, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -486,19 +487,18 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Add a doc that is past the limit.
   Document doc3 = Doc("rooms/eros/messages/2", 1, Map());
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc3})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(0, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -508,19 +508,18 @@ inline Query QueryForMessages() {
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/1")})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(1, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -531,19 +530,18 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(2, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove a doc that isn't even in the results.
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc("rooms/eros/messages/2")})];
-  XC_ASSERT_THAT(changes.documentSet, ContainsDocs({doc1, doc2}));
-  XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
+  XC_ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
+  XCTAssertFalse(changes.needs_refill());
+  XCTAssertEqual(0, changes.change_set().GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -554,14 +552,13 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
+  XCTAssertEqual(changes.mutated_keys(), DocumentKeySet{});
 
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map(), DocumentState::kLocalMutations);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc3})];
-  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{doc3.key()});
+  XCTAssertEqual(changes.mutated_keys(), DocumentKeySet{doc3.key()});
 }
 
 - (void)testRemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges {
@@ -571,15 +568,14 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key()}));
+  XCTAssertEqual(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
   Document doc2Prime = Doc("rooms/eros/messages/1", 0, Map());
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc2Prime})];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
+  XCTAssertEqual(changes.mutated_keys(), DocumentKeySet{});
 }
 
 - (void)testRemembersLocalMutationsFromPreviousSnapshot {
@@ -589,15 +585,14 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key()}));
+  XCTAssertEqual(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc3})];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key()}));
+  XCTAssertEqual(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 }
 
 - (void)testRemembersLocalMutationsFromPreviousCallToComputeChangesWithDocuments {
@@ -607,20 +602,19 @@ inline Query QueryForMessages() {
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key()}));
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  XCTAssertEqual(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc3}) previousChanges:changes];
-  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key()}));
+  XCTAssertEqual(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 }
 
 - (void)testRaisesHasPendingWritesForPendingMutationsInInitialSnapshot {
   Query query = QueryForMessages();
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
   XCTAssertTrue(viewChange.snapshot.value().has_pending_writes());
 }
@@ -629,7 +623,7 @@ inline Query QueryForMessages() {
   Query query = QueryForMessages();
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kCommittedMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
   XCTAssertFalse(viewChange.snapshot.value().has_pending_writes());
 }
@@ -649,8 +643,7 @@ inline Query QueryForMessages() {
       Doc("rooms/eros/messages/2", 2, Map("time", 3), DocumentState::kLocalMutations);
   Document doc2Acknowledged = Doc("rooms/eros/messages/2", 2, Map("time", 3));
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
+  ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
 
   XC_ASSERT_THAT(viewChange.snapshot.value().document_changes(),

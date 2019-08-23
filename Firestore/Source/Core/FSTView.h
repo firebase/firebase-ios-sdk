@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -38,29 +39,6 @@ namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTViewDocumentChanges
-
-/** The result of applying a set of doc changes to a view. */
-@interface FSTViewDocumentChanges : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (const model::DocumentKeySet &)mutatedKeys;
-
-/** The new set of docs that should be in the view. */
-- (const model::DocumentSet &)documentSet;
-
-/** The diff of this these docs with the previous set of docs. */
-- (const core::DocumentViewChangeSet &)changeSet;
-
-/**
- * Whether the set of documents passed in was not sufficient to calculate the new state of the view
- * and there needs to be another pass based on the local cache.
- */
-@property(nonatomic, assign, readonly) BOOL needsRefill;
-
-@end
 
 #pragma mark - FSTLimboDocumentChange
 
@@ -114,7 +92,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param docChanges The doc changes to apply to this view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const model::MaybeDocumentMap &)docChanges;
+- (core::ViewDocumentChanges)computeChangesWithDocuments:
+    (const model::MaybeDocumentMap &)docChanges;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -126,9 +105,9 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  *     and changes instead of the current view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const model::MaybeDocumentMap &)docChanges
-                                        previousChanges:
-                                            (nullable FSTViewDocumentChanges *)previousChanges;
+- (core::ViewDocumentChanges)
+    computeChangesWithDocuments:(const model::MaybeDocumentMap &)docChanges
+                previousChanges:(const absl::optional<core::ViewDocumentChanges> &)previousChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges.
@@ -136,17 +115,17 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param docChanges The set of changes to make to the view's docs.
  * @return A new FSTViewChange with the given docs, changes, and sync state.
  */
-- (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges;
+- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges;
 
 /**
- * Updates the view with the given FSTViewDocumentChanges and updates limbo docs and sync state from
+ * Updates the view with the given ViewDocumentChanges and updates limbo docs and sync state from
  * the given (optional) target change.
  *
  * @param docChanges The set of changes to make to the view's docs.
  * @param targetChange A target change to apply for computing limbo docs and sync state.
  * @return A new FSTViewChange with the given docs, changes, and sync state.
  */
-- (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
+- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
                               targetChange:
                                   (const absl::optional<remote::TargetChange> &)targetChange;
 

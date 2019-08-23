@@ -34,6 +34,7 @@ using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncState;
+using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
@@ -68,52 +69,6 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 }
 
 }  // namespace
-
-#pragma mark - FSTViewDocumentChanges
-
-/** The result of applying a set of doc changes to a view. */
-@interface FSTViewDocumentChanges ()
-
-- (instancetype)initWithDocumentSet:(DocumentSet)documentSet
-                          changeSet:(DocumentViewChangeSet &&)changeSet
-                        needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(DocumentKeySet)mutatedKeys NS_DESIGNATED_INITIALIZER;
-
-@end
-
-@implementation FSTViewDocumentChanges {
-  DelayedConstructor<DocumentSet> _documentSet;
-  DocumentKeySet _mutatedKeys;
-  DocumentViewChangeSet _changeSet;
-}
-
-- (instancetype)initWithDocumentSet:(DocumentSet)documentSet
-                          changeSet:(DocumentViewChangeSet &&)changeSet
-                        needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(DocumentKeySet)mutatedKeys {
-  self = [super init];
-  if (self) {
-    _documentSet.Init(std::move(documentSet));
-    _changeSet = std::move(changeSet);
-    _needsRefill = needsRefill;
-    _mutatedKeys = std::move(mutatedKeys);
-  }
-  return self;
-}
-
-- (const DocumentKeySet &)mutatedKeys {
-  return _mutatedKeys;
-}
-
-- (const firebase::firestore::model::DocumentSet &)documentSet {
-  return *_documentSet;
-}
-
-- (const firebase::firestore::core::DocumentViewChangeSet &)changeSet {
-  return _changeSet;
-}
-
-@end
 
 #pragma mark - FSTLimboDocumentChange
 
@@ -252,20 +207,20 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   return _syncedDocuments;
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges {
-  return [self computeChangesWithDocuments:docChanges previousChanges:nil];
+- (ViewDocumentChanges)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges {
+  return [self computeChangesWithDocuments:docChanges previousChanges:absl::nullopt];
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges
-                                        previousChanges:
-                                            (nullable FSTViewDocumentChanges *)previousChanges {
+- (ViewDocumentChanges)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges
+                                   previousChanges:(const absl::optional<ViewDocumentChanges> &)
+                                                       previousChanges {
   DocumentViewChangeSet changeSet;
   if (previousChanges) {
-    changeSet = previousChanges.changeSet;
+    changeSet = previousChanges->change_set();
   }
-  DocumentSet oldDocumentSet = previousChanges ? previousChanges.documentSet : *_documentSet;
+  DocumentSet oldDocumentSet = previousChanges ? previousChanges->document_set() : *_documentSet;
 
-  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
+  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges->mutated_keys() : _mutatedKeys;
   DocumentKeySet oldMutatedKeys = _mutatedKeys;
   DocumentSet newDocumentSet = oldDocumentSet;
   BOOL needsRefill = NO;
@@ -370,10 +325,8 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   HARD_ASSERT(!needsRefill || !previousChanges,
               "View was refilled using docs that themselves needed refilling.");
 
-  return [[FSTViewDocumentChanges alloc] initWithDocumentSet:std::move(newDocumentSet)
-                                                   changeSet:std::move(changeSet)
-                                                 needsRefill:needsRefill
-                                                 mutatedKeys:newMutatedKeys];
+  return ViewDocumentChanges(std::move(newDocumentSet), std::move(changeSet), newMutatedKeys,
+                             needsRefill);
 }
 
 - (BOOL)shouldWaitForSyncedDocument:(const Document &)newDoc oldDocument:(const Document &)oldDoc {
@@ -387,20 +340,20 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
           !newDoc.has_local_mutations());
 }
 
-- (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges {
+- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges {
   return [self applyChangesToDocuments:docChanges targetChange:{}];
 }
 
-- (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
+- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
                               targetChange:(const absl::optional<TargetChange> &)targetChange {
-  HARD_ASSERT(!docChanges.needsRefill, "Cannot apply changes that need a refill");
+  HARD_ASSERT(!docChanges.needs_refill(), "Cannot apply changes that need a refill");
 
   DocumentSet oldDocuments = *_documentSet;
-  *_documentSet = docChanges.documentSet;
-  _mutatedKeys = docChanges.mutatedKeys;
+  *_documentSet = docChanges.document_set();
+  _mutatedKeys = docChanges.mutated_keys();
 
   // Sort changes based on type and query comparator.
-  std::vector<DocumentViewChange> changes = docChanges.changeSet.GetChanges();
+  std::vector<DocumentViewChange> changes = docChanges.change_set().GetChanges();
   std::sort(changes.begin(), changes.end(),
             [self](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
               int pos1 = GetDocumentViewChangeTypePosition(lhs.type());
@@ -423,10 +376,10 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     return [FSTViewChange changeWithSnapshot:absl::nullopt limboChanges:limboChanges];
   } else {
     ViewSnapshot snapshot{_query,
-                          docChanges.documentSet,
+                          docChanges.document_set(),
                           oldDocuments,
                           std::move(changes),
-                          docChanges.mutatedKeys,
+                          docChanges.mutated_keys(),
                           /*from_cache=*/newSyncState == SyncState::Local,
                           syncStateChanged,
                           /*excludes_metadata_changes=*/false};
@@ -441,11 +394,8 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     // and generate an FSTViewChange as appropriate. We are guaranteed to get a new `TargetChange`
     // that sets `current` back to YES once the client is back online.
     self.current = NO;
-    return [self applyChangesToDocuments:[[FSTViewDocumentChanges alloc]
-                                             initWithDocumentSet:*_documentSet
-                                                       changeSet:DocumentViewChangeSet {}
-                                                     needsRefill:NO
-                                                     mutatedKeys:_mutatedKeys]];
+    return [self applyChangesToDocuments:ViewDocumentChanges(*_documentSet, DocumentViewChangeSet{},
+                                                             _mutatedKeys, false)];
   } else {
     // No effect, just return a no-op FSTViewChange.
     return [[FSTViewChange alloc] initWithSnapshot:absl::nullopt limboChanges:@[]];
