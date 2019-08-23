@@ -29,17 +29,50 @@ post_install do |installer|
   end
 end
 
+# Returns true if the user has explicitly requested local sources or if this is
+# a non-PR Travis build.
+def use_local_sources()
+  return ENV.has_key?('USE_LOCAL_SOURCES') || ENV['TRAVIS_PULL_REQUEST'] == 'false'
+end
+
+# Adds a `pod name, :path => ../..` declaration to use local sources if the
+# Podfile has been configured to operate that way.
+def maybe_local_pod(name)
+  if use_local_sources()
+    pod name, :path => '../..'
+  end
+end
+
+# Adds local pod declarations for all Firestore's transitive dependencies if
+# required.
+def configure_local_pods()
+  # Firestore is always local; that's what's under development here.
+  pod 'FirebaseFirestore', :path => '../../'
+
+  # FirebaseCore must always be a local pod so that CI builds that make changes
+  # to its podspec can still function. See Firestore-*-xcodebuild in
+  # scripts/install_prereqs.sh for more details.
+  pod 'FirebaseCore', :path => '../..'
+
+  # Pull in local sources conditionally.
+  maybe_local_pod 'FirebaseAuth'
+  maybe_local_pod 'FirebaseAuthInterop'
+  maybe_local_pod 'FirebaseCoreDiagnostics'
+  maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
+  maybe_local_pod 'GoogleDataTransport'
+  maybe_local_pod 'GoogleDataTransportCCTSupport'
+  maybe_local_pod 'GoogleUtilities'
+end
 
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
-  # corresponding podspec's.
+  # corresponding podspecs.
   pod 'Firebase/CoreOnly', '6.7.0'
 
-  pod 'FirebaseFirestore', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
+  configure_local_pods()
 
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
@@ -86,8 +119,7 @@ end
 target 'Firestore_Example_macOS' do
   platform :osx, '10.11'
 
-  pod 'FirebaseFirestore', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
+  configure_local_pods()
 
   target 'Firestore_Tests_macOS' do
     inherit! :search_paths
@@ -116,8 +148,7 @@ end
 target 'Firestore_Example_tvOS' do
   platform :tvos, '10.0'
 
-  pod 'FirebaseFirestore', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
+  configure_local_pods()
 
   target 'Firestore_Tests_tvOS' do
     inherit! :search_paths
