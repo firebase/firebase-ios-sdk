@@ -404,18 +404,18 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
     }
   
-		// Prevent duplicates by keeping a cache of all the logged messages during each session.
-		// The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
-		// us swizzling their implementation to call the same method implicitly.
+    // Prevent duplicates by keeping a cache of all the logged messages during each session.
+    // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
+    // us swizzling their implementation to call the same method implicitly.
     // We need to rule out the contextual message because it shares the same message ID
     // as the local notification it will schedule. And because it is also a APNSSync message
     // its duplication is already checked previously.
-		if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
-			isOldMessage = [self.loggedMessageIDs containsObject:messageID];
-			if (!isOldMessage) {
-				[self.loggedMessageIDs addObject:messageID];
-			}
-		}
+   if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
+      isOldMessage = [self.loggedMessageIDs containsObject:messageID];
+      if (!isOldMessage) {
+        [self.loggedMessageIDs addObject:messageID];
+      }
+    }
   }
 
   if (!isOldMessage) {
