@@ -23,7 +23,6 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
-#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
@@ -31,6 +30,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 
 static NSString *const kFakeIID = @"12345678";
 static NSString *const kFakeAPNSToken = @"this is a fake apns token";
