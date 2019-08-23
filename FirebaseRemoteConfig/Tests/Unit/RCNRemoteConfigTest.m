@@ -106,7 +106,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   [super setUp];
   FIRSetLoggerLevel(FIRLoggerLevelMax);
 
-  _expectationTimeout = 10;
+  _expectationTimeout = 20;
   _checkCompletionTimeout = 1.0;
 
   // Always remove the database at the start of testing.
