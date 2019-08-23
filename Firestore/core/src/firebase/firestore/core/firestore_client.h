@@ -63,6 +63,15 @@ namespace core {
  */
 class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
  public:
+  /**
+   * Creates a fully initialized `FirestoreClient`.
+   *
+   * PORTING NOTE: We use factory function instead of public constructor
+   * because `FirestoreClient` is supposed to be managed by shared_ptr, and
+   * it is invalid to call `shared_from_this()` from constructors.
+   * The factory function enforces that `FirestoreClient` has to be managed
+   * by a shared pointer.
+   */
   static std::shared_ptr<FirestoreClient> Create(
       const DatabaseInfo& database_info,
       const api::Settings& settings,
@@ -152,18 +161,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
-  /**
-   * Initializes this instance of the client. This should be called right after
-   * object construction. This is required because it uses shared_ptr to itself,
-   * and therefore cannot be in the constructor;
-   */
-  void Initialize(const api::Settings& settings);
-  void InitializeInternal(const auth::User& user,
-                          const api::Settings& settings);
-  void VerifyNotShutdown();
-  void ScheduleLruGarbageCollection();
 
-  bool client_initialized_ = false;
+  void Initialize(const auth::User& user, const api::Settings& settings);
+
+  void VerifyNotShutdown();
+
+  void ScheduleLruGarbageCollection();
 
   DatabaseInfo database_info_;
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
