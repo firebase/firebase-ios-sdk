@@ -215,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
   expected.targetId = targetID;
   expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
-  expected.resumeToken = MakeNSData(resumeToken);
+  expected.resumeToken = MakeNullableNSData(resumeToken);
   expected.query.parent = queryTarget.parent;
   expected.query.structuredQuery = queryTarget.structuredQuery;
 

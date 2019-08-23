@@ -124,7 +124,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   }
 
   void OnReachabilityChanged(SCNetworkReachabilityFlags flags) {
-    queue()->ExecuteBlocking(
+    queue()->Enqueue(
         [this, flags] { MaybeInvokeCallbacks(ToNetworkStatus(flags)); });
   }
 

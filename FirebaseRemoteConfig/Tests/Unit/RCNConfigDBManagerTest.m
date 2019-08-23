@@ -99,7 +99,7 @@
     };
     NSString *value = [NSString stringWithFormat:@"value%d", i];
     NSString *key = [NSString stringWithFormat:@"key%d", i];
-    NSArray<NSString *> *values =
+    NSArray<id> *values =
         @[ bundleIdentifier, namespace_p, key, [value dataUsingEncoding:NSUTF8StringEncoding] ];
     [_DBManager insertMainTableWithValues:values
                                fromSource:RCNDBSourceFetched

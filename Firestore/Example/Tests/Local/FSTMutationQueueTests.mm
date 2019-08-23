@@ -44,6 +44,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::Mutation;
 using firebase::firestore::model::SetMutation;
+using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::testutil::Query;
 
@@ -103,11 +104,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     XCTAssertEqual([self batchCount], 3);
 
-    self.mutationQueue->AcknowledgeBatch(batch1, nil);
+    self.mutationQueue->AcknowledgeBatch(batch1, {});
     self.mutationQueue->RemoveMutationBatch(batch1);
     XCTAssertEqual([self batchCount], 2);
 
-    self.mutationQueue->AcknowledgeBatch(batch2, nil);
+    self.mutationQueue->AcknowledgeBatch(batch2, {});
     XCTAssertEqual([self batchCount], 2);
 
     self.mutationQueue->RemoveMutationBatch(batch2);
@@ -124,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.persistence.run("testAcknowledgeThenRemove", [&]() {
     FSTMutationBatch *batch1 = [self addMutationBatch];
 
-    self.mutationQueue->AcknowledgeBatch(batch1, nil);
+    self.mutationQueue->AcknowledgeBatch(batch1, {});
     self.mutationQueue->RemoveMutationBatch(batch1);
 
     XCTAssertEqual([self batchCount], 0);
@@ -377,8 +378,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testStreamToken {
   if ([self isTestBaseClass]) return;
 
-  NSData *streamToken1 = [@"token1" dataUsingEncoding:NSUTF8StringEncoding];
-  NSData *streamToken2 = [@"token2" dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString streamToken1("token1");
+  ByteString streamToken2("token2");
 
   self.persistence.run("testStreamToken", [&]() {
     self.mutationQueue->SetLastStreamToken(streamToken1);
@@ -386,10 +387,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMutationBatch *batch1 = [self addMutationBatch];
     [self addMutationBatch];
 
-    XCTAssertEqualObjects(self.mutationQueue->GetLastStreamToken(), streamToken1);
+    XCTAssertEqual(self.mutationQueue->GetLastStreamToken(), streamToken1);
 
     self.mutationQueue->AcknowledgeBatch(batch1, streamToken2);
-    XCTAssertEqualObjects(self.mutationQueue->GetLastStreamToken(), streamToken2);
+    XCTAssertEqual(self.mutationQueue->GetLastStreamToken(), streamToken2);
   });
 }
 
