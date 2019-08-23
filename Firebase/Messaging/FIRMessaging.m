@@ -89,7 +89,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
-    return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
+    if (aps && [aps isKindOfClass:[NSDictionary class]]) {
+      return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
+    }
   }
   return NO;
 }
