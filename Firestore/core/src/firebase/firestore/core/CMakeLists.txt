@@ -47,6 +47,8 @@ cc_library(
     target_id_generator.h
     user_data.cc
     user_data.h
+    view.cc
+    view.h
     view_snapshot.cc
     view_snapshot.h
   DEPENDS
