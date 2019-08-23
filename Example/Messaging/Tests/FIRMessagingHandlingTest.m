@@ -45,6 +45,11 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @end
 
+/*
+ * This class checks if we handle the received message properly
+ * based on each type of messages. Checks include duplicate message handling,
+ * analytics logging, etc.
+ */
 @interface FIRMessagingHandlingTest : XCTestCase
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
@@ -185,6 +190,35 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   OCMVerifyAll(_mockMessaging);
   [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566515531287827"];
 
+}
+
+-(void)testContextualLocalNotification {
+  NSDictionary *notificationPayload = @{
+                                        @"gcm.message_id": @"1566515531281975",
+                                        @"gcm.n.e" : @1,
+                                        @"gcm.notification.body" : @"Local time zone message!",
+                                        @"gcm.notification.title" : @"Hello",
+                                        @"gcms" : @"gcm.gmsproc.cm",
+                                        @"google.c.a.c_id" : @"5941428497527920876",
+                                        @"google.c.a.e" : @1,
+                                        @"google.c.a.ts" : @1566565920,
+                                        @"google.c.a.udt" : @1,
+                                        };
+  OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_mockMessaging);
+
+  OCMReject([_mockMessaging handleContextManagerMessage:notificationPayload]);
+  OCMReject([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
+  OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
+
+  XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
+                        @([_messaging appDidReceiveMessage:notificationPayload].status));
+  OCMVerifyAll(_mockMessaging);
+  [_messaging.rmq2Manager deleteSyncMessageWithRmqID:@"1566515531281975"];
 }
 
 -(void)testMCSNotification {
