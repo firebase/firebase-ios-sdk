@@ -717,7 +717,7 @@ struct ZipBuilder {
       // If there are no frameworks, it's an open source pod and we need to compile the source to
       // get a framework.
       if foundFrameworks.isEmpty {
-        let builder = FrameworkBuilder(projectDir: projectDir)
+        let builder = FrameworkBuilder(projectDir: projectDir, carthageBuild: carthageBuild)
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
                                                logsOutputDir: paths.logsOutputDir)
