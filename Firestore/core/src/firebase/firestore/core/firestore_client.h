@@ -66,10 +66,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   /**
    * Creates a fully initialized `FirestoreClient`.
    *
-   * PORTING NOTE: `FirestoreClient` is forced to use two-step initialization,
-   * because otherwise it would have to call `shared_from_this()` in its
-   * constructor, which is invalid. The factory function wraps that
-   * initialization and also enforces that `FirestoreClient` has to be managed
+   * PORTING NOTE: We use factory function instead of public constructor
+   * because `FirestoreClient` is supposed to be managed by shared_ptr, and
+   * it is invalid to call `shared_from_this()` from constructors.
+   * The factory function enforces that `FirestoreClient` has to be managed
    * by a shared pointer.
    */
   static std::shared_ptr<FirestoreClient> Create(
@@ -162,16 +162,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
-  // Registers to be notified on credential change -- `FirestoreClient` can only
-  // be fully initialized once there is a current user.
-  //
-  // PORTING NOTE: on other platforms, this is done in the constructor, but in
-  // C++, it would require calling `shared_from_this()` from the constructor,
-  // which is invalid. The actual initialization is done in `InitializeInternal`
-  // (called just `initialize` on other platforms).
-  void Initialize(const api::Settings& settings);
-  void InitializeInternal(const auth::User& user,
-                          const api::Settings& settings);
+  void Initialize(const auth::User& user, const api::Settings& settings);
 
   void VerifyNotShutdown();
 
