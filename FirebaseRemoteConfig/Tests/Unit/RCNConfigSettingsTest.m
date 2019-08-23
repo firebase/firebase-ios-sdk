@@ -21,7 +21,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
-//#import "FirebaseRemoteConfig/Tests/Unit/RCNConfigSettings+Throttling.h"
 #import <OCMock/OCMock.h>
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
