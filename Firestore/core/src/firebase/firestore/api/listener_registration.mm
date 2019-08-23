@@ -27,7 +27,7 @@ ListenerRegistration::ListenerRegistration(
     std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
         async_listener,
     std::shared_ptr<core::QueryListener> query_listener)
-    : client_(client),
+    : client_(std::move(client)),
       async_listener_(std::move(async_listener)),
       query_listener_(std::move(query_listener)) {
 }
