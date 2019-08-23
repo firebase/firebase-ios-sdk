@@ -235,7 +235,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   OCMExpect([_mockMessaging handleContextManagerMessage:notificationPayload]);
   OCMExpect([_mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMExpect([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
- 
+
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_messaging appDidReceiveMessage:notificationPayload].status));
   OCMVerifyAll(_mockMessaging);
