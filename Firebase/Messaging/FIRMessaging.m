@@ -86,6 +86,18 @@ NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token typ
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
+const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
+  if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
+    return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
+  }
+  return NO;
+}
+
+BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
+  return [FIRMessagingContextManagerService isContextManagerMessage:message];
+}
+
 @interface FIRMessagingMessageInfo ()
 
 @property(nonatomic, readwrite, assign) FIRMessagingMessageStatus status;
@@ -384,21 +396,24 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // the message to the device.
   BOOL isOldMessage = NO;
   NSString *messageID = message[kFIRMessagingMessageIDKey];
-  if ([messageID length]) {
+  if (messageID.length) {
     [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
 
-    BOOL isSyncMessage = [[self class] isAPNSSyncMessage:message];
+    BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
     }
-  }
-  // Prevent duplicates by keeping a cache of all the logged messages during each session.
-  // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
-  // us swizzling their implementation to call the same method implicitly.
-  if (!isOldMessage && messageID.length) {
-    isOldMessage = [self.loggedMessageIDs containsObject:messageID];
-    if (!isOldMessage) {
-      [self.loggedMessageIDs addObject:messageID];
+    // Prevent duplicates by keeping a cache of all the logged messages during each session.
+    // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
+    // us swizzling their implementation to call the same method implicitly.
+    // We need to rule out the contextual message because it shares the same message ID
+    // as the local notification it will schedule. And because it is also a APNSSync message
+    // its duplication is already checked previously.
+    if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
+      isOldMessage = [self.loggedMessageIDs containsObject:messageID];
+      if (!isOldMessage) {
+        [self.loggedMessageIDs addObject:messageID];
+      }
     }
   }
 
@@ -411,19 +426,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message {
-  if ([FIRMessagingContextManagerService isContextManagerMessage:message]) {
+  if (FIRMessagingIsContextManagerMessage(message)) {
     return [FIRMessagingContextManagerService handleContextManagerMessage:message];
   }
   return NO;
 }
 
-+ (BOOL)isAPNSSyncMessage:(NSDictionary *)message {
-  if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
-    return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
-  }
-  return NO;
-}
 
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message {
 #if TARGET_OS_IOS || TARGET_OS_TV
