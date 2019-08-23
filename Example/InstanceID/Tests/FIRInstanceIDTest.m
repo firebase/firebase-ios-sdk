@@ -23,7 +23,7 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
-#import "Firebase/InstanceID/FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
