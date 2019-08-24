@@ -157,7 +157,7 @@ fi
 
 # Always rebuild if Travis configuration and/or build scripts changed.
 check_changes '^Gemfile.lock'
-check_changes '^scripts/(build|if_changed|install_prereqs|pod_lib_lint).(rb|sh)'
+check_changes '^scripts/(build|install_prereqs|pod_lib_lint).(rb|sh)'
 
 if [[ "$run" == true ]]; then
   "$@"
