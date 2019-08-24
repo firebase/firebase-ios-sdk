@@ -2,6 +2,8 @@ os: osx
 osx_image: xcode10.1
 language: objective-c
 cache:
+  - bundler
+cache:
   directories:
     - $HOME/.cocoapods/repos
     - $HOME/library/Caches/Cocoapods
@@ -467,5 +469,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-cp-cache
-
