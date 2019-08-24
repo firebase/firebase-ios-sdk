@@ -22,6 +22,19 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+// MARK: - LimboDocumentChange
+
+LimboDocumentChange::LimboDocumentChange(
+    firebase::firestore::core::LimboDocumentChange::Type type,
+    firebase::firestore::model::DocumentKey key)
+    : type_(type), key_(std::move(key)) {
+}
+
+bool operator==(const LimboDocumentChange& lhs,
+                const LimboDocumentChange& rhs) {
+  return lhs.type() == rhs.type() && lhs.key() == rhs.key();
+}
+
 // MARK: - ViewDocumentChanges
 
 ViewDocumentChanges::ViewDocumentChanges(model::DocumentSet new_documents,

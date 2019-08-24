@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_H_
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -24,6 +26,40 @@
 namespace firebase {
 namespace firestore {
 namespace core {
+
+/** A change to a particular document wrt to whether it is in "limbo". */
+class LimboDocumentChange {
+ public:
+  enum class Type {
+    Added,
+    Removed,
+  };
+
+  static LimboDocumentChange Added(model::DocumentKey key) {
+    return {Type::Added, std::move(key)};
+  }
+
+  static LimboDocumentChange Removed(model::DocumentKey key) {
+    return {Type::Removed, std::move(key)};
+  }
+
+  LimboDocumentChange(Type type, model::DocumentKey key);
+
+  Type type() const {
+    return type_;
+  }
+
+  const model::DocumentKey& key() const {
+    return key_;
+  }
+
+  friend bool operator==(const LimboDocumentChange& lhs,
+                         const LimboDocumentChange& rhs);
+
+ private:
+  Type type_;
+  model::DocumentKey key_;
+};
 
 /** The result of applying a set of doc changes to a view. */
 class ViewDocumentChanges {
