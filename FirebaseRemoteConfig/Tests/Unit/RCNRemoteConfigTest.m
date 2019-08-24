@@ -508,9 +508,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                        completionHandler:completionBlock])
         .andReturn(nil);
     [configInstances[i] updateWithNewInstancesForConfigFetch:configFetch
-                                                configContent:configContent
-                                               configSettings:settings
-                                             configExperiment:nil];
+                                               configContent:configContent
+                                              configSettings:settings
+                                            configExperiment:nil];
   }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -714,7 +714,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
           XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault
-                                                      namespace:FIRNamespaceGoogleMobilePlatform]
+                                                     namespace:FIRNamespaceGoogleMobilePlatform]
                              .count,
                          0);
           [expectation fulfill];
@@ -777,44 +777,44 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     NSDictionary<NSString *, NSString *> *defaults = @{key1 : @"default value1"};
     [configInstances[i] setDefaults:defaults];
 
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
-      XCTAssertEqual(configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(configInstances[i][key1].stringValue, @"default value1");
-      XCTAssertEqual(configInstances[i][key1].source, FIRRemoteConfigSourceDefault);
-      XCTAssertTrue([configInstances[i] activateFetched]);
-      XCTAssertEqualObjects(configInstances[i][key1].stringValue, value1);
-      XCTAssertEqual(configInstances[i][key1].source, FIRRemoteConfigSourceRemote);
-      FIRRemoteConfigValue *value;
-      if (i == RCNTestRCInstanceDefault) {
-        value = [configInstances[i] configValueForKey:key1
-                                             namespace:FIRNamespaceGoogleMobilePlatform
-                                                source:FIRRemoteConfigSourceRemote];
-        XCTAssertEqualObjects(value.stringValue, value1);
-        value = [configInstances[i] configValueForKey:key1
-                                             namespace:FIRNamespaceGoogleMobilePlatform
-                                                source:FIRRemoteConfigSourceDefault];
-        XCTAssertEqualObjects(value.stringValue, @"default value1");
-        value = [configInstances[i] configValueForKey:key1
-                                             namespace:FIRNamespaceGoogleMobilePlatform
-                                                source:FIRRemoteConfigSourceStatic];
-      } else {
-        value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceRemote];
-        XCTAssertEqualObjects(value.stringValue, value1);
-        value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceDefault];
-        XCTAssertEqualObjects(value.stringValue, @"default value1");
-        value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceStatic];
-      }
-      XCTAssertEqualObjects(value.stringValue, @"");
-      XCTAssertEqualObjects(value.numberValue, @(0));
-      XCTAssertEqual(value.boolValue, NO);
+    FIRRemoteConfigFetchCompletion fetchCompletion =
+        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+          XCTAssertEqual(configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+          XCTAssertNil(error);
+          XCTAssertEqualObjects(configInstances[i][key1].stringValue, @"default value1");
+          XCTAssertEqual(configInstances[i][key1].source, FIRRemoteConfigSourceDefault);
+          XCTAssertTrue([configInstances[i] activateFetched]);
+          XCTAssertEqualObjects(configInstances[i][key1].stringValue, value1);
+          XCTAssertEqual(configInstances[i][key1].source, FIRRemoteConfigSourceRemote);
+          FIRRemoteConfigValue *value;
+          if (i == RCNTestRCInstanceDefault) {
+            value = [configInstances[i] configValueForKey:key1
+                                                namespace:FIRNamespaceGoogleMobilePlatform
+                                                   source:FIRRemoteConfigSourceRemote];
+            XCTAssertEqualObjects(value.stringValue, value1);
+            value = [configInstances[i] configValueForKey:key1
+                                                namespace:FIRNamespaceGoogleMobilePlatform
+                                                   source:FIRRemoteConfigSourceDefault];
+            XCTAssertEqualObjects(value.stringValue, @"default value1");
+            value = [configInstances[i] configValueForKey:key1
+                                                namespace:FIRNamespaceGoogleMobilePlatform
+                                                   source:FIRRemoteConfigSourceStatic];
+          } else {
+            value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceRemote];
+            XCTAssertEqualObjects(value.stringValue, value1);
+            value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceDefault];
+            XCTAssertEqualObjects(value.stringValue, @"default value1");
+            value = [configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceStatic];
+          }
+          XCTAssertEqualObjects(value.stringValue, @"");
+          XCTAssertEqualObjects(value.numberValue, @(0));
+          XCTAssertEqual(value.boolValue, NO);
 
-      XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
-                     @"Callback of first successful config "
-                     @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccess.");
-      [fetchConfigsExpectation fulfill];
-    };
+          XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
+                         @"Callback of first successful config "
+                         @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccess.");
+          [fetchConfigsExpectation fulfill];
+        };
     [configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
@@ -860,8 +860,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     XCTAssertEqualObjects(configInstances[i][@"dataValue"].stringValue, @"2.4");
     XCTAssertEqualObjects(configInstances[i][@"New item"].numberValue, @(2.4));
     XCTAssertEqualObjects(configInstances[i][@"Languages"].stringValue, @"English");
-    XCTAssertEqualObjects(configInstances[i][@"FileInfo"].stringValue,
-                          @"To setup default config.");
+    XCTAssertEqualObjects(configInstances[i][@"FileInfo"].stringValue, @"To setup default config.");
     XCTAssertEqualObjects(configInstances[i][@"format"].stringValue, @"key to value.");
 
     // If given a wrong file name, the default will not be set and kept as previous results.
@@ -882,33 +881,33 @@ static NSString *UTCToLocal(NSString *utcTime) {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     if (i == RCNTestRCInstanceDefault) {
       [configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"
-                                              namespace:RCNTestsPerfNamespace];
+                                             namespace:RCNTestsPerfNamespace];
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"lastCheckTime"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .stringValue,
                             UTCToLocal(@"2016-02-28 18:33:31"));
       XCTAssertEqual([configInstances[i] configValueForKey:@"isPaidUser"
-                                                  namespace:RCNTestsPerfNamespace]
+                                                 namespace:RCNTestsPerfNamespace]
                          .boolValue,
                      YES);
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"dataValue"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .stringValue,
                             @"2.4");
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"New item"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .numberValue,
                             @(2.4));
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"Languages"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .stringValue,
                             @"English");
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"FileInfo"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .stringValue,
                             @"To setup default config.");
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"format"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                        namespace:RCNTestsPerfNamespace]
                                 .stringValue,
                             @"key to value.");
     } else {
@@ -918,8 +917,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
       XCTAssertEqual([configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"dataValue"].stringValue,
                             @"2.4");
-      XCTAssertEqualObjects([configInstances[i] configValueForKey:@"New item"].numberValue,
-                            @(2.4));
+      XCTAssertEqualObjects([configInstances[i] configValueForKey:@"New item"].numberValue, @(2.4));
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"Languages"].stringValue,
                             @"English");
       XCTAssertEqualObjects([configInstances[i] configValueForKey:@"FileInfo"].stringValue,
@@ -960,15 +958,15 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
       if (i == RCNTestRCInstanceDefault) {
         XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote
-                                                    namespace:FIRNamespaceGoogleMobilePlatform]
+                                                   namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        100);
         XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault
-                                                    namespace:FIRNamespaceGoogleMobilePlatform]
+                                                   namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        2);
         XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceStatic
-                                                    namespace:FIRNamespaceGoogleMobilePlatform]
+                                                   namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        0);
       } else {
@@ -976,23 +974,22 @@ static NSString *UTCToLocal(NSString *utcTime) {
                        100);
         XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault].count,
                        2);
-        XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceStatic].count,
-                       0);
+        XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceStatic].count, 0);
       }
 
       XCTAssertNotNil([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote
-                                                   namespace:@"invalid namespace"]);
+                                                  namespace:@"invalid namespace"]);
       XCTAssertEqual([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote
-                                                  namespace:@"invalid namespace"]
+                                                 namespace:@"invalid namespace"]
                          .count,
                      0);
       XCTAssertNotNil([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote
-                                                   namespace:nil]);
+                                                  namespace:nil]);
       XCTAssertEqual(
           [configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote namespace:nil].count,
           0);
       XCTAssertNotNil([configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault
-                                                   namespace:nil]);
+                                                  namespace:nil]);
       XCTAssertEqual(
           [configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault namespace:nil].count,
           0);
@@ -1025,7 +1022,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
           // Test keysWithPrefix:namespace: method.
           if (i == RCNTestRCInstanceDefault) {
             XCTAssertEqual([configInstances[i] keysWithPrefix:@"key"
-                                                     namespace:FIRNamespaceGoogleMobilePlatform]
+                                                    namespace:FIRNamespaceGoogleMobilePlatform]
                                .count,
                            100);
           } else {
