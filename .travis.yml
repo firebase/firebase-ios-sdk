@@ -2,11 +2,11 @@ os: osx
 osx_image: xcode10.1
 language: objective-c
 cache:
-  - bundler
-  - cocoapods
   directories:
     - $HOME/.cocoapods/repos
     - $HOME/library/Caches/Cocoapods
+  - bundler
+  - cocoapods
 
 stages:
   - checks
