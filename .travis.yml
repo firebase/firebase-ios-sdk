@@ -4,10 +4,9 @@ language: objective-c
 cache:
   - bundler
   - cocoapods
-# cache:
-#   directories:
-#     - $HOME/.cocoapods/repos
-#     - $HOME/library/Caches/Cocoapods
+  directories:
+    - $HOME/.cocoapods/repos
+    - $HOME/library/Caches/Cocoapods
 
 stages:
   - checks
