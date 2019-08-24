@@ -26,9 +26,6 @@ jobs:
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
 
-    # Primary platforms
-
-    # Run unit tests
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
