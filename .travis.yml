@@ -466,3 +466,4 @@ jobs:
 branches:
   only:
     - master
+    - pb-rctest-cleanup
