@@ -152,7 +152,6 @@ OBJC_PRINT_TO(FSTFirestoreComponent);
 OBJC_PRINT_TO(FSTLRUGarbageCollector);
 OBJC_PRINT_TO(FSTLevelDB);
 OBJC_PRINT_TO(FSTLevelDBLRUDelegate);
-OBJC_PRINT_TO(FSTLimboDocumentChange);
 OBJC_PRINT_TO(FSTListenerRegistration);
 OBJC_PRINT_TO(FSTLocalDocumentsView);
 OBJC_PRINT_TO(FSTLocalSerializer);

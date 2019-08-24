@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -40,25 +42,6 @@ namespace remote = firebase::firestore::remote;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTLimboDocumentChange
-
-typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
-  FSTLimboDocumentChangeTypeAdded = 0,
-  FSTLimboDocumentChangeTypeRemoved,
-};
-
-// A change to a particular document wrt to whether it is in "limbo".
-@interface FSTLimboDocumentChange : NSObject
-
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(model::DocumentKey)key;
-
-- (id)init __attribute__((unavailable("Use a static constructor method.")));
-
-- (const model::DocumentKey &)key;
-
-@property(nonatomic, assign, readonly) FSTLimboDocumentChangeType type;
-@end
-
 #pragma mark - FSTViewChange
 
 // A set of changes to a view.
@@ -67,7 +50,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 - (id)init __attribute__((unavailable("Use a static constructor method.")));
 
 - (absl::optional<core::ViewSnapshot> &)snapshot;
-@property(nonatomic, strong, readonly) NSArray<FSTLimboDocumentChange *> *limboChanges;
+- (const std::vector<core::LimboDocumentChange> &)limboChanges;
 @end
 
 #pragma mark - FSTView

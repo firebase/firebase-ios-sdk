@@ -405,7 +405,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     FSTView *view = [[FSTView alloc] initWithQuery:query.query() remoteDocuments:DocumentKeySet{}];
     ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-    HARD_ASSERT(viewChange.limboChanges.count == 0,
+    HARD_ASSERT(viewChange.limboChanges.empty(),
                 "View returned limbo documents during local-only query execution.");
     HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
 

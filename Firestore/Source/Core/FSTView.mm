@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -32,6 +33,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
+using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncState;
 using firebase::firestore::core::ViewDocumentChanges;
@@ -70,91 +72,45 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 
 }  // namespace
 
-#pragma mark - FSTLimboDocumentChange
-
-@interface FSTLimboDocumentChange ()
-
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key;
-
-- (instancetype)initWithType:(FSTLimboDocumentChangeType)type
-                         key:(DocumentKey)key NS_DESIGNATED_INITIALIZER;
-
-@end
-
-@implementation FSTLimboDocumentChange {
-  DocumentKey _key;
-}
-
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key {
-  return [[FSTLimboDocumentChange alloc] initWithType:type key:std::move(key)];
-}
-
-- (instancetype)initWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key {
-  self = [super init];
-  if (self) {
-    _type = type;
-    _key = std::move(key);
-  }
-  return self;
-}
-
-- (const DocumentKey &)key {
-  return _key;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (self == other) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTLimboDocumentChange class]]) {
-    return NO;
-  }
-  FSTLimboDocumentChange *otherChange = (FSTLimboDocumentChange *)other;
-  return self.type == otherChange.type && self.key == otherChange.key;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = self.type;
-  hash = hash * 31u + self.key.Hash();
-  return hash;
-}
-
-@end
-
 #pragma mark - FSTViewChange
 
 @interface FSTViewChange ()
 
 + (FSTViewChange *)changeWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                         limboChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges;
+                         limboChanges:(std::vector<LimboDocumentChange>)limboChanges;
 
 - (instancetype)initWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                    limboChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges
+                    limboChanges:(std::vector<LimboDocumentChange>)limboChanges
     NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FSTViewChange {
   absl::optional<ViewSnapshot> _snapshot;
+  std::vector<LimboDocumentChange> _limboChanges;
 }
 
 + (FSTViewChange *)changeWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                         limboChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges {
-  return [[self alloc] initWithSnapshot:std::move(snapshot) limboChanges:limboChanges];
+                         limboChanges:(std::vector<LimboDocumentChange>)limboChanges {
+  return [[self alloc] initWithSnapshot:std::move(snapshot) limboChanges:std::move(limboChanges)];
 }
 
 - (instancetype)initWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                    limboChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges {
+                    limboChanges:(std::vector<LimboDocumentChange>)limboChanges {
   self = [super init];
   if (self) {
     _snapshot = std::move(snapshot);
-    _limboChanges = limboChanges;
+    _limboChanges = std::move(limboChanges);
   }
   return self;
 }
 
 - (absl::optional<ViewSnapshot> &)snapshot {
   return _snapshot;
+}
+
+- (const std::vector<LimboDocumentChange> &)limboChanges {
+  return _limboChanges;
 }
 
 @end
@@ -365,7 +321,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
             });
 
   [self applyTargetChange:targetChange];
-  NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
+  std::vector<LimboDocumentChange> limboChanges = [self updateLimboDocuments];
   BOOL synced = _limboDocuments.empty() && self.isCurrent;
   SyncState newSyncState = synced ? SyncState::Synced : SyncState::Local;
   bool syncStateChanged = newSyncState != self.syncState;
@@ -398,7 +354,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
                                                              _mutatedKeys, false)];
   } else {
     // No effect, just return a no-op FSTViewChange.
-    return [[FSTViewChange alloc] initWithSnapshot:absl::nullopt limboChanges:@[]];
+    return [[FSTViewChange alloc] initWithSnapshot:absl::nullopt limboChanges:{}];
   }
 }
 
@@ -447,11 +403,11 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   }
 }
 
-/** Updates limboDocuments and returns any changes as FSTLimboDocumentChanges. */
-- (NSArray<FSTLimboDocumentChange *> *)updateLimboDocuments {
+/** Updates limboDocuments and returns any changes as LimboDocumentChanges. */
+- (std::vector<LimboDocumentChange>)updateLimboDocuments {
   // We can only determine limbo documents when we're in-sync with the server.
   if (!self.isCurrent) {
-    return @[];
+    return {};
   }
 
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
@@ -464,18 +420,17 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   }
 
   // Diff the new limbo docs with the old limbo docs.
-  NSMutableArray<FSTLimboDocumentChange *> *changes =
-      [NSMutableArray arrayWithCapacity:(oldLimboDocuments.size() + _limboDocuments.size())];
+  std::vector<LimboDocumentChange> changes;
+  changes.reserve(oldLimboDocuments.size() + _limboDocuments.size());
+
   for (const DocumentKey &key : oldLimboDocuments) {
     if (!_limboDocuments.contains(key)) {
-      [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
-                                                            key:key]];
+      changes.push_back(LimboDocumentChange::Removed(key));
     }
   }
   for (const DocumentKey &key : _limboDocuments) {
     if (!oldLimboDocuments.contains(key)) {
-      [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
-                                                            key:key]];
+      changes.push_back(LimboDocumentChange::Added(key));
     }
   }
   return changes;

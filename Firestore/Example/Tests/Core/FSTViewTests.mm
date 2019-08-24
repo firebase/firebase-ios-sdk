@@ -41,6 +41,7 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
@@ -321,37 +322,29 @@ inline Query QueryForMessages() {
 
   FSTViewChange *change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc1})]];
-  XCTAssertEqualObjects(change.limboChanges, @[]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({})]
                             targetChange:FSTTestTargetChangeMarkCurrent()];
-  XCTAssertEqualObjects(change.limboChanges,
-                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
-                                                              key:doc1.key()] ]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Added(doc1.key())));
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({})]
                             targetChange:FSTTestTargetChangeAckDocuments({doc1.key()})];
-  XCTAssertEqualObjects(change.limboChanges,
-                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
-                                                              key:doc1.key()] ]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Removed(doc1.key())));
 
   change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc2})]
                        targetChange:FSTTestTargetChangeAckDocuments({doc2.key()})];
-  XCTAssertEqualObjects(change.limboChanges, @[]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
 
   change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc3})]];
-  XCTAssertEqualObjects(change.limboChanges,
-                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
-                                                              key:doc3.key()] ]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Added(doc3.key())));
 
   change = [view applyChangesToDocuments:
                      [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc(
                                                            "rooms/eros/messages/2")})]];  // remove
-  XCTAssertEqualObjects(change.limboChanges,
-                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
-                                                              key:doc3.key()] ]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Removed(doc3.key())));
 }
 
 - (void)testResumingQueryCreatesNoLimbos {
@@ -368,7 +361,7 @@ inline Query QueryForMessages() {
   ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({})];
   FSTViewChange *change = [view applyChangesToDocuments:changes
                                            targetChange:FSTTestTargetChangeMarkCurrent()];
-  XCTAssertEqualObjects(change.limboChanges, @[]);
+  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
 }
 
 - (void)testReturnsNeedsRefillOnDeleteInLimitQuery {

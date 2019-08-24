@@ -54,6 +54,7 @@
 using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
@@ -271,7 +272,7 @@ class LimboResolution {
                                  remoteDocuments:std::move(remoteKeys)];
   ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-  HARD_ASSERT(viewChange.limboChanges.count == 0,
+  HARD_ASSERT(viewChange.limboChanges.empty(),
               "View returned limbo docs before target ack from the server.");
 
   FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:queryData.query()
@@ -432,8 +433,7 @@ class LimboResolution {
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
     FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-    HARD_ASSERT(viewChange.limboChanges.count == 0,
-                "OnlineState should not affect limbo documents.");
+    HARD_ASSERT(viewChange.limboChanges.empty(), "OnlineState should not affect limbo documents.");
     if (viewChange.snapshot.has_value()) {
       newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
     }
@@ -596,32 +596,33 @@ class LimboResolution {
 }
 
 /** Updates the limbo document state for the given targetID. */
-- (void)updateTrackedLimboDocumentsWithChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges
+- (void)updateTrackedLimboDocumentsWithChanges:
+            (const std::vector<LimboDocumentChange> &)limboChanges
                                       targetID:(TargetId)targetID {
-  for (FSTLimboDocumentChange *limboChange in limboChanges) {
-    switch (limboChange.type) {
-      case FSTLimboDocumentChangeTypeAdded:
-        _limboDocumentRefs.AddReference(limboChange.key, targetID);
+  for (const LimboDocumentChange &limboChange : limboChanges) {
+    switch (limboChange.type()) {
+      case LimboDocumentChange::Type::Added:
+        _limboDocumentRefs.AddReference(limboChange.key(), targetID);
         [self trackLimboChange:limboChange];
         break;
 
-      case FSTLimboDocumentChangeTypeRemoved:
-        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
-        _limboDocumentRefs.RemoveReference(limboChange.key, targetID);
-        if (!_limboDocumentRefs.ContainsKey(limboChange.key)) {
+      case LimboDocumentChange::Type::Removed:
+        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key().ToString());
+        _limboDocumentRefs.RemoveReference(limboChange.key(), targetID);
+        if (!_limboDocumentRefs.ContainsKey(limboChange.key())) {
           // We removed the last reference for this key
-          [self removeLimboTargetForKey:limboChange.key];
+          [self removeLimboTargetForKey:limboChange.key()];
         }
         break;
 
       default:
-        HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
+        HARD_FAIL("Unknown limbo change type: %s", limboChange.type());
     }
   }
 }
 
-- (void)trackLimboChange:(FSTLimboDocumentChange *)limboChange {
-  DocumentKey key{limboChange.key};
+- (void)trackLimboChange:(const LimboDocumentChange &)limboChange {
+  const DocumentKey &key = limboChange.key();
 
   if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
