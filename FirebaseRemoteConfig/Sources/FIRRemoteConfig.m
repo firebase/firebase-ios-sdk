@@ -180,8 +180,6 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    options:options];
 
     [_settings loadConfigFromMetadataTable];
-    self->_settings.fetchTimeout = RCNHTTPDefaultConnectionTimeout;
-    self->_settings.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
   }
   return self;
 }
