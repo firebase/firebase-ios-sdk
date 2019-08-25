@@ -157,9 +157,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (MaybeDocumentMap)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
-  std::vector<MutationBatch> oldBatches = self.persistence.run(
-      "OldBatches",
-      [&]() -> std::vector<MutationBatch> { return _mutationQueue->AllMutationBatches(); });
+  std::vector<MutationBatch> oldBatches =
+      self.persistence.run("OldBatches", [&] { return _mutationQueue->AllMutationBatches(); });
 
   // The old one has a reference to the mutation queue, so nil it out first.
   _localDocuments.reset();
@@ -176,8 +175,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
-    for (const std::vector<MutationBatch> &batches : {oldBatches, newBatches}) {
-      for (const MutationBatch &batch : batches) {
+    for (const std::vector<MutationBatch> *batches : {&oldBatches, &newBatches}) {
+      for (const MutationBatch &batch : *batches) {
         for (const Mutation &mutation : batch.mutations()) {
           changedKeys = changedKeys.insert(mutation.key());
         }

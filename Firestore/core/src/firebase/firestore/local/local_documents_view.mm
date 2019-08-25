@@ -171,12 +171,12 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     const Query& query) {
   DocumentMap results = remote_document_cache_->GetMatching(query);
   // Get locally persisted mutation batches.
-  std::vector<MutationBatch> matchingBatches =
+  std::vector<MutationBatch> matching_batches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
-  results = AddMissingBaseDocuments(matchingBatches, std::move(results));
+  results = AddMissingBaseDocuments(matching_batches, std::move(results));
 
-  for (const MutationBatch& batch : matchingBatches) {
+  for (const MutationBatch& batch : matching_batches) {
     for (const Mutation& mutation : batch.mutations()) {
       // Only process documents belonging to the collection.
       if (!query.path().IsImmediateParentOf(mutation.key().path())) {
