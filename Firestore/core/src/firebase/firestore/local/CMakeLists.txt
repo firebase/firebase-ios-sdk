@@ -57,6 +57,8 @@ cc_library(
     local_serializer.h
     local_view_changes.cc
     local_view_changes.h
+    lru_garbage_collector.cc
+    lru_garbage_collector.h
     memory_index_manager.cc
     memory_index_manager.h
     memory_mutation_queue.h
