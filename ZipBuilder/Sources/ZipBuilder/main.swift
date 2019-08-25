@@ -69,6 +69,8 @@ do {
       var output = carthageDir.appendingPathComponent(firebaseVersion)
       if let rcNumber = args.rcNumber {
         output.appendPathComponent("rc\(rcNumber)")
+      } else {
+        output.appendPathComponent("latest-non-rc")
       }
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
