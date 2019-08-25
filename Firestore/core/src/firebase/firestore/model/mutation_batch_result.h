@@ -38,13 +38,18 @@ namespace model {
 using DocumentVersionMap =
     std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
 
-/** The result of applying a mutation batch to the backend. */
+/**
+ * The result of applying a mutation batch to the backend.
+ *
+ * Note that unlike most classes in firebase::firestore::model, this class is
+ * just a grouping of result values and is not optimized for copying.
+ */
 class MutationBatchResult {
  public:
   /**
-   * Creates a new FSTMutationBatchResult for the given batch and results. There
-   * must be one result for each mutation in the batch. This static factory
-   * caches a document=>version mapping (as docVersions).
+   * Creates a new MutationBatchResult for the given batch and results. There
+   * must be one result for each mutation in the batch. This constructor caches
+   * a document=>version mapping (as doc_versions()).
    */
   MutationBatchResult(MutationBatch batch,
                       SnapshotVersion commit_version,
@@ -63,7 +68,7 @@ class MutationBatchResult {
     return mutation_results_;
   }
 
-  const absl::optional<nanopb::ByteString> stream_token() const {
+  const absl::optional<nanopb::ByteString>& stream_token() const {
     return stream_token_;
   }
 

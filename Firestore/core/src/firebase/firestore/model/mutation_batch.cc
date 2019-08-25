@@ -43,7 +43,7 @@ absl::optional<MaybeDocument> MutationBatch::ApplyToRemoteDocument(
     const DocumentKey& document_key,
     const MutationBatchResult& mutation_batch_result) {
   HARD_ASSERT(!maybe_doc || maybe_doc->key() == document_key,
-              "applyTo: key %s doesn't match maybeDoc key %s",
+              "ApplyTo: key %s doesn't match maybe_doc key %s",
               document_key.ToString(), maybe_doc->key().ToString());
 
   const auto& mutation_results = mutation_batch_result.mutation_results();
@@ -109,7 +109,7 @@ MaybeDocumentMap MutationBatch::ApplyToLocalDocumentSet(
   return mutated_documents;
 }
 
-DocumentKeySet MutationBatch::keys() {
+DocumentKeySet MutationBatch::keys() const {
   DocumentKeySet set;
   for (const Mutation& mutation : mutations_) {
     set = set.insert(mutation.key());

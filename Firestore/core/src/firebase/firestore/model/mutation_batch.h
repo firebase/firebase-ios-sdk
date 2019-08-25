@@ -101,12 +101,11 @@ class MutationBatch {
    * Applies all the mutations in this MutationBatch to the specified document
    * to create a new remote document.
    *
-   * @param maybe_doc The document to apply mutations to.
+   * @param maybe_doc The document to which to apply mutations or nullopt if
+   *     there's no existing document.
    * @param document_key The key of the document to apply mutations to.
    * @param mutation_batch_result The result of applying the MutationBatch to
-   *     the backend. If omitted it's assumed that this is a local
-   *     (latency-compensated) application and documents will have their
-   *     hasLocalMutations flag set.
+   *     the backend.
    */
   absl::optional<MaybeDocument> ApplyToRemoteDocument(
       absl::optional<MaybeDocument> maybe_doc,
@@ -114,8 +113,16 @@ class MutationBatch {
       const MutationBatchResult& mutation_batch_result);
 
   /**
-   * A helper version of applyTo for applying mutations locally (without a
-   * mutation batch result from the backend).
+   * Estimates the latency compensated view of all the mutations in this batch
+   * applied to the given MaybeDocument.
+   *
+   * Unlike ApplyToRemoteDocument, this method is used before the mutation has
+   * been committed and so it's possible that the mutation is operating on a
+   * locally non-existent document and may produce a non-existent document.
+   *
+   * @param maybe_doc The document to which to apply mutations or nullopt if
+   *     there's no existing document.
+   * @param document_key The key of the document to apply mutations to.
    */
   absl::optional<MaybeDocument> ApplyToLocalDocument(
       absl::optional<MaybeDocument> maybe_doc, const DocumentKey& document_key);
@@ -130,7 +137,7 @@ class MutationBatch {
   /**
    * Returns the set of unique keys referenced by all mutations in the batch.
    */
-  DocumentKeySet keys();
+  DocumentKeySet keys() const;
 
   friend bool operator==(const MutationBatch& lhs, const MutationBatch& rhs);
 

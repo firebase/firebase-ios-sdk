@@ -39,19 +39,20 @@ MutationBatchResult::MutationBatchResult(
       mutation_results_(std::move(mutation_results)),
       stream_token_(std::move(stream_token)) {
   HARD_ASSERT(batch_.mutations().size() == mutation_results_.size(),
-              "Mutations sent %s must equal results received %s",
+              "Number of mutations sent %s must equal results received %s",
               batch_.mutations().size(), mutation_results_.size());
 
   const auto& mutations = batch_.mutations();
   for (size_t i = 0; i < mutations.size(); i++) {
     absl::optional<SnapshotVersion> version = mutation_results_[i].version();
     if (!version) {
-      // deletes don't have a version, so we substitute the commit_version
+      // Deletes don't have a version, so we substitute the commit_version
       // of the entire batch.
       version = commit_version_;
     }
 
-    doc_versions_[mutations[i].key()] = *version;
+    const DocumentKey& key = mutations[i].key();
+    doc_versions_[key] = *version;
   }
 }
 
