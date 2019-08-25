@@ -105,7 +105,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   FIRSetLoggerLevel(FIRLoggerLevelMax);
 
   _expectationTimeout = 20;
-  _checkCompletionTimeout = 5.0;
+  _checkCompletionTimeout = 10.0;
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
@@ -135,7 +135,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     NSString *currentAppName = nil;
     FIROptions *currentOptions = nil;
-    NSString *currentNamespace = nil;
     static int namespaceUniquer = 0;
     switch (i) {
       case RCNTestRCInstanceSecondNamespace:
@@ -674,7 +673,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] setDefaults:defaults];
     if (i == RCNTestRCInstanceSecondNamespace) {
       [defaults setObject:@"2860" forKey:@"experience"];
-      [_configInstances[i] setDefaults:defaults namespace:RCNTestsPerfNamespace];
+      [_configInstances[i] setDefaults:defaults namespace:_namespace[i]];
     }
     // Remove objects right away to make sure dispatch_async gets the copy.
     [defaults removeAllObjects];
@@ -697,7 +696,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     if (i == RCNTestRCInstanceSecondNamespace) {
       XCTAssertEqualObjects(
-          [_configInstances[i] configValueForKey:@"experience" namespace:RCNTestsPerfNamespace]
+          [_configInstances[i] configValueForKey:@"experience" namespace:_namespace[i]]
               .stringValue,
           @"2860", @"Only default config has the key, must equal to default config value.");
     }
@@ -720,7 +719,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
           XCTAssertEqual([_configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault
-                                                      namespace:FIRNamespaceGoogleMobilePlatform]
+                                                      namespace:_namespace[i]]
                              .count,
                          0);
           [expectation fulfill];
@@ -885,33 +884,33 @@ static NSString *UTCToLocal(NSString *utcTime) {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     if (i == RCNTestRCInstanceDefault) {
       [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"
-                                              namespace:RCNTestsPerfNamespace];
+                                              namespace:_namespace[i]];
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .stringValue,
                             UTCToLocal(@"2016-02-28 18:33:31"));
       XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"
-                                                  namespace:RCNTestsPerfNamespace]
+                                                  namespace:_namespace[i]]
                          .boolValue,
                      YES);
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .stringValue,
                             @"2.4");
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .numberValue,
                             @(2.4));
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .stringValue,
                             @"English");
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .stringValue,
                             @"To setup default config.");
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"
-                                                         namespace:RCNTestsPerfNamespace]
+                                                         namespace:_namespace[i]]
                                 .stringValue,
                             @"key to value.");
     } else {
