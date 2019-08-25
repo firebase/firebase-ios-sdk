@@ -1020,4 +1020,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return returnValue;
 }
 
+- (dispatch_queue_t)queue {
+  return _databaseOperationQueue;
+}
+
 @end

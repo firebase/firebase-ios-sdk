@@ -115,4 +115,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Remove all the records from experiment table with given key.
 /// @param key  The key of experiment data belongs to, which are defined in RCNConfigDefines.h.
 - (void)deleteExperimentTableForKey:(NSString *)key;
+
+// Return the database operation queue.
+- (dispatch_queue_t)queue;
 @end
