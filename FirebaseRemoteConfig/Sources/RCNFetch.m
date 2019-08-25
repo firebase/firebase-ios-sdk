@@ -110,6 +110,9 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
 /// Force a new NSURLSession creation for updated config.
 - (void)recreateNetworkSession {
+  if (_fetchSession) {
+    [_fetchSession invalidateAndCancel];
+  }
   _fetchSession = [self newFetchSession];
 }
 
