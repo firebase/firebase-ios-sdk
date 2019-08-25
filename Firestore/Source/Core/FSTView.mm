@@ -36,6 +36,7 @@ using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncState;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::Document;
@@ -71,49 +72,6 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 }
 
 }  // namespace
-
-#pragma mark - FSTViewChange
-
-@interface FSTViewChange ()
-
-+ (FSTViewChange *)changeWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                         limboChanges:(std::vector<LimboDocumentChange>)limboChanges;
-
-- (instancetype)initWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                    limboChanges:(std::vector<LimboDocumentChange>)limboChanges
-    NS_DESIGNATED_INITIALIZER;
-
-@end
-
-@implementation FSTViewChange {
-  absl::optional<ViewSnapshot> _snapshot;
-  std::vector<LimboDocumentChange> _limboChanges;
-}
-
-+ (FSTViewChange *)changeWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                         limboChanges:(std::vector<LimboDocumentChange>)limboChanges {
-  return [[self alloc] initWithSnapshot:std::move(snapshot) limboChanges:std::move(limboChanges)];
-}
-
-- (instancetype)initWithSnapshot:(absl::optional<ViewSnapshot> &&)snapshot
-                    limboChanges:(std::vector<LimboDocumentChange>)limboChanges {
-  self = [super init];
-  if (self) {
-    _snapshot = std::move(snapshot);
-    _limboChanges = std::move(limboChanges);
-  }
-  return self;
-}
-
-- (absl::optional<ViewSnapshot> &)snapshot {
-  return _snapshot;
-}
-
-- (const std::vector<LimboDocumentChange> &)limboChanges {
-  return _limboChanges;
-}
-
-@end
 
 #pragma mark - FSTView
 
@@ -296,12 +254,12 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
           !newDoc.has_local_mutations());
 }
 
-- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges {
+- (ViewChange)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges {
   return [self applyChangesToDocuments:docChanges targetChange:{}];
 }
 
-- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
-                              targetChange:(const absl::optional<TargetChange> &)targetChange {
+- (ViewChange)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
+                         targetChange:(const absl::optional<TargetChange> &)targetChange {
   HARD_ASSERT(!docChanges.needs_refill(), "Cannot apply changes that need a refill");
 
   DocumentSet oldDocuments = *_documentSet;
@@ -329,7 +287,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 
   if (changes.empty() && !syncStateChanged) {
     // No changes.
-    return [FSTViewChange changeWithSnapshot:absl::nullopt limboChanges:limboChanges];
+    return ViewChange(absl::nullopt, std::move(limboChanges));
   } else {
     ViewSnapshot snapshot{_query,
                           docChanges.document_set(),
@@ -340,21 +298,21 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
                           syncStateChanged,
                           /*excludes_metadata_changes=*/false};
 
-    return [FSTViewChange changeWithSnapshot:std::move(snapshot) limboChanges:limboChanges];
+    return ViewChange(std::move(snapshot), std::move(limboChanges));
   }
 }
 
-- (FSTViewChange *)applyChangedOnlineState:(OnlineState)onlineState {
+- (ViewChange)applyChangedOnlineState:(OnlineState)onlineState {
   if (self.isCurrent && onlineState == OnlineState::Offline) {
     // If we're offline, set `current` to NO and then call applyChanges to refresh our syncState
-    // and generate an FSTViewChange as appropriate. We are guaranteed to get a new `TargetChange`
-    // that sets `current` back to YES once the client is back online.
+    // and generate a ViewChange as appropriate. We are guaranteed to get a new `TargetChange` that
+    // sets `current` back to YES once the client is back online.
     self.current = NO;
     return [self applyChangesToDocuments:ViewDocumentChanges(*_documentSet, DocumentViewChangeSet{},
                                                              _mutatedKeys, false)];
   } else {
-    // No effect, just return a no-op FSTViewChange.
-    return [[FSTViewChange alloc] initWithSnapshot:absl::nullopt limboChanges:{}];
+    // No effect, just return a no-op ViewChange.
+    return ViewChange(absl::nullopt, {});
   }
 }
 

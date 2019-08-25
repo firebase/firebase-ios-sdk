@@ -43,6 +43,7 @@ using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::Document;
@@ -296,7 +297,7 @@ inline Query QueryForMessages() {
       [view applyChangesToDocuments:viewDocChanges
                        targetChange:FSTTestTargetChangeAckDocuments(
                                         {doc1.key(), doc2.key(), doc3.key(), doc4.key()})]
-          .snapshot;
+          .snapshot();
   XCTAssertTrue(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
@@ -320,31 +321,31 @@ inline Query QueryForMessages() {
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
 
-  FSTViewChange *change =
+  ViewChange change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc1})]];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre());
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({})]
                             targetChange:FSTTestTargetChangeMarkCurrent()];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Added(doc1.key())));
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre(LimboDocumentChange::Added(doc1.key())));
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({})]
                             targetChange:FSTTestTargetChangeAckDocuments({doc1.key()})];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Removed(doc1.key())));
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre(LimboDocumentChange::Removed(doc1.key())));
 
   change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc2})]
                        targetChange:FSTTestTargetChangeAckDocuments({doc2.key()})];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre());
 
   change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates({doc3})]];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Added(doc3.key())));
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre(LimboDocumentChange::Added(doc3.key())));
 
   change = [view applyChangesToDocuments:
                      [view computeChangesWithDocuments:FSTTestDocUpdates({DeletedDoc(
                                                            "rooms/eros/messages/2")})]];  // remove
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre(LimboDocumentChange::Removed(doc3.key())));
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre(LimboDocumentChange::Removed(doc3.key())));
 }
 
 - (void)testResumingQueryCreatesNoLimbos {
@@ -359,9 +360,9 @@ inline Query QueryForMessages() {
                                  remoteDocuments:DocumentKeySet{doc1.key(), doc2.key()}];
 
   ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({})];
-  FSTViewChange *change = [view applyChangesToDocuments:changes
-                                           targetChange:FSTTestTargetChangeMarkCurrent()];
-  XC_ASSERT_THAT(change.limboChanges, ElementsAre());
+  ViewChange change = [view applyChangesToDocuments:changes
+                                       targetChange:FSTTestTargetChangeMarkCurrent()];
+  XC_ASSERT_THAT(change.limbo_changes(), ElementsAre());
 }
 
 - (void)testReturnsNeedsRefillOnDeleteInLimitQuery {
@@ -608,8 +609,8 @@ inline Query QueryForMessages() {
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
-  FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertTrue(viewChange.snapshot.value().has_pending_writes());
+  ViewChange viewChange = [view applyChangesToDocuments:changes];
+  XCTAssertTrue(viewChange.snapshot()->has_pending_writes());
 }
 
 - (void)testDoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot {
@@ -617,8 +618,8 @@ inline Query QueryForMessages() {
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kCommittedMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1})];
-  FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertFalse(viewChange.snapshot.value().has_pending_writes());
+  ViewChange viewChange = [view applyChangesToDocuments:changes];
+  XCTAssertFalse(viewChange.snapshot()->has_pending_writes());
 }
 
 - (void)testSuppressesWriteAcknowledgementIfWatchHasNotCaughtUp {
@@ -637,9 +638,9 @@ inline Query QueryForMessages() {
   Document doc2Acknowledged = Doc("rooms/eros/messages/2", 2, Map("time", 3));
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewDocumentChanges changes = [view computeChangesWithDocuments:FSTTestDocUpdates({doc1, doc2})];
-  FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
+  ViewChange viewChange = [view applyChangesToDocuments:changes];
 
-  XC_ASSERT_THAT(viewChange.snapshot.value().document_changes(),
+  XC_ASSERT_THAT(viewChange.snapshot()->document_changes(),
                  ElementsAre(DocumentViewChange{doc1, DocumentViewChange::Type::kAdded},
                              DocumentViewChange{doc2, DocumentViewChange::Type::kAdded}));
 
@@ -647,14 +648,14 @@ inline Query QueryForMessages() {
   viewChange = [view applyChangesToDocuments:changes];
   // The 'doc1Committed' update is suppressed
   XC_ASSERT_THAT(
-      viewChange.snapshot.value().document_changes(),
+      viewChange.snapshot()->document_changes(),
       ElementsAre(DocumentViewChange{doc2Modified, DocumentViewChange::Type::kModified}));
 
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates({doc1Acknowledged, doc2Acknowledged})];
   viewChange = [view applyChangesToDocuments:changes];
   XC_ASSERT_THAT(
-      viewChange.snapshot.value().document_changes(),
+      viewChange.snapshot()->document_changes(),
       ElementsAre(DocumentViewChange{doc1Acknowledged, DocumentViewChange::Type::kModified},
                   DocumentViewChange{doc2Acknowledged, DocumentViewChange::Type::kMetadata}));
 }

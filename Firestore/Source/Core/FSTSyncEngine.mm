@@ -60,6 +60,7 @@ using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::TransactionRunner;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
@@ -271,8 +272,8 @@ class LimboResolution {
   FSTView *view = [[FSTView alloc] initWithQuery:queryData.query()
                                  remoteDocuments:std::move(remoteKeys)];
   ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
-  FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-  HARD_ASSERT(viewChange.limboChanges.empty(),
+  ViewChange viewChange = [view applyChangesToDocuments:viewDocChanges];
+  HARD_ASSERT(viewChange.limbo_changes().empty(),
               "View returned limbo docs before target ack from the server.");
 
   FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:queryData.query()
@@ -282,9 +283,9 @@ class LimboResolution {
   _queryViewsByQuery[queryData.query()] = queryView;
   _queryViewsByTarget[queryData.target_id()] = queryView;
 
-  HARD_ASSERT(viewChange.snapshot.has_value(),
+  HARD_ASSERT(viewChange.snapshot().has_value(),
               "applyChangesToDocuments for new view should always return a snapshot");
-  return viewChange.snapshot.value();
+  return viewChange.snapshot().value();
 }
 
 - (void)stopListeningToQuery:(const Query &)query {
@@ -432,10 +433,11 @@ class LimboResolution {
   std::vector<ViewSnapshot> newViewSnapshots;
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-    HARD_ASSERT(viewChange.limboChanges.empty(), "OnlineState should not affect limbo documents.");
-    if (viewChange.snapshot.has_value()) {
-      newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
+    ViewChange viewChange = [queryView.view applyChangedOnlineState:onlineState];
+    HARD_ASSERT(viewChange.limbo_changes().empty(),
+                "OnlineState should not affect limbo documents.");
+    if (viewChange.snapshot().has_value()) {
+      newViewSnapshots.push_back(*std::move(viewChange.snapshot()));
     }
   }
 
@@ -577,16 +579,16 @@ class LimboResolution {
         targetChange = it->second;
       }
     }
-    FSTViewChange *viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
-                                                           targetChange:targetChange];
+    ViewChange viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
+                                                       targetChange:targetChange];
 
-    [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
+    [self updateTrackedLimboDocumentsWithChanges:viewChange.limbo_changes()
                                         targetID:queryView.targetID];
 
-    if (viewChange.snapshot.has_value()) {
-      newSnapshots.push_back(viewChange.snapshot.value());
+    if (viewChange.snapshot().has_value()) {
+      newSnapshots.push_back(*viewChange.snapshot());
       LocalViewChanges docChanges =
-          LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
+          LocalViewChanges::FromViewSnapshot(*viewChange.snapshot(), queryView.targetID);
       documentChangesInAllViews.push_back(std::move(docChanges));
     }
   }

@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -70,6 +71,7 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LruParams;
@@ -404,12 +406,12 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query() remoteDocuments:DocumentKeySet{}];
     ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
-    FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-    HARD_ASSERT(viewChange.limboChanges.empty(),
+    ViewChange viewChange = [view applyChangesToDocuments:viewDocChanges];
+    HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "View returned limbo documents during local-only query execution.");
-    HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
+    HARD_ASSERT(viewChange.snapshot().has_value(), "Expected a snapshot");
 
-    ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
+    ViewSnapshot snapshot = std::move(viewChange.snapshot()).value();
     SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
     api::QuerySnapshot result(query.firestore(), query.query(), std::move(snapshot),

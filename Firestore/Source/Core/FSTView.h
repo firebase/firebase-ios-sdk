@@ -42,17 +42,6 @@ namespace remote = firebase::firestore::remote;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTViewChange
-
-// A set of changes to a view.
-@interface FSTViewChange : NSObject
-
-- (id)init __attribute__((unavailable("Use a static constructor method.")));
-
-- (absl::optional<core::ViewSnapshot> &)snapshot;
-- (const std::vector<core::LimboDocumentChange> &)limboChanges;
-@end
-
 #pragma mark - FSTView
 
 /**
@@ -96,9 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Updates the view with the given ViewDocumentChanges.
  *
  * @param docChanges The set of changes to make to the view's docs.
- * @return A new FSTViewChange with the given docs, changes, and sync state.
+ * @return A new ViewChange with the given docs, changes, and sync state.
  */
-- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges;
+- (core::ViewChange)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges and updates limbo docs and sync state from
@@ -106,17 +95,17 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param docChanges The set of changes to make to the view's docs.
  * @param targetChange A target change to apply for computing limbo docs and sync state.
- * @return A new FSTViewChange with the given docs, changes, and sync state.
+ * @return A new ViewChange with the given docs, changes, and sync state.
  */
-- (FSTViewChange *)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
-                              targetChange:
-                                  (const absl::optional<remote::TargetChange> &)targetChange;
+- (core::ViewChange)applyChangesToDocuments:(const core::ViewDocumentChanges &)docChanges
+                               targetChange:
+                                   (const absl::optional<remote::TargetChange> &)targetChange;
 
 /**
- * Applies an OnlineState change to the view, potentially generating an FSTViewChange if the
+ * Applies an OnlineState change to the view, potentially generating an ViewChange if the
  * view's syncState changes as a result.
  */
-- (FSTViewChange *)applyChangedOnlineState:(model::OnlineState)onlineState;
+- (core::ViewChange)applyChangedOnlineState:(model::OnlineState)onlineState;
 
 /**
  * The set of remote documents that the server has told us belongs to the target associated with
