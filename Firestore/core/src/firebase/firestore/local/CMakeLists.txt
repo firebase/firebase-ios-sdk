@@ -69,6 +69,7 @@ cc_library(
     query_cache.h
     query_data.cc
     query_data.h
+    reference_delegate.h
     reference_set.cc
     reference_set.h
     remote_document_cache.h
