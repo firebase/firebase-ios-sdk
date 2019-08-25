@@ -696,8 +696,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     if (i == RCNTestRCInstanceSecondNamespace) {
       XCTAssertEqualObjects(
-          [_configInstances[i] configValueForKey:@"experience" namespace:_namespace[i]]
-              .stringValue,
+          [_configInstances[i] configValueForKey:@"experience" namespace:_namespace[i]].stringValue,
           @"2860", @"Only default config has the key, must equal to default config value.");
     }
 
@@ -889,30 +888,24 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                                          namespace:_namespace[i]]
                                 .stringValue,
                             UTCToLocal(@"2016-02-28 18:33:31"));
-      XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"
-                                                  namespace:_namespace[i]]
-                         .boolValue,
-                     YES);
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"
-                                                         namespace:_namespace[i]]
-                                .stringValue,
-                            @"2.4");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"
-                                                         namespace:_namespace[i]]
-                                .numberValue,
-                            @(2.4));
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"
-                                                         namespace:_namespace[i]]
-                                .stringValue,
-                            @"English");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"
-                                                         namespace:_namespace[i]]
-                                .stringValue,
-                            @"To setup default config.");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"
-                                                         namespace:_namespace[i]]
-                                .stringValue,
-                            @"key to value.");
+      XCTAssertEqual(
+          [_configInstances[i] configValueForKey:@"isPaidUser" namespace:_namespace[i]].boolValue,
+          YES);
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"dataValue" namespace:_namespace[i]].stringValue,
+          @"2.4");
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"New item" namespace:_namespace[i]].numberValue,
+          @(2.4));
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"Languages" namespace:_namespace[i]].stringValue,
+          @"English");
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"FileInfo" namespace:_namespace[i]].stringValue,
+          @"To setup default config.");
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"format" namespace:_namespace[i]].stringValue,
+          @"key to value.");
     } else {
       [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
