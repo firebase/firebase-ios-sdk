@@ -168,6 +168,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     /// Serial queue for read and write lock.
     _queue = [FIRRemoteConfig sharedRemoteConfigSerialQueue];
 
+    // Initialize with default config settings.
+    [self setDefaultConfigSettings];
     _configFetch = [[RCNConfigFetch alloc] initWithContent:_configContent
                                                  DBManager:_DBManager
                                                   settings:_settings
@@ -182,6 +184,13 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     self->_settings.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
   }
   return self;
+}
+
+// Initialize with default config settings.
+- (void)setDefaultConfigSettings {
+  // Set the default config settings.
+  self->_settings.fetchTimeout = RCNHTTPDefaultConnectionTimeout;
+  self->_settings.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
 }
 
 - (void)ensureInitializedWithCompletionHandler:
@@ -592,6 +601,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       [[FIRRemoteConfigSettings alloc] initWithDeveloperModeEnabled:developerModeEnabled];
   settings.minimumFetchInterval = minimumFetchInterval;
   settings.fetchTimeout = fetchTimeout;
+  /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+  [_configFetch recreateNetworkSession];
   return settings;
 }
 
@@ -607,6 +618,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     self->_settings.customVariables = settingsToSave;
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
+    /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    [_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
                 @"Successfully set configSettings. Developer Mode: %@, Minimum Fetch Interval:%f, "
                 @"Fetch timeout:%f",
