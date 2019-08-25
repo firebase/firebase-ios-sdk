@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_H_
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -97,6 +98,28 @@ class ViewDocumentChanges {
   core::DocumentViewChangeSet change_set_;
   model::DocumentKeySet mutated_keys_;
   bool needs_refill_ = false;
+};
+
+/** A set of changes to a view. */
+class ViewChange {
+ public:
+  ViewChange(absl::optional<ViewSnapshot> snapshot,
+             std::vector<LimboDocumentChange> limbo_changes)
+      : snapshot_(std::move(snapshot)),
+        limbo_changes_(std::move(limbo_changes)) {
+  }
+
+  const absl::optional<ViewSnapshot> snapshot() const {
+    return snapshot_;
+  }
+
+  const std::vector<LimboDocumentChange> limbo_changes() const {
+    return limbo_changes_;
+  }
+
+ private:
+  absl::optional<ViewSnapshot> snapshot_;
+  std::vector<LimboDocumentChange> limbo_changes_;
 };
 
 }  // namespace core
