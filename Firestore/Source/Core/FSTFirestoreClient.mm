@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
@@ -71,6 +70,7 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::View;
 using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
@@ -404,9 +404,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _workerQueue->Enqueue([self, query, shared_callback] {
     DocumentMap docs = [self.localStore executeQuery:query.query()];
 
-    FSTView *view = [[FSTView alloc] initWithQuery:query.query() remoteDocuments:DocumentKeySet{}];
-    ViewDocumentChanges viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
-    ViewChange viewChange = [view applyChangesToDocuments:viewDocChanges];
+    View view(query.query(), DocumentKeySet{});
+    ViewDocumentChanges viewDocChanges = view.ComputeDocumentChanges(docs.underlying_map());
+    ViewChange viewChange = view.ApplyChanges(viewDocChanges);
     HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "View returned limbo documents during local-only query execution.");
     HARD_ASSERT(viewChange.snapshot().has_value(), "Expected a snapshot");
