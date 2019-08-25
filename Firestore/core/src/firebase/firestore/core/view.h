@@ -20,9 +20,12 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/view_change.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 
 namespace firebase {
 namespace firestore {
@@ -120,6 +123,104 @@ class ViewChange {
  private:
   absl::optional<ViewSnapshot> snapshot_;
   std::vector<LimboDocumentChange> limbo_changes_;
+};
+
+/**
+ * View is responsible for computing the final merged truth of what docs are in
+ * a query. It gets notified of local and remote changes to docs, and applies
+ * the query filters and limits to determine the most correct possible results.
+ */
+class View {
+ public:
+  View(Query query, model::DocumentKeySet remote_documents);
+
+  /**
+   * The set of remote documents that the server has told us belongs to the
+   * target associated with this view.
+   */
+  const model::DocumentKeySet& synced_documents() const {
+    return synced_documents_;
+  }
+
+  /**
+   * Iterates over a set of doc changes, applies the query limit, and computes
+   * what the new results should be, what the changes were, and whether we may
+   * need to go back to the local cache for more results. Does not make any
+   * changes to the view.
+   *
+   * @param doc_changes The doc changes to apply to this view.
+   * @param previous_changes If this is being called with a refill, then start
+   *     with this set of docs and changes instead of the current view.
+   * @return a new set of docs, changes, and refill flag.
+   */
+  core::ViewDocumentChanges ComputeDocumentChanges(
+      const model::MaybeDocumentMap& doc_changes,
+      const absl::optional<core::ViewDocumentChanges>& previous_changes =
+          absl::nullopt) const;
+
+  /**
+   * Updates the view with the given ViewDocumentChanges.
+   *
+   * @param doc_changes The set of changes to make to the view's docs.
+   * @return A new ViewChange with the given docs, changes, and sync state.
+   */
+  ViewChange ApplyChanges(const core::ViewDocumentChanges& doc_changes);
+
+  /**
+   * Updates the view with the given ViewDocumentChanges and updates limbo docs
+   * and sync state from the given (optional) target change.
+   *
+   * @param doc_changes The set of changes to make to the view's docs.
+   * @param target_change A target change to apply for computing limbo docs and
+   *     sync state.
+   * @return A new ViewChange with the given docs, changes, and sync state.
+   */
+  ViewChange ApplyChanges(
+      const core::ViewDocumentChanges& doc_changes,
+      const absl::optional<remote::TargetChange>& target_change);
+
+  /**
+   * Applies an OnlineState change to the view, potentially generating an
+   * ViewChange if the view's sync_state_ changes as a result.
+   */
+  core::ViewChange ApplyChangedOnlineState(model::OnlineState online_state);
+
+ private:
+  util::ComparisonResult Compare(const model::Document& lhs,
+                                 const model::Document& rhs) const;
+
+  bool ShouldBeLimboDocumentKey(const model::DocumentKey& key) const;
+
+  bool ShouldWaitForSyncedDocument(const model::Document& new_doc,
+                                   const model::Document& old_doc) const;
+
+  void ApplyTargetChange(
+      const absl::optional<remote::TargetChange>& maybe_target_change);
+
+  std::vector<LimboDocumentChange> UpdateLimboDocuments();
+
+  Query query_;
+
+  model::DocumentSet document_set_;
+
+  /** Documents included in the remote target. */
+  model::DocumentKeySet synced_documents_;
+
+  /** Documents in the view but not in the remote target */
+  model::DocumentKeySet limbo_documents_;
+
+  /** Document Keys that have local changes. */
+  model::DocumentKeySet mutated_keys_;
+
+  SyncState sync_state_ = SyncState::None;
+
+  /**
+   * A flag whether the view is current with the backend. A view is considered
+   * current after it has seen the current flag from the backend and did not
+   * lose consistency within the watch stream (e.g. because of an existence
+   * filter mismatch).
+   */
+  bool current_ = false;
 };
 
 }  // namespace core
