@@ -89,7 +89,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSTimeInterval _expectationTimeout;
   NSTimeInterval _checkCompletionTimeout;
   NSMutableArray<FIRRemoteConfig *> *_configInstances;
-  NSMutableArray<NSString *> *_namespace;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
@@ -121,7 +120,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
   _configInstances = [[NSMutableArray alloc] initWithCapacity:3];
-  _namespace = [[NSMutableArray alloc] initWithCapacity:3];
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -136,36 +134,33 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     NSString *currentAppName = nil;
     FIROptions *currentOptions = nil;
     NSString *currentNamespace = nil;
-    static int namespaceUniquer = 0;
     switch (i) {
       case RCNTestRCInstanceSecondNamespace:
         currentAppName = RCNTestsDefaultFIRAppName;
         currentOptions = [self firstAppOptions];
-        _namespace[i] =
-            [NSString stringWithFormat:@"%@%d", RCNTestsPerfNamespace, ++namespaceUniquer];
+        currentNamespace = RCNTestsPerfNamespace;
         break;
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        _namespace[i] = [NSString
-            stringWithFormat:@"%@%d", FIRNamespaceGoogleMobilePlatform, ++namespaceUniquer];
+        currentNamespace = FIRNamespaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
         currentAppName = RCNTestsDefaultFIRAppName;
         currentOptions = [self firstAppOptions];
-        _namespace[i] =
-            [NSString stringWithFormat:@"%@%d", RCNTestsFIRNamespace, ++namespaceUniquer];
+        currentNamespace = RCNTestsFIRNamespace;
         break;
     }
     NSString *fullyQualifiedNamespace =
-        [NSString stringWithFormat:@"%@:%@", _namespace[i], currentAppName];
-    FIRRemoteConfig *config = OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
-                                                                           FIROptions:currentOptions
-                                                                            namespace:_namespace[i]
-                                                                            DBManager:_DBManager
-                                                                        configContent:configContent
-                                                                            analytics:nil]);
+        [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
+    FIRRemoteConfig *config =
+        OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                     FIROptions:currentOptions
+                                                      namespace:currentNamespace
+                                                      DBManager:_DBManager
+                                                  configContent:configContent
+                                                      analytics:nil]);
 
     _configInstances[i] = config;
     RCNConfigSettings *settings =
@@ -580,41 +575,42 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   }
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
-          XCTAssertNil(error);
-          XCTAssertTrue([_configInstances[i] activateFetched]);
+    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
+                                                           NSError *error) {
+      XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
+      XCTAssertNil(error);
+      XCTAssertTrue([_configInstances[i] activateFetched]);
 
-          NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
-          NSString *key2 = [NSString stringWithFormat:@"key2-%d", i];
-          NSString *key3 = [NSString stringWithFormat:@"key3-%d", i];
-          NSString *key7 = [NSString stringWithFormat:@"key7-%d", i];
-          NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
-          NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
-          NSString *value3 = [NSString stringWithFormat:@"value3-%d", i];
-          NSString *value7 = [NSString stringWithFormat:@"value7-%d", i];
-          XCTAssertEqualObjects(_configInstances[i][key1].stringValue, value1);
-          XCTAssertEqualObjects(_configInstances[i][key2].stringValue, value2);
-          OCMVerify([_configInstances[i] objectForKeyedSubscript:key1]);
-          XCTAssertEqualObjects([_configInstances[i] configValueForKey:key3].stringValue, value3);
-          if (i == RCNTestRCInstanceDefault) {
-            XCTAssertEqualObjects(
-                [_configInstances[i] configValueForKey:key7 namespace:_namespace[i]].stringValue,
-                value7);
-          }
+      NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
+      NSString *key2 = [NSString stringWithFormat:@"key2-%d", i];
+      NSString *key3 = [NSString stringWithFormat:@"key3-%d", i];
+      NSString *key7 = [NSString stringWithFormat:@"key7-%d", i];
+      NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
+      NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
+      NSString *value3 = [NSString stringWithFormat:@"value3-%d", i];
+      NSString *value7 = [NSString stringWithFormat:@"value7-%d", i];
+      XCTAssertEqualObjects(_configInstances[i][key1].stringValue, value1);
+      XCTAssertEqualObjects(_configInstances[i][key2].stringValue, value2);
+      OCMVerify([_configInstances[i] objectForKeyedSubscript:key1]);
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:key3].stringValue, value3);
+      if (i == RCNTestRCInstanceDefault) {
+        XCTAssertEqualObjects(
+            [_configInstances[i] configValueForKey:key7 namespace:FIRNamespaceGoogleMobilePlatform]
+                .stringValue,
+            value7);
+      }
 
-          XCTAssertEqualObjects([_configInstances[i] configValueForKey:key7].stringValue, value7);
-          XCTAssertNotNil([_configInstances[i] configValueForKey:nil]);
-          XCTAssertEqual([_configInstances[i] configValueForKey:nil].source,
-                         FIRRemoteConfigSourceStatic);
-          XCTAssertEqual([_configInstances[i] configValueForKey:nil namespace:nil].source,
-                         FIRRemoteConfigSourceStatic);
-          XCTAssertEqual([_configInstances[i] configValueForKey:nil namespace:nil source:-1].source,
-                         FIRRemoteConfigSourceStatic);
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:key7].stringValue, value7);
+      XCTAssertNotNil([_configInstances[i] configValueForKey:nil]);
+      XCTAssertEqual([_configInstances[i] configValueForKey:nil].source,
+                     FIRRemoteConfigSourceStatic);
+      XCTAssertEqual([_configInstances[i] configValueForKey:nil namespace:nil].source,
+                     FIRRemoteConfigSourceStatic);
+      XCTAssertEqual([_configInstances[i] configValueForKey:nil namespace:nil source:-1].source,
+                     FIRRemoteConfigSourceStatic);
 
-          [expectations[i] fulfill];
-        };
+      [expectations[i] fulfill];
+    };
     [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
                                    completionHandler:fetchCompletion];
   }
@@ -836,15 +832,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       FIRRemoteConfigValue *value;
       if (i == RCNTestRCInstanceDefault) {
         value = [_configInstances[i] configValueForKey:key1
-                                             namespace:_namespace[i]
+                                             namespace:FIRNamespaceGoogleMobilePlatform
                                                 source:FIRRemoteConfigSourceRemote];
         XCTAssertEqualObjects(value.stringValue, value1);
         value = [_configInstances[i] configValueForKey:key1
-                                             namespace:_namespace[i]
+                                             namespace:FIRNamespaceGoogleMobilePlatform
                                                 source:FIRRemoteConfigSourceDefault];
         XCTAssertEqualObjects(value.stringValue, @"default value1");
         value = [_configInstances[i] configValueForKey:key1
-                                             namespace:_namespace[i]
+                                             namespace:FIRNamespaceGoogleMobilePlatform
                                                 source:FIRRemoteConfigSourceStatic];
       } else {
         value = [_configInstances[i] configValueForKey:key1 source:FIRRemoteConfigSourceRemote];
@@ -1008,15 +1004,15 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
       if (i == RCNTestRCInstanceDefault) {
         XCTAssertEqual([_configInstances[i] allKeysFromSource:FIRRemoteConfigSourceRemote
-                                                    namespace:_namespace[i]]
+                                                    namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        100);
         XCTAssertEqual([_configInstances[i] allKeysFromSource:FIRRemoteConfigSourceDefault
-                                                    namespace:_namespace[i]]
+                                                    namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        2);
         XCTAssertEqual([_configInstances[i] allKeysFromSource:FIRRemoteConfigSourceStatic
-                                                    namespace:_namespace[i]]
+                                                    namespace:FIRNamespaceGoogleMobilePlatform]
                            .count,
                        0);
       } else {
@@ -1076,8 +1072,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
           // Test keysWithPrefix:namespace: method.
           if (i == RCNTestRCInstanceDefault) {
-            XCTAssertEqual(
-                [_configInstances[i] keysWithPrefix:@"key" namespace:_namespace[i]].count, 100);
+            XCTAssertEqual([_configInstances[i] keysWithPrefix:@"key"
+                                                     namespace:FIRNamespaceGoogleMobilePlatform]
+                               .count,
+                           100);
           } else {
             XCTAssertEqual([_configInstances[i] keysWithPrefix:@"key"].count, 100);
           }
