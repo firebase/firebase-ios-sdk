@@ -26,7 +26,6 @@
 #include <memory>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
@@ -45,7 +44,6 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -53,8 +51,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+OBJC_CLASS(FSTSyncEngine);
+
 namespace firebase {
 namespace firestore {
+
+namespace remote {
+// Forward declaration to make CMAKE build pass as it does not support
+// Objective-C protos.
+class RemoteStore;
+}  // namespace remote
+
 namespace core {
 
 /**

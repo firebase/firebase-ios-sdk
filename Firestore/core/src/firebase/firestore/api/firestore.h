@@ -40,11 +40,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 OBJC_CLASS(FIRQuery);
 OBJC_CLASS(FIRTransaction);
-OBJC_CLASS(FSTFirestoreClient);
 OBJC_CLASS(NSString);
 
 namespace firebase {
 namespace firestore {
+namespace core {
+class FirestoreClient;
+}
 namespace api {
 
 class CollectionReference;
@@ -69,7 +71,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
     return persistence_key_;
   }
 
-  FSTFirestoreClient* client();
+  const std::shared_ptr<core::FirestoreClient>& client();
 
   const std::shared_ptr<util::AsyncQueue>& worker_queue();
 
@@ -104,7 +106,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   model::DatabaseId database_id_;
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
-  objc::Handle<FSTFirestoreClient> client_;
+  std::shared_ptr<core::FirestoreClient> client_;
 
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
