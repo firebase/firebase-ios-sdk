@@ -34,7 +34,6 @@
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
@@ -788,9 +787,7 @@ absl::any Wrap(GCFSDocument *doc) {
   }
 
   result.targetId = queryData.target_id();
-  if (!queryData.resume_token().empty()) {
-    result.resumeToken = MakeNSData(queryData.resume_token());
-  }
+  result.resumeToken = MakeNullableNSData(queryData.resume_token());
 
   return result;
 }

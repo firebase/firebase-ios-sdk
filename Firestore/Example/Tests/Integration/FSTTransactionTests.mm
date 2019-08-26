@@ -20,7 +20,11 @@
 #include <libkern/OSAtomic.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Util/FSTClasses.h"
+
+using firebase::firestore::util::TimerId;
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
 @end
@@ -418,6 +422,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"count" : @(5.0)}];
 
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+
   // Make 3 transactions that will all increment.
   int total = 3;
   for (int i = 0; i < total; i++) {
@@ -459,6 +466,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"count" : @(5.0), @"other" : @"yes"}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -504,6 +514,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
 
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -553,6 +566,10 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   __block volatile int32_t counter = 0;
 
   [self writeDocumentRef:doc data:@{@"count" : @(15.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {

@@ -36,7 +36,6 @@
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

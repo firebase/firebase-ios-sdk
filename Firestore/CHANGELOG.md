@@ -1,4 +1,11 @@
 # Unreleased
+- [changed] Transactions now perform exponential backoff before retrying.
+  This means transactions on highly contended documents are more likely to
+  succeed.
+
+# v1.4.5
+- [fixed] Fixed a crash that would happen when changing networks or going from
+  online to offline. (#3661).
 
 # v1.4.4
 - [changed] Internal improvements.

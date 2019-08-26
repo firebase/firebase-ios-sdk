@@ -102,6 +102,14 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=RemoteConfig PLATFORM=iOS METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
+
+    - stage: test
+      env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -214,6 +222,18 @@ jobs:
     - stage: test
       if: type = cron
       env:
+        - PROJECT=FirebasePllRemoteConfigCron PLATFORM=iOS METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos
+        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
+
+    - stage: test
+      if: type = cron
+      env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
       script:
         # TBD - non-portable path warnings
@@ -322,6 +342,14 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
     # linkage (it works if enabled together with ASan, but it's supposed to be
     # usable on its own, too).
@@ -423,6 +451,8 @@ jobs:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
     - env:

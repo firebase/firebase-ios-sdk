@@ -31,8 +31,10 @@
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
@@ -100,10 +102,10 @@ class WriteStreamSerializer {
   }
 
   void UpdateLastStreamToken(GCFSWriteResponse* proto);
-  void SetLastStreamToken(NSData* token) {
+  void SetLastStreamToken(const nanopb::ByteString& token) {
     last_stream_token_ = token;
   }
-  NSData* GetLastStreamToken() const {
+  nanopb::ByteString GetLastStreamToken() const {
     return last_stream_token_;
   }
 
@@ -132,7 +134,7 @@ class WriteStreamSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
-  NSData* last_stream_token_;
+  nanopb::ByteString last_stream_token_;
 };
 
 /**

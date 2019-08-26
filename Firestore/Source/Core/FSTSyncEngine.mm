@@ -26,12 +26,12 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
@@ -57,6 +57,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
+using firebase::firestore::core::TransactionRunner;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
@@ -71,6 +72,7 @@ using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
@@ -362,9 +364,10 @@ class LimboResolution {
 /**
  * Takes an updateCallback in which a set of reads and writes can be performed atomically. In the
  * updateCallback, user code can read and write values using a transaction object. After the
- * updateCallback, all changes will be committed. If someone else has changed any of the data
- * referenced, then the updateCallback will be called again. If the updateCallback still fails after
- * the given number of retries, then the transaction will be rejected.
+ * updateCallback, all changes will be committed. If a retryable error occurs (for example, some
+ * other client has changed any of the data referenced), then the updateCallback will be called
+ * again after a backoff. If the updateCallback still fails after all retries, then the transaction
+ * will be rejected.
  *
  * The transaction object passed to the updateCallback contains methods for accessing documents
  * and collections. Unlike other firestore access, data accessed with the transaction will not
@@ -378,41 +381,10 @@ class LimboResolution {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
-  std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
-  updateCallback(transaction, [=](util::StatusOr<absl::any> maybe_result) {
-    workerQueue->Enqueue(
-        [self, retries, workerQueue, updateCallback, resultCallback, transaction, maybe_result] {
-          if (!maybe_result.ok()) {
-            if (retries > 0 && [self isRetryableTransactionError:maybe_result.status()] &&
-                !transaction->IsPermanentlyFailed()) {
-              return [self transactionWithRetries:(retries - 1)
-                                      workerQueue:workerQueue
-                                   updateCallback:updateCallback
-                                   resultCallback:resultCallback];
-            } else {
-              resultCallback(std::move(maybe_result));
-            }
-          } else {
-            transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
-                                 maybe_result, transaction](Status status) {
-              if (status.ok()) {
-                resultCallback(std::move(maybe_result));
-                return;
-              }
-
-              if (retries > 0 && [self isRetryableTransactionError:status] &&
-                  !transaction->IsPermanentlyFailed()) {
-                workerQueue->VerifyIsCurrentQueue();
-                return [self transactionWithRetries:(retries - 1)
-                                        workerQueue:workerQueue
-                                     updateCallback:updateCallback
-                                     resultCallback:resultCallback];
-              }
-              resultCallback(std::move(status));
-            });
-          }
-        });
-  });
+  // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
+  auto runner = std::make_shared<TransactionRunner>(workerQueue, _remoteStore, updateCallback,
+                                                    resultCallback);
+  runner->Run();
 }
 
 - (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
@@ -505,15 +477,15 @@ class LimboResolution {
   }
 }
 
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
+- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
   [self assertCallbackExistsForSelector:_cmd];
 
   // The local store may or may not be able to apply the write result and raise events immediately
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
   // consistently happen before listen events.
-  [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
+  [self processUserCallbacksForBatchID:batchResult.batch().batch_id() error:nil];
 
-  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch.batchID];
+  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch().batch_id()];
 
   MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];

@@ -39,10 +39,8 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
-    case cacheEnabled
     case carthageDir
     case customSpecRepos
-    case deleteCache
     case existingVersions
     case outputDir
     case releasingSDKs
@@ -53,16 +51,11 @@ struct LaunchArgs {
     /// Usage description for the key.
     var usage: String {
       switch self {
-      case .cacheEnabled:
-        return "A flag to control using the cache for frameworks."
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
-      case .deleteCache:
-        return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
-          "set, it will fail since that's probably unintended."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
@@ -105,12 +98,6 @@ struct LaunchArgs {
   /// The path to the directory containing the blank xcodeproj and Info.plist for building source
   /// based frameworks.
   let templateDir: URL
-
-  /// A flag to control using the cache for frameworks.
-  let cacheEnabled: Bool
-
-  /// A flag to delete the cache from the cache directory.
-  let deleteCache: Bool
 
   /// The release candidate number, zero indexed.
   let rcNumber: Int?
@@ -233,16 +220,6 @@ struct LaunchArgs {
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
-
-    // Parse the cache keys. If no value is provided for each, it defaults to `false`.
-    cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
-    deleteCache = defaults.bool(forKey: Key.deleteCache.rawValue)
-
-    if deleteCache, cacheEnabled {
-      LaunchArgs.exitWithUsageAndLog("Invalid pair - attempted to delete the cache and enable " +
-        "it at the same time. Please remove on of the keys and try " +
-        "again.")
-    }
   }
 
   /// Prints an error that occurred, the proper usage String, and quits the application.

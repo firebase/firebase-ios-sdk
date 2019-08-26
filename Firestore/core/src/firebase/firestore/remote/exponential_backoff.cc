@@ -27,10 +27,25 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
+using Milliseconds = util::AsyncQueue::Milliseconds;
 namespace chr = std::chrono;
+
+/**
+ * Initial backoff time in milliseconds after an error. Set to 1s according to
+ * https://cloud.google.com/apis/design/errors.
+ */
+constexpr Milliseconds kDefaultBackoffInitialDelay = Milliseconds(1000);
+
+constexpr double kDefaultBackoffFactor = 1.5;
+
+/** Maximum backoff time in milliseconds. */
+constexpr Milliseconds kDefaultBackoffMaxDelay = Milliseconds(60 * 1000);
+
+}  // namespace
 
 ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
                                        TimerId timer_id,
@@ -51,6 +66,15 @@ ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
   HARD_ASSERT(max_delay.count() >= 0, "Delays must be non-negative");
   HARD_ASSERT(initial_delay <= max_delay,
               "Initial delay can't be greater than max delay");
+}
+
+ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
+                                       TimerId timer_id)
+    : ExponentialBackoff(queue,
+                         timer_id,
+                         kDefaultBackoffFactor,
+                         kDefaultBackoffInitialDelay,
+                         kDefaultBackoffMaxDelay) {
 }
 
 void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
@@ -89,15 +113,14 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
       chr::duration_cast<Milliseconds>(current_base_ * backoff_factor_));
 }
 
-ExponentialBackoff::Milliseconds ExponentialBackoff::GetDelayWithJitter() {
+Milliseconds ExponentialBackoff::GetDelayWithJitter() {
   std::uniform_real_distribution<double> distribution;
   double random_double = distribution(secure_random_);
   return chr::duration_cast<Milliseconds>((random_double - 0.5) *
                                           current_base_);
 }
 
-ExponentialBackoff::Milliseconds ExponentialBackoff::ClampDelay(
-    Milliseconds delay) const {
+Milliseconds ExponentialBackoff::ClampDelay(Milliseconds delay) const {
   if (delay < initial_delay_) {
     return initial_delay_;
   }

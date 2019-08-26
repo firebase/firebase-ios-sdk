@@ -25,7 +25,6 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -41,8 +40,11 @@
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -76,6 +78,8 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatch;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::OptionalMaybeDocumentMap;
 using firebase::firestore::model::PatchMutation;
@@ -153,9 +157,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (MaybeDocumentMap)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
-  std::vector<FSTMutationBatch *> oldBatches = self.persistence.run(
-      "OldBatches",
-      [&]() -> std::vector<FSTMutationBatch *> { return _mutationQueue->AllMutationBatches(); });
+  std::vector<MutationBatch> oldBatches =
+      self.persistence.run("OldBatches", [&] { return _mutationQueue->AllMutationBatches(); });
 
   // The old one has a reference to the mutation queue, so nil it out first.
   _localDocuments.reset();
@@ -164,7 +167,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   [self startMutationQueue];
 
   return self.persistence.run("NewBatches", [&] {
-    std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
+    std::vector<MutationBatch> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
     _localDocuments = absl::make_unique<LocalDocumentsView>(_remoteDocumentCache, _mutationQueue,
@@ -172,9 +175,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
-    for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
-      for (FSTMutationBatch *batch : batches) {
-        for (const Mutation &mutation : [batch mutations]) {
+    for (const std::vector<MutationBatch> *batches : {&oldBatches, &newBatches}) {
+      for (const MutationBatch &batch : *batches) {
+        for (const Mutation &mutation : batch.mutations()) {
           changedKeys = changedKeys.insert(mutation.key());
         }
       }
@@ -214,41 +217,41 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       }
     }
 
-    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(
-        localWriteTime, std::move(baseMutations), std::move(mutations));
-    MaybeDocumentMap changedDocuments = [batch applyToLocalDocumentSet:existingDocuments];
-    return LocalWriteResult{batch.batchID, std::move(changedDocuments)};
+    MutationBatch batch = _mutationQueue->AddMutationBatch(localWriteTime, std::move(baseMutations),
+                                                           std::move(mutations));
+    MaybeDocumentMap changedDocuments = batch.ApplyToLocalDocumentSet(existingDocuments);
+    return LocalWriteResult{batch.batch_id(), std::move(changedDocuments)};
   });
 }
 
-- (MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
+- (MaybeDocumentMap)acknowledgeBatchWithResult:(const MutationBatchResult &)batchResult {
   return self.persistence.run("Acknowledge batch", [&] {
-    FSTMutationBatch *batch = batchResult.batch;
-    _mutationQueue->AcknowledgeBatch(batch, batchResult.streamToken);
+    const MutationBatch &batch = batchResult.batch();
+    _mutationQueue->AcknowledgeBatch(batch, batchResult.stream_token());
     [self applyBatchResult:batchResult];
     _mutationQueue->PerformConsistencyCheck();
 
-    return _localDocuments->GetDocuments(batch.keys);
+    return _localDocuments->GetDocuments(batch.keys());
   });
 }
 
 - (MaybeDocumentMap)rejectBatchID:(BatchId)batchID {
   return self.persistence.run("Reject batch", [&] {
-    FSTMutationBatch *toReject = _mutationQueue->LookupMutationBatch(batchID);
-    HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
+    absl::optional<MutationBatch> toReject = _mutationQueue->LookupMutationBatch(batchID);
+    HARD_ASSERT(toReject.has_value(), "Attempt to reject nonexistent batch!");
 
-    _mutationQueue->RemoveMutationBatch(toReject);
+    _mutationQueue->RemoveMutationBatch(*toReject);
     _mutationQueue->PerformConsistencyCheck();
 
-    return _localDocuments->GetDocuments(toReject.keys);
+    return _localDocuments->GetDocuments(toReject->keys());
   });
 }
 
-- (nullable NSData *)lastStreamToken {
+- (ByteString)lastStreamToken {
   return _mutationQueue->GetLastStreamToken();
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken {
+- (void)setLastStreamToken:(const ByteString &)streamToken {
   self.persistence.run("Set stream token",
                        [&]() { _mutationQueue->SetLastStreamToken(streamToken); });
 }
@@ -417,11 +420,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
-  FSTMutationBatch *result = self.persistence.run("NextMutationBatchAfterBatchID", [&] {
+- (absl::optional<MutationBatch>)nextMutationBatchAfterBatchID:(BatchId)batchID {
+  return self.persistence.run("NextMutationBatchAfterBatchID", [&] {
     return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
   });
-  return result;
 }
 
 - (absl::optional<MaybeDocument>)readDocument:(const DocumentKey &)key {
@@ -495,10 +497,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                               [&] { return _queryCache->GetMatchingKeys(targetID); });
 }
 
-- (void)applyBatchResult:(FSTMutationBatchResult *)batchResult {
-  FSTMutationBatch *batch = batchResult.batch;
-  DocumentKeySet docKeys = batch.keys;
-  const DocumentVersionMap &versions = batchResult.docVersions;
+- (void)applyBatchResult:(const MutationBatchResult &)batchResult {
+  const MutationBatch &batch = batchResult.batch();
+  DocumentKeySet docKeys = batch.keys();
+  const DocumentVersionMap &versions = batchResult.doc_versions();
   for (const DocumentKey &docKey : docKeys) {
     absl::optional<MaybeDocument> remoteDoc = _remoteDocumentCache->Get(docKey);
     absl::optional<MaybeDocument> doc = remoteDoc;
@@ -508,10 +510,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                 "docVersions should contain every doc in the write.");
     const SnapshotVersion &ackVersion = ackVersionIter->second;
     if (!doc || doc->version() < ackVersion) {
-      doc = [batch applyToRemoteDocument:doc documentKey:docKey mutationBatchResult:batchResult];
+      doc = batch.ApplyToRemoteDocument(doc, docKey, batchResult);
       if (!doc) {
         HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nullopt.",
-                    batch, util::ToString(remoteDoc));
+                    batch.ToString(), util::ToString(remoteDoc));
       } else {
         _remoteDocumentCache->Add(*doc);
       }
