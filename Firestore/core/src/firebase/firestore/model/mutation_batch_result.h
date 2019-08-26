@@ -54,7 +54,7 @@ class MutationBatchResult {
   MutationBatchResult(MutationBatch batch,
                       SnapshotVersion commit_version,
                       std::vector<MutationResult> mutation_results,
-                      absl::optional<nanopb::ByteString> stream_token);
+                      nanopb::ByteString stream_token);
 
   const MutationBatch& batch() const {
     return batch_;
@@ -68,7 +68,7 @@ class MutationBatchResult {
     return mutation_results_;
   }
 
-  const absl::optional<nanopb::ByteString>& stream_token() const {
+  const nanopb::ByteString& stream_token() const {
     return stream_token_;
   }
 
@@ -85,7 +85,7 @@ class MutationBatchResult {
   MutationBatch batch_;
   SnapshotVersion commit_version_;
   std::vector<MutationResult> mutation_results_;
-  absl::optional<nanopb::ByteString> stream_token_;
+  nanopb::ByteString stream_token_;
   DocumentVersionMap doc_versions_;
 };
 

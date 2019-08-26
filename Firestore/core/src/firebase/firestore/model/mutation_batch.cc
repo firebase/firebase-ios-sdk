@@ -41,7 +41,7 @@ MutationBatch::MutationBatch(int batch_id,
 absl::optional<MaybeDocument> MutationBatch::ApplyToRemoteDocument(
     absl::optional<MaybeDocument> maybe_doc,
     const DocumentKey& document_key,
-    const MutationBatchResult& mutation_batch_result) {
+    const MutationBatchResult& mutation_batch_result) const {
   HARD_ASSERT(!maybe_doc || maybe_doc->key() == document_key,
               "ApplyTo: key %s doesn't match maybe_doc key %s",
               document_key.ToString(), maybe_doc->key().ToString());
@@ -62,7 +62,8 @@ absl::optional<MaybeDocument> MutationBatch::ApplyToRemoteDocument(
 }
 
 absl::optional<MaybeDocument> MutationBatch::ApplyToLocalDocument(
-    absl::optional<MaybeDocument> maybe_doc, const DocumentKey& document_key) {
+    absl::optional<MaybeDocument> maybe_doc,
+    const DocumentKey& document_key) const {
   HARD_ASSERT(!maybe_doc || maybe_doc->key() == document_key,
               "key %s doesn't match maybe_doc key %s", document_key.ToString(),
               maybe_doc->key().ToString());
@@ -89,7 +90,7 @@ absl::optional<MaybeDocument> MutationBatch::ApplyToLocalDocument(
 }
 
 MaybeDocumentMap MutationBatch::ApplyToLocalDocumentSet(
-    const MaybeDocumentMap& document_set) {
+    const MaybeDocumentMap& document_set) const {
   // TODO(mrschmidt): This implementation is O(n^2). If we iterate through the
   // mutations first (as done in `applyToLocalDocument:documentKey:`), we can
   // reduce the complexity to O(n).

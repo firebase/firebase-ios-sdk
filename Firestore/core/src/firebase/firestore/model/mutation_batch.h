@@ -110,7 +110,7 @@ class MutationBatch {
   absl::optional<MaybeDocument> ApplyToRemoteDocument(
       absl::optional<MaybeDocument> maybe_doc,
       const DocumentKey& document_key,
-      const MutationBatchResult& mutation_batch_result);
+      const MutationBatchResult& mutation_batch_result) const;
 
   /**
    * Estimates the latency compensated view of all the mutations in this batch
@@ -125,14 +125,15 @@ class MutationBatch {
    * @param document_key The key of the document to apply mutations to.
    */
   absl::optional<MaybeDocument> ApplyToLocalDocument(
-      absl::optional<MaybeDocument> maybe_doc, const DocumentKey& document_key);
+      absl::optional<MaybeDocument> maybe_doc,
+      const DocumentKey& document_key) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in
    * this batch.
    */
   MaybeDocumentMap ApplyToLocalDocumentSet(
-      const MaybeDocumentMap& document_set);
+      const MaybeDocumentMap& document_set) const;
 
   /**
    * Returns the set of unique keys referenced by all mutations in the batch.
@@ -147,7 +148,7 @@ class MutationBatch {
 
  private:
   int batch_id_;
-  const Timestamp local_write_time_;
+  Timestamp local_write_time_;
   std::vector<Mutation> base_mutations_;
   std::vector<Mutation> mutations_;
 };
