@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_DELEGATE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_DELEGATE_H_
 
+#if __OBJC__
+#import "Firestore/Source/Local/FSTPersistence.h"
+#endif  // __OBJC__
+
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
@@ -86,6 +90,85 @@ class ReferenceDelegate {
   /** Lifecycle hook to notify the delegate that a transaction has committed. */
   virtual void OnTransactionCommitted() = 0;
 };
+
+#if __OBJC__
+
+class ReferenceDelegateBridge : public ReferenceDelegate {
+ public:
+  ReferenceDelegateBridge() = default;
+
+  explicit ReferenceDelegateBridge(id<FSTReferenceDelegate> target)
+      : target_(target) {
+  }
+
+  model::ListenSequenceNumber current_sequence_number() const override {
+    return target_.currentSequenceNumber;
+  }
+
+  /**
+   * Registers an ReferenceSet of documents that should be considered
+   * 'referenced' and not eligible for removal during garbage collection.
+   */
+  void AddInMemoryPins(ReferenceSet* set) override {
+    [target_ addInMemoryPins:set];
+  }
+
+  /**
+   * Notify the delegate that the given document was added to a target.
+   */
+  void AddReference(const model::DocumentKey& key) override {
+    [target_ addReference:key];
+  }
+
+  /**
+   * Notify the delegate that the given document was removed from a target.
+   */
+  void RemoveReference(const model::DocumentKey& key) override {
+    [target_ removeReference:key];
+  }
+
+  /**
+   * Notify the delegate that a document is no longer being mutated by the user.
+   */
+  void RemoveMutationReference(const model::DocumentKey& key) override {
+    [target_ removeMutationReference:key];
+  }
+
+  /**
+   * Notify the delegate that a target was removed.
+   */
+  void RemoveTarget(const local::QueryData& query_data) override {
+    [target_ removeTarget:query_data];
+  }
+
+  /**
+   * Notify the delegate that a limbo document was updated.
+   */
+  void UpdateLimboDocument(const model::DocumentKey& key) override {
+    [target_ limboDocumentUpdated:key];
+  }
+
+  /** Lifecycle hook to notify the delegate that a transaction has started. */
+  void OnTransactionStarted(absl::string_view label) override {
+    if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
+      auto transactional = static_cast<id<FSTTransactional>>(target_);
+      [transactional startTransaction:label];
+    }
+  }
+
+  /** Lifecycle hook to notify the delegate that a transaction has committed. */
+  void OnTransactionCommitted() override {
+    if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
+      auto transactional = static_cast<id<FSTTransactional>>(target_);
+      [transactional commitTransaction];
+    }
+  }
+
+ private:
+  __weak id<FSTReferenceDelegate> target_;
+};
+
+#endif  // __OBJC__
 
 }  // namespace local
 }  // namespace firestore

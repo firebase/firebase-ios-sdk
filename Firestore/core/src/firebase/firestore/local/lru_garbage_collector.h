@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LRU_GARBAGE_COLLECTOR_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LRU_GARBAGE_COLLECTOR_H_
 
+#if __OBJC__
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+#endif
+
 #include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
@@ -102,6 +106,68 @@ class LruDelegate {
   virtual int RemoveTargets(model::ListenSequenceNumber sequence_number,
                             const LiveQueryMap& live_queries) = 0;
 };
+
+#if __OBJC__
+
+class LruDelegateBridge : public LruDelegate {
+ public:
+  LruDelegateBridge() = default;
+
+  explicit LruDelegateBridge(id<FSTLRUDelegate> target) : target_(target) {
+  }
+
+  /** Access to the underlying LRU Garbage collector instance. */
+  LruGarbageCollector* garbage_collector() override {
+    return target_.gc;
+  }
+
+  size_t CalculateByteSize() const override {
+    return [target_ byteSize];
+  }
+
+  size_t GetSequenceNumberCount() override {
+    return [target_ sequenceNumberCount];
+  }
+
+  void EnumerateTargets(const TargetCallback& callback) override {
+    [target_ enumerateTargetsUsingCallback:callback];
+  }
+
+  /**
+   * Enumerates all of the outstanding mutations.
+   */
+  void EnumerateOrphanedDocuments(
+      const OrphanedDocumentCallback& callback) override {
+    [target_ enumerateMutationsUsingCallback:callback];
+  }
+
+  /**
+   * Removes all unreferenced documents from the cache that have a sequence
+   * number less than or equal to the given sequence number. Returns the number
+   * of documents removed.
+   */
+  int RemoveOrphanedDocuments(
+      model::ListenSequenceNumber sequence_number) override {
+    return
+        [target_ removeOrphanedDocumentsThroughSequenceNumber:sequence_number];
+  }
+
+  /**
+   * Removes all targets that are not currently being listened to and have a
+   * sequence number less than or equal to the given sequence number. Returns
+   * the number of targets removed.
+   */
+  int RemoveTargets(model::ListenSequenceNumber sequence_number,
+                    const LiveQueryMap& live_queries) override {
+    return [target_ removeTargetsThroughSequenceNumber:sequence_number
+                                           liveQueries:live_queries];
+  }
+
+ private:
+  id<FSTLRUDelegate> target_;
+};
+
+#endif  // __OBJC__
 
 /**
  * LruGarbageCollector defines the LRU algorithm used to clean up old documents
