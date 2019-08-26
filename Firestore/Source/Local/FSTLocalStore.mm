@@ -23,7 +23,6 @@
 #include <vector>
 
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -523,9 +522,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   _mutationQueue->RemoveMutationBatch(batch);
 }
 
-- (LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector {
+- (LruResults)collectGarbage:(local::LruGarbageCollector *)garbageCollector {
   return self.persistence.run("Collect garbage",
-                              [&] { return [garbageCollector collectWithLiveTargets:_targetIDs]; });
+                              [&] { return garbageCollector->Collect(_targetIDs); });
 }
 
 @end
