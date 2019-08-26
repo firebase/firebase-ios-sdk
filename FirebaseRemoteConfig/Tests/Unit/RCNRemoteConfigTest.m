@@ -96,15 +96,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 @end
 
-#define EXPECTATION_DURATION 500000
+#define EXPECTATION_DURATION 43200
 
 @implementation RCNRemoteConfigTest
 - (void)setUp {
   [super setUp];
   FIRSetLoggerLevel(FIRLoggerLevelMax);
 
-  _expectationTimeout = 20;
-  _checkCompletionTimeout = 5.0;
+  _expectationTimeout = 5;
+  _checkCompletionTimeout = 1.0;
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
