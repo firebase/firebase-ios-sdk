@@ -15,9 +15,6 @@
  */
 
 #import <XCTest/XCTest.h>
-
-
-
 #import <OCMock/OCMock.h>
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
