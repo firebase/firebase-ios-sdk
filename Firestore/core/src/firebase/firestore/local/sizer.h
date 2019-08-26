@@ -26,6 +26,7 @@ namespace model {
 class MaybeDocument;
 
 }  // namespace model
+
 namespace local {
 
 class QueryData;
