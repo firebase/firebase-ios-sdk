@@ -1,3 +1,6 @@
+# v1.1.3
+- Wrap decoding in GDTUploadCoordinator in a try catch. (#3676)
+
 # v1.1.2
 - Add initial support for iOS 13.
 - Add initial support for Catalyst.
