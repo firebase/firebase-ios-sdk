@@ -111,8 +111,12 @@ class ViewChange {
         limbo_changes_(std::move(limbo_changes)) {
   }
 
-  const absl::optional<ViewSnapshot> snapshot() const {
+  const absl::optional<ViewSnapshot> snapshot() const& {
     return snapshot_;
+  }
+
+  absl::optional<ViewSnapshot>&& snapshot() && {
+    return std::move(snapshot_);
   }
 
   const std::vector<LimboDocumentChange> limbo_changes() const {

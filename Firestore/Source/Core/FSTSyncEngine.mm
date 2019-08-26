@@ -442,7 +442,7 @@ class LimboResolution {
     HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "OnlineState should not affect limbo documents.");
     if (viewChange.snapshot().has_value()) {
-      newViewSnapshots.push_back(*std::move(viewChange.snapshot()));
+      newViewSnapshots.push_back(*std::move(viewChange).snapshot());
     }
   }
 
