@@ -227,8 +227,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Set defaults no callback expectation - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
 
     [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION completionHandler:nil];
@@ -250,8 +248,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -296,8 +292,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion = ^void(
         FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
@@ -345,8 +339,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -395,8 +387,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -541,8 +531,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -572,8 +560,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test configValueForKey: method - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
                                                            NSError *error) {
@@ -627,9 +613,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test fetch configs with defaults set - instance %d", i]];
-  }
-
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
     NSString *key2 = [NSString stringWithFormat:@"key2-%d", i];
     NSString *key0 = [NSString stringWithFormat:@"key0-%d", i];
@@ -739,8 +722,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Set defaults no callback expectation - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     // Should work when passing nil.
     [_configInstances[i] setDefaults:nil];
     [_configInstances[i] setDefaults:nil namespace:nil];
@@ -765,8 +746,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test fetch configs with defaults set - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
     NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
 
@@ -812,8 +791,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     fetchConfigsExpectation[i] =
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test get config value by source - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
     NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
 
@@ -989,8 +966,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:[NSString
                                        stringWithFormat:@"Test allKeys methods - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
     NSString *key0 = [NSString stringWithFormat:@"key0-%d", i];
     NSDictionary<NSString *, NSString *> *defaults = @{key1 : @"default key1", key0 : @"value0-0"};
@@ -1059,8 +1034,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:[NSString
                                        stringWithFormat:@"Test allKeys methods - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
@@ -1132,8 +1105,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test minimumFetchInterval expectation - instance %d", i]];
-  }
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
     settings.minimumFetchInterval = 123;
     [_configInstances[i] setConfigSettings:settings];
