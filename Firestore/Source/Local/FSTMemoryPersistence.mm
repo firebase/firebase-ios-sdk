@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -43,6 +44,7 @@ using firebase::firestore::local::MemoryIndexManager;
 using firebase::firestore::local::MemoryMutationQueue;
 using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
+using firebase::firestore::local::ProtoSizer;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::TargetCallback;
@@ -325,8 +327,9 @@ NS_ASSUME_NONNULL_BEGIN
   // used for testing. The algorithm here (loop through everything, serialize it
   // and count bytes) is inefficient and inexact, but won't run in production.
   size_t count = 0;
-  count += _persistence.queryCache->CalculateByteSize(_serializer);
-  count += _persistence.remoteDocumentCache->CalculateByteSize(_serializer);
+  ProtoSizer sizer(_serializer);
+  count += _persistence.queryCache->CalculateByteSize(sizer);
+  count += _persistence.remoteDocumentCache->CalculateByteSize(sizer);
   const MutationQueues &queues = [_persistence mutationQueues];
   for (const auto &entry : queues) {
     count += entry.second->CalculateByteSize(_serializer);

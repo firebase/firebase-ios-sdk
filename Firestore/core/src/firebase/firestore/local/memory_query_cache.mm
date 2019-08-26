@@ -16,14 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 
-#import <Protobuf/GPBMessage.h>
-
 #include <vector>
 
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -124,11 +122,10 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
   return references_.ContainsKey(key);
 }
 
-size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {
+size_t MemoryQueryCache::CalculateByteSize(const Sizer& sizer) {
   size_t count = 0;
   for (const auto& kv : queries_) {
-    const QueryData& query_data = kv.second;
-    count += [[serializer encodedQueryData:query_data] serializedSize];
+    count += sizer.CalculateByteSize(kv.second);
   }
   return count;
 }
