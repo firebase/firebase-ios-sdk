@@ -155,7 +155,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 }
 
--(void)testAPNSCOntentAvailableContextualNotification {
+-(void)testAPNSContentAvailableContextualNotification {
   NSDictionary *notificationPayload = @{
                                         @"aps" : @{
                                             @"content-available": @1
