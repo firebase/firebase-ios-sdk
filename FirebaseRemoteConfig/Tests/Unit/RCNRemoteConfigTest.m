@@ -172,18 +172,16 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                  namespace:fullyQualifiedNamespace
                                            firebaseAppName:currentAppName
                                                googleAppID:currentOptions.googleAppID];
-    static dispatch_queue_t sharedQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      sharedQueue = dispatch_queue_create("testqueue", DISPATCH_QUEUE_SERIAL);
-    });
+    dispatch_queue_t queue = dispatch_queue_create(
+        [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
+        DISPATCH_QUEUE_SERIAL);
     RCNConfigFetch *configFetch =
         OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
                                                      DBManager:_DBManager
                                                       settings:settings
                                                      analytics:nil
                                                     experiment:nil
-                                                         queue:sharedQueue
+                                                         queue:queue
                                                      namespace:fullyQualifiedNamespace
                                                        options:currentOptions]);
 
