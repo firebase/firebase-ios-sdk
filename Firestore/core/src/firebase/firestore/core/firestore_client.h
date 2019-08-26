@@ -87,10 +87,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
   /**
-   * Shuts down this client, cancels all writes / listeners, and releases all
+   * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
-  void Shutdown(util::StatusCallback callback);
+  void Terminate(util::StatusCallback callback);
 
   /**
    * Passes a callback that is triggered when all the pending writes at the
@@ -160,7 +160,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   const std::shared_ptr<util::AsyncQueue>& worker_queue() const {
     return worker_queue_;
   }
-  bool is_shutdown() const;
+  bool is_terminated() const;
 
  private:
   FirestoreClient(
@@ -171,7 +171,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
-  void VerifyNotShutdown();
+  void VerifyNotTerminated();
 
   void ScheduleLruGarbageCollection();
 

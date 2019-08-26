@@ -92,7 +92,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback);
 
-  void Shutdown(util::StatusCallback callback);
+  void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);
   void WaitForPendingWrites(util::StatusCallback callback);
 

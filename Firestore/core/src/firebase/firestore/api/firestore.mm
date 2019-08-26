@@ -135,11 +135,11 @@ void Firestore::RunTransaction(
                        std::move(result_callback));
 }
 
-void Firestore::Shutdown(util::StatusCallback callback) {
+void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  client_->Shutdown(std::move(callback));
+  client_->Terminate(std::move(callback));
 }
 
 void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
@@ -157,7 +157,7 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
 
     {
       std::lock_guard<std::mutex> lock{mutex_};
-      if (client_ && !client()->is_shutdown()) {
+      if (client_ && !client()->is_terminated()) {
         Yield(util::Status(
             Error::FailedPrecondition,
             "Persistence cannot be cleared while the client is running."));
