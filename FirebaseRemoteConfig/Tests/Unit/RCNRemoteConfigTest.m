@@ -96,8 +96,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 @end
 
-#define EXPECTATION_DURATION 43200
-
 @implementation RCNRemoteConfigTest
 - (void)setUp {
   [super setUp];
@@ -181,8 +179,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                      namespace:fullyQualifiedNamespace
                                                        options:currentOptions]);
 
-    OCMStub([configFetch fetchAllConfigsWithExpirationDuration:EXPECTATION_DURATION
-                                             completionHandler:OCMOCK_ANY])
+    OCMStub([configFetch fetchAllConfigsWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
           // void (^handler)(FIRRemoteConfigFetchCompletion);
@@ -229,7 +226,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
             [NSString stringWithFormat:@"Set defaults no callback expectation - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
 
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION completionHandler:nil];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:nil];
 
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
@@ -275,8 +272,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                @"last fetch time interval should be set.");
           [expectations[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
 
   [self waitForExpectationsWithTimeout:_expectationTimeout
@@ -370,8 +366,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
             [expectations[i] fulfill];
           }];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
 
   [self waitForExpectationsWithTimeout:_expectationTimeout
@@ -423,8 +418,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           [expectations[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -493,8 +487,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                      namespace:fullyQualifiedNamespace
                                                        options:currentOptions]);
 
-    OCMStub([configFetch fetchAllConfigsWithExpirationDuration:EXPECTATION_DURATION
-                                             completionHandler:OCMOCK_ANY])
+    OCMStub([configFetch fetchAllConfigsWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           void (^handler)(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) = nil;
           // void (^handler)(FIRRemoteConfigFetchCompletion);
@@ -544,8 +537,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           XCTAssertEqual(value.boolValue, NO);
           [expectations[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -597,8 +589,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
       [expectations[i] fulfill];
     };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -648,8 +639,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                          @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccess.");
           [fetchConfigsExpectation[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -775,8 +765,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           [fetchConfigsExpectation[i] fulfill];
         };
 
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -835,8 +824,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                      @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccess.");
       [fetchConfigsExpectation[i] fulfill];
     };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
@@ -1018,8 +1006,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
       [fetchConfigsExpectation[i] fulfill];
     };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -1072,8 +1059,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
           [fetchConfigsExpectation[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
@@ -1112,8 +1098,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertFalse(
-              [_configInstances[i].settings hasMinimumFetchIntervalElapsed:EXPECTATION_DURATION]);
+          XCTAssertFalse([_configInstances[i].settings hasMinimumFetchIntervalElapsed:43200]);
 
           // Update minimum fetch interval.
           FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
@@ -1123,8 +1108,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
           XCTAssertTrue([_configInstances[i].settings hasMinimumFetchIntervalElapsed:0]);
           [fetchConfigsExpectation[i] fulfill];
         };
-    [_configInstances[i] fetchWithExpirationDuration:EXPECTATION_DURATION
-                                   completionHandler:fetchCompletion];
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
