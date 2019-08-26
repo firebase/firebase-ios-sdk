@@ -438,7 +438,7 @@ class LimboResolution {
   std::vector<ViewSnapshot> newViewSnapshots;
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    ViewChange viewChange = queryView.view->ApplyChangedOnlineState(onlineState);
+    ViewChange viewChange = queryView.view->ApplyOnlineStateChange(onlineState);
     HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "OnlineState should not affect limbo documents.");
     if (viewChange.snapshot().has_value()) {

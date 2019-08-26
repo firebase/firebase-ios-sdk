@@ -292,15 +292,16 @@ ViewChange View::ApplyChanges(
   }
 }
 
-ViewChange View::ApplyChangedOnlineState(OnlineState online_state) {
+ViewChange View::ApplyOnlineStateChange(OnlineState online_state) {
   if (current_ && online_state == OnlineState::Offline) {
     // If we're offline, set `current_` to false and then call ApplyChanges to
     // refresh our sync state and generate a ViewChange as appropriate. We are
     // guaranteed to get a new `TargetChange` that sets `current_` back to true
     // once the client is back online.
     current_ = false;
-    return ApplyChanges(ViewDocumentChanges(
-        document_set_, DocumentViewChangeSet{}, mutated_keys_, false));
+    return ApplyChanges(
+        ViewDocumentChanges(document_set_, DocumentViewChangeSet{},
+                            mutated_keys_, /* needs_refill= */ false));
   } else {
     // No effect, just return a no-op ViewChange.
     return ViewChange(absl::nullopt, {});
@@ -310,7 +311,7 @@ ViewChange View::ApplyChangedOnlineState(OnlineState online_state) {
 // MARK: Private Methods
 
 /** Returns whether the doc for the given key should be in limbo. */
-bool View::ShouldBeLimboDocumentKey(const DocumentKey& key) const {
+bool View::ShouldBeInLimbo(const DocumentKey& key) const {
   // If the remote end says it's part of this query, it's not in limbo.
   if (synced_documents_.contains(key)) {
     return false;
@@ -365,7 +366,7 @@ std::vector<LimboDocumentChange> View::UpdateLimboDocuments() {
   DocumentKeySet old_limbo_documents = std::move(limbo_documents_);
   limbo_documents_ = DocumentKeySet{};
   for (const Document& doc : document_set_) {
-    if (ShouldBeLimboDocumentKey(doc.key())) {
+    if (ShouldBeInLimbo(doc.key())) {
       limbo_documents_ = limbo_documents_.insert(doc.key());
     }
   }

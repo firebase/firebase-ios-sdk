@@ -30,7 +30,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/** A change to a particular document wrt to whether it is in "limbo". */
+/** A change to a particular document wrt whether it is in "limbo". */
 class LimboDocumentChange {
  public:
   enum class Type {
@@ -77,7 +77,7 @@ class ViewDocumentChanges {
     return document_set_;
   }
 
-  /** The diff of this these docs with the previous set of docs. */
+  /** The diff of these docs with the previous set of docs. */
   const core::DocumentViewChangeSet& change_set() const {
     return change_set_;
   }
@@ -186,13 +186,13 @@ class View {
    * Applies an OnlineState change to the view, potentially generating an
    * ViewChange if the view's sync_state_ changes as a result.
    */
-  core::ViewChange ApplyChangedOnlineState(model::OnlineState online_state);
+  core::ViewChange ApplyOnlineStateChange(model::OnlineState online_state);
 
  private:
   util::ComparisonResult Compare(const model::Document& lhs,
                                  const model::Document& rhs) const;
 
-  bool ShouldBeLimboDocumentKey(const model::DocumentKey& key) const;
+  bool ShouldBeInLimbo(const model::DocumentKey& key) const;
 
   bool ShouldWaitForSyncedDocument(const model::Document& new_doc,
                                    const model::Document& old_doc) const;
