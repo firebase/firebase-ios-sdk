@@ -24,7 +24,6 @@
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
@@ -123,7 +122,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
   __weak RCNConfigFetch *weakSelf = self;
   RCNConfigFetch *fetchWithExpirationSelf = weakSelf;
-  dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+  dispatch_async(fetchWithExpirationSelf->_lockQueue, ^{
     RCNConfigFetch *strongSelf = fetchWithExpirationSelf;
     // Check whether we are outside of the minimum fetch interval.
     if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
@@ -194,7 +193,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   __weak RCNConfigFetch *weakSelf = self;
   FIRInstanceIDTokenHandler instanceIDHandler = ^(NSString *token, NSError *error) {
     RCNConfigFetch *instanceIDHandlerSelf = weakSelf;
-    dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+    dispatch_async(instanceIDHandlerSelf->_lockQueue, ^{
       RCNConfigFetch *strongSelf = instanceIDHandlerSelf;
       if (error) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000020",
@@ -227,7 +226,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   [instanceID fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences,
                                             NSError *error) {
     RCNConfigFetch *fetchCheckinInfoWithHandlerSelf = weakSelf;
-    dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+    dispatch_async(fetchCheckinInfoWithHandlerSelf->_lockQueue, ^{
       RCNConfigFetch *strongSelf = fetchCheckinInfoWithHandlerSelf;
       if (error) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000023", @"Failed to fetch checkin info: %@.",
@@ -245,7 +244,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
       // Checkin info is optional, continue fetch config regardless fetch of checkin info
       // succeeded.
       [strongSelf fetchWithUserPropertiesCompletionHandler:^(NSDictionary *userProperties) {
-        dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+        dispatch_async(strongSelf->_lockQueue, ^{
           [strongSelf fetchWithUserProperties:userProperties completionHandler:completionHandler];
         });
       }];
@@ -268,7 +267,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                        withStatus:(FIRRemoteConfigFetchStatus)status
                         withError:(NSError *)error {
   if (completionHandler) {
-    dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
       completionHandler(status, error);
     });
   }
@@ -309,7 +308,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
       return;
     };
 
-    dispatch_async([[RCNConfigDBManager sharedInstance] queue], ^{
+    dispatch_async(fetcherCompletionSelf->_lockQueue, ^{
       RCNConfigFetch *strongSelf = weakSelf;
       if (!strongSelf) {
         return;
