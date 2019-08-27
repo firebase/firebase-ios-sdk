@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:square/cocoapods-generate.git
+  remote: https://github.com/square/cocoapods-generate.git
   revision: ada3b8f1b76248ed4b3ac9cd3a4d8b0e281f2b7a
   ref: ada3b8f
   specs:
