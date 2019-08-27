@@ -31,8 +31,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTMutationBatch;
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -84,7 +82,7 @@ class LocalDocumentsView {
   /** Internal version of GetDocument that allows re-using batches. */
   absl::optional<model::MaybeDocument> GetDocument(
       const model::DocumentKey& key,
-      const std::vector<FSTMutationBatch*>& batches);
+      const std::vector<model::MutationBatch>& batches);
 
   /**
    * Returns the view of the given `docs` as they would appear after applying
@@ -92,7 +90,7 @@ class LocalDocumentsView {
    */
   model::OptionalMaybeDocumentMap ApplyLocalMutationsToDocuments(
       const model::OptionalMaybeDocumentMap& docs,
-      const std::vector<FSTMutationBatch*>& batches);
+      const std::vector<model::MutationBatch>& batches);
 
   /** Performs a simple document lookup for the given path. */
   model::DocumentMap GetDocumentsMatchingDocumentQuery(
@@ -115,7 +113,7 @@ class LocalDocumentsView {
    * lead to missing results for the query.
    */
   model::DocumentMap AddMissingBaseDocuments(
-      const std::vector<FSTMutationBatch*>& matching_batches,
+      const std::vector<model::MutationBatch>& matching_batches,
       model::DocumentMap existing_docs);
 
   RemoteDocumentCache* remote_document_cache_;

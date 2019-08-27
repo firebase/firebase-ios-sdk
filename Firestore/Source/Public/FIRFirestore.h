@@ -192,6 +192,22 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
+/**
+ * Waits until all currently pending writes for the active user have been acknowledged by the
+ * backend.
+ *
+ * The completion block is called immediately without error if there are no outstanding writes.
+ * Otherwise, the completion block is called when all previously issued writes (including those
+ * written in a previous app session) have been acknowledged by the backend. The completion
+ * block does not wait for writes that were added after the method is called. If you
+ * wish to wait for additional writes, you have to call `waitForPendingWritesWithCompletion`
+ * again.
+ *
+ * Any outstanding `waitForPendingWritesWithCompletion` completion blocks are called with an
+ * error during user change.
+ */
+- (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

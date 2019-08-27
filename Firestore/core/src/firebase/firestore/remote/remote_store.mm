@@ -20,7 +20,6 @@
 #include <utility>
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -32,34 +31,25 @@
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::core::Transaction;
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
-using firebase::firestore::model::BatchId;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::MutationResult;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
-using firebase::firestore::model::kBatchIdUnknown;
-using firebase::firestore::nanopb::ByteString;
-using firebase::firestore::remote::Datastore;
-using firebase::firestore::remote::WatchStream;
-using firebase::firestore::remote::DocumentWatchChange;
-using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::OnlineStateTracker;
-using firebase::firestore::remote::RemoteEvent;
-using firebase::firestore::remote::TargetChange;
-using firebase::firestore::remote::WatchChange;
-using firebase::firestore::remote::WatchChangeAggregator;
-using firebase::firestore::remote::WatchTargetChange;
-using firebase::firestore::remote::WatchTargetChangeState;
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::Status;
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+using core::Transaction;
+using local::QueryData;
+using local::QueryPurpose;
+using model::BatchId;
+using model::DocumentKeySet;
+using model::MutationBatch;
+using model::MutationBatchResult;
+using model::MutationResult;
+using model::OnlineState;
+using model::SnapshotVersion;
+using model::TargetId;
+using model::kBatchIdUnknown;
+using nanopb::ByteString;
+using util::AsyncQueue;
+using util::Status;
 
 /**
  * The maximum number of pending writes to allow.
@@ -359,9 +349,9 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
 void RemoteStore::FillWritePipeline() {
   BatchId last_batch_id_retrieved = write_pipeline_.empty()
                                         ? kBatchIdUnknown
-                                        : write_pipeline_.back().batchID;
+                                        : write_pipeline_.back().batch_id();
   while (CanAddToWritePipeline()) {
-    FSTMutationBatch* batch =
+    absl::optional<MutationBatch> batch =
         [local_store_ nextMutationBatchAfterBatchID:last_batch_id_retrieved];
     if (!batch) {
       if (write_pipeline_.empty()) {
@@ -369,8 +359,8 @@ void RemoteStore::FillWritePipeline() {
       }
       break;
     }
-    AddToWritePipeline(batch);
-    last_batch_id_retrieved = batch.batchID;
+    AddToWritePipeline(*batch);
+    last_batch_id_retrieved = batch->batch_id();
   }
 
   if (ShouldStartWriteStream()) {
@@ -382,14 +372,14 @@ bool RemoteStore::CanAddToWritePipeline() const {
   return CanUseNetwork() && write_pipeline_.size() < kMaxPendingWrites;
 }
 
-void RemoteStore::AddToWritePipeline(FSTMutationBatch* batch) {
+void RemoteStore::AddToWritePipeline(const MutationBatch& batch) {
   HARD_ASSERT(CanAddToWritePipeline(),
               "AddToWritePipeline called when pipeline is full");
 
   write_pipeline_.push_back(batch);
 
   if (write_stream_->IsOpen() && write_stream_->handshake_complete()) {
-    write_stream_->WriteMutations(batch.mutations);
+    write_stream_->WriteMutations(batch.mutations());
   }
 }
 
@@ -413,8 +403,8 @@ void RemoteStore::OnWriteStreamHandshakeComplete() {
   [local_store_ setLastStreamToken:write_stream_->GetLastStreamToken()];
 
   // Send the write pipeline now that the stream is established.
-  for (FSTMutationBatch* write : write_pipeline_) {
-    write_stream_->WriteMutations(write.mutations);
+  for (const MutationBatch& write : write_pipeline_) {
+    write_stream_->WriteMutations(write.mutations());
   }
 }
 
@@ -425,15 +415,12 @@ void RemoteStore::OnWriteStreamMutationResult(
   // to the first write in our write pipeline.
   HARD_ASSERT(!write_pipeline_.empty(), "Got result for empty write pipeline");
 
-  FSTMutationBatch* batch = write_pipeline_.front();
+  MutationBatch batch = write_pipeline_.front();
   write_pipeline_.erase(write_pipeline_.begin());
 
-  FSTMutationBatchResult* batchResult = [FSTMutationBatchResult
-      resultWithBatch:batch
-        commitVersion:commit_version
-      mutationResults:std::move(mutation_results)
-          streamToken:nanopb::MakeNullableNSData(
-                          write_stream_->GetLastStreamToken())];
+  MutationBatchResult batchResult(std::move(batch), commit_version,
+                                  std::move(mutation_results),
+                                  write_stream_->GetLastStreamToken());
   [sync_engine_ applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has
@@ -503,14 +490,14 @@ void RemoteStore::HandleWriteError(const Status& status) {
 
   // If this was a permanent error, the request itself was the problem so it's
   // not going to succeed if we resend it.
-  FSTMutationBatch* batch = write_pipeline_.front();
+  MutationBatch batch = write_pipeline_.front();
   write_pipeline_.erase(write_pipeline_.begin());
 
   // In this case it's also unlikely that the server itself is melting
   // down--this was just a bad request so inhibit backoff on the next restart.
   write_stream_->InhibitBackoff();
 
-  [sync_engine_ rejectFailedWriteWithBatchID:batch.batchID
+  [sync_engine_ rejectFailedWriteWithBatchID:batch.batch_id()
                                        error:util::MakeNSError(status)];
 
   // It's possible that with the completion of this mutation another slot has

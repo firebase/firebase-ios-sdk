@@ -36,7 +36,6 @@
 
 @class FSTLocalSerializer;
 @class FSTMemoryPersistence;
-@class FSTMutationBatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,33 +51,33 @@ class MemoryMutationQueue : public MutationQueue {
 
   bool IsEmpty() override;
 
-  void AcknowledgeBatch(FSTMutationBatch* batch,
+  void AcknowledgeBatch(const model::MutationBatch& batch,
                         const nanopb::ByteString& stream_token) override;
 
-  FSTMutationBatch* AddMutationBatch(
+  model::MutationBatch AddMutationBatch(
       const Timestamp& local_write_time,
       std::vector<model::Mutation>&& base_mutations,
       std::vector<model::Mutation>&& mutations) override;
 
-  void RemoveMutationBatch(FSTMutationBatch* batch) override;
+  void RemoveMutationBatch(const model::MutationBatch& batch) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatches() override {
+  std::vector<model::MutationBatch> AllMutationBatches() override {
     return queue_;
   }
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKeys(
       const model::DocumentKeySet& document_keys) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKey(
       const model::DocumentKey& key) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingQuery(
       const core::Query& query) override;
 
-  FSTMutationBatch* _Nullable LookupMutationBatch(
+  absl::optional<model::MutationBatch> LookupMutationBatch(
       model::BatchId batch_id) override;
 
-  FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
+  absl::optional<model::MutationBatch> NextMutationBatchAfterBatchId(
       model::BatchId batch_id) override;
 
   model::BatchId GetHighestUnacknowledgedBatchId() override;
@@ -96,7 +95,7 @@ class MemoryMutationQueue : public MutationQueue {
   using DocumentKeyReferenceSet =
       immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ByKey>;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesWithIds(
+  std::vector<model::MutationBatch> AllMutationBatchesWithIds(
       const std::set<model::BatchId>& batch_ids);
 
   /**
@@ -130,7 +129,7 @@ class MemoryMutationQueue : public MutationQueue {
    * Once the held write acknowledgements become visible they are removed from
    * the head of the queue along with any tombstones that follow.
    */
-  std::vector<FSTMutationBatch*> queue_;
+  std::vector<model::MutationBatch> queue_;
 
   /**
    * The next value to use when assigning sequential IDs to each mutation
