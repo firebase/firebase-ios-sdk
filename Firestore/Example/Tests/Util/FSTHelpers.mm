@@ -27,9 +27,9 @@
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Core/FSTView.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -60,6 +60,8 @@ using firebase::firestore::core::Direction;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Query;
+using firebase::firestore::core::View;
+using firebase::firestore::core::ViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::QueryData;
@@ -228,13 +230,12 @@ MaybeDocumentMap FSTTestDocUpdates(const std::vector<MaybeDocument> &docs) {
   return updates;
 }
 
-absl::optional<ViewSnapshot> FSTTestApplyChanges(FSTView *view,
+absl::optional<ViewSnapshot> FSTTestApplyChanges(View *view,
                                                  const std::vector<MaybeDocument> &docs,
                                                  const absl::optional<TargetChange> &targetChange) {
-  FSTViewChange *change =
-      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
-                       targetChange:targetChange];
-  return std::move(change.snapshot);
+  ViewChange change =
+      view->ApplyChanges(view->ComputeDocumentChanges(FSTTestDocUpdates(docs)), targetChange);
+  return change.snapshot();
 }
 
 namespace firebase {

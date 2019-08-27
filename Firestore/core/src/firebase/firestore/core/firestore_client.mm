@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
@@ -42,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -391,18 +391,17 @@ void FirestoreClient::GetDocumentsFromLocalCache(
   worker_queue()->Enqueue([shared_this, query, shared_callback] {
     DocumentMap docs = [shared_this->local_store_ executeQuery:query.query()];
 
-    FSTView* view = [[FSTView alloc] initWithQuery:query.query()
-                                   remoteDocuments:DocumentKeySet{}];
-    FSTViewDocumentChanges* view_doc_changes =
-        [view computeChangesWithDocuments:docs.underlying_map()];
-    FSTViewChange* view_change =
-        [view applyChangesToDocuments:view_doc_changes];
+    View view(query.query(), DocumentKeySet{});
+    ViewDocumentChanges view_doc_changes =
+        view.ComputeDocumentChanges(docs.underlying_map());
+    ViewChange view_change = view.ApplyChanges(view_doc_changes);
     HARD_ASSERT(
-        view_change.limboChanges.count == 0,
+        view_change.limbo_changes().empty(),
         "View returned limbo documents during local-only query execution.");
-    HARD_ASSERT(view_change.snapshot.has_value(), "Expected a snapshot");
 
-    ViewSnapshot snapshot = std::move(view_change.snapshot).value();
+    HARD_ASSERT(view_change.snapshot().has_value(), "Expected a snapshot");
+
+    ViewSnapshot snapshot = std::move(view_change.snapshot()).value();
     SnapshotMetadata metadata(snapshot.has_pending_writes(),
                               snapshot.from_cache());
 
