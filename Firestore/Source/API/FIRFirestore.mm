@@ -281,6 +281,15 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->WaitForPendingWrites(util::MakeCallback(completion));
 }
 
+- (void)terminateWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
+  if (strongRegistry) {
+    [strongRegistry
+        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
+  }
+  [self terminateInternalWithCompletion:completion];
+}
+
 @end
 
 @implementation FIRFirestore (Internal)
@@ -305,17 +314,8 @@ NS_ASSUME_NONNULL_BEGIN
   return (__bridge FIRFirestore *)firestore->extension();
 }
 
-- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->Shutdown(util::MakeCallback(completion));
-}
-
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
-  if (strongRegistry) {
-    [strongRegistry
-        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
-  }
-  [self shutdownInternalWithCompletion:completion];
+- (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->Terminate(util::MakeCallback(completion));
 }
 
 @end

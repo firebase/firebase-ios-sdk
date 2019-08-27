@@ -64,31 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
-/**
- * Shuts down this `FIRFirestore` instance.
- *
- * After shutdown only the `clearPersistence` method may be used. Any other method
- * will throw an error.
- *
- * To restart after shutdown, simply create a new instance of FIRFirestore with
- * `firestore` or `firestoreForApp` methods.
- *
- * Shutdown does not cancel any pending writes and any tasks that are awaiting a response from
- * the server will not be resolved. The next time you start this instance, it will resume
- * attempting to send these writes to the server.
- *
- * Note: Under normal circumstances, calling this method is not required. This
- * method is useful only when you want to force this instance to release all of its resources or
- * in combination with `clearPersistence` to ensure that all local state is destroyed
- * between test runs.
- *
- * @param completion A block to execute once everything has shut down.
- */
-// TODO(b/135755126): Make this public.
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(shutdown(completion:));
-
-- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+- (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 

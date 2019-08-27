@@ -237,7 +237,7 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
 }
 
 void FirestoreClient::DisableNetwork(StatusCallback callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
   auto shared_this = shared_from_this();
   worker_queue()->Enqueue([shared_this, callback] {
     shared_this->remote_store_->DisableNetwork();
@@ -248,7 +248,7 @@ void FirestoreClient::DisableNetwork(StatusCallback callback) {
 }
 
 void FirestoreClient::EnableNetwork(StatusCallback callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
   auto shared_this = shared_from_this();
   worker_queue()->Enqueue([shared_this, callback] {
     shared_this->remote_store_->EnableNetwork();
@@ -258,7 +258,7 @@ void FirestoreClient::EnableNetwork(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::Shutdown(StatusCallback callback) {
+void FirestoreClient::Terminate(StatusCallback callback) {
   auto shared_this = shared_from_this();
   worker_queue()->EnqueueAndInitiateShutdown([shared_this, callback] {
     shared_this->credentials_provider_->SetCredentialChangeListener(nullptr);
@@ -271,9 +271,9 @@ void FirestoreClient::Shutdown(StatusCallback callback) {
     [shared_this->persistence_ shutdown];
   });
 
-  // This separate enqueue ensures if shutdown is called multiple times
+  // This separate enqueue ensures if `terminate` is called multiple times
   // every time the callback is triggered. If it is in the above
-  // enqueue, it might not get executed because after first shutdown
+  // enqueue, it might not get executed because after first `terminate`
   // all operations are not executed.
   worker_queue()->EnqueueEvenAfterShutdown([shared_this, callback] {
     if (callback) {
@@ -283,7 +283,7 @@ void FirestoreClient::Shutdown(StatusCallback callback) {
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
   auto shared_this = shared_from_this();
@@ -300,16 +300,16 @@ void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::VerifyNotShutdown() {
-  if (is_shutdown()) {
-    ThrowIllegalState("The client has already been shutdown.");
+void FirestoreClient::VerifyNotTerminated() {
+  if (is_terminated()) {
+    ThrowIllegalState("The client has already been terminated.");
   }
 }
 
-bool FirestoreClient::is_shutdown() const {
+bool FirestoreClient::is_terminated() const {
   // Technically, the worker queue is still running, but only accepting tasks
-  // related to shutdown or supposed to be run after shutdown. It is effectively
-  // shut down to the eyes of users.
+  // related to termination or supposed to be run after termination. It is
+  // effectively terminated to the eyes of users.
   return worker_queue()->is_shutting_down();
 }
 
@@ -317,7 +317,7 @@ std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
     Query query,
     ListenOptions options,
     ViewSnapshot::SharedListener&& listener) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   auto query_listener = QueryListener::Create(
       std::move(query), std::move(options), std::move(listener));
@@ -332,9 +332,9 @@ std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
 
 void FirestoreClient::RemoveListener(
     const std::shared_ptr<QueryListener>& listener) {
-  // Checks for shutdown but does not throw error, allowing it to be an no-op if
-  // client is already shutdown.
-  if (is_shutdown()) {
+  // Checks for termination but does not throw error, allowing it to be an no-op
+  // if client is already terminated.
+  if (is_terminated()) {
     return;
   }
   auto shared_this = shared_from_this();
@@ -345,7 +345,7 @@ void FirestoreClient::RemoveListener(
 
 void FirestoreClient::GetDocumentFromLocalCache(
     const DocumentReference& doc, DocumentSnapshot::Listener&& callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
@@ -383,7 +383,7 @@ void FirestoreClient::GetDocumentFromLocalCache(
 
 void FirestoreClient::GetDocumentsFromLocalCache(
     const api::Query& query, QuerySnapshot::Listener&& callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
@@ -417,7 +417,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
 
 void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
                                      StatusCallback callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   // TODO(c++14): move `mutations` into lambda (C++14).
   auto shared_this = shared_from_this();
@@ -443,7 +443,7 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
 void FirestoreClient::Transaction(int retries,
                                   TransactionUpdateCallback update_callback,
                                   TransactionResultCallback result_callback) {
-  VerifyNotShutdown();
+  VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
   auto shared_this = shared_from_this();
