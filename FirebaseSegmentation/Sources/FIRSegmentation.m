@@ -18,12 +18,12 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h>
-
-FIRLoggerService kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+#import "FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h"
+#import "FirebaseSegmentation/Sources/SEGContentManager.h"
 
 @implementation FIRSegmentation {
-  NSString *_appName;
+  NSString *_firebaseAppName;
+  SEGContentManager *_contentManager;
 }
 
 + (nonnull FIRSegmentation *)segmentation {
@@ -45,14 +45,33 @@ FIRLoggerService kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
 
 - (void)setCustomInstallationID:(NSString *)customInstallationID
                      completion:(void (^)(NSError *))completionHandler {
+  [_contentManager
+      associateCustomInstallationIdentiferNamed:customInstallationID
+                                    firebaseApp:_firebaseAppName
+                                     completion:^(BOOL success, NSDictionary *result) {
+                                       if (!success) {
+                                         // TODO(dmandar) log; pass along internal error code.
+                                         NSError *error = [NSError
+                                             errorWithDomain:kFirebaseSegmentationErrorDomain
+                                                        code:FIRSegmentationErrorCodeInternal
+                                                    userInfo:result];
+                                         completionHandler(error);
+                                       } else {
+                                         completionHandler(nil);
+                                       }
+                                     }];
 }
 
 /// Designated initializer
 - (instancetype)initWithAppName:(NSString *)appName FIROptions:(FIROptions *)options {
   self = [super init];
   if (self) {
-    _appName = appName;
+    _firebaseAppName = appName;
+
+    // Initialize the content manager.
+    _contentManager = [SEGContentManager sharedInstanceWithFIROptions:options];
   }
   return self;
 }
+
 @end
