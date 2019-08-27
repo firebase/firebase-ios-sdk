@@ -345,7 +345,7 @@ jobs:
 
     # Firestore sanitizers
 
-    - stage: 
+    - stage:
       # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
       # a single Podfile.
       osx_image: xcode10.1
