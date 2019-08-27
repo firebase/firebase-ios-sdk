@@ -47,8 +47,7 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
   return object;
 }
 
-+ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
-                                          error:(NSError **)outError {
++ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError {
   NSData *archiveData;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
