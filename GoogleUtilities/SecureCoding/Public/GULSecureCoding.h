@@ -16,14 +16,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The class wraps `NSKeyedArchiver` and `NSKeyedUnarchiver` API to provide a unified secure coding
+ *  methods for iOS versions before and after 11.
+ */
 @interface GULSecureCoding : NSObject
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError;
 
-+ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
-                                          error:(NSError **)outError;
++ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError;
 
 @end
 
