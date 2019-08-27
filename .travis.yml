@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode10.2
+osx_image: xcode10.3
 language: objective-c
 cache:
   - bundler
@@ -116,9 +116,15 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         # The pod lib lint tests are fast enough that it's not worth a separate stage.
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=macos
 
     - stage: test
       env:
