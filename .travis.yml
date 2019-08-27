@@ -466,4 +466,3 @@ jobs:
 branches:
   only:
     - master
-    - wilhuff/local-sources
