@@ -146,4 +146,16 @@
   });
 }
 
+/** Tests that encoding and decoding works without crashing. */
+- (void)testNSSecureCoding {
+  GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  GDTUploadCoordinator *coordinator = [[GDTUploadCoordinator alloc] init];
+  coordinator.targetToInFlightPackages[@(kGDTTargetTest)] = package;
+  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
+
+  // Unarchiving the coordinator always ends up altering the singleton instance.
+  GDTUploadCoordinator *unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+  XCTAssertEqualObjects([GDTUploadCoordinator sharedInstance], unarchivedCoordinator);
+}
+
 @end

@@ -63,7 +63,7 @@ using LiveQueryMap = std::unordered_map<model::TargetId, QueryData>;
 
 /**
  * Persistence layers intending to use LRU Garbage collection should implement
- * this protocol. This protocol defines the operations that the LRU garbage
+ * this interface. This interface defines the operations that the LRU garbage
  * collector needs from the persistence layer.
  */
 class LruDelegate {

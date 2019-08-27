@@ -131,8 +131,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
  * It gets notified of local and remote changes, and applies the query filters and limits to
  * determine the most correct possible results.
  */
-- (const core::View &)view;
-- (core::View *)mutable_view;
+- (core::View *)view;
 
 @end
 
@@ -163,11 +162,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
   return _resumeToken;
 }
 
-- (const View &)view {
-  return *_view;
-}
-
-- (View *)mutable_view {
+- (View *)view {
   return &*_view;
 }
 
@@ -443,11 +438,11 @@ class LimboResolution {
   std::vector<ViewSnapshot> newViewSnapshots;
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    ViewChange viewChange = queryView.mutable_view->ApplyChangedOnlineState(onlineState);
+    ViewChange viewChange = queryView.view->ApplyOnlineStateChange(onlineState);
     HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "OnlineState should not affect limbo documents.");
     if (viewChange.snapshot().has_value()) {
-      newViewSnapshots.push_back(*std::move(viewChange.snapshot()));
+      newViewSnapshots.push_back(*std::move(viewChange).snapshot());
     }
   }
 
@@ -570,7 +565,7 @@ class LimboResolution {
 
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    const View &view = queryView.view;
+    const View &view = *queryView.view;
     ViewDocumentChanges viewDocChanges = view.ComputeDocumentChanges(changes);
     if (viewDocChanges.needs_refill()) {
       // The query has a limit and some docs were removed/updated, so we need to re-run the
@@ -588,7 +583,7 @@ class LimboResolution {
         targetChange = it->second;
       }
     }
-    ViewChange viewChange = queryView.mutable_view->ApplyChanges(viewDocChanges, targetChange);
+    ViewChange viewChange = queryView.view->ApplyChanges(viewDocChanges, targetChange);
 
     [self updateTrackedLimboDocumentsWithChanges:viewChange.limbo_changes()
                                         targetID:queryView.targetID];
@@ -688,7 +683,7 @@ class LimboResolution {
   } else {
     auto found = _queryViewsByTarget.find(targetId);
     FSTQueryView *queryView = found != _queryViewsByTarget.end() ? found->second : nil;
-    return queryView ? queryView.view.synced_documents() : DocumentKeySet{};
+    return queryView ? queryView.view->synced_documents() : DocumentKeySet{};
   }
 }
 

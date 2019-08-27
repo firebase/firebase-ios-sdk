@@ -182,7 +182,7 @@ class TestTargetMetadataProvider : public TargetMetadataProvider {
       const std::vector<model::TargetId> &limbo_targets);
 
   /**
-   * Creates an `TestTargetMetadataProvider` that behaves as if there's an established listen for
+   * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
    * each of the given targets, where each target has not seen any previous document.
    *
    * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
