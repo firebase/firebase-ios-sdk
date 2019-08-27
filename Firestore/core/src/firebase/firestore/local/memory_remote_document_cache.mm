@@ -18,15 +18,14 @@
 
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
+#include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
-namespace {
 
 using core::Query;
 using model::Document;
@@ -37,20 +36,6 @@ using model::ListenSequenceNumber;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
-
-/**
- * Returns an estimate of the number of bytes used to store the given
- * document key in memory. This is only an estimate and includes the size
- * of the segments of the path, but not any object overhead or path separators.
- */
-size_t DocumentKeyByteSize(const DocumentKey& key) {
-  size_t count = 0;
-  for (const auto& segment : key.path()) {
-    count += segment.size();
-  }
-  return count;
-}
-}  // namespace
 
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
     FSTMemoryPersistence* persistence) {
@@ -130,12 +115,10 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
   return removed;
 }
 
-size_t MemoryRemoteDocumentCache::CalculateByteSize(
-    FSTLocalSerializer* serializer) {
+size_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
   size_t count = 0;
   for (const auto& kv : docs_) {
-    count += DocumentKeyByteSize(kv.first);
-    count += [[serializer encodedMaybeDocument:kv.second] serializedSize];
+    count += sizer.CalculateByteSize(kv.second);
   }
   return count;
 }

@@ -75,6 +75,7 @@ cc_library(
     reference_set.cc
     reference_set.h
     remote_document_cache.h
+    sizer.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
