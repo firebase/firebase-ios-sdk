@@ -104,6 +104,12 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.dependency 'GoogleUtilities/Logger'
   end
 
+  s.subspec 'Archiver' do |ud|
+    ud.source_files = 'GoogleUtilities/Archiver/**/*.[hm]'
+    ud.public_header_files = 'GoogleUtilities/Archiver/Public/*.h'
+    ud.dependency 'GoogleUtilities/Logger'
+  end
+
   s.test_spec 'unit' do |unit_tests|
     # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
     unit_tests.source_files = 'GoogleUtilities/Example/Tests/**/*.[mh]'
