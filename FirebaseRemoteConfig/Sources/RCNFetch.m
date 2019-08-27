@@ -16,7 +16,6 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRErrorCode.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
@@ -64,6 +63,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusTooManyRequests = 429;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
+
+// Deprecated error code previously from FirebaseCore
+static const NSInteger FIRErrorCodeConfigFailed = -114;
 
 static RCNConfigFetcherTestBlock gGlobalTestBlock;
 

@@ -277,6 +277,10 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->ClearPersistence(util::MakeCallback(completion));
 }
 
+- (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion {
+  _firestore->WaitForPendingWrites(util::MakeCallback(completion));
+}
+
 @end
 
 @implementation FIRFirestore (Internal)
@@ -312,10 +316,6 @@ NS_ASSUME_NONNULL_BEGIN
         removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
   }
   [self shutdownInternalWithCompletion:completion];
-}
-
-- (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion {
-  _firestore->WaitForPendingWrites(util::MakeCallback(completion));
 }
 
 @end
