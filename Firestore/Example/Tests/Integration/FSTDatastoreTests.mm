@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -57,6 +56,8 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MutationBatch;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
@@ -84,18 +85,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)expectListenEventWithDescription:(NSString *)description;
 
 @property(nonatomic, weak, nullable) XCTestCase *testCase;
-@property(nonatomic, strong) NSMutableArray<NSObject *> *writeEvents;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *writeEventExpectations;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *listenEventExpectations;
 @end
 
 @implementation FSTRemoteStoreEventCapture {
   std::vector<RemoteEvent> _listenEvents;
+  std::vector<MutationBatchResult> _writeEvents;
 }
 
 - (instancetype)initWithTestCase:(XCTestCase *_Nullable)testCase {
   if (self = [super init]) {
-    _writeEvents = [NSMutableArray array];
     _testCase = testCase;
     _writeEventExpectations = [NSMutableArray array];
     _listenEventExpectations = [NSMutableArray array];
@@ -125,8 +125,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     description]]];
 }
 
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
-  [self.writeEvents addObject:batchResult];
+- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
+  _writeEvents.push_back(batchResult);
   XCTestExpectation *expectation = [self.writeEventExpectations objectAtIndex:0];
   [self.writeEventExpectations removeObjectAtIndex:0];
   [expectation fulfill];
@@ -223,10 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
   _remoteStore->set_sync_engine(capture);
 
   auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
-  FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
-                                                       localWriteTime:Timestamp::Now()
-                                                        baseMutations:{}
-                                                            mutations:{mutation}];
+  MutationBatch batch = MutationBatch(23, Timestamp::Now(), {}, {mutation});
   _testWorkerQueue->Enqueue([=] {
     _remoteStore->AddToWritePipeline(batch);
     // The added batch won't be written immediately because write stream wasn't yet open --

@@ -21,7 +21,6 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
@@ -40,7 +39,9 @@ using model::DocumentKey;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
 using model::Mutation;
+using model::MutationBatch;
 using model::ResourcePath;
+using nanopb::ByteString;
 
 MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
     : persistence_(persistence) {
@@ -52,16 +53,16 @@ bool MemoryMutationQueue::IsEmpty() {
   return queue_.empty();
 }
 
-void MemoryMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
-                                           NSData* _Nullable stream_token) {
+void MemoryMutationQueue::AcknowledgeBatch(const MutationBatch& batch,
+                                           const ByteString& stream_token) {
   HARD_ASSERT(!queue_.empty(), "Cannot acknowledge batch on an empty queue");
 
   // Guaranteed to exist, due to above assert
-  FSTMutationBatch* check = queue_.front();
+  const MutationBatch& check = queue_.front();
   // Verify that the batch in the queue is the one to be acknowledged.
-  HARD_ASSERT(batch.batchID == check.batchID,
+  HARD_ASSERT(batch.batch_id() == check.batch_id(),
               "Queue ordering failure: expected batch %s, got batch %s",
-              batch.batchID, check.batchID);
+              batch.batch_id(), check.batch_id());
   last_stream_token_ = stream_token;
 }
 
@@ -75,7 +76,7 @@ void MemoryMutationQueue::Start() {
   }
 }
 
-FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
+MutationBatch MemoryMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
     std::vector<Mutation>&& base_mutations,
     std::vector<Mutation>&& mutations) {
@@ -85,20 +86,17 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
   next_batch_id_++;
 
   if (!queue_.empty()) {
-    FSTMutationBatch* prior = queue_.back();
-    HARD_ASSERT(prior.batchID < batch_id,
+    const MutationBatch& prior = queue_.back();
+    HARD_ASSERT(prior.batch_id() < batch_id,
                 "Mutation batchIDs must be in monotonically increasing order");
   }
 
-  FSTMutationBatch* batch =
-      [[FSTMutationBatch alloc] initWithBatchID:batch_id
-                                 localWriteTime:local_write_time
-                                  baseMutations:std::move(base_mutations)
-                                      mutations:std::move(mutations)];
+  MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
+                      std::move(mutations));
   queue_.push_back(batch);
 
   // Track references by document key and index collection parents.
-  for (const Mutation& mutation : [batch mutations]) {
+  for (const Mutation& mutation : batch.mutations()) {
     batches_by_document_key_ = batches_by_document_key_.insert(
         DocumentKeyReference{mutation.key(), batch_id});
 
@@ -109,26 +107,26 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
   return batch;
 }
 
-void MemoryMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
+void MemoryMutationQueue::RemoveMutationBatch(const MutationBatch& batch) {
   // Can only remove the first batch
   HARD_ASSERT(!queue_.empty(), "Trying to remove batch from empty queue");
-  FSTMutationBatch* head = queue_.front();
-  HARD_ASSERT(head.batchID == batch.batchID,
+  const MutationBatch& head = queue_.front();
+  HARD_ASSERT(head.batch_id() == batch.batch_id(),
               "Can only remove the first entry of the mutation queue");
 
   queue_.erase(queue_.begin());
 
   // Remove entries from the index too.
-  for (const Mutation& mutation : [batch mutations]) {
+  for (const Mutation& mutation : batch.mutations()) {
     const DocumentKey& key = mutation.key();
     [persistence_.referenceDelegate removeMutationReference:key];
 
-    DocumentKeyReference reference{key, batch.batchID};
+    DocumentKeyReference reference{key, batch.batch_id()};
     batches_by_document_key_ = batches_by_document_key_.erase(reference);
   }
 }
 
-std::vector<FSTMutationBatch*>
+std::vector<MutationBatch>
 MemoryMutationQueue::AllMutationBatchesAffectingDocumentKeys(
     const DocumentKeySet& document_keys) {
   // First find the set of affected batch IDs.
@@ -146,23 +144,24 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKeys(
   return AllMutationBatchesWithIds(batch_ids);
 }
 
-std::vector<FSTMutationBatch*>
+std::vector<MutationBatch>
 MemoryMutationQueue::AllMutationBatchesAffectingDocumentKey(
     const DocumentKey& key) {
-  std::vector<FSTMutationBatch*> result;
+  std::vector<MutationBatch> result;
 
   DocumentKeyReference start{key, 0};
   for (const auto& reference : batches_by_document_key_.values_from(start)) {
     if (key != reference.key()) break;
 
-    FSTMutationBatch* batch = LookupMutationBatch(reference.ref_id());
-    HARD_ASSERT(batch, "Batches in the index must exist in the main table");
-    result.push_back(batch);
+    auto batch = LookupMutationBatch(reference.ref_id());
+    HARD_ASSERT(batch.has_value(),
+                "Batches in the index must exist in the main table");
+    result.push_back(*batch);
   }
   return result;
 }
 
-std::vector<FSTMutationBatch*>
+std::vector<MutationBatch>
 MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   HARD_ASSERT(
       !query.IsCollectionGroupQuery(),
@@ -206,34 +205,38 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
 
-FSTMutationBatch* _Nullable MemoryMutationQueue::NextMutationBatchAfterBatchId(
-    BatchId batch_id) {
+absl::optional<MutationBatch>
+MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
   // The requested batchID may still be out of range so normalize it to the
   // start of the queue.
   int raw_index = IndexOfBatchId(next_batch_id);
   int index = raw_index < 0 ? 0 : raw_index;
-  return queue_.size() > index ? queue_[index] : nil;
+  if (queue_.size() <= index) {
+    return absl::nullopt;
+  }
+
+  return queue_[index];
 }
 
 BatchId MemoryMutationQueue::GetHighestUnacknowledgedBatchId() {
   return IsEmpty() ? kBatchIdUnknown : next_batch_id_ - 1;
 }
 
-FSTMutationBatch* _Nullable MemoryMutationQueue::LookupMutationBatch(
+absl::optional<MutationBatch> MemoryMutationQueue::LookupMutationBatch(
     BatchId batch_id) {
   if (queue_.empty()) {
-    return nil;
+    return absl::nullopt;
   }
 
   int index = IndexOfBatchId(batch_id);
   if (index < 0 || index >= queue_.size()) {
-    return nil;
+    return absl::nullopt;
   }
 
-  FSTMutationBatch* batch = queue_[index];
-  HARD_ASSERT(batch.batchID == batch_id, "If found, batch must match");
+  const MutationBatch& batch = queue_[index];
+  HARD_ASSERT(batch.batch_id() == batch_id, "If found, batch must match");
   return batch;
 }
 
@@ -262,21 +265,21 @@ size_t MemoryMutationQueue::CalculateByteSize(FSTLocalSerializer* serializer) {
   return count;
 }
 
-NSData* _Nullable MemoryMutationQueue::GetLastStreamToken() {
+ByteString MemoryMutationQueue::GetLastStreamToken() {
   return last_stream_token_;
 }
 
-void MemoryMutationQueue::SetLastStreamToken(NSData* _Nullable token) {
+void MemoryMutationQueue::SetLastStreamToken(const ByteString& token) {
   last_stream_token_ = token;
 }
 
-std::vector<FSTMutationBatch*> MemoryMutationQueue::AllMutationBatchesWithIds(
+std::vector<MutationBatch> MemoryMutationQueue::AllMutationBatchesWithIds(
     const std::set<BatchId>& batch_ids) {
-  std::vector<FSTMutationBatch*> result;
+  std::vector<MutationBatch> result;
   for (BatchId batch_id : batch_ids) {
-    FSTMutationBatch* batch = LookupMutationBatch(batch_id);
-    if (batch) {
-      result.push_back(batch);
+    auto batch = LookupMutationBatch(batch_id);
+    if (batch.has_value()) {
+      result.push_back(*batch);
     }
   }
 
@@ -293,8 +296,8 @@ int MemoryMutationQueue::IndexOfBatchId(BatchId batch_id) {
   // batchID and indexes in the array. Note that since the queue is ordered by
   // batchID, if the first batch has a larger batchID then the requested batchID
   // doesn't exist in the queue.
-  FSTMutationBatch* first_batch = queue_.front();
-  return batch_id - first_batch.batchID;
+  const MutationBatch& first_batch = queue_.front();
+  return batch_id - first_batch.batch_id();
 }
 
 }  // namespace local

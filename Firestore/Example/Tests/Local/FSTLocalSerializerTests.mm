@@ -31,7 +31,6 @@
 #import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -58,6 +57,7 @@ using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatch;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
@@ -103,10 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
   Mutation del = testutil::DeleteMutation("baz/quux");
 
   Timestamp writeTime = Timestamp::Now();
-  FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
-                                                       localWriteTime:writeTime
-                                                        baseMutations:{base}
-                                                            mutations:{set, patch, del}];
+  MutationBatch model = MutationBatch(42, writeTime, {base}, {set, patch, del});
 
   GCFSWrite *baseProto = [GCFSWrite message];
   baseProto.update.name = @"projects/p/databases/d/documents/bar/baz";
@@ -146,12 +143,12 @@ NS_ASSUME_NONNULL_BEGIN
   batchProto.localWriteTime = writeTimeProto;
 
   XCTAssertEqualObjects([self.serializer encodedMutationBatch:model], batchProto);
-  FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
-  XCTAssertEqual(decoded.batchID, model.batchID);
-  XCTAssertEqual(decoded.localWriteTime, model.localWriteTime);
-  XCTAssertEqual(decoded.baseMutations, model.baseMutations);
-  XCTAssertEqual(decoded.mutations, model.mutations);
-  XCTAssertEqual([decoded keys], [model keys]);
+  MutationBatch decoded = [self.serializer decodedMutationBatch:batchProto];
+  XCTAssertEqual(decoded.batch_id(), model.batch_id());
+  XCTAssertEqual(decoded.local_write_time(), model.local_write_time());
+  XCTAssertEqual(decoded.base_mutations(), model.base_mutations());
+  XCTAssertEqual(decoded.mutations(), model.mutations());
+  XCTAssertEqual(decoded.keys(), model.keys());
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
@@ -215,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
   expected.targetId = targetID;
   expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
-  expected.resumeToken = MakeNSData(resumeToken);
+  expected.resumeToken = MakeNullableNSData(resumeToken);
   expected.query.parent = queryTarget.parent;
   expected.query.structuredQuery = queryTarget.structuredQuery;
 

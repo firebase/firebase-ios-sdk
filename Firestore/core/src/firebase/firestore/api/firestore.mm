@@ -21,7 +21,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -44,6 +44,7 @@ namespace api {
 
 using auth::CredentialsProvider;
 using core::DatabaseInfo;
+using core::FirestoreClient;
 using core::Transaction;
 using model::DocumentKey;
 using model::ResourcePath;
@@ -64,7 +65,7 @@ Firestore::Firestore(model::DatabaseId database_id,
       extension_{extension} {
 }
 
-FSTFirestoreClient* Firestore::client() {
+const std::shared_ptr<FirestoreClient>& Firestore::client() {
   HARD_ASSERT(client_, "Client is not yet configured.");
   return client_;
 }
@@ -130,21 +131,20 @@ void Firestore::RunTransaction(
     core::TransactionResultCallback result_callback) {
   EnsureClientConfigured();
 
-  [client_ transactionWithRetries:5
-                   updateCallback:std::move(update_callback)
-                   resultCallback:std::move(result_callback)];
+  client_->Transaction(5, std::move(update_callback),
+                       std::move(result_callback));
 }
 
-void Firestore::Shutdown(util::StatusCallback callback) {
+void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  [client_ shutdownWithCallback:std::move(callback)];
+  client_->Terminate(std::move(callback));
 }
 
 void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ waitForPendingWritesWithCallback:std::move(callback)];
+  client_->WaitForPendingWrites(std::move(callback));
 }
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
@@ -157,7 +157,7 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
 
     {
       std::lock_guard<std::mutex> lock{mutex_};
-      if (client_ && !client().isShutdown) {
+      if (client_ && !client()->is_terminated()) {
         Yield(util::Status(
             Error::FailedPrecondition,
             "Persistence cannot be cleared while the client is running."));
@@ -171,12 +171,12 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
 
 void Firestore::EnableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ enableNetworkWithCallback:std::move(callback)];
+  client_->EnableNetwork(std::move(callback));
 }
 
 void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ disableNetworkWithCallback:std::move(callback)];
+  client_->DisableNetwork(std::move(callback));
 }
 
 void Firestore::EnsureClientConfigured() {
@@ -184,12 +184,9 @@ void Firestore::EnsureClientConfigured() {
 
   if (!client_) {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
-    client_ = [FSTFirestoreClient
-        clientWithDatabaseInfo:MakeDatabaseInfo()
-                      settings:settings_
-           credentialsProvider:std::move(credentials_provider_)
-                  userExecutor:user_executor_
-                   workerQueue:worker_queue_];
+    client_ = FirestoreClient::Create(MakeDatabaseInfo(), settings_,
+                                      std::move(credentials_provider_),
+                                      user_executor_, worker_queue_);
   }
 }
 

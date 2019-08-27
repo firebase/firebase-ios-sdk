@@ -22,15 +22,16 @@
 
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
-
-OBJC_CLASS(FSTFirestoreClient);
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
+namespace core {
+class FirestoreClient;
+}
+
 namespace api {
 
 /**
@@ -54,7 +55,7 @@ namespace api {
 class ListenerRegistration {
  public:
   ListenerRegistration(
-      FSTFirestoreClient* client,
+      std::shared_ptr<core::FirestoreClient> client,
       std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
           async_listener,
       std::shared_ptr<core::QueryListener> query_listener);
@@ -67,7 +68,7 @@ class ListenerRegistration {
 
  private:
   /** The client that was used to register this listen. */
-  objc::Handle<FSTFirestoreClient> client_;
+  std::shared_ptr<core::FirestoreClient> client_;
 
   /** The async listener that is used to mute events synchronously. */
   std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;

@@ -112,7 +112,7 @@ EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
  *
  * @tparam T Any integral type (but not bool). Types larger than int64_t will
  *     likely generate a warning.
- * @param int_value An integer value.
+ * @param value An integer value.
  */
 template <typename T>
 EnableForInts<T, model::FieldValue> Value(T value) {
@@ -322,7 +322,7 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
 #if __APPLE__
 
 /**
- * Creates an DocumentComparator that will compare Documents by the given
+ * Creates a DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
  */
 model::DocumentComparator DocComparator(absl::string_view field_path);

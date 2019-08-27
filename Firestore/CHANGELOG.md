@@ -2,6 +2,17 @@
 - [changed] Transactions now perform exponential backoff before retrying.
   This means transactions on highly contended documents are more likely to
   succeed.
+- [feature] Added a `waitForPendingWrites()` method to `FIRFirestore` class
+  which allows users to wait on a promise that resolves when all pending
+  writes are acknowledged by the Firestore backend.
+- [feature] Added a `terminate()` method to `FIRFirestore` which terminates
+  the instance, releasing any held resources. Once it completes, you can
+  optionally call `clearPersistence()` to wipe persisted Firestore data
+  from disk.
+
+# v1.4.5
+- [fixed] Fixed a crash that would happen when changing networks or going from
+  online to offline. (#3661).
 
 # v1.4.4
 - [changed] Internal improvements.

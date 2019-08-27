@@ -24,15 +24,14 @@
 #include <vector>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction_runner.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
@@ -45,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -54,11 +54,15 @@
 using firebase::firestore::Error;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::LimboDocumentChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::SyncEngineCallback;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::core::TransactionRunner;
+using firebase::firestore::core::View;
+using firebase::firestore::core::ViewChange;
+using firebase::firestore::core::ViewDocumentChanges;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
@@ -73,6 +77,7 @@ using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
@@ -104,7 +109,7 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
                   resumeToken:(ByteString)resumeToken
-                         view:(FSTView *)view NS_DESIGNATED_INITIALIZER;
+                         view:(core::View)view NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -126,24 +131,25 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
  * It gets notified of local and remote changes, and applies the query filters and limits to
  * determine the most correct possible results.
  */
-@property(nonatomic, strong, readonly) FSTView *view;
+- (core::View *)view;
 
 @end
 
 @implementation FSTQueryView {
   Query _query;
   ByteString _resumeToken;
+  util::DelayedConstructor<View> _view;
 }
 
 - (instancetype)initWithQuery:(Query)query
                      targetID:(TargetId)targetID
                   resumeToken:(ByteString)resumeToken
-                         view:(FSTView *)view {
+                         view:(View)view {
   if (self = [super init]) {
     _query = std::move(query);
     _targetID = targetID;
     _resumeToken = std::move(resumeToken);
-    _view = view;
+    _view.Init(std::move(view));
   }
   return self;
 }
@@ -154,6 +160,10 @@ static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (const ByteString &)resumeToken {
   return _resumeToken;
+}
+
+- (View *)view {
+  return &*_view;
 }
 
 @end
@@ -265,11 +275,10 @@ class LimboResolution {
   DocumentMap docs = [self.localStore executeQuery:queryData.query()];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.target_id()];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:queryData.query()
-                                 remoteDocuments:std::move(remoteKeys)];
-  FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
-  FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-  HARD_ASSERT(viewChange.limboChanges.count == 0,
+  View view(queryData.query(), std::move(remoteKeys));
+  ViewDocumentChanges viewDocChanges = view.ComputeDocumentChanges(docs.underlying_map());
+  ViewChange viewChange = view.ApplyChanges(viewDocChanges);
+  HARD_ASSERT(viewChange.limbo_changes().empty(),
               "View returned limbo docs before target ack from the server.");
 
   FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:queryData.query()
@@ -279,9 +288,9 @@ class LimboResolution {
   _queryViewsByQuery[queryData.query()] = queryView;
   _queryViewsByTarget[queryData.target_id()] = queryView;
 
-  HARD_ASSERT(viewChange.snapshot.has_value(),
+  HARD_ASSERT(viewChange.snapshot().has_value(),
               "applyChangesToDocuments for new view should always return a snapshot");
-  return viewChange.snapshot.value();
+  return viewChange.snapshot().value();
 }
 
 - (void)stopListeningToQuery:(const Query &)query {
@@ -429,11 +438,11 @@ class LimboResolution {
   std::vector<ViewSnapshot> newViewSnapshots;
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-    HARD_ASSERT(viewChange.limboChanges.count == 0,
+    ViewChange viewChange = queryView.view->ApplyOnlineStateChange(onlineState);
+    HARD_ASSERT(viewChange.limbo_changes().empty(),
                 "OnlineState should not affect limbo documents.");
-    if (viewChange.snapshot.has_value()) {
-      newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
+    if (viewChange.snapshot().has_value()) {
+      newViewSnapshots.push_back(*std::move(viewChange).snapshot());
     }
   }
 
@@ -477,15 +486,15 @@ class LimboResolution {
   }
 }
 
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
+- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
   [self assertCallbackExistsForSelector:_cmd];
 
   // The local store may or may not be able to apply the write result and raise events immediately
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
   // consistently happen before listen events.
-  [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
+  [self processUserCallbacksForBatchID:batchResult.batch().batch_id() error:nil];
 
-  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch.batchID];
+  [self triggerPendingWriteCallbacksWithBatchId:batchResult.batch().batch_id()];
 
   MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
@@ -556,15 +565,14 @@ class LimboResolution {
 
   for (const auto &entry : _queryViewsByQuery) {
     FSTQueryView *queryView = entry.second;
-    FSTView *view = queryView.view;
-    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
-    if (viewDocChanges.needsRefill) {
+    const View &view = *queryView.view;
+    ViewDocumentChanges viewDocChanges = view.ComputeDocumentChanges(changes);
+    if (viewDocChanges.needs_refill()) {
       // The query has a limit and some docs were removed/updated, so we need to re-run the
       // query against the local store to make sure we didn't lose any good docs that had been
       // past the limit.
       DocumentMap docs = [self.localStore executeQuery:queryView.query];
-      viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()
-                                         previousChanges:viewDocChanges];
+      viewDocChanges = view.ComputeDocumentChanges(docs.underlying_map(), viewDocChanges);
     }
 
     absl::optional<TargetChange> targetChange;
@@ -575,16 +583,15 @@ class LimboResolution {
         targetChange = it->second;
       }
     }
-    FSTViewChange *viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
-                                                           targetChange:targetChange];
+    ViewChange viewChange = queryView.view->ApplyChanges(viewDocChanges, targetChange);
 
-    [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
+    [self updateTrackedLimboDocumentsWithChanges:viewChange.limbo_changes()
                                         targetID:queryView.targetID];
 
-    if (viewChange.snapshot.has_value()) {
-      newSnapshots.push_back(viewChange.snapshot.value());
+    if (viewChange.snapshot().has_value()) {
+      newSnapshots.push_back(*viewChange.snapshot());
       LocalViewChanges docChanges =
-          LocalViewChanges::FromViewSnapshot(viewChange.snapshot.value(), queryView.targetID);
+          LocalViewChanges::FromViewSnapshot(*viewChange.snapshot(), queryView.targetID);
       documentChangesInAllViews.push_back(std::move(docChanges));
     }
   }
@@ -594,32 +601,33 @@ class LimboResolution {
 }
 
 /** Updates the limbo document state for the given targetID. */
-- (void)updateTrackedLimboDocumentsWithChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges
+- (void)updateTrackedLimboDocumentsWithChanges:
+            (const std::vector<LimboDocumentChange> &)limboChanges
                                       targetID:(TargetId)targetID {
-  for (FSTLimboDocumentChange *limboChange in limboChanges) {
-    switch (limboChange.type) {
-      case FSTLimboDocumentChangeTypeAdded:
-        _limboDocumentRefs.AddReference(limboChange.key, targetID);
+  for (const LimboDocumentChange &limboChange : limboChanges) {
+    switch (limboChange.type()) {
+      case LimboDocumentChange::Type::Added:
+        _limboDocumentRefs.AddReference(limboChange.key(), targetID);
         [self trackLimboChange:limboChange];
         break;
 
-      case FSTLimboDocumentChangeTypeRemoved:
-        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
-        _limboDocumentRefs.RemoveReference(limboChange.key, targetID);
-        if (!_limboDocumentRefs.ContainsKey(limboChange.key)) {
+      case LimboDocumentChange::Type::Removed:
+        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key().ToString());
+        _limboDocumentRefs.RemoveReference(limboChange.key(), targetID);
+        if (!_limboDocumentRefs.ContainsKey(limboChange.key())) {
           // We removed the last reference for this key
-          [self removeLimboTargetForKey:limboChange.key];
+          [self removeLimboTargetForKey:limboChange.key()];
         }
         break;
 
       default:
-        HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
+        HARD_FAIL("Unknown limbo change type: %s", limboChange.type());
     }
   }
 }
 
-- (void)trackLimboChange:(FSTLimboDocumentChange *)limboChange {
-  DocumentKey key{limboChange.key};
+- (void)trackLimboChange:(const LimboDocumentChange &)limboChange {
+  const DocumentKey &key = limboChange.key();
 
   if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
@@ -675,7 +683,7 @@ class LimboResolution {
   } else {
     auto found = _queryViewsByTarget.find(targetId);
     FSTQueryView *queryView = found != _queryViewsByTarget.end() ? found->second : nil;
-    return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
+    return queryView ? queryView.view->synced_documents() : DocumentKeySet{};
   }
 }
 

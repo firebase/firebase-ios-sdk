@@ -57,6 +57,8 @@ cc_library(
     local_serializer.h
     local_view_changes.cc
     local_view_changes.h
+    lru_garbage_collector.cc
+    lru_garbage_collector.h
     memory_index_manager.cc
     memory_index_manager.h
     memory_mutation_queue.h
@@ -69,9 +71,11 @@ cc_library(
     query_cache.h
     query_data.cc
     query_data.h
+    reference_delegate.h
     reference_set.cc
     reference_set.h
     remote_document_cache.h
+    sizer.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static

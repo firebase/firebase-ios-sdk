@@ -22,10 +22,10 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
@@ -97,29 +97,27 @@ CollectionReference DocumentReference::GetCollectionReference(
 
 void DocumentReference::SetData(core::ParsedSetData&& set_data,
                                 util::StatusCallback callback) {
-  [firestore_->client() writeMutations:std::move(set_data).ToMutations(
-                                           key(), Precondition::None())
-                              callback:std::move(callback)];
+  firestore_->client()->WriteMutations(
+      std::move(set_data).ToMutations(key(), Precondition::None()),
+      std::move(callback));
 }
 
 void DocumentReference::UpdateData(core::ParsedUpdateData&& update_data,
                                    util::StatusCallback callback) {
-  [firestore_->client()
-      writeMutations:std::move(update_data)
-                         .ToMutations(key(), Precondition::Exists(true))
-            callback:std::move(callback)];
+  firestore_->client()->WriteMutations(
+      std::move(update_data).ToMutations(key(), Precondition::Exists(true)),
+      std::move(callback));
 }
 
 void DocumentReference::DeleteDocument(util::StatusCallback callback) {
   DeleteMutation mutation(key_, Precondition::None());
-  [firestore_->client() writeMutations:{mutation} callback:std::move(callback)];
+  firestore_->client()->WriteMutations({mutation}, std::move(callback));
 }
 
 void DocumentReference::GetDocument(Source source,
                                     DocumentSnapshot::Listener&& callback) {
   if (source == Source::Cache) {
-    [firestore_->client() getDocumentFromLocalCache:*this
-                                           callback:std::move(callback)];
+    firestore_->client()->GetDocumentFromLocalCache(*this, std::move(callback));
     return;
   }
 
@@ -237,13 +235,12 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
 
   // Call the view_listener on the user Executor.
   auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
-      firestore_->client().userExecutor, std::move(view_listener));
+      firestore_->client()->user_executor(), std::move(view_listener));
 
   core::Query query(key_.path());
   std::shared_ptr<QueryListener> query_listener =
-      [firestore_->client() listenToQuery:std::move(query)
-                                  options:options
-                                 listener:async_listener];
+      firestore_->client()->ListenToQuery(std::move(query), options,
+                                          async_listener);
   return ListenerRegistration(firestore_->client(), std::move(async_listener),
                               std::move(query_listener));
 }

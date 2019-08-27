@@ -534,22 +534,22 @@ ByteString MakeResumeToken(NSString *specString) {
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kRemoved]);
+                                           ofType:DocumentViewChange::Type::Removed]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kAdded]);
+                                           ofType:DocumentViewChange::Type::Added]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kModified]);
+                                           ofType:DocumentViewChange::Type::Modified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kMetadata]);
+                                           ofType:DocumentViewChange::Type::Metadata]);
     }
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());

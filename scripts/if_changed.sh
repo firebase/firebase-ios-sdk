@@ -134,6 +134,10 @@ else
       check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
       ;;
 
+    RemoteConfig-*)
+      check_changes '^(Firebase/Core|FirebaseRemoteConfig)'
+      ;;
+
     Storage-*)
       check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;

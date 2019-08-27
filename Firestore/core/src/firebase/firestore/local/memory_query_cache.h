@@ -43,6 +43,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+class Sizer;
+
 class MemoryQueryCache : public QueryCache {
  public:
   explicit MemoryQueryCache(FSTMemoryPersistence* persistence);
@@ -74,7 +76,7 @@ class MemoryQueryCache : public QueryCache {
   bool Contains(const model::DocumentKey& key) override;
 
   // Other methods and accessors
-  size_t CalculateByteSize(FSTLocalSerializer* serializer);
+  size_t CalculateByteSize(const Sizer& sizer);
 
   size_t size() const override {
     return queries_.size();
