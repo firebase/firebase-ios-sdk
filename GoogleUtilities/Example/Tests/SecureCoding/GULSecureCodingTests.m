@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <GoogleUtilities/GULKeyedArchiver.h>
 #import <XCTest/XCTest.h>
+
+#import <GoogleUtilities/GULSecureCoding.h>
 
 @interface SecureCodingIncompatibleObject : NSObject <NSCoding>
 @end
@@ -29,23 +30,22 @@
 
 @end
 
-@interface GULKeyedArchiverTests : XCTestCase
+@interface GULSecureCodingTests : XCTestCase
 
 @end
 
-@implementation GULKeyedArchiverTests
+@implementation GULSecureCodingTests
 
 - (void)testArchiveUnarchive {
   NSDictionary *objectToArchive = @{@"key1" : @"value1", @"key2" : @(2)};
 
   NSError *error;
-  NSData *archiveData = [GULKeyedArchiver archivedDataWithRootObject:objectToArchive
-                                               requiringSecureCoding:YES
+  NSData *archiveData = [GULSecureCoding archivedDataWithRootObject:objectToArchive
                                                                error:&error];
   XCTAssertNil(error);
   XCTAssertNotNil(archiveData);
 
-  NSDictionary *unarchivedObject = [GULKeyedArchiver unarchivedObjectOfClass:[NSDictionary class]
+  NSDictionary *unarchivedObject = [GULSecureCoding unarchivedObjectOfClass:[NSDictionary class]
                                                                     fromData:archiveData
                                                                        error:&error];
   XCTAssertNil(error);
@@ -56,8 +56,7 @@
   SecureCodingIncompatibleObject *objectToArchive = [[SecureCodingIncompatibleObject alloc] init];
 
   NSError *error;
-  NSData *archiveData = [GULKeyedArchiver archivedDataWithRootObject:objectToArchive
-                                               requiringSecureCoding:YES
+  NSData *archiveData = [GULSecureCoding archivedDataWithRootObject:objectToArchive
                                                                error:&error];
   XCTAssertNotNil(error);
   XCTAssertNil(archiveData);
@@ -66,13 +65,12 @@
 - (void)testUnarchivingClassMismatchError {
   NSDictionary *objectToArchive = @{@"key1" : @"value1", @"key2" : @(2)};
   NSError *error;
-  NSData *archiveData = [GULKeyedArchiver archivedDataWithRootObject:objectToArchive
-                                               requiringSecureCoding:YES
+  NSData *archiveData = [GULSecureCoding archivedDataWithRootObject:objectToArchive
                                                                error:&error];
   XCTAssertNil(error);
   XCTAssertNotNil(archiveData);
 
-  NSArray *unarchivedObject = [GULKeyedArchiver unarchivedObjectOfClass:[NSArray class]
+  NSArray *unarchivedObject = [GULSecureCoding unarchivedObjectOfClass:[NSArray class]
                                                                fromData:archiveData
                                                                   error:&error];
   XCTAssertNotNil(error);
@@ -82,7 +80,7 @@
 - (void)testUnarchivingCorruptedDataError {
   NSData *corruptedData = [@"abc" dataUsingEncoding:NSUTF8StringEncoding];
   NSError *error;
-  NSString *unarchivedObject = [GULKeyedArchiver unarchivedObjectOfClass:[NSString class]
+  NSString *unarchivedObject = [GULSecureCoding unarchivedObjectOfClass:[NSString class]
                                                                 fromData:corruptedData
                                                                    error:&error];
   XCTAssertNotNil(error);
@@ -92,13 +90,12 @@
 - (void)testArchiveUnarchiveWithNULLError {
   SecureCodingIncompatibleObject *objectToArchive = [[SecureCodingIncompatibleObject alloc] init];
 
-  NSData *archiveData = [GULKeyedArchiver archivedDataWithRootObject:objectToArchive
-                                               requiringSecureCoding:YES
+  NSData *archiveData = [GULSecureCoding archivedDataWithRootObject:objectToArchive
                                                                error:NULL];
   XCTAssertNil(archiveData);
 
   NSData *corruptedData = [@"abc" dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *unarchivedObject = [GULKeyedArchiver unarchivedObjectOfClass:[NSDictionary class]
+  NSDictionary *unarchivedObject = [GULSecureCoding unarchivedObjectOfClass:[NSDictionary class]
                                                                     fromData:corruptedData
                                                                        error:NULL];
   XCTAssertNil(unarchivedObject);

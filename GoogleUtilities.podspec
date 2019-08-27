@@ -104,10 +104,9 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.dependency 'GoogleUtilities/Logger'
   end
 
-  s.subspec 'Archiver' do |ud|
-    ud.source_files = 'GoogleUtilities/Archiver/**/*.[hm]'
-    ud.public_header_files = 'GoogleUtilities/Archiver/Public/*.h'
-    ud.dependency 'GoogleUtilities/Logger'
+  s.subspec 'SecureCoding' do |sc|
+    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
+    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
   end
 
   s.test_spec 'unit' do |unit_tests|

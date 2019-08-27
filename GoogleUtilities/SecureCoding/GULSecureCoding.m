@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Public/GULKeyedArchiver.h"
+#import "Public/GULSecureCoding.h"
 
-NSString *const kGULKeyedArchiverError = @"GULKeyedArchiverError";
+NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 
-@implementation GULKeyedArchiver
+@implementation GULSecureCoding
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
@@ -38,7 +38,7 @@ NSString *const kGULKeyedArchiverError = @"GULKeyedArchiverError";
 
     if (object == nil && outError && *outError == nil) {
       NSString *failureReason = @"NSKeyedUnarchiver failed to unarchive data.";
-      *outError = [NSError errorWithDomain:kGULKeyedArchiverError
+      *outError = [NSError errorWithDomain:kGULSecureCodingError
                                       code:-1
                                   userInfo:@{NSLocalizedFailureReasonErrorKey : failureReason}];
     }
@@ -48,7 +48,6 @@ NSString *const kGULKeyedArchiverError = @"GULKeyedArchiverError";
 }
 
 + (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
-                          requiringSecureCoding:(BOOL)requiresSecureCoding
                                           error:(NSError **)outError {
   NSData *archiveData;
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
@@ -81,7 +80,7 @@ NSString *const kGULKeyedArchiverError = @"GULKeyedArchiverError";
                        exception.name, exception.reason, exception.userInfo];
   NSDictionary *errorUserInfo = @{NSLocalizedFailureReasonErrorKey : failureReason};
 
-  return [NSError errorWithDomain:kGULKeyedArchiverError code:-1 userInfo:errorUserInfo];
+  return [NSError errorWithDomain:kGULSecureCodingError code:-1 userInfo:errorUserInfo];
 }
 
 @end

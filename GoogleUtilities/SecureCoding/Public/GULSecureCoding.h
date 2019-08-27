@@ -16,13 +16,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULKeyedArchiver : NSObject
+@interface GULSecureCoding : NSObject
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError;
+
 + (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
-                          requiringSecureCoding:(BOOL)requiresSecureCoding
                                           error:(NSError **)outError;
 
 @end
