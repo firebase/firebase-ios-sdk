@@ -26,7 +26,7 @@ function install_secrets() {
   # requests from forks. See
   # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
   if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
-    openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv \
+    openssl aes-256-cbc -K $encrypted_3360571ebe7a_key -iv $encrypted_3360571ebe7a_iv \
     -in scripts/travis-encrypted/Secrets.tar.enc \
     -out scripts/travis-encrypted/Secrets.tar -d
 
@@ -43,6 +43,11 @@ function install_secrets() {
     cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
     cp Secrets/Metrics/database.config Metrics/database.config
+
+    # Firebase Installations
+    fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
+    mkdir -p "$fis_resources_dir"
+    cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
   fi
 }
 
@@ -95,6 +100,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
     pod_gen FirebaseStorage.podspec
+    install_secrets
+    ;;
+
+  Installations-*)
     install_secrets
     ;;
 
