@@ -181,11 +181,11 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --allow-warnings --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos --allow-warnings --use-libraries
         # FirebaseMessaging includes Swift unit tests so it is not testable with --use-libraries.
         # TODO(paulb777): Migrate FirebaseMessaging to pod gen driven tests with a separate test
         # target for Swift.
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --allow-warnings --use-libraries --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos --allow-warnings --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos --allow-warnings --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios --allow-warnings --use-modular-headers
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=tvos --allow-warnings --use-modular-headers
