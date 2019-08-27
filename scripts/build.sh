@@ -341,7 +341,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-iOS-Unit-unit" \
+      -scheme "FirebaseDatabase-Unit-unit" \
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -352,7 +352,7 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-        -scheme "FirebaseDatabase-iOS-Unit-integration" \
+        -scheme "FirebaseDatabase-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
@@ -362,7 +362,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseDatabase.podspec --platforms=macos --clean
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-macOS-Unit-unit" \
+      -scheme "FirebaseDatabase-Unit-unit" \
       "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -371,7 +371,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseDatabase.podspec --platforms=tvos --clean
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-tvOS-Unit-unit" \
+      -scheme "FirebaseDatabase-Unit-unit" \
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -382,7 +382,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-iOS-Unit-unit" \
+      -scheme "FirebaseStorage-Unit-unit" \
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -393,7 +393,7 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-iOS-Unit-integration" \
+        -scheme "FirebaseStorage-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
@@ -403,7 +403,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseStorage.podspec --platforms=macos --clean
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-macOS-Unit-unit" \
+      -scheme "FirebaseStorage-Unit-unit" \
       "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -412,7 +412,7 @@ case "$product-$method-$platform" in
     pod_gen FirebaseStorage.podspec --platforms=tvos --clean
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      -scheme "FirebaseStorage-Unit-unit" \
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
