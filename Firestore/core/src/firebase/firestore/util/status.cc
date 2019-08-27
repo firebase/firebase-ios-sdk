@@ -52,7 +52,7 @@ Status& Status::CausedBy(const Status& cause) {
   absl::StrAppend(&state_->msg, ": ", cause.error_message());
 
   // If this Status has no accompanying PlatformError but the cause does, create
-  // an PlatformError for this Status ahead of time to preserve the causal chain
+  // a PlatformError for this Status ahead of time to preserve the causal chain
   // that Status doesn't otherwise support.
   if (state_->platform_error == nullptr &&
       cause.state_->platform_error != nullptr) {

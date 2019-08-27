@@ -25,53 +25,18 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTLRUGarbageCollector;
-
-namespace local = firebase::firestore::local;
-namespace model = firebase::firestore::model;
-
-extern const model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
-struct LruParams {
-  static LruParams Default() {
-    return LruParams{100 * 1024 * 1024, 10, 1000};
-  }
-
-  static LruParams Disabled() {
-    return LruParams{api::Settings::CacheSizeUnlimited, 0, 0};
-  }
-
-  static LruParams WithCacheSize(int64_t cacheSize) {
-    LruParams params = Default();
-    params.minBytesThreshold = cacheSize;
-    return params;
-  }
-
-  int64_t minBytesThreshold;
-  int percentileToCollect;
-  int maximumSequenceNumbersToCollect;
-};
-
-struct LruResults {
-  static LruResults DidNotRun() {
-    return LruResults{/* didRun= */ false, 0, 0, 0};
-  }
-
-  bool didRun;
-  int sequenceNumbersCollected;
-  int targetsRemoved;
-  int documentsRemoved;
-};
+class LruGarbageCollector;
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
 namespace local = firebase::firestore::local;
+namespace model = firebase::firestore::model;
 
 /**
  * Persistence layers intending to use LRU Garbage collection should implement this protocol. This
@@ -111,51 +76,6 @@ namespace local = firebase::firestore::local;
 - (size_t)sequenceNumberCount;
 
 /** Access to the underlying LRU Garbage collector instance. */
-@property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;
-
-@end
-
-/**
- * FSTLRUGarbageCollector defines the LRU algorithm used to clean up old documents and targets. It
- * is persistence-agnostic, as long as proper delegate is provided.
- */
-@interface FSTLRUGarbageCollector : NSObject
-
-- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate
-                          params:(local::LruParams)params NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- * Given a target percentile, return the number of queries that make up that percentage of the
- * queries that are cached. For instance, if 20 queries are cached, and the percentile is 40, the
- * result will be 8.
- */
-- (int)queryCountForPercentile:(NSUInteger)percentile;
-
-/**
- * Given a number of queries n, return the nth sequence number in the cache.
- */
-- (model::ListenSequenceNumber)sequenceNumberForQueryCount:(NSUInteger)queryCount;
-
-/**
- * Removes queries that are not currently live (as indicated by presence in the liveQueries map) and
- * have a sequence number less than or equal to the given sequence number.
- */
-- (int)removeQueriesUpThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
-                                liveQueries:
-                                    (const std::unordered_map<model::TargetId, local::QueryData> &)
-                                        liveQueries;
-
-/**
- * Removes all unreferenced documents from the cache that have a sequence number less than or equal
- * to the given sequence number. Returns the number of documents removed.
- */
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber;
-
-- (size_t)byteSize;
-
-- (local::LruResults)collectWithLiveTargets:
-    (const std::unordered_map<model::TargetId, local::QueryData> &)liveTargets;
+- (local::LruGarbageCollector *)gc;
 
 @end

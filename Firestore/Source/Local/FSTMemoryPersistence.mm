@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
@@ -36,6 +37,7 @@
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::ListenSequence;
+using firebase::firestore::local::LruGarbageCollector;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::MemoryIndexManager;
 using firebase::firestore::local::MemoryMutationQueue;
@@ -171,6 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMemoryLRUReferenceDelegate {
+  local::LruDelegateBridge _delegateBridge;
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTMemoryPersistence *_persistence;
@@ -178,7 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
   // the leveldb implementation.
   std::unordered_map<DocumentKey, ListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   ReferenceSet *_additionalReferences;
-  FSTLRUGarbageCollector *_gc;
+  std::unique_ptr<LruGarbageCollector> _gc;
   // PORTING NOTE: when this class is ported to C++, this does not need to be a pointer
   std::unique_ptr<ListenSequence> _listenSequence;
   ListenSequenceNumber _currentSequenceNumber;
@@ -190,8 +193,9 @@ NS_ASSUME_NONNULL_BEGIN
                           lruParams:(firebase::firestore::local::LruParams)lruParams {
   if (self = [super init]) {
     _persistence = persistence;
-    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruParams];
-    _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+    _delegateBridge = local::LruDelegateBridge(self);
+    _gc = absl::make_unique<LruGarbageCollector>(&_delegateBridge, lruParams);
+    _currentSequenceNumber = local::kListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
     ListenSequenceNumber highestSequenceNumber =
         _persistence.queryCache->highest_listen_sequence_number();
@@ -201,12 +205,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTLRUGarbageCollector *)gc {
-  return _gc;
+- (local::LruGarbageCollector *)gc {
+  return _gc.get();
 }
 
 - (ListenSequenceNumber)currentSequenceNumber {
-  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
+  HARD_ASSERT(_currentSequenceNumber != local::kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
 }
@@ -232,7 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)commitTransaction {
-  _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+  _currentSequenceNumber = local::kListenSequenceNumberInvalid;
 }
 
 - (void)enumerateTargetsUsingCallback:(const TargetCallback &)callback {
@@ -348,7 +352,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (ListenSequenceNumber)currentSequenceNumber {
-  return kFSTListenSequenceNumberInvalid;
+  return local::kListenSequenceNumberInvalid;
 }
 
 - (void)addInMemoryPins:(ReferenceSet *)set {

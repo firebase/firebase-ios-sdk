@@ -18,11 +18,10 @@
 
 #include <vector>
 
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -200,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (model::BatchId)getHighestUnacknowledgedBatchId;
 
-- (local::LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector;
+- (local::LruResults)collectGarbage:(local::LruGarbageCollector *)garbageCollector;
 
 @end
 
