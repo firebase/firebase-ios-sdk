@@ -1,3 +1,7 @@
+# 2019-09-03 -- v4.1.4
+- [fixed] Fix notification open event is not logged when scheduling a local timezone message. (#3670, #3638)
+- [fixed] Fix FirebaseApp.delete() results in unusable Messaging singleton. (#3411)
+
 # 2019-08-20 -- v4.1.3
 - [changed] Cleaned up the documents, unused macros, and folders. (#3490, #3537, #3556, #3498)
 - [changed] Updated the header path to pod repo relative. (#3527)
