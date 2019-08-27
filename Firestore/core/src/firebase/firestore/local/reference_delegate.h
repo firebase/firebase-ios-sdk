@@ -54,40 +54,45 @@ class ReferenceDelegate {
   virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /**
-   * Registers an ReferenceSet of documents that should be considered
+   * Registers a ReferenceSet of documents that should be considered
    * 'referenced' and not eligible for removal during garbage collection.
    */
   virtual void AddInMemoryPins(ReferenceSet* set) = 0;
 
   /**
-   * Notify the delegate that the given document was added to a target.
+   * Notifies the delegate that the given document was added to a target.
    */
   virtual void AddReference(const model::DocumentKey& key) = 0;
 
   /**
-   * Notify the delegate that the given document was removed from a target.
+   * Notifies the delegate that the given document was removed from a target.
    */
   virtual void RemoveReference(const model::DocumentKey& key) = 0;
 
   /**
-   * Notify the delegate that a document is no longer being mutated by the user.
+   * Notifies the delegate that a document is no longer being mutated by the
+   * user.
    */
   virtual void RemoveMutationReference(const model::DocumentKey& key) = 0;
 
   /**
-   * Notify the delegate that a target was removed.
+   * Notifies the delegate that a target was removed.
    */
   virtual void RemoveTarget(const local::QueryData& query_data) = 0;
 
   /**
-   * Notify the delegate that a limbo document was updated.
+   * Notifies the delegate that a limbo document was updated.
    */
   virtual void UpdateLimboDocument(const model::DocumentKey& key) = 0;
 
-  /** Lifecycle hook to notify the delegate that a transaction has started. */
+  /**
+   * Lifecycle hook that notifies the delegate that a transaction has started.
+   */
   virtual void OnTransactionStarted(absl::string_view label) = 0;
 
-  /** Lifecycle hook to notify the delegate that a transaction has committed. */
+  /**
+   * Lifecycle hook that notifies the delegate that a transaction has committed.
+   */
   virtual void OnTransactionCommitted() = 0;
 };
 
@@ -105,50 +110,30 @@ class ReferenceDelegateBridge : public ReferenceDelegate {
     return target_.currentSequenceNumber;
   }
 
-  /**
-   * Registers an ReferenceSet of documents that should be considered
-   * 'referenced' and not eligible for removal during garbage collection.
-   */
   void AddInMemoryPins(ReferenceSet* set) override {
     [target_ addInMemoryPins:set];
   }
 
-  /**
-   * Notify the delegate that the given document was added to a target.
-   */
   void AddReference(const model::DocumentKey& key) override {
     [target_ addReference:key];
   }
 
-  /**
-   * Notify the delegate that the given document was removed from a target.
-   */
   void RemoveReference(const model::DocumentKey& key) override {
     [target_ removeReference:key];
   }
 
-  /**
-   * Notify the delegate that a document is no longer being mutated by the user.
-   */
   void RemoveMutationReference(const model::DocumentKey& key) override {
     [target_ removeMutationReference:key];
   }
 
-  /**
-   * Notify the delegate that a target was removed.
-   */
   void RemoveTarget(const local::QueryData& query_data) override {
     [target_ removeTarget:query_data];
   }
 
-  /**
-   * Notify the delegate that a limbo document was updated.
-   */
   void UpdateLimboDocument(const model::DocumentKey& key) override {
     [target_ limboDocumentUpdated:key];
   }
 
-  /** Lifecycle hook to notify the delegate that a transaction has started. */
   void OnTransactionStarted(absl::string_view label) override {
     if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
       auto transactional = static_cast<id<FSTTransactional>>(target_);
@@ -156,7 +141,6 @@ class ReferenceDelegateBridge : public ReferenceDelegate {
     }
   }
 
-  /** Lifecycle hook to notify the delegate that a transaction has committed. */
   void OnTransactionCommitted() override {
     if ([target_ conformsToProtocol:@protocol(FSTTransactional)]) {
       auto transactional = static_cast<id<FSTTransactional>>(target_);
