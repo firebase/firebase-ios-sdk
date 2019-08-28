@@ -19,7 +19,7 @@
 # Builds the given product for the given platform using the given build method
 
 function pod_gen() {
-  # Call pod gen with a podspec and additonal optional arguments.
+  # Call pod gen with a podspec and additional optional arguments.
   bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
 }
 
