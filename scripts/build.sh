@@ -198,13 +198,6 @@ case "$product-$method-$platform" in
         build \
         test
 
-    RunXcodebuild \
-        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
-        -scheme "Example_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
     if [[ $platform == 'iOS' ]]; then
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
