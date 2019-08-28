@@ -85,6 +85,16 @@ using util::StatusOr;
 
 const char* kProjectId = "p";
 const char* kDatabaseId = "d";
+
+// These helper functions are just shorter aliases to reduce verbosity.
+pb_bytes_array_t* ToBytes(const std::string& str) {
+  return Serializer::EncodeString(str);
+}
+
+std::string FromBytes(const pb_bytes_array_t* str) {
+  return Serializer::DecodeString(str);
+}
+
 }  // namespace
 
 TEST(Serializer, CanLinkToNanopb) {
@@ -866,24 +876,24 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents", FromBytes(serializer.EncodeKey(Key(""))));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
-            serializer.EncodeKey(Key("one/two/three/four")));
+            FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
+            serializer.DecodeKey(&reader, ToBytes("projects/p/databases/d/documents")));
   EXPECT_EQ(
       Key("one/two/three/four"),
       serializer.DecodeKey(
-          &reader, "projects/p/databases/d/documents/one/two/three/four"));
+          &reader, ToBytes("projects/p/databases/d/documents/one/two/three/four")));
   // Same, but with a leading slash
   EXPECT_EQ(
       Key("one/two/three/four"),
       serializer.DecodeKey(
-          &reader, "/projects/p/databases/d/documents/one/two/three/four"));
+          &reader, ToBytes("/projects/p/databases/d/documents/one/two/three/four")));
   EXPECT_OK(reader.status());
 }
 
@@ -902,7 +912,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     Reader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, bad_key);
+    serializer.DecodeKey(&reader, ToBytes(bad_key));
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -914,7 +924,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   doc_proto->mutable_fields();
 
   google::protobuf::Timestamp* update_time_proto =
@@ -945,7 +955,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Map<std::string, v1::Value>& m =
       *doc_proto->mutable_fields();
   m["foo"] = ValueProto("bar");
@@ -973,7 +983,7 @@ TEST_F(SerializerTest, DecodesNoDocument) {
       SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
 
   v1::BatchGetDocumentsResponse proto;
-  proto.set_missing(serializer.EncodeKey(key));
+  proto.set_missing(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
   read_time_proto->set_seconds(read_time.timestamp().seconds());
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
