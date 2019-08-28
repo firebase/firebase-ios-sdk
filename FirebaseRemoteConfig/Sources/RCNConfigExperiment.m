@@ -18,9 +18,9 @@
 
 #import "Protos/wireless/android/config/proto/Config.pbobjc.h"
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseCore/FIRLogger.h>
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
