@@ -25,11 +25,11 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 #import "FirebaseRemoteConfig/Sources/Protos/wireless/android/config/proto/Config.pbobjc.h"
 
 // Surface the internal FIRExperimentController initializer.
