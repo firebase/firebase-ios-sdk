@@ -22,9 +22,12 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
   id object;
+#if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
-  } else {
+  } else
+#endif  // __has_builtin(__builtin_available)
+  {
     @try {
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
       unarchiver.requiresSecureCoding = YES;
@@ -49,11 +52,14 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 
 + (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError {
   NSData *archiveData;
+#if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
                                         requiringSecureCoding:YES
                                                         error:outError];
-  } else {
+  } else
+#endif  // __has_builtin(__builtin_available)
+  {
     @try {
       NSMutableData *data = [NSMutableData data];
       NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
