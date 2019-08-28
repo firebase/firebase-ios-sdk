@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+#import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 

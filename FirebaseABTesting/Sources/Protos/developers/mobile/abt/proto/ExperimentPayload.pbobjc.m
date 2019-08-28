@@ -27,7 +27,7 @@
  #import "GPBProtocolBuffers_RuntimeSupport.h"
 #endif
 
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+ #import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
