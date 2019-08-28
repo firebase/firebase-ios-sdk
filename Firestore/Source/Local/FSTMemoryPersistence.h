@@ -20,6 +20,7 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 

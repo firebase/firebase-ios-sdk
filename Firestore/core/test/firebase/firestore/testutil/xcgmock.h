@@ -152,7 +152,6 @@ OBJC_PRINT_TO(FSTFirestoreComponent);
 OBJC_PRINT_TO(FSTLRUGarbageCollector);
 OBJC_PRINT_TO(FSTLevelDB);
 OBJC_PRINT_TO(FSTLevelDBLRUDelegate);
-OBJC_PRINT_TO(FSTLimboDocumentChange);
 OBJC_PRINT_TO(FSTListenerRegistration);
 OBJC_PRINT_TO(FSTLocalDocumentsView);
 OBJC_PRINT_TO(FSTLocalSerializer);
@@ -162,16 +161,11 @@ OBJC_PRINT_TO(FSTLocalWriteResult);
 OBJC_PRINT_TO(FSTMemoryEagerReferenceDelegate);
 OBJC_PRINT_TO(FSTMemoryLRUReferenceDelegate);
 OBJC_PRINT_TO(FSTMemoryPersistence);
-OBJC_PRINT_TO(FSTMutationBatch);
-OBJC_PRINT_TO(FSTMutationBatchResult);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
 OBJC_PRINT_TO(FSTSerializerBeta);
 OBJC_PRINT_TO(FSTServerTimestampFieldValue);
 OBJC_PRINT_TO(FSTStringValue);
 OBJC_PRINT_TO(FSTSyncEngine);
 OBJC_PRINT_TO(FSTUserDataConverter);
-OBJC_PRINT_TO(FSTView);
-OBJC_PRINT_TO(FSTViewChange);
-OBJC_PRINT_TO(FSTViewDocumentChanges);
 
 #endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_XCGMOCK_H_

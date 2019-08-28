@@ -39,7 +39,6 @@
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTMutationBatch;
 @class FSTPBMutationQueue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -64,31 +63,31 @@ class LevelDbMutationQueue : public MutationQueue {
 
   bool IsEmpty() override;
 
-  void AcknowledgeBatch(FSTMutationBatch* batch,
+  void AcknowledgeBatch(const model::MutationBatch& batch,
                         const nanopb::ByteString& stream_token) override;
 
-  FSTMutationBatch* AddMutationBatch(
+  model::MutationBatch AddMutationBatch(
       const Timestamp& local_write_time,
       std::vector<model::Mutation>&& base_mutations,
       std::vector<model::Mutation>&& mutations) override;
 
-  void RemoveMutationBatch(FSTMutationBatch* batch) override;
+  void RemoveMutationBatch(const model::MutationBatch& batch) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatches() override;
+  std::vector<model::MutationBatch> AllMutationBatches() override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKeys(
       const model::DocumentKeySet& document_keys) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKey(
       const model::DocumentKey& key) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingQuery(
       const core::Query& query) override;
 
-  FSTMutationBatch* _Nullable LookupMutationBatch(
+  absl::optional<model::MutationBatch> LookupMutationBatch(
       model::BatchId batch_id) override;
 
-  FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
+  absl::optional<model::MutationBatch> NextMutationBatchAfterBatchId(
       model::BatchId batch_id) override;
 
   model::BatchId GetHighestUnacknowledgedBatchId() override;
@@ -104,7 +103,7 @@ class LevelDbMutationQueue : public MutationQueue {
    * Constructs a vector of matching batches, sorted by batchID to ensure that
    * multiple mutations affecting the same document key are applied in order.
    */
-  std::vector<FSTMutationBatch*> AllMutationBatchesWithIds(
+  std::vector<model::MutationBatch> AllMutationBatchesWithIds(
       const std::set<model::BatchId>& batch_ids);
 
   std::string mutation_queue_key() {
@@ -118,7 +117,7 @@ class LevelDbMutationQueue : public MutationQueue {
   /** Parses the MutationQueue metadata from the given LevelDB row contents. */
   FSTPBMutationQueue* _Nullable MetadataForKey(const std::string& key);
 
-  FSTMutationBatch* ParseMutationBatch(absl::string_view encoded);
+  model::MutationBatch ParseMutationBatch(absl::string_view encoded);
 
   // This instance is owned by FSTLevelDB; avoid a retain cycle.
   __weak FSTLevelDB* db_;

@@ -49,7 +49,7 @@ void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
     for (const DocumentViewChange& change : snapshot.document_changes()) {
-      if (change.type() != DocumentViewChange::Type::kMetadata) {
+      if (change.type() != DocumentViewChange::Type::Metadata) {
         changes.push_back(change);
       }
     }

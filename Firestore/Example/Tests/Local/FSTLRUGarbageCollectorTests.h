@@ -18,6 +18,16 @@
 
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class LruParams;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
+
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN

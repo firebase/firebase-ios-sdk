@@ -420,6 +420,8 @@ jobs:
     - stage: test
       env:
         - PROJECT=Installations PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstallations.podspec --platforms=ios,tvos --ignore-local-podspecs=FirebaseInstanceID.podspec
         # TODO: Fix FBLPromises warnings for macOS.

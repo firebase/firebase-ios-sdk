@@ -20,14 +20,13 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTView.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -39,6 +38,8 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
+namespace core = firebase::firestore::core;
+
 using firebase::firestore::Error;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
@@ -46,6 +47,7 @@ using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::View;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKeySet;
@@ -116,14 +118,14 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
   auto otherListener = QueryListener::Create(query, Accumulating(&otherAccum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc2prime}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2prime}, absl::nullopt).value();
 
-  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change3{doc2prime, DocumentViewChange::Type::kModified};
-  DocumentViewChange change4{doc2prime, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
+  DocumentViewChange change3{doc2prime, DocumentViewChange::Type::Modified};
+  DocumentViewChange change4{doc2prime, DocumentViewChange::Type::Added};
 
   listener->OnViewSnapshot(snap1);
   listener->OnViewSnapshot(snap2);
@@ -164,9 +166,9 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {}, FSTTestTargetChangeMarkCurrent()).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {}, FSTTestTargetChangeMarkCurrent()).value();
 
   listener->OnViewSnapshot(snap1);
   XC_ASSERT_THAT(accum, IsEmpty());
@@ -190,9 +192,9 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
                            listener->Mute();
                          }));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(view, {doc1}, absl::nullopt).value();
-  ViewSnapshot viewSnapshot2 = FSTTestApplyChanges(view, {doc2}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot viewSnapshot2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
 
   listener->OnEvent(viewSnapshot1);
   listener->OnEvent(viewSnapshot2);
@@ -224,12 +226,12 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   auto fullListener =
       QueryListener::Create(query, _includeMetadataChanges, Accumulating(&fullAccum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
 
   TargetChange ackTarget = FSTTestTargetChangeAckDocuments({doc1.key()});
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {}, ackTarget).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(view, {doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {}, ackTarget).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
 
   filteredListener->OnViewSnapshot(snap1);  // local event
   filteredListener->OnViewSnapshot(snap2);  // no event
@@ -262,15 +264,15 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
   auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc1Prime}, absl::nullopt).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(view, {doc3}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime}, absl::nullopt).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc3}, absl::nullopt).value();
 
-  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change3{doc1Prime, DocumentViewChange::Type::kMetadata};
-  DocumentViewChange change4{doc3, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
+  DocumentViewChange change3{doc1Prime, DocumentViewChange::Type::Metadata};
+  DocumentViewChange change4{doc3, DocumentViewChange::Type::Added};
 
   filteredListener->OnViewSnapshot(snap1);
   filteredListener->OnViewSnapshot(snap2);
@@ -306,11 +308,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
       /*wait_for_sync_when_online=*/false);
   auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc1Prime}, absl::nullopt).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(view, {doc3}, absl::nullopt).value();
-  ViewSnapshot snap4 = FSTTestApplyChanges(view, {doc2Prime}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime}, absl::nullopt).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc3}, absl::nullopt).value();
+  ViewSnapshot snap4 = FSTTestApplyChanges(&view, {doc2Prime}, absl::nullopt).value();
 
   fullListener->OnViewSnapshot(snap1);
   fullListener->OnViewSnapshot(snap2);  // Emits no events.
@@ -343,11 +345,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc1Prime, doc3}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime, doc3}, absl::nullopt).value();
 
-  DocumentViewChange change3{doc3, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change3{doc3, DocumentViewChange::Type::Added};
 
   filteredListener->OnViewSnapshot(snap1);
   filteredListener->OnViewSnapshot(snap2);
@@ -376,11 +378,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
       /*wait_for_sync_when_online=*/true);
   auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc2}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
   ViewSnapshot snap3 =
-      FSTTestApplyChanges(view, {}, FSTTestTargetChangeAckDocuments({doc1.key(), doc2.key()}))
+      FSTTestApplyChanges(&view, {}, FSTTestTargetChangeAckDocuments({doc1.key(), doc2.key()}))
           .value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);  // no event
@@ -390,8 +392,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   listener->OnViewSnapshot(snap2);
   listener->OnViewSnapshot(snap3);
 
-  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
   ViewSnapshot expectedSnap{snap3.query(),
                             snap3.documents(),
                             /*old_documents=*/DocumentSet{snap3.query().Comparator()},
@@ -417,9 +419,9 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {doc1}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(view, {doc2}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);   // no event
   listener->OnViewSnapshot(snap1);                       // no event
@@ -428,8 +430,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   listener->OnOnlineStateChanged(OnlineState::Offline);  // no event
   listener->OnViewSnapshot(snap2);                       // another event
 
-  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
   ViewSnapshot expectedSnap1{query,
                              /*documents=*/snap1.documents(),
                              /*old_documents=*/DocumentSet{snap1.query().Comparator()},
@@ -456,8 +458,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   core::Query query = Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);   // no event
   listener->OnViewSnapshot(snap1);                       // no event
@@ -480,8 +482,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   core::Query query = Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  ViewSnapshot snap1 = FSTTestApplyChanges(view, {}, absl::nullopt).value();
+  View view(query, DocumentKeySet{});
+  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Offline);  // no event
   listener->OnViewSnapshot(snap1);                       // event

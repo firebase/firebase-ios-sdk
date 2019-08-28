@@ -36,6 +36,8 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -72,6 +74,7 @@ using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::ListenSequence;
+using firebase::firestore::local::LruGarbageCollector;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::OrphanedDocumentCallback;
 using firebase::firestore::local::QueryData;
@@ -123,7 +126,8 @@ static const char *kReservedPathComponent = "firestore";
 @end
 
 @implementation FSTLevelDBLRUDelegate {
-  FSTLRUGarbageCollector *_gc;
+  local::LruDelegateBridge _delegateBridge;
+  std::unique_ptr<LruGarbageCollector> _gc;
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTLevelDB *_db;
@@ -135,9 +139,10 @@ static const char *kReservedPathComponent = "firestore";
 
 - (instancetype)initWithPersistence:(FSTLevelDB *)persistence lruParams:(LruParams)lruParams {
   if (self = [super init]) {
-    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruParams];
+    _delegateBridge = local::LruDelegateBridge(self);
+    _gc = absl::make_unique<LruGarbageCollector>(&_delegateBridge, lruParams);
     _db = persistence;
-    _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+    _currentSequenceNumber = local::kListenSequenceNumberInvalid;
   }
   return self;
 }
@@ -148,17 +153,17 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)transactionWillStart {
-  HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
+  HARD_ASSERT(_currentSequenceNumber == local::kListenSequenceNumberInvalid,
               "Previous sequence number is still in effect");
   _currentSequenceNumber = _listenSequence->Next();
 }
 
 - (void)transactionWillCommit {
-  _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+  _currentSequenceNumber = local::kListenSequenceNumberInvalid;
 }
 
 - (ListenSequenceNumber)currentSequenceNumber {
-  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
+  HARD_ASSERT(_currentSequenceNumber != local::kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
 }
@@ -252,8 +257,8 @@ static const char *kReservedPathComponent = "firestore";
   return totalCount;
 }
 
-- (FSTLRUGarbageCollector *)gc {
-  return _gc;
+- (local::LruGarbageCollector *)gc {
+  return _gc.get();
 }
 
 - (void)writeSentinelForKey:(const DocumentKey &)key {

@@ -34,7 +34,6 @@
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
@@ -535,7 +534,7 @@ absl::any Wrap(GCFSDocument *doc) {
       proto.transform.fieldTransformsArray =
           [self encodedFieldTransforms:transform.field_transforms()];
       // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
-      // TransformMutations with an SetMutation or PatchMutation which (if successful) should
+      // TransformMutations with a SetMutation or PatchMutation which (if successful) should
       // end up with an existing document.
       proto.currentDocument.exists = YES;
       return proto;
