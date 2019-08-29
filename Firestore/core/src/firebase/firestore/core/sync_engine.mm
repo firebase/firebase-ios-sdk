@@ -29,6 +29,9 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+namespace firebase {
+namespace firestore {
+namespace core {
 using auth::User;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
@@ -46,12 +49,9 @@ using model::SnapshotVersion;
 using model::TargetId;
 using remote::RemoteEvent;
 using remote::TargetChange;
-// using util::AsyncQueue;
-// using util::StatusCallback;
-
-namespace firebase {
-namespace firestore {
-namespace core {
+using util::AsyncQueue;
+using util::Status;
+using util::StatusCallback;
 
 // Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
 // them don't need real sequence numbers.
@@ -136,7 +136,7 @@ void SyncEngine::RemoveAndCleanupQuery(
 }
 
 void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
-                                util::StatusCallback callback) {
+                                StatusCallback callback) {
   AssertCallbackExists("WriteMutations");
 
   LocalWriteResult result =
@@ -148,7 +148,7 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
   remote_store_->FillWritePipeline();
 }
 
-void SyncEngine::RegisterPendingWritesCallback(util::StatusCallback callback) {
+void SyncEngine::RegisterPendingWritesCallback(StatusCallback callback) {
   if (!remote_store_->CanUseNetwork()) {
     LOG_DEBUG("The network is disabled. The task returned by "
               "'waitForPendingWrites()' will not "
@@ -160,7 +160,7 @@ void SyncEngine::RegisterPendingWritesCallback(util::StatusCallback callback) {
   if (largest_pending_batch_id == kBatchIdUnknown) {
     // Trigger the callback right away if there is no pending writes at the
     // moment.
-    callback(util::Status::OK());
+    callback(Status::OK());
     return;
   }
 
@@ -168,11 +168,10 @@ void SyncEngine::RegisterPendingWritesCallback(util::StatusCallback callback) {
       std::move(callback));
 }
 
-void SyncEngine::Transaction(
-    int retries,
-    const std::shared_ptr<util::AsyncQueue>& worker_queue,
-    TransactionUpdateCallback update_callback,
-    TransactionResultCallback result_callback) {
+void SyncEngine::Transaction(int retries,
+                             const std::shared_ptr<AsyncQueue>& worker_queue,
+                             TransactionUpdateCallback update_callback,
+                             TransactionResultCallback result_callback) {
   worker_queue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
@@ -237,7 +236,7 @@ void SyncEngine::HandleRemoteEvent(const RemoteEvent& remote_event) {
   EmitNewSnapshotsAndNotifyLocalStore(changes, remote_event);
 }
 
-void SyncEngine::HandleRejectedListen(TargetId target_id, util::Status error) {
+void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
   AssertCallbackExists("HandleRejectedListen");
 
   const auto iter = limbo_resolutions_by_target_.find(target_id);
@@ -286,7 +285,7 @@ void SyncEngine::HandleSuccessfulWrite(
   // events immediately (depending on whether the watcher is caught up), so we
   // raise user callbacks first so that they consistently happen before listen
   // events.
-  NotifyUser(batch_result.batch().batch_id(), util::Status::OK());
+  NotifyUser(batch_result.batch().batch_id(), Status::OK());
 
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
 
@@ -296,7 +295,7 @@ void SyncEngine::HandleSuccessfulWrite(
 }
 
 void SyncEngine::HandleRejectedWrite(
-    firebase::firestore::model::BatchId batch_id, util::Status error) {
+    firebase::firestore::model::BatchId batch_id, Status error) {
   AssertCallbackExists("HandleRejectedWrite");
   MaybeDocumentMap changes = [local_store_ rejectBatchID:batch_id];
 
@@ -350,13 +349,13 @@ DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) {
   }
 }
 
-void SyncEngine::NotifyUser(BatchId batch_id, util::Status status) {
+void SyncEngine::NotifyUser(BatchId batch_id, Status status) {
   auto it = mutation_callbacks_.find(current_user_);
 
   // NOTE: Mutations restored from persistence won't have callbacks, so
   // it's okay for this (or the callback below) to not exist.
   if (it != mutation_callbacks_.end()) {
-    std::unordered_map<BatchId, util::StatusCallback>& callbacks = it->second;
+    std::unordered_map<BatchId, StatusCallback>& callbacks = it->second;
     auto callback_it = callbacks.find(batch_id);
     if (callback_it != callbacks.end()) {
       callback_it->second(status);
@@ -369,7 +368,7 @@ void SyncEngine::TriggerPendingWriteCallbacks(BatchId batch_id) {
   auto it = pending_writes_callbacks_.find(batch_id);
   if (it != pending_writes_callbacks_.end()) {
     for (const auto& callback : it->second) {
-      callback(util::Status::OK());
+      callback(Status::OK());
     }
 
     pending_writes_callbacks_.erase(it);
@@ -380,14 +379,14 @@ void SyncEngine::FailOutstandingPendingWriteCallbacks(
     absl::string_view message) {
   for (const auto& entry : pending_writes_callbacks_) {
     for (const auto& callback : entry.second) {
-      callback(util::Status(Error::Cancelled, message));
+      callback(Status(Error::Cancelled, message));
     }
   }
 
   pending_writes_callbacks_.clear();
 }
 
-bool SyncEngine::ErrorIsInteresting(util::Status error) {
+bool SyncEngine::ErrorIsInteresting(Status error) {
   bool missing_index =
       (error.code() == Error::FailedPrecondition &&
        error.error_message().find("requires an index") != std::string::npos);
