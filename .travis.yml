@@ -448,11 +448,7 @@ jobs:
 
   # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
     - env:
-      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
-    - env:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
-    - env:
-      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
