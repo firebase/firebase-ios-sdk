@@ -79,7 +79,8 @@ else
       ;;
 
     CoreDiagnostics-*)
-      check_changes '^(Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec)'
+      check_changes '^(Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
+'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     Database-*)
@@ -115,11 +116,6 @@ else
 
     Firestore-cmake)
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
-      ;;
-
-    FirebaseCoreDiagnostics-*)
-      check_changes '^(Firebase/CoreDiagnostics|FirebaseCoreDiagnosticsInterop|'\
-'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     GoogleDataTransport-*)
