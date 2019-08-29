@@ -153,7 +153,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 }
 
 /** Tests populating the proto correctly. */
-- (void)testProtoPopulation {
+// https://github.com/firebase/firebase-ios-sdk/issues/3711
+- (void)SKIPtestProtoPopulation {
   logs_proto_mobilesdk_ios_ICoreConfiguration icoreConfiguration =
       logs_proto_mobilesdk_ios_ICoreConfiguration_init_default;
   FIRPopulateProtoWithCommonInfoFromApp(&icoreConfiguration, @{

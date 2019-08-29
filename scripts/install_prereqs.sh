@@ -51,17 +51,10 @@ function install_secrets() {
   fi
 }
 
-function pod_gen() {
-  # Call pod gen with a podspec and additonal optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
-}
-
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=Functions/Example
-    bundle exec pod install --project-directory=GoogleUtilities/Example
     install_secrets
     ;;
 
@@ -79,9 +72,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Database-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseDatabase.podspec
     install_secrets
     ;;
 
@@ -90,16 +80,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ./Functions/Backend/start.sh synchronous
     ;;
 
-  Messaging-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseMessaging.podspec
-    ;;
-
   Storage-*)
-    # Install the workspace to have better control over test runs than
-    # pod lib lint, since the integration tests can be flaky.
-    pod_gen FirebaseStorage.podspec
     install_secrets
     ;;
 
@@ -146,25 +127,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
-  FirebaseCoreDiagnostics-*-xcodebuild)
-    gem install xcpretty
-    pod_gen FirebaseCoreDiagnostics.podspec
-    ;;
-
-  GoogleDataTransport-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransport.podspec
-    ;;
-
-  GoogleDataTransportIntegrationTest-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransport.podspec
-    ;;
-
-  GoogleDataTransportCCTSupport-*-xcodebuild)
-    gem install xcpretty
-    pod_gen GoogleDataTransportCCTSupport.podspec
-    ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
