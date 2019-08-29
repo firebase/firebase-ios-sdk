@@ -1,3 +1,6 @@
+# v4.0.4
+- [changed] Removed iOS 7 WebView code causing App Store complaints. (#3722)
+
 # v4.0.3
 - [added] Added support for custom domains for internal Google apps. (#3540)
 
