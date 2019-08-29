@@ -876,24 +876,27 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents", FromBytes(serializer.EncodeKey(Key(""))));
+  EXPECT_EQ("projects/p/databases/d/documents",
+            FromBytes(serializer.EncodeKey(Key(""))));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
             FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
-  EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, ToBytes("projects/p/databases/d/documents")));
+  EXPECT_EQ(Key(""), serializer.DecodeKey(
+                         &reader, ToBytes("projects/p/databases/d/documents")));
   EXPECT_EQ(
       Key("one/two/three/four"),
       serializer.DecodeKey(
-          &reader, ToBytes("projects/p/databases/d/documents/one/two/three/four")));
+          &reader,
+          ToBytes("projects/p/databases/d/documents/one/two/three/four")));
   // Same, but with a leading slash
   EXPECT_EQ(
       Key("one/two/three/four"),
       serializer.DecodeKey(
-          &reader, ToBytes("/projects/p/databases/d/documents/one/two/three/four")));
+          &reader,
+          ToBytes("/projects/p/databases/d/documents/one/two/three/four")));
   EXPECT_OK(reader.status());
 }
 

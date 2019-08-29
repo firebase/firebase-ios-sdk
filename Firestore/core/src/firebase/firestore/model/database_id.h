@@ -63,7 +63,7 @@ class DatabaseId : public util::Comparable<DatabaseId> {
 
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& out,
-                                 const DatabaseId& database_id);
+                                  const DatabaseId& database_id);
 
   size_t Hash() const;
 

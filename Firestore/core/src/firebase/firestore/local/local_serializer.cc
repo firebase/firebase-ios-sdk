@@ -161,9 +161,7 @@ NoDocument LocalSerializer::DecodeNoDocument(
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
   // we'll defer until the nanopb-master gets merged to master.
-  return NoDocument(rpc_serializer_.DecodeKey(
-                        reader, proto.name),
-                    version,
+  return NoDocument(rpc_serializer_.DecodeKey(reader, proto.name), version,
                     /*has_committed_mutations=*/false);
 }
 
@@ -182,8 +180,7 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
 
-  return UnknownDocument(rpc_serializer_.DecodeKey(
-                             reader, proto.name),
+  return UnknownDocument(rpc_serializer_.DecodeKey(reader, proto.name),
                          version);
 }
 
