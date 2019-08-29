@@ -33,7 +33,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Core PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Core METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
@@ -42,7 +42,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=CoreCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos --use-libraries
@@ -53,7 +53,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=CoreDiagnostics PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=CoreDiagnostics METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos
@@ -62,7 +62,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=CoreDiagnosticsCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=CoreDiagnosticsCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=tvos --use-libraries
@@ -73,7 +73,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=ABTesting PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=ABTesting METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
@@ -84,7 +84,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=ABTestingCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=ABTestingCron METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
@@ -98,7 +98,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Auth METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -110,7 +110,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=AuthCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=AuthCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos --use-libraries
@@ -121,7 +121,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InstanceID PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=InstanceID METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos
@@ -130,7 +130,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=InstanceIDCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=InstanceIDCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=tvos --use-libraries
@@ -141,7 +141,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Database PLATFORM=all METHOD=xcodebuild
+        - PROJECT=Database METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -154,7 +154,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=DatabaseCron PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=DatabaseCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --use-libraries --skip-tests --platforms=tvos
@@ -165,7 +165,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=DynamicLinks PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=DynamicLinks METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --use-libraries
@@ -173,7 +173,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Messaging PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=Messaging METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
@@ -184,7 +184,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=MessagingCron PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=MessagingCron METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
@@ -200,7 +200,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=RemoteConfig PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
@@ -211,7 +211,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=RemoteConfigCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings
@@ -222,7 +222,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
+        - PROJECT=Storage METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -235,7 +235,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=Storage PLATFORM=all METHOD=pod-lib-lint
+        - PROJECT=Storage METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=tvos
@@ -246,7 +246,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Functions METHOD=pod-lib-lint
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
@@ -275,14 +275,14 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=GoogleUtilities PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleUtilities METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
       if: type = cron
       env:
-        - PROJECT=GoogleUtilitiesCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
 
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
@@ -290,7 +290,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firebase METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec
@@ -299,7 +299,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firestore METHOD=pod-lib-lint
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
@@ -309,7 +309,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=FirebasePllCron1 PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=FirebasePllCron1 METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-modular-headers
@@ -323,7 +323,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=Firestore METHOD=pod-lib-lint
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
@@ -331,7 +331,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=GoogleDataTransport PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos
@@ -340,7 +340,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=GoogleDataTransportCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
@@ -351,7 +351,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=GoogleDataTransportCCTSupport PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
       script:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
@@ -360,7 +360,7 @@ jobs:
     - stage: test
       if: type = cron
       env:
-        - PROJECT=GoogleDataTransportCCTSupportCron PLATFORM=iOS METHOD=pod-lib-lint
+        - PROJECT=GoogleDataTransportCCTSupportCron METHOD=pod-lib-lint
       script:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries

@@ -50,8 +50,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=Functions/Example
-    bundle exec pod install --project-directory=GoogleUtilities/Example
     install_secrets
     ;;
 
