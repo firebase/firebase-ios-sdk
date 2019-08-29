@@ -212,7 +212,8 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   if (limit != Query::kNoLimit &&
       new_document_set.size() > static_cast<size_t>(limit)) {
     for (size_t i = new_document_set.size() - limit; i > 0; --i) {
-      const Document& old_doc = *new_document_set.GetLastDocument();
+      absl::optional<Document> found = new_document_set.GetLastDocument();
+      const Document& old_doc = *found;
       new_document_set = new_document_set.erase(old_doc.key());
       new_mutated_keys = new_mutated_keys.erase(old_doc.key());
       change_set.AddChange(
