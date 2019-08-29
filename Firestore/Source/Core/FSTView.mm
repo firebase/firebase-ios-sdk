@@ -360,6 +360,8 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   int32_t limit = _query.limit();
   if (limit != Query::kNoLimit && newDocumentSet.size() > limit) {
     for (size_t i = newDocumentSet.size() - limit; i > 0; --i) {
+      // absl::optional<Document> found = newDocumentSet.GetLastDocument();
+      // const Document &oldDoc = *found;
       const Document &oldDoc = *newDocumentSet.GetLastDocument();
       newDocumentSet = newDocumentSet.erase(oldDoc.key());
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key());
