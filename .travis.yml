@@ -141,7 +141,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Database PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -222,7 +222,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Storage PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
