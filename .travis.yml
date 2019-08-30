@@ -116,8 +116,9 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios --use-modular-headers
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=tvos --use-modular-headers
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=macos --use-modular-headers
+        # The tvOS and macOS --use-modular-headers tests do not work on travis, perhaps because of interactive
+        # keystore validation requirements? See  https://travis-ci.org/firebase/firebase-ios-sdk/jobs/578656148
+        # TODO(paulb777): Retry on next Xcode version update
 
     - stage: test
       env:
