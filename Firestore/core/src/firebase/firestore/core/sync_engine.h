@@ -244,7 +244,7 @@ class SyncEngine {
   auth::User current_user_;
   SyncEngineCallback* sync_engine_callback_;
 
-  /** 
+  /**
    * Used for creating the TargetId for the listens used to resolve limbo
    * documents.
    */
