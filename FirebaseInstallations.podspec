@@ -49,6 +49,10 @@ Pod::Spec.new do |s|
     s.test_spec 'integration' do |int_tests|
       int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
       int_tests.resources = base_dir + 'Tests/Resources/**/*'
+      s.pod_target_xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' =>
+        'FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=1'
+    }
       int_tests.requires_app_host = true
       int_tests.dependency 'OCMock'
     end

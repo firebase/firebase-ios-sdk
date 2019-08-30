@@ -136,8 +136,7 @@ NS_SWIFT_NAME(InAppMessagingAction)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithActionText:(nullable NSString *)actionText
-                         actionURL:(NSURL *)actionURL __deprecated;
+- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
 
 @end
 

@@ -1,4 +1,6 @@
 # Unreleased
+
+# v1.5.0
 - [changed] Transactions now perform exponential backoff before retrying.
   This means transactions on highly contended documents are more likely to
   succeed.

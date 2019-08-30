@@ -49,6 +49,7 @@
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (NSString *)constructServerURL;
+- (NSURLSession *)currentNetworkSession;
 @end
 
 @interface FIRRemoteConfig (ForTest)
@@ -1138,6 +1139,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
     settings.fetchTimeout = 1;
     [_configInstances[i] setConfigSettings:settings];
     XCTAssertEqual([_configInstances[i] configSettings].fetchTimeout, 1);
+    NSURLSession *networkSession = [_configFetch[i] currentNetworkSession];
+    XCTAssertNotNil(networkSession);
+    XCTAssertEqual(networkSession.configuration.timeoutIntervalForResource, 1);
+    XCTAssertEqual(networkSession.configuration.timeoutIntervalForRequest, 1);
   }
 }
 

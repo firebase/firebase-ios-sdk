@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/square/cocoapods-generate.git
+  revision: ada3b8f1b76248ed4b3ac9cd3a4d8b0e281f2b7a
+  ref: ada3b8f
+  specs:
+    cocoapods-generate (1.5.0)
+      cocoapods-disable-podfile-validations (~> 0.1.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -35,8 +43,6 @@ GEM
     cocoapods-deintegrate (1.0.4)
     cocoapods-disable-podfile-validations (0.1.1)
     cocoapods-downloader (1.2.2)
-    cocoapods-generate (1.5.0)
-      cocoapods-disable-podfile-validations (~> 0.1.1)
     cocoapods-plugins (1.0.0)
       nap
     cocoapods-search (1.0.0)
@@ -74,7 +80,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (= 1.7.5)
-  cocoapods-generate (= 1.5.0)
+  cocoapods-generate!
 
 BUNDLED WITH
    1.17.3
