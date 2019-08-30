@@ -226,8 +226,10 @@ class SyncEngine {
 
   void NotifyUser(model::BatchId batch_id, util::Status status);
 
-  /** Triggers callbacks waiting for this batch id to get acknowledged by
-   * server, if there are any. */
+  /**
+   * Triggers callbacks waiting for this batch id to get acknowledged by
+   * server, if there are any.
+   */
   void TriggerPendingWriteCallbacks(model::BatchId batch_id);
   void FailOutstandingPendingWriteCallbacks(absl::string_view message);
 
@@ -242,8 +244,10 @@ class SyncEngine {
   auth::User current_user_;
   SyncEngineCallback* sync_engine_callback_;
 
-  /** Used for creating the TargetId for the listens used to resolve limbo
-   * documents. */
+  /** 
+   * Used for creating the TargetId for the listens used to resolve limbo
+   * documents.
+   */
   TargetIdGenerator target_id_generator_;
 
   /** Stores user completion blocks, indexed by user and BatchId. */

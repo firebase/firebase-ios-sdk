@@ -111,7 +111,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
 
 void SyncEngine::StopListening(const Query& query) {
   AssertCallbackExists("StopListening");
-  const std::shared_ptr<QueryView>& query_view = query_views_by_query_[query];
+  auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
   [local_store_ releaseQuery:query];
@@ -321,7 +321,7 @@ void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
 
   std::vector<ViewSnapshot> new_view_snapshot;
   for (const auto& entry : query_views_by_query_) {
-    auto& query_view = entry.second;
+    auto query_view = entry.second;
     ViewChange view_change =
         query_view->view()->ApplyOnlineStateChange(online_state);
     HARD_ASSERT(view_change.limbo_changes().empty(),
@@ -401,7 +401,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
   std::vector<LocalViewChanges> document_changes_in_all_views;
 
   for (const auto& entry : query_views_by_query_) {
-    auto& query_view = entry.second;
+    auto query_view = entry.second;
     const View& view = *query_view->view();
     ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(changes);
     if (view_doc_changes.needs_refill()) {
