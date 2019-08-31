@@ -1148,7 +1148,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
 #pragma mark - Public Factory Methods
 
-- (void)testConfigureConfigWithValidInput {
+- (void)SKIPtestConfigureConfigWithValidInput {
   // Configure the default app with our options and ensure the Remote Config instance is set up
   // properly.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self firstAppOptions]]);
