@@ -16,6 +16,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -24,6 +25,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -31,12 +33,14 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
 
+
     - stage: test
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -45,26 +49,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-    - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
-      script:
-        # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
-        # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
-
-    - stage: test
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -77,6 +62,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -85,6 +71,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -97,6 +84,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -105,6 +93,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -117,6 +106,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -125,6 +115,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -137,6 +128,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -145,6 +137,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -157,6 +150,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -165,6 +159,7 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
@@ -177,6 +172,7 @@ jobs:
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
@@ -185,93 +181,13 @@ jobs:
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
+        - ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-    - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
-      script:
-        # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
-        # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
-
-    - stage: test
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-    - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
-      script:
-        # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
-        # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
-
-    - stage: test
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-    - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
-      script:
-        # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
-        # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
-
-    - stage: test
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-    - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint
-      script:
-        # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
-        # https://github.com/protocolbuffers/protobuf/pull/6464
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos --allow-warnings --verbose
-
-    - stage: test
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --allow-warnings --platforms=macos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos --allow-warnings --verbose
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos --allow-warnings --verbose
-
 
 branches:
   only:
