@@ -34,6 +34,9 @@ jobs:
     - stage: test
       env:
         - PROJECT=Core METHOD=pod-lib-lint
+      before_install:
+        - npm install ios-sim -g
+        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-5, 10.3"
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=tvos
@@ -202,6 +205,8 @@ jobs:
     - stage: test
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
+      before_install:
+        -  open -a "simulator" --args -CurrentDeviceUDID 71EBD4FB-4250-4353-8945-BFB42282171B
       script:
         # --allow-warnings is needed until Protobuf 3.10.0 releases with fix included with
         # https://github.com/protocolbuffers/protobuf/pull/6464
