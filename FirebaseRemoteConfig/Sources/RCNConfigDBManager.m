@@ -286,7 +286,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     if (!strongSelf) {
       return;
     }
-    RCN_MUST_NOT_BE_MAIN_THREAD();
+ //   RCN_MUST_NOT_BE_MAIN_THREAD();
     if (sqlite3_close(strongSelf->_database) != SQLITE_OK) {
       [self logDatabaseError];
     }

@@ -225,7 +225,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
 - (void)tearDown {
   // Causes crash if main thread exits before the RCNConfigDB queue cleans up
-  //  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [super tearDown];
 }
@@ -1148,7 +1148,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
 #pragma mark - Public Factory Methods
 
-- (void)SKIPtestConfigureConfigWithValidInput {
+- (void)testConfigureConfigWithValidInput {
   // Configure the default app with our options and ensure the Remote Config instance is set up
   // properly.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self firstAppOptions]]);
