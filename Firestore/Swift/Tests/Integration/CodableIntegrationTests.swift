@@ -67,7 +67,8 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
         return nil
       }) { object, error in
         completion?(error)
-    } }
+      }
+    }
 
     awaitExpectations()
   }
@@ -147,7 +148,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     struct Model: Encodable {
       var name: String
       var explicitNull: ExplicitNull<String>
-      var optional: Optional<String>
+      var optional: String?
     }
     let model = Model(
       name: "name",
