@@ -198,4 +198,23 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                                              age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
     }
   }
+
+  func testAddDocument() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+    }
+
+    let collection = collectionRef()
+    let model = Model(name: "test")
+
+    let added = expectation(description: "Add document")
+    let docRef = try collection.addDocument(from: model) { error in
+      XCTAssertNil(error)
+      added.fulfill()
+    }
+    awaitExpectations()
+
+    let result = try readDocument(forRef: docRef).data(as: Model.self)
+    XCTAssertEqual(model, result)
+  }
 }
