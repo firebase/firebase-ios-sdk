@@ -31,7 +31,6 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -48,6 +47,42 @@ namespace firestore {
 namespace core {
 
 /**
+ * Interface implemented by `EventManager` to handle notifications from
+ * `SyncEngine`.
+ */
+class QueryEventCallback {
+ public:
+  /** Handles a change in online state. */
+  virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
+  /** Handles new view snapshots. */
+  virtual void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) = 0;
+  /** Handles the failure of a query. */
+  virtual void OnError(const core::Query& query, util::Status error) = 0;
+};
+
+/**
+ * Interface implemented by `SyncEngine` receive requests from `EventManager`.
+ */
+class QueryEventSource {
+ public:
+  virtual void SetCallback(QueryEventCallback* callback) = 0;
+  /**
+   * Initiates a new listen. The FSTLocalStore will be queried for initial data
+   * and the listen will be sent to the `RemoteStore` to get remote data. The
+   * registered SyncEngineCallback will be notified of resulting view
+   * snapshots and/or listen errors.
+   *
+   * @return the target ID assigned to the query.
+   */
+  virtual model::TargetId Listen(Query query) = 0;
+
+  /** Stops listening to a query previously listened to via `Listen`. */
+  virtual void StopListening(const Query& query) = 0;
+
+  virtual ~QueryEventSource() = default;
+};
+
+/**
  * SyncEngine is the central controller in the client SDK architecture. It is
  * the glue code between the EventManager, LocalStore, and RemoteStore. Some of
  * SyncEngine's responsibilities include:
@@ -61,28 +96,18 @@ namespace core {
  * The SyncEngine’s methods should only ever be called by methods running on our
  * own worker queue.
  */
-class SyncEngine {
+class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
  public:
   SyncEngine(FSTLocalStore* local_store,
              remote::RemoteStore* remote_store,
              const auth::User& initial_user);
 
-  void SetCallback(SyncEngineCallback* callback) {
-    sync_engine_callback_ = callback;
+  // Implements `QueryEventSource`.
+  void SetCallback(QueryEventCallback* callback) override {
+    query_event_callback_ = callback;
   }
-
-  /**
-   * Initiates a new listen. The LocalStore will be queried for initial data
-   * and the listen will be sent to the `RemoteStore` to get remote data. The
-   * registered SyncEngineCallback will be notified of resulting view
-   * snapshots and/or listen errors.
-   *
-   * @return the target ID assigned to the query.
-   */
-  model::TargetId Listen(Query query);
-
-  /** Stops listening to a query previously listened to via `Listen`. */
-  void StopListening(const Query& query);
+  model::TargetId Listen(Query query) override;
+  void StopListening(const Query& query) override;
 
   /**
    * Initiates the write of local mutation batch which involves adding the
@@ -119,13 +144,15 @@ class SyncEngine {
   void HandleCredentialChange(const auth::User& user);
 
   // Implements `RemoteStoreCallback`
-  void ApplyRemoteEvent(const remote::RemoteEvent& remote_event);
-  void HandleRejectedListen(model::TargetId target_id, util::Status error);
-  void HandleSuccessfulWrite(const model::MutationBatchResult& batch_result);
-  void HandleRejectedWrite(firebase::firestore::model::BatchId batchID,
-                           util::Status error);
-  void HandleOnlineStateChange(model::OnlineState online_state);
-  model::DocumentKeySet GetRemoteKeys(model::TargetId targetId) const;
+  void ApplyRemoteEvent(const remote::RemoteEvent& remote_event) override;
+  void HandleRejectedListen(model::TargetId target_id,
+                            util::Status error) override;
+  void HandleSuccessfulWrite(
+      const model::MutationBatchResult& batch_result) override;
+  void HandleRejectedWrite(model::BatchId batch_id,
+                           util::Status error) override;
+  void HandleOnlineStateChange(model::OnlineState online_state) override;
+  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) override;
 
   // For tests only
   std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments()
@@ -244,7 +271,7 @@ class SyncEngine {
   remote::RemoteStore* remote_store_ = nullptr;
 
   auth::User current_user_;
-  SyncEngineCallback* sync_engine_callback_ = nullptr;
+  QueryEventCallback* query_event_callback_;
 
   /**
    * Used for creating the TargetId for the listens used to resolve limbo

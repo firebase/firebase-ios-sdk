@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #import <Foundation/Foundation.h>
 
 #include <memory>
@@ -39,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -48,10 +45,6 @@
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FSTSyncEngine);
 
 namespace firebase {
 namespace firestore {
@@ -190,7 +183,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   id<FSTPersistence> persistence_;
   FSTLocalStore* local_store_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
-  FSTSyncEngine* sync_engine_;
+  std::unique_ptr<SyncEngine> sync_engine_;
   util::DelayedConstructor<EventManager> event_manager_;
 
   std::chrono::milliseconds initial_gc_delay_ = std::chrono::minutes(1);
@@ -203,7 +196,5 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_

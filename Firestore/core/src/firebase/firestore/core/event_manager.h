@@ -23,7 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/sync_engine_callback.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
@@ -31,10 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/algorithm/container.h"
 #include "absl/types/optional.h"
-
-OBJC_CLASS(FSTSyncEngine);
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -45,9 +41,9 @@ namespace core {
  * It handles "fan-out". (Identical queries will re-use the same watch on the
  * backend.)
  */
-class EventManager : public SyncEngineCallback {
+class EventManager : public QueryEventCallback {
  public:
-  explicit EventManager(FSTSyncEngine* sync_engine);
+  explicit EventManager(QueryEventSource* query_event_source_);
 
   /**
    * Adds a query listener that will be called with new snapshots for the query.
@@ -101,7 +97,7 @@ class EventManager : public SyncEngineCallback {
     absl::optional<ViewSnapshot> snapshot_;
   };
 
-  objc::Handle<FSTSyncEngine> sync_engine_;
+  QueryEventSource* query_event_source_;
   model::OnlineState online_state_ = model::OnlineState::Unknown;
   std::unordered_map<core::Query, QueryListenersInfo> queries_;
 };
@@ -109,7 +105,5 @@ class EventManager : public SyncEngineCallback {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_EVENT_MANAGER_H_

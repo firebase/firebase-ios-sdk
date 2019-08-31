@@ -99,7 +99,7 @@ TargetId SyncEngine::Listen(Query query) {
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
-  sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
+  query_event_callback_->OnViewSnapshots(std::move(snapshots));
 
   // TODO(wuandy): move `query_data` into `Listen`.
   remote_store_->Listen(query_data);
@@ -301,7 +301,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
       LOG_WARN("Listen for query at %s failed: %s",
                query.path().CanonicalString(), error.error_message());
     }
-    sync_engine_callback_->OnError(query, std::move(error));
+    query_event_callback_->OnError(query, std::move(error));
   }
 }
 
@@ -360,8 +360,8 @@ void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
     }
   }
 
-  sync_engine_callback_->OnViewSnapshots(std::move(new_view_snapshot));
-  sync_engine_callback_->HandleOnlineStateChange(online_state);
+  query_event_callback_->OnViewSnapshots(std::move(new_view_snapshot));
+  query_event_callback_->HandleOnlineStateChange(online_state);
 }
 
 DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
@@ -458,7 +458,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     }
   }
 
-  sync_engine_callback_->OnViewSnapshots(std::move(new_snapshots));
+  query_event_callback_->OnViewSnapshots(std::move(new_snapshots));
   [local_store_ notifyLocalViewChanges:document_changes_in_all_views];
 }
 

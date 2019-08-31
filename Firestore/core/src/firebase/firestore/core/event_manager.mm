@@ -18,15 +18,13 @@
 
 #include <utility>
 
-#import "Firestore/Source/Core/FSTSyncEngine.h"
-
 namespace firebase {
 namespace firestore {
 namespace core {
 
-EventManager::EventManager(FSTSyncEngine* sync_engine)
-    : sync_engine_(sync_engine) {
-  [sync_engine_ setCallback:this];
+EventManager::EventManager(QueryEventSource* query_event_source)
+    : query_event_source_(query_event_source) {
+  query_event_source->SetCallback(this);
 }
 
 model::TargetId EventManager::AddQueryListener(
@@ -46,7 +44,7 @@ model::TargetId EventManager::AddQueryListener(
   }
 
   if (first_listen) {
-    query_info.target_id = [sync_engine_ listenToQuery:query];
+    query_info.target_id = query_event_source_->Listen(query);
   }
   return query_info.target_id;
 }
@@ -65,7 +63,7 @@ void EventManager::RemoveQueryListener(
 
   if (last_listen) {
     queries_.erase(found_iter);
-    [sync_engine_ stopListeningToQuery:query];
+    query_event_source_->StopListening(query);
   }
 }
 
@@ -103,8 +101,8 @@ void EventManager::OnError(const core::Query& query, util::Status error) {
       listener->OnError(std::move(error));
     }
 
-    // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine
-    // stopListening] after an error.
+    // Remove all listeners. NOTE: We don't need to call query_event_source_->
+    // StopListening after an error.
     queries_.erase(found_iter);
   }
 }

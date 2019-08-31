@@ -65,6 +65,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
+using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
@@ -75,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteStoreEventCapture
 
-@interface FSTRemoteStoreEventCapture : NSObject <FSTRemoteSyncer>
+@interface FSTRemoteStoreEventCapture : NSObject
 
 - (instancetype)init __attribute__((unavailable("Use initWithTestCase:")));
 
@@ -153,6 +154,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+class RemoteStoreEventCapture : public RemoteStoreCallback {
+ public:
+  explicit RemoteStoreEventCapture(XCTestCase *test_case) {
+    underlying_capture_ = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case];
+  }
+
+  void ExpectWriteEvent(NSString *description) {
+    [underlying_capture_ expectWriteEventWithDescription:description];
+  }
+
+  void ExpectListenEvent(NSString *description) {
+    [underlying_capture_ expectListenEventWithDescription:description];
+  }
+
+  void HandleRemoteEvent(const remote::RemoteEvent &remote_event) override {
+    [underlying_capture_ applyRemoteEvent:remote_event];
+  }
+
+  void HandleRejectedListen(model::TargetId target_id, util::Status error) override {
+    [underlying_capture_ rejectListenWithTargetID:target_id error:error.ToNSError()];
+  }
+
+  void HandleSuccessfulWrite(const model::MutationBatchResult &batch_result) override {
+    [underlying_capture_ applySuccessfulWriteWithResult:batch_result];
+  }
+
+  void HandleRejectedWrite(model::BatchId batch_id, util::Status error) override {
+    [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
+  }
+
+  void HandleOnlineStateChange(model::OnlineState online_state) override {
+    HARD_FAIL("Not implemented");
+  }
+
+  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) override {
+    return [underlying_capture_ remoteKeysForTarget:target_id];
+  }
+
+ private:
+  FSTRemoteStoreEventCapture *underlying_capture_;
+};
+
 #pragma mark - FSTDatastoreTests
 
 @interface FSTDatastoreTests : XCTestCase
@@ -217,10 +260,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testStreamingWrite {
-  FSTRemoteStoreEventCapture *capture = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:self];
-  [capture expectWriteEventWithDescription:@"write mutations"];
+  RemoteStoreEventCapture capture = RemoteStoreEventCapture(self);
+  capture.ExpectWriteEvent(@"write mutations");
 
-  _remoteStore->set_sync_engine(capture);
+  _remoteStore->set_sync_engine(&capture);
 
   auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
   MutationBatch batch = MutationBatch(23, Timestamp::Now(), {}, {mutation});
