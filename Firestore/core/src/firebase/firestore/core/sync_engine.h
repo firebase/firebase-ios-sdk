@@ -152,7 +152,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void HandleRejectedWrite(model::BatchId batch_id,
                            util::Status error) override;
   void HandleOnlineStateChange(model::OnlineState online_state) override;
-  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) override;
+  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) const override;
 
   // For tests only
   std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments()

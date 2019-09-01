@@ -327,7 +327,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
   // Finally handle remote event
   if (sync_engine_) {
-    sync_engine_->HandleRemoteEvent(remote_event);
+    sync_engine_->ApplyRemoteEvent(remote_event);
   }
 }
 

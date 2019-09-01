@@ -84,7 +84,7 @@ SyncEngine::SyncEngine(FSTLocalStore* local_store,
 }
 
 void SyncEngine::AssertCallbackExists(absl::string_view source) {
-  HARD_ASSERT(sync_engine_callback_,
+  HARD_ASSERT(query_event_callback_,
               "Tried to call '%s' before callback was registered.", source);
 }
 

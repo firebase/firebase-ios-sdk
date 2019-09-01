@@ -168,7 +168,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     [underlying_capture_ expectListenEventWithDescription:description];
   }
 
-  void HandleRemoteEvent(const remote::RemoteEvent &remote_event) override {
+  void ApplyRemoteEvent(const remote::RemoteEvent &remote_event) override {
     [underlying_capture_ applyRemoteEvent:remote_event];
   }
 
@@ -188,7 +188,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     HARD_FAIL("Not implemented");
   }
 
-  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) override {
+  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) const override {
     return [underlying_capture_ remoteKeysForTarget:target_id];
   }
 

@@ -51,11 +51,11 @@ namespace remote {
 class RemoteStoreCallback {
  public:
   /**
-   * Handles a remote event to the sync engine, notifying any views of the
+   * Applies a remote event to the sync engine, notifying any views of the
    * changes, and releasing any pending mutation batches that would become
    * visible because of the snapshot version the remote event contains.
    */
-  virtual void HandleRemoteEvent(const RemoteEvent& remote_event) = 0;
+  virtual void ApplyRemoteEvent(const RemoteEvent& remote_event) = 0;
   /**
    * Handles rejection of listen for the given targetId. This can be triggered
    * by the backend for any active target.
@@ -94,7 +94,8 @@ class RemoteStoreCallback {
    * includes the documents that were assigned to the target when we received
    * the last snapshot.
    */
-  virtual model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) = 0;
+  virtual model::DocumentKeySet GetRemoteKeys(
+      model::TargetId target_id) const = 0;
 };
 
 class RemoteStore : public TargetMetadataProvider,
