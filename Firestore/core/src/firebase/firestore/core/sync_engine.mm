@@ -29,9 +29,29 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+namespace {
+
+using firebase::firestore::Error;
+using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::util::Status;
+
+// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
+// them don't need real sequence numbers.
+const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
+
+bool ErrorIsInteresting(const Status& error) {
+  bool missing_index =
+      (error.code() == Error::FailedPrecondition &&
+       error.error_message().find("requires an index") != std::string::npos);
+  bool no_permission = (error.code() == Error::PermissionDenied);
+  return missing_index || no_permission;
+}
+
+}  // namespace
 namespace firebase {
 namespace firestore {
 namespace core {
+
 using auth::User;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
@@ -53,20 +73,16 @@ using util::AsyncQueue;
 using util::Status;
 using util::StatusCallback;
 
-// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
-// them don't need real sequence numbers.
-static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
-
 SyncEngine::SyncEngine(FSTLocalStore* local_store,
                        remote::RemoteStore* remote_store,
-                       const auth::User initial_user)
+                       const auth::User& initial_user)
     : local_store_(local_store),
       remote_store_(remote_store),
       current_user_(initial_user),
       target_id_generator_(TargetIdGenerator::SyncEngineTargetIdGenerator()) {
 }
 
-void SyncEngine::AssertCallbackExists(std::string source) {
+void SyncEngine::AssertCallbackExists(absl::string_view source) {
   HARD_ASSERT(sync_engine_callback_,
               "Tried to call '%s' before callback was registered.", source);
 }
@@ -76,12 +92,16 @@ TargetId SyncEngine::Listen(Query query) {
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  QueryData queryData = [local_store_ allocateQuery:query];
-  ViewSnapshot viewSnapshot = InitializeViewAndComputeSnapshot(queryData);
-  sync_engine_callback_->OnViewSnapshots({viewSnapshot});
+  QueryData query_data = [local_store_ allocateQuery:query];
+  ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(query_data);
+  std::vector<ViewSnapshot> snapshots;
+  // Not using the `std::initializer_list` constructor to avoid extra copies.
+  snapshots.push_back(std::move(view_snapshot));
+  sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
-  remote_store_->Listen(queryData);
-  return queryData.target_id();
+  // TODO(wuandy): move `query_data` into `Listen`.
+  remote_store_->Listen(query_data);
+  return query_data.target_id();
 }
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
@@ -99,7 +119,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
 
   auto query_view =
       std::make_shared<QueryView>(query_data.query(), query_data.target_id(),
-                                  query_data.resume_token(), view);
+                                  query_data.resume_token(), std::move(view));
   query_views_by_query_[query_data.query()] = query_view;
   query_views_by_target_[query_data.target_id()] = query_view;
 
@@ -142,7 +162,7 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
   LocalWriteResult result =
       [local_store_ locallyWriteMutations:std::move(mutations)];
   mutation_callbacks_[current_user_].insert(
-      std::make_pair(result.batch_id(), callback));
+      std::make_pair(result.batch_id(), std::move(callback)));
 
   EmitNewSnapshotsAndNotifyLocalStore(result.changes(), absl::nullopt);
   remote_store_->FillWritePipeline();
@@ -176,8 +196,9 @@ void SyncEngine::Transaction(int retries,
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
   // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
-  auto runner = std::make_shared<TransactionRunner>(
-      worker_queue, remote_store_, update_callback, result_callback);
+  auto runner = std::make_shared<TransactionRunner>(worker_queue, remote_store_,
+                                                    std::move(update_callback),
+                                                    std::move(result_callback));
   runner->Run();
 }
 
@@ -199,36 +220,37 @@ void SyncEngine::HandleCredentialChange(const auth::User& user) {
   remote_store_->HandleCredentialChange();
 }
 
-void SyncEngine::HandleRemoteEvent(const RemoteEvent& remote_event) {
+void SyncEngine::ApplyRemoteEvent(const RemoteEvent& remote_event) {
   AssertCallbackExists("HandleRemoteEvent");
 
   // Update received document as appropriate for any limbo targets.
   for (const auto& entry : remote_event.target_changes()) {
     TargetId target_id = entry.first;
     const TargetChange& change = entry.second;
-    const auto iter = limbo_resolutions_by_target_.find(target_id);
-    if (iter != limbo_resolutions_by_target_.end()) {
-      LimboResolution& limbo_resolution = iter->second;
-      // Since this is a limbo resolution lookup, it's for a single document and
-      // it could be added, modified, or removed, but not a combination.
-      HARD_ASSERT(
-          change.added_documents().size() + change.modified_documents().size() +
-                  change.removed_documents().size() <=
-              1,
-          "Limbo resolution for single document contains multiple changes.");
+    auto it = limbo_resolutions_by_target_.find(target_id);
+    if (it == limbo_resolutions_by_target_.end()) {
+      continue;
+    }
+    LimboResolution& limbo_resolution = it->second;
+    // Since this is a limbo resolution lookup, it's for a single document and
+    // it could be added, modified, or removed, but not a combination.
+    HARD_ASSERT(
+        change.added_documents().size() + change.modified_documents().size() +
+                change.removed_documents().size() <=
+            1,
+        "Limbo resolution for single document contains multiple changes.");
 
-      if (change.added_documents().size() > 0) {
-        limbo_resolution.document_received = true;
-      } else if (change.modified_documents().size() > 0) {
-        HARD_ASSERT(limbo_resolution.document_received,
-                    "Received change for limbo target document without add.");
-      } else if (change.removed_documents().size() > 0) {
-        HARD_ASSERT(limbo_resolution.document_received,
-                    "Received remove for limbo target document without add.");
-        limbo_resolution.document_received = false;
-      } else {
-        // This was probably just a CURRENT target change or similar.
-      }
+    if (!change.added_documents().empty()) {
+      limbo_resolution.document_received = true;
+    } else if (!change.modified_documents().empty()) {
+      HARD_ASSERT(limbo_resolution.document_received,
+                  "Received change for limbo target document without add.");
+    } else if (!change.removed_documents().empty()) {
+      HARD_ASSERT(limbo_resolution.document_received,
+                  "Received remove for limbo target document without add.");
+      limbo_resolution.document_received = false;
+    } else {
+      // This was probably just a CURRENT target change or similar.
     }
   }
 
@@ -239,9 +261,9 @@ void SyncEngine::HandleRemoteEvent(const RemoteEvent& remote_event) {
 void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
   AssertCallbackExists("HandleRejectedListen");
 
-  const auto iter = limbo_resolutions_by_target_.find(target_id);
-  if (iter != limbo_resolutions_by_target_.end()) {
-    const DocumentKey limbo_key = iter->second.key;
+  auto it = limbo_resolutions_by_target_.find(target_id);
+  if (it != limbo_resolutions_by_target_.end()) {
+    DocumentKey limbo_key = it->second.key;
     // Since this query failed, we won't want to manually unlisten to it.
     // So go ahead and remove it from bookkeeping.
     limbo_targets_by_key_.erase(limbo_key);
@@ -260,7 +282,8 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
                       /*target_mismatches=*/{},
                       /*document_updates=*/{{limbo_key, doc}},
                       std::move(limbo_documents)};
-    HandleRemoteEvent(event);
+    ApplyRemoteEvent(event);
+
   } else {
     auto found = query_views_by_target_.find(target_id);
     HARD_ASSERT(found != query_views_by_target_.end(), "Unknown target id: %s",
@@ -273,7 +296,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
       LOG_WARN("Listen for query at %s failed: %s",
                query.path().CanonicalString(), error.error_message());
     }
-    sync_engine_callback_->OnError(query, error);
+    sync_engine_callback_->OnError(query, std::move(error));
   }
 }
 
@@ -297,6 +320,7 @@ void SyncEngine::HandleSuccessfulWrite(
 void SyncEngine::HandleRejectedWrite(
     firebase::firestore::model::BatchId batch_id, Status error) {
   AssertCallbackExists("HandleRejectedWrite");
+
   MaybeDocumentMap changes = [local_store_ rejectBatchID:batch_id];
 
   if (!changes.empty() && ErrorIsInteresting(error)) {
@@ -309,7 +333,7 @@ void SyncEngine::HandleRejectedWrite(
   // events immediately (depending on whether the watcher is caught up), so we
   // raise user callbacks first so that they consistently happen before listen
   // events.
-  NotifyUser(batch_id, error);
+  NotifyUser(batch_id, std::move(error));
 
   TriggerPendingWriteCallbacks(batch_id);
 
@@ -321,9 +345,9 @@ void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
 
   std::vector<ViewSnapshot> new_view_snapshot;
   for (const auto& entry : query_views_by_query_) {
-    auto query_view = entry.second;
+    const auto& query_view = entry.second;
     ViewChange view_change =
-        query_view->view()->ApplyOnlineStateChange(online_state);
+        query_view->view().ApplyOnlineStateChange(online_state);
     HARD_ASSERT(view_change.limbo_changes().empty(),
                 "OnlineState should not affect limbo documents.");
     if (view_change.snapshot().has_value()) {
@@ -335,15 +359,15 @@ void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
   sync_engine_callback_->HandleOnlineStateChange(online_state);
 }
 
-DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) {
-  const auto iter = limbo_resolutions_by_target_.find(target_id);
-  if (iter != limbo_resolutions_by_target_.end() &&
-      iter->second.document_received) {
-    return DocumentKeySet{iter->second.key};
+DocumentKeySet SyncEngine::GetRemoteKeys(TargetId target_id) const {
+  auto it = limbo_resolutions_by_target_.find(target_id);
+  if (it != limbo_resolutions_by_target_.end() &&
+      it->second.document_received) {
+    return DocumentKeySet{it->second.key};
   } else {
     auto found = query_views_by_target_.find(target_id);
-    if (found != query_views_by_target_.end() && found->second) {
-      return found->second->view()->synced_documents();
+    if (found != query_views_by_target_.end()) {
+      return found->second->view().synced_documents();
     }
     return DocumentKeySet{};
   }
@@ -354,13 +378,15 @@ void SyncEngine::NotifyUser(BatchId batch_id, Status status) {
 
   // NOTE: Mutations restored from persistence won't have callbacks, so
   // it's okay for this (or the callback below) to not exist.
-  if (it != mutation_callbacks_.end()) {
-    std::unordered_map<BatchId, StatusCallback>& callbacks = it->second;
-    auto callback_it = callbacks.find(batch_id);
-    if (callback_it != callbacks.end()) {
-      callback_it->second(status);
-      callbacks.erase(callback_it);
-    }
+  if (it == mutation_callbacks_.end()) {
+    return;
+  }
+
+  std::unordered_map<BatchId, StatusCallback>& callbacks = it->second;
+  auto callback_it = callbacks.find(batch_id);
+  if (callback_it != callbacks.end()) {
+    callback_it->second(std::move(status));
+    callbacks.erase(callback_it);
   }
 }
 
@@ -386,14 +412,6 @@ void SyncEngine::FailOutstandingPendingWriteCallbacks(
   pending_writes_callbacks_.clear();
 }
 
-bool SyncEngine::ErrorIsInteresting(Status error) {
-  bool missing_index =
-      (error.code() == Error::FailedPrecondition &&
-       error.error_message().find("requires an index") != std::string::npos);
-  bool no_permission = (error.code() == Error::PermissionDenied);
-  return missing_index || no_permission;
-}
-
 void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     const MaybeDocumentMap& changes,
     const absl::optional<RemoteEvent>& maybe_remote_event) {
@@ -401,8 +419,8 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
   std::vector<LocalViewChanges> document_changes_in_all_views;
 
   for (const auto& entry : query_views_by_query_) {
-    auto query_view = entry.second;
-    const View& view = *query_view->view();
+    const auto& query_view = entry.second;
+    const View& view = query_view->view();
     ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(changes);
     if (view_doc_changes.needs_refill()) {
       // The query has a limit and some docs were removed/updated, so we need to
@@ -422,7 +440,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       }
     }
     ViewChange view_change =
-        query_view->view()->ApplyChanges(view_doc_changes, target_changes);
+        query_view->view().ApplyChanges(view_doc_changes, target_changes);
 
     UpdateTrackedLimboDocuments(view_change.limbo_changes(),
                                 query_view->target_id());
@@ -469,24 +487,27 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
 
   if (limbo_targets_by_key_.find(key) == limbo_targets_by_key_.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
+
     TargetId limbo_target_id = target_id_generator_.NextId();
     Query query(key.path());
     QueryData query_data(std::move(query), limbo_target_id,
                          kIrrelevantSequenceNumber,
                          QueryPurpose::LimboResolution);
     limbo_resolutions_by_target_.emplace(limbo_target_id, LimboResolution{key});
+    // TODO(wuandy): move `query_data` into `Listen`.
     remote_store_->Listen(query_data);
     limbo_targets_by_key_[key] = limbo_target_id;
   }
 }
 
 void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
-  const auto iter = limbo_targets_by_key_.find(key);
-  if (iter == limbo_targets_by_key_.end()) {
+  auto it = limbo_targets_by_key_.find(key);
+  if (it == limbo_targets_by_key_.end()) {
     // This target already got removed, because the query failed.
     return;
   }
-  TargetId limbo_target_id = iter->second;
+
+  TargetId limbo_target_id = it->second;
   remote_store_->StopListening(limbo_target_id);
   limbo_targets_by_key_.erase(key);
   limbo_resolutions_by_target_.erase(limbo_target_id);

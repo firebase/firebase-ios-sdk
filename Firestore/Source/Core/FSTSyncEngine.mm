@@ -158,11 +158,12 @@ NS_ASSUME_NONNULL_BEGIN
                    workerQueue:(const std::shared_ptr<AsyncQueue> &)workerQueue
                 updateCallback:(core::TransactionUpdateCallback)updateCallback
                 resultCallback:(core::TransactionResultCallback)resultCallback {
-  _syncEngine->Transaction(retries, workerQueue, updateCallback, resultCallback);
+  _syncEngine->Transaction(retries, workerQueue, std::move(updateCallback),
+                           std::move(resultCallback));
 }
 
 - (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
-  _syncEngine->HandleRemoteEvent(remoteEvent);
+  _syncEngine->ApplyRemoteEvent(remoteEvent);
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
@@ -186,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetCurrentLimboDocuments();
 }
 
-- (void)credentialDidChangeWithUser:(const firebase::firestore::auth::User &)user {
+- (void)credentialDidChangeWithUser:(const User &)user {
   _syncEngine->HandleCredentialChange(user);
 }
 - (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {

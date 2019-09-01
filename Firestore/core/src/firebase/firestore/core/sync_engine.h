@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_SYNC_ENGINE_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
 #include <map>
 #include <memory>
 #include <string>
@@ -36,7 +40,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -61,14 +64,14 @@ class SyncEngine {
  public:
   SyncEngine(FSTLocalStore* local_store,
              remote::RemoteStore* remote_store,
-             const auth::User initial_user);
+             const auth::User& initial_user);
 
   void SetCallback(SyncEngineCallback* callback) {
     sync_engine_callback_ = callback;
   }
 
   /**
-   * Initiates a new listen. The FSTLocalStore will be queried for initial data
+   * Initiates a new listen. The LocalStore will be queried for initial data
    * and the listen will be sent to the `RemoteStore` to get remote data. The
    * registered SyncEngineCallback will be notified of resulting view
    * snapshots and/or listen errors.
@@ -115,16 +118,17 @@ class SyncEngine {
   void HandleCredentialChange(const auth::User& user);
 
   // Implements `RemoteStoreCallback`
-  void HandleRemoteEvent(const remote::RemoteEvent& remote_event);
+  void ApplyRemoteEvent(const remote::RemoteEvent& remote_event);
   void HandleRejectedListen(model::TargetId target_id, util::Status error);
   void HandleSuccessfulWrite(const model::MutationBatchResult& batch_result);
   void HandleRejectedWrite(firebase::firestore::model::BatchId batchID,
                            util::Status error);
   void HandleOnlineStateChange(model::OnlineState online_state);
-  model::DocumentKeySet GetRemoteKeys(model::TargetId targetId);
+  model::DocumentKeySet GetRemoteKeys(model::TargetId targetId) const;
 
   // For tests only
-  std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments() {
+  std::map<model::DocumentKey, model::TargetId> GetCurrentLimboDocuments()
+      const {
     // Return defensive copy
     return limbo_targets_by_key_;
   }
@@ -146,7 +150,7 @@ class SyncEngine {
           view_(std::move(view)) {
     }
 
-    const Query& query() {
+    const Query& query() const {
       return query_;
     }
 
@@ -154,7 +158,7 @@ class SyncEngine {
      * The target ID created by the client that is used in the watch stream to
      * identify this query.
      */
-    model::TargetId target_id() {
+    model::TargetId target_id() const {
       return target_id_;
     }
 
@@ -163,7 +167,7 @@ class SyncEngine {
      * the results that was received. This can be used to indicate where to
      * continue receiving new doc changes for the query.
      */
-    const nanopb::ByteString resume_token() {
+    const nanopb::ByteString resume_token() const {
       return resume_token_;
     }
 
@@ -173,8 +177,8 @@ class SyncEngine {
      * applies the query filters and limits to determine the most correct
      * possible results.
      */
-    View* view() {
-      return &view_;
+    View& view() {
+      return view_;
     }
 
    private:
@@ -187,8 +191,7 @@ class SyncEngine {
   /** Tracks a limbo resolution. */
   class LimboResolution {
    public:
-    LimboResolution() {
-    }
+    LimboResolution() = default;
 
     explicit LimboResolution(const model::DocumentKey& key) : key{key} {
     }
@@ -204,7 +207,7 @@ class SyncEngine {
     bool document_received = false;
   };
 
-  void AssertCallbackExists(std::string source);
+  void AssertCallbackExists(absl::string_view source);
 
   ViewSnapshot InitializeViewAndComputeSnapshot(
       const local::QueryData& query_data);
@@ -217,7 +220,7 @@ class SyncEngine {
       const model::MaybeDocumentMap& changes,
       const absl::optional<remote::RemoteEvent>& maybe_remote_event);
 
-  /** Updates the limbo document state for the given targetID. */
+  /** Updates the limbo document state for the given target_id. */
   void UpdateTrackedLimboDocuments(
       const std::vector<LimboDocumentChange>& limbo_changes,
       model::TargetId target_id);
@@ -233,16 +236,14 @@ class SyncEngine {
   void TriggerPendingWriteCallbacks(model::BatchId batch_id);
   void FailOutstandingPendingWriteCallbacks(absl::string_view message);
 
-  bool ErrorIsInteresting(util::Status error);
-
   /** The local store, used to persist mutations and cached documents. */
   FSTLocalStore* local_store_;
 
   /** The remote store for sending writes, watches, etc. to the backend. */
-  remote::RemoteStore* remote_store_;
+  remote::RemoteStore* remote_store_ = nullptr;
 
   auth::User current_user_;
-  SyncEngineCallback* sync_engine_callback_;
+  SyncEngineCallback* sync_engine_callback_ = nullptr;
 
   /**
    * Used for creating the TargetId for the listens used to resolve limbo
@@ -250,7 +251,7 @@ class SyncEngine {
    */
   TargetIdGenerator target_id_generator_;
 
-  /** Stores user completion blocks, indexed by user and BatchId. */
+  /** Stores user completion blocks, indexed by User and BatchId. */
   std::unordered_map<auth::User,
                      std::unordered_map<model::BatchId, util::StatusCallback>,
                      auth::HashUser>
