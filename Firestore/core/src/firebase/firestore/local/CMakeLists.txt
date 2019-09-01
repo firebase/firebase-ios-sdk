@@ -76,6 +76,7 @@ cc_library(
     memory_remote_document_cache.h
     memory_remote_document_cache.mm
     mutation_queue.h
+    persistence.h
     proto_sizer.h
     proto_sizer.mm
     query_cache.h
