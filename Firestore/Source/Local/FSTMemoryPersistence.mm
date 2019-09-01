@@ -332,7 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
   count += _persistence.remoteDocumentCache->CalculateByteSize(sizer);
   const MutationQueues &queues = [_persistence mutationQueues];
   for (const auto &entry : queues) {
-    count += entry.second->CalculateByteSize(_serializer);
+    count += entry.second->CalculateByteSize(sizer);
   }
   return count;
 }

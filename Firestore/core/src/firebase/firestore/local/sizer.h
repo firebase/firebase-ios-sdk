@@ -24,6 +24,7 @@ namespace firestore {
 namespace model {
 
 class MaybeDocument;
+class MutationBatch;
 
 }  // namespace model
 
@@ -44,6 +45,12 @@ class Sizer {
    */
   virtual int64_t CalculateByteSize(
       const model::MaybeDocument& maybe_doc) const = 0;
+
+  /**
+   * Calculates the size of the given mutation_batch in bytes.
+   */
+  virtual int64_t CalculateByteSize(
+      const model::MutationBatch& batch) const = 0;
 
   /**
    * Calculates the size of the given query_data in bytes.

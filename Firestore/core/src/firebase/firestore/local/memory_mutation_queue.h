@@ -34,7 +34,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTLocalSerializer;
 @class FSTMemoryPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace local {
+
+class Sizer;
 
 class MemoryMutationQueue : public MutationQueue {
  public:
@@ -86,7 +87,7 @@ class MemoryMutationQueue : public MutationQueue {
 
   bool ContainsKey(const model::DocumentKey& key);
 
-  size_t CalculateByteSize(FSTLocalSerializer* serializer);
+  int64_t CalculateByteSize(const Sizer& sizer);
 
   nanopb::ByteString GetLastStreamToken() override;
   void SetLastStreamToken(const nanopb::ByteString& token) override;
