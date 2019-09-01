@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SIZER_H_
 
-#include <cstddef>
+#include <cstdint>
 
 namespace firebase {
 namespace firestore {
@@ -42,13 +42,13 @@ class Sizer {
    * Calculates the size of the given maybe_doc in bytes. Note that even
    * NoDocuments have an associated size.
    */
-  virtual size_t CalculateByteSize(
+  virtual int64_t CalculateByteSize(
       const model::MaybeDocument& maybe_doc) const = 0;
 
   /**
    * Calculates the size of the given query_data in bytes.
    */
-  virtual size_t CalculateByteSize(const QueryData& query_data) const = 0;
+  virtual int64_t CalculateByteSize(const QueryData& query_data) const = 0;
 };
 
 }  // namespace local

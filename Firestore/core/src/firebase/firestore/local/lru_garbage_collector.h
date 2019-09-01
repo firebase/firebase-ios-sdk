@@ -73,7 +73,7 @@ class LruDelegate {
   /** Access to the underlying LRU Garbage collector instance. */
   virtual LruGarbageCollector* garbage_collector() = 0;
 
-  virtual size_t CalculateByteSize() const = 0;
+  virtual int64_t CalculateByteSize() = 0;
 
   /** Returns the number of targets and orphaned documents cached. */
   virtual size_t GetSequenceNumberCount() = 0;
@@ -121,7 +121,7 @@ class LruDelegateBridge : public LruDelegate {
     return target_.gc;
   }
 
-  size_t CalculateByteSize() const override {
+  int64_t CalculateByteSize() override {
     return [target_ byteSize];
   }
 
@@ -178,7 +178,7 @@ class LruGarbageCollector {
  public:
   LruGarbageCollector(LruDelegate* delegate, LruParams params);
 
-  size_t CalculateByteSize() const {
+  int64_t CalculateByteSize() const {
     return delegate_->CalculateByteSize();
   }
 

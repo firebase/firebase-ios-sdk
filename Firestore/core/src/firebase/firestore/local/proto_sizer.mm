@@ -36,8 +36,8 @@ using model::MaybeDocument;
  * key in memory. This is only an estimate and includes the size of the segments
  * of the path, but not any object overhead or path separators.
  */
-size_t DocumentKeyByteSize(const DocumentKey& key) {
-  size_t count = 0;
+int64_t DocumentKeyByteSize(const DocumentKey& key) {
+  int64_t count = 0;
   for (const auto& segment : key.path()) {
     count += segment.size();
   }
@@ -50,13 +50,13 @@ ProtoSizer::ProtoSizer(FSTLocalSerializer* serializer)
     : serializer_(serializer) {
 }
 
-size_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
-  size_t count = DocumentKeyByteSize(maybe_doc.key());
+int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
+  int64_t count = DocumentKeyByteSize(maybe_doc.key());
   count += [[serializer_ encodedMaybeDocument:maybe_doc] serializedSize];
   return count;
 }
 
-size_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
+int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
   return [[serializer_ encodedQueryData:query_data] serializedSize];
 }
 
