@@ -60,7 +60,7 @@ class EventManager : public QueryEventCallback {
    * found. */
   void RemoveQueryListener(std::shared_ptr<core::QueryListener> listener);
 
-  // Implements `SyncEngineCallback`.
+  // Implements `QueryEventCallback`.
   void HandleOnlineStateChange(model::OnlineState online_state) override;
   void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) override;
   void OnError(const core::Query& query, util::Status error) override;

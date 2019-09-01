@@ -233,7 +233,7 @@ class RemoteStore : public TargetMetadataProvider,
 
   void CleanUpWatchStreamState();
 
-  RemoteStoreCallback* sync_engine_;
+  RemoteStoreCallback* sync_engine_ = nullptr;
 
   /**
    * The local store, used to fill the write pipeline with outbound mutations

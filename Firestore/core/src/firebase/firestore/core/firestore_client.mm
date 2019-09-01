@@ -206,7 +206,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   sync_engine_ =
       absl::make_unique<SyncEngine>(local_store_, remote_store_.get(), user);
 
-  event_manager_.Init(sync_engine_.get());
+  event_manager_ = absl::make_unique<EventManager>(sync_engine_.get());
 
   // Setup wiring for remote store.
   remote_store_->set_sync_engine(sync_engine_.get());

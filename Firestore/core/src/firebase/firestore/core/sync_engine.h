@@ -58,6 +58,8 @@ class QueryEventCallback {
   virtual void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) = 0;
   /** Handles the failure of a query. */
   virtual void OnError(const core::Query& query, util::Status error) = 0;
+
+  virtual ~QueryEventCallback() = default;
 };
 
 /**
@@ -271,7 +273,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   remote::RemoteStore* remote_store_ = nullptr;
 
   auth::User current_user_;
-  QueryEventCallback* query_event_callback_;
+  QueryEventCallback* query_event_callback_ = nullptr;
 
   /**
    * Used for creating the TargetId for the listens used to resolve limbo
