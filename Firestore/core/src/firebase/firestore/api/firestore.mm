@@ -16,12 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
@@ -30,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -46,6 +42,7 @@ using auth::CredentialsProvider;
 using core::DatabaseInfo;
 using core::FirestoreClient;
 using core::Transaction;
+using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
 using util::AsyncQueue;
@@ -165,7 +162,7 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
       }
     }
 
-    Yield([FSTLevelDB clearPersistence:MakeDatabaseInfo()]);
+    Yield(LevelDbPersistence::ClearPersistence(MakeDatabaseInfo()));
   });
 }
 

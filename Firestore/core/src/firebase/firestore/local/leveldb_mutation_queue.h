@@ -37,7 +37,6 @@
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
-@class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTPBMutationQueue;
 
@@ -46,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace local {
+
+class LevelDbPersistence;
 
 /**
  * Returns one larger than the largest batch ID that has been stored. If there
@@ -56,7 +57,7 @@ model::BatchId LoadNextBatchIdFromDb(leveldb::DB* db);
 class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const auth::User& user,
-                       FSTLevelDB* db,
+                       LevelDbPersistence* db,
                        FSTLocalSerializer* serializer);
 
   void Start() override;
@@ -119,8 +120,8 @@ class LevelDbMutationQueue : public MutationQueue {
 
   model::MutationBatch ParseMutationBatch(absl::string_view encoded);
 
-  // This instance is owned by FSTLevelDB; avoid a retain cycle.
-  __weak FSTLevelDB* db_;
+  // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
 
   FSTLocalSerializer* serializer_;
 

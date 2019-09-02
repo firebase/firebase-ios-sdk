@@ -18,9 +18,10 @@
 
 #include <utility>
 
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -42,7 +43,7 @@ using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
 
-MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
+MemoryMutationQueue::MemoryMutationQueue(MemoryPersistence* persistence)
     : persistence_(persistence) {
 }
 
@@ -99,7 +100,7 @@ MutationBatch MemoryMutationQueue::AddMutationBatch(
     batches_by_document_key_ = batches_by_document_key_.insert(
         DocumentKeyReference{mutation.key(), batch_id});
 
-    persistence_.indexManager->AddToCollectionParentIndex(
+    persistence_->index_manager()->AddToCollectionParentIndex(
         mutation.key().path().PopLast());
   }
 
@@ -118,7 +119,7 @@ void MemoryMutationQueue::RemoveMutationBatch(const MutationBatch& batch) {
   // Remove entries from the index too.
   for (const Mutation& mutation : batch.mutations()) {
     const DocumentKey& key = mutation.key();
-    [persistence_.referenceDelegate removeMutationReference:key];
+    persistence_->reference_delegate()->RemoveMutationReference(key);
 
     DocumentKeyReference reference{key, batch.batch_id()};
     batches_by_document_key_ = batches_by_document_key_.erase(reference);

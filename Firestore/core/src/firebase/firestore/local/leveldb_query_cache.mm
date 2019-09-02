@@ -20,11 +20,12 @@
 #include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -46,7 +47,7 @@ using leveldb::Status;
 FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
-  Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);
+  Status status = db->Get(StandardReadOptions(), key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
@@ -68,16 +69,14 @@ FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
   return proto;
 }
 
-LevelDbQueryCache::LevelDbQueryCache(FSTLevelDB* db,
+LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
                                      FSTLocalSerializer* serializer)
     : db_(db), serializer_(serializer) {
 }
 
-// TODO(gsoltis): revisit having a Start method vs a static factory function
-// that returns a started instance.
 void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to currentTransaction
-  metadata_ = ReadMetadata(db_.ptr);
+  metadata_ = ReadMetadata(db_->ptr());
   HARD_ASSERT(metadata_ != nil,
               "Found nil metadata, expected schema to be at version 0 which "
               "ensures metadata existence");
@@ -92,7 +91,7 @@ void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
   std::string index_key =
       LevelDbQueryTargetKey::Key(canonical_id, query_data.target_id());
   std::string empty_buffer;
-  db_.currentTransaction->Put(index_key, empty_buffer);
+  db_->current_transaction()->Put(index_key, empty_buffer);
 
   metadata_.targetCount++;
   UpdateMetadata(query_data);
@@ -113,11 +112,11 @@ void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
   RemoveAllKeysForTarget(target_id);
 
   std::string key = LevelDbTargetKey::Key(target_id);
-  db_.currentTransaction->Delete(key);
+  db_->current_transaction()->Delete(key);
 
   std::string index_key =
       LevelDbQueryTargetKey::Key(query_data.query().CanonicalId(), target_id);
-  db_.currentTransaction->Delete(index_key);
+  db_->current_transaction()->Delete(index_key);
 
   metadata_.targetCount--;
   SaveMetadata();
@@ -128,7 +127,7 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
   // query's canonicalID. Note that this is a scan rather than a get because
   // canonicalIDs are not required to be unique per target.
   const std::string& canonical_id = query.CanonicalId();
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
 
@@ -137,7 +136,7 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
   // table prefixed by exactly one canonicalID, all the targetIDs will be unique
   // and in order.
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
-  auto target_iterator = db_.currentTransaction->NewIterator();
+  auto target_iterator = db_->current_transaction()->NewIterator();
 
   LevelDbQueryTargetKey row_key;
   for (; index_iterator->Valid(); index_iterator->Next()) {
@@ -174,7 +173,7 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
 void LevelDbQueryCache::EnumerateTargets(const TargetCallback& callback) {
   // Enumerate all targets, give their sequence numbers.
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
@@ -188,7 +187,7 @@ int LevelDbQueryCache::RemoveTargets(
     const std::unordered_map<model::TargetId, QueryData>& live_targets) {
   int count = 0;
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
@@ -211,28 +210,28 @@ void LevelDbQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
   std::string empty_buffer;
 
   for (const DocumentKey& key : keys) {
-    db_.currentTransaction->Put(LevelDbTargetDocumentKey::Key(target_id, key),
-                                empty_buffer);
-    db_.currentTransaction->Put(LevelDbDocumentTargetKey::Key(key, target_id),
-                                empty_buffer);
-    [db_.referenceDelegate addReference:key];
+    db_->current_transaction()->Put(
+        LevelDbTargetDocumentKey::Key(target_id, key), empty_buffer);
+    db_->current_transaction()->Put(
+        LevelDbDocumentTargetKey::Key(key, target_id), empty_buffer);
+    db_->reference_delegate()->AddReference(key);
   };
 }
 
 void LevelDbQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
                                            TargetId target_id) {
   for (const DocumentKey& key : keys) {
-    db_.currentTransaction->Delete(
+    db_->current_transaction()->Delete(
         LevelDbTargetDocumentKey::Key(target_id, key));
-    db_.currentTransaction->Delete(
+    db_->current_transaction()->Delete(
         LevelDbDocumentTargetKey::Key(key, target_id));
-    [db_.referenceDelegate removeReference:key];
+    db_->reference_delegate()->RemoveReference(key);
   }
 }
 
 void LevelDbQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
   std::string index_prefix = LevelDbTargetDocumentKey::KeyPrefix(target_id);
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
 
   LevelDbTargetDocumentKey row_key;
@@ -246,15 +245,15 @@ void LevelDbQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
     const DocumentKey& document_key = row_key.document_key();
 
     // Delete both index rows
-    db_.currentTransaction->Delete(index_key);
-    db_.currentTransaction->Delete(
+    db_->current_transaction()->Delete(index_key);
+    db_->current_transaction()->Delete(
         LevelDbDocumentTargetKey::Key(document_key, target_id));
   }
 }
 
 DocumentKeySet LevelDbQueryCache::GetMatchingKeys(TargetId target_id) {
   std::string index_prefix = LevelDbTargetDocumentKey::KeyPrefix(target_id);
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
 
   DocumentKeySet result;
@@ -278,7 +277,7 @@ bool LevelDbQueryCache::Contains(const DocumentKey& key) {
   // Sentinel row just says the document exists, not that it's a member of any
   // particular target.
   std::string index_prefix = LevelDbDocumentTargetKey::KeyPrefix(key.path());
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
 
   for (; index_iterator->Valid() &&
@@ -308,7 +307,7 @@ void LevelDbQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
 void LevelDbQueryCache::EnumerateOrphanedDocuments(
     const OrphanedDocumentCallback& callback) {
   std::string document_target_prefix = LevelDbDocumentTargetKey::KeyPrefix();
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(document_target_prefix);
   ListenSequenceNumber next_to_report = 0;
   DocumentKey key_to_report;
@@ -344,7 +343,8 @@ void LevelDbQueryCache::EnumerateOrphanedDocuments(
 void LevelDbQueryCache::Save(const QueryData& query_data) {
   TargetId target_id = query_data.target_id();
   std::string key = LevelDbTargetKey::Key(target_id);
-  db_.currentTransaction->Put(key, [serializer_ encodedQueryData:query_data]);
+  db_->current_transaction()->Put(key,
+                                  [serializer_ encodedQueryData:query_data]);
 }
 
 bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
@@ -363,7 +363,7 @@ bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
 }
 
 void LevelDbQueryCache::SaveMetadata() {
-  db_.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), metadata_);
+  db_->current_transaction()->Put(LevelDbTargetGlobalKey::Key(), metadata_);
 }
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
