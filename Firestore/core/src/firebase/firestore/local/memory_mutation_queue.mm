@@ -211,7 +211,7 @@ MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
   // The requested batchID may still be out of range so normalize it to the
   // start of the queue.
   int raw_index = IndexOfBatchId(next_batch_id);
-  int index = raw_index < 0 ? 0 : raw_index;
+  size_t index = raw_index < 0 ? 0 : static_cast<size_t>(raw_index);
   if (queue_.size() <= index) {
     return absl::nullopt;
   }
@@ -230,7 +230,7 @@ absl::optional<MutationBatch> MemoryMutationQueue::LookupMutationBatch(
   }
 
   int index = IndexOfBatchId(batch_id);
-  if (index < 0 || index >= queue_.size()) {
+  if (index < 0 || static_cast<size_t>(index) >= queue_.size()) {
     return absl::nullopt;
   }
 

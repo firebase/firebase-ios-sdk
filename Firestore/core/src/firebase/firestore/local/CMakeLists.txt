@@ -62,11 +62,11 @@ cc_library(
     memory_index_manager.cc
     memory_index_manager.h
     memory_mutation_queue.h
-    #memory_mutation_queue.mm
+    memory_mutation_queue.mm
     memory_query_cache.h
-    #memory_query_cache.mm
+    memory_query_cache.mm
     memory_remote_document_cache.h
-    #memory_remote_document_cache.mm
+    memory_remote_document_cache.mm
     mutation_queue.h
     proto_sizer.h
     proto_sizer.mm
