@@ -113,8 +113,6 @@ endfunction()
 # omitted here.
 set(
   PROTOBUF_OBJC_GENERATED_SOURCES
-  ${OUTPUT_DIR}/objc/google/firestore/v1/Firestore.pbrpc.h
-  ${OUTPUT_DIR}/objc/google/firestore/v1/Firestore.pbrpc.m
 )
 foreach(root ${PROTO_FILE_ROOTS})
   get_filename_component(dir ${root} DIRECTORY)
