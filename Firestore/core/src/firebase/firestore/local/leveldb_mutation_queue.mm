@@ -154,7 +154,7 @@ bool LevelDbMutationQueue::IsEmpty() {
   return empty;
 }
 
-void LevelDbMutationQueue::AcknowledgeBatch(const MutationBatch& batch,
+void LevelDbMutationQueue::AcknowledgeBatch(const MutationBatch&,
                                             const ByteString& stream_token) {
   SetLastStreamToken(stream_token);
 }
