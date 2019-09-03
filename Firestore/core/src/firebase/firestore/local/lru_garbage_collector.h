@@ -25,6 +25,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
@@ -66,7 +67,7 @@ using LiveQueryMap = std::unordered_map<model::TargetId, QueryData>;
  * this interface. This interface defines the operations that the LRU garbage
  * collector needs from the persistence layer.
  */
-class LruDelegate {
+class LruDelegate : public ReferenceDelegate {
  public:
   virtual ~LruDelegate() = default;
 
