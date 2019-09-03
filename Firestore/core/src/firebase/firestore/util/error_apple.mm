@@ -18,6 +18,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 // NB: This is also declared in Firestore/Source/Public/FIRFirestoreErrors.h
@@ -47,6 +48,10 @@ NSError* MakeNSError(int64_t error_code,
   return [NSError errorWithDomain:FIRFirestoreErrorDomain
                              code:static_cast<NSInteger>(error_code)
                          userInfo:user_info];
+}
+
+NSError* MakeNSError(const util::Status& status) {
+  return status.ToNSError();
 }
 
 util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block) {

@@ -28,8 +28,6 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/any.h"
 #include "absl/types/optional.h"
 

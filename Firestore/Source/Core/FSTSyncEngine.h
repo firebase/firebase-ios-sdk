@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 @class FSTLocalStore;
 

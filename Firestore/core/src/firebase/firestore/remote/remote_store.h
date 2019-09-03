@@ -40,7 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 @class FSTLocalStore;
 @class FSTTransaction;

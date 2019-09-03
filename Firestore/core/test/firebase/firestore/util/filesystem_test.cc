@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
