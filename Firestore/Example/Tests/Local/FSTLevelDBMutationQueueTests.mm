@@ -70,17 +70,17 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 }
 
 @implementation FSTLevelDBMutationQueueTests {
-  FSTLevelDB *_db;
+  std::unique_ptr<LevelDbPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
-  [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
+  _db->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 
-  self.mutationQueue = [_db mutationQueueForUser:User("user")];
-  self.persistence = _db;
+  self.mutationQueue = _db->GetMutationQueueForUser(User("user"));
+  self.persistence = _db.get();
 
   self.persistence.run("Setup", [&]() { self.mutationQueue->Start(); });
 }

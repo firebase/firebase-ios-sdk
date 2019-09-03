@@ -98,7 +98,9 @@ void ExpectMapHasDocs(XCTestCase *self,
 }
 
 - (void)tearDown {
-  [self.persistence shutdown];
+  if (self.persistence) {
+    self.persistence->Shutdown();
+  }
 }
 
 - (void)testReadDocumentNotInCache {

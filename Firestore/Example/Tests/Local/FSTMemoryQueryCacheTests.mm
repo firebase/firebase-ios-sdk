@@ -34,15 +34,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @a queryCache.
  */
 @implementation FSTMemoryQueryCacheTests {
+  std::unique_ptr<MemoryPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  self.queryCache = self.persistence.queryCache;
-  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
+  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  self.persistence = _db.get();
+  self.queryCache = self.persistence->query_cache();
+  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 }
 
 - (void)tearDown {

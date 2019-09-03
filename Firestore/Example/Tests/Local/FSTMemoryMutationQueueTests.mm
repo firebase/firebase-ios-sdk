@@ -33,15 +33,17 @@ using firebase::firestore::local::ReferenceSet;
  * FSTMutationQueueTests. This class is merely responsible for setting up the @a mutationQueue.
  */
 @implementation FSTMemoryMutationQueueTests {
+  std::unique_ptr<MemoryPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
-  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
+  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  self.persistence = _db.get();
+  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
+  self.mutationQueue = self.persistence->GetMutationQueueForUser(User("user"));
 }
 
 @end

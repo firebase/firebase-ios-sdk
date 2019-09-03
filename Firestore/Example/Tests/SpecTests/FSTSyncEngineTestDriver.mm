@@ -148,6 +148,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
+  std::unique_ptr<Persistence> _persistence;
+
   std::shared_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<RemoteStore> _remoteStore;
@@ -192,8 +194,9 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_t queue =
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-    _persistence = persistence;
-    _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
+    _persistence = std::move(persistence);
+    _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence.get()
+                                                 initialUser:initialUser];
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());

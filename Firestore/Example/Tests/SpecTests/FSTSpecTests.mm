@@ -171,8 +171,8 @@ ByteString MakeResumeToken(NSString *specString) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence];
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)];
   [self.driver start];
 }
 
@@ -457,8 +457,8 @@ ByteString MakeResumeToken(NSString *specString) {
 
   [self.driver shutdown];
 
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];

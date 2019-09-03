@@ -63,18 +63,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [self levelDBPersistenceWithDir:dir lruParams:LruParams::Default()];
 }
 
-+ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
++ (std::unique_ptr<LevelDbPersistence>)levelDBPersistenceWithDir:(Path)dir
+                                                       lruParams:(LruParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTLevelDB *ldb;
-  util::Status status = [FSTLevelDB dbWithDirectory:std::move(dir)
-                                         serializer:serializer
-                                          lruParams:params
-                                                ptr:&ldb];
-  if (!status.ok()) {
+  auto created = LevelDbPersistence::Create(std::move(dir), serializer, params);
+  if (!created.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to open DB: %s", status.ToString().c_str()];
+                format:@"Failed to open DB: %s", created.status().ToString().c_str()];
   }
-  return ldb;
+  return std::move(created).ValueOrDie();
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithLruParams:(LruParams)lruParams {
@@ -93,9 +90,11 @@ NS_ASSUME_NONNULL_BEGIN
   return [self lruMemoryPersistenceWithLruParams:LruParams::Default()];
 }
 
-+ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:(LruParams)lruParams {
++ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
+    (LruParams)lruParams {
   FSTLocalSerializer *serializer = [self localSerializer];
-  return [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
+  auto sizer = absl::make_unique<ProtoSizer>(serializer);
+  return MemoryPersistence::WithLruGarbageCollector(lruParams, std::move(sizer));
 }
 
 @end

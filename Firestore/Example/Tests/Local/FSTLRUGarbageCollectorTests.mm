@@ -80,11 +80,11 @@ NS_ASSUME_NONNULL_BEGIN
   int _previousDocNum;
   ObjectValue _testValue;
   ObjectValue _bigObjectValue;
-  id<FSTPersistence> _persistence;
+  std::unique_ptr<Persistence> _persistence;
   QueryCache *_queryCache;
   RemoteDocumentCache *_documentCache;
   MutationQueue *_mutationQueue;
-  id<FSTLRUDelegate> _lruDelegate;
+  LruDelegate *_lruDelegate;
   LruGarbageCollector *_gc;
   ListenSequenceNumber _initialSequenceNumber;
   User _user;
@@ -106,18 +106,22 @@ NS_ASSUME_NONNULL_BEGIN
   return ([self class] == [FSTLRUGarbageCollectorTests class]);
 }
 
+- (Persistence *)persistence {
+  return _persistence.get();
+}
+
 - (void)newTestResourcesWithLruParams:(LruParams)lruParams {
   HARD_ASSERT(_persistence == nil, "Persistence already created");
   _persistence = [self newPersistenceWithLruParams:lruParams];
-  [_persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
-  _queryCache = [_persistence queryCache];
-  _documentCache = [_persistence remoteDocumentCache];
-  _mutationQueue = [_persistence mutationQueueForUser:_user];
-  _lruDelegate = (id<FSTLRUDelegate>)_persistence.referenceDelegate;
-  _initialSequenceNumber = _persistence.run("start querycache", [&]() -> ListenSequenceNumber {
+  _persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
+  _queryCache = _persistence->query_cache();
+  _documentCache = _persistence->remote_document_cache();
+  _mutationQueue = _persistence->GetMutationQueueForUser(_user);
+  _lruDelegate = static_cast<LruDelegate *>(_persistence->reference_delegate());
+  _initialSequenceNumber = _persistence->Run("start querycache", [&] {
     _mutationQueue->Start();
-    _gc = _lruDelegate.gc;
-    return _persistence.currentSequenceNumber;
+    _gc = _lruDelegate->garbage_collector();
+    return _persistence->current_sequence_number();
   });
 }
 
@@ -125,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self newTestResourcesWithLruParams:LruParams::Default()];
 }
 
-- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 

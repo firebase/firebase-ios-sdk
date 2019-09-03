@@ -105,7 +105,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalStoreTests ()
 
-@property(nonatomic, strong, readwrite) id<FSTPersistence> localStorePersistence;
 @property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
 
 @property(nonatomic, assign, readwrite) TargetId lastTargetID;
@@ -113,6 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTLocalStoreTests {
+  std::unique_ptr<Persistence> _localStorePersistence;
   std::vector<MutationBatch> _batches;
   MaybeDocumentMap _lastChanges;
 }
@@ -124,9 +124,9 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  id<FSTPersistence> persistence = [self persistence];
-  self.localStorePersistence = persistence;
-  self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistence];
+  _localStorePersistence = std::move(persistence);
+  self.localStore = [[FSTLocalStore alloc] initWithPersistence:_localStorePersistence.get()
                                                    initialUser:User::Unauthenticated()];
   [self.localStore start];
 
@@ -134,12 +134,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
-  [self.localStorePersistence shutdown];
+  if (_localStorePersistence) {
+    _localStorePersistence->Shutdown();
+  }
 
   [super tearDown];
 }
 
-- (id<FSTPersistence>)persistence {
+- (std::unique_ptr<Persistence>)persistence {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 

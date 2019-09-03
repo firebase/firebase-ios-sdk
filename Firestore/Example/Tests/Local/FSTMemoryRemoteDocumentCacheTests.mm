@@ -36,15 +36,17 @@ using firebase::firestore::local::RemoteDocumentCache;
  * tearing down the @a remoteDocumentCache.
  */
 @implementation FSTMemoryRemoteDocumentCacheTests {
-  std::unique_ptr<MemoryRemoteDocumentCache> _cache;
+  std::unique_ptr<MemoryPersistence> _db;
+  MemoryRemoteDocumentCache *_cache;
 }
 
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  self.persistence = _db.get();
   HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = absl::make_unique<MemoryRemoteDocumentCache>(self.persistence);
+  _cache = _db->remote_document_cache();
 }
 
 - (RemoteDocumentCache *)remoteDocumentCache {

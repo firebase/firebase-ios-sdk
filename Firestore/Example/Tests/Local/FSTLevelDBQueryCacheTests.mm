@@ -53,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @a queryCache.
  */
 @implementation FSTLevelDBQueryCacheTests {
+  std::unique_ptr<LevelDbPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
@@ -63,9 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers levelDBPersistence];
-  self.queryCache = [self getCache:self.persistence];
-  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
+  _db = [FSTPersistenceTestHelpers levelDBPersistence];
+  self.persistence = _db.get();
+  self.queryCache = [self getCache:_db.get()];
+  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 }
 
 - (void)tearDown {

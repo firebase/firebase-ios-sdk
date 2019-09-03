@@ -63,7 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
-  [self.persistence shutdown];
+  if (self.persistence) {
+    self.persistence->Shutdown();
+  }
 }
 
 /**

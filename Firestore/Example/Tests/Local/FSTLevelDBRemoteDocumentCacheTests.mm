@@ -46,16 +46,16 @@ static const char *kDummy = "1";
 @end
 
 @implementation FSTLevelDBRemoteDocumentCacheTests {
-  FSTLevelDB *_db;
-  std::unique_ptr<LevelDbRemoteDocumentCache> _cache;
+  std::unique_ptr<LevelDbPersistence> _db;
+  LevelDbRemoteDocumentCache *_cache;
 }
 
 - (void)setUp {
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
-  self.persistence = _db;
+  self.persistence = _db.get();
   HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = absl::make_unique<LevelDbRemoteDocumentCache>(_db, _db.serializer);
+  _cache = _db->remote_document_cache();
 
   // Write a couple dummy rows that should appear before/after the remote_documents table to make
   // sure the tests are unaffected.
