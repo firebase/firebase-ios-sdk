@@ -96,6 +96,25 @@ class ReferenceDelegate {
   virtual void OnTransactionCommitted() = 0;
 };
 
+/**
+ * Ensures OnTransactionCommitted is called at the close of any block in which
+ * it's declared.
+ */
+struct TransactionGuard {
+  TransactionGuard(ReferenceDelegate* reference_delegate,
+                   absl::string_view label)
+      : reference_delegate_(reference_delegate) {
+    reference_delegate_->OnTransactionStarted(label);
+  }
+
+  ~TransactionGuard() {
+    reference_delegate_->OnTransactionCommitted();
+  }
+
+ private:
+  ReferenceDelegate* reference_delegate_;
+};
+
 #if __OBJC__
 
 class ReferenceDelegateBridge : public ReferenceDelegate {
