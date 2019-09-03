@@ -68,6 +68,8 @@ cc_library(
     memory_remote_document_cache.h
     #memory_remote_document_cache.mm
     mutation_queue.h
+    proto_sizer.h
+    proto_sizer.mm
     query_cache.h
     query_data.cc
     query_data.h
@@ -88,3 +90,10 @@ cc_library(
     firebase_firestore_remote
     firebase_firestore_util
 )
+
+if(APPLE)
+  target_link_libraries(
+    firebase_firestore_local PRIVATE
+    firebase_firestore_protos_objc
+  )
+endif()
