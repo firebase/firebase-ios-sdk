@@ -87,7 +87,7 @@
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_LogResponse_fields, &logResponse)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -95,7 +95,7 @@
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&sizestream, gdt_cct_LogResponse_fields, &logResponse)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
   pb_release(gdt_cct_LogResponse_fields, &logResponse);
