@@ -18,6 +18,8 @@ import Foundation
 
 extension Firestore {
   public struct Decoder {
+    fileprivate static let documentRefUserInfoKey = CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")
+
     public init() {}
     /// Returns an instance of specified type from a Firestore document.
     ///
@@ -31,9 +33,14 @@ extension Firestore {
     /// - Parameters:
     ///   - A type to decode a document to.
     ///   - container: A Map keyed of String representing a Firestore document.
+    ///   - docRef: A reference to the Firestore Document that is being
+    ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
-    public func decode<T: Decodable>(_: T.Type, from container: [String: Any]) throws -> T {
+    public func decode<T: Decodable>(_: T.Type,
+                                     from container: [String: Any],
+                                     forDoc docRef: DocumentReference) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
+      decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = docRef
       guard let value = try decoder.unbox(container, as: T.self) else {
         throw DecodingError.valueNotFound(
           T.self,
@@ -323,6 +330,17 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
   }
 
   public func decode<T: Decodable>(_: T.Type, forKey key: Key) throws -> T {
+    if T.self == AutoPopulatedDocumentId.self {
+      if contains(key) {
+        throw FirestoreDecodingError.fieldNameConfict("Field name conflict:" +
+          " \(key.stringValue) is an `AutoPopulatedDocumentId` but " +
+          "also exists as a field in the Firestore document being decoded.")
+      }
+      let docRef = decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!]
+        as! DocumentReference
+      return AutoPopulatedDocumentId(from: docRef) as! T
+    }
+
     let entry = try require(key: key)
 
     decoder.codingPath.append(key)
@@ -759,6 +777,11 @@ extension _FirestoreDecoder: SingleValueDecodingContainer {
   }
 
   public func decode<T: Decodable>(_: T.Type) throws -> T {
+    if T.self == AutoPopulatedDocumentId.self {
+      let docRef = userInfo[Firestore.Decoder.documentRefUserInfoKey!]
+        as! DocumentReference
+      return AutoPopulatedDocumentId(from: docRef) as! T
+    }
     try expectNonNull(T.self)
     return try unbox(storage.topContainer, as: T.self)!
   }

@@ -34,7 +34,7 @@ extension DocumentSnapshot {
       d = Firestore.Decoder()
     }
     if let data = data() {
-      return try d?.decode(T.self, from: data)
+      return try d?.decode(T.self, from: data, forDoc: reference)
     }
     return nil
   }

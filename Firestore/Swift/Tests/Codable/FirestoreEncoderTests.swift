@@ -37,7 +37,7 @@ private func assertEncodes<X: Equatable & Codable>(_ model: X, to expected: [Str
 
 private func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], to expected: X) -> Void {
   do {
-    let decoded = try Firestore.Decoder().decode(X.self, from: model)
+    let decoded = try Firestore.Decoder().decode(X.self, from: model, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(decoded, expected)
   } catch {
     XCTFail("Failed to decode \(X.self): \(error)")
@@ -55,7 +55,7 @@ private func assertEncodingThrows<X: Equatable & Codable>(_ model: X) -> Void {
 
 private func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
   do {
-    _ = try Firestore.Decoder().decode(X.self, from: model)
+    _ = try Firestore.Decoder().decode(X.self, from: model, forDoc: FSTTestDocRef("abc/123"))
   } catch {
     return
   }
@@ -351,7 +351,7 @@ class FirestoreEncoderTests: XCTestCase {
       "d": 123.3,
     ] as [String: Any]
 
-    let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
+    let model2 = try! Firestore.Decoder().decode(Model.self, from: dict, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(model.s, model2.s)
     XCTAssertEqual(model.d, model2.d)
     XCTAssertEqual(model2.ms, "filler")
@@ -570,13 +570,13 @@ class FirestoreEncoderTests: XCTestCase {
 
     // Decoding a Timestamp leads to `resolved`
     var dict = ["timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 4321)] as [String: Any]
-    var decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    var decoded = try! Firestore.Decoder().decode(Model.self, from: dict, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(decoded.timestamp,
                    ServerTimestamp.resolved(Timestamp(seconds: 123_456_789, nanoseconds: 4321)))
 
     // Decoding a NSNull() leads to `pending`.
     dict = ["timestamp": NSNull()] as [String: Any]
-    decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    decoded = try! Firestore.Decoder().decode(Model.self, from: dict, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(decoded.timestamp,
                    ServerTimestamp.pending)
   }
@@ -593,7 +593,7 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(encoded["name"]! as! NSNull, NSNull())
 
     // Decoding null
-    var decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    var decoded = try Firestore.Decoder().decode(Model.self, from: encoded, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(decoded, fieldIsNull)
 
     // Encoding 'some'
@@ -602,7 +602,97 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(encoded["name"]! as! String, "good name")
 
     // Decoding not-null value
-    decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    decoded = try Firestore.Decoder().decode(Model.self, from: encoded, forDoc: FSTTestDocRef("abc/123"))
     XCTAssertEqual(decoded, fieldIsNotNull)
+  }
+
+  func testAutomaticallyPopulatesDocumentIdField() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: AutoPopulatedDocumentId
+    }
+
+    let decoded = try Firestore.Decoder().decode(Model.self, from: ["name": "abc"], forDoc: FSTTestDocRef("abc/123"))
+    XCTAssertEqual(decoded, Model(name: "abc", docId: AutoPopulatedDocumentId(from: FSTTestDocRef("abc/123"))))
+  }
+
+  func testAutoPopulatedDocumentIdWorksWithOptional() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: AutoPopulatedDocumentId?
+      
+      public enum ModelCodingKey : CodingKey {
+        case name
+        case docId
+      }
+      
+      public init(name: String, docId: AutoPopulatedDocumentId) {
+        self.name = name
+        self.docId = docId
+      }
+      /*
+      public init(from decoder: Decoder) throws {
+        var container = try decoder.container(keyedBy: ModelCodingKey.self)
+        self.name = try container.decode(String?.self, forKey: .name)
+        self.docId = try container.decode(AutoPopulatedDocumentId?.self, forKey: .docId)
+      }*/
+    }
+
+    let decoded = try Firestore.Decoder().decode(Model.self, from: ["name": "abc"], forDoc: FSTTestDocRef("abc/123"))
+    XCTAssertEqual(decoded, Model(name: "abc", docId: AutoPopulatedDocumentId(from: FSTTestDocRef("abc/123"))))
+  }
+
+  func testAutoPopulatedDocumentIdIgnoredInEncoding() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: AutoPopulatedDocumentId
+    }
+
+    let model = Model(name: "abc", docId: AutoPopulatedDocumentId(from: FSTTestDocRef("abc/123")))
+    _ = assertEncodes(model, to: ["name": "abc"])
+  }
+
+  func testEncodingAutoPopulatedDocumentIdNotEmbeddedThrows() {
+    let doc = AutoPopulatedDocumentId(from: FSTTestDocRef("abc/xyz"))
+    do {
+      _ = try Firestore.Encoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
+
+  func testAutoPopulatedDocumentIdWithJsonEncoderThrows() {
+    let doc = AutoPopulatedDocumentId(from: FSTTestDocRef("abc/xyz"))
+    do {
+      _ = try JSONEncoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
+
+  func testDecodingAutoPopulatedDocumentIdWithConfictingFieldsThrows() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: AutoPopulatedDocumentId
+    }
+
+    do {
+      _ = try Firestore.Decoder().decode(
+        Model.self,
+        from: ["name": "abc", "docId": "Causing conflict"],
+        forDoc: FSTTestDocRef("abc/123")
+      )
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreDecodingError.fieldNameConfict(_) {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
   }
 }
