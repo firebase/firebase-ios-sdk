@@ -23,6 +23,9 @@ cc_library(
     leveldb_migrations.h
     leveldb_mutation_queue.h
     leveldb_mutation_queue.mm
+    leveldb_persistence.mm
+    leveldb_persistence.h
+    leveldb_persistence_apple.mm
     leveldb_query_cache.h
     leveldb_query_cache.mm
     leveldb_remote_document_cache.h
