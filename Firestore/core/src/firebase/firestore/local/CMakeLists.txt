@@ -19,6 +19,8 @@ cc_library(
     leveldb_index_manager.mm
     leveldb_key.cc
     leveldb_key.h
+    leveldb_lru_reference_delegate.h
+    leveldb_lru_reference_delegate.mm
     leveldb_migrations.cc
     leveldb_migrations.h
     leveldb_mutation_queue.h
