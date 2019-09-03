@@ -71,6 +71,8 @@ cc_library(
     memory_eager_reference_delegate.h
     memory_index_manager.cc
     memory_index_manager.h
+    memory_lru_reference_delegate.cc
+    memory_lru_reference_delegate.h
     memory_mutation_queue.h
     memory_mutation_queue.mm
     memory_persistence.cc
