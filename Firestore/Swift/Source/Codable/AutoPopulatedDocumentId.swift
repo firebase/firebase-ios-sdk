@@ -16,31 +16,27 @@
 
 import FirebaseFirestore
 
-/// A special type used to mark a custom object field to be
-/// automatically populated with the document's referecne
-/// when the custom object is created from a Cloud Firestore
-/// document (for example, via `DocumentSnapshot.data()`).
+/// A special type used to mark a custom object field to be automatically
+/// populated with the document's referecne when the custom object is created
+/// from a Cloud Firestore document (for example, via
+/// `DocumentSnapshot.data()`).
 ///
-/// If the field name used for this type conflicts with a read
-/// document field, an error is thrown. For example, if a custom
-/// object has a field `firstName` with type AutoPopulatedDocumentId,
-/// and there is a property from the document named `firstName`
-/// as well, an error is thrown when you try to read the
-/// document.
+/// If the field name used for this type conflicts with a read document field,
+/// an error is thrown. For example, if a custom object has a field `firstName`
+/// with type AutoPopulatedDocumentId, and there is a property from the
+/// document named `firstName` as well, an error is thrown when you try to read
+/// the document.
 ///
-/// When using a custom object to write to a document, the field
-/// with this type is ignored, which allows writing the object
-/// back to any document, even if it's not the origin of the
-/// object.
+/// When using a custom object to write to a document, the field with this type
+/// is ignored, which allows writing the object back to any document, even if
+/// it is not the origin of the object.
 ///
-/// NOTE: Trying to decode to an `AutoPopulatedDocumentId?` type
-/// leads to an error, this is because compiler generated codable
-/// implementations checks for fields existence for optional
-/// types.
+/// NOTE: Trying to decode to an `AutoPopulatedDocumentId?` type leads to an
+/// error, this is because compiler generated codable implementations checks for
+/// fields existence for optional types.
 ///
-/// NOTE: Trying to encode/decode this type using
-/// encoders/decoders other than FirestoreEncoder leads to an
-/// error.
+/// NOTE: Trying to encode/decode this type using encoders/decoders other than
+/// FirestoreEncoder leads to an error.
 public final class AutoPopulatedDocumentId: Equatable, Codable {
   public let ref: DocumentReference
 
