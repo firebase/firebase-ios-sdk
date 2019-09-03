@@ -48,6 +48,12 @@ Shared library for iOS SDK data transport needs.
     test_spec.pod_target_xcconfig = header_search_paths
   end
 
+  s.test_spec 'Tests-Assertions-Blocked' do |test_spec|
+    test_spec.requires_app_host = false
+    test_spec.source_files = ['GoogleDataTransport/GDTTests/AssertionsBlocked/**/*.{h,m}']
+    test_spec.pod_target_xcconfig = header_search_paths.merge({'GCC_PREPROCESSOR_DEFINITIONS' => 'NS_BLOCK_ASSERTIONS=1'})
+  end
+
   s.test_spec 'Tests-Lifecycle' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTTests/Lifecycle/**/*.{h,m}'] + common_test_sources

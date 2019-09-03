@@ -16,6 +16,8 @@
 
 #import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
+#import <GoogleDataTransport/GDTAssert.h>
+
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
@@ -50,16 +52,16 @@
 }
 
 - (void)start {
-  NSAssert(self.server.isRunning == NO, @"The server should not be already running.");
+  GDTAssert(self.server.isRunning == NO, @"The server should not be already running.");
   NSError *error;
   [self.server
       startWithOptions:@{GCDWebServerOption_Port : @0, GCDWebServerOption_BindToLocalhost : @YES}
                  error:&error];
-  NSAssert(error == nil, @"Error when starting server: %@", error);
+  GDTAssert(error == nil, @"Error when starting server: %@", error);
 }
 
 - (void)stop {
-  NSAssert(self.server.isRunning, @"The server should be running before stopping.");
+  GDTAssert(self.server.isRunning, @"The server should be running before stopping.");
   [self.server stop];
 }
 
