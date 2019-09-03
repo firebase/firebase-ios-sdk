@@ -42,23 +42,22 @@ import FirebaseFirestore
 /// encoders/decoders other than FirestoreEncoder leads to an
 /// error.
 public final class AutoPopulatedDocumentId: Equatable, Codable {
-  
-  public let ref : DocumentReference
-  
+  public let ref: DocumentReference
+
   public init(from ref: DocumentReference) {
     self.ref = ref
   }
-  
+
   public init(from decoder: Decoder) throws {
     throw FirestoreDecodingError.decodingIsNotSupported
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     throw FirestoreEncodingError.encodingIsNotSupported
   }
-  
+
   public static func == (lhs: AutoPopulatedDocumentId,
-  rhs: AutoPopulatedDocumentId) -> Bool {
+                         rhs: AutoPopulatedDocumentId) -> Bool {
     return lhs.ref == rhs.ref
   }
 }

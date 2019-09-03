@@ -616,32 +616,6 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(decoded, Model(name: "abc", docId: AutoPopulatedDocumentId(from: FSTTestDocRef("abc/123"))))
   }
 
-  func testAutoPopulatedDocumentIdWorksWithOptional() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: AutoPopulatedDocumentId?
-      
-      public enum ModelCodingKey : CodingKey {
-        case name
-        case docId
-      }
-      
-      public init(name: String, docId: AutoPopulatedDocumentId) {
-        self.name = name
-        self.docId = docId
-      }
-      /*
-      public init(from decoder: Decoder) throws {
-        var container = try decoder.container(keyedBy: ModelCodingKey.self)
-        self.name = try container.decode(String?.self, forKey: .name)
-        self.docId = try container.decode(AutoPopulatedDocumentId?.self, forKey: .docId)
-      }*/
-    }
-
-    let decoded = try Firestore.Decoder().decode(Model.self, from: ["name": "abc"], forDoc: FSTTestDocRef("abc/123"))
-    XCTAssertEqual(decoded, Model(name: "abc", docId: AutoPopulatedDocumentId(from: FSTTestDocRef("abc/123"))))
-  }
-
   func testAutoPopulatedDocumentIdIgnoredInEncoding() throws {
     struct Model: Codable, Equatable {
       var name: String

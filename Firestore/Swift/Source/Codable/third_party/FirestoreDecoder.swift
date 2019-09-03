@@ -777,11 +777,6 @@ extension _FirestoreDecoder: SingleValueDecodingContainer {
   }
 
   public func decode<T: Decodable>(_: T.Type) throws -> T {
-    if T.self == AutoPopulatedDocumentId.self {
-      let docRef = userInfo[Firestore.Decoder.documentRefUserInfoKey!]
-        as! DocumentReference
-      return AutoPopulatedDocumentId(from: docRef) as! T
-    }
     try expectNonNull(T.self)
     return try unbox(storage.topContainer, as: T.self)!
   }
