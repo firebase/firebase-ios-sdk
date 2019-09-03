@@ -24,7 +24,6 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -32,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
@@ -48,10 +48,12 @@ namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LruDelegate;
 using firebase::firestore::local::LruGarbageCollector;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::MutationQueue;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::local::QueryPurpose;
@@ -144,32 +146,28 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - helpers
 
 - (ListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
-  return _persistence.run(
-      "gc", [&]() -> ListenSequenceNumber { return _gc->SequenceNumberForQueryCount(queryCount); });
+  return _persistence->Run("gc", [&] { return _gc->SequenceNumberForQueryCount(queryCount); });
 }
 
 - (int)queryCountForPercentile:(int)percentile {
-  return _persistence.run("query count",
-                          [&]() -> int { return _gc->QueryCountForPercentile(percentile); });
+  return _persistence->Run("query count", [&] { return _gc->QueryCountForPercentile(percentile); });
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:
                                   (const std::unordered_map<TargetId, QueryData> &)liveQueries {
-  return _persistence.run("gc",
-                          [&]() -> int { return _gc->RemoveTargets(sequenceNumber, liveQueries); });
+  return _persistence->Run("gc", [&] { return _gc->RemoveTargets(sequenceNumber, liveQueries); });
 }
 
 // Removes documents that are not part of a target or a mutation and have a sequence number
 // less than or equal to the given sequence number.
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
-  return _persistence.run("gc",
-                          [&]() -> int { return _gc->RemoveOrphanedDocuments(sequenceNumber); });
+  return _persistence->Run("gc", [&] { return _gc->RemoveOrphanedDocuments(sequenceNumber); });
 }
 
 - (QueryData)nextTestQuery {
   TargetId targetID = ++_previousTargetID;
-  ListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
+  ListenSequenceNumber listenSequenceNumber = _persistence->current_sequence_number();
   core::Query query = Query(absl::StrCat("path", targetID));
   return QueryData(std::move(query), targetID, listenSequenceNumber, QueryPurpose::Listen);
 }
@@ -182,12 +180,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateTargetInTransaction:(const QueryData &)queryData {
   QueryData updated = queryData.Copy(queryData.snapshot_version(), testutil::ResumeToken(7),
-                                     _persistence.currentSequenceNumber);
+                                     _persistence->current_sequence_number());
   _queryCache->UpdateTarget(updated);
 }
 
 - (QueryData)addNextQuery {
-  return _persistence.run("adding query", [&] { return [self addNextQueryInTransaction]; });
+  return _persistence->Run("adding query", [&] { return [self addNextQueryInTransaction]; });
 }
 
 // Simulates a document being mutated and then having that mutation ack'd.
@@ -201,8 +199,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)markDocumentEligibleForGC:(const DocumentKey &)docKey {
-  _persistence.run("Removing mutation reference",
-                   [&]() { [self markDocumentEligibleForGCInTransaction:docKey]; });
+  _persistence->Run("Removing mutation reference",
+                    [&] { [self markDocumentEligibleForGCInTransaction:docKey]; });
 }
 
 - (DocumentKey)markADocumentEligibleForGCInTransaction {
@@ -212,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)markDocumentEligibleForGCInTransaction:(const DocumentKey &)docKey {
-  [_persistence.referenceDelegate removeMutationReference:docKey];
+  _persistence->reference_delegate()->RemoveMutationReference(docKey);
 }
 
 - (void)addDocument:(const DocumentKey &)docKey toTarget:(TargetId)targetId {
@@ -277,8 +275,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
     int tenth = [self queryCountForPercentile:10];
     XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
-    [_persistence shutdown];
-    _persistence = nil;
+    _persistence->Shutdown();
+    _persistence.reset();
   }
 }
 
@@ -288,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
   // No queries... should get invalid sequence number (-1)
   [self newTestResources];
   XCTAssertEqual(local::kListenSequenceNumberInvalid, [self sequenceNumberForQueryCount:0]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testSequenceNumberForFiftyQueries {
@@ -300,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self addNextQuery];
   }
   XCTAssertEqual(_initialSequenceNumber + 10, [self sequenceNumberForQueryCount:10]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testSequenceNumberForMultipleQueriesInATransaction {
@@ -308,7 +306,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // 50 queries, 9 with one transaction, incrementing from there. Should get second sequence number.
   [self newTestResources];
-  _persistence.run("9 queries in a batch", [&]() {
+  _persistence->Run("9 queries in a batch", [&] {
     for (int i = 0; i < 9; i++) {
       [self addNextQueryInTransaction];
     }
@@ -317,7 +315,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self addNextQuery];
   }
   XCTAssertEqual(2 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 // Ensure that even if all of the queries are added in a single transaction, we still
@@ -328,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // 50 queries, 11 with one transaction, incrementing from there. Should get first sequence number.
   [self newTestResources];
-  _persistence.run("11 queries in a transaction", [&]() {
+  _persistence->Run("11 queries in a transaction", [&] {
     for (int i = 0; i < 11; i++) {
       [self addNextQueryInTransaction];
     }
@@ -339,7 +337,7 @@ NS_ASSUME_NONNULL_BEGIN
   // We expect to GC the targets from the first transaction, since they account for
   // at least the first 10 of the targets.
   XCTAssertEqual(1 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testSequenceNumbersWithMutationAndSequentialQueries {
@@ -353,7 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self addNextQuery];
   }
   XCTAssertEqual(10 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testSequenceNumbersWithMutationsInQueries {
@@ -363,7 +361,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Expect 3 past the initial value: the mutations not part of a query, and two queries
   [self newTestResources];
   Document docInQuery = [self nextTestDocument];
-  _persistence.run("mark mutations", [&]() {
+  _persistence->Run("mark mutations", [&] {
     // Adding 9 doc keys in a transaction. If we remove one of them, we'll have room for two actual
     // queries.
     [self markDocumentEligibleForGCInTransaction:docInQuery.key()];
@@ -374,7 +372,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (int i = 0; i < 49; i++) {
     [self addNextQuery];
   }
-  _persistence.run("query with mutation", [&]() {
+  _persistence->Run("query with mutation", [&] {
     QueryData queryData = [self addNextQueryInTransaction];
     // This should keep the document from getting GC'd, since it is no longer orphaned.
     [self addDocument:docInQuery.key() toTarget:queryData.target_id()];
@@ -382,7 +380,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // This should catch the remaining 8 documents, plus the first two queries we added.
   XCTAssertEqual(3 + _initialSequenceNumber, [self sequenceNumberForQueryCount:10]);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testRemoveQueriesUpThroughSequenceNumber {
@@ -403,12 +401,12 @@ NS_ASSUME_NONNULL_BEGIN
                                              liveQueries:liveQueries];
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
-  _persistence.run("verify remaining targets are > 20 or odd", [&]() {
+  _persistence->Run("verify remaining targets are > 20 or odd", [&] {
     _queryCache->EnumerateTargets([&](const QueryData &queryData) {
       XCTAssertTrue(queryData.target_id() > 20 || queryData.target_id() % 2 == 1);
     });
   });
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testRemoveOrphanedDocuments {
@@ -424,7 +422,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
-  _persistence.run("add a target and add two documents to it", [&]() {
+  _persistence->Run("add a target and add two documents to it", [&] {
     // Add two documents to first target, queue a mutation on the second document
     QueryData queryData = [self addNextQueryInTransaction];
     Document doc1 = [self cacheADocumentInTransaction];
@@ -438,7 +436,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Add a second query and register a third document on it
-  _persistence.run("second query", [&]() {
+  _persistence->Run("second query", [&] {
     QueryData queryData = [self addNextQueryInTransaction];
     Document doc3 = [self cacheADocumentInTransaction];
     expectedRetained.insert(doc3.key());
@@ -446,7 +444,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // cache another document and prepare a mutation on it.
-  _persistence.run("queue a mutation", [&]() {
+  _persistence->Run("queue a mutation", [&] {
     Document doc4 = [self cacheADocumentInTransaction];
     mutations.push_back([self mutationForDocument:doc4.key()]);
     expectedRetained.insert(doc4.key());
@@ -454,7 +452,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Insert the mutations. These operations don't have a sequence number, they just
   // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
-  _persistence.run("actually register the mutations", [&]() {
+  _persistence->Run("actually register the mutations", [&] {
     Timestamp writeTime = Timestamp::Now();
     _mutationQueue->AddMutationBatch(writeTime, {}, std::move(mutations));
   });
@@ -463,7 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Since they were ack'd, they are no longer in a mutation queue, and there is nothing keeping
   // them alive.
   std::unordered_set<DocumentKey, DocumentKeyHash> toBeRemoved;
-  _persistence.run("add orphaned docs (previously mutated, then ack'd)", [&]() {
+  _persistence->Run("add orphaned docs (previously mutated, then ack'd)", [&] {
     for (int i = 0; i < 5; i++) {
       Document doc = [self cacheADocumentInTransaction];
       toBeRemoved.insert(doc.key());
@@ -476,7 +474,7 @@ NS_ASSUME_NONNULL_BEGIN
   // use a large sequence number to remove as much as possible
   int removed = [self removeOrphanedDocumentsThroughSequenceNumber:1000];
   XCTAssertEqual(toBeRemoved.size(), removed);
-  _persistence.run("verify", [&]() {
+  _persistence->Run("verify", [&] {
     for (const DocumentKey &key : toBeRemoved) {
       XCTAssertEqual(_documentCache->Get(key), absl::nullopt);
       XCTAssertFalse(_queryCache->Contains(key));
@@ -486,7 +484,7 @@ NS_ASSUME_NONNULL_BEGIN
                         key.ToString().c_str());
     }
   });
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 // TODO(gsoltis): write a test that includes limbo documents
@@ -522,7 +520,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Add oldest target, 5 documents, and add those documents to the target.
   // This target will not be removed, so all documents that are part of it will
   // be retained.
-  QueryData oldestTarget = _persistence.run("Add oldest target and docs", [&] {
+  QueryData oldestTarget = _persistence->Run("Add oldest target and docs", [&] {
     QueryData queryData = [self addNextQueryInTransaction];
     for (int i = 0; i < 5; i++) {
       Document doc = [self cacheADocumentInTransaction];
@@ -537,7 +535,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet middleDocsToRemove;
   // This will be the document in this target that gets an update later
   DocumentKey middleDocToUpdate;
-  QueryData middleTarget = _persistence.run("Add middle target and docs", [&] {
+  QueryData middleTarget = _persistence->Run("Add middle target and docs", [&] {
     QueryData middleTarget = [self addNextQueryInTransaction];
     // these docs will be removed from this target later, triggering a bump
     // to their sequence numbers. Since they will not be a part of the target, we
@@ -570,7 +568,7 @@ NS_ASSUME_NONNULL_BEGIN
   // be retained. The remaining documents are expected to be removed, since this target
   // will be removed.
   DocumentKeySet newestDocsToAddToOldest;
-  _persistence.run("Add newest target and docs", [&]() {
+  _persistence->Run("Add newest target and docs", [&] {
     QueryData newestTarget = [self addNextQueryInTransaction];
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
@@ -589,7 +587,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // 2 doc writes, add one of them to the oldest target.
-  _persistence.run("2 doc writes, add one of them to the oldest target", [&]() {
+  _persistence->Run("2 doc writes, add one of them to the oldest target", [&] {
     // write two docs and have them ack'd by the server. can skip mutation queue
     // and set them in document cache. Add potentially orphaned first, also add one
     // doc to a target.
@@ -607,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Remove some documents from the middle target.
-  _persistence.run("Remove some documents from the middle target", [&]() {
+  _persistence->Run("Remove some documents from the middle target", [&] {
     [self updateTargetInTransaction:middleTarget];
     for (const DocumentKey &docKey : middleDocsToRemove) {
       [self removeDocument:docKey fromTarget:middleTarget.target_id()];
@@ -617,17 +615,17 @@ NS_ASSUME_NONNULL_BEGIN
   // Add a couple docs from the newest target to the oldest (preserves them past the point where
   // newest was removed)
   // upperBound is the sequence number right before middleTarget is updated, then removed.
-  ListenSequenceNumber upperBound = _persistence.run(
-      "Add a couple docs from the newest target to the oldest", [&]() -> ListenSequenceNumber {
+  ListenSequenceNumber upperBound =
+      _persistence->Run("Add a couple docs from the newest target to the oldest", [&] {
         [self updateTargetInTransaction:oldestTarget];
         for (const DocumentKey &docKey : newestDocsToAddToOldest) {
           [self addDocument:docKey toTarget:oldestTarget.target_id()];
         }
-        return _persistence.currentSequenceNumber;
+        return _persistence->current_sequence_number();
       });
 
   // Update a doc in the middle target
-  _persistence.run("Update a doc in the middle target", [&]() {
+  _persistence->Run("Update a doc in the middle target", [&] {
     FSTTestSnapshotVersion version = 3;
     Document doc(ObjectValue(_testValue), middleDocToUpdate, Version(version),
                  DocumentState::kSynced);
@@ -638,7 +636,7 @@ NS_ASSUME_NONNULL_BEGIN
   // middleTarget removed here, no update needed
 
   // Write a doc and get an ack, not part of a target.
-  _persistence.run("Write a doc and get an ack, not part of a target", [&]() {
+  _persistence->Run("Write a doc and get an ack, not part of a target", [&] {
     Document doc = [self cacheADocumentInTransaction];
     // Mark it as eligible for GC, but this is after our upper bound for what we will collect.
     [self markDocumentEligibleForGCInTransaction:doc.key()];
@@ -653,7 +651,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
   int docsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
   XCTAssertEqual(expectedRemoved.size(), docsRemoved);
-  _persistence.run("verify results", [&]() {
+  _persistence->Run("verify results", [&] {
     for (const DocumentKey &key : expectedRemoved) {
       XCTAssertEqual(_documentCache->Get(key), absl::nullopt,
                      @"Did not expect to find %s in document cache", key.ToString().c_str());
@@ -667,7 +665,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testGetsSize {
@@ -677,7 +675,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   size_t initialSize = _gc->CalculateByteSize();
 
-  _persistence.run("fill cache", [&]() {
+  _persistence->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
       Document doc = [self cacheADocumentInTransaction];
@@ -688,7 +686,7 @@ NS_ASSUME_NONNULL_BEGIN
   size_t finalSize = _gc->CalculateByteSize();
   XCTAssertGreaterThan(finalSize, initialSize);
 
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testDisabled {
@@ -697,7 +695,7 @@ NS_ASSUME_NONNULL_BEGIN
   LruParams params = LruParams::Disabled();
   [self newTestResourcesWithLruParams:params];
 
-  _persistence.run("fill cache", [&]() {
+  _persistence->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 500; i++) {
       Document doc = [self cacheADocumentInTransaction];
@@ -705,10 +703,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
+  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
   XCTAssertFalse(results.did_run);
 
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testCacheTooSmall {
@@ -717,7 +715,7 @@ NS_ASSUME_NONNULL_BEGIN
   LruParams params = LruParams::Default();
   [self newTestResourcesWithLruParams:params];
 
-  _persistence.run("fill cache", [&]() {
+  _persistence->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations
     for (int i = 0; i < 50; i++) {
       Document doc = [self cacheADocumentInTransaction];
@@ -730,10 +728,10 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertLessThan(cacheSize, params.min_bytes_threshold);
 
   // Try collection and verify that it didn't run
-  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
+  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
   XCTAssertFalse(results.did_run);
 
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 - (void)testGCRan {
@@ -748,7 +746,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (int i = 0; i < 100; i++) {
     // Use separate transactions so that each target and associated documents get their own
     // sequence number.
-    _persistence.run("Add a target and some documents", [&]() {
+    _persistence->Run("Add a target and some documents", [&] {
       QueryData queryData = [self addNextQueryInTransaction];
       for (int j = 0; j < 10; j++) {
         Document doc = [self cacheADocumentInTransaction];
@@ -758,14 +756,14 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Mark nothing as live, so everything is eligible.
-  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
+  LruResults results = _persistence->Run("GC", [&] { return _gc->Collect({}); });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.
   XCTAssertTrue(results.did_run);
   XCTAssertEqual(10, results.targets_removed);
   XCTAssertEqual(100, results.documents_removed);
-  [_persistence shutdown];
+  _persistence->Shutdown();
 }
 
 @end

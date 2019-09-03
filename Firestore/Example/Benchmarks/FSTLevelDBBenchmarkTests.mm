@@ -19,7 +19,6 @@
 
 #include <cstdint>
 
-#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
@@ -86,8 +85,8 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
   void TearDown(benchmark::State &state) override {
-    [db_ shutdown];
-    db_ = nil;
+    db_->Shutdown();
+    db_.reset();
   }
 
   void FillDB() {

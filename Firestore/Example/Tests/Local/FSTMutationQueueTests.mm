@@ -22,11 +22,10 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -71,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCountBatches {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testCountBatches", [&]() {
+  self.persistence->Run("testCountBatches", [&]() {
     XCTAssertEqual(0, [self batchCount]);
     XCTAssertTrue(self.mutationQueue->IsEmpty());
 
@@ -94,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAcknowledgeBatchID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAcknowledgeBatchID", [&]() {
+  self.persistence->Run("testAcknowledgeBatchID", [&]() {
     XCTAssertEqual([self batchCount], 0);
 
     MutationBatch batch1 = [self addMutationBatch];
@@ -124,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAcknowledgeThenRemove {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAcknowledgeThenRemove", [&]() {
+  self.persistence->Run("testAcknowledgeThenRemove", [&]() {
     MutationBatch batch1 = [self addMutationBatch];
 
     self.mutationQueue->AcknowledgeBatch(batch1, {});
@@ -138,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   // Searching on an empty queue should not find a non-existent batch
-  self.persistence.run("testLookupMutationBatch", [&]() {
+  self.persistence->Run("testLookupMutationBatch", [&]() {
     absl::optional<MutationBatch> notFound = self.mutationQueue->LookupMutationBatch(42);
     XCTAssertEqual(notFound, absl::nullopt);
 
@@ -167,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNextMutationBatchAfterBatchID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testNextMutationBatchAfterBatchID", [&]() {
+  self.persistence->Run("testNextMutationBatchAfterBatchID", [&]() {
     std::vector<MutationBatch> batches = [self createBatches:10];
     std::vector<MutationBatch> removed = [self removeFirstBatches:3 inBatches:&batches];
 
@@ -202,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingDocumentKey {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+  self.persistence->Run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     std::vector<Mutation> mutations = {
         FSTTestSetMutation(@"foi/bar", @{@"a" : @1}),
         FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
@@ -230,7 +229,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingDocumentKeys {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+  self.persistence->Run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     std::vector<Mutation> mutations = {
         FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
         FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
@@ -263,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingDocumentKeys_handlesOverlap {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
+  self.persistence->Run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
     std::vector<Mutation> group1 = {
         FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
         FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
@@ -296,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
+  self.persistence->Run("testAllMutationBatchesAffectingQuery", [&]() {
     std::vector<Mutation> mutations = {
         FSTTestSetMutation(@"fob/bar", @{@"a" : @1}),
         FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
@@ -325,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveMutationBatches {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testRemoveMutationBatches", [&]() {
+  self.persistence->Run("testRemoveMutationBatches", [&]() {
     std::vector<MutationBatch> batches = [self createBatches:10];
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -385,7 +384,7 @@ NS_ASSUME_NONNULL_BEGIN
   ByteString streamToken1("token1");
   ByteString streamToken2("token2");
 
-  self.persistence.run("testStreamToken", [&]() {
+  self.persistence->Run("testStreamToken", [&]() {
     self.mutationQueue->SetLastStreamToken(streamToken1);
 
     MutationBatch batch1 = [self addMutationBatch];

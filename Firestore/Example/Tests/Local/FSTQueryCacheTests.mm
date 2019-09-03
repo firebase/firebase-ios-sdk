@@ -19,11 +19,11 @@
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadQueryNotInCache {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testReadQueryNotInCache", [&]() {
+  self.persistence->Run("testReadQueryNotInCache", [&]() {
     XCTAssertEqual(self.queryCache->GetTarget(_queryRooms), absl::nullopt);
   });
 }
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetAndReadAQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testSetAndReadAQuery", [&]() {
+  self.persistence->Run("testSetAndReadAQuery", [&]() {
     QueryData queryData = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(queryData);
 
@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanonicalIDCollision {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testCanonicalIDCollision", [&]() {
+  self.persistence->Run("testCanonicalIDCollision", [&]() {
     // Type information is currently lost in our canonicalID implementations so this currently an
     // easy way to force colliding canonicalIDs
     core::Query q1 = Query("a").AddingFilter(Filter("foo", "==", 1));
@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetQueryToNewValue {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testSetQueryToNewValue", [&]() {
+  self.persistence->Run("testSetQueryToNewValue", [&]() {
     QueryData queryData1 = [self queryDataWithQuery:_queryRooms
                                            targetID:1
                                listenSequenceNumber:10
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testRemoveQuery", [&]() {
+  self.persistence->Run("testRemoveQuery", [&]() {
     QueryData queryData1 = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(queryData1);
 
@@ -176,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveNonExistentQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testRemoveNonExistentQuery", [&]() {
+  self.persistence->Run("testRemoveNonExistentQuery", [&]() {
     QueryData queryData = [self queryDataWithQuery:_queryRooms];
 
     // no-op, but make sure it doesn't throw.
@@ -187,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
+  self.persistence->Run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
     QueryData rooms = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(rooms);
 
@@ -208,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAddOrRemoveMatchingKeys", [&]() {
+  self.persistence->Run("testAddOrRemoveMatchingKeys", [&]() {
     DocumentKey key = testutil::Key("foo/bar");
 
     XCTAssertFalse(self.queryCache->Contains(key));
@@ -230,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testMatchingKeysForTargetID", [&]() {
+  self.persistence->Run("testMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
@@ -251,7 +251,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestListenSequenceNumber {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testHighestListenSequenceNumber", [&]() {
+  self.persistence->Run("testHighestListenSequenceNumber", [&]() {
     QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
     self.queryCache->AddTarget(query1);
     QueryData query2(Query("halls"), 2, 20, QueryPurpose::Listen);
@@ -277,7 +277,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testHighestTargetID", [&]() {
+  self.persistence->Run("testHighestTargetID", [&]() {
     XCTAssertEqual(self.queryCache->highest_target_id(), 0);
 
     QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
@@ -313,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testLastRemoteSnapshotVersion {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testLastRemoteSnapshotVersion", [&]() {
+  self.persistence->Run("testLastRemoteSnapshotVersion", [&]() {
     XCTAssertEqual(self.queryCache->GetLastRemoteSnapshotVersion(), SnapshotVersion::None());
 
     // Can set the snapshot version.

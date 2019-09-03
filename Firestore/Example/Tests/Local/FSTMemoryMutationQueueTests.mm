@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 
 using firebase::firestore::auth::User;
+using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::ReferenceSet;
 
 @interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
