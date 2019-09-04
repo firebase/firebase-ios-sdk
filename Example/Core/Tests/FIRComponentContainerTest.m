@@ -17,6 +17,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainerInternal.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import "FIRTestComponents.h"
 
@@ -49,11 +50,18 @@
 
 @end
 
-@interface FIRComponentContainerTest : FIRTestCase
+@interface FIRComponentContainerTest : FIRTestCase {
+  FIRApp *_hostApp;
+}
 
 @end
 
 @implementation FIRComponentContainerTest
+
+- (void)tearDown {
+  _hostApp = nil;
+  [super tearDown];
+}
 
 #pragma mark - Registration Tests
 
@@ -100,10 +108,9 @@
 
 - (void)testRemoveAllCachedInstances {
   FIRComponentContainer *container =
-      [self containerWithRegistrants:@ [[FIRTestClass class],
-                                        [FIRTestClassCached class],
+      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassCached class],
                                         [FIRTestClassEagerCached class],
-                                        [FIRTestClassWithDep class]]];
+                                        [FIRTestClassCachedWithDep class]]];
 
   // Retrieve an instance of FIRTestClassCached to ensure it's cached.
   id<FIRTestProtocolCached> cachedInstance1 = FIR_COMPONENT(FIRTestProtocolCached, container);
@@ -154,26 +161,53 @@
 
 - (void)testDependencyDoesntBlock {
   /// Test a class that has a dependency, and fetching doesn't block the internal queue.
-  FIRComponentContainer *container =
-      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassWithDep class]]];
+  FIRComponentContainer *container = [self
+      containerWithRegistrants:@ [[FIRTestClassCached class], [FIRTestClassCachedWithDep class]]];
   XCTAssert(container.components.count == 2);
 
-  id<FIRTestProtocolWithDep> instanceWithDep = FIR_COMPONENT(FIRTestProtocolWithDep, container);
+  id<FIRTestProtocolCachedWithDep> instanceWithDep =
+      FIR_COMPONENT(FIRTestProtocolCachedWithDep, container);
   XCTAssertNotNil(instanceWithDep);
+}
+
+- (void)testDependencyRemoveAllCachedInstancesDoesntBlock {
+  /// Test a class that has a dependency, and fetching doesn't block the internal queue.
+  FIRComponentContainer *container = [self
+      containerWithRegistrants:@ [[FIRTestClassCached class], [FIRTestClassCachedWithDep class]]];
+  XCTAssert(container.components.count == 2);
+
+  id<FIRTestProtocolCachedWithDep> instanceWithDep =
+      FIR_COMPONENT(FIRTestProtocolCachedWithDep, container);
+  XCTAssertNotNil(instanceWithDep);
+  XCTAssertNotNil(instanceWithDep.testProperty);
+
+  // Both `instanceWithDep` and `testProperty` should be cached now.
+  XCTAssertTrue(container.cachedInstances.count == 2);
+
+  // Remove the instances and verify cachedInstances is empty, and doesn't block the queue.
+  [container removeAllCachedInstances];
+  XCTAssertTrue(container.cachedInstances.count == 0);
 }
 
 #pragma mark - Convenience Methods
 
 /// Create a container that has registered the test class.
 - (FIRComponentContainer *)containerWithRegistrants:(NSArray<Class> *)registrants {
-  id appMock = OCMClassMock([FIRApp class]);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  _hostApp = [[FIRApp alloc] initInstanceWithName:@"fake_app" options:options];
   NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
 
   // Initialize the container with the test classes.
   for (Class c in registrants) {
     [FIRComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
   }
-  return [[FIRComponentContainer alloc] initWithApp:appMock registrants:allRegistrants];
+
+  // Override the app's container with the newly instantiated container.
+  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:_hostApp
+                                                                    registrants:allRegistrants];
+  _hostApp.container = container;
+  return container;
 }
 
 @end
