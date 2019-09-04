@@ -29,11 +29,15 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+namespace firebase {
+namespace firestore {
+namespace core {
+
 namespace {
 
-using firebase::firestore::Error;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::util::Status;
+using firestore::Error;
+using model::ListenSequenceNumber;
+using util::Status;
 
 // Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
 // them don't need real sequence numbers.
@@ -48,9 +52,6 @@ bool ErrorIsInteresting(const Status& error) {
 }
 
 }  // namespace
-namespace firebase {
-namespace firestore {
-namespace core {
 
 using auth::User;
 using local::LocalViewChanges;
@@ -89,6 +90,7 @@ void SyncEngine::AssertCallbackExists(absl::string_view source) {
 
 TargetId SyncEngine::Listen(Query query) {
   AssertCallbackExists("Listen");
+
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
@@ -131,6 +133,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
 
 void SyncEngine::StopListening(const Query& query) {
   AssertCallbackExists("StopListening");
+
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
@@ -231,13 +234,15 @@ void SyncEngine::ApplyRemoteEvent(const RemoteEvent& remote_event) {
     if (it == limbo_resolutions_by_target_.end()) {
       continue;
     }
+
     LimboResolution& limbo_resolution = it->second;
     // Since this is a limbo resolution lookup, it's for a single document and
     // it could be added, modified, or removed, but not a combination.
+    auto changed_documents_count = change.added_documents().size() +
+                                   change.modified_documents().size() +
+                                   change.removed_documents().size();
     HARD_ASSERT(
-        change.added_documents().size() + change.modified_documents().size() +
-                change.removed_documents().size() <=
-            1,
+        changed_documents_count <= 1,
         "Limbo resolution for single document contains multiple changes.");
 
     if (!change.added_documents().empty()) {
@@ -420,7 +425,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
 
   for (const auto& entry : query_views_by_query_) {
     const auto& query_view = entry.second;
-    const View& view = query_view->view();
+    View& view = query_view->view();
     ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(changes);
     if (view_doc_changes.needs_refill()) {
       // The query has a limit and some docs were removed/updated, so we need to
@@ -440,7 +445,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       }
     }
     ViewChange view_change =
-        query_view->view().ApplyChanges(view_doc_changes, target_changes);
+        view.ApplyChanges(view_doc_changes, target_changes);
 
     UpdateTrackedLimboDocuments(view_change.limbo_changes(),
                                 query_view->target_id());

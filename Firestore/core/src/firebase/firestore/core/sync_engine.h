@@ -41,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -167,7 +168,7 @@ class SyncEngine {
      * the results that was received. This can be used to indicate where to
      * continue receiving new doc changes for the query.
      */
-    const nanopb::ByteString resume_token() const {
+    const nanopb::ByteString& resume_token() const {
       return resume_token_;
     }
 
@@ -261,6 +262,8 @@ class SyncEngine {
   std::unordered_map<model::BatchId, std::vector<util::StatusCallback>>
       pending_writes_callbacks_;
 
+  // Shared pointers are used to avoid creating and storing two copies of the
+  // same `QueryView` and for consistency with other platforms.
   /** QueryViews for all active queries, indexed by query. */
   std::unordered_map<Query, std::shared_ptr<QueryView>> query_views_by_query_;
 
