@@ -74,6 +74,10 @@ static NSString *GDTStoragePath() {
 }
 
 - (void)storeEvent:(GDTEvent *)event {
+  if (event == nil) {
+    return;
+  }
+
   [self createEventDirectoryIfNotExists];
 
   __block GDTBackgroundIdentifier bgID = GDTBackgroundIdentifierInvalid;
@@ -84,10 +88,6 @@ static NSString *GDTStoragePath() {
         bgID = GDTBackgroundIdentifierInvalid;
       }
     }];
-  }
-
-  if (event == nil) {
-    return;
   }
 
   dispatch_async(_storageQueue, ^{
