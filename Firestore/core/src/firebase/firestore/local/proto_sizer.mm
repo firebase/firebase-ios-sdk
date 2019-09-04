@@ -27,34 +27,16 @@
 namespace firebase {
 namespace firestore {
 namespace local {
-namespace {
 
 using model::DocumentKey;
 using model::MaybeDocument;
-
-/**
- * Returns an estimate of the number of bytes used to store the given document
- * key in memory. This is only an estimate and includes the size of the segments
- * of the path, but not any object overhead or path separators.
- */
-int64_t DocumentKeyByteSize(const DocumentKey& key) {
-  int64_t count = 0;
-  for (const auto& segment : key.path()) {
-    count += segment.size();
-  }
-  return count;
-}
-
-}  // namespace
 
 ProtoSizer::ProtoSizer(FSTLocalSerializer* serializer)
     : serializer_(serializer) {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
-  int64_t count = DocumentKeyByteSize(maybe_doc.key());
-  count += [[serializer_ encodedMaybeDocument:maybe_doc] serializedSize];
-  return count;
+  return [[serializer_ encodedMaybeDocument:maybe_doc] serializedSize];
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
