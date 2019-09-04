@@ -67,7 +67,16 @@ Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
 
 // Check state
 
+struct Foo {
+  std::string id() const {
+    return id_;
+  }
+  std::string id_;
+};
+
 bool Stream::IsOpen() const {
+  Foo foo;
+  auto f = foo.id();
   EnsureOnQueue();
   return state_ == State::Open;
 }
