@@ -100,8 +100,10 @@
 
 - (void)testRemoveAllCachedInstances {
   FIRComponentContainer *container =
-      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassCached class],
-                                        [FIRTestClassEagerCached class]]];
+      [self containerWithRegistrants:@ [[FIRTestClass class],
+                                        [FIRTestClassCached class],
+                                        [FIRTestClassEagerCached class],
+                                        [FIRTestClassWithDep class]]];
 
   // Retrieve an instance of FIRTestClassCached to ensure it's cached.
   id<FIRTestProtocolCached> cachedInstance1 = FIR_COMPONENT(FIRTestProtocolCached, container);
@@ -146,6 +148,18 @@
   FIRComponentContainer *container =
       [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassDuplicate class]]];
   XCTAssert(container.components.count == 1);
+}
+
+#pragma mark - Dependency Tests
+
+- (void)testDependencyDoesntBlock {
+  /// Test a class that has a dependency, and fetching doesn't block the internal queue.
+  FIRComponentContainer *container =
+      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassWithDep class]]];
+  XCTAssert(container.components.count == 2);
+
+  id<FIRTestProtocolWithDep> instanceWithDep = FIR_COMPONENT(FIRTestProtocolWithDep, container);
+  XCTAssertNotNil(instanceWithDep);
 }
 
 #pragma mark - Convenience Methods

@@ -15,6 +15,7 @@
 #import "FIRTestComponents.h"
 
 #import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRDependency.h>
 
 #pragma mark - Standard Component
 
@@ -122,3 +123,39 @@
 }
 
 @end
+
+
+#pragma mark - Test Component with Dependency
+
+@implementation FIRTestClassWithDep
+
+- (instancetype)initWithTest:(id<FIRTestProtocol>)testInstance {
+  self = [super init];
+  if (self != nil) {
+    self.testProperty = testInstance;
+  }
+  return self;
+}
+
+- (void)appWillBeDeleted:(nonnull FIRApp *)app {
+  // Do something that depends on the instance from our dependency.
+  [self.testProperty doSomething];
+}
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *dep = [FIRDependency dependencyWithProtocol:@protocol(FIRTestProtocol)];
+  FIRComponent *testComponent = [FIRComponent
+      componentWithProtocol:@protocol(FIRTestProtocolWithDep)
+        instantiationTiming:FIRInstantiationTimingLazy
+               dependencies:@[dep]
+              creationBlock:^id _Nullable(FIRComponentContainer *_Nonnull container,
+                                          BOOL *_Nonnull isCacheable) {
+                id<FIRTestProtocol> test = FIR_COMPONENT(FIRTestProtocol, container);
+                FIRTestClassWithDep *instance = [[FIRTestClassWithDep alloc] initWithTest:test];
+                return instance;
+              }];
+  return @[ testComponent ];
+}
+
+@end
+

@@ -60,3 +60,17 @@
 @interface FIRTestClassCached
     : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end
+
+#pragma mark - Dependency on Standard
+
+/// A test protocol to be used for container testing.
+@protocol FIRTestProtocolWithDep
+@end
+
+/// A test class that is a component registrant that provides a component with a dependency on
+// `FIRTestProtocol`.
+@interface FIRTestClassWithDep
+    : NSObject <FIRTestProtocolWithDep, FIRComponentLifecycleMaintainer, FIRLibrary>
+@property(nonatomic, strong) id<FIRTestProtocol>testProperty;
+- (instancetype)initWithTest:(id<FIRTestProtocol>)testInstance;
+@end
