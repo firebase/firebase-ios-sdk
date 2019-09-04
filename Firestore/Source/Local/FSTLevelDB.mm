@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
+#include <limits>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -99,7 +100,7 @@ static const char *kReservedPathComponent = "firestore";
 
 @interface FSTLevelDB ()
 
-- (size_t)byteSize;
+- (int64_t)byteSize;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 
@@ -276,7 +277,7 @@ static const char *kReservedPathComponent = "firestore";
   [self writeSentinelForKey:key];
 }
 
-- (size_t)byteSize {
+- (int64_t)byteSize {
   return [_db byteSize];
 }
 
@@ -379,7 +380,7 @@ static const char *kReservedPathComponent = "firestore";
   return self;
 }
 
-- (size_t)byteSize {
+- (int64_t)byteSize {
   int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(_directory);
   for (; iter->Valid(); iter->Next()) {
@@ -388,8 +389,9 @@ static const char *kReservedPathComponent = "firestore";
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
               iter->status().error_message().c_str());
-  HARD_ASSERT(count >= 0 && count <= SIZE_MAX, "Overflowed counting bytes cached");
-  return static_cast<size_t>(count);
+  HARD_ASSERT(count >= 0 && count <= std::numeric_limits<int64_t>::max(),
+              "Overflowed counting bytes cached");
+  return count;
 }
 
 - (const std::set<std::string> &)users {

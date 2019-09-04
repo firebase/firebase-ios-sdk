@@ -58,7 +58,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
       FSTMemoryLRUReferenceDelegate* reference_delegate,
       model::ListenSequenceNumber upper_bound);
 
-  size_t CalculateByteSize(const Sizer& sizer);
+  int64_t CalculateByteSize(const Sizer& sizer);
 
  private:
   /** Underlying cache of documents. */
