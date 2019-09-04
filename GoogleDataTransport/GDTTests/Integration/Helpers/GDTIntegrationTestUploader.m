@@ -16,6 +16,7 @@
 
 #import "GDTTests/Integration/Helpers/GDTIntegrationTestUploader.h"
 
+#import <GoogleDataTransport/GDTAssert.h>
 #import <GoogleDataTransport/GDTRegistrar.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
@@ -41,7 +42,8 @@
 }
 
 - (void)uploadPackage:(GDTUploadPackage *)package {
-  NSAssert(!_currentUploadTask, @"An upload shouldn't be initiated with another in progress.");
+  GDTFatalAssert(!_currentUploadTask,
+                 @"An upload shouldn't be initiated with another in progress.");
   NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
                                            : [_serverURL URLByAppendingPathComponent:@"logBatch"];
   NSURLSession *session = [NSURLSession sharedSession];
@@ -54,24 +56,24 @@
   // In real usage, you'd create an instance of whatever request proto your server needs.
   for (GDTStoredEvent *event in package.events) {
     NSData *fileData = [NSData dataWithContentsOfURL:event.dataFuture.fileURL];
-    NSAssert(fileData, @"An event file shouldn't be empty");
+    GDTFatalAssert(fileData, @"An event file shouldn't be empty");
     [uploadData appendData:fileData];
   }
-  _currentUploadTask =
-      [session uploadTaskWithRequest:request
-                            fromData:uploadData
-                   completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                       NSError *_Nullable error) {
-                     NSLog(@"Batch upload complete.");
-                     // Remove from the prioritizer if there were no errors.
-                     NSAssert(!error, @"There should be no errors uploading events: %@", error);
-                     if (error) {
-                       [package retryDeliveryInTheFuture];
-                     } else {
-                       [package completeDelivery];
-                     }
-                     self->_currentUploadTask = nil;
-                   }];
+  _currentUploadTask = [session
+      uploadTaskWithRequest:request
+                   fromData:uploadData
+          completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                              NSError *_Nullable error) {
+            NSLog(@"Batch upload complete.");
+            // Remove from the prioritizer if there were no errors.
+            GDTFatalAssert(!error, @"There should be no errors uploading events: %@", error);
+            if (error) {
+              [package retryDeliveryInTheFuture];
+            } else {
+              [package completeDelivery];
+            }
+            self->_currentUploadTask = nil;
+          }];
   [_currentUploadTask resume];
 }
 
