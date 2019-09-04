@@ -53,6 +53,7 @@ class ABSL_MUST_USE_RESULT Status {
   Status(const Status& s);
   void operator=(const Status& s);
 
+  /// Move the specified status.
   Status(Status&& s);
   void operator=(Status&& s);
 
