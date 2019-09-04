@@ -19,7 +19,7 @@ Shared library for iOS SDK data transport needs.
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
-  # To develop or run the tests, >= 1.6.0 must be installed.
+  # To develop or run the tests, >= 1.7.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
@@ -60,5 +60,11 @@ Shared library for iOS SDK data transport needs.
     test_spec.source_files = ['GoogleDataTransport/GDTTests/Integration/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
     test_spec.dependency 'GCDWebServer'
+  end
+
+  # Test app specs
+  s.app_spec 'TestApp' do |app_spec|
+    app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+    app_spec.resources = ['GoogleDataTransport/GDTTestApp/*.storyboard']
   end
 end
