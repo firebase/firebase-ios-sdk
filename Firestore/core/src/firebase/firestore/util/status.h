@@ -25,6 +25,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -52,6 +53,9 @@ class ABSL_MUST_USE_RESULT Status {
   Status(const Status& s);
   void operator=(const Status& s);
 
+  Status(Status&& s);
+  void operator=(Status&& s);
+
   static Status OK() {
     return Status();
   }
@@ -71,7 +75,7 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Returns true iff the status indicates success.
   bool ok() const {
-    return (state_ == nullptr);
+    return (!is_moved_from_ && state_ == nullptr);
   }
 
   Error code() const {
@@ -132,6 +136,10 @@ class ABSL_MUST_USE_RESULT Status {
   // a `State` structure containing the error code and message(s)
   std::unique_ptr<State> state_;
 
+  // Whether this instance has been moved. Without this `ok()` will be true
+  // for moved instances.
+  bool is_moved_from_ = false;
+
   void SlowCopyFrom(const State* src);
 };
 
@@ -167,6 +175,15 @@ inline void Status::operator=(const Status& s) {
   if (state_ != s.state_) {
     SlowCopyFrom(s.state_.get());
   }
+}
+
+inline Status::Status(Status&& s) : state_(std::move(s.state_)) {
+  s.is_moved_from_ = true;
+}
+
+inline void Status::operator=(Status&& s) {
+  state_ = std::move(s.state_);
+  s.is_moved_from_ = true;
 }
 
 inline bool Status::operator==(const Status& x) const {

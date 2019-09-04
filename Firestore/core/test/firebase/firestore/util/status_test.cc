@@ -55,6 +55,20 @@ TEST(Status, Copy) {
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
+TEST(Status, Move) {
+  Status s(Status(Error::InvalidArgument, "Invalid"));
+  ASSERT_EQ(Error::InvalidArgument, s.code());
+
+  Status new_s = std::move(s);
+  ASSERT_EQ(Error::InvalidArgument, new_s.code());
+
+  Status ok = Status::OK();
+  Status new_ok = std::move(ok);
+  ASSERT_TRUE(new_ok.ok());
+  // Moved OK is not OK anymore.
+  ASSERT_FALSE(ok.ok());
+}
+
 TEST(Status, Assign) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b;
