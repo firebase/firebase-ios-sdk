@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,28 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#undef NS_BLOCK_ASSERTIONS
 
-#import "GDTLibrary/Public/GDTAssert.h"
+#import <XCTest/XCTest.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#import <GoogleDataTransport/GDTAssert.h>
 
-/** Allows the setting a block to be used in the GDTAssert macro instead of assertion log. */
-@interface GDTAssertHelper : NSObject
-
-/** A class property that can be run instead of normal assertion logging. */
-@property(class, nullable, nonatomic) GDTAssertionBlock assertionBlock;
+@interface GDTAssertNotBlockedTest : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation GDTAssertNotBlockedTest
+
+/** Tests that asserting is innocuous and doesn't throw. */
+- (void)testNonFatallyAssertingDoesntThrow {
+  GDTAssert(NO, @"test assertion");
+}
+
+/** Tests that fatally asserting throws. */
+- (void)testFatallyAssertingThrows {
+  void (^assertionBlock)(void) = ^{
+    GDTFatalAssert(NO, @"test assertion")
+  };
+  XCTAssertThrows(assertionBlock());
+}
+@end

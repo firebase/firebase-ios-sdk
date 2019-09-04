@@ -33,7 +33,7 @@
 /** Tests the default initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDTTransport alloc] initWithMappingID:@"1" transformers:nil target:1]);
-  XCTAssertThrows([[GDTTransport alloc] initWithMappingID:@"" transformers:nil target:1]);
+  XCTAssertNil([[GDTTransport alloc] initWithMappingID:@"" transformers:nil target:1]);
 }
 
 /** Tests sending a telemetry event. */

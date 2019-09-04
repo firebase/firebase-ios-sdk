@@ -23,7 +23,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRComponentContainer ()
+@interface FIRComponentContainer () {
+  dispatch_queue_t _containerQueue;
+}
 
 /// The dictionary of components that are registered for a particular app. The key is an NSString
 /// of the protocol.
@@ -67,6 +69,8 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
     _app = app;
     _cachedInstances = [NSMutableDictionary<NSString *, id> dictionary];
     _components = [NSMutableDictionary<NSString *, FIRComponentCreationBlock> dictionary];
+    _containerQueue =
+        dispatch_queue_create("com.google.FirebaseComponentContainer", DISPATCH_QUEUE_SERIAL);
 
     [self populateComponentsFromRegisteredClasses:allRegistrants forApp:app];
   }
@@ -92,7 +96,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
       // Store the creation block for later usage.
       self.components[protocolName] = component.creationBlock;
 
-      // Instantiate the
+      // Instantiate the instance if it has requested to be instantiated.
       BOOL shouldInstantiateEager =
           (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
       BOOL shouldInstantiateDefaultEager =
@@ -136,7 +140,9 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 
   // The instance is ready to be returned, but check if it should be cached first before returning.
   if (shouldCache) {
-    self.cachedInstances[protocolName] = instance;
+    dispatch_sync(_containerQueue, ^{
+      self.cachedInstances[protocolName] = instance;
+    });
   }
 
   return instance;
@@ -147,7 +153,11 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 - (nullable id)instanceForProtocol:(Protocol *)protocol {
   // Check if there is a cached instance, and return it if so.
   NSString *protocolName = NSStringFromProtocol(protocol);
-  id cachedInstance = self.cachedInstances[protocolName];
+  __block id cachedInstance;
+  dispatch_sync(_containerQueue, ^{
+    cachedInstance = self.cachedInstances[protocolName];
+  });
+
   if (cachedInstance) {
     return cachedInstance;
   }
@@ -161,14 +171,29 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 
 - (void)removeAllCachedInstances {
   // Loop through the cache and notify each instance that is a maintainer to clean up after itself.
-  for (id instance in self.cachedInstances.allValues) {
+  // Design note: we're getting a copy here, unlocking the cached instances, iterating over the
+  // copy, then locking and removing all cached instances. A race condition *could* exist where a
+  // new cached instance is created between the copy and the removal, but the chances are slim and
+  // side-effects are significantly smaller than including the entire loop in the `dispatch_sync`
+  // block (access to the cache from inside the block would deadlock and crash).
+  __block NSDictionary<NSString *, id> *instancesCopy;
+  dispatch_sync(_containerQueue, ^{
+    instancesCopy = [self.cachedInstances copy];
+  });
+
+  for (id instance in instancesCopy.allValues) {
     if ([instance conformsToProtocol:@protocol(FIRComponentLifecycleMaintainer)] &&
         [instance respondsToSelector:@selector(appWillBeDeleted:)]) {
       [instance appWillBeDeleted:self.app];
     }
   }
 
-  [self.cachedInstances removeAllObjects];
+  instancesCopy = nil;
+
+  // Empty the cache.
+  dispatch_sync(_containerQueue, ^{
+    [self.cachedInstances removeAllObjects];
+  });
 }
 
 @end
