@@ -153,7 +153,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 - (nullable id)instanceForProtocol:(Protocol *)protocol {
   // Check if there is a cached instance, and return it if so.
   NSString *protocolName = NSStringFromProtocol(protocol);
-  __block id cachedInstance = nil;
+  __block id cachedInstance;
   dispatch_sync(_containerQueue, ^{
     cachedInstance = self.cachedInstances[protocolName];
   });
@@ -171,14 +171,27 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 
 - (void)removeAllCachedInstances {
   // Loop through the cache and notify each instance that is a maintainer to clean up after itself.
+  // Design note: we're getting a copy here, unlocking the cached instances, iterating over the
+  // copy, then locking and removing all cached instances. A race condition *could* exist where a
+  // new cached instance is created between the copy and the removal, but the chances are slim and
+  // side-effects are significantly smaller than including the entire loop in the `dispatch_sync`
+  // block (access to the cache from inside the block would deadlock and crash).
+  __block NSDictionary<NSString *, id> *instancesCopy;
   dispatch_sync(_containerQueue, ^{
-    for (id instance in self.cachedInstances.allValues) {
-      if ([instance conformsToProtocol:@protocol(FIRComponentLifecycleMaintainer)] &&
-          [instance respondsToSelector:@selector(appWillBeDeleted:)]) {
-        [instance appWillBeDeleted:self.app];
-      }
-    }
+    instancesCopy = [self.cachedInstances copy];
+  });
 
+  for (id instance in instancesCopy.allValues) {
+    if ([instance conformsToProtocol:@protocol(FIRComponentLifecycleMaintainer)] &&
+        [instance respondsToSelector:@selector(appWillBeDeleted:)]) {
+      [instance appWillBeDeleted:self.app];
+    }
+  }
+
+  instancesCopy = nil;
+
+  // Empty the cache.
+  dispatch_sync(_containerQueue, ^{
     [self.cachedInstances removeAllObjects];
   });
 }
