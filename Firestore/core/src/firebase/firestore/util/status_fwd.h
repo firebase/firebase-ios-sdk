@@ -29,7 +29,8 @@ class Status;
 
 using StatusCallback = std::function<void(Status)>;
 
-template <typename T> class StatusOr;
+template <typename T>
+class StatusOr;
 
 template <typename T>
 using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
@@ -38,4 +39,4 @@ using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_FWD_H_
