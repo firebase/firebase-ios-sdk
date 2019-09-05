@@ -162,9 +162,10 @@ bool LevelDbLruReferenceDelegate::MutationQueuesContainKey(
   // For each user, if there is any batch that contains this document in any
   // batch, we know it's pinned.
   for (const std::string& user : users) {
-    std::string mutationKey = LevelDbDocumentMutationKey::KeyPrefix(user, path);
-    it->Seek(mutationKey);
-    if (it->Valid() && absl::StartsWith(it->key(), mutationKey)) {
+    std::string mutation_key =
+        LevelDbDocumentMutationKey::KeyPrefix(user, path);
+    it->Seek(mutation_key);
+    if (it->Valid() && absl::StartsWith(it->key(), mutation_key)) {
       return true;
     }
   }
@@ -177,10 +178,10 @@ void LevelDbLruReferenceDelegate::RemoveSentinel(const DocumentKey& key) {
 }
 
 void LevelDbLruReferenceDelegate::WriteSentinel(const DocumentKey& key) {
-  std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
-  std::string encodedSequenceNumber =
+  std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encoded_sequence_number =
       LevelDbDocumentTargetKey::EncodeSentinelValue(current_sequence_number());
-  db_->current_transaction()->Put(sentinelKey, encodedSequenceNumber);
+  db_->current_transaction()->Put(sentinel_key, encoded_sequence_number);
 }
 
 }  // namespace local

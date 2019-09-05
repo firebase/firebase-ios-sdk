@@ -55,18 +55,18 @@ using util::StringFormat;
 std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
   std::set<std::string> result;
 
-  std::string tablePrefix = LevelDbMutationKey::KeyPrefix();
+  std::string table_prefix = LevelDbMutationKey::KeyPrefix();
   auto it = transaction->NewIterator();
-  it->Seek(tablePrefix);
+  it->Seek(table_prefix);
 
-  LevelDbMutationKey rowKey;
-  while (it->Valid() && absl::StartsWith(it->key(), tablePrefix) &&
-         rowKey.Decode(it->key())) {
-    result.insert(rowKey.user_id());
+  LevelDbMutationKey row_key;
+  while (it->Valid() && absl::StartsWith(it->key(), table_prefix) &&
+         row_key.Decode(it->key())) {
+    result.insert(row_key.user_id());
 
-    auto userEnd = LevelDbMutationKey::KeyPrefix(rowKey.user_id());
-    userEnd = util::PrefixSuccessor(userEnd);
-    it->Seek(userEnd);
+    auto user_end = LevelDbMutationKey::KeyPrefix(row_key.user_id());
+    user_end = util::PrefixSuccessor(user_end);
+    it->Seek(user_end);
   }
   return result;
 }
@@ -208,8 +208,8 @@ int64_t LevelDbPersistence::CalculateByteSize() {
   int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(directory_);
   for (; iter->Valid(); iter->Next()) {
-    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
-    count += fileSize;
+    int64_t file_size = util::FileSize(iter->file()).ValueOrDie();
+    count += file_size;
   }
 
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
