@@ -806,10 +806,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
 
   [self notifyLocalViewChanges:TestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
-  [self.localStore releaseQuery:query];
-
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
+
+  [self.localStore releaseQuery:query];
 }
 
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {

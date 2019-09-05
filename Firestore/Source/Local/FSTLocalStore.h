@@ -42,8 +42,6 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
-@class FSTLocalViewChanges;
-@class FSTLocalWriteResult;
 @protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;

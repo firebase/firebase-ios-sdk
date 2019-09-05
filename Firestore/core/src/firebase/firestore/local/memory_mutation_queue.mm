@@ -18,11 +18,10 @@
 
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
+#include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -257,10 +256,10 @@ bool MemoryMutationQueue::ContainsKey(const model::DocumentKey& key) {
   return begin != range.end() && begin->key() == key;
 }
 
-size_t MemoryMutationQueue::CalculateByteSize(FSTLocalSerializer* serializer) {
-  size_t count = 0;
+int64_t MemoryMutationQueue::CalculateByteSize(const Sizer& sizer) {
+  int64_t count = 0;
   for (const auto& batch : queue_) {
-    count += [[serializer encodedMutationBatch:batch] serializedSize];
+    count += sizer.CalculateByteSize(batch);
   };
   return count;
 }

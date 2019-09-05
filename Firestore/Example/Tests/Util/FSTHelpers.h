@@ -47,7 +47,6 @@
 @class FIRGeoPoint;
 @class FIRTimestamp;
 @class FSTDocumentKeyReference;
-@class FSTLocalViewChanges;
 @class FSTUserDataConverter;
 
 namespace firebase {

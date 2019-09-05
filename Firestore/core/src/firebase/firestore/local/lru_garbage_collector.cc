@@ -113,8 +113,8 @@ LruResults LruGarbageCollector::Collect(const LiveQueryMap& live_targets) {
     return LruResults::DidNotRun();
   }
 
-  size_t current_size = CalculateByteSize();
-  if (current_size < static_cast<size_t>(params_.min_bytes_threshold)) {
+  int64_t current_size = CalculateByteSize();
+  if (current_size < params_.min_bytes_threshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
     LOG_DEBUG(
         "Garbage collection skipped; Cache size %s is lower than threshold %s",

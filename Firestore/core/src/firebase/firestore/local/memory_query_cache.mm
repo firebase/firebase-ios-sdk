@@ -122,8 +122,8 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
   return references_.ContainsKey(key);
 }
 
-size_t MemoryQueryCache::CalculateByteSize(const Sizer& sizer) {
-  size_t count = 0;
+int64_t MemoryQueryCache::CalculateByteSize(const Sizer& sizer) {
+  int64_t count = 0;
   for (const auto& kv : queries_) {
     count += sizer.CalculateByteSize(kv.second);
   }

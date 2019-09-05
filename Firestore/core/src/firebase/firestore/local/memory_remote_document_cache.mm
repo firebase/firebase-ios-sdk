@@ -115,8 +115,8 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
   return removed;
 }
 
-size_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
-  size_t count = 0;
+int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
+  int64_t count = 0;
   for (const auto& kv : docs_) {
     count += sizer.CalculateByteSize(kv.second);
   }
