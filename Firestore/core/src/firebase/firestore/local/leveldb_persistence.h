@@ -77,9 +77,9 @@ class LevelDbPersistence : public Persistence {
    *     instance.
    * @param documents_dir The root document directory relative to which
    *     the storage directory will be created. Usually just
-   *     LevelDbPersistence::AppDataDirectory().
+   *     `LevelDbPersistence::AppDataDirectory()`.
    * @return A storage directory unique to the instance identified by
-   *     database_info.
+   *     `database_info`.
    */
   static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
                                      const util::Path& documents_dir);
