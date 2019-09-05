@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
 #import <Foundation/Foundation.h>
 
 #include <memory>
@@ -48,15 +52,11 @@ namespace firebase {
 namespace firestore {
 
 namespace remote {
-// Forward declaration to make CMAKE build pass as it does not support
-// Objective-C protos.
 class RemoteStore;
 }  // namespace remote
 
 namespace core {
 
-// Forward declaration to make CMAKE build pass as it does not support
-// Objective-C protos.
 class EventManager;
 class SyncEngine;
 

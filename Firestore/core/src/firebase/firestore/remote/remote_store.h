@@ -56,11 +56,12 @@ class RemoteStoreCallback {
    * visible because of the snapshot version the remote event contains.
    */
   virtual void ApplyRemoteEvent(const RemoteEvent& remote_event) = 0;
+
   /**
    * Handles rejection of listen for the given targetId. This can be triggered
    * by the backend for any active target.
    *
-   * @param target_id The targetId corresponding to a listen initiated via
+   * @param target_id The target ID corresponding to a listen initiated via
    * RemoteStore::Listen()
    * @param error A description of the condition that has forced the rejection.
    * Nearly always this will be an indication that the user is no longer
@@ -85,8 +86,10 @@ class RemoteStoreCallback {
   virtual void HandleRejectedWrite(model::BatchId batch_id,
                                    util::Status error) = 0;
 
-  /** Applies an OnlineState change to the sync engine and notifies any views of
-   * the change. */
+  /**
+   * Applies an OnlineState change to the sync engine and notifies any views of
+   * the change.
+   */
   virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
 
   /**

@@ -29,20 +29,20 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-using firebase::firestore::core::EventListener;
-using firebase::firestore::core::EventManager;
-using firebase::firestore::core::ListenOptions;
-using firebase::firestore::core::QueryListener;
-using firebase::firestore::core::QueryEventCallback;
-using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::util::StatusOr;
-using firebase::firestore::util::StatusOrCallback;
-using firebase::firestore::testutil::Query;
+namespace firebase {
+namespace firestore {
+namespace core {
+namespace {
+
+using model::DocumentKeySet;
+using model::DocumentSet;
+using model::OnlineState;
+using util::StatusOr;
+using util::StatusOrCallback;
+using testutil::Query;
 using testing::_;
 using testing::ElementsAre;
+using testing::StrictMock;
 
 ViewSnapshot::Listener NoopViewSnapshotHandler() {
   return EventListener<ViewSnapshot>::Create(
@@ -67,17 +67,15 @@ TEST(EventManagerTest, HandlesManyListnersPerQuery) {
   auto listener1 = NoopQueryListener(query);
   auto listener2 = NoopQueryListener(query);
 
-  MockEventSource mock_event_source;
+  StrictMock<MockEventSource> mock_event_source;
   EXPECT_CALL(mock_event_source, SetCallback(_));
   EventManager event_manager(&mock_event_source);
 
   EXPECT_CALL(mock_event_source, Listen(query));
   event_manager.AddQueryListener(listener1);
 
-  EXPECT_CALL(mock_event_source, Listen(_)).Times(0);
+  // Expecting no activity from mock_event_source.
   event_manager.AddQueryListener(listener2);
-
-  EXPECT_CALL(mock_event_source, StopListening(_)).Times(0);
   event_manager.RemoveQueryListener(listener2);
 
   EXPECT_CALL(mock_event_source, StopListening(query));
@@ -112,33 +110,34 @@ ViewSnapshot make_empty_view_snapshot(const core::Query& query) {
 TEST(EventManagerTest, NotifiesListenersInTheRightOrder) {
   core::Query query1 = Query("foo/bar");
   core::Query query2 = Query("bar/baz");
-  std::vector<std::string> eventOrder;
+  std::vector<std::string> event_order;
 
-  auto listener1 =
-      QueryListener::Create(query1, [&eventOrder](StatusOr<ViewSnapshot>) {
-        eventOrder.push_back("listener1");
-      });
-  auto listener2 =
-      QueryListener::Create(query2, [&eventOrder](StatusOr<ViewSnapshot>) {
-        eventOrder.push_back("listener2");
-      });
-  auto listener3 =
-      QueryListener::Create(query1, [&eventOrder](StatusOr<ViewSnapshot>) {
-        eventOrder.push_back("listener3");
-      });
+  auto listener1 = QueryListener::Create(query1, [&](StatusOr<ViewSnapshot>) {
+    event_order.push_back("listener1");
+  });
+  auto listener2 = QueryListener::Create(query2, [&](StatusOr<ViewSnapshot>) {
+    event_order.push_back("listener2");
+  });
+  auto listener3 = QueryListener::Create(query1, [&](StatusOr<ViewSnapshot>) {
+    event_order.push_back("listener3");
+  });
 
   MockEventSource mock_event_source;
   EventManager event_manager(&mock_event_source);
 
+  EXPECT_CALL(mock_event_source, Listen(query1));
   event_manager.AddQueryListener(listener1);
+
+  EXPECT_CALL(mock_event_source, Listen(query2));
   event_manager.AddQueryListener(listener2);
+
   event_manager.AddQueryListener(listener3);
 
   ViewSnapshot snapshot1 = make_empty_view_snapshot(query1);
   ViewSnapshot snapshot2 = make_empty_view_snapshot(query2);
   event_manager.OnViewSnapshots({snapshot1, snapshot2});
 
-  ASSERT_THAT(eventOrder, ElementsAre("listener1", "listener3", "listener2"));
+  ASSERT_THAT(event_order, ElementsAre("listener1", "listener3", "listener2"));
 }
 
 TEST(EventManagerTest, WillForwardOnlineStateChanges) {
@@ -171,3 +170,8 @@ TEST(EventManagerTest, WillForwardOnlineStateChanges) {
   ASSERT_THAT(fake_listener->events,
               ElementsAre(OnlineState::Unknown, OnlineState::Online));
 }
+
+}  // namespace
+}  // namespace core
+}  // namespace firestore
+}  // namespace firebase

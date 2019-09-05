@@ -326,9 +326,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   }
 
   // Finally handle remote event
-  if (sync_engine_) {
-    sync_engine_->ApplyRemoteEvent(remote_event);
-  }
+  sync_engine_->ApplyRemoteEvent(remote_event);
 }
 
 void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
@@ -340,9 +338,7 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
     if (found != listen_targets_.end()) {
       listen_targets_.erase(found);
       watch_change_aggregator_->RemoveTarget(target_id);
-      if (sync_engine_) {
-        sync_engine_->HandleRejectedListen(target_id, change.cause());
-      }
+      sync_engine_->HandleRejectedListen(target_id, change.cause());
     }
   }
 }
@@ -424,9 +420,7 @@ void RemoteStore::OnWriteStreamMutationResult(
   MutationBatchResult batch_result(std::move(batch), commit_version,
                                    std::move(mutation_results),
                                    write_stream_->GetLastStreamToken());
-  if (sync_engine_) {
-    sync_engine_->HandleSuccessfulWrite(batch_result);
-  }
+  sync_engine_->HandleSuccessfulWrite(batch_result);
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.
@@ -502,9 +496,7 @@ void RemoteStore::HandleWriteError(const Status& status) {
   // down--this was just a bad request so inhibit backoff on the next restart.
   write_stream_->InhibitBackoff();
 
-  if (sync_engine_) {
-    sync_engine_->HandleRejectedWrite(batch.batch_id(), status);
-  }
+  sync_engine_->HandleRejectedWrite(batch.batch_id(), status);
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.
@@ -522,10 +514,7 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
 }
 
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
-  if (sync_engine_) {
-    return sync_engine_->GetRemoteKeys(target_id);
-  }
-  return DocumentKeySet{};
+  return sync_engine_->GetRemoteKeys(target_id);
 }
 
 absl::optional<QueryData> RemoteStore::GetQueryDataForTarget(

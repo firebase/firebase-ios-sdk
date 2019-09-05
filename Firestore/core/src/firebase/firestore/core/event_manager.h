@@ -97,7 +97,7 @@ class EventManager : public QueryEventCallback {
     absl::optional<ViewSnapshot> snapshot_;
   };
 
-  QueryEventSource* query_event_source_;
+  QueryEventSource* query_event_source_ = nullptr;
   model::OnlineState online_state_ = model::OnlineState::Unknown;
   std::unordered_map<core::Query, QueryListenersInfo> queries_;
 };

@@ -429,7 +429,8 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
           std::move(mutations), [callback, shared_this](Status error) {
             // Dispatch the result back onto the user dispatch queue.
             if (callback) {
-              shared_this->user_executor()->Execute([=] { callback(error); });
+              shared_this->user_executor()->Execute(
+                  [=] { callback(std::move(error)); });
             }
           });
     }

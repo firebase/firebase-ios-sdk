@@ -200,10 +200,8 @@ NS_ASSUME_NONNULL_BEGIN
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore, _datastore, _workerQueue, [self](OnlineState onlineState) {
-          _syncEngine->HandleOnlineStateChange(onlineState);
-          // _eventManager->HandleOnlineStateChange(onlineState);
-        });
+        _localStore, _datastore, _workerQueue,
+        [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
     _syncEngine = absl::make_unique<SyncEngine>(_localStore, _remoteStore.get(), initialUser);

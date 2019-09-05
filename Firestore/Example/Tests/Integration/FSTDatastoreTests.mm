@@ -168,27 +168,27 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     [underlying_capture_ expectListenEventWithDescription:description];
   }
 
-  void ApplyRemoteEvent(const remote::RemoteEvent &remote_event) override {
+  void ApplyRemoteEvent(const RemoteEvent &remote_event) override {
     [underlying_capture_ applyRemoteEvent:remote_event];
   }
 
-  void HandleRejectedListen(model::TargetId target_id, util::Status error) override {
+  void HandleRejectedListen(TargetId target_id, Status error) override {
     [underlying_capture_ rejectListenWithTargetID:target_id error:error.ToNSError()];
   }
 
-  void HandleSuccessfulWrite(const model::MutationBatchResult &batch_result) override {
+  void HandleSuccessfulWrite(const MutationBatchResult &batch_result) override {
     [underlying_capture_ applySuccessfulWriteWithResult:batch_result];
   }
 
-  void HandleRejectedWrite(model::BatchId batch_id, util::Status error) override {
+  void HandleRejectedWrite(BatchId batch_id, Status error) override {
     [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
   }
 
-  void HandleOnlineStateChange(model::OnlineState online_state) override {
+  void HandleOnlineStateChange(OnlineState online_state) override {
     HARD_FAIL("Not implemented");
   }
 
-  model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) const override {
+  model::DocumentKeySet GetRemoteKeys(TargetId target_id) const override {
     return [underlying_capture_ remoteKeysForTarget:target_id];
   }
 

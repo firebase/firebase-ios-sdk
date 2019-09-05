@@ -52,24 +52,28 @@ namespace core {
  */
 class QueryEventCallback {
  public:
+  virtual ~QueryEventCallback() = default;
+
   /** Handles a change in online state. */
   virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
   /** Handles new view snapshots. */
   virtual void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) = 0;
   /** Handles the failure of a query. */
   virtual void OnError(const core::Query& query, util::Status error) = 0;
-
-  virtual ~QueryEventCallback() = default;
 };
 
 /**
- * Interface implemented by `SyncEngine` receive requests from `EventManager`.
+ * Interface implemented by `SyncEngine` to receive requests from
+ * `EventManager`.
  */
 class QueryEventSource {
  public:
+  virtual ~QueryEventSource() = default;
+
   virtual void SetCallback(QueryEventCallback* callback) = 0;
+
   /**
-   * Initiates a new listen. The FSTLocalStore will be queried for initial data
+   * Initiates a new listen. The LocalStore will be queried for initial data
    * and the listen will be sent to the `RemoteStore` to get remote data. The
    * registered SyncEngineCallback will be notified of resulting view
    * snapshots and/or listen errors.
@@ -80,8 +84,6 @@ class QueryEventSource {
 
   /** Stops listening to a query previously listened to via `Listen`. */
   virtual void StopListening(const Query& query) = 0;
-
-  virtual ~QueryEventSource() = default;
 };
 
 /**
