@@ -286,7 +286,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     if (!strongSelf) {
       return;
     }
-    RCN_MUST_NOT_BE_MAIN_THREAD();
     if (sqlite3_close(strongSelf->_database) != SQLITE_OK) {
       [self logDatabaseError];
     }
@@ -762,10 +761,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        handler(YES, @{
-          @RCNExperimentTableKeyPayload : [experimentPayloads copy],
-          @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
-        });
+        handler(
+            YES, @{
+              @RCNExperimentTableKeyPayload : [experimentPayloads copy],
+              @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
+            });
       });
     }
   });

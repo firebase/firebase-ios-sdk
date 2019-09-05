@@ -1,3 +1,6 @@
+# v1.2.0
+- Removes all NSAsserts in favor of custom asserts. (#3747)
+
 # v1.1.3
 - Wrap decoding in GDTUploadCoordinator in a try catch. (#3676)
 
