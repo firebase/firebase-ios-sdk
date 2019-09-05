@@ -4,8 +4,9 @@
 
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDBManager.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDefines.h"
-#import "googlemac/iPhone/Firebase/ABTesting/Public/FIRExperimentController.h"
-#import "googlemac/iPhone/Firebase/ABTesting/Public/FIRLifecycleEvents.h"
+#import "third_party/firebase/ios/Releases/FirebaseABTesting/Sources/Public/FIRExperimentController.h"
+#import "third_party/firebase/ios/Releases/FirebaseABTesting/Sources/Public/FIRLifecycleEvents.h"
+#import "third_party/firebase/ios/Releases/FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRLogger.h"
 
 static NSString *const kExperimentMetadataKeyLastStartTime = @"last_experiment_start_time";

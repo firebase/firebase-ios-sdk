@@ -96,6 +96,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   [_fetchSession invalidateAndCancel];
 }
 
+- (void)recreateNetworkSession {
+  _fetchSession = [self newFetchSession];
+}
+
 #pragma mark - Fetch Config API
 
 - (void)fetchAllConfigsWithExpirationDuration:(NSTimeInterval)expirationDuration

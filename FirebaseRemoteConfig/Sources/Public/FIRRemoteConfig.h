@@ -105,7 +105,6 @@ NS_SWIFT_NAME(RemoteConfigValue)
 @property(nonatomic, readonly) BOOL boolValue;
 /// Gets a foundation object (NSDictionary / NSArray) by parsing the value as JSON. This method uses
 /// NSJSONSerialization's JSONObjectWithData method with an options value of 0.
-/// TODO(mandard): Pending API review. (b/113523947).
 @property(nonatomic, readonly, nullable) id JSONValue NS_SWIFT_NAME(jsonValue);
 /// Identifies the source of the fetched value.
 @property(nonatomic, readonly) FIRRemoteConfigSource source;
@@ -150,6 +149,8 @@ NS_SWIFT_NAME(RemoteConfig)
 @property(nonatomic, readonly, assign) FIRRemoteConfigFetchStatus lastFetchStatus;
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) FIRRemoteConfigSettings *configSettings;
+/// Returns an array of feature keys enabled for this client.
+@property(nonatomic, readonly, strong, nonnull) NSArray<NSString *> *enabledFeatureKeys;
 
 /// Returns the FIRRemoteConfig instance configured for the default Firebase app. This singleton
 /// object contains the complete set of Remote Config parameter values available to the app,
@@ -356,5 +357,14 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key
                                             namespace:(nullable NSString *)aNamespace
     DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig defaultValueForKey:] instead.");
+
+#pragma mark - Features
+/// Returns true if the feature is enabled for the feature key mentioned. Refer to
+/// 'enabledFeatureKeys' property to get an array of all enabled features on this client.
+///
+/// @param key              The feature name.
+/// @return                 Returns true if a feature for the key supplied is enabled for this
+///                         client.
+- (BOOL)isFeatureEnabledForKey:(nonnull NSString *)key NS_SWIFT_NAME(isFeatureEnabled(key:));
 
 @end

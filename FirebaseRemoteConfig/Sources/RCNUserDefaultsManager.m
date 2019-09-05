@@ -1,5 +1,7 @@
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNUserDefaultsManager.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/FIRRemoteConfig.h"
+
+#import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRAppInternal.h"
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRLogger.h"
 
 static NSString *const kRCNGroupPrefix = @"group";
@@ -12,6 +14,7 @@ static NSString *const kRCNUserDefaultsKeyNameIsClientThrottled =
 static NSString *const kRCNUserDefaultsKeyNameThrottleEndTime = @"throttleEndTime";
 static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
     @"currentThrottlingRetryInterval";
+static NSString *const kRCNUserDefaultsKeyNameDatabaseVersion = @"databaseVersion";
 
 @interface RCNUserDefaultsManager () {
   /// User Defaults instance for this bundleID. NSUserDefaults is guaranteed to be thread-safe.
@@ -44,8 +47,6 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
     _bundleIdentifier = bundleIdentifier;
     NSInteger location = [firebaseNamespace rangeOfString:@":"].location;
     if (location == NSNotFound) {
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000064",
-                  @"Error: Namespace %@ is not fully qualified app:namespace.", firebaseNamespace);
       _firebaseNamespace = firebaseNamespace;
     } else {
       _firebaseNamespace = [firebaseNamespace substringToIndex:location];
@@ -60,6 +61,24 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
   return self;
 }
 
+// Returns a shared user defaults instance to store general configuration. This is equivalent to
+// calling initWithAppName with the default app and firebase namespace. Note that if called from an
+// extension, the NSUserDefaults will be different from the main app.
++ (instancetype)sharedInstanceForDefaultAppAndNamespace {
+  static dispatch_once_t onceToken;
+  static RCNUserDefaultsManager *sharedInstance;
+  dispatch_once(&onceToken, ^{
+    if ([FIRApp defaultApp]) {
+      sharedInstance =
+          [[RCNUserDefaultsManager alloc] initWithAppName:[FIRApp defaultApp].name
+                                                 bundleID:[NSBundle mainBundle].bundleIdentifier
+                                                namespace:FIRNamespaceGoogleMobilePlatform];
+    }
+  });
+  return sharedInstance;
+}
+
+// Shared NSUserDefaults instance.
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier {
   static dispatch_once_t onceToken;
   static NSUserDefaults *sharedInstance;
@@ -142,6 +161,16 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 - (void)setCurrentThrottlingRetryIntervalSeconds:(NSTimeInterval)throttlingRetryIntervalSeconds {
   [self setInstanceUserDefaultsValue:@(throttlingRetryIntervalSeconds)
                               forKey:kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval];
+}
+
+- (NSNumber *)databaseVersion {
+  NSNumber *currentDatabaseVersion =
+      [[self instanceUserDefaults] objectForKey:kRCNUserDefaultsKeyNameDatabaseVersion];
+  return currentDatabaseVersion;
+}
+
+- (void)setDatabaseVersion:(NSNumber *)databaseVersion {
+  [self setInstanceUserDefaultsValue:databaseVersion forKey:kRCNUserDefaultsKeyNameDatabaseVersion];
 }
 
 #pragma mark Private methods.

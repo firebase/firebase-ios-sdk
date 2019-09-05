@@ -5,6 +5,7 @@
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDBManager.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDefines.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigValue_Internal.h"
+#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNUserDefaultsManager.h"
 
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/FIRApp.h"
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRLogger.h"
@@ -29,6 +30,18 @@
   BOOL _isConfigLoadFromDBCompleted;
   /// Boolean indicating that the load from database has initiated at least once.
   BOOL _isDatabaseLoadAlreadyInitiated;
+  /// Manages user defaults per app:namespace.
+  RCNUserDefaultsManager *_userDefaultsManager;
+  /// Features and rollouts namespace. This is {firebaseAppid}_{firebaseNamespace}_features
+  NSString *_featuresNamespace;
+  // Feature information stored from a fetch response. Pending activation.
+  NSMutableArray<NSString *> *_fetchedFeaturesInformation;
+  // Activated and available feature information.
+  NSMutableArray<NSString *> *_activatedFeaturesInformation;
+  // Feature rollout information stored from a fetch response. Pending activation.
+  NSMutableArray<id> *_fetchedRolloutInformation;
+  // Feature rollout information stored from a fetch response. Pending activation.
+  NSMutableArray<id> *_activatedRolloutInformation;
 }
 
 /// Default timeout when waiting to read data from database.
@@ -57,6 +70,10 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _activeConfig = [[NSMutableDictionary alloc] init];
     _fetchedConfig = [[NSMutableDictionary alloc] init];
     _defaultConfig = [[NSMutableDictionary alloc] init];
+    _fetchedFeaturesInformation = [[NSMutableArray alloc] init];
+    _fetchedRolloutInformation = [[NSMutableArray alloc] init];
+    _activatedFeaturesInformation = [[NSMutableArray alloc] init];
+    _activatedRolloutInformation = [[NSMutableArray alloc] init];
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if (!_bundleIdentifier) {
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000038",
@@ -65,7 +82,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     }
     _DBManager = DBManager;
     _configLoadFromDBSemaphore = dispatch_semaphore_create(0);
-    [self loadConfigFromMainTable];
+    [self loadConfigFromTables];
   }
   return self;
 }
@@ -119,6 +136,11 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                     bundleIdentifier:_bundleIdentifier
                                           fromSource:DBSource];
 
+  // Handle features and feature rollouts if copying to active source.
+  if (DBSource == RCNDBSourceActive) {
+    [self activateFetchedFeaturesAndRolloutsInformationForNamespace:FIRNamespace];
+  }
+
   toDict[FIRNamespace] = [[NSMutableDictionary alloc] init];
   NSDictionary *config = fromDict[FIRNamespace];
   for (NSString *key in config) {
@@ -145,12 +167,52 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       NSArray *values = @[ _bundleIdentifier, FIRNamespace, key, valueData ];
       [self updateMainTableWithValues:values fromSource:DBSource];
     } else {
+      // Copying to Active.
       FIRRemoteConfigValue *value = config[key];
       toDict[FIRNamespace][key] = [[FIRRemoteConfigValue alloc] initWithData:value.dataValue
                                                                       source:source];
       NSArray *values = @[ _bundleIdentifier, FIRNamespace, key, value.dataValue ];
       [self updateMainTableWithValues:values fromSource:DBSource];
     }
+  }
+}
+
+- (void)activateFetchedFeaturesAndRolloutsInformationForNamespace:
+    (NSString *)fullyQualifiedNamespace {
+  // Delete any previous entries.
+  [_DBManager deleteRecordFromFeaturesTableWithNamespace:fullyQualifiedNamespace
+                                        bundleIdentifier:_bundleIdentifier
+                                              fromSource:RCNDBSourceActive];
+
+  // Copy features and rollouts info to the active table.
+  NSError *error;
+  NSData *fetchedFeaturesData = [NSJSONSerialization dataWithJSONObject:_fetchedFeaturesInformation
+                                                                options:0
+                                                                  error:&error];
+  if (fetchedFeaturesData && !error) {
+    NSArray *values =
+        @[ _bundleIdentifier, fullyQualifiedNamespace, kRCNFeaturesKeyName, fetchedFeaturesData ];
+    _activatedFeaturesInformation = _fetchedFeaturesInformation;
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceActive
+                            completionHandler:nil];
+  } else {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"Could not serialize features data.");
+  }
+
+  // Rollouts.
+  NSData *rolloutsData = [NSJSONSerialization dataWithJSONObject:_fetchedRolloutInformation
+                                                         options:0
+                                                           error:&error];
+  if (rolloutsData && !error) {
+    _activatedRolloutInformation = _fetchedRolloutInformation;
+    NSArray *values =
+        @[ _bundleIdentifier, fullyQualifiedNamespace, kRCNRolloutsKeyName, rolloutsData ];
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceActive
+                            completionHandler:nil];
+  } else {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"Could not serialize rollouts data.");
   }
 }
 
@@ -187,6 +249,9 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
   /// Handle update state
   if ([state isEqualToString:RCNFetchResponseKeyStateUpdate]) {
+    [self handleUpdateForFeatureKeys:response[RCNFetchResponseKeyEnabledFeatures]
+                         andRollouts:response[RCNFetchResponseKeyActiveRollouts]
+                        forNamespace:currentNamespace];
     [self handleUpdateStateForConfigNamespace:currentNamespace
                                   withEntries:response[RCNFetchResponseKeyEntries]];
     return;
@@ -194,6 +259,49 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 }
 
 #pragma mark State handling
+- (void)handleUpdateForFeatureKeys:(NSArray *)featureKeys
+                       andRollouts:(NSArray *)rollouts
+                      forNamespace:(NSString *)currentNamespace {
+  // Clear before updating
+  [_DBManager deleteAllRecordsFromFeaturesTableWithSource:RCNDBSourceFetched];
+
+  // Store the fetched feature information.
+  [_fetchedFeaturesInformation removeAllObjects];
+  _fetchedFeaturesInformation = [featureKeys mutableCopy];
+  _fetchedFeaturesInformation =
+      _fetchedFeaturesInformation ? _fetchedFeaturesInformation : [[NSMutableArray alloc] init];
+  NSError *error;
+  NSData *fetchedFeaturesData = [NSJSONSerialization dataWithJSONObject:_fetchedFeaturesInformation
+                                                                options:0
+                                                                  error:&error];
+  if (!fetchedFeaturesData || error) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000075",
+                @"Could not get fetched feature serialized data.%@", currentNamespace);
+  }
+  NSArray *values =
+      @[ _bundleIdentifier, currentNamespace, kRCNFeaturesKeyName, fetchedFeaturesData ];
+  [_DBManager insertFeaturesTableWithValues:values
+                                 fromSource:RCNDBSourceFetched
+                          completionHandler:nil];
+
+  // Store the fetched rollouts information.
+  [_fetchedRolloutInformation removeAllObjects];
+  _fetchedRolloutInformation = [rollouts mutableCopy];
+  _fetchedRolloutInformation =
+      _fetchedRolloutInformation ? _fetchedRolloutInformation : [[NSMutableArray alloc] init];
+  NSData *fetchedRolloutData = [NSJSONSerialization dataWithJSONObject:_fetchedRolloutInformation
+                                                               options:0
+                                                                 error:&error];
+  if (!fetchedRolloutData || error) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076",
+                @"Could not get fetched rollout serialized data.%@", currentNamespace);
+  }
+  values = @[ _bundleIdentifier, currentNamespace, kRCNRolloutsKeyName, fetchedRolloutData ];
+  [_DBManager insertFeaturesTableWithValues:values
+                                 fromSource:RCNDBSourceFetched
+                          completionHandler:nil];
+}
+
 - (void)handleNoChangeStateForConfigNamespace:(NSString *)currentNamespace {
   if (!_fetchedConfig[currentNamespace]) {
     _fetchedConfig[currentNamespace] = [[NSMutableDictionary alloc] init];
@@ -252,7 +360,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
 /// This method is only meant to be called at init time. The underlying logic will need to be
 /// revaluated if the assumption changes at a later time.
-- (void)loadConfigFromMainTable {
+- (void)loadConfigFromTables {
   if (!_DBManager) {
     return;
   }
@@ -261,14 +369,87 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _isDatabaseLoadAlreadyInitiated = true;
 
   [_DBManager
-      loadMainWithBundleIdentifier:_bundleIdentifier
-                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
-                   _fetchedConfig = [fetchedConfig mutableCopy];
-                   _activeConfig = [activeConfig mutableCopy];
-                   _defaultConfig = [defaultConfig mutableCopy];
-                   dispatch_semaphore_signal(_configLoadFromDBSemaphore);
-                 }];
+      loadWithBundleIdentifier:_bundleIdentifier
+             completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                 NSDictionary *activeConfig, NSDictionary *defaultConfig,
+                                 NSDictionary<NSString *, id> *fetchedFeaturesAndRollouts,
+                                 NSDictionary<NSString *, id> *activatedFeaturesAndRollouts) {
+               _fetchedConfig = [fetchedConfig mutableCopy];
+               _activeConfig = [activeConfig mutableCopy];
+               _defaultConfig = [defaultConfig mutableCopy];
+               // Fetched feature.
+               NSData *fetchedFeatureData =
+                   [fetchedFeaturesAndRollouts objectForKey:kRCNFeaturesKeyName];
+               if (fetchedFeatureData) {
+                 NSError *error;
+                 _fetchedFeaturesInformation =
+                     [[NSJSONSerialization JSONObjectWithData:fetchedFeatureData
+                                                      options:0
+                                                        error:&error] mutableCopy];
+                 if (error) {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000077",
+                               @"Could not deserialize fetched feature information.");
+                 }
+               }
+               _fetchedFeaturesInformation = _fetchedFeaturesInformation
+                                                 ? _fetchedFeaturesInformation
+                                                 : [[NSMutableArray alloc] init];
+
+               // Fetched rollout.
+               NSData *fetchedRolloutData =
+                   [fetchedFeaturesAndRollouts objectForKey:kRCNRolloutsKeyName];
+               if (fetchedRolloutData) {
+                 NSError *error;
+                 _fetchedRolloutInformation =
+                     [[NSJSONSerialization JSONObjectWithData:fetchedRolloutData
+                                                      options:0
+                                                        error:&error] mutableCopy];
+                 if (error) {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000078",
+                               @"Could not deserialize fetched rollouts information.");
+                 }
+               }
+               _fetchedRolloutInformation = _fetchedRolloutInformation
+                                                ? _fetchedRolloutInformation
+                                                : [[NSMutableArray alloc] init];
+
+               // Activated feature.
+               NSData *activatedFeatureData =
+                   [activatedFeaturesAndRollouts objectForKey:kRCNFeaturesKeyName];
+               if (activatedFeatureData) {
+                 NSError *error;
+                 _activatedFeaturesInformation =
+                     [[NSJSONSerialization JSONObjectWithData:activatedFeatureData
+                                                      options:0
+                                                        error:&error] mutableCopy];
+                 if (error) {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000079",
+                               @"Could not deserialize activated feature information.");
+                 }
+               }
+               _activatedFeaturesInformation = _activatedFeaturesInformation
+                                                   ? _activatedFeaturesInformation
+                                                   : [[NSMutableArray alloc] init];
+
+               // Activated rollout.
+               NSData *activatedRolloutData =
+                   [activatedFeaturesAndRollouts objectForKey:kRCNRolloutsKeyName];
+               if (activatedRolloutData) {
+                 NSError *error;
+                 _activatedRolloutInformation =
+                     [[NSJSONSerialization JSONObjectWithData:activatedRolloutData
+                                                      options:0
+                                                        error:&error] mutableCopy];
+                 if (error) {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000080",
+                               @"Could not deserialize activated feature information.");
+                 }
+               }
+               _activatedRolloutInformation = _activatedRolloutInformation
+                                                  ? _activatedRolloutInformation
+                                                  : [[NSMutableArray alloc] init];
+               dispatch_semaphore_signal(_configLoadFromDBSemaphore);
+             }];
 }
 
 /// Update the current config result to main table.
@@ -297,6 +478,20 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   /// database.
   [self checkAndWaitForInitialDatabaseLoad];
   return _defaultConfig;
+}
+
+- (NSArray<NSString *> *)enabledFeatureKeys {
+  /// If this is the first time reading the features, we might still be reading it from the
+  /// database.
+  [self checkAndWaitForInitialDatabaseLoad];
+  return _activatedFeaturesInformation;
+}
+
+- (NSArray<NSString *> *)activeRollouts {
+  /// If this is the first time reading the activeRollouts, we might still be reading it from the
+  /// database.
+  [self checkAndWaitForInitialDatabaseLoad];
+  return _activatedRolloutInformation;
 }
 
 /// We load the database async at init time. Block all further calls to active/fetched/default

@@ -3,6 +3,7 @@
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDBManager.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDefines.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigValue_Internal.h"
+#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNUserDefaultsManager.h"
 
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRAppInternal.h"
 #import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRLogger.h"
@@ -11,6 +12,8 @@
 #define RCNTableNameMain "main"
 #define RCNTableNameMainActive "main_active"
 #define RCNTableNameMainDefault "main_default"
+#define RCNTableNameFeatures "feature"
+#define RCNTableNameFeaturesActive "feature_active"
 #define RCNTableNameMetadata "fetch_metadata"
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
@@ -19,6 +22,8 @@
 static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
 /// The application support sub-directory that the Remote Config database resides in.
 static NSString *const RCNRemoteConfigApplicationSupportSubDirectory = @"Google/RemoteConfig";
+/// Current database version. Introduced as v2.1 ahead.
+static const double RCNDatabaseVersion = 2.1;
 
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0() {
@@ -88,6 +93,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   sqlite3 *_database;
   /// Serial queue for database read/write operations.
   dispatch_queue_t _databaseOperationQueue;
+  /// Manages user defaults per app:namespace.
+  RCNUserDefaultsManager *_userDefaultsManager;
 }
 @end
 
@@ -220,6 +227,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
         // DB file already exists. Migrate any V1 namespace column entries to V2 fully qualified
         // 'namespace:FIRApp' entries.
         [self migrateV1NamespaceToV2Namespace];
+        [self ensureCurrentDatabaseVersion];
         // Exclude the app data used from iCloud backup.
         RemoteConfigAddSkipBackupAttributeToItemAtPath(dbPath);
       }
@@ -227,6 +235,19 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       [strongSelf logDatabaseError];
     }
   });
+}
+
+- (void)ensureCurrentDatabaseVersion {
+  // Check the database version.
+  _userDefaultsManager = [RCNUserDefaultsManager sharedInstanceForDefaultAppAndNamespace];
+  // Older versions need to add features and rollouts columns at v2.1
+  if (!_userDefaultsManager.databaseVersion ||
+      ![_userDefaultsManager.databaseVersion isEqualToNumber:@(RCNDatabaseVersion)]) {
+    FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000072",
+               @"Older version of Remote Config Database found. Database updated to version %f",
+               RCNDatabaseVersion);
+    _userDefaultsManager.databaseVersion = @(RCNDatabaseVersion);
+  }
 }
 
 - (BOOL)createTableSchema {
@@ -241,6 +262,14 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
   static const char *createTableMainDefault =
       "create TABLE IF NOT EXISTS " RCNTableNameMainDefault
+      " (_id INTEGER PRIMARY KEY, bundle_identifier TEXT, namespace TEXT, key TEXT, value BLOB)";
+
+  static const char *createTableFeatures =
+      "create TABLE IF NOT EXISTS " RCNTableNameFeatures
+      " (_id INTEGER PRIMARY KEY, bundle_identifier TEXT, namespace TEXT, key TEXT, value BLOB)";
+
+  static const char *createTableFeaturesActive =
+      "create TABLE IF NOT EXISTS " RCNTableNameFeaturesActive
       " (_id INTEGER PRIMARY KEY, bundle_identifier TEXT, namespace TEXT, key TEXT, value BLOB)";
 
   static const char *createTableMetadata =
@@ -260,7 +289,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return [self executeQuery:createTableMain] && [self executeQuery:createTableMainActive] &&
          [self executeQuery:createTableMainDefault] && [self executeQuery:createTableMetadata] &&
          [self executeQuery:createTableInternalMetadata] &&
-         [self executeQuery:createTableExperiment];
+         [self executeQuery:createTableExperiment] && [self executeQuery:createTableFeatures] &&
+         [self executeQuery:createTableFeaturesActive];
 }
 
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path {
@@ -387,6 +417,64 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       });
     }
   });
+}
+
+- (void)insertFeaturesTableWithValues:(NSArray *)values
+                           fromSource:(RCNDBSource)source
+                    completionHandler:(RCNDBCompletion)handler {
+  __weak RCNConfigDBManager *weakSelf = self;
+  dispatch_async(_databaseOperationQueue, ^{
+    BOOL success = [weakSelf insertFeatureTableWithValues:values fromSource:source];
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(success, nil);
+      });
+    }
+  });
+}
+
+- (BOOL)insertFeatureTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+  if (values.count != 4) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074",
+                @"Failed to insert feature record. Wrong number of give parameters, current "
+                @"number is %ld, correct number is 4.",
+                (long)values.count);
+    return NO;
+  }
+  const char *SQL = "INSERT INTO " RCNTableNameFeatures
+                    " (bundle_identifier, namespace, key, value) values (?, ?, ?, ?)";
+  if (source == RCNDBSourceActive) {
+    SQL = "INSERT INTO " RCNTableNameFeaturesActive
+          " (bundle_identifier, namespace, key, value) values (?, ?, ?, ?)";
+  }
+
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return NO;
+  }
+
+  NSString *aString = values[0];
+  if (![self bindStringToStatement:statement index:1 string:aString]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  aString = values[1];
+  if (![self bindStringToStatement:statement index:2 string:aString]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  aString = values[2];
+  if (![self bindStringToStatement:statement index:3 string:aString]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  NSData *blobData = values[3];
+  if (sqlite3_bind_blob(statement, 4, blobData.bytes, (int)blobData.length, NULL) != SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  if (sqlite3_step(statement) != SQLITE_DONE) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  sqlite3_finalize(statement);
+  return YES;
 }
 
 - (BOOL)insertMainTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
@@ -810,8 +898,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
 /// This method is only meant to be called at init time. The underlying logic will need to be
 /// revaluated if the assumption changes at a later time.
-- (void)loadMainWithBundleIdentifier:(NSString *)bundleIdentifier
-                   completionHandler:(RCNDBLoadCompletion)handler {
+- (void)loadWithBundleIdentifier:(NSString *)bundleIdentifier
+               completionHandler:(RCNDBLoadCompletion)handler {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
@@ -827,12 +915,24 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     __block NSDictionary *defaultConfig =
         [strongSelf loadMainTableWithBundleIdentifier:bundleIdentifier
                                            fromSource:RCNDBSourceDefault];
+
+    __block NSDictionary *fetchedFeaturesAndRollouts =
+        [strongSelf loadFeaturesAndRolloutsTableWithBundleIdentifier:bundleIdentifier
+                                                          fromSource:RCNDBSourceFetched];
+    __block NSDictionary *activatedFeaturesAndRollouts =
+        [strongSelf loadFeaturesAndRolloutsTableWithBundleIdentifier:bundleIdentifier
+                                                          fromSource:RCNDBSourceActive];
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         fetchedConfig = fetchedConfig ? fetchedConfig : [[NSDictionary alloc] init];
         activeConfig = activeConfig ? activeConfig : [[NSDictionary alloc] init];
         defaultConfig = defaultConfig ? defaultConfig : [[NSDictionary alloc] init];
-        handler(YES, fetchedConfig, activeConfig, defaultConfig);
+        fetchedFeaturesAndRollouts =
+            fetchedFeaturesAndRollouts ? fetchedFeaturesAndRollouts : [[NSDictionary alloc] init];
+        activatedFeaturesAndRollouts = activatedFeaturesAndRollouts ? activatedFeaturesAndRollouts
+                                                                    : [[NSDictionary alloc] init];
+        handler(YES, fetchedConfig, activeConfig, defaultConfig, fetchedFeaturesAndRollouts,
+                activatedFeaturesAndRollouts);
       });
     }
   });
@@ -879,6 +979,34 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return namespaceToConfig;
 }
 
+- (NSMutableDictionary *)loadFeaturesAndRolloutsTableWithBundleIdentifier:
+                             (NSString *)bundleIdentifier
+                                                               fromSource:(RCNDBSource)source {
+  NSMutableDictionary *featuresAndRolloutsInformation = [[NSMutableDictionary alloc] init];
+  const char *SQL = "SELECT bundle_identifier, namespace, key, value FROM " RCNTableNameFeatures
+                    " WHERE bundle_identifier = ?";
+  if (source == RCNDBSourceActive) {
+    SQL = "SELECT bundle_identifier, namespace, key, value FROM " RCNTableNameFeaturesActive
+          " WHERE bundle_identifier = ?";
+  }
+  NSArray *params = @[ bundleIdentifier ];
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return nil;
+  }
+
+  [self bindStringsToStatement:statement stringArray:params];
+
+  while (sqlite3_step(statement) == SQLITE_ROW) {
+    NSString *key = [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
+    NSData *value = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 3)
+                                   length:sqlite3_column_bytes(statement, 3)];
+    featuresAndRolloutsInformation[key] = value;
+  }
+  sqlite3_finalize(statement);
+  return featuresAndRolloutsInformation;
+}
+
 #pragma mark - delete
 - (void)deleteRecordFromMainTableWithNamespace:(NSString *)namespace_p
                               bundleIdentifier:(NSString *)bundleIdentifier
@@ -892,6 +1020,22 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       SQL = "DELETE FROM " RCNTableNameMainDefault " WHERE bundle_identifier = ? and namespace = ?";
     } else if (source == RCNDBSourceActive) {
       SQL = "DELETE FROM " RCNTableNameMainActive " WHERE bundle_identifier = ? and namespace = ?";
+    }
+    [weakSelf executeQuery:SQL withParams:params];
+  });
+}
+
+- (void)deleteRecordFromFeaturesTableWithNamespace:(NSString *)namespace_p
+                                  bundleIdentifier:(NSString *)bundleIdentifier
+                                        fromSource:(RCNDBSource)source {
+  __weak RCNConfigDBManager *weakSelf;
+  dispatch_async(_databaseOperationQueue, ^{
+    NSArray *params = @[ bundleIdentifier, namespace_p ];
+    const char *SQL =
+        "DELETE FROM " RCNTableNameFeatures " WHERE bundle_identifier = ? and namespace = ?";
+    if (source == RCNDBSourceActive) {
+      SQL = "DELETE FROM " RCNTableNameFeaturesActive
+            " WHERE bundle_identifier = ? and namespace = ?";
     }
     [weakSelf executeQuery:SQL withParams:params];
   });
@@ -918,6 +1062,17 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       SQL = "DELETE FROM " RCNTableNameMainDefault;
     } else if (source == RCNDBSourceActive) {
       SQL = "DELETE FROM " RCNTableNameMainActive;
+    }
+    [weakSelf executeQuery:SQL];
+  });
+}
+
+- (void)deleteAllRecordsFromFeaturesTableWithSource:(RCNDBSource)source {
+  __weak RCNConfigDBManager *weakSelf;
+  dispatch_async(_databaseOperationQueue, ^{
+    const char *SQL = "DELETE FROM " RCNTableNameFeatures;
+    if (source == RCNDBSourceActive) {
+      SQL = "DELETE FROM " RCNTableNameFeaturesActive;
     }
     [weakSelf executeQuery:SQL];
   });

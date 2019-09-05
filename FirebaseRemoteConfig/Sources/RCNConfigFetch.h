@@ -43,6 +43,9 @@ typedef void (^RCNConfigFetcherTestBlock)(RCNConfigFetcherCompletion completion)
 - (void)fetchAllConfigsWithExpirationDuration:(NSTimeInterval)expirationDuration
                             completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 
+/// Add the ability to update NSURLSession's timeout after a session has already been created.
+- (void)recreateNetworkSession;
+
 /// Sets the test block to mock the fetch response instead of performing the fetch task from server.
 + (void)setGlobalTestBlock:(RCNConfigFetcherTestBlock)block;
 

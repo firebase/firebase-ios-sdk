@@ -21,6 +21,11 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 @property(nonatomic, readonly, copy) NSDictionary *activeConfig;
 /// Local default config that is provided by external users;
 @property(nonatomic, readonly, copy) NSDictionary *defaultConfig;
+/// List of features enabled on this client.
+@property(nonatomic, readonly, copy) NSMutableArray *enabledFeatureKeys;
+/// List of rollouts that this client is a eligible for. Refer to the rollouts 'featureEnabled' key
+/// to determine if this client is included yet in the rollout.
+@property(nonatomic, readonly, copy) NSMutableArray *activeRollouts;
 
 - (instancetype)init NS_UNAVAILABLE;
 

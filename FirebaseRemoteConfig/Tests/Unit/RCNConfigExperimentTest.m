@@ -9,7 +9,7 @@
 #import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigValue_Internal.h"
 #import "googlemac/iPhone/Config/RemoteConfig/Tests/UnitTestsNew/RCNTestUtilities.h"
 
-#import "googlemac/iPhone/Firebase/ABTesting/Public/FIRExperimentController.h"
+#import "third_party/firebase/ios/Releases/FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 
 #import "developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 #import "wireless/android/config/proto/Config.pbobjc.h"

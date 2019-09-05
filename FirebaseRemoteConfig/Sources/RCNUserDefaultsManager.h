@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// The retry interval increases exponentially for cumulative fetch failures. Refer to
 /// go/rc-client-throttling for details.
 @property(nonatomic, assign) NSTimeInterval currentThrottlingRetryIntervalSeconds;
+/// The version of the Remote Config database. Any changes to database schema should increment this
+/// version.
+@property(nonatomic) NSNumber *databaseVersion;
 
 /// Designated initializer.
 - (instancetype)initWithAppName:(NSString *)appName
@@ -30,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init __attribute__((unavailable("Use `initWithAppName:bundleID:namespace:` instead.")));
 // NOLINTEND
 
++ (instancetype)sharedInstanceForDefaultAppAndNamespace;
 @end
 
 NS_ASSUME_NONNULL_END
