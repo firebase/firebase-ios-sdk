@@ -50,9 +50,9 @@ namespace core {
  * Interface implemented by `EventManager` to handle notifications from
  * `SyncEngine`.
  */
-class QueryEventCallback {
+class SyncEngineCallback {
  public:
-  virtual ~QueryEventCallback() = default;
+  virtual ~SyncEngineCallback() = default;
 
   /** Handles a change in online state. */
   virtual void HandleOnlineStateChange(model::OnlineState online_state) = 0;
@@ -65,12 +65,14 @@ class QueryEventCallback {
 /**
  * Interface implemented by `SyncEngine` to receive requests from
  * `EventManager`.
+ // PORTING NOTE: This is extracted as an interface to allow gmock to mock
+ // sync engine.
  */
 class QueryEventSource {
  public:
   virtual ~QueryEventSource() = default;
 
-  virtual void SetCallback(QueryEventCallback* callback) = 0;
+  virtual void SetCallback(SyncEngineCallback* callback) = 0;
 
   /**
    * Initiates a new listen. The LocalStore will be queried for initial data
@@ -107,8 +109,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
              const auth::User& initial_user);
 
   // Implements `QueryEventSource`.
-  void SetCallback(QueryEventCallback* callback) override {
-    query_event_callback_ = callback;
+  void SetCallback(SyncEngineCallback* callback) override {
+    sync_engine_callback_ = callback;
   }
   model::TargetId Listen(Query query) override;
   void StopListening(const Query& query) override;
@@ -275,7 +277,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   remote::RemoteStore* remote_store_ = nullptr;
 
   auth::User current_user_;
-  QueryEventCallback* query_event_callback_ = nullptr;
+  SyncEngineCallback* sync_engine_callback_ = nullptr;
 
   /**
    * Used for creating the TargetId for the listens used to resolve limbo

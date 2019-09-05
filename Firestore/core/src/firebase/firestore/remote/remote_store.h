@@ -58,7 +58,7 @@ class RemoteStoreCallback {
   virtual void ApplyRemoteEvent(const RemoteEvent& remote_event) = 0;
 
   /**
-   * Handles rejection of listen for the given targetId. This can be triggered
+   * Handles rejection of listen for the given target id. This can be triggered
    * by the backend for any active target.
    *
    * @param target_id The target ID corresponding to a listen initiated via

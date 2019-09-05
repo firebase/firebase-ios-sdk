@@ -41,7 +41,7 @@ namespace core {
  * It handles "fan-out". (Identical queries will re-use the same watch on the
  * backend.)
  */
-class EventManager : public QueryEventCallback {
+class EventManager : public SyncEngineCallback {
  public:
   explicit EventManager(QueryEventSource* query_event_source_);
 
