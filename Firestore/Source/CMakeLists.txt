@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Example/Benchmarks)
-
-add_subdirectory(Protos)
-add_subdirectory(Source)
-add_subdirectory(core)
-add_subdirectory(fuzzing)
+add_subdirectory(Public)
+add_subdirectory(Remote)

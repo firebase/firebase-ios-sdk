@@ -16,17 +16,17 @@ cc_library(
   firebase_firestore_local_persistence_leveldb
   SOURCES
     leveldb_index_manager.h
-    #leveldb_index_manager.mm
+    leveldb_index_manager.mm
     leveldb_key.cc
     leveldb_key.h
     leveldb_migrations.cc
     leveldb_migrations.h
     leveldb_mutation_queue.h
-    #leveldb_mutation_queue.mm
+    leveldb_mutation_queue.mm
     leveldb_query_cache.h
-    #leveldb_query_cache.mm
+    leveldb_query_cache.mm
     leveldb_remote_document_cache.h
-    #leveldb_remote_document_cache.mm
+    leveldb_remote_document_cache.mm
     leveldb_transaction.cc
     leveldb_transaction.h
     leveldb_util.cc
@@ -43,6 +43,14 @@ cc_library(
     firebase_firestore_util
   EXCLUDE_FROM_ALL
 )
+
+if(APPLE)
+  target_link_libraries(
+    firebase_firestore_local_persistence_leveldb
+    PRIVATE
+    firebase_firestore_protos_objc
+  )
+endif()
 
 cc_library(
   firebase_firestore_local
@@ -62,12 +70,14 @@ cc_library(
     memory_index_manager.cc
     memory_index_manager.h
     memory_mutation_queue.h
-    #memory_mutation_queue.mm
+    memory_mutation_queue.mm
     memory_query_cache.h
-    #memory_query_cache.mm
+    memory_query_cache.mm
     memory_remote_document_cache.h
-    #memory_remote_document_cache.mm
+    memory_remote_document_cache.mm
     mutation_queue.h
+    proto_sizer.h
+    proto_sizer.mm
     query_cache.h
     query_data.cc
     query_data.h
@@ -88,3 +98,10 @@ cc_library(
     firebase_firestore_remote
     firebase_firestore_util
 )
+
+if(APPLE)
+  target_link_libraries(
+    firebase_firestore_local PRIVATE
+    firebase_firestore_protos_objc
+  )
+endif()
