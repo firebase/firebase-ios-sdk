@@ -42,7 +42,7 @@ struct LruParams {
 
   static LruParams Disabled();
 
-  static LruParams WithCacheSize(int64_t cacheSize);
+  static LruParams WithCacheSize(int64_t cache_size);
 
   int64_t min_bytes_threshold;
   int percentile_to_collect;
@@ -197,7 +197,7 @@ class LruGarbageCollector {
 
   /**
    * Removes queries that are not currently live (as indicated by presence in
-   * the liveQueries map) and have a sequence number less than or equal to the
+   * the live_queries map) and have a sequence number less than or equal to the
    * given sequence number.
    */
   int RemoveTargets(model::ListenSequenceNumber sequence_number,
@@ -213,7 +213,7 @@ class LruGarbageCollector {
   local::LruResults Collect(const LiveQueryMap& live_targets);
 
  private:
-  LruResults RunGarbageCollection(const LiveQueryMap& liveTargets);
+  LruResults RunGarbageCollection(const LiveQueryMap& live_targets);
 
   // Delegate owns the LruGarbageCollector; this is a back pointer.
   LruDelegate* delegate_;

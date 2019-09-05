@@ -38,10 +38,10 @@ class Sizer;
 class MemoryLruReferenceDelegate : public LruDelegate {
  public:
   MemoryLruReferenceDelegate(MemoryPersistence* persistence,
-                             LruParams lruParams,
+                             LruParams lru_params,
                              std::unique_ptr<Sizer> sizer);
 
-  bool IsPinnedAtSequenceNumber(model::ListenSequenceNumber upperBound,
+  bool IsPinnedAtSequenceNumber(model::ListenSequenceNumber upper_bound,
                                 const model::DocumentKey& key) const;
 
   // MARK: ReferenceDelegate overrides
@@ -56,7 +56,7 @@ class MemoryLruReferenceDelegate : public LruDelegate {
 
   void RemoveMutationReference(const model::DocumentKey& key) override;
 
-  void RemoveTarget(const QueryData& queryData) override;
+  void RemoveTarget(const QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 

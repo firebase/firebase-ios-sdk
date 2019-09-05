@@ -47,7 +47,7 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
 
   void RemoveMutationReference(const model::DocumentKey& key) override;
 
-  void RemoveTarget(const QueryData& queryData) override;
+  void RemoveTarget(const QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 

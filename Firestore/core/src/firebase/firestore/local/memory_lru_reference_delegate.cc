@@ -64,10 +64,10 @@ void MemoryLruReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
   additional_references_ = set;
 }
 
-void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& queryData) {
+void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
   QueryData updated =
-      queryData.Copy(queryData.snapshot_version(), queryData.resume_token(),
-                     current_sequence_number_);
+      query_data.Copy(query_data.snapshot_version(), query_data.resume_token(),
+                      current_sequence_number_);
   persistence_->query_cache()->UpdateTarget(updated);
 }
 
@@ -93,21 +93,21 @@ void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
     const OrphanedDocumentCallback& callback) {
   for (const auto& entry : sequence_numbers_) {
     const DocumentKey& key = entry.first;
-    ListenSequenceNumber sequenceNumber = entry.second;
+    ListenSequenceNumber sequence_number = entry.second;
     // Pass in the exact sequence number as the upper bound so we know it won't
     // be pinned by being too recent.
-    if (!IsPinnedAtSequenceNumber(sequenceNumber, key)) {
-      callback(key, sequenceNumber);
+    if (!IsPinnedAtSequenceNumber(sequence_number, key)) {
+      callback(key, sequence_number);
     }
   }
 }
 
 size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
-  size_t totalCount = persistence_->query_cache()->size();
+  size_t total_count = persistence_->query_cache()->size();
   EnumerateOrphanedDocuments(
-      [&totalCount](const DocumentKey& key,
-                    ListenSequenceNumber sequenceNumber) { totalCount++; });
-  return totalCount;
+      [&total_count](const DocumentKey& key,
+                     ListenSequenceNumber sequence_number) { total_count++; });
+  return total_count;
 }
 
 int MemoryLruReferenceDelegate::RemoveTargets(
@@ -153,7 +153,7 @@ void MemoryLruReferenceDelegate::RemoveMutationReference(
 }
 
 bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
-    ListenSequenceNumber upperBound, const DocumentKey& key) const {
+    ListenSequenceNumber upper_bound, const DocumentKey& key) const {
   if (MutationQueuesContainKey(key)) {
     return true;
   }
@@ -163,8 +163,9 @@ bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
   if (persistence_->query_cache()->Contains(key)) {
     return true;
   }
+
   auto it = sequence_numbers_.find(key);
-  if (it != sequence_numbers_.end() && it->second > upperBound) {
+  if (it != sequence_numbers_.end() && it->second > upper_bound) {
     return true;
   }
   return false;

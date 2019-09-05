@@ -41,7 +41,7 @@ ListenSequenceNumber MemoryEagerReferenceDelegate::current_sequence_number()
 }
 
 void MemoryEagerReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
-  // We should be able to assert that additionalReferences_ is nullptr, but due
+  // We should be able to assert that additional_references_ is nullptr, but due
   // to restarts in spec tests it would fail.
   additional_references_ = set;
 }
