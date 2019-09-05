@@ -90,8 +90,8 @@ void MemoryEagerReferenceDelegate::UpdateLimboDocument(
 }
 
 void MemoryEagerReferenceDelegate::OnTransactionStarted(absl::string_view) {
-  orphaned_ =
-      absl::make_unique<std::unordered_set<DocumentKey, DocumentKeyHash>>();
+  // Constructs the unordered map, in place, with no arguments.
+  orphaned_.emplace();
 }
 
 void MemoryEagerReferenceDelegate::OnTransactionCommitted() {

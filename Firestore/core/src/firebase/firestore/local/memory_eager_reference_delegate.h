@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -59,8 +60,7 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
 
   bool MutationQueuesContainKey(const model::DocumentKey& key) const;
 
-  std::unique_ptr<
-      std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>
+  absl::optional<std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>
       orphaned_;
 
   // This instance is owned by MemoryPersistence.

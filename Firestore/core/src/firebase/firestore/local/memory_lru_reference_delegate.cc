@@ -38,9 +38,9 @@ MemoryLruReferenceDelegate::MemoryLruReferenceDelegate(
     MemoryPersistence* persistence,
     LruParams lru_params,
     std::unique_ptr<Sizer> sizer)
-    : persistence_(persistence), sizer_(std::move(sizer)) {
-  gc_ = absl::make_unique<LruGarbageCollector>(this, lru_params);
-
+    : persistence_(persistence),
+      sizer_(std::move(sizer)),
+      gc_(this, lru_params) {
   // Theoretically this is always 0, since this is all in-memory...
   ListenSequenceNumber highest_sequence_number =
       persistence_->query_cache()->highest_listen_sequence_number();
@@ -48,7 +48,7 @@ MemoryLruReferenceDelegate::MemoryLruReferenceDelegate(
 }
 
 LruGarbageCollector* MemoryLruReferenceDelegate::garbage_collector() {
-  return gc_.get();
+  return &gc_;
 }
 
 ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number()

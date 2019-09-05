@@ -90,6 +90,8 @@ class MemoryLruReferenceDelegate : public LruDelegate {
 
   std::unique_ptr<Sizer> sizer_;
 
+  LruGarbageCollector gc_;
+
   // Tracks sequence numbers of when documents are used. Equivalent to sentinel
   // rows in the leveldb implementation.
   std::unordered_map<model::DocumentKey,
@@ -99,8 +101,6 @@ class MemoryLruReferenceDelegate : public LruDelegate {
 
   // This ReferenceSet is owned by FSTLocalStore.
   ReferenceSet* additional_references_ = nullptr;
-
-  std::unique_ptr<LruGarbageCollector> gc_;
 
   // This needs to be a pointer because initialization is delayed until after
   // we read from the query cache.
