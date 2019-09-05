@@ -1,19 +1,19 @@
 #import <XCTest/XCTest.h>
 
-#import "googlemac/iPhone/Config/RemoteConfig/Source/FIRRemoteConfig.h"
-#import "googlemac/iPhone/Config/RemoteConfig/Source/FIRRemoteConfig_Internal.h"
-#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigConstants.h"
-#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigDBManager.h"
-#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNConfigFetch.h"
-#import "googlemac/iPhone/Config/RemoteConfig/Source/RCNUserDefaultsManager.h"
+#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/Sources/FIRRemoteConfig_Internal.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
-#import "googlemac/iPhone/Config/RemoteConfig/Tests/UnitTestsNew/RCNTestUtilities.h"
+#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import "third_party/firebase/ios/Releases/FirebaseCore/Library/FIROptions.h"
-#import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRAppInternal.h"
-#import "third_party/firebase/ios/Releases/FirebaseCore/Library/Private/FIRLogger.h"
-#import "third_party/firebase/ios/Releases/GoogleUtilities/NSData+zlib/GULNSData+zlib.h"
-#import "third_party/objective_c/ocmock/v3/Source/OCMock/OCMock.h"
+#import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore//FIRAppInternal.h>
+#import <FirebaseCore//FIRLogger.h>
+#import <GoogleUtilities/NSData+zlib/GULNSData+zlib.h>
+#import <OCMock/OCMock.h>
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
