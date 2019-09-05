@@ -35,7 +35,8 @@ MemoryEagerReferenceDelegate::MemoryEagerReferenceDelegate(
     : persistence_(persistence) {
 }
 
-ListenSequenceNumber MemoryEagerReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber MemoryEagerReferenceDelegate::current_sequence_number()
+    const {
   return kListenSequenceNumberInvalid;
 }
 
@@ -66,7 +67,7 @@ void MemoryEagerReferenceDelegate::RemoveMutationReference(
   orphaned_->insert(key);
 }
 
-bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) {
+bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) const {
   if (persistence_->query_cache()->Contains(key)) {
     return true;
   }
@@ -103,7 +104,7 @@ void MemoryEagerReferenceDelegate::OnTransactionCommitted() {
 }
 
 bool MemoryEagerReferenceDelegate::MutationQueuesContainKey(
-    const DocumentKey& key) {
+    const DocumentKey& key) const {
   const auto& queues = persistence_->mutation_queues();
   for (const auto& entry : queues) {
     if (entry.second->ContainsKey(key)) {

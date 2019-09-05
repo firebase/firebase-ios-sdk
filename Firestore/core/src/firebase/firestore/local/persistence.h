@@ -74,7 +74,7 @@ class Persistence {
  public:
   virtual ~Persistence() = default;
 
-  virtual model::ListenSequenceNumber current_sequence_number() = 0;
+  virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /** Releases any resources held during eager shutdown. */
   virtual void Shutdown() = 0;

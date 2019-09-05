@@ -51,7 +51,8 @@ LruGarbageCollector* MemoryLruReferenceDelegate::garbage_collector() {
   return gc_.get();
 }
 
-ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number()
+    const {
   HARD_ASSERT(current_sequence_number_ != kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return current_sequence_number_;
@@ -137,7 +138,7 @@ void MemoryLruReferenceDelegate::RemoveReference(const DocumentKey& key) {
 }
 
 bool MemoryLruReferenceDelegate::MutationQueuesContainKey(
-    const DocumentKey& key) {
+    const DocumentKey& key) const {
   const auto& queues = persistence_->mutation_queues();
   for (const auto& entry : queues) {
     if (entry.second->ContainsKey(key)) {
@@ -153,7 +154,7 @@ void MemoryLruReferenceDelegate::RemoveMutationReference(
 }
 
 bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
-    ListenSequenceNumber upperBound, const DocumentKey& key) {
+    ListenSequenceNumber upperBound, const DocumentKey& key) const {
   if (MutationQueuesContainKey(key)) {
     return true;
   }

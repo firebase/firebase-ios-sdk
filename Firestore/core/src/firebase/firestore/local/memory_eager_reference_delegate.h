@@ -36,7 +36,7 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
  public:
   explicit MemoryEagerReferenceDelegate(MemoryPersistence* persistence);
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void AddInMemoryPins(ReferenceSet* set) override;
 
@@ -55,9 +55,9 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
   void OnTransactionCommitted() override;
 
  private:
-  bool IsReferenced(const model::DocumentKey& key);
+  bool IsReferenced(const model::DocumentKey& key) const;
 
-  bool MutationQueuesContainKey(const model::DocumentKey& key);
+  bool MutationQueuesContainKey(const model::DocumentKey& key) const;
 
   std::unique_ptr<
       std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>

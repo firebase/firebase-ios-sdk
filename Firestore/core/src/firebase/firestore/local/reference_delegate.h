@@ -53,7 +53,7 @@ class ReferenceDelegate {
  public:
   virtual ~ReferenceDelegate() = default;
 
-  virtual model::ListenSequenceNumber current_sequence_number() = 0;
+  virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /**
    * Registers a ReferenceSet of documents that should be considered

@@ -61,13 +61,13 @@ class MemoryPersistence : public Persistence {
   static std::unique_ptr<MemoryPersistence> WithLruGarbageCollector(
       LruParams params, std::unique_ptr<Sizer> sizer);
 
-  const MutationQueues& mutation_queues() {
+  const MutationQueues& mutation_queues() const {
     return mutation_queues_;
   }
 
   // MARK: Persistence overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void Shutdown() override;
 

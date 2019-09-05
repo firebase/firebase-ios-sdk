@@ -42,11 +42,11 @@ class MemoryLruReferenceDelegate : public LruDelegate {
                              std::unique_ptr<Sizer> sizer);
 
   bool IsPinnedAtSequenceNumber(model::ListenSequenceNumber upperBound,
-                                const model::DocumentKey& key);
+                                const model::DocumentKey& key) const;
 
   // MARK: ReferenceDelegate overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void AddInMemoryPins(ReferenceSet* set) override;
 
@@ -83,7 +83,7 @@ class MemoryLruReferenceDelegate : public LruDelegate {
                     const LiveQueryMap& live_queries) override;
 
  private:
-  bool MutationQueuesContainKey(const model::DocumentKey& key);
+  bool MutationQueuesContainKey(const model::DocumentKey& key) const;
 
   // This instance is owned by MemoryPersistence.
   MemoryPersistence* persistence_ = nullptr;

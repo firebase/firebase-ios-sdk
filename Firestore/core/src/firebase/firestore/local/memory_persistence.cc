@@ -61,7 +61,7 @@ MemoryPersistence::MemoryPersistence() {
   started_ = true;
 }
 
-ListenSequenceNumber MemoryPersistence::current_sequence_number() {
+ListenSequenceNumber MemoryPersistence::current_sequence_number() const {
   return reference_delegate_->current_sequence_number();
 }
 
