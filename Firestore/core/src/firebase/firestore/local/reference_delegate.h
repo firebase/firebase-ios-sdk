@@ -99,8 +99,9 @@ class ReferenceDelegate {
 };
 
 /**
- * Ensures OnTransactionCommitted is called at the close of any block in which
- * it's declared.
+ * Calls `OnTransactionStarted` in its constructor and then ensures that
+ * `OnTransactionCommitted` is called at the close of any block in which it is
+ * declared.
  */
 struct TransactionGuard {
   TransactionGuard(ReferenceDelegate* reference_delegate,
@@ -112,6 +113,9 @@ struct TransactionGuard {
   ~TransactionGuard() {
     reference_delegate_->OnTransactionCommitted();
   }
+
+  TransactionGuard(const TransactionGuard&) = delete;
+  TransactionGuard& operator=(const TransactionGuard&) = delete;
 
  private:
   ReferenceDelegate* reference_delegate_;

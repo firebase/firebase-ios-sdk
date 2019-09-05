@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
@@ -36,11 +38,11 @@ class ReferenceDelegate;
 class RemoteDocumentCache;
 
 /**
- * Persistence is the lowest-level shared interface to persistent storage in
+ * Persistence is the lowest-level shared interface to data storage in
  * Firestore.
  *
- * Persistence is used to create MutationQueue and RemoteDocumentCache instances
- * backed by persistence (which might be in-memory or LevelDB).
+ * Persistence creates MutationQueue and RemoteDocumentCache instances backed
+ * by some underlying storage mechanism (which might be in-memory or LevelDB).
  *
  * Persistence also exposes an API to run transactions against the backing
  * store. All read and write operations must be wrapped in a transaction.
@@ -49,26 +51,25 @@ class RemoteDocumentCache;
  * commits. Since memory-only storage components do not alter durable storage,
  * they are free to ignore the transaction.
  *
- * This contract is enough to allow the FSTLocalStore be be written
- * independently of whether or not the stored state actually is durably
- * persisted. If persistent storage is enabled, writes are grouped together to
- * avoid inconsistent state that could cause crashes.
+ * This contract is enough to allow the LocalStore to be written independently
+ * of whether or not the stored state actually is durably persisted. If a user
+ * enables persistent storage, writes are grouped together to avoid inconsistent
+ * state that could cause crashes.
  *
- * Concretely, when persistent storage is enabled, the persistent versions of
- * MutationQueue, RemoteDocumentCache, and others (the mutators) will
- * defer their writes into a transaction. Once the local store has completed
- * one logical operation, it commits the transaction.
+ * Concretely, when persistent storage is enabled, the durable versions of
+ * MutationQueue, RemoteDocumentCache, and others (the mutators) will group
+ * their writes in a transaction. Once the local store has completed one logical
+ * operation, it commits the transaction.
  *
- * When persistent storage is disabled, the non-persistent versions of the
- * mutators ignore the transaction. This short-cut is allowed because
- * memory-only storage leaves no state so it cannot be inconsistent.
+ * When persistent storage is disabled, the non-durable versions of the mutators
+ * ignore the transaction. This short-cut is allowed because memory-only storage
+ * leaves no state so it cannot be inconsistent.
  *
  * This simplifies the implementations of the mutators and allows memory-only
- * implementations to supplement the persistent ones without requiring any
- * special dual-store implementation of Persistence. The cost is that the
- * FSTLocalStore needs to be slightly careful about the order of its reads and
- * writes in order to avoid relying on being able to read back uncommitted
- * writes.
+ * implementations to supplement the durable ones without requiring any special
+ * dual-store implementation of Persistence. The cost is that LocalStore needs
+ * to be slightly careful about the order of its reads and writes in order to
+ * avoid relying on being able to read back uncommitted writes.
  */
 class Persistence {
  public:
@@ -91,20 +92,21 @@ class Persistence {
    */
   virtual MutationQueue* GetMutationQueueForUser(const auth::User& user) = 0;
 
-  /** Creates a QueryCache representing the persisted cache of queries. */
+  /** Returns a QueryCache representing the persisted cache of queries. */
   virtual QueryCache* query_cache() = 0;
 
-  /** Creates a RemoteDocumentCache representing the persisted cache of remote
-   * documents. */
+  /**
+   * Returns a RemoteDocumentCache representing the persisted cache of remote
+   * documents.
+   */
   virtual RemoteDocumentCache* remote_document_cache() = 0;
 
-  /** Creates an IndexManager that manages our persisted query indexes. */
+  /** Returns an IndexManager that manages our persisted query indexes. */
   virtual IndexManager* index_manager() = 0;
 
   /**
    * This property provides access to hooks around the document reference
-   * lifecycle. It is initially nullable while being implemented, but the goal
-   * is to eventually have it be non-nil.
+   * lifecycle.
    */
   virtual ReferenceDelegate* reference_delegate() = 0;
 
@@ -121,7 +123,7 @@ class Persistence {
   auto Run(absl::string_view label, F block) ->
       typename std::enable_if<std::is_same<void, decltype(block())>::value,
                               void>::type {
-    RunInternal(label, block);
+    RunInternal(label, std::forward<F>(block));
   }
 
   /**
@@ -141,12 +143,12 @@ class Persistence {
                               decltype(block())>::type {
     decltype(block()) result;
 
-    RunInternal(label, [&result, &block]() mutable { result = block(); });
+    RunInternal(label, [&]() mutable { result = block(); });
 
     return result;
   }
 
- protected:
+ private:
   virtual void RunInternal(absl::string_view label,
                            std::function<void()> block) = 0;
 };

@@ -59,9 +59,8 @@ ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number()
 }
 
 void MemoryLruReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
-  // Technically can't assert this, due to restartWithNoopGarbageCollector (for
-  // now...) FSTAssert(additional_references_ == nil, @"Overwriting additional
-  // references");
+  // We should be able to assert that additional_references_ is nullptr, but due
+  // to restarts in spec tests it would fail.
   additional_references_ = set;
 }
 
@@ -93,8 +92,8 @@ void MemoryLruReferenceDelegate::EnumerateTargets(
 void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
     const OrphanedDocumentCallback& callback) {
   for (const auto& entry : sequence_numbers_) {
-    ListenSequenceNumber sequenceNumber = entry.second;
     const DocumentKey& key = entry.first;
+    ListenSequenceNumber sequenceNumber = entry.second;
     // Pass in the exact sequence number as the upper bound so we know it won't
     // be pinned by being too recent.
     if (!IsPinnedAtSequenceNumber(sequenceNumber, key)) {

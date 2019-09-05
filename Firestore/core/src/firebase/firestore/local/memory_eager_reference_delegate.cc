@@ -80,8 +80,7 @@ bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) const {
   return false;
 }
 
-void MemoryEagerReferenceDelegate::UpdateLimboDocument(
-    const firebase::firestore::model::DocumentKey& key) {
+void MemoryEagerReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
   if (IsReferenced(key)) {
     orphaned_->erase(key);
   } else {
