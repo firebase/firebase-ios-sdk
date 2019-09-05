@@ -38,7 +38,7 @@ extension Firestore {
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       // AutoPopulatedDocumentId, DocumentReference and FieldValue cannot be
       // encoded directly.
-      guard T.self != AutoPopulatedDocumentId.self,
+      guard T.self != AutoPopulatedDocumentID.self,
         T.self != DocumentReference.self,
         T.self != FieldValue.self else {
         throw FirestoreEncodingError.encodingIsNotSupported
@@ -216,7 +216,7 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
 
   public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
     // `AutoPopulatedDocumentId` is ignored during encoding.
-    if T.self == AutoPopulatedDocumentId.self {
+    if T.self == AutoPopulatedDocumentID.self {
       return
     }
 

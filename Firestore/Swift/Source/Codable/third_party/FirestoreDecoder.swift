@@ -38,9 +38,12 @@ extension Firestore {
     /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_: T.Type,
                                      from container: [String: Any],
-                                     forDoc docRef: DocumentReference) throws -> T {
+                                     in document: DocumentReference? = nil) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
-      decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = docRef
+      if let doc = document {
+        decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = doc
+      }
+
       guard let value = try decoder.unbox(container, as: T.self) else {
         throw DecodingError.valueNotFound(
           T.self,
@@ -330,15 +333,22 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
   }
 
   public func decode<T: Decodable>(_: T.Type, forKey key: Key) throws -> T {
-    if T.self == AutoPopulatedDocumentId.self {
+    if T.self == AutoPopulatedDocumentID.self {
+      let docRef = decoder.userInfo[
+        Firestore.Decoder.documentRefUserInfoKey!
+      ] as! DocumentReference?
+
       if contains(key) {
-        throw FirestoreDecodingError.fieldNameConfict("Field name conflict:" +
-          " \(key.stringValue) is an `AutoPopulatedDocumentId` but " +
-          "also exists as a field in the Firestore document being decoded.")
+        let docPath = (docRef != nil) ? docRef!.path : "being read"
+        var codingPathCopy = codingPath.map { key in key.stringValue }
+        codingPathCopy.append(key.stringValue)
+
+        throw FirestoreDecodingError.fieldNameConfict("Field name " +
+          "\(codingPathCopy) was found from document \"\(docPath)\", " +
+          "cannot assign the document reference to this field.")
       }
-      let docRef = decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!]
-        as! DocumentReference
-      return AutoPopulatedDocumentId(from: docRef) as! T
+
+      return AutoPopulatedDocumentID(from: docRef) as! T
     }
 
     let entry = try require(key: key)
