@@ -81,7 +81,8 @@ void LevelDbLruReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
   WriteSentinel(key);
 }
 
-ListenSequenceNumber LevelDbLruReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber LevelDbLruReferenceDelegate::current_sequence_number()
+    const {
   HARD_ASSERT(current_sequence_number_ != kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return current_sequence_number_;

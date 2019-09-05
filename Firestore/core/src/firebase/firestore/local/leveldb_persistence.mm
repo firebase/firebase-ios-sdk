@@ -221,7 +221,8 @@ int64_t LevelDbPersistence::CalculateByteSize() {
 
 // MARK: - Persistence
 
-model::ListenSequenceNumber LevelDbPersistence::current_sequence_number() {
+model::ListenSequenceNumber LevelDbPersistence::current_sequence_number()
+    const {
   return reference_delegate_->current_sequence_number();
 }
 

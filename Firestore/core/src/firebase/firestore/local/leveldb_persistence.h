@@ -96,7 +96,7 @@ class LevelDbPersistence : public Persistence {
 
   // MARK: Persistence overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void Shutdown() override;
 
