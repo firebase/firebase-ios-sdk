@@ -49,6 +49,16 @@ public enum ServerTimestamp: Codable, Equatable {
   /// value to `stamp`.
   case resolved(Timestamp)
 
+  /// Get the `Optional` representation of `ServerTimestamp`.
+  public var timestamp: Timestamp? {
+    switch self {
+    case .pending:
+      return .none
+    case let .resolved(timestamp):
+      return .some(timestamp)
+    }
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {
