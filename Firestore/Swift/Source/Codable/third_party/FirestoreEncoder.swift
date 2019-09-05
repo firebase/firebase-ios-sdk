@@ -36,9 +36,9 @@ extension Firestore {
     /// - Returns: A Map keyed by String representing a document Firestore
     ///            API can work with.
     public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
-      // AutoPopulatedDocumentId, DocumentReference and FieldValue cannot be
+      // SelfDocumentID, DocumentReference and FieldValue cannot be
       // encoded directly.
-      guard T.self != AutoPopulatedDocumentID.self,
+      guard T.self != SelfDocumentID.self,
         T.self != DocumentReference.self,
         T.self != FieldValue.self else {
         throw FirestoreEncodingError.encodingIsNotSupported
@@ -215,8 +215,8 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
   public mutating func encode(_ value: Double, forKey key: Key) throws { container[key.stringValue] = encoder.box(value) }
 
   public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-    // `AutoPopulatedDocumentId` is ignored during encoding.
-    if T.self == AutoPopulatedDocumentID.self {
+    // `SelfDocumentID` is ignored during encoding.
+    if T.self == SelfDocumentID.self {
       return
     }
 

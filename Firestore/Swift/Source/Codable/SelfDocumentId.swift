@@ -20,24 +20,26 @@ import FirebaseFirestore
 /// the FirestoreDecoder when a document is read.
 ///
 /// Note that limitations in Swift-compiler generated Codable implementations
-/// prevent using this type wrapped in an Optional. Optional
-/// AutoPopulatedDocumentIDs are possible if you write a custom
-/// init(from: Decoder) method.
+/// prevent using this type wrapped in an Optional. Optional SelfDocumentIDs
+/// are possible if you write a custom init(from: Decoder) method.
 ///
 /// If the field name used for this type conflicts with a read document field,
 /// an error is thrown. For example, if a custom object has a field `firstName`
-/// with type AutoPopulatedDocumentID, and there is a property from the
-/// document named `firstName` as well, an error is thrown when you try to read
-/// the document.
+/// with type SelfDocumentID, and there is a property from the document named
+/// `firstName` as well, an error is thrown when you try to read the document.
 ///
-/// When writing a Codable object containing a `AutoPopulatedDocumentID`, its
-/// value is ignored. This allows you to read a document from one path and
-/// write it into another without adjusting the value here.
+/// When writing a Codable object containing a `SelfDocumentID`, its value is
+/// ignored. This allows you to read a document from one path and write it into
+/// another without adjusting the value here.
 ///
 /// NOTE: Trying to encode/decode this type using encoders/decoders other than
 /// FirestoreEncoder leads to an error.
-public final class AutoPopulatedDocumentID: Equatable, Codable {
+public final class SelfDocumentID: Equatable, Codable {
   public let reference: DocumentReference?
+
+  public var id: String? {
+    return reference?.documentID
+  }
 
   public init() {
     reference = nil
@@ -55,8 +57,8 @@ public final class AutoPopulatedDocumentID: Equatable, Codable {
     throw FirestoreEncodingError.encodingIsNotSupported
   }
 
-  public static func == (lhs: AutoPopulatedDocumentID,
-                         rhs: AutoPopulatedDocumentID) -> Bool {
+  public static func == (lhs: SelfDocumentID,
+                         rhs: SelfDocumentID) -> Bool {
     return lhs.reference == rhs.reference
   }
 }

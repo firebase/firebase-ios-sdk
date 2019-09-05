@@ -169,16 +169,16 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testAutoPopulatedDocumentId() throws {
+  func testSelfDocumentID() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var docId: AutoPopulatedDocumentID
+      var docId: SelfDocumentID
     }
 
     let docToWrite = documentRef()
     let model = Model(
       name: "name",
-      docId: AutoPopulatedDocumentID()
+      docId: SelfDocumentID()
     )
 
     try setData(from: model, forDocument: docToWrite, withFlavor: .docRef)
@@ -190,7 +190,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     // Decoded result has "docId" auto-populated.
     let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
     XCTAssertEqual(decoded!, Model(name: "name",
-                                   docId: AutoPopulatedDocumentID(from: docToWrite)))
+                                   docId: SelfDocumentID(from: docToWrite)))
   }
 
   func testSetThenMerge() throws {

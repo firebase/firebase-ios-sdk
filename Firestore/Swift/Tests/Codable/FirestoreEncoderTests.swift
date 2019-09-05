@@ -606,28 +606,28 @@ class FirestoreEncoderTests: XCTestCase {
     XCTAssertEqual(decoded, fieldIsNotNull)
   }
 
-  func testAutomaticallyPopulatesDocumentIdField() throws {
+  func testAutomaticallyPopulatesSelfDocumentIDField() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var docId: AutoPopulatedDocumentID
+      var docId: SelfDocumentID
     }
 
     let decoded = try Firestore.Decoder().decode(Model.self, from: ["name": "abc"], in: FSTTestDocRef("abc/123"))
-    XCTAssertEqual(decoded, Model(name: "abc", docId: AutoPopulatedDocumentID(from: FSTTestDocRef("abc/123"))))
+    XCTAssertEqual(decoded, Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
   }
 
-  func testAutoPopulatedDocumentIdIgnoredInEncoding() throws {
+  func testSelfDocumentIDIgnoredInEncoding() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var docId: AutoPopulatedDocumentID
+      var docId: SelfDocumentID
     }
 
-    let model = Model(name: "abc", docId: AutoPopulatedDocumentID(from: FSTTestDocRef("abc/123")))
+    let model = Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123")))
     _ = assertEncodes(model, to: ["name": "abc"])
   }
 
-  func testEncodingAutoPopulatedDocumentIdNotEmbeddedThrows() {
-    let doc = AutoPopulatedDocumentID(from: FSTTestDocRef("abc/xyz"))
+  func testEncodingSelfDocumentIDNotEmbeddedThrows() {
+    let doc = SelfDocumentID(from: FSTTestDocRef("abc/xyz"))
     do {
       _ = try Firestore.Encoder().encode(doc)
       XCTFail("Failed to throw")
@@ -638,8 +638,8 @@ class FirestoreEncoderTests: XCTestCase {
     }
   }
 
-  func testAutoPopulatedDocumentIdWithJsonEncoderThrows() {
-    let doc = AutoPopulatedDocumentID(from: FSTTestDocRef("abc/xyz"))
+  func testSelfDocumentIDWithJsonEncoderThrows() {
+    let doc = SelfDocumentID(from: FSTTestDocRef("abc/xyz"))
     do {
       _ = try JSONEncoder().encode(doc)
       XCTFail("Failed to throw")
@@ -650,10 +650,10 @@ class FirestoreEncoderTests: XCTestCase {
     }
   }
 
-  func testDecodingAutoPopulatedDocumentIdWithConfictingFieldsThrows() throws {
+  func testDecodingSelfDocumentIDWithConfictingFieldsThrows() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var docId: AutoPopulatedDocumentID
+      var docId: SelfDocumentID
     }
 
     do {
