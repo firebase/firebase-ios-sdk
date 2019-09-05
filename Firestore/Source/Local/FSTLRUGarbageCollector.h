@@ -70,7 +70,7 @@ namespace model = firebase::firestore::model;
                                   (const std::unordered_map<model::TargetId, local::QueryData> &)
                                       liveQueries;
 
-- (size_t)byteSize;
+- (int64_t)byteSize;
 
 /** Returns the number of targets and orphaned documents cached. */
 - (size_t)sequenceNumberCount;

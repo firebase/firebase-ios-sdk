@@ -93,18 +93,21 @@ void EventManager::OnViewSnapshots(
   }
 }
 
-void EventManager::OnError(const core::Query& query, util::Status error) {
+void EventManager::OnError(const core::Query& query,
+                           const util::Status& error) {
   auto found_iter = queries_.find(query);
-  if (found_iter != queries_.end()) {
-    QueryListenersInfo& query_info = found_iter->second;
-    for (const auto& listener : query_info.listeners) {
-      listener->OnError(std::move(error));
-    }
-
-    // Remove all listeners. NOTE: We don't need to call query_event_source_->
-    // StopListening after an error.
-    queries_.erase(found_iter);
+  if (found_iter == queries_.end()) {
+    return;
   }
+
+  QueryListenersInfo& query_info = found_iter->second;
+  for (const auto& listener : query_info.listeners) {
+    listener->OnError(error);
+  }
+
+  // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine
+  // stopListening] after an error.
+  queries_.erase(found_iter);
 }
 
 }  // namespace core

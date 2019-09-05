@@ -224,8 +224,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  // Causes crash if main thread exits before the RCNConfigDB queue cleans up
-  //  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [super tearDown];
 }

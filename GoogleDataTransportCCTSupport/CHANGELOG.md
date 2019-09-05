@@ -1,3 +1,9 @@
+# v1.0.3
+- Remove all NSAsserts in favor of GDTAssert.
+
+# v1.0.2
+- More safely handle backgrounding.
+
 # v1.0.1
 - Removed unused fields from firebasecore.proto.
 

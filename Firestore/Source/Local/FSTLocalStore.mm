@@ -414,7 +414,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         [self->_persistence.referenceDelegate removeReference:key];
       }
       _localViewReferences.AddReferences(viewChange.added_keys(), viewChange.target_id());
-      _localViewReferences.AddReferences(viewChange.removed_keys(), viewChange.target_id());
+      _localViewReferences.RemoveReferences(viewChange.removed_keys(), viewChange.target_id());
     }
   });
 }

@@ -36,23 +36,6 @@ namespace core {
 namespace {
 
 using firestore::Error;
-using model::ListenSequenceNumber;
-using util::Status;
-
-// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
-// them don't need real sequence numbers.
-const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
-
-bool ErrorIsInteresting(const Status& error) {
-  bool missing_index =
-      (error.code() == Error::FailedPrecondition &&
-       error.error_message().find("requires an index") != std::string::npos);
-  bool no_permission = (error.code() == Error::PermissionDenied);
-  return missing_index || no_permission;
-}
-
-}  // namespace
-
 using auth::User;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
@@ -73,6 +56,20 @@ using remote::TargetChange;
 using util::AsyncQueue;
 using util::Status;
 using util::StatusCallback;
+
+// Limbo documents don't use persistence, and are eagerly GC'd. So, listens for
+// them don't need real sequence numbers.
+const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
+
+bool ErrorIsInteresting(const Status& error) {
+  bool missing_index =
+      (error.code() == Error::FailedPrecondition &&
+       error.error_message().find("requires an index") != std::string::npos);
+  bool no_permission = (error.code() == Error::PermissionDenied);
+  return missing_index || no_permission;
+}
+
+}  // namespace
 
 SyncEngine::SyncEngine(FSTLocalStore* local_store,
                        remote::RemoteStore* remote_store,

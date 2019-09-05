@@ -322,17 +322,17 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
-- (size_t)byteSize {
+- (int64_t)byteSize {
   // Note that this method is only used for testing because this delegate is only
   // used for testing. The algorithm here (loop through everything, serialize it
   // and count bytes) is inefficient and inexact, but won't run in production.
-  size_t count = 0;
+  int64_t count = 0;
   ProtoSizer sizer(_serializer);
   count += _persistence.queryCache->CalculateByteSize(sizer);
   count += _persistence.remoteDocumentCache->CalculateByteSize(sizer);
   const MutationQueues &queues = [_persistence mutationQueues];
   for (const auto &entry : queues) {
-    count += entry.second->CalculateByteSize(_serializer);
+    count += entry.second->CalculateByteSize(sizer);
   }
   return count;
 }

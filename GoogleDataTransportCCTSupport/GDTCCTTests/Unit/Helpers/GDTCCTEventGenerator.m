@@ -16,6 +16,7 @@
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
+#import <GoogleDataTransport/GDTAssert.h>
 #import <GoogleDataTransport/GDTTargets.h>
 
 @implementation GDTCCTEventGenerator
@@ -27,7 +28,7 @@ static volatile NSUInteger gCounter = 0;
   for (GDTStoredEvent *storedEvent in self.allGeneratedEvents) {
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtURL:storedEvent.dataFuture.fileURL error:&error];
-    NSAssert(error == nil, @"There was an error deleting a temporary event file.");
+    GDTAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
 
