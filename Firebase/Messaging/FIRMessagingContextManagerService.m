@@ -44,6 +44,7 @@ NSString *const kFIRMessagingContextManagerCategoryKey =
 NSString *const kFIRMessagingContextManagerSoundKey = kFIRMessagingContextManagerNotificationKeyPrefix @"sound";
 NSString *const kFIRMessagingContextManagerContentAvailableKey =
     kFIRMessagingContextManagerNotificationKeyPrefix @"content-available";
+static NSString *const kFIRMessagingAPNSPayloadKey = @"aps";
 
 typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   FIRMessagingContextManagerMessageTypeNone,
@@ -186,6 +187,11 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
       if ([keyString isEqualToString:kFIRMessagingContextManagerContentAvailableKey]) {
         continue;
       } else if ([keyString hasPrefix:kContextManagerPrefixKey]) {
+        continue;
+      } else if ([keyString isEqualToString:kFIRMessagingAPNSPayloadKey]) {
+        // Local timezone message is scheduled with FCM payload. APNS payload with
+        // content_available should be ignored and not passed to the scheduled
+        // messages.
         continue;
       }
     }

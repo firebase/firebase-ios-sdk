@@ -34,8 +34,6 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
-@class FSTMutationBatch;
-
 @class GCFSBatchGetDocumentsResponse;
 @class GCFSDocument;
 @class GCFSDocumentMask;

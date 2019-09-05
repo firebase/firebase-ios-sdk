@@ -21,11 +21,10 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/algorithm/container.h"
@@ -69,8 +68,8 @@ size_t Query::Hash() const {
 
 void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
   if (source == Source::Cache) {
-    [firestore_->client() getDocumentsFromLocalCache:*this
-                                            callback:std::move(callback)];
+    firestore_->client()->GetDocumentsFromLocalCache(*this,
+                                                     std::move(callback));
     return;
   }
 
@@ -167,12 +166,11 @@ ListenerRegistration Query::AddSnapshotListener(
 
   // Call the view_listener on the user Executor.
   auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
-      firestore_->client().userExecutor, std::move(view_listener));
+      firestore_->client()->user_executor(), std::move(view_listener));
 
   std::shared_ptr<QueryListener> query_listener =
-      [firestore_->client() listenToQuery:this->query()
-                                  options:options
-                                 listener:async_listener];
+      firestore_->client()->ListenToQuery(this->query(), options,
+                                          async_listener);
 
   return ListenerRegistration(firestore_->client(), std::move(async_listener),
                               std::move(query_listener));

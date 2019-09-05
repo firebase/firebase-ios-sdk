@@ -25,7 +25,6 @@
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
@@ -38,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -57,6 +57,8 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatch;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -106,12 +108,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readwrite) id<FSTPersistence> localStorePersistence;
 @property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
 
-@property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *batches;
 @property(nonatomic, assign, readwrite) TargetId lastTargetID;
 
 @end
 
 @implementation FSTLocalStoreTests {
+  std::vector<MutationBatch> _batches;
   MaybeDocumentMap _lastChanges;
 }
 
@@ -128,7 +130,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                    initialUser:User::Unauthenticated()];
   [self.localStore start];
 
-  _batches = [NSMutableArray array];
   _lastTargetID = 0;
 }
 
@@ -156,16 +157,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeMutation:(Mutation)mutation {
-  [self writeMutations:{mutation}];
+  [self writeMutations:{std::move(mutation)}];
 }
 
 - (void)writeMutations:(std::vector<Mutation> &&)mutations {
   auto mutationsCopy = mutations;
   LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
-  [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batch_id()
-                                                     localWriteTime:Timestamp::Now()
-                                                      baseMutations:{}
-                                                          mutations:std::move(mutations)]];
+  _batches.emplace_back(result.batch_id(), Timestamp::Now(), std::vector<Mutation>{},
+                        std::move(mutations));
   _lastChanges = result.changes();
 }
 
@@ -179,9 +178,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion
                        transformResult:(id _Nullable)transformResult {
-  FSTMutationBatch *batch = [self.batches firstObject];
-  [self.batches removeObjectAtIndex:0];
-  XCTAssertEqual(batch.mutations.size(), 1, @"Acknowledging more than one mutation not supported.");
+  XCTAssertGreaterThan(_batches.size(), 0, @"Missing batch to acknowledge.");
+  MutationBatch batch = _batches.front();
+  _batches.erase(_batches.begin());
+
+  XCTAssertEqual(batch.mutations().size(), 1,
+                 @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
 
   absl::optional<std::vector<FieldValue>> mutationTransformResult;
@@ -190,10 +192,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   MutationResult mutationResult(version, mutationTransformResult);
-  FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
-                                                             commitVersion:version
-                                                           mutationResults:{mutationResult}
-                                                               streamToken:nil];
+  MutationBatchResult result(batch, version, {mutationResult}, {});
   _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
 }
 
@@ -202,9 +201,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectMutation {
-  FSTMutationBatch *batch = [self.batches firstObject];
-  [self.batches removeObjectAtIndex:0];
-  _lastChanges = [self.localStore rejectBatchID:batch.batchID];
+  MutationBatch batch = _batches.front();
+  _batches.erase(_batches.begin());
+  _lastChanges = [self.localStore rejectBatchID:batch.batch_id()];
 }
 
 - (TargetId)allocateQuery:(core::Query)query {
@@ -268,11 +267,8 @@ NS_ASSUME_NONNULL_BEGIN
   Mutation base = FSTTestSetMutation(@"foo/ignore", @{@"foo" : @"bar"});
   Mutation set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
   Mutation set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
-  FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
-                                                       localWriteTime:Timestamp::Now()
-                                                        baseMutations:{base}
-                                                            mutations:{set1, set2}];
-  DocumentKeySet keys = [batch keys];
+  MutationBatch batch = MutationBatch(1, Timestamp::Now(), {base}, {set1, set2});
+  DocumentKeySet keys = batch.keys();
   XCTAssertEqual(keys.size(), 2u);
 }
 
@@ -810,10 +806,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
 
   [self notifyLocalViewChanges:TestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
-  [self.localStore releaseQuery:query];
-
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
+
+  [self.localStore releaseQuery:query];
 }
 
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {

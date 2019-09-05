@@ -16,14 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTLibrary/Private/GDTAssert.h"
+#import "GDTLibrary/Public/GDTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Allows the setting a block to be used in the GDTAssert macro instead of a call to NSAssert. */
+/** Allows the setting a block to be used in the GDTAssert macro instead of assertion log. */
 @interface GDTAssertHelper : NSObject
 
-/** A class property that can be run instead of NSAssert. */
+/** A class property that can be run instead of normal assertion logging. */
 @property(class, nullable, nonatomic) GDTAssertionBlock assertionBlock;
 
 @end

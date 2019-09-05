@@ -31,6 +31,7 @@ namespace remote {
 using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
+using nanopb::ByteString;
 using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
@@ -47,11 +48,11 @@ WriteStream::WriteStream(
       callback_{NOT_NULL(callback)} {
 }
 
-void WriteStream::SetLastStreamToken(NSData* token) {
+void WriteStream::SetLastStreamToken(const ByteString& token) {
   serializer_bridge_.SetLastStreamToken(token);
 }
 
-NSData* WriteStream::GetLastStreamToken() const {
+ByteString WriteStream::GetLastStreamToken() const {
   return serializer_bridge_.GetLastStreamToken();
 }
 

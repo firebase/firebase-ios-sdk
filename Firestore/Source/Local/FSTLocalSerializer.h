@@ -18,9 +18,9 @@
 
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-@class FSTMutationBatch;
 @class FSTSerializerBeta;
 
 @class FSTPBMaybeDocument;
@@ -53,11 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** Decodes an FSTPBMaybeDocument proto to the equivalent model. */
 - (model::MaybeDocument)decodedMaybeDocument:(FSTPBMaybeDocument *)proto;
 
-/** Encodes an FSTMutationBatch model for local storage in the mutation queue. */
-- (FSTPBWriteBatch *)encodedMutationBatch:(FSTMutationBatch *)batch;
+/** Encodes an MutationBatch model for local storage in the mutation queue. */
+- (FSTPBWriteBatch *)encodedMutationBatch:(const model::MutationBatch &)batch;
 
 /** Decodes an FSTPBWriteBatch proto into a MutationBatch model. */
-- (FSTMutationBatch *)decodedMutationBatch:(FSTPBWriteBatch *)batch;
+- (model::MutationBatch)decodedMutationBatch:(FSTPBWriteBatch *)batch;
 
 /** Encodes a QueryData model for local storage in the query cache. */
 - (FSTPBTarget *)encodedQueryData:(const local::QueryData &)queryData;

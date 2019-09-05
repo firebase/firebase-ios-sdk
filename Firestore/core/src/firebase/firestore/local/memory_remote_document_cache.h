@@ -39,6 +39,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+class Sizer;
+
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
   explicit MemoryRemoteDocumentCache(FSTMemoryPersistence* persistence);
@@ -56,7 +58,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
       FSTMemoryLRUReferenceDelegate* reference_delegate,
       model::ListenSequenceNumber upper_bound);
 
-  size_t CalculateByteSize(FSTLocalSerializer* serializer);
+  int64_t CalculateByteSize(const Sizer& sizer);
 
  private:
   /** Underlying cache of documents. */

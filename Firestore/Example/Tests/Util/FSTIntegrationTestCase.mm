@@ -125,7 +125,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)tearDown {
   @try {
     for (FIRFirestore *firestore in _firestores) {
-      [self shutdownFirestore:firestore];
+      [self terminateFirestore:firestore];
     }
   } @finally {
     _firestores = nil;
@@ -327,12 +327,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
     [listenerRegistration remove];
 
-    [self shutdownFirestore:db];
+    [self terminateFirestore:db];
   });
 }
 
-- (void)shutdownFirestore:(FIRFirestore *)firestore {
-  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+- (void)terminateFirestore:(FIRFirestore *)firestore {
+  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
 }
 

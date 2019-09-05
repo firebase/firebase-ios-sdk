@@ -29,6 +29,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -41,8 +43,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTLocalStore;
-@class FSTMutationBatch;
-@class FSTMutationBatchResult;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -82,7 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
  * removing the batch from the mutation queue.
  */
 - (void)applySuccessfulWriteWithResult:
-    (FSTMutationBatchResult*)batchResult;  // NOLINT(readability/casting)
+    (const model::MutationBatchResult&)
+        batchResult;  // NOLINT(readability/casting)
 
 /**
  * Rejects the batch, removing the batch from the mutation queue, recomputing
@@ -176,7 +177,7 @@ class RemoteStore : public TargetMetadataProvider,
    * Queues additional writes to be sent to the write stream, sending them
    * immediately if the write stream is established.
    */
-  void AddToWritePipeline(FSTMutationBatch* batch);
+  void AddToWritePipeline(const model::MutationBatch& batch);
 
   /** Returns a new transaction backed by this remote store. */
   // TODO(c++14): return a plain value when it becomes possible to move
@@ -294,7 +295,7 @@ class RemoteStore : public TargetMetadataProvider,
    * purely based on order, and so we can just remove writes from the front of
    * the `write_pipeline_` as we receive responses.
    */
-  std::vector<FSTMutationBatch*> write_pipeline_;
+  std::vector<model::MutationBatch> write_pipeline_;
 };
 
 }  // namespace remote

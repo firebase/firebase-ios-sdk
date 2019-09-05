@@ -55,11 +55,11 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
           if let merge = merge {
-            _ = try transaction.setData(from: value, forDocument: doc, merge: merge)
+            try transaction.setData(from: value, forDocument: doc, merge: merge)
           } else if let mergeFields = mergeFields {
-            _ = try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
+            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
-            _ = try transaction.setData(from: value, forDocument: doc)
+            try transaction.setData(from: value, forDocument: doc)
           }
         } catch {
           XCTFail("setData with transaction failed.")
@@ -67,7 +67,8 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
         return nil
       }) { object, error in
         completion?(error)
-    } }
+      }
+    }
 
     awaitExpectations()
   }
@@ -147,7 +148,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     struct Model: Encodable {
       var name: String
       var explicitNull: ExplicitNull<String>
-      var optional: Optional<String>
+      var optional: String?
     }
     let model = Model(
       name: "name",
@@ -197,5 +198,24 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(readAfterUpdate!, Model(name: "test",
                                              age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
     }
+  }
+
+  func testAddDocument() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+    }
+
+    let collection = collectionRef()
+    let model = Model(name: "test")
+
+    let added = expectation(description: "Add document")
+    let docRef = try collection.addDocument(from: model) { error in
+      XCTAssertNil(error)
+      added.fulfill()
+    }
+    awaitExpectations()
+
+    let result = try readDocument(forRef: docRef).data(as: Model.self)
+    XCTAssertEqual(model, result)
   }
 }

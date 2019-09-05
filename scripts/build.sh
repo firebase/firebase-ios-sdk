@@ -18,6 +18,11 @@
 #
 # Builds the given product for the given platform using the given build method
 
+function pod_gen() {
+  # Call pod gen with a podspec and additional optional arguments.
+  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
+}
+
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -193,13 +198,6 @@ case "$product-$method-$platform" in
         build \
         test
 
-    RunXcodebuild \
-        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
-        -scheme "Example_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
     if [[ $platform == 'iOS' ]]; then
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
@@ -332,66 +330,12 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  GoogleDataTransport-xcodebuild-*)
-    RunXcodebuild \
-        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Lifecycle" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-    ;;
-
-  GoogleDataTransportIntegrationTest-xcodebuild-*)
-    RunXcodebuild \
-        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Integration" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-    ;;
-
-  GoogleDataTransportCCTSupport-xcodebuild-*)
-    RunXcodebuild \
-        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Unit" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-    ;;
-
   Database-xcodebuild-*)
+    pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-iOS-Unit-unit" \
+      -scheme "FirebaseDatabase-Unit-unit" \
       "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-macOS-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-tvOS-Unit-unit" \
-      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -401,25 +345,26 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-        -scheme "FirebaseDatabase-iOS-Unit-integration" \
+        -scheme "FirebaseDatabase-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
         test
       fi
-    ;;
 
-  Messaging-xcodebuild-*)
+    pod_gen FirebaseDatabase.podspec --platforms=macos --clean
     RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-iOS-Unit-unit" \
-      "${ios_flags[@]}" \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-Unit-unit" \
+      "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
+
+    pod_gen FirebaseDatabase.podspec --platforms=tvos --clean
     RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-tvOS-Unit-unit" \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-Unit-unit" \
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -427,24 +372,11 @@ case "$product-$method-$platform" in
     ;;
 
   Storage-xcodebuild-*)
+    pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-iOS-Unit-unit" \
+      -scheme "FirebaseStorage-Unit-unit" \
       "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-macOS-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-tvOS-Unit-unit" \
-      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -454,12 +386,30 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-iOS-Unit-integration" \
+        -scheme "FirebaseStorage-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
         test
       fi
+
+    pod_gen FirebaseStorage.podspec --platforms=macos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-// Uncomment to enable integration tests.
-//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
-
-#ifdef FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
+// Uncomment or set the flag in GCC_PREPROCESSOR_DEFINITIONS to enable integration tests.
+//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
 
 #import <XCTest/XCTest.h>
 
@@ -31,6 +29,8 @@
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
+static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
+
 @interface FIRInstallationsIntegrationTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
 @end
@@ -38,10 +38,11 @@
 @implementation FIRInstallationsIntegrationTests
 
 - (void)setUp {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [FIRApp configure];
-  });
+  [self configureFirebaseDefaultAppIfCan];
+
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
 
   self.installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
 }
@@ -54,19 +55,29 @@
 
   // Wait for any pending background job to be completed.
   FBLWaitForPromisesWithTimeout(10);
+
+  [FIRApp resetApps];
 }
 
 // TODO: Enable the test once Travis configured.
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
 // So far, let's run the tests locally.
-- (void)disabled_testGetFID {
+- (void)testGetFID {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   NSString *FID1 = [self getFID];
   NSString *FID2 = [self getFID];
 
   XCTAssertEqualObjects(FID1, FID2);
 }
 
-- (void)disabled_testAuthToken {
+- (void)testAuthToken {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   XCTestExpectation *authTokenExpectation =
       [self expectationWithDescription:@"authTokenExpectation"];
 
@@ -84,7 +95,11 @@
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 }
 
-- (void)disabled_testDeleteInstallation {
+- (void)testDeleteInstallation {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   NSString *FIDBefore = [self getFID];
   FIRInstallationsAuthTokenResult *authTokenBefore = [self getAuthToken];
 
@@ -111,11 +126,13 @@
 
   // Wait for finishing all background operations.
   FBLWaitForPromisesWithTimeout(10);
-
-  [FIRApp resetApps];
 }
 
 - (void)testDefaultAppInstallation {
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
   XCTAssertNotNil(self.installations);
   XCTAssertEqualObjects(self.installations.appOptions.googleAppID,
                         [FIRApp defaultApp].options.googleAppID);
@@ -123,8 +140,6 @@
 
   // Wait for finishing all background operations.
   FBLWaitForPromisesWithTimeout(10);
-
-  [FIRApp resetApps];
 }
 
 #endif  // !TARGET_OS_OSX
@@ -197,6 +212,30 @@
   return [FIRApp appNamed:name];
 }
 
-@end
+- (void)configureFirebaseDefaultAppIfCan {
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSString *plistPath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  if (plistPath == nil) {
+    return;
+  }
 
-#endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
+  [FIRApp configureWithOptions:options];
+  sFIRInstallationsFirebaseDefaultAppConfigured = YES;
+}
+
+- (BOOL)isDefaultAppConfigured {
+  if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
+#if FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
+    XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to "
+            @"your project.");
+#else
+    NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
+          self.name);
+#endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
+  }
+
+  return sFIRInstallationsFirebaseDefaultAppConfigured;
+}
+
+@end

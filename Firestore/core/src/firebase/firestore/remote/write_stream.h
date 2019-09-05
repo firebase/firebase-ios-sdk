@@ -102,7 +102,7 @@ class WriteStream : public Stream {
               GrpcConnection* grpc_connection,
               WriteStreamCallback* callback);
 
-  void SetLastStreamToken(NSData* token);
+  void SetLastStreamToken(const nanopb::ByteString& token);
   /**
    * The last received stream token from the server, used to acknowledge which
    * responses the client has processed. Stream tokens are opaque checkpoint
@@ -111,7 +111,7 @@ class WriteStream : public Stream {
    * `WriteStream` manages propagating this value from responses to the
    * next request.
    */
-  NSData* GetLastStreamToken() const;
+  nanopb::ByteString GetLastStreamToken() const;
 
   /**
    * Tracks whether or not a handshake has been successfully exchanged and
