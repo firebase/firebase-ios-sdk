@@ -70,7 +70,7 @@ void MemoryMutationQueue::Start() {
   // Note: The queue may be shutdown / started multiple times, since we maintain
   // the queue for the duration of the app session in case a user logs out /
   // back in. To behave like the LevelDB-backed MutationQueue (and accommodate
-  // tests that expect as much), we reset nextBatchID if the queue is empty.
+  // tests that expect as much), we reset next_batch_id_ if the queue is empty.
   if (IsEmpty()) {
     next_batch_id_ = 1;
   }
@@ -88,7 +88,7 @@ MutationBatch MemoryMutationQueue::AddMutationBatch(
   if (!queue_.empty()) {
     const MutationBatch& prior = queue_.back();
     HARD_ASSERT(prior.batch_id() < batch_id,
-                "Mutation batchIDs must be in monotonically increasing order");
+                "Mutation batch_ids must be in monotonically increasing order");
   }
 
   MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
@@ -181,7 +181,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   }
   DocumentKeyReference start{DocumentKey{start_path}, 0};
 
-  // Find unique batchIDs referenced by all documents potentially matching the
+  // Find unique batch_ids referenced by all documents potentially matching the
   // query.
   std::set<BatchId> unique_batch_ids;
   for (const auto& reference : batches_by_document_key_.values_from(start)) {
@@ -209,7 +209,7 @@ absl::optional<MutationBatch>
 MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
-  // The requested batchID may still be out of range so normalize it to the
+  // The requested batch_id may still be out of range so normalize it to the
   // start of the queue.
   int raw_index = IndexOfBatchId(next_batch_id);
   size_t index = raw_index < 0 ? 0 : static_cast<size_t>(raw_index);
@@ -293,9 +293,9 @@ int MemoryMutationQueue::IndexOfBatchId(BatchId batch_id) {
   }
 
   // Examine the front of the queue to figure out the difference between the
-  // batchID and indexes in the array. Note that since the queue is ordered by
-  // batchID, if the first batch has a larger batchID then the requested batchID
-  // doesn't exist in the queue.
+  // batch_id and indexes in the array. Note that since the queue is ordered by
+  // batch_id, if the first batch has a larger batch_id then the requested
+  // batch_id doesn't exist in the queue.
   const MutationBatch& first_batch = queue_.front();
   return batch_id - first_batch.batch_id();
 }

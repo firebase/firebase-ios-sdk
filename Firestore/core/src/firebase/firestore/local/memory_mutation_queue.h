@@ -91,7 +91,7 @@ class MemoryMutationQueue : public MutationQueue {
       const std::set<model::BatchId>& batch_ids);
 
   /**
-   * Finds the index of the given batchID in the mutation queue. This operation
+   * Finds the index of the given batch_id in the mutation queue. This operation
    * is O(1).
    *
    * @return The computed index of the batch with the given BatchID, based on

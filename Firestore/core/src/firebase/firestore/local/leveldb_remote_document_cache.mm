@@ -80,13 +80,13 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
   OptionalMaybeDocumentMap results;
 
-  LevelDbRemoteDocumentKey currentKey;
+  LevelDbRemoteDocumentKey current_key;
   auto it = db_->current_transaction()->NewIterator();
 
   for (const DocumentKey& key : keys) {
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
-    if (!it->Valid() || !currentKey.Decode(it->key()) ||
-        currentKey.document_key() != key) {
+    if (!it->Valid() || !current_key.Decode(it->key()) ||
+        current_key.document_key() != key) {
       results = results.insert(key, absl::nullopt);
     } else {
       results = results.insert(key, DecodeMaybeDocument(it->value(), key));
@@ -149,11 +149,11 @@ MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }
 
-  MaybeDocument maybeDocument = [serializer_ decodedMaybeDocument:proto];
-  HARD_ASSERT(maybeDocument.key() == key,
+  MaybeDocument maybe_document = [serializer_ decodedMaybeDocument:proto];
+  HARD_ASSERT(maybe_document.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
-              maybeDocument.key().ToString(), key.ToString());
-  return maybeDocument;
+              maybe_document.key().ToString(), key.ToString());
+  return maybe_document;
 }
 
 }  // namespace local
