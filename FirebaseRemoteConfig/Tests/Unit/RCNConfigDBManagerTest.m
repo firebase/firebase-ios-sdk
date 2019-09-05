@@ -78,23 +78,24 @@
         // Migrate to the new namespace.
         [_DBManager createOrOpenDatabase];
         [_DBManager
-            loadMainWithBundleIdentifier:bundleIdentifier
-                       completionHandler:^(
-                           BOOL loadSuccess,
-                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
-                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
-                           NSDictionary<NSString *, NSDictionary<NSString *, id> *>
-                               *defaultConfig) {
-                         XCTAssertTrue(loadSuccess);
-                         NSString *fullyQualifiedNamespace =
-                             [NSString stringWithFormat:@"%@:%@", namespace_p, kFIRDefaultAppName];
-                         XCTAssertNotNil(fetchedConfig[fullyQualifiedNamespace]);
-                         XCTAssertEqual([fetchedConfig[fullyQualifiedNamespace] count], 101U);
-                         XCTAssertEqual([fetchedConfig[namespace_p] count], 0);
-                         if (loadSuccess) {
-                           [loadConfigContentExpectation fulfill];
-                         }
-                       }];
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, NSArray<id> *> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, NSArray<id> *> *activatedFeaturesAndRollouts) {
+                     XCTAssertTrue(loadSuccess);
+                     NSString *fullyQualifiedNamespace =
+                         [NSString stringWithFormat:@"%@:%@", namespace_p, kFIRDefaultAppName];
+                     XCTAssertNotNil(fetchedConfig[fullyQualifiedNamespace]);
+                     XCTAssertEqual([fetchedConfig[fullyQualifiedNamespace] count], 101U);
+                     XCTAssertEqual([fetchedConfig[namespace_p] count], 0);
+                     if (loadSuccess) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
       }
     };
     NSString *value = [NSString stringWithFormat:@"value%d", i];
@@ -125,18 +126,23 @@
       XCTAssertTrue(success);
       if (count == 100) {
         // check DB read correctly
-        [_DBManager loadMainWithBundleIdentifier:bundleIdentifier
-                               completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                                   NSDictionary *activeConfig,
-                                                   NSDictionary *defaultConfig) {
-                                 NSMutableDictionary *res = [fetchedConfig mutableCopy];
-                                 XCTAssertTrue(success);
-                                 FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
-                                 XCTAssertEqualObjects(value.stringValue, @"value100");
-                                 if (success) {
-                                   [loadConfigContentExpectation fulfill];
-                                 }
-                               }];
+        [_DBManager
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, NSArray<id> *> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, NSArray<id> *> *activatedFeaturesAndRollouts) {
+                     NSMutableDictionary *res = [fetchedConfig mutableCopy];
+                     XCTAssertTrue(success);
+                     FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
+                     XCTAssertEqualObjects(value.stringValue, @"value100");
+                     if (success) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
       }
     };
     NSString *value = [NSString stringWithFormat:@"value%d", i];
@@ -146,6 +152,262 @@
     [_DBManager insertMainTableWithValues:values
                                fromSource:RCNDBSourceFetched
                         completionHandler:insertCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testWriteAndLoadFetchedFeaturesFromFeaturesTable {
+  XCTestExpectation *loadConfigContentExpectation =
+      [self expectationWithDescription:@"Write and read features information in database"];
+  NSString *namespace_p = @"namespace_1";
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  __block int count = 0;
+  for (int i = 0; i <= 100; ++i) {
+    // check DB write correctly
+    RCNDBCompletion insertCompletion = ^void(BOOL success, NSDictionary *result) {
+      count++;
+      XCTAssertTrue(success);
+      if (count == 100) {
+        // check DB read correctly
+        [_DBManager
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, id> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, id> *activatedFeaturesAndRollouts) {
+                     XCTAssertTrue(success);
+                     NSData *featuresDataFromDatabase =
+                         fetchedFeaturesAndRollouts[kRCNFeaturesKeyName];
+                     XCTAssertNotNil(featuresDataFromDatabase);
+                     NSError *error;
+                     NSArray *featuresFromDatabase =
+                         [[NSJSONSerialization JSONObjectWithData:featuresDataFromDatabase
+                                                          options:0
+                                                            error:&error] mutableCopy];
+
+                     XCTAssertTrue([featuresFromDatabase containsObject:@"featureA"]);
+                     XCTAssertTrue([featuresFromDatabase containsObject:@"featureB"]);
+                     if (success) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
+      }
+    };
+    NSArray *features = @[ @"featureA", @"featureB" ];
+    NSError *error;
+    NSData *featuresData = [NSJSONSerialization dataWithJSONObject:features options:0 error:&error];
+    NSString *key = [NSString stringWithFormat:kRCNFeaturesKeyName];
+    NSArray *values = @[ bundleIdentifier, namespace_p, key, featuresData ];
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceFetched
+                            completionHandler:insertCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testWriteAndLoadActivatedFeaturesFromFeaturesTable {
+  XCTestExpectation *loadConfigContentExpectation =
+      [self expectationWithDescription:@"Write and read features information in database"];
+  NSString *namespace_p = @"namespace_1";
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  __block int count = 0;
+  for (int i = 0; i <= 100; ++i) {
+    // check DB write correctly
+    RCNDBCompletion insertCompletion = ^void(BOOL success, NSDictionary *result) {
+      count++;
+      XCTAssertTrue(success);
+      if (count == 100) {
+        // check DB read correctly
+        [_DBManager
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, id> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, id> *activatedFeaturesAndRollouts) {
+                     XCTAssertTrue(success);
+                     NSData *featuresDataFromDatabase =
+                         activatedFeaturesAndRollouts[kRCNFeaturesKeyName];
+                     XCTAssertNotNil(featuresDataFromDatabase);
+                     NSError *error;
+                     NSArray *featuresFromDatabase =
+                         [[NSJSONSerialization JSONObjectWithData:featuresDataFromDatabase
+                                                          options:0
+                                                            error:&error] mutableCopy];
+
+                     XCTAssertTrue([featuresFromDatabase containsObject:@"featureA"]);
+                     XCTAssertTrue([featuresFromDatabase containsObject:@"featureB"]);
+                     if (success) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
+      }
+    };
+    NSArray *features = @[ @"featureA", @"featureB" ];
+    NSError *error;
+    NSData *featuresData = [NSJSONSerialization dataWithJSONObject:features options:0 error:&error];
+    NSString *key = [NSString stringWithFormat:kRCNFeaturesKeyName];
+    NSArray *values = @[ bundleIdentifier, namespace_p, key, featuresData ];
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceActive
+                            completionHandler:insertCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testWriteAndLoadFetchedRolloutsFromFeaturesTable {
+  XCTestExpectation *loadConfigContentExpectation =
+      [self expectationWithDescription:@"Write and read rollouts information in database"];
+  NSString *namespace_p = @"namespace_1";
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  __block int count = 0;
+  for (int i = 0; i <= 100; ++i) {
+    // check DB write correctly
+    RCNDBCompletion insertCompletion = ^void(BOOL success, NSDictionary *result) {
+      count++;
+      XCTAssertTrue(success);
+      if (count == 100) {
+        // check DB read correctly
+        [_DBManager
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, id> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, id> *activatedFeaturesAndRollouts) {
+                     XCTAssertTrue(success);
+                     NSData *rolloutsDataFromDatabase =
+                         fetchedFeaturesAndRollouts[kRCNRolloutsKeyName];
+                     XCTAssertNotNil(rolloutsDataFromDatabase);
+                     NSError *error;
+                     NSArray *rolloutsFromDatabase =
+                         [[NSJSONSerialization JSONObjectWithData:rolloutsDataFromDatabase
+                                                          options:0
+                                                            error:&error] mutableCopy];
+
+                     NSDictionary *rollouts1 = @{
+                       @"rollout_id" : @"1",
+                       @"feature_key" : @"abc",
+                       @"feature_enabled" : @true
+                     };
+                     NSDictionary *rollouts2 = @{
+                       @"rollout_id" : @"2",
+                       @"feature_key" : @"abc",
+                       @"feature_enabled" : @true
+                     };
+                     NSDictionary *rolloutsFromDatabase1 = rolloutsFromDatabase[0];
+                     NSDictionary *rolloutsFromDatabase2 = rolloutsFromDatabase[1];
+                     XCTAssertEqualObjects(rollouts1, rolloutsFromDatabase1);
+                     XCTAssertEqualObjects(rollouts2, rolloutsFromDatabase2);
+                     if (success) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
+      }
+    };
+    NSDictionary *rollouts1 =
+        @{@"rollout_id" : @"1", @"feature_key" : @"abc", @"feature_enabled" : @true};
+    NSDictionary *rollouts2 =
+        @{@"rollout_id" : @"2", @"feature_key" : @"abc", @"feature_enabled" : @true};
+    NSArray *rollouts = @[ rollouts1, rollouts2 ];
+    NSError *error;
+    NSData *rolloutsData = [NSJSONSerialization dataWithJSONObject:rollouts options:0 error:&error];
+    NSString *key = [NSString stringWithFormat:kRCNRolloutsKeyName];
+    NSArray *values = @[ bundleIdentifier, namespace_p, key, rolloutsData ];
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceFetched
+                            completionHandler:insertCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testWriteAndLoadActivatedRolloutsFromFeaturesTable {
+  XCTestExpectation *loadConfigContentExpectation = [self
+      expectationWithDescription:@"Write and read activated rollouts information in database"];
+  NSString *namespace_p = @"namespace_1";
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  __block int count = 0;
+  for (int i = 0; i <= 100; ++i) {
+    // check DB write correctly
+    RCNDBCompletion insertCompletion = ^void(BOOL success, NSDictionary *result) {
+      count++;
+      XCTAssertTrue(success);
+      if (count == 100) {
+        // check DB read correctly
+        [_DBManager
+            loadWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(
+                       BOOL loadSuccess,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                       NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                       NSDictionary<NSString *, id> *fetchedFeaturesAndRollouts,
+                       NSDictionary<NSString *, id> *activatedFeaturesAndRollouts) {
+                     XCTAssertTrue(success);
+                     NSData *rolloutsDataFromDatabase =
+                         activatedFeaturesAndRollouts[kRCNRolloutsKeyName];
+                     XCTAssertNotNil(rolloutsDataFromDatabase);
+                     NSError *error;
+                     NSArray *rolloutsFromDatabase =
+                         [[NSJSONSerialization JSONObjectWithData:rolloutsDataFromDatabase
+                                                          options:0
+                                                            error:&error] mutableCopy];
+
+                     NSDictionary *rollouts1 = @{
+                       @"rollout_id" : @"1",
+                       @"feature_key" : @"abc",
+                       @"feature_enabled" : @true
+                     };
+                     NSDictionary *rollouts2 = @{
+                       @"rollout_id" : @"2",
+                       @"feature_key" : @"abc",
+                       @"feature_enabled" : @true
+                     };
+                     NSDictionary *rolloutsFromDatabase1 = rolloutsFromDatabase[0];
+                     NSDictionary *rolloutsFromDatabase2 = rolloutsFromDatabase[1];
+                     XCTAssertEqualObjects(rollouts1, rolloutsFromDatabase1);
+                     XCTAssertEqualObjects(rollouts2, rolloutsFromDatabase2);
+                     if (success) {
+                       [loadConfigContentExpectation fulfill];
+                     }
+                   }];
+      }
+    };
+    NSDictionary *rollouts1 =
+        @{@"rollout_id" : @"1", @"feature_key" : @"abc", @"feature_enabled" : @true};
+    NSDictionary *rollouts2 =
+        @{@"rollout_id" : @"2", @"feature_key" : @"abc", @"feature_enabled" : @true};
+    NSArray *rollouts = @[ rollouts1, rollouts2 ];
+    NSError *error;
+    NSData *rolloutsData = [NSJSONSerialization dataWithJSONObject:rollouts options:0 error:&error];
+    NSString *key = [NSString stringWithFormat:kRCNRolloutsKeyName];
+    NSArray *values = @[ bundleIdentifier, namespace_p, key, rolloutsData ];
+    [_DBManager insertFeaturesTableWithValues:values
+                                   fromSource:RCNDBSourceActive
+                            completionHandler:insertCompletion];
   }
 
   [self waitForExpectationsWithTimeout:_expectionTimeout

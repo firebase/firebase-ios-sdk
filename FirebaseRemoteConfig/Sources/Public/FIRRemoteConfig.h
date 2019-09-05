@@ -160,6 +160,8 @@ NS_SWIFT_NAME(RemoteConfig)
 @property(nonatomic, readonly, assign) FIRRemoteConfigFetchStatus lastFetchStatus;
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) FIRRemoteConfigSettings *configSettings;
+/// Returns an array of feature keys enabled for this client.
+@property(nonatomic, readonly, strong, nonnull) NSArray<NSString *> *enabledFeatureKeys;
 
 /// Returns the FIRRemoteConfig instance configured for the default Firebase app. This singleton
 /// object contains the complete set of Remote Config parameter values available to the app,
@@ -365,5 +367,14 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key
                                             namespace:(nullable NSString *)aNamespace
     DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig defaultValueForKey:] instead.");
+
+#pragma mark - Features
+/// Returns true if the feature is enabled for the feature key mentioned. Refer to
+/// 'enabledFeatureKeys' property to get an array of all enabled features on this client.
+///
+/// @param key              The feature name.
+/// @return                 Returns true if a feature for the key supplied is enabled for this
+///                         client.
+- (BOOL)isFeatureEnabledForKey:(nonnull NSString *)key NS_SWIFT_NAME(isFeatureEnabled(key:));
 
 @end

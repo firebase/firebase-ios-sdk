@@ -43,6 +43,12 @@ static NSString *const kRemoteConfigDeveloperKey = @"_rcn_developer";
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
+/// The origin used for logging events to Firebase Analytics.
+static NSString *const kAnalyticsOriginKey = @"frc";
+/// The event name used for logging feature rollout events to Firebase Analytics.
+static NSString *const kAnalyticsRolloutEventKey = @"_ssr";
+/// The parameter name used for logging feature rollout events to Firebase Analytics.
+static NSString *const kAnalyticsRolloutParameterKey = @"_ffr";
 
 @interface FIRRemoteConfigSettings () {
   BOOL _developerModeEnabled;
@@ -87,6 +93,7 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
   RCNConfigExperiment *_configExperiment;
   dispatch_queue_t _queue;
   NSString *_appName;
+  id<FIRAnalyticsInterop> _analytics;
 }
 
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemoteConfig *> *>
@@ -152,6 +159,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   if (self) {
     _appName = appName;
     _DBManager = DBManager;
+    _analytics = analytics;
     // The fully qualified Firebase namespace is namespace:firappname.
     _FIRNamespace = [NSString stringWithFormat:@"%@:%@", FIRNamespace, appName];
 
@@ -180,6 +188,12 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    options:options];
 
     [_settings loadConfigFromMetadataTable];
+    // Log rollouts information once initialization is complete.
+    [self ensureInitializedWithCompletionHandler:^(NSError *_Nullable initializationError) {
+      if (!initializationError) {
+        [self logRolloutInformation];
+      }
+    }];
   }
   return self;
 }
@@ -314,6 +328,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                           toSource:RCNDBSourceActive
                                       forNamespace:self->_FIRNamespace];
     [strongSelf updateExperiments];
+    [strongSelf logRolloutInformation];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     if (completionHandler) {
@@ -323,6 +338,54 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
   };
   dispatch_async(_queue, applyBlock);
+}
+
+- (void)logRolloutInformation {
+  if (!_analytics) return;
+  // We only log for the default app and Firebase namespace.
+  NSString *namespace =
+      [_FIRNamespace substringToIndex:[_FIRNamespace rangeOfString:@":"].location];
+  if (![FIRApp isDefaultAppConfigured] || ![[FIRApp defaultApp].name isEqualToString:_appName] ||
+      ![namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+    return;
+  }
+
+  // Log no incoming rollouts.
+  NSString *rolloutEventData = [[NSString alloc] init];
+  if (_configContent.activeRollouts.count == 0) {
+    [_analytics logEventWithOrigin:kAnalyticsOriginKey
+                              name:kAnalyticsRolloutEventKey
+                        parameters:@{kAnalyticsRolloutParameterKey : @""}];
+  }
+
+  // Log active rollouts.
+  for (NSDictionary<NSString *, id> *rollout in _configContent.activeRollouts) {
+    BOOL isRolloutEnabled = [rollout objectForKey:RCNRolloutFeatureEnabledKey];
+    if (isRolloutEnabled == YES && rollout && rollout[RCNRolloutIdentifierKey]) {
+      // Log to analytics.
+      NSString *rolloutInfo = [rollout objectForKey:RCNRolloutIdentifierKey];
+      // Get the rollout ID from the rollout info. e.g. rolloutInfo
+      // projects/Project#/rollouts/ProjectID
+      NSUInteger location = [rolloutInfo rangeOfString:@"/" options:NSBackwardsSearch].location;
+      NSString *rolloutID = [rolloutInfo substringFromIndex:location + 1];
+
+      rolloutEventData = [rolloutEventData stringByAppendingString:rolloutID];
+      rolloutEventData = [rolloutEventData stringByAppendingString:@","];
+    }
+    // Delete any trailing ,
+    if ([rolloutEventData hasSuffix:@","]) {
+      rolloutEventData = [rolloutEventData substringToIndex:(rolloutEventData.length - 1)];
+    }
+
+    // Convert to base64.
+    NSData *rolloutEventParamData = [rolloutEventData dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *base64EncodedParamData = [rolloutEventParamData base64EncodedStringWithOptions:0];
+
+    NSDictionary *eventParameters = @{kAnalyticsRolloutParameterKey : base64EncodedParamData};
+    [_analytics logEventWithOrigin:kAnalyticsOriginKey
+                              name:kAnalyticsRolloutEventKey
+                        parameters:eventParameters];
+  }
 }
 
 - (void)updateExperiments {
@@ -628,5 +691,24 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 }
 
 #pragma clang diagnostic push  // "-Wdeprecated-declarations"
+
+#pragma mark - Features
+- (BOOL)isFeatureEnabledForKey:(nonnull NSString *)key {
+  __block BOOL isFeatureEnabled = NO;
+  dispatch_sync(_queue, ^{
+    if ([self->_configContent.enabledFeatureKeys containsObject:key]) {
+      isFeatureEnabled = YES;
+    }
+  });
+  return isFeatureEnabled;
+}
+
+- (NSArray *)enabledFeatureKeys {
+  __block NSMutableArray *enabledFeatures = [[NSMutableArray alloc] init];
+  dispatch_sync(_queue, ^{
+    enabledFeatures = [self->_configContent.enabledFeatureKeys copy];
+  });
+  return [enabledFeatures copy];
+}
 
 @end

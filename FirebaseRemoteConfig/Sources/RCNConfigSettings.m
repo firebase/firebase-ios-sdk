@@ -101,6 +101,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                                   bundleID:_bundleIdentifier
                                                                  namespace:_FIRNamespace];
     _isFetchInProgress = NO;
+    self.fetchTimeout = RCNHTTPDefaultConnectionTimeout;
+    self.minimumFetchInterval = RCNDefaultMinimumFetchInterval;
   }
   return self;
 }

@@ -63,3 +63,11 @@ static NSString *const RCNFetchResponseKeyStateNoTemplate = @"NO_TEMPLATE";
 static NSString *const RCNFetchResponseKeyStateNoChange = @"NO_CHANGE";
 /// Template found, but evaluates to empty (e.g. all keys omitted).
 static NSString *const RCNFetchResponseKeyStateEmptyConfig = @"EMPTY_CONFIG";
+/// Key that includes data for active rollouts that this client is a part of.
+static NSString *const RCNFetchResponseKeyActiveRollouts = @"activeRollouts";
+/// Key that includes data for active rollouts assigned for this client.
+static NSString *const RCNFetchResponseKeyEnabledFeatures = @"enabledFeatureKeys";
+/// The rollout identifier key for rollouts information sent from the backend.
+static NSString *const RCNRolloutIdentifierKey = @"rollout";
+/// The feature enabled key for rollouts information sent from the backend.
+static NSString *const RCNRolloutFeatureEnabledKey = @"featureEnabled";
