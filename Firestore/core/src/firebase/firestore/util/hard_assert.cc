@@ -21,17 +21,20 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#if __APPLE__
+#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
+#endif
 #include "absl/base/config.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
-void Fail(const char* file,
-          const char* func,
-          const int line,
-          const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void StdioFailureHandlerCallback(
+    const char* file,
+    const char* func,
+    const int line,
+    const std::string& message) {
   std::string failure =
       StringFormat("ASSERT: %s(%s) %s: %s", file, line, func, message);
 
@@ -42,6 +45,33 @@ void Fail(const char* file,
   fprintf(stderr, "%s\n", failure.c_str());
   std::terminate();
 #endif
+}
+
+namespace {
+
+#if __APPLE__
+FailureHandlerCallback failure_handler_callback = AppleFailureHandlerCallback;
+#else
+FailureHandlerCallback failure_handler_callback = StdioFailureHandlerCallback;
+#endif
+
+}  // namespace
+
+void SetFailureHandler(FailureHandlerCallback callback) {
+  failure_handler_callback = callback;
+}
+
+namespace internal {
+
+void Fail(const char* file,
+          const char* func,
+          const int line,
+          const std::string& message) {
+  failure_handler_callback(file, func, line, message);
+
+  // It's expected that the failure handler above does not return. But if it
+  // does, just terminate.
+  std::terminate();
 }
 
 void Fail(const char* file,

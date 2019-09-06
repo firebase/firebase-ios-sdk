@@ -47,6 +47,14 @@ TEST(HardAssertTest, WithMessage) {
   EXPECT_ANY_THROW(AssertWithMessage(false));
 }
 
+TEST(HardAssertTest, NonDefaultFailureHandler) {
+  struct FakeException {};
+  SetFailureHandler([](const char*, const char*, const int,
+                       const std::string&) { throw FakeException(); });
+
+  EXPECT_THROW(Assert(false), FakeException);
+}
+
 }  //  namespace util
 }  //  namespace firestore
 }  //  namespace firebase

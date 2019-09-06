@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
 
-#import <Foundation/Foundation.h>
+#include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
+/**
+ * Default failure handler for Apple platforms. Typically shouldn't be used
+ * directly, though see commentary on StdioFailureHandlerCallback.
+ */
 ABSL_ATTRIBUTE_NORETURN void AppleFailureHandlerCallback(
     const char* file,
     const char* func,
     const int line,
-    const std::string& message) {
-  [[NSAssertionHandler currentHandler]
-      handleFailureInFunction:MakeNSString(func)
-                         file:MakeNSString(file)
-                   lineNumber:line
-                  description:@"FIRESTORE INTERNAL ASSERTION FAILED: %s",
-                              message.c_str()];
-  abort();
-}
+    const std::string& message);
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
