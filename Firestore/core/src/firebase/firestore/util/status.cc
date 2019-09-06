@@ -69,6 +69,19 @@ Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
   return *this;
 }
 
+bool Status::IsMoved() const {
+  return reinterpret_cast<uintptr_t>(state_.get()) == 0x1;
+}
+
+void Status::SetMoved() {
+  if (IsMoved()) {
+    return;
+  }
+
+  // Set pointer value to `0x1` as the pointer is no longer useful.
+  state_ = std::unique_ptr<State>(reinterpret_cast<State*>(0x1));
+}
+
 void Status::SlowCopyFrom(const State* src) {
   if (src == nullptr) {
     state_ = nullptr;

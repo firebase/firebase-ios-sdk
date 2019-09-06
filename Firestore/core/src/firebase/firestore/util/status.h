@@ -41,6 +41,16 @@ class PlatformError;
 /// Denotes success or failure of a call.
 class ABSL_MUST_USE_RESULT Status {
  public:
+  ~Status() {
+    // `SetMoved` tags the instance as moved by setting the `state_` unique
+    // pointer to a special value (0x1). In this case, the actual `State`
+    // object is managed by another instance, all we need to do is to
+    // `state_.release()`.
+    if (IsMoved()) {
+      state_.release();
+    }
+  }
+
   /// Create a success status.
   Status() {
   }
@@ -76,7 +86,7 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Returns true iff the status indicates success.
   bool ok() const {
-    return (!is_moved_from_ && state_ == nullptr);
+    return (!IsMoved() && state_ == nullptr);
   }
 
   Error code() const {
@@ -139,7 +149,9 @@ class ABSL_MUST_USE_RESULT Status {
 
   // Whether this instance has been moved. Without this `ok()` will be true
   // for moved instances.
-  bool is_moved_from_ = false;
+  bool IsMoved() const;
+  // Tags this instance as `moved`.
+  void SetMoved();
 
   void SlowCopyFrom(const State* src);
 };
@@ -179,12 +191,12 @@ inline void Status::operator=(const Status& s) {
 }
 
 inline Status::Status(Status&& s) : state_(std::move(s.state_)) {
-  s.is_moved_from_ = true;
+  s.SetMoved();
 }
 
 inline void Status::operator=(Status&& s) {
   state_ = std::move(s.state_);
-  s.is_moved_from_ = true;
+  s.SetMoved();
 }
 
 inline bool Status::operator==(const Status& x) const {
