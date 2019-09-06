@@ -19,13 +19,13 @@ import FirebaseFirestore
 /// A value that is populated in Codable objects with a `DocumentReference` by
 /// the FirestoreDecoder when a document is read.
 ///
-/// Note that limitations in Swift-compiler generated Codable implementations
+/// Note that limitations in Swift compiler-generated Codable implementations
 /// prevent using this type wrapped in an Optional. Optional SelfDocumentIDs
-/// are possible if you write a custom init(from: Decoder) method.
+/// are possible if you write a custom `init(from: Decoder)` method.
 ///
 /// If the field name used for this type conflicts with a read document field,
 /// an error is thrown. For example, if a custom object has a field `firstName`
-/// with type SelfDocumentID, and there is a property from the document named
+/// with type `SelfDocumentID`, and there is a property from the document named
 /// `firstName` as well, an error is thrown when you try to read the document.
 ///
 /// When writing a Codable object containing a `SelfDocumentID`, its value is
@@ -35,11 +35,7 @@ import FirebaseFirestore
 /// NOTE: Trying to encode/decode this type using encoders/decoders other than
 /// FirestoreEncoder leads to an error.
 public final class SelfDocumentID: Equatable, Codable {
-  public let reference: DocumentReference?
-
-  public var id: String? {
-    return reference?.documentID
-  }
+  // MARK: - Initializers
 
   public init() {
     reference = nil
@@ -49,6 +45,8 @@ public final class SelfDocumentID: Equatable, Codable {
     reference = ref
   }
 
+  // MARK: - `Codable` implemention.
+
   public init(from decoder: Decoder) throws {
     throw FirestoreDecodingError.decodingIsNotSupported
   }
@@ -56,6 +54,16 @@ public final class SelfDocumentID: Equatable, Codable {
   public func encode(to encoder: Encoder) throws {
     throw FirestoreEncodingError.encodingIsNotSupported
   }
+
+  // MARK: - Properties
+
+  public var id: String? {
+    return reference?.documentID
+  }
+
+  public let reference: DocumentReference?
+
+  // MARK: - `Equatable` implementation
 
   public static func == (lhs: SelfDocumentID,
                          rhs: SelfDocumentID) -> Bool {

@@ -339,7 +339,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
       ] as! DocumentReference?
 
       if contains(key) {
-        let docPath = (docRef != nil) ? docRef!.path : "being read"
+        let docPath = (docRef != nil) ? docRef!.path : "nil"
         var codingPathCopy = codingPath.map { key in key.stringValue }
         codingPathCopy.append(key.stringValue)
 
