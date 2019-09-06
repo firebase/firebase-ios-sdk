@@ -33,7 +33,7 @@ extension Firestore {
     /// - Parameters:
     ///   - A type to decode a document to.
     ///   - container: A Map keyed of String representing a Firestore document.
-    ///   - docRef: A reference to the Firestore Document that is being
+    ///   - document: A reference to the Firestore Document that is being
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_: T.Type,
