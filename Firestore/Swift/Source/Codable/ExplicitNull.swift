@@ -38,7 +38,7 @@ public enum ExplicitNull<Wrapped> {
     }
   }
 
-  /// Get the `Optional` representation of `ExplicitNull`.
+  /// Returns this value as an `Optional<Wrapped>`.
   public var optionalValue: Wrapped? {
     switch self {
     case .none:
