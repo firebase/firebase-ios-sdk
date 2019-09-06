@@ -237,7 +237,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param completionHandler Activate operation callback.
 - (void)activateWithCompletionHandler:(nullable FIRRemoteConfigActivateCompletion)completionHandler;
 
-/// This method is deprecated. Please use -[FIRRemoteConfig activate] instead.
+/// This method is deprecated. Please use -[FIRRemoteConfig activateWithCompletionHandler:] instead.
 /// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
 /// of the app to take effect (depending on how config data is used in the app).
 /// Returns true if there was a Fetched Config, and it was activated.
