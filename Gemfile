@@ -3,4 +3,4 @@
 source 'https://rubygems.org'
 
 gem 'cocoapods', "1.7.5"
-gem 'cocoapods-generate', "1.5.0"
+gem 'cocoapods-generate', '1.6.0'

@@ -16,11 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
 @class FSTLevelDB;
 @class FSTMemoryPersistence;
+
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class LruParams;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -57,6 +56,8 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MutationBatch;
+using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
@@ -64,6 +65,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
+using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
@@ -74,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteStoreEventCapture
 
-@interface FSTRemoteStoreEventCapture : NSObject <FSTRemoteSyncer>
+@interface FSTRemoteStoreEventCapture : NSObject
 
 - (instancetype)init __attribute__((unavailable("Use initWithTestCase:")));
 
@@ -84,18 +86,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)expectListenEventWithDescription:(NSString *)description;
 
 @property(nonatomic, weak, nullable) XCTestCase *testCase;
-@property(nonatomic, strong) NSMutableArray<NSObject *> *writeEvents;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *writeEventExpectations;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *listenEventExpectations;
 @end
 
 @implementation FSTRemoteStoreEventCapture {
   std::vector<RemoteEvent> _listenEvents;
+  std::vector<MutationBatchResult> _writeEvents;
 }
 
 - (instancetype)initWithTestCase:(XCTestCase *_Nullable)testCase {
   if (self = [super init]) {
-    _writeEvents = [NSMutableArray array];
     _testCase = testCase;
     _writeEventExpectations = [NSMutableArray array];
     _listenEventExpectations = [NSMutableArray array];
@@ -125,8 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     description]]];
 }
 
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult {
-  [self.writeEvents addObject:batchResult];
+- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
+  _writeEvents.push_back(batchResult);
   XCTestExpectation *expectation = [self.writeEventExpectations objectAtIndex:0];
   [self.writeEventExpectations removeObjectAtIndex:0];
   [expectation fulfill];
@@ -152,6 +153,48 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+class RemoteStoreEventCapture : public RemoteStoreCallback {
+ public:
+  explicit RemoteStoreEventCapture(XCTestCase *test_case) {
+    underlying_capture_ = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case];
+  }
+
+  void ExpectWriteEvent(NSString *description) {
+    [underlying_capture_ expectWriteEventWithDescription:description];
+  }
+
+  void ExpectListenEvent(NSString *description) {
+    [underlying_capture_ expectListenEventWithDescription:description];
+  }
+
+  void ApplyRemoteEvent(const RemoteEvent &remote_event) override {
+    [underlying_capture_ applyRemoteEvent:remote_event];
+  }
+
+  void HandleRejectedListen(TargetId target_id, Status error) override {
+    [underlying_capture_ rejectListenWithTargetID:target_id error:error.ToNSError()];
+  }
+
+  void HandleSuccessfulWrite(const MutationBatchResult &batch_result) override {
+    [underlying_capture_ applySuccessfulWriteWithResult:batch_result];
+  }
+
+  void HandleRejectedWrite(BatchId batch_id, Status error) override {
+    [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
+  }
+
+  void HandleOnlineStateChange(OnlineState online_state) override {
+    HARD_FAIL("Not implemented");
+  }
+
+  model::DocumentKeySet GetRemoteKeys(TargetId target_id) const override {
+    return [underlying_capture_ remoteKeysForTarget:target_id];
+  }
+
+ private:
+  FSTRemoteStoreEventCapture *underlying_capture_;
+};
 
 #pragma mark - FSTDatastoreTests
 
@@ -217,16 +260,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testStreamingWrite {
-  FSTRemoteStoreEventCapture *capture = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:self];
-  [capture expectWriteEventWithDescription:@"write mutations"];
+  RemoteStoreEventCapture capture = RemoteStoreEventCapture(self);
+  capture.ExpectWriteEvent(@"write mutations");
 
-  _remoteStore->set_sync_engine(capture);
+  _remoteStore->set_sync_engine(&capture);
 
   auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
-  FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
-                                                       localWriteTime:Timestamp::Now()
-                                                        baseMutations:{}
-                                                            mutations:{mutation}];
+  MutationBatch batch = MutationBatch(23, Timestamp::Now(), {}, {mutation});
   _testWorkerQueue->Enqueue([=] {
     _remoteStore->AddToWritePipeline(batch);
     // The added batch won't be written immediately because write stream wasn't yet open --

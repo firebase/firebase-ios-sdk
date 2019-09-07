@@ -533,6 +533,7 @@ Document Serializer::DecodeDocument(
 
 google_firestore_v1_Write Serializer::EncodeMutation(
     const Mutation& mutation) const {
+  HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
   google_firestore_v1_Write result{};
 
   if (!mutation.precondition().is_none()) {

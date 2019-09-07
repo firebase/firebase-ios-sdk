@@ -24,13 +24,13 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -48,6 +48,7 @@ namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LruGarbageCollector;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::MutationQueue;
@@ -84,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
   RemoteDocumentCache *_documentCache;
   MutationQueue *_mutationQueue;
   id<FSTLRUDelegate> _lruDelegate;
-  FSTLRUGarbageCollector *_gc;
+  LruGarbageCollector *_gc;
   ListenSequenceNumber _initialSequenceNumber;
   User _user;
   ReferenceSet _additionalReferences;
@@ -140,28 +141,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (ListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
   return _persistence.run(
-      "gc", [&]() -> ListenSequenceNumber { return [_gc sequenceNumberForQueryCount:queryCount]; });
+      "gc", [&]() -> ListenSequenceNumber { return _gc->SequenceNumberForQueryCount(queryCount); });
 }
 
 - (int)queryCountForPercentile:(int)percentile {
   return _persistence.run("query count",
-                          [&]() -> int { return [_gc queryCountForPercentile:percentile]; });
+                          [&]() -> int { return _gc->QueryCountForPercentile(percentile); });
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:
                                   (const std::unordered_map<TargetId, QueryData> &)liveQueries {
-  return _persistence.run("gc", [&]() -> int {
-    return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
-  });
+  return _persistence.run("gc",
+                          [&]() -> int { return _gc->RemoveTargets(sequenceNumber, liveQueries); });
 }
 
 // Removes documents that are not part of a target or a mutation and have a sequence number
 // less than or equal to the given sequence number.
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
-  return _persistence.run("gc", [&]() -> int {
-    return [_gc removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
-  });
+  return _persistence.run("gc",
+                          [&]() -> int { return _gc->RemoveOrphanedDocuments(sequenceNumber); });
 }
 
 - (QueryData)nextTestQuery {
@@ -284,7 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // No queries... should get invalid sequence number (-1)
   [self newTestResources];
-  XCTAssertEqual(kFSTListenSequenceNumberInvalid, [self sequenceNumberForQueryCount:0]);
+  XCTAssertEqual(local::kListenSequenceNumberInvalid, [self sequenceNumberForQueryCount:0]);
   [_persistence shutdown];
 }
 
@@ -672,7 +671,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self newTestResources];
 
-  size_t initialSize = [_gc byteSize];
+  size_t initialSize = _gc->CalculateByteSize();
 
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
@@ -682,7 +681,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  size_t finalSize = [_gc byteSize];
+  size_t finalSize = _gc->CalculateByteSize();
   XCTAssertGreaterThan(finalSize, initialSize);
 
   [_persistence shutdown];
@@ -702,9 +701,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
-  XCTAssertFalse(results.didRun);
+  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
+  XCTAssertFalse(results.did_run);
 
   [_persistence shutdown];
 }
@@ -723,14 +721,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  int cacheSize = (int)[_gc byteSize];
+  int cacheSize = (int)_gc->CalculateByteSize();
   // Verify that we don't have enough in our cache to warrant collection
-  XCTAssertLessThan(cacheSize, params.minBytesThreshold);
+  XCTAssertLessThan(cacheSize, params.min_bytes_threshold);
 
   // Try collection and verify that it didn't run
-  LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
-  XCTAssertFalse(results.didRun);
+  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
+  XCTAssertFalse(results.did_run);
 
   [_persistence shutdown];
 }
@@ -740,7 +737,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   LruParams params = LruParams::Default();
   // Set a low threshold so we will definitely run
-  params.minBytesThreshold = 100;
+  params.min_bytes_threshold = 100;
   [self newTestResourcesWithLruParams:params];
 
   // Add 100 targets and 10 documents to each
@@ -757,14 +754,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Mark nothing as live, so everything is eligible.
-  LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
+  LruResults results = _persistence.run("GC", [&]() -> LruResults { return _gc->Collect({}); });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.
-  XCTAssertTrue(results.didRun);
-  XCTAssertEqual(10, results.targetsRemoved);
-  XCTAssertEqual(100, results.documentsRemoved);
+  XCTAssertTrue(results.did_run);
+  XCTAssertEqual(10, results.targets_removed);
+  XCTAssertEqual(100, results.documents_removed);
   [_persistence shutdown];
 }
 

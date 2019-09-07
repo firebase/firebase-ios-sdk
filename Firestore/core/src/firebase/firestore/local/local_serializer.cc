@@ -251,15 +251,25 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
   firestore_client_WriteBatch result{};
 
   result.batch_id = mutation_batch.batch_id();
-  pb_size_t count = CheckedSize(mutation_batch.mutations().size());
+
+  pb_size_t count = CheckedSize(mutation_batch.base_mutations().size());
+  result.base_writes_count = count;
+  result.base_writes = MakeArray<google_firestore_v1_Write>(count);
+  int i = 0;
+  for (const auto& mutation : mutation_batch.base_mutations()) {
+    result.base_writes[i] = rpc_serializer_.EncodeMutation(mutation);
+    i++;
+  }
+
+  count = CheckedSize(mutation_batch.mutations().size());
   result.writes_count = count;
   result.writes = MakeArray<google_firestore_v1_Write>(count);
-  int i = 0;
+  i = 0;
   for (const auto& mutation : mutation_batch.mutations()) {
-    HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
     result.writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
+
   result.local_write_time =
       rpc_serializer_.EncodeTimestamp(mutation_batch.local_write_time());
 
@@ -271,13 +281,21 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   int batch_id = proto.batch_id;
   Timestamp local_write_time =
       rpc_serializer_.DecodeTimestamp(reader, proto.local_write_time);
+
+  std::vector<Mutation> base_mutations;
+  for (size_t i = 0; i < proto.base_writes_count; i++) {
+    base_mutations.push_back(
+        rpc_serializer_.DecodeMutation(reader, proto.base_writes[i]));
+  }
+
   std::vector<Mutation> mutations;
   for (size_t i = 0; i < proto.writes_count; i++) {
     mutations.push_back(
         rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
   }
 
-  return MutationBatch(batch_id, local_write_time, std::move(mutations));
+  return MutationBatch(batch_id, local_write_time, std::move(base_mutations),
+                       std::move(mutations));
 }
 
 }  // namespace local

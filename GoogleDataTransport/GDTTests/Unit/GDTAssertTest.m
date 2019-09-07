@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,28 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#undef NS_BLOCK_ASSERTIONS
 
-#include <map>
+#import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTSyncEngine.h"
+#import <GoogleDataTransport/GDTAssert.h>
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTSyncEngine (Testing)
-
-/** Returns the current set of limbo document keys and their associated target IDs. */
-- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
-    currentLimboDocuments;
+@interface GDTAssertNotBlockedTest : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation GDTAssertNotBlockedTest
+
+/** Tests that asserting is innocuous and doesn't throw. */
+- (void)testNonFatallyAssertingDoesntThrow {
+  GDTAssert(NO, @"test assertion");
+}
+
+/** Tests that fatally asserting throws. */
+- (void)testFatallyAssertingThrows {
+  void (^assertionBlock)(void) = ^{
+    GDTFatalAssert(NO, @"test assertion")
+  };
+  XCTAssertThrows(assertionBlock());
+}
+@end

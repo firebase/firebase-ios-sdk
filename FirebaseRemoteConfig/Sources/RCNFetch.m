@@ -16,7 +16,6 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRErrorCode.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
@@ -65,6 +64,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
+// Deprecated error code previously from FirebaseCore
+static const NSInteger FIRErrorCodeConfigFailed = -114;
+
 static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
 #pragma mark - RCNConfig
@@ -106,6 +108,19 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     _options = options;
   }
   return self;
+}
+
+/// Force a new NSURLSession creation for updated config.
+- (void)recreateNetworkSession {
+  if (_fetchSession) {
+    [_fetchSession invalidateAndCancel];
+  }
+  _fetchSession = [self newFetchSession];
+}
+
+/// Return the current session. (Tests).
+- (NSURLSession *)currentNetworkSession {
+  return _fetchSession;
 }
 
 - (void)dealloc {

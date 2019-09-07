@@ -18,16 +18,16 @@
 
 #include <vector>
 
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -42,10 +42,6 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
-@class FSTLocalViewChanges;
-@class FSTLocalWriteResult;
-@class FSTMutationBatch;
-@class FSTMutationBatchResult;
 @protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;
@@ -130,7 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The resulting (modified) documents.
  */
-- (model::MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult;
+- (model::MaybeDocumentMap)acknowledgeBatchWithResult:
+    (const model::MutationBatchResult &)batchResult;
 
 /**
  * Removes mutations from the MutationQueue for the specified batch. LocalDocuments will be
@@ -192,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param batchID The batch to search after, or -1 for the first mutation in the queue.
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(model::BatchId)batchID;
+- (absl::optional<model::MutationBatch>)nextMutationBatchAfterBatchID:(model::BatchId)batchID;
 
 /**
  * Returns the largest (latest) batch id in mutation queue that is pending server response.
@@ -200,7 +197,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (model::BatchId)getHighestUnacknowledgedBatchId;
 
-- (local::LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector;
+- (local::LruResults)collectGarbage:(local::LruGarbageCollector *)garbageCollector;
 
 @end
 

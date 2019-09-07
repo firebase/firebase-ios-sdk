@@ -16,18 +16,18 @@
 
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
 ListenerRegistration::ListenerRegistration(
-    FSTFirestoreClient* client,
+    std::shared_ptr<core::FirestoreClient> client,
     std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
         async_listener,
     std::shared_ptr<core::QueryListener> query_listener)
-    : client_(client),
+    : client_(std::move(client)),
       async_listener_(std::move(async_listener)),
       query_listener_(std::move(query_listener)) {
 }
@@ -41,11 +41,11 @@ void ListenerRegistration::Remove() {
 
   auto query_listener = query_listener_.lock();
   if (query_listener) {
-    [client_ removeListener:query_listener];
+    client_->RemoveListener(query_listener);
     query_listener_.reset();
   }
 
-  client_.Release();
+  client_.reset();
 }
 
 }  // namespace api
