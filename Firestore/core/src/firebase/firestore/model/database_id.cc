@@ -43,7 +43,7 @@ util::ComparisonResult DatabaseId::CompareTo(
 }
 
 std::string DatabaseId::ToString() const {
-  return absl::StrCat(project_id(), ":", database_id());
+  return absl::StrCat("DatabaseId(", project_id(), ":", database_id(), ")");
 }
 
 std::ostream& operator<<(std::ostream& out, const DatabaseId& database_id) {

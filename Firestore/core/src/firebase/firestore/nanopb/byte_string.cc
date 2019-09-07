@@ -16,8 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
+#include <cctype>
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
 #include <ostream>
 #include <sstream>
 
@@ -29,6 +31,31 @@
 namespace firebase {
 namespace firestore {
 namespace nanopb {
+
+namespace {
+
+std::string AsEscapeSequence(char ch) {
+  switch (ch) {
+    case '\n':
+      return "\\n";
+    case '\r':
+      return "\\r";
+    case '\t':
+      return "\\t";
+    case '\\':
+      return "\\\\";
+    case '\'':
+      return "\\'";
+    case '\"':
+      return "\\\\";
+    default: {
+      absl::string_view view{&ch, 1};
+      return std::string{"\\0x"} + absl::BytesToHexString(view);
+    }
+  }
+}
+
+}  // namespace
 
 ByteString::ByteString(const pb_bytes_array_t* bytes) {
   if (bytes != nullptr) {
@@ -88,22 +115,27 @@ size_t ByteString::Hash() const {
 }
 
 std::string ByteString::ToString() const {
-  std::string hex = absl::BytesToHexString(MakeStringView(*this));
-  return absl::StrCat("<", hex, ">");
-}
-
-std::string ByteString::ToHumanReadableString() const {
   std::stringstream stream;
   for (uint8_t e : *this) {
     // `stringstream` is supposed to handle the case where the unsigned value
     // cannot be represented by signed char.
-    stream << static_cast<unsigned char>(e);
+    auto ch = static_cast<unsigned char>(e);
+    if (!std::iscntrl(ch)) {
+      stream << ch;
+    } else {
+      stream << AsEscapeSequence(static_cast<char>(ch));
+    }
   }
   return stream.str();
 }
 
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {
   return out << str.ToString();
+}
+
+std::string ByteString::ToHexString() const {
+  std::string hex = absl::BytesToHexString(MakeStringView(*this));
+  return absl::StrCat("<", hex, ">");
 }
 
 }  // namespace nanopb
