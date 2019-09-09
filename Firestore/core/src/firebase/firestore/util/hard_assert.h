@@ -102,10 +102,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-typedef void (*FailureHandlerCallback)(const char* file,
-                                       const char* func,
-                                       const int line,
-                                       const std::string& failure_message);
+using FailureHandler = void (*)(const char* file, const char* func, const int line, const std::string& failure_message);
 
 /**
  * Overrides the default failure handler.
@@ -119,20 +116,13 @@ typedef void (*FailureHandlerCallback)(const char* file,
  *     not expected to return. (If it does, std::terminate() will be called
  *     immediately after it does so.)
  */
-void SetFailureHandler(FailureHandlerCallback callback);
+void SetFailureHandler(FailureHandler callback);
 
 /**
- * Default failure handler for non-apple platforms. This should *typically* not
- * be called directly, though could be called as an implementation detail of a
- * custom failure handler. eg a failure handler that added logging might look
- * like:
- *
- *   SetFailureHandler([](...) {
- *     Log("There was an error");
- *     DefaultFailureHandlerCallback(...);
- *   });
+ * Default failure handler for non-apple platforms. This should typically not
+ * be called directly.
  */
-ABSL_ATTRIBUTE_NORETURN void StdioFailureHandlerCallback(
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandlerCallback(
     const char* file,
     const char* func,
     const int line,

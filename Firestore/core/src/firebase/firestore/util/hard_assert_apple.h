@@ -20,16 +20,17 @@
 #include <string>
 
 #include "absl/base/attributes.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
 /**
- * Default failure handler for Apple platforms. Typically shouldn't be used
- * directly, though see commentary on StdioFailureHandlerCallback.
+ * Default failure handler for ObjC/Swift. Typically shouldn't be used
+ * directly.
  */
-ABSL_ATTRIBUTE_NORETURN void AppleFailureHandlerCallback(
+ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandlerCallback(
     const char* file,
     const char* func,
     const int line,

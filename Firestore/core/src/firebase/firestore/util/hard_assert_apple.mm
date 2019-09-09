@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-ABSL_ATTRIBUTE_NORETURN void AppleFailureHandlerCallback(
+ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandlerCallback(
     const char* file,
     const char* func,
     const int line,

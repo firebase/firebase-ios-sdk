@@ -65,17 +65,16 @@ if(APPLE)
     DEPENDS
       firebase_firestore_util_base_apple
   )
-else()
-  cc_test(
-    firebase_firestore_util_base_stdio_test
-    SOURCES
-      hard_assert_test.cc
-      log_test.cc
-    DEPENDS
-      firebase_firestore_util_base_stdio
-  )
 endif(APPLE)
 
+cc_test(
+  firebase_firestore_util_base_stdio_test
+  SOURCES
+    hard_assert_test.cc
+    log_test.cc
+  DEPENDS
+    firebase_firestore_util_base_stdio
+)
 
 
 ## filesystem

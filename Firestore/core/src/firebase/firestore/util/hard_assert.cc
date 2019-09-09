@@ -30,7 +30,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-ABSL_ATTRIBUTE_NORETURN void StdioFailureHandlerCallback(
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandlerCallback(
     const char* file,
     const char* func,
     const int line,
@@ -49,15 +49,11 @@ ABSL_ATTRIBUTE_NORETURN void StdioFailureHandlerCallback(
 
 namespace {
 
-#if __APPLE__
-FailureHandlerCallback failure_handler_callback = AppleFailureHandlerCallback;
-#else
-FailureHandlerCallback failure_handler_callback = StdioFailureHandlerCallback;
-#endif
+FailureHandler failure_handler_callback = DefaultFailureHandlerCallback;
 
 }  // namespace
 
-void SetFailureHandler(FailureHandlerCallback callback) {
+void SetFailureHandler(FailureHandler callback) {
   failure_handler_callback = callback;
 }
 
