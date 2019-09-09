@@ -1,3 +1,6 @@
+# v1.1.0
+- Depends on the change where GDT has been re-prefixed to GDTCOR.
+
 # v1.0.3
 - Remove all NSAsserts in favor of GDTAssert.
 
