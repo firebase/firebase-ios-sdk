@@ -131,6 +131,8 @@ ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
 
 namespace internal {
 
+extern FailureHandler failure_handler_callback;
+
 // A no-return helper function. To raise an assertion, use Macro instead.
 ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
                                   const char* func,

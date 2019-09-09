@@ -43,17 +43,13 @@ ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
 #endif
 }
 
-namespace {
-
-FailureHandler failure_handler_callback = DefaultFailureHandler;
-
-}  // namespace
-
 void SetFailureHandler(FailureHandler callback) {
-  failure_handler_callback = callback;
+  internal::failure_handler_callback = callback;
 }
 
 namespace internal {
+
+FailureHandler failure_handler_callback = DefaultFailureHandler;
 
 void Fail(const char* file,
           const char* func,
