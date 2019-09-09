@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/FIRInstanceIDCheckinPreferences.h"
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 
 /** Checkin refresh interval. **/
 FOUNDATION_EXPORT const NSTimeInterval kFIRInstanceIDDefaultCheckinInterval;
