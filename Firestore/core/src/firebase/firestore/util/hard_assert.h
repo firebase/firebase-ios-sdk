@@ -102,7 +102,10 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-using FailureHandler = void (*)(const char* file, const char* func, const int line, const std::string& failure_message);
+using FailureHandler = void (*)(const char* file,
+                                const char* func,
+                                const int line,
+                                const std::string& failure_message);
 
 /**
  * Overrides the default failure handler.
@@ -122,11 +125,10 @@ void SetFailureHandler(FailureHandler callback);
  * Default failure handler for non-apple platforms. This should typically not
  * be called directly.
  */
-ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(
-    const char* file,
-    const char* func,
-    const int line,
-    const std::string& message);
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
+                                                   const char* func,
+                                                   const int line,
+                                                   const std::string& message);
 
 namespace internal {
 

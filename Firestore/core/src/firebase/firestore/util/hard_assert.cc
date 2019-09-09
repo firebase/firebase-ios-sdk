@@ -30,11 +30,10 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(
-    const char* file,
-    const char* func,
-    const int line,
-    const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
+                                                   const char* func,
+                                                   const int line,
+                                                   const std::string& message) {
   std::string failure =
       StringFormat("ASSERT: %s(%s) %s: %s", file, line, func, message);
 

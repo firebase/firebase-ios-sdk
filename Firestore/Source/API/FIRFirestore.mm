@@ -63,7 +63,6 @@ using firebase::firestore::util::ObjcFailureHandler;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::SetFailureHandler;
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRFirestore
