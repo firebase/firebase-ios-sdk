@@ -75,15 +75,15 @@ Shared library for iOS SDK data transport needs.
     test_spec.dependency 'GCDWebServer'
   end
 
-  # Monkey test specs
-  s.test_spec 'Tests-Monkey' do |test_spec|
-    test_spec.requires_app_host = true
-    test_spec.app_host_name = 'GoogleDataTransport/TestApp'
-    test_spec.dependency 'GoogleDataTransport/TestApp'
-    test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
-    test_spec.info_plist = {
-      'GDT_MONKEYTEST' => '1'
-    }
-  end
+  # Monkey test specs TODO(mikehaney24): Uncomment when travis is running >= cocoapods-1.8.0
+  # s.test_spec 'Tests-Monkey' do |test_spec|
+  #   test_spec.requires_app_host = true
+  #   test_spec.app_host_name = 'GoogleDataTransport/TestApp'
+  #   test_spec.dependency 'GoogleDataTransport/TestApp'
+  #   test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
+  #   test_spec.info_plist = {
+  #     'GDT_MONKEYTEST' => '1'
+  #   }
+  # end
 
 end
