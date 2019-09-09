@@ -83,16 +83,17 @@ using testutil::Map;
 using util::Status;
 using util::StatusOr;
 
-const char* kProjectId = "p";
-const char* kDatabaseId = "d";
+const char* const kProjectId = "p";
+const char* const kDatabaseId = "d";
 
 // These helper functions are just shorter aliases to reduce verbosity.
-pb_bytes_array_t* ToBytes(const std::string& str) {
-  return Serializer::EncodeString(str);
+ByteString ToBytes(const std::string& str) {
+  return ByteString{Serializer::EncodeString(str)};
 }
 
-std::string FromBytes(const pb_bytes_array_t* str) {
-  return Serializer::DecodeString(str);
+std::string FromBytes(pb_bytes_array_t*&& ptr) {
+  auto byte_string = ByteString::Take(ptr);
+  return Serializer::DecodeString(byte_string.get());
 }
 
 }  // namespace
@@ -884,19 +885,20 @@ TEST_F(SerializerTest, EncodesKey) {
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
-  EXPECT_EQ(Key(""), serializer.DecodeKey(
-                         &reader, ToBytes("projects/p/databases/d/documents")));
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader,
-          ToBytes("projects/p/databases/d/documents/one/two/three/four")));
+  EXPECT_EQ(Key(""),
+            serializer.DecodeKey(
+                &reader, ToBytes("projects/p/databases/d/documents").get()));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   // Same, but with a leading slash
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader,
-          ToBytes("/projects/p/databases/d/documents/one/two/three/four")));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("/projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   EXPECT_OK(reader.status());
 }
 
@@ -915,7 +917,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     Reader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, ToBytes(bad_key));
+    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }

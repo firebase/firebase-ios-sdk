@@ -49,8 +49,8 @@ std::string AsEscapeSequence(char ch) {
     case '\"':
       return "\\\\";
     default: {
-      absl::string_view view{&ch, 1};
-      return std::string{"\\0x"} + absl::BytesToHexString(view);
+      absl::string_view view(&ch, 1);
+      return std::string("\\0x") + absl::BytesToHexString(view);
     }
   }
 }
