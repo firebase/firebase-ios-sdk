@@ -21,9 +21,6 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#if __APPLE__
-#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
-#endif
 #include "absl/base/config.h"
 
 namespace firebase {
