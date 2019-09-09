@@ -28,9 +28,8 @@ namespace util {
 
 Status::Status(Error code, absl::string_view msg) {
   HARD_ASSERT(code != Error::Ok);
-  state_ = std::unique_ptr<State, std::function<void(State*)>>(new State(), CustomStateDelete);
-  state_->code = code;
-  state_->msg = static_cast<std::string>(msg);
+  state_ = MakeStatePtr(
+      Status::State(std::move(code), static_cast<std::string>(msg)));
 }
 
 void Status::Update(const Status& new_status) {
@@ -70,7 +69,7 @@ Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
 }
 
 bool Status::IsMoved() const {
-  return reinterpret_cast<uintptr_t>(state_.get()) == 0x1;
+  return IsStatePtrMoved(state_);
 }
 
 void Status::SetMoved() {
@@ -79,14 +78,14 @@ void Status::SetMoved() {
   }
 
   // Set pointer value to `0x1` as the pointer is no longer useful.
-  state_ = std::unique_ptr<State>(reinterpret_cast<State*>(0x1));
+  state_ = MakeStatePtrWithMovedIndicator();
 }
 
 void Status::SlowCopyFrom(const State* src) {
   if (src == nullptr) {
-    state_ = nullptr;
+    state_ = MakeStatePtrWithNull();
   } else {
-    state_ = absl::make_unique<State>(*src);
+    state_ = MakeStatePtr(*src);
   }
 }
 

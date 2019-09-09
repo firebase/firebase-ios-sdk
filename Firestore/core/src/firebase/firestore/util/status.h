@@ -133,6 +133,7 @@ class ABSL_MUST_USE_RESULT Status {
   struct State {
     State() = default;
     State(const State& other);
+    State(Error code, std::string msg);
 
     Error code;
     std::string msg;
@@ -144,15 +145,42 @@ class ABSL_MUST_USE_RESULT Status {
     std::unique_ptr<PlatformError> platform_error;
   };
 
+  // A `unique_ptr` with a custom deleter. If the pointer's value has been set
+  // to a special value (0x1) to indicate it is moved, the custom deleter will
+  // stop `unique_ptr` trying to destrcut from an invalid address.
+  using StatePtr = std::unique_ptr<State, std::function<void(State*)>>;
+
   static void CustomStateDelete(State* s) {
     if (reinterpret_cast<uintptr_t>(s) != 0x1) {
       delete s;
     }
   }
 
-  // OK status has a `nullptr` state_.  Otherwise, `state_` points to
-  // a `State` structure containing the error code and message(s)
-  std::unique_ptr<State, std::function<void(State*)>> state_;
+  static StatePtr MakeStatePtrWithNull() {
+    return StatePtr(nullptr, &Status::CustomStateDelete);
+  }
+
+  static StatePtr MakeStatePtrWithMovedIndicator() {
+    return StatePtr(reinterpret_cast<State*>(0x1), &Status::CustomStateDelete);
+  }
+
+  static bool IsStatePtrMoved(const StatePtr& ptr) {
+    return reinterpret_cast<uintptr_t>(ptr.get()) == 0x1;
+  }
+
+  static StatePtr MakeStatePtr(const State& state) {
+    return StatePtr(new State(state), &Status::CustomStateDelete);
+  }
+
+  template <typename... Args>
+  static StatePtr MakeStatePtr(Args... args) {
+    return StatePtr(new State(args...), &Status::CustomStateDelete);
+  }
+
+  // OK status has a `nullptr` state_, and `IsMoved() == false`.  Otherwise,
+  // either `state_` points to a `State` structure containing the error code
+  // and message(s), or this instance has been moved.
+  StatePtr state_;
 
   // Whether this instance has been moved. Without this `ok()` will be true
   // for moved instances.
@@ -178,8 +206,12 @@ class PlatformError {
                                                   std::string message) = 0;
 };
 
-inline Status::Status(const Status& s)
-    : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_), &CustomStateDelete) {
+inline Status::Status(const Status& s) {
+  if (s.state_ == nullptr) {
+    state_ = MakeStatePtrWithNull();
+    return;
+  }
+  state_ = MakeStatePtr(*s.state_);
 }
 
 inline Status::State::State(const State& s)
@@ -187,6 +219,10 @@ inline Status::State::State(const State& s)
       msg(s.msg),
       platform_error((s.platform_error == nullptr) ? nullptr
                                                    : s.platform_error->Copy()) {
+}
+
+inline Status::State::State(Error code, std::string msg)
+    : code(code), msg(msg) {
 }
 
 inline void Status::operator=(const Status& s) {
@@ -202,10 +238,6 @@ inline Status::Status(Status&& s) : state_(std::move(s.state_)) {
 }
 
 inline void Status::operator=(Status&& s) {
-  // if(IsMoved()) {
-    // state_.release();
-  // }
-
   state_ = std::move(s.state_);
   s.SetMoved();
 }
