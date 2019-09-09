@@ -122,8 +122,7 @@ using FailureHandler = void (*)(const char* file,
 void SetFailureHandler(FailureHandler callback);
 
 /**
- * Default failure handler for non-apple platforms. This should typically not
- * be called directly.
+ * Default failure handler. This should typically not be called directly.
  */
 ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
                                                    const char* func,
