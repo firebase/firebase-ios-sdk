@@ -76,6 +76,14 @@ TEST(Status, Assign) {
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
+TEST(Status, AssignToMoved) {
+  Status a(Error::InvalidArgument, "Invalid");
+  Status b = std::move(a);
+
+  a = Status(Error::InvalidArgument, "Invalid");
+  ASSERT_EQ(a.ToString(), b.ToString());
+}
+
 TEST(Status, Update) {
   Status s;
   s.Update(Status::OK());

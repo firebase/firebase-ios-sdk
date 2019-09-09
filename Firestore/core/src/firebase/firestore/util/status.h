@@ -143,9 +143,16 @@ class ABSL_MUST_USE_RESULT Status {
     // NSError* to Status and back to NSError* losslessly.
     std::unique_ptr<PlatformError> platform_error;
   };
+
+  static void CustomStateDelete(State* s) {
+    if (reinterpret_cast<uintptr_t>(s) != 0x1) {
+      delete s;
+    }
+  }
+
   // OK status has a `nullptr` state_.  Otherwise, `state_` points to
   // a `State` structure containing the error code and message(s)
-  std::unique_ptr<State> state_;
+  std::unique_ptr<State, std::function<void(State*)>> state_;
 
   // Whether this instance has been moved. Without this `ok()` will be true
   // for moved instances.
@@ -172,7 +179,7 @@ class PlatformError {
 };
 
 inline Status::Status(const Status& s)
-    : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_)) {
+    : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_), &CustomStateDelete) {
 }
 
 inline Status::State::State(const State& s)
@@ -195,6 +202,10 @@ inline Status::Status(Status&& s) : state_(std::move(s.state_)) {
 }
 
 inline void Status::operator=(Status&& s) {
+  // if(IsMoved()) {
+    // state_.release();
+  // }
+
   state_ = std::move(s.state_);
   s.SetMoved();
 }

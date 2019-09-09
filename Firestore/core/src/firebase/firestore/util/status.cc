@@ -28,7 +28,7 @@ namespace util {
 
 Status::Status(Error code, absl::string_view msg) {
   HARD_ASSERT(code != Error::Ok);
-  state_ = absl::make_unique<State>();
+  state_ = std::unique_ptr<State, std::function<void(State*)>>(new State(), CustomStateDelete);
   state_->code = code;
   state_->msg = static_cast<std::string>(msg);
 }
