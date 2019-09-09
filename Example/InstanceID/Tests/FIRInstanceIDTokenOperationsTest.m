@@ -30,7 +30,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation+Private.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
+#import <FirebaseInstanceID/FIRInstanceID.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
 

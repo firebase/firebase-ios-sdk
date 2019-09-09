@@ -26,7 +26,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 

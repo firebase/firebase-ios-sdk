@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRInstanceIDUtilities.h"
-#import "Private/FIRInstanceID+Private.h"
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
