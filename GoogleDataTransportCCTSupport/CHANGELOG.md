@@ -1,5 +1,5 @@
 # v1.0.3
-- Remove all NSAsserts in favor of GDTAssert.
+- Remove all NSAsserts in favor of GDTCORAssert.
 
 # v1.0.2
 - More safely handle backgrounding.
