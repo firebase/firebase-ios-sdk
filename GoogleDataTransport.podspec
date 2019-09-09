@@ -47,11 +47,12 @@ Shared library for iOS SDK data transport needs.
     app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
     app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
     app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
-    app_spec.info_plist = {
-      'UILaunchStoryboardName' => 'Main',
-      'UIMainStoryboardFile' => 'Main',
-      'NSMainStoryboardFile' => 'Main'
-    }
+    # TODO(mikehaney24): Uncomment when travis is running >= cocoapods-1.8.0
+    #app_spec.info_plist = {
+    #  'UILaunchStoryboardName' => 'Main',
+    #  'UIMainStoryboardFile' => 'Main',
+    #  'NSMainStoryboardFile' => 'Main'
+    #}
   end
 
   # Unit test specs
