@@ -59,7 +59,7 @@ using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::util::ObjcFailureHandlerCallback;
+using firebase::firestore::util::ObjcFailureHandler;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::SetFailureHandler;
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)initialize {
   if (self == [FIRFirestore class]) {
-    SetFailureHandler(ObjcFailureHandlerCallback);
+    SetFailureHandler(ObjcFailureHandler);
   }
 }
 

@@ -30,7 +30,7 @@ namespace util {
  * Default failure handler for ObjC/Swift. Typically shouldn't be used
  * directly.
  */
-ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandlerCallback(
+ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandler(
     const char* file,
     const char* func,
     const int line,
