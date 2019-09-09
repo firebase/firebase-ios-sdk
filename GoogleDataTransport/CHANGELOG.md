@@ -1,3 +1,6 @@
+# v2.0.0
+- Change/rename all classes and references from GDT to GDTCOR. (#3729)
+
 # v1.2.0
 - Removes all NSAsserts in favor of custom asserts. (#3747)
 
