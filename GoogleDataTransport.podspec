@@ -19,7 +19,7 @@ Shared library for iOS SDK data transport needs.
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
-  # To develop or run the tests, >= 1.7.0 must be installed.
+  # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
@@ -40,6 +40,19 @@ Shared library for iOS SDK data transport needs.
   }.merge(header_search_paths)
 
   common_test_sources = ['GoogleDataTransport/GDTTests/Common/**/*.{h,m}']
+
+  # Test app specs
+  s.app_spec 'TestApp' do |app_spec|
+    app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+    app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
+    app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
+    app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
+    app_spec.info_plist = {
+      'UILaunchStoryboardName' => 'Main',
+      'UIMainStoryboardFile' => 'Main',
+      'NSMainStoryboardFile' => 'Main'
+    }
+  end
 
   # Unit test specs
   s.test_spec 'Tests-Unit' do |test_spec|
@@ -62,9 +75,15 @@ Shared library for iOS SDK data transport needs.
     test_spec.dependency 'GCDWebServer'
   end
 
-  # Test app specs
-  s.app_spec 'TestApp' do |app_spec|
-    app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
-    app_spec.resources = ['GoogleDataTransport/GDTTestApp/*.storyboard']
+  # Monkey test specs
+  s.test_spec 'Tests-Monkey' do |test_spec|
+    test_spec.requires_app_host = true
+    test_spec.app_host_name = 'GoogleDataTransport/TestApp'
+    test_spec.dependency 'GoogleDataTransport/TestApp'
+    test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
+    test_spec.info_plist = {
+      'GDT_MONKEYTEST' => '1'
+    }
   end
+
 end

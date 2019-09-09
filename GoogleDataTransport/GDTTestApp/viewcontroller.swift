@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-import UIKit
+import Foundation
+import Dispatch
 import GoogleDataTransport
 
-class ViewController: UIViewController {
-  let transport: GDTTransport = GDTTransport(mappingID: "1234", transformers: nil, target: GDTTarget.test.rawValue)
-
+public extension ViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     GDTRegistrar.sharedInstance().register(TestUploader(), target: GDTTarget.test)
     GDTRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTTarget.test)
+    Globals.SharedViewController = self
   }
 
-  @IBAction func generateDataEvent() {
+  @IBAction func generateDataEvent(sender: AnyObject?) {
     print("Generating data event")
     let event: GDTEvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     transport.sendDataEvent(event)
   }
 
-  @IBAction func generateTelemetryEvent() {
+  @IBAction func generateTelemetryEvent(sender: AnyObject?) {
     print("Generating telemetry event")
     let event: GDTEvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     transport.sendTelemetryEvent(event)
   }
 
-  @IBAction func generateHighPriorityEvent() {
+  @IBAction func generateHighPriorityEvent(sender: AnyObject?) {
     print("Generating high priority event")
     let event: GDTEvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
@@ -48,7 +48,7 @@ class ViewController: UIViewController {
     transport.sendDataEvent(event)
   }
 
-  @IBAction func generateWifiOnlyEvent() {
+  @IBAction func generateWifiOnlyEvent(sender: AnyObject?) {
     print("Generating wifi only event")
     let event: GDTEvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
@@ -56,11 +56,43 @@ class ViewController: UIViewController {
     transport.sendDataEvent(event)
   }
 
-  @IBAction func generateDailyEvent() {
+  @IBAction func generateDailyEvent(sender: AnyObject?) {
     print("Generating daily event")
     let event: GDTEvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     event.qosTier = GDTEventQoS.qoSDaily
     transport.sendDataEvent(event)
+  }
+
+  func beginMonkeyTest(completion: () -> Void) {
+    print("Beginning monkey test")
+
+    let sema: DispatchSemaphore = DispatchSemaphore(value: 0)
+    var generateEvents = true
+    DispatchQueue.global().asyncAfter(deadline: .now() + Globals.MonkeyTestLength) {
+      generateEvents = false
+      sema.signal()
+    }
+
+    func generateEvent() {
+      DispatchQueue.global().asyncAfter(deadline: .now() + Double.random(in: 0 ..< 3.0)) {
+        let generationFunctions = [
+          self.generateDataEvent,
+          self.generateTelemetryEvent,
+          self.generateHighPriorityEvent,
+          self.generateWifiOnlyEvent,
+          self.generateDailyEvent,
+        ]
+        let randomIndex: Int = Int.random(in: 0 ..< generationFunctions.count)
+        generationFunctions[randomIndex](self)
+      }
+      RunLoop.current.run(until: Date(timeIntervalSinceNow: Double.random(in: 0 ..< 1.5)))
+      if generateEvents {
+        generateEvent()
+      }
+    }
+    generateEvent()
+    sema.wait()
+    completion()
   }
 }

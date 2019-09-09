@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import Foundation
 import GoogleDataTransport
 
+// For use by GDT.
 class TestDataObject: NSObject, GDTEventDataObject {
   func transportBytes() -> Data {
     return "Normally, some SDK's data object would populate this. \(Date())".data(using: String.Encoding.utf8)!
