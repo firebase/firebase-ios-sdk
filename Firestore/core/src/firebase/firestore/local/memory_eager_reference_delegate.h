@@ -42,17 +42,13 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
   void AddInMemoryPins(ReferenceSet* set) override;
 
   void AddReference(const model::DocumentKey& key) override;
-
   void RemoveReference(const model::DocumentKey& key) override;
-
   void RemoveMutationReference(const model::DocumentKey& key) override;
-
   void RemoveTarget(const QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 
   void OnTransactionStarted(absl::string_view label) override;
-
   void OnTransactionCommitted() override;
 
  private:
