@@ -54,14 +54,11 @@ std::unique_ptr<MemoryPersistence> MemoryPersistence::WithLruGarbageCollector(
   return persistence;
 }
 
-MemoryPersistence::MemoryPersistence() {
-  query_cache_ = absl::make_unique<MemoryQueryCache>(this);
-  remote_document_cache_ = absl::make_unique<MemoryRemoteDocumentCache>(this);
-  index_manager_ = absl::make_unique<MemoryIndexManager>();
-  started_ = true;
+MemoryPersistence::MemoryPersistence()
+    : query_cache_(this), remote_document_cache_(this), started_(true) {
 }
 
-ListenSequenceNumber MemoryPersistence::current_sequence_number() {
+ListenSequenceNumber MemoryPersistence::current_sequence_number() const {
   return reference_delegate_->current_sequence_number();
 }
 
@@ -86,15 +83,15 @@ MemoryMutationQueue* MemoryPersistence::GetMutationQueueForUser(
 }
 
 MemoryQueryCache* MemoryPersistence::query_cache() {
-  return query_cache_.get();
+  return &query_cache_;
 }
 
 MemoryRemoteDocumentCache* MemoryPersistence::remote_document_cache() {
-  return remote_document_cache_.get();
+  return &remote_document_cache_;
 }
 
 MemoryIndexManager* MemoryPersistence::index_manager() {
-  return index_manager_.get();
+  return &index_manager_;
 }
 
 ReferenceDelegate* MemoryPersistence::reference_delegate() {
