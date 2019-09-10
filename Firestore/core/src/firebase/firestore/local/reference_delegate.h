@@ -51,6 +51,8 @@ class ReferenceSet;
  */
 class ReferenceDelegate {
  public:
+  virtual ~ReferenceDelegate() = default;
+
   virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /**
@@ -94,6 +96,29 @@ class ReferenceDelegate {
    * Lifecycle hook that notifies the delegate that a transaction has committed.
    */
   virtual void OnTransactionCommitted() = 0;
+};
+
+/**
+ * Calls `OnTransactionStarted` in its constructor and then ensures that
+ * `OnTransactionCommitted` is called at the close of any block in which it is
+ * declared.
+ */
+struct TransactionGuard {
+  TransactionGuard(ReferenceDelegate* reference_delegate,
+                   absl::string_view label)
+      : reference_delegate_(reference_delegate) {
+    reference_delegate_->OnTransactionStarted(label);
+  }
+
+  ~TransactionGuard() {
+    reference_delegate_->OnTransactionCommitted();
+  }
+
+  TransactionGuard(const TransactionGuard&) = delete;
+  TransactionGuard& operator=(const TransactionGuard&) = delete;
+
+ private:
+  ReferenceDelegate* reference_delegate_;
 };
 
 #if __OBJC__

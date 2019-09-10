@@ -67,15 +67,22 @@ cc_library(
     local_view_changes.h
     lru_garbage_collector.cc
     lru_garbage_collector.h
+    memory_eager_reference_delegate.cc
+    memory_eager_reference_delegate.h
     memory_index_manager.cc
     memory_index_manager.h
+    memory_lru_reference_delegate.cc
+    memory_lru_reference_delegate.h
     memory_mutation_queue.h
     memory_mutation_queue.mm
+    memory_persistence.cc
+    memory_persistence.h
     memory_query_cache.h
     memory_query_cache.mm
     memory_remote_document_cache.h
     memory_remote_document_cache.mm
     mutation_queue.h
+    persistence.h
     proto_sizer.h
     proto_sizer.mm
     query_cache.h
