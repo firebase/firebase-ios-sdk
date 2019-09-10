@@ -43,19 +43,23 @@ ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
 #endif
 }
 
-void SetFailureHandler(FailureHandler callback) {
-  internal::failure_handler_callback = callback;
+namespace {
+FailureHandler failure_handler = DefaultFailureHandler;
+}  // namespace
+
+FailureHandler SetFailureHandler(FailureHandler callback) {
+  FailureHandler previous = failure_handler;
+  failure_handler = callback;
+  return previous;
 }
 
 namespace internal {
-
-FailureHandler failure_handler_callback = DefaultFailureHandler;
 
 void Fail(const char* file,
           const char* func,
           const int line,
           const std::string& message) {
-  failure_handler_callback(file, func, line, message);
+  failure_handler(file, func, line, message);
 
   // It's expected that the failure handler above does not return. But if it
   // does, just terminate.

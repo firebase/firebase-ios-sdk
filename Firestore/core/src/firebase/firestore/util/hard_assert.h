@@ -118,8 +118,9 @@ using FailureHandler = void (*)(const char* file,
  * @param callback A function that will handle the failure. This function is
  *     not expected to return. (If it does, std::terminate() will be called
  *     immediately after it does so.)
+ * @return A pointer to the previous failure handler.
  */
-void SetFailureHandler(FailureHandler callback);
+FailureHandler SetFailureHandler(FailureHandler callback);
 
 /**
  * Default failure handler. This should typically not be called directly.
@@ -130,8 +131,6 @@ ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
                                                    const std::string& message);
 
 namespace internal {
-
-extern FailureHandler failure_handler_callback;
 
 // A no-return helper function. To raise an assertion, use Macro instead.
 ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,

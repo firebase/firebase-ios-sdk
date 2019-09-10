@@ -51,7 +51,7 @@ TEST(HardAssertTest, NonDefaultFailureHandler) {
   // Used to ensure the original failure handler is restored.
   class FailureHandlerRestorer {
    public:
-    FailureHandlerRestorer() : orig_(internal::failure_handler_callback) {
+    explicit FailureHandlerRestorer(FailureHandler orig) : orig_(orig) {
     }
     ~FailureHandlerRestorer() {
       SetFailureHandler(orig_);
@@ -61,11 +61,11 @@ TEST(HardAssertTest, NonDefaultFailureHandler) {
     FailureHandler orig_;
   };
 
-  FailureHandlerRestorer _;
-
   struct FakeException {};
-  SetFailureHandler([](const char*, const char*, const int,
-                       const std::string&) { throw FakeException(); });
+  FailureHandler prev =
+      SetFailureHandler([](const char*, const char*, const int,
+                           const std::string&) { throw FakeException(); });
+  FailureHandlerRestorer _(prev);
 
   EXPECT_THROW(Assert(false), FakeException);
 }
