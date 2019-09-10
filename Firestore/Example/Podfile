@@ -96,7 +96,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspecs.
-  pod 'Firebase/CoreOnly', '6.8.0'
+  pod 'Firebase/CoreOnly', '6.8.1'
 
   configure_local_pods()
 
