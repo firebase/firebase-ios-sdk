@@ -41,16 +41,6 @@ class PlatformError;
 /// Denotes success or failure of a call.
 class ABSL_MUST_USE_RESULT Status {
  public:
-  ~Status() {
-    // `SetMoved` tags the instance as moved by setting the `state_` unique
-    // pointer to a special value (0x1). In this case, the actual `State`
-    // object is managed by another instance, all we need to do is to
-    // `state_.release()`.
-    if (IsMoved()) {
-      state_.release();
-    }
-  }
-
   /// Create a success status.
   Status() {
   }
@@ -64,7 +54,7 @@ class ABSL_MUST_USE_RESULT Status {
   void operator=(const Status& s);
 
   /// Move the specified status.
-  Status(Status&& s);
+  Status(Status&& s) noexcept;
   void operator=(Status&& s);
 
   static Status OK() {
@@ -86,7 +76,7 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Returns true iff the status indicates success.
   bool ok() const {
-    return (!IsMoved() && state_ == nullptr);
+    return state_ == nullptr;
   }
 
   Error code() const {
@@ -145,36 +135,30 @@ class ABSL_MUST_USE_RESULT Status {
     std::unique_ptr<PlatformError> platform_error;
   };
 
-  // A `unique_ptr` with a custom deleter. If the pointer's value has been set
-  // to a special value (0x1) to indicate it is moved, the custom deleter will
-  // stop `unique_ptr` trying to destrcut from an invalid address.
-  using StatePtr = std::unique_ptr<State, std::function<void(State*)>>;
-
-  static void CustomStateDelete(State* s) {
-    if (reinterpret_cast<uintptr_t>(s) != 0x1) {
-      delete s;
+  struct Deleter {
+    void operator()(const State* ptr) const {
+      if (ptr != MovedFromIndicator()) {
+        delete ptr;
+      }
     }
-  }
+  };
 
-  static StatePtr MakeStatePtrWithNull() {
-    return StatePtr(nullptr, &Status::CustomStateDelete);
+  // A `unique_ptr` with a custom deleter. If the pointer's value has been set
+  // to a special value (0x1) to indicate it is moved, invoking the custom
+  // deleter will be a no-op.
+  using StatePtr = std::unique_ptr<State, Deleter>;
+
+  static State* MovedFromIndicator() {
+    return reinterpret_cast<State*>(0x01);
   }
 
   static StatePtr MakeStatePtrWithMovedIndicator() {
-    return StatePtr(reinterpret_cast<State*>(0x1), &Status::CustomStateDelete);
-  }
-
-  static bool IsStatePtrMoved(const StatePtr& ptr) {
-    return reinterpret_cast<uintptr_t>(ptr.get()) == 0x1;
-  }
-
-  static StatePtr MakeStatePtr(const State& state) {
-    return StatePtr(new State(state), &Status::CustomStateDelete);
+    return StatePtr(MovedFromIndicator());
   }
 
   template <typename... Args>
   static StatePtr MakeStatePtr(Args... args) {
-    return StatePtr(new State(args...), &Status::CustomStateDelete);
+    return StatePtr(new State(args...));
   }
 
   // OK status has a `nullptr` state_, and `IsMoved() == false`.  Otherwise,
@@ -182,11 +166,8 @@ class ABSL_MUST_USE_RESULT Status {
   // and message(s), or this instance has been moved.
   StatePtr state_;
 
-  // Whether this instance has been moved. Without this `ok()` will be true
-  // for moved instances.
-  bool IsMoved() const;
-  // Tags this instance as `moved`.
-  void SetMoved();
+  // Tags this instance as `moved_from`.
+  void SetMovedFrom();
 
   void SlowCopyFrom(const State* src);
 };
@@ -206,12 +187,8 @@ class PlatformError {
                                                   std::string message) = 0;
 };
 
-inline Status::Status(const Status& s) {
-  if (s.state_ == nullptr) {
-    state_ = MakeStatePtrWithNull();
-    return;
-  }
-  state_ = MakeStatePtr(*s.state_);
+inline Status::Status(const Status& s)
+    : state_{s.state_ == nullptr ? StatePtr{} : MakeStatePtr(*s.state_)} {
 }
 
 inline Status::State::State(const State& s)
@@ -222,7 +199,7 @@ inline Status::State::State(const State& s)
 }
 
 inline Status::State::State(Error code, std::string msg)
-    : code(code), msg(msg) {
+    : code(std::move(code)), msg(std::move(msg)) {
 }
 
 inline void Status::operator=(const Status& s) {
@@ -233,13 +210,13 @@ inline void Status::operator=(const Status& s) {
   }
 }
 
-inline Status::Status(Status&& s) : state_(std::move(s.state_)) {
-  s.SetMoved();
+inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
+  s.SetMovedFrom();
 }
 
 inline void Status::operator=(Status&& s) {
   state_ = std::move(s.state_);
-  s.SetMoved();
+  s.SetMovedFrom();
 }
 
 inline bool Status::operator==(const Status& x) const {

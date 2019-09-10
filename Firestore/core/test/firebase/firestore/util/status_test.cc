@@ -76,12 +76,12 @@ TEST(Status, Assign) {
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
-TEST(Status, AssignToMoved) {
+TEST(Status, CanAssignToMovedFromStatus) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);
 
-  a = Status(Error::InvalidArgument, "Invalid");
-  ASSERT_EQ(a.ToString(), b.ToString());
+  a = Status(Error::Internal, "Internal");
+  ASSERT_EQ(a.ToString(), "Internal: Internal");
 }
 
 TEST(Status, Update) {
