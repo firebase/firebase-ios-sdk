@@ -3,7 +3,8 @@
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseDatabase,
 FirebaseFirestore, FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging,
-FirebaseInAppMessagingDisplay, FirebaseMessaging and FirebaseStorage.
+FirebaseInAppMessagingDisplay, FirebaseMessaging, FirebaseRemoteConfig, and
+FirebaseStorage.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
@@ -183,8 +184,8 @@ participate in the Firebase community.
 
 ### macOS and tvOS
 Thanks to contributions from the community, FirebaseABTesting, FirebaseAuth, FirebaseCore,
-FirebaseDatabase, FirebaseMessaging,
-FirebaseFirestore, FirebaseFunctions and FirebaseStorage now compile, run unit tests, and work on
+FirebaseDatabase, FirebaseMessaging, FirebaseFirestore,
+FirebaseFunctions, FirebaseRemoteConfig, and FirebaseStorage now compile, run unit tests, and work on
 macOS and tvOS.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
@@ -206,6 +207,7 @@ pod 'FirebaseDatabase'
 pod 'FirebaseFirestore'
 pod 'FirebaseFunctions'
 pod 'FirebaseMessaging'
+pod 'FirebaseRemoteConfig'
 pod 'FirebaseStorage'
 ```
 

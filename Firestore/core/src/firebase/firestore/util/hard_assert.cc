@@ -26,12 +26,11 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
-void Fail(const char* file,
-          const char* func,
-          const int line,
-          const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
+                                                   const char* func,
+                                                   const int line,
+                                                   const std::string& message) {
   std::string failure =
       StringFormat("ASSERT: %s(%s) %s: %s", file, line, func, message);
 
@@ -42,6 +41,29 @@ void Fail(const char* file,
   fprintf(stderr, "%s\n", failure.c_str());
   std::terminate();
 #endif
+}
+
+namespace {
+FailureHandler failure_handler = DefaultFailureHandler;
+}  // namespace
+
+FailureHandler SetFailureHandler(FailureHandler callback) {
+  FailureHandler previous = failure_handler;
+  failure_handler = callback;
+  return previous;
+}
+
+namespace internal {
+
+void Fail(const char* file,
+          const char* func,
+          const int line,
+          const std::string& message) {
+  failure_handler(file, func, line, message);
+
+  // It's expected that the failure handler above does not return. But if it
+  // does, just terminate.
+  std::terminate();
 }
 
 void Fail(const char* file,
