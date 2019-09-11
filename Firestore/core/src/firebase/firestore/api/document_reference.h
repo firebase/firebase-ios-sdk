@@ -83,7 +83,7 @@ class DocumentReference {
 
   void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
 
-  ListenerRegistration AddSnapshotListener(
+  std::unique_ptr<ListenerRegistration> AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:

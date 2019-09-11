@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,45 +37,16 @@ namespace api {
 
 /**
  * An internal handle that encapsulates a user's ability to request that we
- * stop listening to a query. When a user calls Remove(), ListenerRegistration
- * will synchronously mute the listener and then send a request to the
- * FirestoreClient to actually unlisten.
- *
- * ListenerRegistration will not automaticlaly stop listening if it is
- * destroyed. We allow users to fire and forget listens if they never want to
- * stop them.
- *
- * Getting shutdown code right is tricky so ListenerRegistration is very
- * forgiving. It will tolerate:
- *
- *   * Multiple calls to Remove(),
- *   * calls to Remove() after we send an error,
- *   * calls to Remove() even after deleting the App in which the listener was
- *     started.
+ * stop listening to a listener.
  */
 class ListenerRegistration {
  public:
-  ListenerRegistration(
-      std::shared_ptr<core::FirestoreClient> client,
-      std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
-          async_listener,
-      std::shared_ptr<core::QueryListener> query_listener);
+  virtual ~ListenerRegistration() = default;
 
   /**
-   * Removes the listener being tracked by this FIRListenerRegistration. After
-   * the initial call, subsequent calls have no effect.
+   * Removes the listener being tracked in this ListenerRegistration.
    */
-  void Remove();
-
- private:
-  /** The client that was used to register this listen. */
-  std::shared_ptr<core::FirestoreClient> client_;
-
-  /** The async listener that is used to mute events synchronously. */
-  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
-
-  /** The internal QueryListener that can be used to unlisten the query. */
-  std::weak_ptr<core::QueryListener> query_listener_;
+  virtual void Remove() = 0;
 };
 
 }  // namespace api
