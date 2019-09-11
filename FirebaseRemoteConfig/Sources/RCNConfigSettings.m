@@ -474,7 +474,7 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
     // If the eTag is different, check the fetch times.
     if (![self.lastETag isEqualToString:allAppExtensionsLatestETag]) {
       NSNumber *latestFetchTimeAcrossAppsAndExtensions =
-      [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
+          [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
       if (self.lastFetchTimeInterval < latestFetchTimeAcrossAppsAndExtensions.doubleValue) {
         // We have an older eTag. Let the request flow through to the backend.
         hasMinimumFetchIntervalElapsed = true;
