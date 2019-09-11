@@ -49,7 +49,7 @@ class ReferenceDelegate {
  public:
   virtual ~ReferenceDelegate() = default;
 
-  virtual model::ListenSequenceNumber current_sequence_number() = 0;
+  virtual model::ListenSequenceNumber current_sequence_number() const = 0;
 
   /**
    * Registers a ReferenceSet of documents that should be considered
@@ -95,8 +95,9 @@ class ReferenceDelegate {
 };
 
 /**
- * Ensures OnTransactionCommitted is called at the close of any block in which
- * it's declared.
+ * Calls `OnTransactionStarted` in its constructor and then ensures that
+ * `OnTransactionCommitted` is called at the close of any block in which it is
+ * declared.
  */
 struct TransactionGuard {
   TransactionGuard(ReferenceDelegate* reference_delegate,
@@ -108,6 +109,9 @@ struct TransactionGuard {
   ~TransactionGuard() {
     reference_delegate_->OnTransactionCommitted();
   }
+
+  TransactionGuard(const TransactionGuard&) = delete;
+  TransactionGuard& operator=(const TransactionGuard&) = delete;
 
  private:
   ReferenceDelegate* reference_delegate_;
