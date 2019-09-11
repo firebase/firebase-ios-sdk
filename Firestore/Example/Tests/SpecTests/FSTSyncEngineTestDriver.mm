@@ -27,7 +27,6 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
@@ -63,6 +63,7 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -129,7 +130,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
-@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 
 #pragma mark - Data structures for holding events sent by the watch stream.
 
@@ -148,6 +148,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
+  std::unique_ptr<Persistence> _persistence;
+
   std::shared_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<RemoteStore> _remoteStore;
@@ -169,13 +171,13 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<MockDatastore> _datastore;
 }
 
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
-  return [self initWithPersistence:persistence
+- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
+  return [self initWithPersistence:std::move(persistence)
                        initialUser:User::Unauthenticated()
                  outstandingWrites:{}];
 }
 
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
+- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                         initialUser:(const User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
   if (self = [super init]) {
@@ -192,8 +194,9 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_t queue =
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-    _persistence = persistence;
-    _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
+    _persistence = std::move(persistence);
+    _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence.get()
+                                                 initialUser:initialUser];
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
@@ -262,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdown {
   _workerQueue->EnqueueBlocking([&] {
     _remoteStore->Shutdown();
-    [self.persistence shutdown];
+    _persistence->Shutdown();
   });
 }
 

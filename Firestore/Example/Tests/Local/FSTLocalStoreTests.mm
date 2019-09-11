@@ -24,7 +24,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
@@ -34,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -48,6 +48,7 @@ using firebase::Timestamp;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
@@ -105,7 +106,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalStoreTests ()
 
-@property(nonatomic, strong, readwrite) id<FSTPersistence> localStorePersistence;
 @property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
 
 @property(nonatomic, assign, readwrite) TargetId lastTargetID;
@@ -113,6 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTLocalStoreTests {
+  std::unique_ptr<Persistence> _localStorePersistence;
   std::vector<MutationBatch> _batches;
   MaybeDocumentMap _lastChanges;
 }
@@ -124,9 +125,9 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  id<FSTPersistence> persistence = [self persistence];
-  self.localStorePersistence = persistence;
-  self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistence];
+  _localStorePersistence = std::move(persistence);
+  self.localStore = [[FSTLocalStore alloc] initWithPersistence:_localStorePersistence.get()
                                                    initialUser:User::Unauthenticated()];
   [self.localStore start];
 
@@ -134,12 +135,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
-  [self.localStorePersistence shutdown];
+  if (_localStorePersistence) {
+    _localStorePersistence->Shutdown();
+  }
 
   [super tearDown];
 }
 
-- (id<FSTPersistence>)persistence {
+- (std::unique_ptr<Persistence>)persistence {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 

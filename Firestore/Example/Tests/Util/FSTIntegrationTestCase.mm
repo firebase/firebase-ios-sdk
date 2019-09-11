@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
@@ -48,7 +49,6 @@
 #include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
@@ -61,6 +61,7 @@ using firebase::firestore::auth::CredentialChangeListener;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::remote::GrpcConnection;
@@ -144,7 +145,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
 
-    Path levelDBDir = [FSTLevelDB documentsDirectory];
+    Path levelDBDir = LevelDbPersistence::AppDataDirectory();
     Status status = util::RecursivelyDelete(levelDBDir);
     ASSERT_OK(status);
 
