@@ -80,7 +80,7 @@ TEST(Status, CanAssignToMovedFromStatus) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);
 
-  a = Status(Error::Internal, "Internal");
+  EXPECT_NO_THROW({ a = Status(Error::Internal, "Internal"); });
   ASSERT_EQ(a.ToString(), "Internal: Internal");
 }
 

@@ -55,7 +55,7 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Move the specified status.
   Status(Status&& s) noexcept;
-  void operator=(Status&& s);
+  void operator=(Status&& s) noexcept;
 
   static Status OK() {
     return Status();
@@ -120,10 +120,28 @@ class ABSL_MUST_USE_RESULT Status {
 
  private:
   static const std::string& empty_string();
+
   struct State {
     State() = default;
     State(const State& other);
-    State(Error code, std::string msg);
+    State(Error code, std::string&& msg);
+
+    struct Deleter {
+      void operator()(const State* ptr) const;
+    };
+    // A `unique_ptr` with a custom deleter. If the pointer's value has been set
+    // to a special value (0x01) to indicate it is moved, invoking the custom
+    // deleter will be a no-op.
+    using StatePtr = std::unique_ptr<State, Deleter>;
+
+    static State* MovedFromIndicator() {
+      return reinterpret_cast<State*>(0x01);
+    }
+
+    template <typename... Args>
+    static StatePtr MakePtr(Args&&... args) {
+      return StatePtr(new State(std::move(args)...));
+    }
 
     Error code;
     std::string msg;
@@ -135,38 +153,12 @@ class ABSL_MUST_USE_RESULT Status {
     std::unique_ptr<PlatformError> platform_error;
   };
 
-  struct Deleter {
-    void operator()(const State* ptr) const {
-      if (ptr != MovedFromIndicator()) {
-        delete ptr;
-      }
-    }
-  };
+  // OK status has a `nullptr` state_. If this instance is moved, state_ has
+  // the value of `State::MovedFromIndicator()`. Otherwise `state_` points to
+  // a `State` structure containing the error code and message(s).
+  State::StatePtr state_;
 
-  // A `unique_ptr` with a custom deleter. If the pointer's value has been set
-  // to a special value (0x1) to indicate it is moved, invoking the custom
-  // deleter will be a no-op.
-  using StatePtr = std::unique_ptr<State, Deleter>;
-
-  static State* MovedFromIndicator() {
-    return reinterpret_cast<State*>(0x01);
-  }
-
-  static StatePtr MakeStatePtrWithMovedIndicator() {
-    return StatePtr(MovedFromIndicator());
-  }
-
-  template <typename... Args>
-  static StatePtr MakeStatePtr(Args... args) {
-    return StatePtr(new State(args...));
-  }
-
-  // OK status has a `nullptr` state_, and `IsMoved() == false`.  Otherwise,
-  // either `state_` points to a `State` structure containing the error code
-  // and message(s), or this instance has been moved.
-  StatePtr state_;
-
-  // Tags this instance as `moved_from`.
+  // Tags this instance as `moved-from`.
   void SetMovedFrom();
 
   void SlowCopyFrom(const State* src);
@@ -188,7 +180,8 @@ class PlatformError {
 };
 
 inline Status::Status(const Status& s)
-    : state_{s.state_ == nullptr ? StatePtr{} : MakeStatePtr(*s.state_)} {
+    : state_{s.state_ == nullptr ? State::StatePtr{}
+                                 : State::MakePtr(*s.state_)} {
 }
 
 inline Status::State::State(const State& s)
@@ -198,8 +191,8 @@ inline Status::State::State(const State& s)
                                                    : s.platform_error->Copy()) {
 }
 
-inline Status::State::State(Error code, std::string msg)
-    : code(std::move(code)), msg(std::move(msg)) {
+inline Status::State::State(Error code, std::string&& msg)
+    : code(code), msg(std::move(msg)) {
 }
 
 inline void Status::operator=(const Status& s) {
@@ -214,7 +207,7 @@ inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
   s.SetMovedFrom();
 }
 
-inline void Status::operator=(Status&& s) {
+inline void Status::operator=(Status&& s) noexcept {
   state_ = std::move(s.state_);
   s.SetMovedFrom();
 }
