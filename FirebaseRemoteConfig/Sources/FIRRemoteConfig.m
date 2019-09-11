@@ -22,7 +22,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Internal.h"
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"

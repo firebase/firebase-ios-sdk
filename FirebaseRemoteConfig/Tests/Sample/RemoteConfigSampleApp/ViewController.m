@@ -1,14 +1,12 @@
 #import "ViewController.h"
 
 #import <FirebaseAnalytics/FirebaseAnalytics.h>
-#import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
-#import <FirebaseRemoteConfig/FIRRemoteConfig_Internal.h>
+#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
+#import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import "FRCLog.h"
-
-
 
 static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
