@@ -39,7 +39,7 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
 
   // MARK: ReferenceDelegate methods
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void AddInMemoryPins(ReferenceSet* set) override;
 

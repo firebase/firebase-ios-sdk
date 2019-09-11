@@ -137,7 +137,7 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
 
-  constexpr const char* kReservedPathComponent = "firestore";
+  static constexpr const char* kReservedPathComponent = "firestore";
 
   std::unique_ptr<leveldb::DB> db_;
 
