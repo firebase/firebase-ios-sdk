@@ -34,7 +34,6 @@
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
@@ -47,10 +46,6 @@
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FSTSyncEngine);
 
 namespace firebase {
 namespace firestore {
@@ -68,6 +63,9 @@ class RemoteStore;
 }  // namespace remote
 
 namespace core {
+
+class EventManager;
+class SyncEngine;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the
@@ -193,10 +191,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<util::Executor> user_executor_;
 
   std::unique_ptr<local::Persistence> persistence_;
-  FSTLocalStore* local_store_;
+  FSTLocalStore* _Nonnull local_store_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
-  FSTSyncEngine* sync_engine_;
-  util::DelayedConstructor<EventManager> event_manager_;
+  std::unique_ptr<SyncEngine> sync_engine_;
+  std::unique_ptr<EventManager> event_manager_;
 
   std::chrono::milliseconds initial_gc_delay_ = std::chrono::minutes(1);
   std::chrono::milliseconds regular_gc_delay_ = std::chrono::minutes(5);
@@ -208,7 +206,5 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_

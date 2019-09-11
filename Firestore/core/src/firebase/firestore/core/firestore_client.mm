@@ -21,7 +21,6 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -112,7 +111,7 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
         shared_client->worker_queue()->VerifyIsCurrentQueue();
 
         LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
-        [shared_client->sync_engine_ credentialDidChangeWithUser:user];
+        shared_client->sync_engine_->HandleCredentialChange(user);
       });
     }
   };
@@ -195,17 +194,16 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   remote_store_ = absl::make_unique<RemoteStore>(
       local_store_, std::move(datastore), worker_queue(),
       [weak_this](OnlineState online_state) {
-        [weak_this.lock()->sync_engine_ applyChangedOnlineState:online_state];
+        weak_this.lock()->sync_engine_->HandleOnlineStateChange(online_state);
       });
 
-  sync_engine_ = [[FSTSyncEngine alloc] initWithLocalStore:local_store_
-                                               remoteStore:remote_store_.get()
-                                               initialUser:user];
+  sync_engine_ =
+      absl::make_unique<SyncEngine>(local_store_, remote_store_.get(), user);
 
-  event_manager_.Init(sync_engine_);
+  event_manager_ = absl::make_unique<EventManager>(sync_engine_.get());
 
   // Setup wiring for remote store.
-  remote_store_->set_sync_engine(sync_engine_);
+  remote_store_->set_sync_engine(sync_engine_.get());
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens,
   // refilling mutation queue, etc.) so must be started after LocalStore.
@@ -289,8 +287,8 @@ void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
   };
 
   worker_queue()->Enqueue([shared_this, async_callback] {
-    [shared_this->sync_engine_
-        registerPendingWritesCallback:std::move(async_callback)];
+    shared_this->sync_engine_->RegisterPendingWritesCallback(
+        std::move(async_callback));
   });
 }
 
@@ -421,15 +419,14 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
         shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
       }
     } else {
-      [shared_this->sync_engine_
-          writeMutations:std::move(mutations)
-              completion:^(NSError* error) {
-                // Dispatch the result back onto the user dispatch queue.
-                if (callback) {
-                  shared_this->user_executor()->Execute(
-                      [=] { callback(Status::FromNSError(error)); });
-                }
-              }];
+      shared_this->sync_engine_->WriteMutations(
+          std::move(mutations), [callback, shared_this](Status error) {
+            // Dispatch the result back onto the user dispatch queue.
+            if (callback) {
+              shared_this->user_executor()->Execute(
+                  [=] { callback(std::move(error)); });
+            }
+          });
     }
   });
 }
@@ -449,14 +446,12 @@ void FirestoreClient::Transaction(int retries,
     }
   };
 
-  worker_queue()->Enqueue(
-      [shared_this, retries, update_callback, async_callback] {
-        [shared_this->sync_engine_
-            transactionWithRetries:retries
-                       workerQueue:shared_this->worker_queue()
-                    updateCallback:std::move(update_callback)
-                    resultCallback:std::move(async_callback)];
-      });
+  worker_queue()->Enqueue([shared_this, retries, update_callback,
+                           async_callback] {
+    shared_this->sync_engine_->Transaction(retries, shared_this->worker_queue(),
+                                           std::move(update_callback),
+                                           std::move(async_callback));
+  });
 }
 
 }  // namespace core

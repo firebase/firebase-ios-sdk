@@ -1,5 +1,8 @@
+# v1.1.0
+- Updates GDT dependency to GDTCOR prefixed version.
+
 # v1.0.3
-- Remove all NSAsserts in favor of GDTAssert.
+- Remove all NSAsserts in favor of GDTCORAssert.
 
 # v1.0.2
 - More safely handle backgrounding.

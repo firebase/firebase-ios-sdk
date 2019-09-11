@@ -46,6 +46,8 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -57,7 +59,9 @@ using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::util::ObjcFailureHandler;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::SetFailureHandler;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -73,6 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
   __weak id<FSTFirestoreInstanceRegistry> _registry;
+}
+
++ (void)initialize {
+  if (self == [FIRFirestore class]) {
+    SetFailureHandler(ObjcFailureHandler);
+  }
 }
 
 + (instancetype)firestore {

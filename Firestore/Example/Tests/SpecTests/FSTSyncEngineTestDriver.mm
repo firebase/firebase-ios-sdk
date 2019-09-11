@@ -25,10 +25,8 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
-#import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -36,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -62,6 +61,7 @@ using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
@@ -80,6 +80,7 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -105,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The Query is also included in the view, so we skip it.
   std::string str = StringFormat("<FSTQueryEvent: viewSnapshot=%s, error=%s>",
                                  ToString(_maybeViewSnapshot), self.error);
-  return util::MakeNSString(str);
+  return MakeNSString(str);
 }
 
 @end
@@ -129,7 +130,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-@property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 
 #pragma mark - Data structures for holding events sent by the watch stream.
 
@@ -149,6 +149,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<Persistence> _persistence;
+
+  std::unique_ptr<SyncEngine> _syncEngine;
 
   std::shared_ptr<AsyncQueue> _workerQueue;
 
@@ -201,17 +203,13 @@ NS_ASSUME_NONNULL_BEGIN
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore, _datastore, _workerQueue, [self](OnlineState onlineState) {
-          [self.syncEngine applyChangedOnlineState:onlineState];
-          _eventManager->HandleOnlineStateChange(onlineState);
-        });
+        _localStore, _datastore, _workerQueue,
+        [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
-    _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
-                                                remoteStore:_remoteStore.get()
-                                                initialUser:initialUser];
-    _remoteStore->set_sync_engine(_syncEngine);
-    _eventManager.Init(_syncEngine);
+    _syncEngine = absl::make_unique<SyncEngine>(_localStore, _remoteStore.get(), initialUser);
+    _remoteStore->set_sync_engine(_syncEngine.get());
+    _eventManager.Init(_syncEngine.get());
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
@@ -311,7 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)changeUser:(const User &)user {
   _currentUser = user;
-  _workerQueue->EnqueueBlocking([&] { [self.syncEngine credentialDidChangeWithUser:user]; });
+  _workerQueue->EnqueueBlocking([&] { _syncEngine->HandleCredentialChange(user); });
 }
 
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const SnapshotVersion &)commitVersion
@@ -402,19 +400,18 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] addObject:write];
   LOG_DEBUG("sending a user write.");
   _workerQueue->EnqueueBlocking([=] {
-    [self.syncEngine writeMutations:{mutation}
-                         completion:^(NSError *_Nullable error) {
-                           LOG_DEBUG("A callback was called with error: %s", error);
-                           write.done = YES;
-                           write.error = error;
+    _syncEngine->WriteMutations({mutation}, [self, write, mutation](Status error) {
+      LOG_DEBUG("A callback was called with error: %s", error.error_message());
+      write.done = YES;
+      write.error = error.ToNSError();
 
-                           NSString *mutationKey = util::MakeNSString(mutation.key().ToString());
-                           if (error) {
-                             [self.rejectedDocs addObject:mutationKey];
-                           } else {
-                             [self.acknowledgedDocs addObject:mutationKey];
-                           }
-                         }];
+      NSString *mutationKey = MakeNSString(mutation.key().ToString());
+      if (!error.ok()) {
+        [self.rejectedDocs addObject:mutationKey];
+      } else {
+        [self.acknowledgedDocs addObject:mutationKey];
+      }
+    });
   });
 }
 
@@ -436,7 +433,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (std::map<DocumentKey, TargetId>)currentLimboDocuments {
-  return [self.syncEngine currentLimboDocuments];
+  return _syncEngine->GetCurrentLimboDocuments();
 }
 
 - (const std::unordered_map<TargetId, QueryData> &)activeTargets {

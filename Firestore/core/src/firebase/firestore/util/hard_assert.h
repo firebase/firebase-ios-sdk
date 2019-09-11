@@ -101,6 +101,35 @@
 namespace firebase {
 namespace firestore {
 namespace util {
+
+using FailureHandler = void (*)(const char* file,
+                                const char* func,
+                                const int line,
+                                const std::string& failure_message);
+
+/**
+ * Overrides the default failure handler.
+ *
+ * The default essentially just calls std::terminate. While reasonable for C++,
+ * this isn't optimal for platforms that merely use the C++ core as their
+ * implementation and would otherwise be expected to throw a platform specific
+ * exception.
+ *
+ * @param callback A function that will handle the failure. This function is
+ *     not expected to return. (If it does, std::terminate() will be called
+ *     immediately after it does so.)
+ * @return A pointer to the previous failure handler.
+ */
+FailureHandler SetFailureHandler(FailureHandler callback);
+
+/**
+ * Default failure handler. This should typically not be called directly.
+ */
+ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
+                                                   const char* func,
+                                                   const int line,
+                                                   const std::string& message);
+
 namespace internal {
 
 // A no-return helper function. To raise an assertion, use Macro instead.

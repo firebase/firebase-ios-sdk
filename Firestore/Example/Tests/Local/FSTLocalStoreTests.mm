@@ -1053,9 +1053,9 @@ NS_ASSUME_NONNULL_BEGIN
   // The sum transform is not idempotent and the backend's updated value is ignored. The
   // ArrayUnion transform is recomputed and includes the backend value.
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             Doc("foo/bar", 1, Map("sum", 1337, "array_union", Array("bar"))), {2},
+                             Doc("foo/bar", 2, Map("sum", 1337, "array_union", Array("bar"))), {2},
                              {})];
-  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("bar", "foo")),
+  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 1, "array_union", Array("bar", "foo")),
                        DocumentState::kLocalMutations));
 }
 
@@ -1121,6 +1121,26 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self rejectMutation];
   XCTAssertEqual(-1, [self.localStore getHighestUnacknowledgedBatchId]);
+}
+
+- (void)testOnlyPersistsUpdatesForDocumentsWhenVersionChanges {
+  if ([self isTestBaseClass]) return;
+
+  core::Query query = Query("foo");
+  [self allocateQuery:query];
+  FSTAssertTargetID(2);
+
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("val", "old")), {2})];
+  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("val", "old")));
+
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent({Doc("foo/bar", 1, Map("val", "new")),
+                                                  Doc("foo/baz", 2, Map("val", "new"))},
+                                                 {2})];
+  // The update to foo/bar is ignored.
+  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
+  FSTAssertContains(Doc("foo/baz", 2, Map("val", "new")));
+  FSTAssertChanged(Doc("foo/baz", 2, Map("val", "new")));
 }
 
 @end
