@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -36,31 +37,26 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
  public:
   explicit MemoryEagerReferenceDelegate(MemoryPersistence* persistence);
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void AddInMemoryPins(ReferenceSet* set) override;
 
   void AddReference(const model::DocumentKey& key) override;
-
   void RemoveReference(const model::DocumentKey& key) override;
-
   void RemoveMutationReference(const model::DocumentKey& key) override;
-
-  void RemoveTarget(const QueryData& queryData) override;
+  void RemoveTarget(const QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 
   void OnTransactionStarted(absl::string_view label) override;
-
   void OnTransactionCommitted() override;
 
  private:
-  bool IsReferenced(const model::DocumentKey& key);
+  bool IsReferenced(const model::DocumentKey& key) const;
 
-  bool MutationQueuesContainKey(const model::DocumentKey& key);
+  bool MutationQueuesContainKey(const model::DocumentKey& key) const;
 
-  std::unique_ptr<
-      std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>
+  absl::optional<std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>
       orphaned_;
 
   // This instance is owned by MemoryPersistence.

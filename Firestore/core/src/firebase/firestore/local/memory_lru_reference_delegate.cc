@@ -38,9 +38,9 @@ MemoryLruReferenceDelegate::MemoryLruReferenceDelegate(
     MemoryPersistence* persistence,
     LruParams lru_params,
     std::unique_ptr<Sizer> sizer)
-    : persistence_(persistence), sizer_(std::move(sizer)) {
-  gc_ = absl::make_unique<LruGarbageCollector>(this, lru_params);
-
+    : persistence_(persistence),
+      sizer_(std::move(sizer)),
+      gc_(this, lru_params) {
   // Theoretically this is always 0, since this is all in-memory...
   ListenSequenceNumber highest_sequence_number =
       persistence_->query_cache()->highest_listen_sequence_number();
@@ -48,26 +48,26 @@ MemoryLruReferenceDelegate::MemoryLruReferenceDelegate(
 }
 
 LruGarbageCollector* MemoryLruReferenceDelegate::garbage_collector() {
-  return gc_.get();
+  return &gc_;
 }
 
-ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber MemoryLruReferenceDelegate::current_sequence_number()
+    const {
   HARD_ASSERT(current_sequence_number_ != kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return current_sequence_number_;
 }
 
 void MemoryLruReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
-  // Technically can't assert this, due to restartWithNoopGarbageCollector (for
-  // now...) FSTAssert(additional_references_ == nil, @"Overwriting additional
-  // references");
+  // We should be able to assert that additional_references_ is nullptr, but due
+  // to restarts in spec tests it would fail.
   additional_references_ = set;
 }
 
-void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& queryData) {
+void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
   QueryData updated =
-      queryData.Copy(queryData.snapshot_version(), queryData.resume_token(),
-                     current_sequence_number_);
+      query_data.Copy(query_data.snapshot_version(), query_data.resume_token(),
+                      current_sequence_number_);
   persistence_->query_cache()->UpdateTarget(updated);
 }
 
@@ -92,22 +92,22 @@ void MemoryLruReferenceDelegate::EnumerateTargets(
 void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
     const OrphanedDocumentCallback& callback) {
   for (const auto& entry : sequence_numbers_) {
-    ListenSequenceNumber sequenceNumber = entry.second;
     const DocumentKey& key = entry.first;
+    ListenSequenceNumber sequence_number = entry.second;
     // Pass in the exact sequence number as the upper bound so we know it won't
     // be pinned by being too recent.
-    if (!IsPinnedAtSequenceNumber(sequenceNumber, key)) {
-      callback(key, sequenceNumber);
+    if (!IsPinnedAtSequenceNumber(sequence_number, key)) {
+      callback(key, sequence_number);
     }
   }
 }
 
 size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
-  size_t totalCount = persistence_->query_cache()->size();
+  size_t total_count = persistence_->query_cache()->size();
   EnumerateOrphanedDocuments(
-      [&totalCount](const DocumentKey& key,
-                    ListenSequenceNumber sequenceNumber) { totalCount++; });
-  return totalCount;
+      [&total_count](const DocumentKey& key,
+                     ListenSequenceNumber sequence_number) { total_count++; });
+  return total_count;
 }
 
 int MemoryLruReferenceDelegate::RemoveTargets(
@@ -137,7 +137,7 @@ void MemoryLruReferenceDelegate::RemoveReference(const DocumentKey& key) {
 }
 
 bool MemoryLruReferenceDelegate::MutationQueuesContainKey(
-    const DocumentKey& key) {
+    const DocumentKey& key) const {
   const auto& queues = persistence_->mutation_queues();
   for (const auto& entry : queues) {
     if (entry.second->ContainsKey(key)) {
@@ -153,7 +153,7 @@ void MemoryLruReferenceDelegate::RemoveMutationReference(
 }
 
 bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
-    ListenSequenceNumber upperBound, const DocumentKey& key) {
+    ListenSequenceNumber upper_bound, const DocumentKey& key) const {
   if (MutationQueuesContainKey(key)) {
     return true;
   }
@@ -163,8 +163,9 @@ bool MemoryLruReferenceDelegate::IsPinnedAtSequenceNumber(
   if (persistence_->query_cache()->Contains(key)) {
     return true;
   }
+
   auto it = sequence_numbers_.find(key);
-  if (it != sequence_numbers_.end() && it->second > upperBound) {
+  if (it != sequence_numbers_.end() && it->second > upper_bound) {
     return true;
   }
   return false;

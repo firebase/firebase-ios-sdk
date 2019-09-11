@@ -30,7 +30,7 @@ namespace local {
 using util::Path;
 using util::Status;
 
-Path LevelDbPersistence::DocumentsDirectory() {
+Path LevelDbPersistence::AppDataDirectory() {
 #if TARGET_OS_IOS
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES);
@@ -42,8 +42,8 @@ Path LevelDbPersistence::DocumentsDirectory() {
   return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
 
 #elif TARGET_OS_OSX
-  std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
-  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
+  std::string dot_prefixed = absl::StrCat(".", kReservedPathComponent);
+  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dot_prefixed);
 
 #else
 #error "Don't know where to store documents on this platform."

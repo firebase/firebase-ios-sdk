@@ -35,12 +35,13 @@ MemoryEagerReferenceDelegate::MemoryEagerReferenceDelegate(
     : persistence_(persistence) {
 }
 
-ListenSequenceNumber MemoryEagerReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber MemoryEagerReferenceDelegate::current_sequence_number()
+    const {
   return kListenSequenceNumberInvalid;
 }
 
 void MemoryEagerReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
-  // We should be able to assert that additionalReferences_ is nullptr, but due
+  // We should be able to assert that additional_references_ is nullptr, but due
   // to restarts in spec tests it would fail.
   additional_references_ = set;
 }
@@ -66,7 +67,7 @@ void MemoryEagerReferenceDelegate::RemoveMutationReference(
   orphaned_->insert(key);
 }
 
-bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) {
+bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) const {
   if (persistence_->query_cache()->Contains(key)) {
     return true;
   }
@@ -79,8 +80,7 @@ bool MemoryEagerReferenceDelegate::IsReferenced(const DocumentKey& key) {
   return false;
 }
 
-void MemoryEagerReferenceDelegate::UpdateLimboDocument(
-    const firebase::firestore::model::DocumentKey& key) {
+void MemoryEagerReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
   if (IsReferenced(key)) {
     orphaned_->erase(key);
   } else {
@@ -89,8 +89,8 @@ void MemoryEagerReferenceDelegate::UpdateLimboDocument(
 }
 
 void MemoryEagerReferenceDelegate::OnTransactionStarted(absl::string_view) {
-  orphaned_ =
-      absl::make_unique<std::unordered_set<DocumentKey, DocumentKeyHash>>();
+  // Constructs the unordered map, in place, with no arguments.
+  orphaned_.emplace();
 }
 
 void MemoryEagerReferenceDelegate::OnTransactionCommitted() {
@@ -103,7 +103,7 @@ void MemoryEagerReferenceDelegate::OnTransactionCommitted() {
 }
 
 bool MemoryEagerReferenceDelegate::MutationQueuesContainKey(
-    const DocumentKey& key) {
+    const DocumentKey& key) const {
   const auto& queues = persistence_->mutation_queues();
   for (const auto& entry : queues) {
     if (entry.second->ContainsKey(key)) {

@@ -29,7 +29,7 @@
 /** Tests the designated initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDTEvent alloc] initWithMappingID:@"1" target:1]);
-  XCTAssertThrows([[GDTEvent alloc] initWithMappingID:@"" target:1]);
+  XCTAssertNil([[GDTEvent alloc] initWithMappingID:@"" target:1]);
 }
 
 /** Tests NSKeyedArchiver encoding and decoding. */

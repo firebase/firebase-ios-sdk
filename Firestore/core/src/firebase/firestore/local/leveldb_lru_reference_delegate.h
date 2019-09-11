@@ -39,22 +39,18 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
 
   // MARK: ReferenceDelegate methods
 
+  model::ListenSequenceNumber current_sequence_number() const override;
+
   void AddInMemoryPins(ReferenceSet* set) override;
 
   void AddReference(const model::DocumentKey& key) override;
-
   void RemoveReference(const model::DocumentKey& key) override;
-
   void RemoveMutationReference(const model::DocumentKey& key) override;
-
   void RemoveTarget(const local::QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 
-  model::ListenSequenceNumber current_sequence_number() override;
-
   void OnTransactionStarted(absl::string_view label) override;
-
   void OnTransactionCommitted() override;
 
   // MARK: LruDelegate methods
@@ -62,16 +58,13 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
   LruGarbageCollector* garbage_collector() override;
 
   int64_t CalculateByteSize() override;
-
   size_t GetSequenceNumberCount() override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
-
   void EnumerateOrphanedDocuments(
       const OrphanedDocumentCallback& callback) override;
 
   int RemoveOrphanedDocuments(model::ListenSequenceNumber upper_bound) override;
-
   int RemoveTargets(model::ListenSequenceNumber sequence_number,
                     const LiveQueryMap& live_queries) override;
 
@@ -81,7 +74,6 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
   bool MutationQueuesContainKey(const model::DocumentKey& key);
 
   void RemoveSentinel(const model::DocumentKey& key);
-
   void WriteSentinel(const model::DocumentKey& key);
 
   std::unique_ptr<LruGarbageCollector> gc_;

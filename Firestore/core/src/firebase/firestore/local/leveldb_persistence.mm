@@ -55,18 +55,18 @@ using util::StringFormat;
 std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
   std::set<std::string> result;
 
-  std::string tablePrefix = LevelDbMutationKey::KeyPrefix();
+  std::string table_prefix = LevelDbMutationKey::KeyPrefix();
   auto it = transaction->NewIterator();
-  it->Seek(tablePrefix);
+  it->Seek(table_prefix);
 
-  LevelDbMutationKey rowKey;
-  while (it->Valid() && absl::StartsWith(it->key(), tablePrefix) &&
-         rowKey.Decode(it->key())) {
-    result.insert(rowKey.user_id());
+  LevelDbMutationKey row_key;
+  while (it->Valid() && absl::StartsWith(it->key(), table_prefix) &&
+         row_key.Decode(it->key())) {
+    result.insert(row_key.user_id());
 
-    auto userEnd = LevelDbMutationKey::KeyPrefix(rowKey.user_id());
-    userEnd = util::PrefixSuccessor(userEnd);
-    it->Seek(userEnd);
+    auto user_end = LevelDbMutationKey::KeyPrefix(row_key.user_id());
+    user_end = util::PrefixSuccessor(user_end);
+    it->Seek(user_end);
   }
   return result;
 }
@@ -93,7 +93,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   std::set<std::string> users = CollectUserSet(&transaction);
   transaction.Commit();
 
-  // Explicitly conversion is required to allow the StatusOr to be created.
+  // Explicit conversion is required to allow the StatusOr to be created.
   std::unique_ptr<LevelDbPersistence> result(new LevelDbPersistence(
       std::move(db), std::move(dir), std::move(users), serializer, lru_params));
   return result;
@@ -125,9 +125,8 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 #if !defined(__APPLE__)
 
-Path LevelDbPersistence::DocumentsDirectory() {
-  std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
-  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
+Path LevelDbPersistence::AppDataDirectory() {
+#error "This does not yet support non-Apple platforms."
 }
 
 #endif  // !defined(__APPLE__)
@@ -199,7 +198,7 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  Path leveldb_dir = StorageDirectory(database_info, DocumentsDirectory());
+  Path leveldb_dir = StorageDirectory(database_info, AppDataDirectory());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }
@@ -208,8 +207,8 @@ int64_t LevelDbPersistence::CalculateByteSize() {
   int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(directory_);
   for (; iter->Valid(); iter->Next()) {
-    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
-    count += fileSize;
+    int64_t file_size = util::FileSize(iter->file()).ValueOrDie();
+    count += file_size;
   }
 
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
@@ -221,7 +220,8 @@ int64_t LevelDbPersistence::CalculateByteSize() {
 
 // MARK: - Persistence
 
-model::ListenSequenceNumber LevelDbPersistence::current_sequence_number() {
+model::ListenSequenceNumber LevelDbPersistence::current_sequence_number()
+    const {
   return reference_delegate_->current_sequence_number();
 }
 
@@ -270,7 +270,7 @@ void LevelDbPersistence::RunInternal(absl::string_view label,
   transaction_.reset();
 }
 
-constexpr char LevelDbPersistence::kReservedPathComponent[];
+constexpr const char* LevelDbPersistence::kReservedPathComponent;
 
 leveldb::ReadOptions StandardReadOptions() {
   // For now this is paranoid, but perhaps disable that in production builds.

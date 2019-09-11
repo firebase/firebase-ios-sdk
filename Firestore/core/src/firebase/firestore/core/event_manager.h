@@ -67,7 +67,7 @@ class EventManager : public SyncEngineCallback {
   // Implements `SyncEngineCallback`.
   void HandleOnlineStateChange(model::OnlineState online_state) override;
   void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) override;
-  void OnError(const core::Query& query, util::Status error) override;
+  void OnError(const core::Query& query, const util::Status& error) override;
 
  private:
   /**

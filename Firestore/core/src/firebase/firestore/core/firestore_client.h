@@ -63,8 +63,6 @@ class LruDelegate;
 
 namespace remote {
 
-// Forward declaration to make CMAKE build pass as it does not support
-// Objective-C protos.
 class RemoteStore;
 
 }  // namespace remote

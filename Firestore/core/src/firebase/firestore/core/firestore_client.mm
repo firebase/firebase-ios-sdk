@@ -154,7 +154,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
     Path dir = LevelDbPersistence::StorageDirectory(
-        database_info_, LevelDbPersistence::DocumentsDirectory());
+        database_info_, LevelDbPersistence::AppDataDirectory());
 
     FSTSerializerBeta* remote_serializer = [[FSTSerializerBeta alloc]
         initWithDatabaseID:database_info_.database_id()];

@@ -404,10 +404,10 @@ if(APPLE)
   target_include_directories(
     Protobuf
     PRIVATE
-      ${protobuf_objc_source_dir}
       ${protobuf_objc_source_dir}/google/protobuf
     INTERFACE
       ${PROJECT_BINARY_DIR}/Headers/Protobuf
+    PUBLIC
       ${protobuf_objc_source_dir}
   )
   target_compile_options(

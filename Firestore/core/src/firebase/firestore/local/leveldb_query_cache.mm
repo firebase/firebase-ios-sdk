@@ -75,7 +75,7 @@ LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
 }
 
 void LevelDbQueryCache::Start() {
-  // TODO(gsoltis): switch this usage of ptr to currentTransaction
+  // TODO(gsoltis): switch this usage of ptr to current_transaction()
   metadata_ = ReadMetadata(db_->ptr());
   HARD_ASSERT(metadata_ != nil,
               "Found nil metadata, expected schema to be at version 0 which "
@@ -124,31 +124,32 @@ void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
 
 absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
   // Scan the query-target index starting with a prefix starting with the given
-  // query's canonicalID. Note that this is a scan rather than a get because
-  // canonicalIDs are not required to be unique per target.
+  // query's canonical_id. Note that this is a scan rather than a get because
+  // canonical_ids are not required to be unique per target.
   const std::string& canonical_id = query.CanonicalId();
   auto index_iterator = db_->current_transaction()->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
 
   // Simultaneously scan the targets table. This works because each
-  // (canonicalID, targetID) pair is unique and ordered, so when scanning a
-  // table prefixed by exactly one canonicalID, all the targetIDs will be unique
-  // and in order.
+  // (canonical_id, target_id) pair is unique and ordered, so when scanning a
+  // table prefixed by exactly one canonical_id, all the target_ids will be
+  // unique and in order.
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto target_iterator = db_->current_transaction()->NewIterator();
 
   LevelDbQueryTargetKey row_key;
   for (; index_iterator->Valid(); index_iterator->Next()) {
-    // Only consider rows matching exactly the specific canonicalID of interest.
+    // Only consider rows matching exactly the specific canonical_id of
+    // interest.
     if (!absl::StartsWith(index_iterator->key(), index_prefix) ||
         !row_key.Decode(index_iterator->key()) ||
         canonical_id != row_key.canonical_id()) {
-      // End of this canonicalID's possible targets.
+      // End of this canonical_id's possible targets.
       break;
     }
 
-    // Each row is a unique combination of canonicalID and targetID, so this
+    // Each row is a unique combination of canonical_id and target_id, so this
     // foreign key reference can only occur once.
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
@@ -238,7 +239,7 @@ void LevelDbQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
   for (; index_iterator->Valid(); index_iterator->Next()) {
     absl::string_view index_key = index_iterator->key();
 
-    // Only consider rows matching this specific targetID.
+    // Only consider rows matching this specific target_id.
     if (!row_key.Decode(index_key) || row_key.target_id() != target_id) {
       break;
     }

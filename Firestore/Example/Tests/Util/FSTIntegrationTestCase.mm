@@ -145,7 +145,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
 
-    Path levelDBDir = LevelDbPersistence::DocumentsDirectory();
+    Path levelDBDir = LevelDbPersistence::AppDataDirectory();
     Status status = util::RecursivelyDelete(levelDBDir);
     ASSERT_OK(status);
 

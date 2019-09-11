@@ -75,7 +75,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     next_user_id = row_key.user_id();
   }
 
-  // This loop assumes that nextUserId contains the next username at the start
+  // This loop assumes that next_user_id contains the next username at the start
   // of the iteration.
   while (more_user_ids) {
     // Compute the first key after the last mutation for next_user_id.
@@ -92,8 +92,8 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     // the current user's mutation sequence.
     if (!it->Valid()) {
       // The iterator is past the last row altogether (there are no additional
-      // userIDs and now rows in any table after mutations). The last row will
-      // have the highest batchID.
+      // user_ids and now rows in any table after mutations). The last row will
+      // have the highest batch_id.
       more_user_ids = false;
       it->SeekToLast();
 
@@ -296,9 +296,9 @@ LevelDbMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   // current approach is to just return all mutation batches that affect
   // documents in the collection being queried.
   //
-  // Unlike allMutationBatchesAffectingDocumentKey, this iteration will scan the
+  // Unlike AllMutationBatchesAffectingDocumentKey, this iteration will scan the
   // document-mutation index for more than a single document so the associated
-  // batchIDs will be neither necessarily unique nor in order. This means an
+  // batch_ids will be neither necessarily unique nor in order. This means an
   // efficient simultaneous scan isn't possible.
   std::string index_prefix =
       LevelDbDocumentMutationKey::KeyPrefix(user_id_, query_path);
@@ -307,12 +307,12 @@ LevelDbMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
 
   LevelDbDocumentMutationKey row_key;
 
-  // Collect up unique batchIDs encountered during a scan of the index. Use a
-  // set<BatchId> to accumulate batch IDs so they can be traversed in order in a
+  // Collect up unique batch_ids encountered during a scan of the index. Use a
+  // set<BatchId> to accumulate the IDs so they can be traversed in order in a
   // scan of the main table.
   //
   // This method is faster than performing lookups of the keys with _db->Get and
-  // keeping a hash of batchIDs that have already been looked up. The
+  // keeping a hash of batch_ids that have already been looked up. The
   // performance difference is minor for small numbers of keys but > 30% faster
   // for larger numbers of keys.
   std::set<BatchId> unique_batch_ids;
@@ -441,7 +441,7 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
     const std::set<BatchId>& batch_ids) {
   std::vector<MutationBatch> result;
 
-  // Given an ordered set of unique batchIDs perform a skipping scan over the
+  // Given an ordered set of unique batch_ids perform a skipping scan over the
   // main table to find the mutation batches.
   auto mutation_iterator = db_->current_transaction()->NewIterator();
   for (BatchId batch_id : batch_ids) {
