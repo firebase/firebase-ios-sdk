@@ -67,19 +67,19 @@ class LevelDbPersistence : public Persistence {
    * Finds a suitable directory to serve as the root of all Firestore local
    * storage.
    */
-  static util::Path DocumentsDirectory();
+  static util::Path AppDataDirectory();
 
   /**
    * Computes a unique storage directory for the given identifying components of
    * local storage.
    *
    * @param database_info The identifying information for the local storage
-   * instance.
+   *     instance.
    * @param documents_dir The root document directory relative to which
-   * the storage directory will be created. Usually just +[FSTLevelDB
-   * documentsDir].
+   *     the storage directory will be created. Usually just
+   *     `LevelDbPersistence::AppDataDirectory()`.
    * @return A storage directory unique to the instance identified by
-   * databaseInfo.
+   *     `database_info`.
    */
   static util::Path StorageDirectory(const core::DatabaseInfo& database_info,
                                      const util::Path& documents_dir);
@@ -100,7 +100,7 @@ class LevelDbPersistence : public Persistence {
 
   // MARK: Persistence overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void Shutdown() override;
 
@@ -141,7 +141,7 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
 
-  static constexpr char kReservedPathComponent[] = "firestore";
+  static constexpr const char* kReservedPathComponent = "firestore";
 
   std::unique_ptr<leveldb::DB> db_;
 

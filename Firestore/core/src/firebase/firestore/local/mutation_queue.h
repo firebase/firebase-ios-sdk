@@ -131,8 +131,8 @@ class MutationQueue {
       model::BatchId batch_id) = 0;
 
   /**
-   * Gets the first unacknowledged mutation batch after the passed in batchId in
-   * the mutation queue or nil if empty.
+   * Gets the first unacknowledged mutation batch after the passed in batch_id
+   * in the mutation queue or nil if empty.
    *
    * @param batch_id The batch to search after, or kBatchIdUnknown for the first
    * mutation in the queue.

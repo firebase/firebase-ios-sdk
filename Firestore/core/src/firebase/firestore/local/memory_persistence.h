@@ -61,13 +61,13 @@ class MemoryPersistence : public Persistence {
   static std::unique_ptr<MemoryPersistence> WithLruGarbageCollector(
       LruParams params, std::unique_ptr<Sizer> sizer);
 
-  const MutationQueues& mutation_queues() {
+  const MutationQueues& mutation_queues() const {
     return mutation_queues_;
   }
 
   // MARK: Persistence overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void Shutdown() override;
 
@@ -92,8 +92,6 @@ class MemoryPersistence : public Persistence {
     reference_delegate_ = std::move(delegate);
   }
 
-  bool started_ = false;
-
   MutationQueues mutation_queues_;
 
   /**
@@ -105,17 +103,19 @@ class MemoryPersistence : public Persistence {
    * the in-memory persistence layer behave as if it were actually persisting
    * values.
    */
-  std::unique_ptr<MemoryQueryCache> query_cache_;
+  MemoryQueryCache query_cache_;
 
   /**
    * The RemoteDocumentCache representing the persisted cache of remote
    * documents.
    */
-  std::unique_ptr<MemoryRemoteDocumentCache> remote_document_cache_;
+  MemoryRemoteDocumentCache remote_document_cache_;
 
-  std::unique_ptr<MemoryIndexManager> index_manager_;
+  MemoryIndexManager index_manager_;
 
   std::unique_ptr<ReferenceDelegate> reference_delegate_;
+
+  bool started_ = false;
 };
 
 }  // namespace local

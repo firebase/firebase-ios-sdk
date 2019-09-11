@@ -81,7 +81,8 @@ void LevelDbLruReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
   WriteSentinel(key);
 }
 
-ListenSequenceNumber LevelDbLruReferenceDelegate::current_sequence_number() {
+ListenSequenceNumber LevelDbLruReferenceDelegate::current_sequence_number()
+    const {
   HARD_ASSERT(current_sequence_number_ != kListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return current_sequence_number_;
@@ -128,8 +129,7 @@ int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
     ListenSequenceNumber upper_bound) {
   int count = 0;
   db_->query_cache()->EnumerateOrphanedDocuments(
-      [&count, this, upper_bound](const DocumentKey& key,
-                                  ListenSequenceNumber sequence_number) {
+      [&](const DocumentKey& key, ListenSequenceNumber sequence_number) {
         if (sequence_number <= upper_bound) {
           if (!IsPinned(key)) {
             count++;
@@ -162,9 +162,10 @@ bool LevelDbLruReferenceDelegate::MutationQueuesContainKey(
   // For each user, if there is any batch that contains this document in any
   // batch, we know it's pinned.
   for (const std::string& user : users) {
-    std::string mutationKey = LevelDbDocumentMutationKey::KeyPrefix(user, path);
-    it->Seek(mutationKey);
-    if (it->Valid() && absl::StartsWith(it->key(), mutationKey)) {
+    std::string mutation_key =
+        LevelDbDocumentMutationKey::KeyPrefix(user, path);
+    it->Seek(mutation_key);
+    if (it->Valid() && absl::StartsWith(it->key(), mutation_key)) {
       return true;
     }
   }
@@ -177,10 +178,10 @@ void LevelDbLruReferenceDelegate::RemoveSentinel(const DocumentKey& key) {
 }
 
 void LevelDbLruReferenceDelegate::WriteSentinel(const DocumentKey& key) {
-  std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
-  std::string encodedSequenceNumber =
+  std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encoded_sequence_number =
       LevelDbDocumentTargetKey::EncodeSentinelValue(current_sequence_number());
-  db_->current_transaction()->Put(sentinelKey, encodedSequenceNumber);
+  db_->current_transaction()->Put(sentinel_key, encoded_sequence_number);
 }
 
 }  // namespace local

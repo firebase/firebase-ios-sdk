@@ -101,7 +101,7 @@ class LevelDbMutationQueue : public MutationQueue {
 
  private:
   /**
-   * Constructs a vector of matching batches, sorted by batchID to ensure that
+   * Constructs a vector of matching batches, sorted by batch_id to ensure that
    * multiple mutations affecting the same document key are applied in order.
    */
   std::vector<model::MutationBatch> AllMutationBatchesWithIds(
@@ -126,8 +126,8 @@ class LevelDbMutationQueue : public MutationQueue {
   FSTLocalSerializer* serializer_;
 
   /**
-   * The normalized userID (e.g. nil UID => @"" userID) used in our LevelDB
-   * keys.
+   * The normalized user_id (i.e. after converting null to empty) as used in our
+   * LevelDB keys.
    */
   std::string user_id_;
 

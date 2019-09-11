@@ -38,30 +38,26 @@ class Sizer;
 class MemoryLruReferenceDelegate : public LruDelegate {
  public:
   MemoryLruReferenceDelegate(MemoryPersistence* persistence,
-                             LruParams lruParams,
+                             LruParams lru_params,
                              std::unique_ptr<Sizer> sizer);
 
-  bool IsPinnedAtSequenceNumber(model::ListenSequenceNumber upperBound,
-                                const model::DocumentKey& key);
+  bool IsPinnedAtSequenceNumber(model::ListenSequenceNumber upper_bound,
+                                const model::DocumentKey& key) const;
 
   // MARK: ReferenceDelegate overrides
 
-  model::ListenSequenceNumber current_sequence_number() override;
+  model::ListenSequenceNumber current_sequence_number() const override;
 
   void AddInMemoryPins(ReferenceSet* set) override;
 
   void AddReference(const model::DocumentKey& key) override;
-
   void RemoveReference(const model::DocumentKey& key) override;
-
   void RemoveMutationReference(const model::DocumentKey& key) override;
-
-  void RemoveTarget(const QueryData& queryData) override;
+  void RemoveTarget(const QueryData& query_data) override;
 
   void UpdateLimboDocument(const model::DocumentKey& key) override;
 
   void OnTransactionStarted(absl::string_view label) override;
-
   void OnTransactionCommitted() override;
 
   // MARK: LruDelegate overrides
@@ -69,26 +65,25 @@ class MemoryLruReferenceDelegate : public LruDelegate {
   LruGarbageCollector* garbage_collector() override;
 
   int64_t CalculateByteSize() override;
-
   size_t GetSequenceNumberCount() override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
-
   void EnumerateOrphanedDocuments(
       const OrphanedDocumentCallback& callback) override;
 
   int RemoveOrphanedDocuments(model::ListenSequenceNumber upper_bound) override;
-
   int RemoveTargets(model::ListenSequenceNumber sequence_number,
                     const LiveQueryMap& live_queries) override;
 
  private:
-  bool MutationQueuesContainKey(const model::DocumentKey& key);
+  bool MutationQueuesContainKey(const model::DocumentKey& key) const;
 
   // This instance is owned by MemoryPersistence.
   MemoryPersistence* persistence_ = nullptr;
 
   std::unique_ptr<Sizer> sizer_;
+
+  LruGarbageCollector gc_;
 
   // Tracks sequence numbers of when documents are used. Equivalent to sentinel
   // rows in the leveldb implementation.
@@ -99,8 +94,6 @@ class MemoryLruReferenceDelegate : public LruDelegate {
 
   // This ReferenceSet is owned by FSTLocalStore.
   ReferenceSet* additional_references_ = nullptr;
-
-  std::unique_ptr<LruGarbageCollector> gc_;
 
   // This needs to be a pointer because initialization is delayed until after
   // we read from the query cache.

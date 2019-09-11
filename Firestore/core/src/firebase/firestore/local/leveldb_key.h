@@ -141,7 +141,6 @@ class LevelDbMutationKey {
   }
 
  private:
-  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::BatchId batch_id_ = model::kBatchIdUnknown;
 };
@@ -210,7 +209,6 @@ class LevelDbDocumentMutationKey {
   }
 
  private:
-  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::DocumentKey document_key_;
   model::BatchId batch_id_ = model::kBatchIdUnknown;
