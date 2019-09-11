@@ -205,11 +205,11 @@ cc_library(
     status.cc
     status.h
     status_apple.mm
+    status_fwd.h
     status_posix.cc
     status_win.cc
     statusor.cc
     statusor.h
-    statusor_callback.h
     statusor_internals.h
     strerror.cc
     strerror.h
