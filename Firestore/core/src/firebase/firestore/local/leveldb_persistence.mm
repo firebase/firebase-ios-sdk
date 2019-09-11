@@ -93,7 +93,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   std::set<std::string> users = CollectUserSet(&transaction);
   transaction.Commit();
 
-  // Explicitly conversion is required to allow the StatusOr to be created.
+  // Explicit conversion is required to allow the StatusOr to be created.
   std::unique_ptr<LevelDbPersistence> result(new LevelDbPersistence(
       std::move(db), std::move(dir), std::move(users), serializer, lru_params));
   return result;
@@ -125,9 +125,8 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
 
 #if !defined(__APPLE__)
 
-Path LevelDbPersistence::DocumentsDirectory() {
-  std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
-  return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
+Path LevelDbPersistence::AppDataDirectory() {
+#error "This does not yet support non-Apple platforms."
 }
 
 #endif  // !defined(__APPLE__)
@@ -199,7 +198,8 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  Path leveldb_dir = StorageDirectory(database_info, DocumentsDirectory());
+  HARD_ASSERT(!started_, "Attempted to clear persistence while started.");
+  Path leveldb_dir = StorageDirectory(database_info, AppDataDirectory());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);
 }
@@ -270,7 +270,7 @@ void LevelDbPersistence::RunInternal(absl::string_view label,
   transaction_.reset();
 }
 
-constexpr char LevelDbPersistence::kReservedPathComponent[];
+constexpr const char* LevelDbPersistence::kReservedPathComponent;
 
 leveldb::ReadOptions StandardReadOptions() {
   // For now this is paranoid, but perhaps disable that in production builds.

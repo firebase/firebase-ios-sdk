@@ -128,8 +128,7 @@ int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
     ListenSequenceNumber upper_bound) {
   int count = 0;
   db_->query_cache()->EnumerateOrphanedDocuments(
-      [&count, this, upper_bound](const DocumentKey& key,
-                                  ListenSequenceNumber sequence_number) {
+      [&](const DocumentKey& key, ListenSequenceNumber sequence_number) {
         if (sequence_number <= upper_bound) {
           if (!IsPinned(key)) {
             count++;
