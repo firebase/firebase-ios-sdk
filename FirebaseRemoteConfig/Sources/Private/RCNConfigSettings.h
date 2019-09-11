@@ -94,7 +94,8 @@
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID;
+                            googleAppID:(NSString *)googleAppID
+                                options:(FIROptions *)options;
 
 /// Returns a fetch request with the latest device and config change.
 /// Whenever user issues a fetch api call, collect the latest request.

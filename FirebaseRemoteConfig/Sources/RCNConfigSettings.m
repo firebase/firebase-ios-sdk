@@ -32,6 +32,9 @@ static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
 static NSString *const kRCNUserDefaultsKeyNameLastSuccessfulFetchTime = @"lastSuccessfulFetchTime";
 static const int kRCNExponentialBackoffMinimumInterval = 60 * 2;       // 2 mins.
 static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hours.
+static NSString *const RCNExternalUserDefaultsKeyLastSuccessfulFetchTime =
+    @"frc.lastSuccessfulFetchTime";
+static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
 
 @interface RCNConfigSettings () {
   /// A list of successful fetch timestamps in seconds.
@@ -67,6 +70,10 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   NSString *_googleAppID;
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
+  /// A shared user defaults across apps and app extensions in a shared group.
+  NSUserDefaults *_sharedUserDefaults;
+  /// Suite name (app group set in FIROptions) for external user defaults.
+  NSString *_sharedUserDefaultsSuiteName;
 }
 @end
 
@@ -75,7 +82,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID {
+                            googleAppID:(NSString *)googleAppID
+                                options:(FIROptions *)options {
   self = [super init];
   if (self) {
     _FIRNamespace = FIRNamespace;
@@ -101,8 +109,24 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                                   bundleID:_bundleIdentifier
                                                                  namespace:_FIRNamespace];
     _isFetchInProgress = NO;
+
+    // Check if app group is set. If so, use it to communicate the latest fetch time.
+    if (options.appGroupID) {
+      _sharedUserDefaultsSuiteName = options.appGroupID;
+      /// Instantiate the shared instance.
+      _sharedUserDefaults = [self sharedUserDefaults];
+    }
   }
   return self;
+}
+
+- (NSUserDefaults *)sharedUserDefaults {
+  static dispatch_once_t onceToken;
+  static NSUserDefaults *sharedInstance;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:_sharedUserDefaultsSuiteName];
+  });
+  return sharedInstance;
 }
 
 #pragma mark - read from / update userDefaults
@@ -112,15 +136,25 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (void)setLastETag:(NSString *)lastETag {
   [_userDefaultsManager setLastETag:lastETag];
+
+  // If sharedUserDefaults is present, add the latest eTag there.
+  if (_sharedUserDefaults && [_FIRNamespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+    [_sharedUserDefaults setObject:lastETag forKey:RCNExternalUserDefaultsKeyLatestETag];
+  }
 }
 
 - (NSTimeInterval)lastFetchTimeInterval {
   return _userDefaultsManager.lastFetchTime;
 }
 
-// TODO: Update logic for app extensions as required.
 - (void)updateLastFetchTimeInterval:(NSTimeInterval)lastFetchTimeInterval {
   _userDefaultsManager.lastFetchTime = lastFetchTimeInterval;
+
+  // If sharedUserDefaults is present, add the latest fetch time there.
+  if (_sharedUserDefaults && [_FIRNamespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+    [_sharedUserDefaults setObject:@(lastFetchTimeInterval)
+                            forKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
+  }
 }
 
 #pragma mark - load from DB
@@ -218,7 +252,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateExponentialBackoffTime];
   }
 
-  [self updateFetchTimeWithSuccessFetch:fetchSuccess];
+  [self updateFetchTimeWithFetchStatus:fetchSuccess];
   _lastFetchStatus =
       fetchSuccess ? FIRRemoteConfigFetchStatusSuccess : FIRRemoteConfigFetchStatusFailure;
   _lastFetchError = fetchSuccess ? FIRRemoteConfigErrorUnknown : FIRRemoteConfigErrorInternalError;
@@ -231,7 +265,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   [self updateMetadataTable];
 }
 
-- (void)updateFetchTimeWithSuccessFetch:(BOOL)isSuccessfulFetch {
+- (void)updateFetchTimeWithFetchStatus:(BOOL)isSuccessfulFetch {
   NSTimeInterval epochTimeInterval = [[NSDate date] timeIntervalSince1970];
   if (isSuccessfulFetch) {
     [_successFetchTimes addObject:@(epochTimeInterval)];
@@ -427,7 +461,25 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
   // Check if last config fetch is within minimum fetch interval in seconds.
   NSTimeInterval diffInSeconds = [[NSDate date] timeIntervalSince1970] - self.lastFetchTimeInterval;
-  return diffInSeconds > minimumFetchInterval;
+  BOOL hasMinimumFetchIntervalElapsed = (diffInSeconds > minimumFetchInterval) ? YES : NO;
+
+  // Check if we have a shared suite with an extension/app.
+  if (!hasMinimumFetchIntervalElapsed && _sharedUserDefaults) {
+    // Check if the latest eTag across main app and extensions is different than our eTag. If so,
+    // let the fetch go through.
+    NSString *allAppExtensionsLatestETag =
+        [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLatestETag];
+
+    // If the eTag is different, check the fetch times.
+    if (![self.lastETag isEqualToString:allAppExtensionsLatestETag]) {
+      if (self.lastFetchTimeInterval <
+          [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime]) {
+        // We have an older eTag. Let the request flow through to the backend.
+        hasMinimumFetchIntervalElapsed = true;
+      }
+    }
+  }
+  return hasMinimumFetchIntervalElapsed;
 }
 
 - (BOOL)shouldThrottle {
