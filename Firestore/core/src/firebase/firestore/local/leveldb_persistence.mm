@@ -96,7 +96,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   // Explicit conversion is required to allow the StatusOr to be created.
   std::unique_ptr<LevelDbPersistence> result(new LevelDbPersistence(
       std::move(db), std::move(dir), std::move(users), serializer, lru_params));
-  return result;
+  return std::move(result);
 }
 
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
