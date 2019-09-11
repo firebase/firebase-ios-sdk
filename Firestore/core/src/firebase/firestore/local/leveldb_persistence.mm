@@ -198,7 +198,6 @@ LevelDbTransaction* LevelDbPersistence::current_transaction() {
 
 util::Status LevelDbPersistence::ClearPersistence(
     const core::DatabaseInfo& database_info) {
-  HARD_ASSERT(!started_, "Attempted to clear persistence while started.");
   Path leveldb_dir = StorageDirectory(database_info, AppDataDirectory());
   LOG_DEBUG("Clearing persistence for path: %s", leveldb_dir.ToUtf8String());
   return util::RecursivelyDelete(leveldb_dir);

@@ -86,6 +86,10 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbTransaction* current_transaction();
 
+  leveldb::DB* ptr() {
+    return db_.get();
+  }
+
   const std::set<std::string> users() const {
     return users_;
   }
