@@ -20,7 +20,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import <FirebaseCore/FIRApp.h>
