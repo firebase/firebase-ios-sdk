@@ -160,7 +160,6 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
-                                                       googleAppID:options.googleAppID
                                                            options:options];
 
     FIRExperimentController *experimentController = [FIRExperimentController sharedInstance];

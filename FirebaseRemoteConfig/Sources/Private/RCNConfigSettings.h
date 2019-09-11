@@ -19,6 +19,7 @@
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 
 @class RCNConfigDBManager;
+@class FIROptions;
 
 /// This internal class contains a set of variables that are unique among all the config instances.
 /// It also handles all metadata and internal metadata. This class is not thread safe and does not
@@ -94,7 +95,6 @@
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID
                                 options:(FIROptions *)options;
 
 /// Returns a fetch request with the latest device and config change.

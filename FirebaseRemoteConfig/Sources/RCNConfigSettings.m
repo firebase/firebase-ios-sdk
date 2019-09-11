@@ -82,12 +82,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID
                                 options:(FIROptions *)options {
   self = [super init];
   if (self) {
     _FIRNamespace = FIRNamespace;
-    _googleAppID = googleAppID;
+    _googleAppID = options.googleAppID;
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if (!_bundleIdentifier) {
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000038",
@@ -124,7 +123,7 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   static dispatch_once_t onceToken;
   static NSUserDefaults *sharedInstance;
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:_sharedUserDefaultsSuiteName];
+    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
   });
   return sharedInstance;
 }
@@ -138,8 +137,9 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   [_userDefaultsManager setLastETag:lastETag];
 
   // If sharedUserDefaults is present, add the latest eTag there.
-  if (_sharedUserDefaults && [_FIRNamespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+  if (_sharedUserDefaults && [_FIRNamespace hasPrefix:FIRNamespaceGoogleMobilePlatform]) {
     [_sharedUserDefaults setObject:lastETag forKey:RCNExternalUserDefaultsKeyLatestETag];
+    [_sharedUserDefaults synchronize];
   }
 }
 
@@ -151,9 +151,10 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   _userDefaultsManager.lastFetchTime = lastFetchTimeInterval;
 
   // If sharedUserDefaults is present, add the latest fetch time there.
-  if (_sharedUserDefaults && [_FIRNamespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+  if (_sharedUserDefaults && [_FIRNamespace hasPrefix:FIRNamespaceGoogleMobilePlatform]) {
     [_sharedUserDefaults setObject:@(lastFetchTimeInterval)
                             forKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
+    [_sharedUserDefaults synchronize];
   }
 }
 
@@ -472,8 +473,9 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
 
     // If the eTag is different, check the fetch times.
     if (![self.lastETag isEqualToString:allAppExtensionsLatestETag]) {
-      if (self.lastFetchTimeInterval <
-          [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime]) {
+      NSNumber *latestFetchTimeAcrossAppsAndExtensions =
+      [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
+      if (self.lastFetchTimeInterval < latestFetchTimeAcrossAppsAndExtensions.doubleValue) {
         // We have an older eTag. Let the request flow through to the backend.
         hasMinimumFetchIntervalElapsed = true;
       }

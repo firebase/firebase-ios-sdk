@@ -177,7 +177,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                  namespace:fullyQualifiedNamespace
                                            firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
+                                                   options:currentOptions];
     dispatch_queue_t queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
@@ -213,8 +213,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     id completionBlock =
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
+    OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                         completionHandler:completionBlock])
         .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
@@ -251,6 +251,49 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)testFetchConfigsSuccessfully {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfigFetchCompletion fetchCompletion =
+        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+          XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+          XCTAssertNil(error);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+          XCTAssertTrue([_configInstances[i] activateFetched]);
+#pragma clang diagnostic pop
+          NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
+          NSString *key2 = [NSString stringWithFormat:@"key2-%d", i];
+          NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
+          NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
+          XCTAssertEqualObjects(_configInstances[i][key1].stringValue, value1);
+          XCTAssertEqualObjects(_configInstances[i][key2].stringValue, value2);
+
+          OCMVerify([_configInstances[i] objectForKeyedSubscript:key1]);
+
+          XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
+                         @"Callback of first successful config "
+                         @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccessFresh.");
+
+          XCTAssertNotNil(_configInstances[i].lastFetchTime);
+          XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
+                               @"last fetch time interval should be set.");
+          [expectations[i] fulfill];
+        };
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testFetchConfigsWithNilCallback {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -485,7 +528,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                  namespace:fullyQualifiedNamespace
                                            firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
+                                                   options:currentOptions];
     dispatch_queue_t queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
@@ -1164,6 +1207,95 @@ static NSString *UTCToLocal(NSString *utcTime) {
   XCTAssertEqual([config valueForKey:@"_appName"], kFIRDefaultAppName);
 }
 
+#pragma mark app extension.
+- (void)testETagAndFetchTimeUpdatedInSharedUserDefaultsForAppExtension {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < 1; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test fetch configs for app extension - instance %d", i]];
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
+                                                           NSError *error) {
+      XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+      XCTAssertNil(error);
+      XCTAssertNotNil(_configInstances[i].lastFetchTime);
+      XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
+                           @"last fetch time interval should be set.");
+      NSUserDefaults *externalUserDefaults =
+          [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+      NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+      NSNumber *lastFetchTime = [externalUserDefaults objectForKey:@"frc.lastSuccessfulFetchTime"];
+      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+      NSDate *lastFetchedDateTime = _configInstances[i].lastFetchTime;
+      XCTAssertEqual(lastFetchTime.doubleValue, [lastFetchedDateTime timeIntervalSince1970]);
+      // Update the eTag
+      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+      [expectations[i] fulfill];
+    };
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+// An app extension should be allowed to fetch within the minimumFetchInterval if the main app/other
+// extensions have fetched updated config since.
+- (void)testFetchConfigsForAppExtension {
+  NSMutableArray<XCTestExpectation *> *expectations = [[NSMutableArray alloc] initWithCapacity:1];
+  for (int i = 0; i < 1; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test fetch configs for app extension - instance %d", i]];
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
+                                                           NSError *error) {
+      XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+      XCTAssertNil(error);
+      XCTAssertNotNil(_configInstances[i].lastFetchTime);
+      XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
+                           @"last fetch time interval should be set.");
+      NSUserDefaults *externalUserDefaults =
+          [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+      NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+      NSNumber *lastFetchTime = [externalUserDefaults objectForKey:@"frc.lastSuccessfulFetchTime"];
+      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+      NSDate *lastFetchedDateTime = _configInstances[i].lastFetchTime;
+      XCTAssertEqual(lastFetchTime.doubleValue, [lastFetchedDateTime timeIntervalSince1970]);
+      // Update the eTag
+      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+
+      // Update the eTag and fetch time to simulate a fetch from main app/some other app extension.
+      [externalUserDefaults setObject:@([[NSDate date] timeIntervalSince1970])
+                               forKey:@"frc.lastSuccessfulFetchTime"];
+      [externalUserDefaults setObject:@"new-eTag" forKey:@"frc.latestETag"];
+      [externalUserDefaults synchronize];
+
+      // Verify that we can still make a fetch and that it is not served from the cache.
+      FIRRemoteConfigFetchCompletion fetchCompletion2 =
+          ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+            XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+            XCTAssertNil(error);
+            NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+            // The eTag should be reset if the second fetch was successful.
+            XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+            [expectations[i] fulfill];
+          };
+      [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion2];
+    };
+    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {
@@ -1172,6 +1304,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                                     GCMSenderID:@"correct_gcm_sender_id"];
   options.APIKey = @"correct_api_key";
   options.projectID = @"abc-xyz-123";
+  options.appGroupID = @"group.test.firebase";
   return options;
 }
 
