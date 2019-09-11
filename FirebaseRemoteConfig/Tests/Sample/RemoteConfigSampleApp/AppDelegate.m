@@ -1,8 +1,8 @@
 #import "AppDelegate.h"
 
 #import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FIRConfiguration.h>
+#import <FirebaseCore/FIROptions.h>
 
 @interface AppDelegate ()
 
