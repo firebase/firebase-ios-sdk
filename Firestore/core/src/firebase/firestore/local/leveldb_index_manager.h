@@ -28,18 +28,18 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
-@class FSTLevelDB;
-
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
+class LevelDbPersistence;
+
 /** A persisted implementation of IndexManager. */
 class LevelDbIndexManager : public IndexManager {
  public:
-  explicit LevelDbIndexManager(FSTLevelDB* db);
+  explicit LevelDbIndexManager(LevelDbPersistence* db);
 
   void AddToCollectionParentIndex(
       const model::ResourcePath& collection_path) override;
@@ -48,8 +48,8 @@ class LevelDbIndexManager : public IndexManager {
       const std::string& collection_id) override;
 
  private:
-  // This instance is owned by FSTLevelDB; avoid a retain cycle.
-  __weak FSTLevelDB* db_;
+  // The LevelDbIndexManager is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
 
   /**
    * An in-memory copy of the index entries we've already written since the SDK

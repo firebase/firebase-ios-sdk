@@ -16,20 +16,23 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include <memory>
 
-@class FSTLevelDB;
-@class FSTMemoryPersistence;
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
+class LevelDbPersistence;
 class LruParams;
+class MemoryPersistence;
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+namespace local = firebase::firestore::local;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,14 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
  * database is reused. This prevents concurrent running of tests using this database. We may
  * need to revisit this if we want to parallelize the tests.
  */
-+ (FSTLevelDB *)levelDBPersistence;
++ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistence;
 
 /**
  * Creates and starts a new FSTLevelDB instance for testing. Does not delete any data
  * present in the given directory. As a consequence, the resulting databse is not guaranteed
  * to be empty.
  */
-+ (FSTLevelDB *)levelDBPersistenceWithDir:(firebase::firestore::util::Path)dir;
++ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistenceWithDir:
+    (firebase::firestore::util::Path)dir;
 
 /**
  * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
@@ -64,14 +68,15 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Sets up the LRU garbage collection to use the provided params.
  */
-+ (FSTLevelDB *)levelDBPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
++ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistenceWithLruParams:
+    (firebase::firestore::local::LruParams)lruParams;
 
-/** Creates and starts a new FSTMemoryPersistence instance for testing. */
-+ (FSTMemoryPersistence *)eagerGCMemoryPersistence;
+/** Creates and starts a new MemoryPersistence instance for testing. */
++ (std::unique_ptr<local::MemoryPersistence>)eagerGCMemoryPersistence;
 
-+ (FSTMemoryPersistence *)lruMemoryPersistence;
++ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistence;
 
-+ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:
++ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
     (firebase::firestore::local::LruParams)lruParams;
 @end
 

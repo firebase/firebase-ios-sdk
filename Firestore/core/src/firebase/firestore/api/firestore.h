@@ -32,8 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/any.h"
 
 NS_ASSUME_NONNULL_BEGIN

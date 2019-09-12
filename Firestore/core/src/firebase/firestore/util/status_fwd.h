@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_FWD_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_FWD_H_
 
 #include <functional>
-
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+// Forward declarations for Status classes.
+
+class Status;
+
+using StatusCallback = std::function<void(Status)>;
+
+template <typename T>
+class StatusOr;
 
 template <typename T>
 using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
@@ -32,4 +39,4 @@ using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUS_FWD_H_

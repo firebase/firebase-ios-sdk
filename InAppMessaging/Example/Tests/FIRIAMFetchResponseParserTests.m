@@ -24,7 +24,7 @@
 #import "UIColor+FIRIAMHexString.h"
 
 @interface FIRIAMFetchResponseParserTests : XCTestCase
-@property(nonatomic, copy) NSString *jsonResposne;
+@property(nonatomic, copy) NSString *jsonResponse;
 @property(nonatomic) FIRIAMFetchResponseParser *parser;
 @property(nonatomic) id<FIRIAMTimeFetcher> mockTimeFetcher;
 @end
@@ -48,11 +48,11 @@
   NSTimeInterval currentMoment = 100000000;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
 
-  self.jsonResposne = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
+  self.jsonResponse = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                       encoding:NSUTF8StringEncoding
                                                          error:nil];
 
-  NSData *data = [self.jsonResposne dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *data = [self.jsonResponse dataUsingEncoding:NSUTF8StringEncoding];
   NSError *errorJson = nil;
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:kNilOptions
@@ -138,11 +138,11 @@
       pathForResource:@"TestJsonDataWithTestMessageFromFetch"
                ofType:@"txt"];
 
-  self.jsonResposne = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
+  self.jsonResponse = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                       encoding:NSUTF8StringEncoding
                                                          error:nil];
 
-  NSData *data = [self.jsonResposne dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *data = [self.jsonResponse dataUsingEncoding:NSUTF8StringEncoding];
   NSError *errorJson = nil;
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:kNilOptions
@@ -174,11 +174,11 @@
       pathForResource:@"JsonDataWithInvalidMessagesFromFetch"
                ofType:@"txt"];
 
-  self.jsonResposne = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
+  self.jsonResponse = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                       encoding:NSUTF8StringEncoding
                                                          error:nil];
 
-  NSData *data = [self.jsonResposne dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *data = [self.jsonResponse dataUsingEncoding:NSUTF8StringEncoding];
   NSError *errorJson = nil;
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:kNilOptions
