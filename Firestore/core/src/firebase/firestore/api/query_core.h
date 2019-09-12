@@ -77,8 +77,8 @@ class Query {
    *
    * @return A ListenerRegistration that can be used to remove this listener.
    */
-  ListenerRegistration AddSnapshotListener(core::ListenOptions options,
-                                           QuerySnapshot::Listener&& listener);
+  std::unique_ptr<ListenerRegistration> AddSnapshotListener(
+      core::ListenOptions options, QuerySnapshot::Listener&& listener);
 
   /**
    * Creates and returns a new `Query` with the additional filter that documents
