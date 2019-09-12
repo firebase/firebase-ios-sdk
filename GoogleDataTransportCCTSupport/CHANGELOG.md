@@ -1,3 +1,6 @@
+# v1.0.4
+- Balances background task creation with background task ending. (#3759)
+
 # v1.0.3
 - Remove all NSAsserts in favor of GDTAssert.
 
