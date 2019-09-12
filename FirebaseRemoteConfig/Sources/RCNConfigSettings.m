@@ -114,19 +114,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
     if (options.appGroupID) {
       _sharedUserDefaultsSuiteName = options.appGroupID;
       /// Instantiate the shared instance.
-      _sharedUserDefaults = [self sharedUserDefaults];
+      _sharedUserDefaults =
+          [[GULUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
     }
   }
   return self;
-}
-
-- (GULUserDefaults *)sharedUserDefaults {
-  static dispatch_once_t onceToken;
-  static GULUserDefaults *sharedInstance;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[GULUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
-  });
-  return sharedInstance;
 }
 
 #pragma mark - read from / update userDefaults

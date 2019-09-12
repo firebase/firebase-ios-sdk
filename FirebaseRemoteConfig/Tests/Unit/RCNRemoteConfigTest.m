@@ -293,49 +293,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
-- (void)testFetchConfigsWithNilCallback {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    expectations[i] =
-        [self expectationWithDescription:
-                  [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
-        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-          XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
-          XCTAssertNil(error);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-          XCTAssertTrue([_configInstances[i] activateFetched]);
-#pragma clang diagnostic pop
-          NSString *key1 = [NSString stringWithFormat:@"key1-%d", i];
-          NSString *key2 = [NSString stringWithFormat:@"key2-%d", i];
-          NSString *value1 = [NSString stringWithFormat:@"value1-%d", i];
-          NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
-          XCTAssertEqualObjects(_configInstances[i][key1].stringValue, value1);
-          XCTAssertEqualObjects(_configInstances[i][key2].stringValue, value2);
-
-          OCMVerify([_configInstances[i] objectForKeyedSubscript:key1]);
-
-          XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
-                         @"Callback of first successful config "
-                         @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccessFresh.");
-
-          XCTAssertNotNil(_configInstances[i].lastFetchTime);
-          XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                               @"Last fetch time interval should be set.");
-          [expectations[i] fulfill];
-        };
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
 - (void)testFetchAndActivate {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
@@ -1251,10 +1208,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   // Make the first fetch.
   [defaultRC fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
 
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
 
 // An app extension should be allowed to fetch within the minimumFetchInterval if the main app/other
@@ -1319,10 +1273,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   // Make the first fetch.
   [defaultRC fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
 
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
 
 #pragma mark - Test Helpers
