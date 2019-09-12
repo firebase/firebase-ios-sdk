@@ -410,6 +410,8 @@ int64_t GetCurrentMemoryUsedInMb() {
     // 5x-10x.
     XCTAssertLessThan(memoryDeltaMb, 20);
 #endif
+    // Actually 'use' the variable to avoid compiler error.
+    XCTAssertGreaterThan(memoryDeltaMb, 0);
 
     [expectation fulfill];
   }];
