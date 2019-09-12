@@ -173,11 +173,9 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
       firestore_->client()->ListenToQuery(this->query(), options,
                                           async_listener);
 
-  QueryListenerRegistration query_listener_registration =
-      QueryListenerRegistration(firestore_->client(), std::move(async_listener),
-                                std::move(query_listener));
   return absl::make_unique<QueryListenerRegistration>(
-      query_listener_registration);
+      firestore_->client(), std::move(async_listener),
+      std::move(query_listener));
 }
 
 Query Query::Filter(FieldPath field_path,
