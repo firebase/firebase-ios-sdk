@@ -26,6 +26,7 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
@@ -71,7 +72,7 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
   /// A shared user defaults across apps and app extensions in a shared group.
-  NSUserDefaults *_sharedUserDefaults;
+  GULUserDefaults *_sharedUserDefaults;
   /// Suite name (app group set in FIROptions) for external user defaults.
   NSString *_sharedUserDefaultsSuiteName;
 }
@@ -119,11 +120,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   return self;
 }
 
-- (NSUserDefaults *)sharedUserDefaults {
+- (GULUserDefaults *)sharedUserDefaults {
   static dispatch_once_t onceToken;
-  static NSUserDefaults *sharedInstance;
+  static GULUserDefaults *sharedInstance;
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
+    sharedInstance = [[GULUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
   });
   return sharedInstance;
 }
