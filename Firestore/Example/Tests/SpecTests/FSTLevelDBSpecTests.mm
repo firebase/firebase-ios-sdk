@@ -16,12 +16,13 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+
+using firebase::firestore::local::Persistence;
 using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Overrides -[FSTSpecTests persistence] */
-- (id<FSTPersistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
   return [FSTPersistenceTestHelpers levelDBPersistenceWithDir:_levelDbDir];
 }
 

@@ -24,8 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/optional.h"
 
 namespace firebase {

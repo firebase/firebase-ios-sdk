@@ -21,18 +21,8 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -41,6 +31,8 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
@@ -68,7 +60,9 @@ using api::SnapshotMetadata;
 using api::ThrowIllegalState;
 using auth::CredentialsProvider;
 using auth::User;
+using local::LevelDbPersistence;
 using local::LruParams;
+using local::MemoryPersistence;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKeySet;
@@ -158,39 +152,39 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // more work) since external write/listen operations could get queued to run
   // before that subsequent work completes.
   if (settings.persistence_enabled()) {
-    Path dir = [FSTLevelDB
-        storageDirectoryForDatabaseInfo:database_info_
-                     documentsDirectory:[FSTLevelDB documentsDirectory]];
+    Path dir = LevelDbPersistence::StorageDirectory(
+        database_info_, LevelDbPersistence::AppDataDirectory());
 
     FSTSerializerBeta* remote_serializer = [[FSTSerializerBeta alloc]
         initWithDatabaseID:database_info_.database_id()];
     FSTLocalSerializer* serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remote_serializer];
-    FSTLevelDB* ldb;
-    Status level_db_status = [FSTLevelDB
-        dbWithDirectory:std::move(dir)
-             serializer:serializer
-              lruParams:LruParams::WithCacheSize(settings.cache_size_bytes())
-                    ptr:&ldb];
-    if (!level_db_status.ok()) {
+
+    auto created = LevelDbPersistence::Create(
+        std::move(dir), serializer,
+        LruParams::WithCacheSize(settings.cache_size_bytes()));
+    if (!created.ok()) {
       // If leveldb fails to start then just throw up our hands: the error is
       // unrecoverable. There's nothing an end-user can do and nearly all
       // failures indicate the developer is doing something grossly wrong so we
       // should stop them cold in their tracks with a failure they can't ignore.
       [NSException
            raise:NSInternalInconsistencyException
-          format:@"Failed to open DB: %s", level_db_status.ToString().c_str()];
+          format:@"Failed to open DB: %s", created.status().ToString().c_str()];
     }
-    lru_delegate_ = ldb.referenceDelegate;
-    persistence_ = ldb;
+
+    auto ldb = std::move(created).ValueOrDie();
+    lru_delegate_ = ldb->reference_delegate();
+
+    persistence_ = std::move(ldb);
     if (settings.gc_enabled()) {
       ScheduleLruGarbageCollection();
     }
   } else {
-    persistence_ = [FSTMemoryPersistence persistenceWithEagerGC];
+    persistence_ = MemoryPersistence::WithEagerGarbageCollector();
   }
 
-  local_store_ = [[FSTLocalStore alloc] initWithPersistence:persistence_
+  local_store_ = [[FSTLocalStore alloc] initWithPersistence:persistence_.get()
                                                 initialUser:user];
 
   auto datastore = std::make_shared<Datastore>(database_info_, worker_queue(),
@@ -228,7 +222,7 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
   lru_callback_ = worker_queue()->EnqueueAfterDelay(
       delay, TimerId::GarbageCollectionDelay, [shared_this] {
         [shared_this->local_store_
-            collectGarbage:shared_this->lru_delegate_.gc];
+            collectGarbage:shared_this->lru_delegate_->garbage_collector()];
         shared_this->gc_has_run_ = true;
         shared_this->ScheduleLruGarbageCollection();
       });
@@ -266,7 +260,7 @@ void FirestoreClient::Terminate(StatusCallback callback) {
       shared_this->lru_callback_.Cancel();
     }
     shared_this->remote_store_->Shutdown();
-    [shared_this->persistence_ shutdown];
+    shared_this->persistence_->Shutdown();
   });
 
   // This separate enqueue ensures if `terminate` is called multiple times

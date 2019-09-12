@@ -17,9 +17,9 @@
 #include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -31,9 +31,8 @@ namespace local {
 
 namespace {
 
-id<FSTPersistence> PersistenceFactory() {
-  return static_cast<id<FSTPersistence>>(
-      [FSTPersistenceTestHelpers levelDBPersistence]);
+std::unique_ptr<Persistence> PersistenceFactory() {
+  return [FSTPersistenceTestHelpers levelDBPersistence];
 }
 
 }  // namespace
