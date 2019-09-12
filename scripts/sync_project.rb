@@ -130,7 +130,7 @@ def sync_firestore(test_only)
 
       # Protobuf wants to #include <google/protobuf/stubs/common.h>
       '"${PODS_ROOT}/ProtobufCpp/src"',
-    ],
+    ]
   }
 
   xcconfig_swift = {
