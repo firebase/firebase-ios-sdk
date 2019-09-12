@@ -72,7 +72,7 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
   /// A shared user defaults across apps and app extensions in a shared group.
-  GULUserDefaults *_sharedUserDefaults;
+  RCNUserDefaultsManager *_sharedUserDefaults;
   /// Suite name (app group set in FIROptions) for external user defaults.
   NSString *_sharedUserDefaultsSuiteName;
 }
@@ -113,9 +113,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
     // Check if app group is set. If so, use it to communicate the latest fetch time.
     if (options.appGroupID) {
       _sharedUserDefaultsSuiteName = options.appGroupID;
-      /// Instantiate the shared instance.
-      _sharedUserDefaults =
-          [[GULUserDefaults alloc] initWithSuiteName:self->_sharedUserDefaultsSuiteName];
+      /// Instantiate the shared instance for using with app extensions. App extensions will have
+      /// the same bundleID in FIROptions as the main app.
+      _sharedUserDefaults = [[RCNUserDefaultsManager alloc] initWithAppName:appName
+                                                                   bundleID:options.bundleID
+                                                                  namespace:_FIRNamespace];
     }
   }
   return self;
@@ -131,8 +133,8 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
 
   // If sharedUserDefaults is present, add the latest eTag there.
   if (_sharedUserDefaults && [_FIRNamespace hasPrefix:FIRNamespaceGoogleMobilePlatform]) {
-    [_sharedUserDefaults setObject:lastETag forKey:RCNExternalUserDefaultsKeyLatestETag];
-    [_sharedUserDefaults synchronize];
+    [_sharedUserDefaults setInstanceUserDefaultsValue:lastETag
+                                               forKey:RCNExternalUserDefaultsKeyLatestETag];
   }
 }
 
@@ -145,9 +147,9 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
 
   // If sharedUserDefaults is present, add the latest fetch time there.
   if (_sharedUserDefaults && [_FIRNamespace hasPrefix:FIRNamespaceGoogleMobilePlatform]) {
-    [_sharedUserDefaults setObject:@(lastFetchTimeInterval)
-                            forKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
-    [_sharedUserDefaults synchronize];
+    [_sharedUserDefaults
+        setInstanceUserDefaultsValue:@(lastFetchTimeInterval)
+                              forKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
   }
 }
 
@@ -461,13 +463,13 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   if (!hasMinimumFetchIntervalElapsed && _sharedUserDefaults) {
     // Check if the latest eTag across main app and extensions is different than our eTag. If so,
     // let the fetch go through.
-    NSString *allAppExtensionsLatestETag =
-        [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLatestETag];
+    NSString *allAppExtensionsLatestETag = [[_sharedUserDefaults instanceUserDefaults]
+        objectForKey:RCNExternalUserDefaultsKeyLatestETag];
 
     // If the eTag is different, check the fetch times.
     if (![self.lastETag isEqualToString:allAppExtensionsLatestETag]) {
-      NSNumber *latestFetchTimeAcrossAppsAndExtensions =
-          [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
+      NSNumber *latestFetchTimeAcrossAppsAndExtensions = [[_sharedUserDefaults instanceUserDefaults]
+          objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
       if (self.lastFetchTimeInterval < latestFetchTimeAcrossAppsAndExtensions.doubleValue) {
         // We have an older eTag. Let the request flow through to the backend.
         hasMinimumFetchIntervalElapsed = YES;

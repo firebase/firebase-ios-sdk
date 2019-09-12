@@ -46,6 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
     __attribute__((unavailable("Use `initWithAppName:bundleID:namespace:` instead.")));
 // NOLINTEND
 
+// Search for the user defaults for this (app, namespace) instance using the valueForKeyPath method.
+- (nonnull NSDictionary *)instanceUserDefaults;
+
+// Update users defaults for just this (app, namespace) instance.
+- (void)setInstanceUserDefaultsValue:(NSObject *)value forKey:(NSString *)key;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1190,8 +1190,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     // The app and extension share data through UserDefaults using the `appGroupID` as the
     // suite name.
-    NSUserDefaults *externalUserDefaults =
-        [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+    NSDictionary *externalUserDefaults = [self instanceUserDefaults];
 
     // Validate the ETag is correct.
     NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
@@ -1235,8 +1234,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     // The app and extension share data through UserDefaults using the `appGroupID` as the
     // suite name.
-    NSUserDefaults *externalUserDefaults =
-        [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+    NSDictionary *externalUserDefaults = [self instanceUserDefaults];
 
     // Validate the ETag is correct.
     NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
@@ -1248,10 +1246,9 @@ static NSString *UTCToLocal(NSString *utcTime) {
     XCTAssertEqual(lastFetchTime.doubleValue, [lastFetchedDateTime timeIntervalSince1970]);
 
     // Update the eTag and fetch time to simulate a fetch from main app/some other app extension.
-    [externalUserDefaults setObject:@([[NSDate date] timeIntervalSince1970])
-                             forKey:@"frc.lastSuccessfulFetchTime"];
-    [externalUserDefaults setObject:@"new-eTag" forKey:@"frc.latestETag"];
-    [externalUserDefaults synchronize];
+    [self setInstanceUserDefaultsValue:@([[NSDate date] timeIntervalSince1970])
+                                forKey:@"frc.lastSuccessfulFetchTime"];
+    [self setInstanceUserDefaultsValue:@"new-eTag" forKey:@"frc.latestETag"];
 
     // Verify that we can still make a fetch and that it is not served from the cache.
     FIRRemoteConfigFetchCompletion fetchCompletion2 =
@@ -1295,6 +1292,42 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                                               ofType:@"plist"]];
   XCTAssertNotNil(options);
   return options;
+}
+
+// Search for the user defaults for this (app, namespace) instance using the valueForKeyPath method.
+- (nonnull NSDictionary *)instanceUserDefaults {
+  NSString *appNamespacePath =
+      [NSString stringWithFormat:@"%@.%@", RCNTestsDefaultFIRAppName, RCNTestsFIRNamespace];
+  NSDictionary *appNamespaceDict = [_userDefaults valueForKeyPath:appNamespacePath];
+
+  if (!appNamespaceDict) {
+    appNamespaceDict = [[NSMutableDictionary alloc] init];
+  }
+  return appNamespaceDict;
+}
+
+// Update users defaults for just this (app, namespace) instance.
+- (void)setInstanceUserDefaultsValue:(NSObject *)value forKey:(NSString *)key {
+  @synchronized(_userDefaults) {
+    NSMutableDictionary *appUserDefaults = [[self appUserDefaults] mutableCopy];
+    NSMutableDictionary *appNamespaceUserDefaults = [[self instanceUserDefaults] mutableCopy];
+    [appNamespaceUserDefaults setObject:value forKey:key];
+    [appUserDefaults setObject:appNamespaceUserDefaults forKey:RCNTestsFIRNamespace];
+    [_userDefaults setObject:appUserDefaults forKey:RCNTestsDefaultFIRAppName];
+    // We need to synchronize to have this value updated for the extension.
+    [_userDefaults synchronize];
+  }
+}
+
+// There is a nested hierarchy for the userdefaults as follows:
+// [FIRAppName][FIRNamespaceName][Key]
+- (nonnull NSDictionary *)appUserDefaults {
+  NSString *appPath = RCNTestsDefaultFIRAppName;
+  NSDictionary *appDict = [_userDefaults valueForKeyPath:appPath];
+  if (!appDict) {
+    appDict = [[NSDictionary alloc] init];
+  }
+  return appDict;
 }
 
 @end
