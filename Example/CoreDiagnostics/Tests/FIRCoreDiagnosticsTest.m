@@ -153,8 +153,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 }
 
 /** Tests populating the proto correctly. */
-// https://github.com/firebase/firebase-ios-sdk/issues/3711
-- (void)SKIPtestProtoPopulation {
+- (void)testProtoPopulation {
   logs_proto_mobilesdk_ios_ICoreConfiguration icoreConfiguration =
       logs_proto_mobilesdk_ios_ICoreConfiguration_init_default;
   FIRPopulateProtoWithCommonInfoFromApp(&icoreConfiguration, @{
@@ -221,12 +220,10 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->dynamic_framework_count = numFrameworks;
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
-#if !TARGET_OS_IOS
   NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
   if (minVersion) {
     config->min_supported_ios_version = FIREncodeString(minVersion);
   }
-#endif  // TARGET_OS_IOS
   config->using_zip_file = 0;
   config->has_using_zip_file = 1;
   config->deployment_type = logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS;
