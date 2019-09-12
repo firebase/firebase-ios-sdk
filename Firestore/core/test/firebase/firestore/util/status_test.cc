@@ -76,6 +76,17 @@ TEST(Status, Assign) {
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
+TEST(Status, MoveAssign) {
+  Status ok;
+  Status reassigned{Error::InvalidArgument, "Foo"};
+  reassigned = std::move(ok);
+  ASSERT_EQ(reassigned, Status::OK());
+
+  Status bad{Error::InvalidArgument, "Foo"};
+  reassigned = std::move(bad);
+  ASSERT_EQ(reassigned, Status(Error::InvalidArgument, "Foo"));
+}
+
 TEST(Status, CanAssignToMovedFromStatus) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);

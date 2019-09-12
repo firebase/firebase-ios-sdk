@@ -140,7 +140,7 @@ class ABSL_MUST_USE_RESULT Status {
 
     template <typename... Args>
     static StatePtr MakePtr(Args&&... args) {
-      return StatePtr(new State(std::move(args)...));
+      return StatePtr(new State(std::forward<Args>(args)...));
     }
 
     Error code;
@@ -153,7 +153,7 @@ class ABSL_MUST_USE_RESULT Status {
     std::unique_ptr<PlatformError> platform_error;
   };
 
-  // OK status has a `nullptr` state_. If this instance is moved, state_ has
+  // OK status has a `nullptr` `state_`. If this instance is moved, state_ has
   // the value of `State::MovedFromIndicator()`. Otherwise `state_` points to
   // a `State` structure containing the error code and message(s).
   State::StatePtr state_;
@@ -209,7 +209,11 @@ inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
 
 inline void Status::operator=(Status&& s) noexcept {
   state_ = std::move(s.state_);
-  s.SetMovedFrom();
+
+  // Mark `s` as `MovedFrom` unless it is moving to itself.
+  if (this != &s) {
+    s.SetMovedFrom();
+  }
 }
 
 inline bool Status::operator==(const Status& x) const {
