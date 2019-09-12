@@ -400,7 +400,6 @@ int64_t GetCurrentMemoryUsedInMb() {
     XCTAssertNil(error);
     const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
-    const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
 
 #if !defined(THREAD_SANITIZER) && !defined(ADDRESS_SANITIZER)
     // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
@@ -408,10 +407,8 @@ int64_t GetCurrentMemoryUsedInMb() {
     //
     // This check is disabled under the thread sanitizer because it introduces an overhead of
     // 5x-10x.
-    XCTAssertLessThan(memoryDeltaMb, 20);
+    XCTAssertLessThan(memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb, 20);
 #endif
-    // Actually 'use' the variable to avoid compiler error.
-    XCTAssertGreaterThan(memoryDeltaMb, 0);
 
     [expectation fulfill];
   }];
