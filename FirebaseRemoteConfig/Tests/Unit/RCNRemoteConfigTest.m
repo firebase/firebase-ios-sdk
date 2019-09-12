@@ -281,7 +281,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           XCTAssertNotNil(_configInstances[i].lastFetchTime);
           XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                               @"last fetch time interval should be set.");
+                               @"Last fetch time interval should be set.");
           [expectations[i] fulfill];
         };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
@@ -324,7 +324,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           XCTAssertNotNil(_configInstances[i].lastFetchTime);
           XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                               @"last fetch time interval should be set.");
+                               @"Last fetch time interval should be set.");
           [expectations[i] fulfill];
         };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
@@ -365,7 +365,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
       XCTAssertNotNil(_configInstances[i].lastFetchTime);
       XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                           @"last fetch time interval should be set.");
+                           @"Last fetch time interval should be set.");
       [expectations[i] fulfill];
     };
     // Update the minimum fetch interval to 0. This disables the cache and forces a remote fetch
@@ -412,7 +412,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
             XCTAssertNotNil(_configInstances[i].lastFetchTime);
             XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                                 @"last fetch time interval should be set.");
+                                 @"Last fetch time interval should be set.");
             // A second activate should return an error.
             [_configInstances[i] activateWithCompletionHandler:^(NSError *_Nullable error) {
               XCTAssertNotNil(error);
@@ -469,7 +469,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           XCTAssertNotNil(_configInstances[i].lastFetchTime);
           XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                               @"last fetch time interval should be set.");
+                               @"Last fetch time interval should be set.");
 
           [expectations[i] fulfill];
         };
@@ -1208,32 +1208,49 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 #pragma mark app extension.
+// An app extension needs to have the appGroupID set in FIROptions. In such a case, all RC instances
+// (app, app extension instances with default namespace) will need to, upon a remote fetch, update
+// the latest ETag and fetch time. Ensure this is the case.
 - (void)testETagAndFetchTimeUpdatedInSharedUserDefaultsForAppExtension {
-  NSMutableArray<XCTestExpectation *> *expectations =
-      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  NSMutableArray<XCTestExpectation *> *expectations = [[NSMutableArray alloc] initWithCapacity:1];
+
+  // App extension fetch optimization is only permitted for the default namespace.
   for (int i = 0; i < 1; i++) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test fetch configs for app extension - instance %d", i]];
+
+    // Make sure there were no previous fetches.
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
                                                            NSError *error) {
+      // Fetch should be successful, with no errors.
       XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
+
+      // A fetch occurred, so ensure `lastFetchTime` is valid and non-zero.
       XCTAssertNotNil(_configInstances[i].lastFetchTime);
       XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                           @"last fetch time interval should be set.");
+                           @"Last fetch time interval should be set.");
+
+      // The app and extension share data through UserDefaults using the `appGroupID` as the
+      // suite name.
       NSUserDefaults *externalUserDefaults =
           [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+
+      // Validate the ETag is correct.
       NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+
+      // Validate the last fetch time is correct.
       NSNumber *lastFetchTime = [externalUserDefaults objectForKey:@"frc.lastSuccessfulFetchTime"];
       XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
       NSDate *lastFetchedDateTime = _configInstances[i].lastFetchTime;
       XCTAssertEqual(lastFetchTime.doubleValue, [lastFetchedDateTime timeIntervalSince1970]);
-      // Update the eTag
-      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
+
       [expectations[i] fulfill];
     };
+
+    // Make the first fetch.
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
 
@@ -1247,27 +1264,39 @@ static NSString *UTCToLocal(NSString *utcTime) {
 // extensions have fetched updated config since.
 - (void)testFetchConfigsForAppExtension {
   NSMutableArray<XCTestExpectation *> *expectations = [[NSMutableArray alloc] initWithCapacity:1];
+
+  // App extension fetch optimization is only permitted for the default namespace.
   for (int i = 0; i < 1; i++) {
     expectations[i] = [self
         expectationWithDescription:
             [NSString stringWithFormat:@"Test fetch configs for app extension - instance %d", i]];
+
+    // Make sure there were no previous fetches.
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
     FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
                                                            NSError *error) {
+      // Fetch should be successful, with no errors.
       XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
+
+      // A fetch occurred, so ensure `lastFetchTime` is valid and non-zero.
       XCTAssertNotNil(_configInstances[i].lastFetchTime);
       XCTAssertGreaterThan(_configInstances[i].lastFetchTime.timeIntervalSince1970, 0,
-                           @"last fetch time interval should be set.");
+                           @"Last fetch time interval should be set.");
+
+      // The app and extension share data through UserDefaults using the `appGroupID` as the
+      // suite name.
       NSUserDefaults *externalUserDefaults =
           [[NSUserDefaults alloc] initWithSuiteName:[self firstAppOptions].appGroupID];
+
+      // Validate the ETag is correct.
       NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+
+      // Validate the last fetch time is correct.
       NSNumber *lastFetchTime = [externalUserDefaults objectForKey:@"frc.lastSuccessfulFetchTime"];
       XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
       NSDate *lastFetchedDateTime = _configInstances[i].lastFetchTime;
       XCTAssertEqual(lastFetchTime.doubleValue, [lastFetchedDateTime timeIntervalSince1970]);
-      // Update the eTag
-      XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
 
       // Update the eTag and fetch time to simulate a fetch from main app/some other app extension.
       [externalUserDefaults setObject:@([[NSDate date] timeIntervalSince1970])
@@ -1278,15 +1307,21 @@ static NSString *UTCToLocal(NSString *utcTime) {
       // Verify that we can still make a fetch and that it is not served from the cache.
       FIRRemoteConfigFetchCompletion fetchCompletion2 =
           ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+            // Second fetch should also be successful, with no errors.
             XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
             XCTAssertNil(error);
-            NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
+
             // The eTag should be reset if the second fetch was successful.
+            NSString *currentETag = [externalUserDefaults objectForKey:@"frc.latestETag"];
             XCTAssertTrue([currentETag isEqualToString:@"etag1-0"]);
             [expectations[i] fulfill];
           };
+
+      // Make a second fetch.
       [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion2];
     };
+
+    // Make the first fetch.
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
 

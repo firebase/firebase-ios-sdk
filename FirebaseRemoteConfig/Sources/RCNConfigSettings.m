@@ -478,7 +478,7 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
           [_sharedUserDefaults objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
       if (self.lastFetchTimeInterval < latestFetchTimeAcrossAppsAndExtensions.doubleValue) {
         // We have an older eTag. Let the request flow through to the backend.
-        hasMinimumFetchIntervalElapsed = true;
+        hasMinimumFetchIntervalElapsed = YES;
       }
     }
   }
