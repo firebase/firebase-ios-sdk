@@ -17,9 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_
 
-#include <memory>
-#include <utility>
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -51,7 +48,8 @@ class ListenerRegistration {
   virtual ~ListenerRegistration() = default;
 
   /**
-   * Removes the listener being tracked in this ListenerRegistration.
+   * Removes the listener being tracked in this ListenerRegistration. After
+   * the initial call, subsequent calls have no effect.
    */
   virtual void Remove() = 0;
 };
