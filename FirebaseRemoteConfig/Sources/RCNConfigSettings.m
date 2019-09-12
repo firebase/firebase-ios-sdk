@@ -115,9 +115,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
       _sharedUserDefaultsSuiteName = options.appGroupID;
       /// Instantiate the shared instance for using with app extensions. App extensions will have
       /// the same bundleID in FIROptions as the main app.
-      _sharedUserDefaults = [[RCNUserDefaultsManager alloc] initWithAppName:appName
-                                                                   bundleID:options.bundleID
-                                                                  namespace:_FIRNamespace];
+      _sharedUserDefaults =
+          [[RCNUserDefaultsManager alloc] initWithAppName:appName
+                                                 bundleID:options.bundleID
+                                                suiteName:_sharedUserDefaultsSuiteName
+                                                namespace:_FIRNamespace];
     }
   }
   return self;

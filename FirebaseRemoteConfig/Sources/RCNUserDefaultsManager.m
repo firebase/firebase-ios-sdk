@@ -53,6 +53,7 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 /// Designated initializer.
 - (instancetype)initWithAppName:(NSString *)appName
                        bundleID:(NSString *)bundleIdentifier
+                      suiteName:(NSString *)suiteName
                       namespace:(NSString *)firebaseNamespace {
   self = [super init];
   if (self) {
@@ -69,20 +70,34 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 
     // Initialize the user defaults with a prefix and the bundleID. For app extensions, this will be
     // the bundleID of the app extension.
-    _userDefaults =
-        [RCNUserDefaultsManager sharedUserDefaultsForBundleIdentifier:_bundleIdentifier];
+    _userDefaults = [RCNUserDefaultsManager sharedUserDefaultsForBundleIdentifier:_bundleIdentifier
+                                                                        suiteName:suiteName];
   }
 
   return self;
 }
 
-+ (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier {
+/// Convenience initializer.
+- (instancetype)initWithAppName:(NSString *)appName
+                       bundleID:(NSString *)bundleIdentifier
+                      namespace:(NSString *)firebaseNamespace {
+  return [self initWithAppName:appName
+                      bundleID:bundleIdentifier
+                     suiteName:nil
+                     namespace:firebaseNamespace];
+}
+
++ (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier
+                                                suiteName:(NSString *)suiteName {
   static dispatch_once_t onceToken;
   static NSUserDefaults *sharedInstance;
   dispatch_once(&onceToken, ^{
-    NSString *userDefaultsSuiteName =
-        [RCNUserDefaultsManager userDefaultsSuiteNameForBundleIdentifier:bundleIdentifier];
-    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:userDefaultsSuiteName];
+    NSString *userDefaultsSuiteName = suiteName;
+    if (!userDefaultsSuiteName) {
+      userDefaultsSuiteName =
+          [RCNUserDefaultsManager userDefaultsSuiteNameForBundleIdentifier:bundleIdentifier];
+    }
+    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
   });
   return sharedInstance;
 }

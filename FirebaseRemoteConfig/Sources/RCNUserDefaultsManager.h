@@ -38,7 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// Designated initializer.
 - (instancetype)initWithAppName:(NSString *)appName
                        bundleID:(NSString *)bundleIdentifier
+                      suiteName:(nullable NSString *)suiteName
                       namespace:(NSString *)firebaseNamespace NS_DESIGNATED_INITIALIZER;
+
+/// Convenience initializer.
+- (instancetype)initWithAppName:(NSString *)appName
+                       bundleID:(NSString *)bundleIdentifier
+                      namespace:(NSString *)firebaseNamespace;
 
 // NOLINTBEGIN
 /// Use `initWithAppName:bundleID:namespace:` instead.
