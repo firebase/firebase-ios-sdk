@@ -20,13 +20,6 @@
 #include <memory>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/util/nullability.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -37,7 +30,21 @@ namespace api {
 
 /**
  * An internal handle that encapsulates a user's ability to request that we
- * stop listening to a listener.
+ * stop listening to a listener. When a user calls Remove(),
+ * ListenerRegistration will synchronously mute the listener and then send a
+ * request to the FirestoreClient to actually unlisten.
+ *
+ * ListenerRegistration will not automatically stop listening if it is
+ * destroyed. We allow users to fire and forget listens if they never want to
+ * stop them.
+ *
+ * Getting shutdown code right is tricky so ListenerRegistration is very
+ * forgiving. It will tolerate:
+ *
+ *   * Multiple calls to Remove(),
+ *   * calls to Remove() after we send an error,
+ *   * calls to Remove() even after deleting the App in which the listener was
+ *     started.
  */
 class ListenerRegistration {
  public:
@@ -52,7 +59,5 @@ class ListenerRegistration {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_

@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
-
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 
 namespace firebase {
