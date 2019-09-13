@@ -21,46 +21,46 @@ import GoogleDataTransport
 public extension ViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
-    GDTRegistrar.sharedInstance().register(TestUploader(), target: GDTTarget.test)
-    GDTRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTTarget.test)
+    GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
+    GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
     Globals.SharedViewController = self
   }
 
   @IBAction func generateDataEvent(sender: AnyObject?) {
     print("Generating data event")
-    let event: GDTEvent = transport.eventForTransport()
+    let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     transport.sendDataEvent(event)
   }
 
   @IBAction func generateTelemetryEvent(sender: AnyObject?) {
     print("Generating telemetry event")
-    let event: GDTEvent = transport.eventForTransport()
+    let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
     transport.sendTelemetryEvent(event)
   }
 
   @IBAction func generateHighPriorityEvent(sender: AnyObject?) {
     print("Generating high priority event")
-    let event: GDTEvent = transport.eventForTransport()
+    let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
-    event.qosTier = GDTEventQoS.qoSFast
+    event.qosTier = GDTCOREventQoS.qoSFast
     transport.sendDataEvent(event)
   }
 
   @IBAction func generateWifiOnlyEvent(sender: AnyObject?) {
     print("Generating wifi only event")
-    let event: GDTEvent = transport.eventForTransport()
+    let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
-    event.qosTier = GDTEventQoS.qoSWifiOnly
+    event.qosTier = GDTCOREventQoS.qoSWifiOnly
     transport.sendDataEvent(event)
   }
 
   @IBAction func generateDailyEvent(sender: AnyObject?) {
     print("Generating daily event")
-    let event: GDTEvent = transport.eventForTransport()
+    let event: GDTCOREvent = transport.eventForTransport()
     event.dataObject = TestDataObject()
-    event.qosTier = GDTEventQoS.qoSDaily
+    event.qosTier = GDTCOREventQoS.qoSDaily
     transport.sendDataEvent(event)
   }
 
