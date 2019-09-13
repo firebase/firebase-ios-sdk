@@ -44,15 +44,15 @@ Shared library for iOS SDK data transport needs.
   # Test app specs
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
-    app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
-    app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
-    app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
-    app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
-    app_spec.info_plist = {
-      'UILaunchStoryboardName' => 'Main',
-      'UIMainStoryboardFile' => 'Main',
-      'NSMainStoryboardFile' => 'Main'
-    }
+      app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+      app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
+      app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
+      app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
+      app_spec.info_plist = {
+        'UILaunchStoryboardName' => 'Main',
+        'UIMainStoryboardFile' => 'Main',
+        'NSMainStoryboardFile' => 'Main'
+      }
     end
   end
 
