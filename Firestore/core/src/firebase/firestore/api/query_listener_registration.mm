@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
-
+#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
-ListenerRegistration::ListenerRegistration(
+QueryListenerRegistration::QueryListenerRegistration(
     std::shared_ptr<core::FirestoreClient> client,
     std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
         async_listener,
@@ -32,7 +31,7 @@ ListenerRegistration::ListenerRegistration(
       query_listener_(std::move(query_listener)) {
 }
 
-void ListenerRegistration::Remove() {
+void QueryListenerRegistration::Remove() {
   auto async_listener = async_listener_.lock();
   if (async_listener) {
     async_listener->Mute();

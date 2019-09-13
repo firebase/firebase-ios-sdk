@@ -26,7 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -34,6 +33,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -64,6 +64,7 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
@@ -146,7 +147,7 @@ ByteString MakeResumeToken(NSString *specString) {
   FSTUserDataConverter *_converter;
 }
 
-- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -171,8 +172,8 @@ ByteString MakeResumeToken(NSString *specString) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence];
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)];
   [self.driver start];
 }
 
@@ -457,8 +458,8 @@ ByteString MakeResumeToken(NSString *specString) {
 
   [self.driver shutdown];
 
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];

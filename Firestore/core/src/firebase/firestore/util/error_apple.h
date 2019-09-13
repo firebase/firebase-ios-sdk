@@ -26,8 +26,7 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,9 +46,7 @@ NSError* MakeNSError(int64_t error_code,
                      const absl::string_view error_msg,
                      NSError* cause = nil);
 
-inline NSError* MakeNSError(const util::Status& status) {
-  return status.ToNSError();
-}
+NSError* MakeNSError(const util::Status& status);
 
 Status MakeStatus(NSError* error);
 

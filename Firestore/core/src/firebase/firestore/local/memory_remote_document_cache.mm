@@ -18,8 +18,8 @@
 
 #include <utility>
 
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
+#include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -38,14 +38,14 @@ using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
-    FSTMemoryPersistence* persistence) {
+    MemoryPersistence* persistence) {
   persistence_ = persistence;
 }
 
 void MemoryRemoteDocumentCache::Add(const MaybeDocument& document) {
   docs_ = docs_.insert(document.key(), document);
 
-  persistence_.indexManager->AddToCollectionParentIndex(
+  persistence_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
 }
 
@@ -99,14 +99,13 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
 }
 
 std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
-    FSTMemoryLRUReferenceDelegate* reference_delegate,
+    MemoryLruReferenceDelegate* reference_delegate,
     ListenSequenceNumber upper_bound) {
   std::vector<DocumentKey> removed;
   MaybeDocumentMap updated_docs = docs_;
   for (const auto& kv : docs_) {
     const DocumentKey& key = kv.first;
-    if (![reference_delegate isPinnedAtSequenceNumber:upper_bound
-                                             document:key]) {
+    if (!reference_delegate->IsPinnedAtSequenceNumber(upper_bound, key)) {
       updated_docs = updated_docs.erase(key);
       removed.push_back(key);
     }
