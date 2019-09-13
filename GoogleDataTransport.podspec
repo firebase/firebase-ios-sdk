@@ -42,17 +42,19 @@ Shared library for iOS SDK data transport needs.
   common_test_sources = ['GoogleDataTransport/GDTCORTests/Common/**/*.{h,m}']
 
   # Test app specs
-  #s.app_spec 'TestApp' do |app_spec|
-  #  app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
-  #  app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
-  #  app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
-  #  app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
-  #  app_spec.info_plist = {
-  #    'UILaunchStoryboardName' => 'Main',
-  #    'UIMainStoryboardFile' => 'Main',
-  #    'NSMainStoryboardFile' => 'Main'
-  #  }
-  #end
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.app_spec 'TestApp' do |app_spec|
+    app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+    app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
+    app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
+    app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
+    app_spec.info_plist = {
+      'UILaunchStoryboardName' => 'Main',
+      'UIMainStoryboardFile' => 'Main',
+      'NSMainStoryboardFile' => 'Main'
+    }
+    end
+  end
 
   # Unit test specs
   s.test_spec 'Tests-Unit' do |test_spec|
@@ -76,14 +78,16 @@ Shared library for iOS SDK data transport needs.
   end
 
   # Monkey test specs TODO(mikehaney24): Uncomment when travis is running >= cocoapods-1.8.0
-  # s.test_spec 'Tests-Monkey' do |test_spec|
-  #   test_spec.requires_app_host = true
-  #   test_spec.app_host_name = 'GoogleDataTransport/TestApp'
-  #   test_spec.dependency 'GoogleDataTransport/TestApp'
-  #   test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
-  #   test_spec.info_plist = {
-  #     'GDT_MONKEYTEST' => '1'
-  #   }
-  # end
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.test_spec 'Tests-Monkey' do |test_spec|
+      test_spec.requires_app_host = true
+      test_spec.app_host_name = 'GoogleDataTransport/TestApp'
+      test_spec.dependency 'GoogleDataTransport/TestApp'
+      test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
+      test_spec.info_plist = {
+        'GDT_MONKEYTEST' => '1'
+      }
+    end
+  end
 
 end

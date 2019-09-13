@@ -30,7 +30,7 @@ import GoogleDataTransport
   }
 
   public class ViewController: UIViewController {
-    let transport: GDTTransport = GDTTransport(mappingID: "1234", transformers: nil, target: GDTTarget.test.rawValue)
+    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)
   }
 
 // macOS specifics.
@@ -44,6 +44,6 @@ import GoogleDataTransport
   }
 
   public class ViewController: NSViewController {
-    let transport: GDTTransport = GDTTransport(mappingID: "1234", transformers: nil, target: GDTTarget.test.rawValue)
+    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)
   }
 #endif
