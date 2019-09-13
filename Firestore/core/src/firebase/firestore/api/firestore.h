@@ -24,13 +24,16 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/nullability.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/any.h"
@@ -94,6 +97,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);
   void WaitForPendingWrites(util::StatusCallback callback);
+  std::unique_ptr<ListenerRegistration> AddSnapshotsInSyncListener(
+      std::unique_ptr<core::EventListener<util::Empty>> listener);
 
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);

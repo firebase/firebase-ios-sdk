@@ -83,9 +83,9 @@ class QueryListener {
     return snapshot_;
   }
 
-  virtual void OnViewSnapshot(ViewSnapshot snapshot);
+  virtual bool OnViewSnapshot(ViewSnapshot snapshot);
   virtual void OnError(util::Status error);
-  virtual void OnOnlineStateChanged(model::OnlineState online_state);
+  virtual bool OnOnlineStateChanged(model::OnlineState online_state);
 
  private:
   bool ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,

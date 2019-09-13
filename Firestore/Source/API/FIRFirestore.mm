@@ -30,6 +30,7 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
@@ -44,24 +45,30 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::ObjcFailureHandler;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::SetFailureHandler;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::Empty;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -326,6 +333,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   _firestore->Terminate(util::MakeCallback(completion));
+}
+
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)())listener {
+  std::unique_ptr<core::EventListener<Empty>> eventListener =
+      core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
+  std::unique_ptr<ListenerRegistration> result =
+      _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
+  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
 @end

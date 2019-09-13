@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
@@ -39,6 +40,7 @@ namespace firestore {
 namespace api {
 
 using auth::CredentialsProvider;
+using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
 using core::Transaction;
@@ -46,6 +48,7 @@ using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
 using util::AsyncQueue;
+using util::Empty;
 using util::Executor;
 using util::ExecutorLibdispatch;
 using util::Status;
@@ -174,6 +177,16 @@ void Firestore::EnableNetwork(util::StatusCallback callback) {
 void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
   client_->DisableNetwork(std::move(callback));
+}
+
+std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(
+    std::unique_ptr<core::EventListener<Empty>> listener) {
+  EnsureClientConfigured();
+  auto async_listener = AsyncEventListener<Empty>::Create(
+      client_->user_executor(), std::move(listener));
+  client_->AddSnapshotsInSyncListener(std::move(async_listener));
+  return absl::make_unique<SnapshotsInSyncListenerRegistration>(
+      std::move(client()), std::move(async_listener));
 }
 
 void Firestore::EnsureClientConfigured() {

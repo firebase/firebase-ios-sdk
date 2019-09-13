@@ -57,6 +57,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
@@ -78,6 +79,7 @@ using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
+using firebase::firestore::util::Empty;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
@@ -170,7 +172,10 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseInfo _databaseInfo;
   User _currentUser;
 
+  std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
+
+  int _snapshotsInSyncEvents;
 }
 
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
@@ -245,6 +250,38 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const User &)currentUser {
   return _currentUser;
+}
+
+//- (const std::vector<std::shared_ptr<EventListener<Empty>>>&)snapshotsInSyncListeners {
+//  return _snapshotsInSyncListeners;
+//}
+
+- (void)incrementSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents += 1;
+}
+
+- (void)resetSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents = 0;
+}
+
+- (void)addSnapshotsInSyncListener {
+  std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
+      [self](const StatusOr<Empty> &v) { [self incrementSnapshotsInSyncEvents]; });
+  _snapshotsInSyncListeners.push_back(eventListener);
+  _eventManager->AddSnapshotsInSyncListener(eventListener);
+}
+
+- (void)removeSnapshotsInSyncListener {
+  _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
+  _snapshotsInSyncListeners.pop_back();
+}
+
+- (int)snapshotsInSyncEvents {
+  return _snapshotsInSyncEvents;
+}
+
+- (const std::vector<std::shared_ptr<EventListener<Empty>>>)snapshotsInSyncListeners {
+  return _snapshotsInSyncListeners;
 }
 
 - (void)start {

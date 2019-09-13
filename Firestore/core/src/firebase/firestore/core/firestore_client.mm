@@ -54,6 +54,7 @@ namespace core {
 using firestore::Error;
 using api::DocumentReference;
 using api::DocumentSnapshot;
+using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::Settings;
 using api::SnapshotMetadata;
@@ -72,11 +73,12 @@ using model::Mutation;
 using model::OnlineState;
 using remote::Datastore;
 using remote::RemoteStore;
-using util::Path;
 using util::AsyncQueue;
 using util::DelayedConstructor;
 using util::DelayedOperation;
+using util::Empty;
 using util::Executor;
+using util::Path;
 using util::Status;
 using util::StatusCallback;
 using util::StatusOr;
@@ -454,6 +456,19 @@ void FirestoreClient::Transaction(int retries,
   });
 }
 
+void FirestoreClient::AddSnapshotsInSyncListener(
+    const std::shared_ptr<EventListener<Empty>>& user_listener) {
+  auto shared_this = shared_from_this();
+  worker_queue()->Enqueue([shared_this, user_listener] {
+    shared_this->event_manager_->AddSnapshotsInSyncListener(
+        std::move(user_listener));
+  });
+}
+
+void FirestoreClient::RemoveSnapshotsInSyncListener(
+    const std::shared_ptr<EventListener<Empty>>& user_listener) {
+  // do stuff
+}
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
