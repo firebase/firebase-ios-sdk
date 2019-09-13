@@ -319,16 +319,21 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         existingDoc = *foundExisting;
       }
 
-      if (!existingDoc || doc.version() > existingDoc->version() ||
-          (doc.version() == existingDoc->version() && existingDoc->has_pending_writes())) {
-        _remoteDocumentCache->Add(doc);
-        changedDocs = changedDocs.insert(key, doc);
-      } else if (doc.type() == MaybeDocument::Type::NoDocument &&
-                 doc.version() == SnapshotVersion::None()) {
-        // NoDocuments with SnapshotVersion.MIN are used in manufactured events (e.g. in the case
-        // of a limbo document resolution failing). We remove these documents from cache since we
-        // lost access.
+      // Note: The order of the steps below is important, since we want to ensure that
+      // rejected limbo resolutions (which fabricate NoDocuments with SnapshotVersion::None)
+      // never add documents to cache.
+      if (doc.type() == MaybeDocument::Type::NoDocument &&
+          doc.version() == SnapshotVersion::None()) {
+        // NoDocuments with SnapshotVersion::None are used in manufactured events. We remove
+        // these documents from cache since we lost access.
         _remoteDocumentCache->Remove(key);
+        changedDocs = changedDocs.insert(key, doc);
+      } else if (!existingDoc || doc.version() > existingDoc->version() ||
+                 (doc.version() == existingDoc->version() && existingDoc->has_pending_writes())) {
+        // TODO(index-free): Comment in this assert when we enable Index-Free queries
+        // HARD_ASSERT(remoteEvent.snapshot_version() != SnapshotVersion::None(),
+        //            "Cannot add a document when the remote version is zero");
+        _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
