@@ -159,7 +159,7 @@ class RemoteStore : public TargetMetadataProvider,
    * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
    *
    * Called internally to bootstrap or refill the write pipeline and by
-   * `FSTSyncEngine` whenever there are new mutations to process.
+   * `SyncEngine` whenever there are new mutations to process.
    *
    * Starts the write stream if necessary.
    */
