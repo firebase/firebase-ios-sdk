@@ -39,7 +39,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 @class FSTLocalStore;
-@class FSTTransaction;
 
 namespace firebase {
 namespace firestore {
