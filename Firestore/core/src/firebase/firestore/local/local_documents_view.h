@@ -39,7 +39,7 @@ namespace local {
  * A readonly view of the local state of all documents we're tracking (i.e. we
  * have a cached version in remoteDocumentCache or local mutations for the
  * document). The view is computed by applying the mutations in the
- * FSTMutationQueue to the FSTRemoteDocumentCache.
+ * MutationQueue to the RemoteDocumentCache.
  */
 class LocalDocumentsView {
  public:

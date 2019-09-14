@@ -99,7 +99,7 @@ class MemoryPersistence : public Persistence {
    *
    * Note that this is retained here to make it easier to write tests affecting
    * both the in-memory and LevelDB-backed persistence layers. Tests can create
-   * a new FSTLocalStore wrapping this Persistence instance and this will make
+   * a new LocalStore wrapping this Persistence instance and this will make
    * the in-memory persistence layer behave as if it were actually persisting
    * values.
    */
