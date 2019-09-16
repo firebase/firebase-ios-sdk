@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import <GoogleDataTransport/GDTCORTransport.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTListenerRegistration {
-  std::unique_ptr<api::ListenerRegistration> _registration;
-}
+/** A fake for GDTCORTransport that can be used in tests. */
+@interface GDTCORTransportFake : GDTCORTransport
 
-- (instancetype)initWithRegistration:(std::unique_ptr<api::ListenerRegistration>)registration {
-  if (self = [super init]) {
-    _registration = std::move(registration);
-  }
-  return self;
-}
+/** All log events that have been logged. */
+@property(nonatomic, readonly) NSArray<GDTCOREvent *> *logEvents;
 
-- (void)remove {
-  _registration->Remove();
-}
+/** All logged events are cleared from memory, resetting the fake. */
+- (void)reset;
 
 @end
 
