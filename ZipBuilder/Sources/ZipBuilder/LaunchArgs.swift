@@ -39,6 +39,7 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
+    case buildRoot
     case carthageDir
     case customSpecRepos
     case existingVersions
@@ -51,6 +52,9 @@ struct LaunchArgs {
     /// Usage description for the key.
     var usage: String {
       switch self {
+      case .buildRoot:
+        return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
+          "used."
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
@@ -79,6 +83,9 @@ struct LaunchArgs {
   /// verify expected version numbers.
   let allSDKsPath: URL?
 
+  /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
+  let buildRoot: URL?
+
   /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
   /// build.
   let carthageDir: URL?
@@ -104,6 +111,9 @@ struct LaunchArgs {
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The shared instance for processing launch args using default arguments.
+  static let shared: LaunchArgs = LaunchArgs()
 
   /// Initializes with values pulled from the instance of UserDefaults passed in.
   ///
@@ -217,6 +227,20 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       carthageDir = nil
+    }
+
+    // Parse the Carthage directory key.
+    if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
+      let url = URL(fileURLWithPath: buildRoot)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.buildRoot) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(buildRoot)")
+      }
+
+      self.buildRoot = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      buildRoot = nil
     }
 
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)

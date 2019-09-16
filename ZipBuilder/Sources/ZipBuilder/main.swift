@@ -25,7 +25,7 @@ do {
 }
 
 // Get the launch arguments, parsed by user defaults.
-let args = LaunchArgs()
+let args = LaunchArgs.shared
 
 // Keep timing for how long it takes to build the zip file for information purposes.
 let buildStart = Date()
