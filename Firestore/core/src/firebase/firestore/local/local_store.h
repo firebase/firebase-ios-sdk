@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_STORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_STORE_H_
 
+#include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"

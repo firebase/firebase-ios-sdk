@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
