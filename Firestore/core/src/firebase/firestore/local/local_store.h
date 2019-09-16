@@ -43,7 +43,7 @@ namespace local {
  * like the mutation queue and remote document cache to present a latency
  * compensated view of stored data.
  *
- * The LocalStore is responsible for accepting mutations from the Sync Engine.
+ * The LocalStore is responsible for accepting mutations from the SyncEngine.
  * Writes from the client are put into a queue as provisional Mutations until
  * they are processed by the RemoteStore and confirmed as having been written to
  * the server.
@@ -57,7 +57,7 @@ namespace local {
  * acknowledged or rejected).
  *
  * The RemoteDocument ("ground truth") state is provided via the
- * applyChangeBatch method. It will be some version of a server-provided
+ * ApplyChangeBatch method. It will be some version of a server-provided
  * document OR will be a server-provided document PLUS acknowledged mutations:
  *
  *  RemoteDocument' = RemoteDocument + Acknowledged(LocalMutations)
@@ -98,8 +98,8 @@ class LocalStore {
       std::vector<model::Mutation>&& mutations);
 
   /**
-   * Returns the current value of a document with a given key, or nil if not
-   * found.
+   * Returns the current value of a document with a given key, or `nullopt` if
+   * not found.
    */
   absl::optional<model::MaybeDocument> ReadDocument(
       const model::DocumentKey& key);
@@ -107,7 +107,7 @@ class LocalStore {
   /**
    * Acknowledges the given batch.
    *
-   * On the happy path when a batch is acknowledged, the local store will
+   * On the happy path when a batch is acknowledged, the local store will:
    *
    * + remove the batch from the mutation queue;
    * + apply the changes to the remote document cache;
@@ -143,7 +143,7 @@ class LocalStore {
    * Returns the last consistent snapshot processed (used by the RemoteStore to
    * determine whether to buffer incoming snapshots from the backend).
    */
-  const model::SnapshotVersion& GetLastRemoteSnapshotVersion();
+  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const;
 
   /**
    * Updates the "ground-state" (remote) documents. We assume that the remote
@@ -187,11 +187,11 @@ class LocalStore {
 
   /**
    * Gets the mutation batch after the passed in batchId in the mutation queue
-   * or nil if empty.
+   * or `nullopt` if empty.
    *
    * @param batch_id The batch to search after, or `kBatchIdUnknown` for the
    * first mutation in the queue.
-   * @return the next mutation or nil if there wasn't one.
+   * @return the next mutation or `nullopt` if there wasn't one.
    */
   absl::optional<model::MutationBatch> GetNextMutationBatch(
       model::BatchId batch_id);
@@ -222,20 +222,23 @@ class LocalStore {
    */
   bool ShouldPersistQueryData(const QueryData& new_query_data,
                               const local::QueryData& old_query_data,
-                              const remote::TargetChange& change);
+                              const remote::TargetChange& change) const;
 
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
 
   /** Used to generate targetIDs for queries tracked locally. */
   core::TargetIdGenerator target_id_generator_;
+
   /**
    * The set of all mutations that have been sent but not yet been applied to
    * the backend.
    */
-  MutationQueue* mutation_queue_;
+  MutationQueue* mutation_queue_ = nullptr;
+
   /** The set of all cached remote documents. */
   RemoteDocumentCache* remote_document_cache_ = nullptr;
+
   /** Maps a query to the data about that query. */
   QueryCache* query_cache_ = nullptr;
 

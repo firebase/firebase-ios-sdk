@@ -89,7 +89,7 @@ MaybeDocumentMap LocalStore::HandleUserChange(const User& user) {
   std::vector<MutationBatch> old_batches = persistence_->Run(
       "OldBatches", [&] { return mutation_queue_->AllMutationBatches(); });
 
-  // The old one has a reference to the mutation queue, so nil it out first.
+  // The old one has a reference to the mutation queue, so null it out first.
   local_documents_.reset();
   mutation_queue_ = persistence_->GetMutationQueueForUser(user);
 
@@ -155,9 +155,9 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
 
     MutationBatch batch = mutation_queue_->AddMutationBatch(
         local_write_time, std::move(base_mutations), std::move(mutations));
-    MaybeDocumentMap changedDocuments =
+    MaybeDocumentMap changed_documents =
         batch.ApplyToLocalDocumentSet(existing_documents);
-    return LocalWriteResult{batch.batch_id(), std::move(changedDocuments)};
+    return LocalWriteResult{batch.batch_id(), std::move(changed_documents)};
   });
 }
 
@@ -175,24 +175,26 @@ MaybeDocumentMap LocalStore::AcknowledgeBatch(
 
 void LocalStore::ApplyBatchResult(const MutationBatchResult& batch_result) {
   const MutationBatch& batch = batch_result.batch();
-  DocumentKeySet docKeys = batch.keys();
+  DocumentKeySet doc_keys = batch.keys();
   const DocumentVersionMap& versions = batch_result.doc_versions();
-  for (const DocumentKey& docKey : docKeys) {
-    absl::optional<MaybeDocument> remoteDoc =
-        remote_document_cache_->Get(docKey);
-    absl::optional<MaybeDocument> doc = remoteDoc;
 
-    auto ackVersionIter = versions.find(docKey);
-    HARD_ASSERT(ackVersionIter != versions.end(),
-                "docVersions should contain every doc in the write.");
-    const SnapshotVersion& ackVersion = ackVersionIter->second;
-    if (!doc || doc->version() < ackVersion) {
-      doc = batch.ApplyToRemoteDocument(doc, docKey, batch_result);
+  for (const DocumentKey& doc_key : doc_keys) {
+    absl::optional<MaybeDocument> remote_doc =
+        remote_document_cache_->Get(doc_key);
+    absl::optional<MaybeDocument> doc = remote_doc;
+
+    auto ack_version_iter = versions.find(doc_key);
+    HARD_ASSERT(ack_version_iter != versions.end(),
+                "doc_versions should contain every doc in the write.");
+    const SnapshotVersion& ack_version = ack_version_iter->second;
+
+    if (!doc || doc->version() < ack_version) {
+      doc = batch.ApplyToRemoteDocument(doc, doc_key, batch_result);
       if (!doc) {
         HARD_ASSERT(
-            !remoteDoc,
+            !remote_doc,
             "Mutation batch %s applied to document %s resulted in nullopt.",
-            batch.ToString(), util::ToString(remoteDoc));
+            batch.ToString(), util::ToString(remote_doc));
       } else {
         remote_document_cache_->Add(*doc);
       }
@@ -224,7 +226,7 @@ void LocalStore::SetLastStreamToken(const ByteString& stream_token) {
                     [&] { mutation_queue_->SetLastStreamToken(stream_token); });
 }
 
-const SnapshotVersion& LocalStore::GetLastRemoteSnapshotVersion() {
+const SnapshotVersion& LocalStore::GetLastRemoteSnapshotVersion() const {
   return query_cache_->GetLastRemoteSnapshotVersion();
 }
 
@@ -235,7 +237,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
 
   return persistence_->Run("Apply remote event", [&] {
     // TODO(gsoltis): move the sequence number into the reference delegate.
-    ListenSequenceNumber sequenceNumber =
+    ListenSequenceNumber sequence_number =
         persistence_->current_sequence_number();
 
     for (const auto& entry : remote_event.target_changes()) {
@@ -263,7 +265,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       // Update the resume token if the change includes one.
       if (!resume_token.empty()) {
         QueryData new_query_data = old_query_data.Copy(
-            remote_event.snapshot_version(), resume_token, sequenceNumber);
+            remote_event.snapshot_version(), resume_token, sequence_number);
         target_ids[target_id] = new_query_data;
 
         // Update the query data if there are target changes (or if sufficient
@@ -314,7 +316,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
         remote_document_cache_->Add(doc);
         changed_docs = changed_docs.insert(key, doc);
       } else {
-        LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
+        LOG_DEBUG("LocalStore Ignoring outdated watch update for %s. "
                   "Current version: %s  Watch version: %s",
                   key.ToString(), existing_doc->version().ToString(),
                   doc.version().ToString());
@@ -344,22 +346,22 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
 
 bool LocalStore::ShouldPersistQueryData(const QueryData& new_query_data,
                                         const QueryData& old_query_data,
-                                        const TargetChange& change) {
+                                        const TargetChange& change) const {
   // Avoid clearing any existing value
   HARD_ASSERT(!new_query_data.resume_token().empty(),
               "Attempted to persist query data with empty resume token");
 
   // Always persist query data if we don't already have a resume token.
-  if (old_query_data.resume_token().empty()) return YES;
+  if (old_query_data.resume_token().empty()) return true;
 
   // Don't allow resume token changes to be buffered indefinitely. This allows
   // us to be reasonably up-to-date after a crash and avoids needing to loop
   // over all active queries on shutdown. Especially in the browser we may not
   // get time to do anything interesting while the current tab is closing.
-  int64_t newSeconds = new_query_data.snapshot_version().timestamp().seconds();
-  int64_t oldSeconds = old_query_data.snapshot_version().timestamp().seconds();
-  int64_t timeDelta = newSeconds - oldSeconds;
-  if (timeDelta >= kResumeTokenMaxAgeSeconds) return YES;
+  int64_t new_seconds = new_query_data.snapshot_version().timestamp().seconds();
+  int64_t old_seconds = old_query_data.snapshot_version().timestamp().seconds();
+  int64_t time_delta = new_seconds - old_seconds;
+  if (time_delta >= kResumeTokenMaxAgeSeconds) return true;
 
   // Otherwise if the only thing that has changed about a target is its resume
   // token then it's not worth persisting. Note that the RemoteStore keeps an
@@ -417,6 +419,7 @@ QueryData LocalStore::AllocateQuery(Query query) {
     }
     return *cached;
   });
+
   // Sanity check to ensure that even when resuming a query it's not currently
   // active.
   TargetId target_id = query_data.target_id();
@@ -433,9 +436,9 @@ void LocalStore::ReleaseQuery(const Query& query) {
     HARD_ASSERT(query_data, "Tried to release nonexistent query: %s",
                 query.ToString());
 
-    TargetId targetID = query_data->target_id();
+    TargetId target_id = query_data->target_id();
 
-    auto found = target_ids.find(targetID);
+    auto found = target_ids.find(target_id);
     if (found != target_ids.end()) {
       const QueryData& cached_query_data = found->second;
 
@@ -454,11 +457,11 @@ void LocalStore::ReleaseQuery(const Query& query) {
     // delete a query's target data from the reference delegate. Since this does
     // not remove references for locally mutated documents, we have to remove
     // the target associations for these documents manually.
-    DocumentKeySet removed = local_view_references_.RemoveReferences(targetID);
+    DocumentKeySet removed = local_view_references_.RemoveReferences(target_id);
     for (const DocumentKey& key : removed) {
       persistence_->reference_delegate()->RemoveReference(key);
     }
-    target_ids.erase(targetID);
+    target_ids.erase(target_id);
     persistence_->reference_delegate()->RemoveTarget(*query_data);
   });
 }
