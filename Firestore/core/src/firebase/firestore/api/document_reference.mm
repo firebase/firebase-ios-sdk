@@ -19,11 +19,8 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
