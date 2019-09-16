@@ -76,7 +76,8 @@
 @end
 
 @interface RCNUserDefaultsManager (Test)
-+ (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
++ (NSUserDefaults *)userDefaultsForBundleIdentifier:(NSString *)
+                                   bundleIdentifier:(NSString *)suiteName;
 @end
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
@@ -119,8 +120,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
   id userDefaultsClassMock = OCMClassMock([RCNUserDefaultsManager class]);
-  OCMStub([userDefaultsClassMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]
-                                                             suiteName:[OCMArg any]])
+  OCMStub([userDefaultsClassMock userDefaultsForBundleIdentifier:[OCMArg any]
+                                                       suiteName:[OCMArg any]])
       .andReturn(_userDefaults);
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];

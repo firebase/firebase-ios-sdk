@@ -70,8 +70,8 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 
     // Initialize the user defaults with a prefix and the bundleID. For app extensions, this will be
     // the bundleID of the app extension.
-    _userDefaults = [RCNUserDefaultsManager sharedUserDefaultsForBundleIdentifier:_bundleIdentifier
-                                                                        suiteName:suiteName];
+    _userDefaults = [RCNUserDefaultsManager userDefaultsForBundleIdentifier:_bundleIdentifier
+                                                                  suiteName:suiteName];
   }
 
   return self;
@@ -87,19 +87,15 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
                      namespace:firebaseNamespace];
 }
 
-+ (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier
-                                                suiteName:(NSString *)suiteName {
-  static dispatch_once_t onceToken;
-  static NSUserDefaults *sharedInstance;
-  dispatch_once(&onceToken, ^{
-    NSString *userDefaultsSuiteName = suiteName;
-    if (!userDefaultsSuiteName) {
-      userDefaultsSuiteName =
-          [RCNUserDefaultsManager userDefaultsSuiteNameForBundleIdentifier:bundleIdentifier];
-    }
-    sharedInstance = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
-  });
-  return sharedInstance;
++ (NSUserDefaults *)userDefaultsForBundleIdentifier:(NSString *)bundleIdentifier
+                                          suiteName:(NSString *)suiteName {
+  NSString *userDefaultsSuiteName = suiteName;
+  if (!userDefaultsSuiteName) {
+    userDefaultsSuiteName =
+        [RCNUserDefaultsManager userDefaultsSuiteNameForBundleIdentifier:bundleIdentifier];
+  }
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+  return userDefaults;
 }
 
 + (NSString *)userDefaultsSuiteNameForBundleIdentifier:(NSString *)bundleIdentifier {
