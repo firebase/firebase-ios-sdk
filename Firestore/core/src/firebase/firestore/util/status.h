@@ -156,8 +156,9 @@ class ABSL_MUST_USE_RESULT Status {
   // Asserts if `state_` is a valid pointer, should be used at all places where
   // it is used as a pointer, instead of using `state_`.
   const State::StatePtr& AssertStatePtr() const {
-    HARD_ASSERT(state_.get() != State::MovedFromIndicator(),
-    "Internal State is accessed after Status instance is moved from.");
+    HARD_ASSERT(
+        state_.get() != State::MovedFromIndicator(),
+        "Internal State is accessed after Status instance is moved from.");
     return state_;
   }
 

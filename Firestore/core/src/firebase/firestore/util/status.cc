@@ -55,7 +55,8 @@ Status& Status::CausedBy(const Status& cause) {
   if (AssertStatePtr()->platform_error == nullptr &&
       cause.AssertStatePtr()->platform_error != nullptr) {
     AssertStatePtr()->platform_error =
-        cause.AssertStatePtr()->platform_error->WrapWith(code(), error_message());
+        cause.AssertStatePtr()->platform_error->WrapWith(code(),
+                                                         error_message());
   }
 
   return *this;
