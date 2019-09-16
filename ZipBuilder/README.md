@@ -41,7 +41,7 @@ These arguments assume you're running the command from the `ZipBuilder` director
 - `-templateDir $(pwd)/Template`
   - This should always be the same.
 
-Optional comon arguments:
+Optional common arguments:
 - `-updatePodRepo false`
   - This is for speedups when `pod repo update` has already been run recently.
 
