@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #import <Foundation/Foundation.h>
 
 #include <memory>
@@ -40,7 +36,6 @@
 #include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"

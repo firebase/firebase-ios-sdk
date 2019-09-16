@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -38,8 +36,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-
-@class FSTTransaction;
 
 namespace firebase {
 namespace firestore {
