@@ -217,10 +217,9 @@ inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
 }
 
 inline void Status::operator=(Status&& s) noexcept {
-  state_ = std::move(s.state_);
-
-  // Mark `s` as `MovedFrom` unless it is moving to itself.
+  // Moving into self is a no-op.
   if (this != &s) {
+    state_ = std::move(s.state_);
     s.SetMovedFrom();
   }
 }
