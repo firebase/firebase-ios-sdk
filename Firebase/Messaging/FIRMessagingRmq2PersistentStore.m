@@ -106,7 +106,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   const char *errorStr = sqlite3_errstr(result);
-#pragma pop
+#pragma clang diagnostic pop
   NSString *errorString = [NSString stringWithFormat:@"%d - %s", result, errorStr];
   return errorString;
 }
