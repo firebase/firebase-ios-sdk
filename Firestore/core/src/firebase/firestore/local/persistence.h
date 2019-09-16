@@ -17,9 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 
+#include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,7 +37,6 @@ namespace local {
 class IndexManager;
 class MutationQueue;
 class QueryCache;
-class ReferenceDelegate;
 class RemoteDocumentCache;
 
 /**

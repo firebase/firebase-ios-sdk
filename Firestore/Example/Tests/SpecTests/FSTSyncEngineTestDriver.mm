@@ -25,8 +25,6 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
-
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -35,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/event_manager.h"
 #include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -63,6 +62,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
@@ -129,8 +129,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
-@property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-
 #pragma mark - Data structures for holding events sent by the watch stream.
 
 /** A block for the FSTEventAggregator to use to report events to the test. */
@@ -149,6 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<Persistence> _persistence;
+
+  std::unique_ptr<LocalStore> _localStore;
 
   std::unique_ptr<SyncEngine> _syncEngine;
 
@@ -197,17 +197,16 @@ NS_ASSUME_NONNULL_BEGIN
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
     _persistence = std::move(persistence);
-    _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence.get()
-                                                 initialUser:initialUser];
+    _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>());
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore, _datastore, _workerQueue,
+        _localStore.get(), _datastore, _workerQueue,
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
-    _syncEngine = absl::make_unique<SyncEngine>(_localStore, _remoteStore.get(), initialUser);
+    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser);
     _remoteStore->set_sync_engine(_syncEngine.get());
     _eventManager.Init(_syncEngine.get());
 
@@ -249,7 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start {
   _workerQueue->EnqueueBlocking([&] {
-    [self.localStore start];
+    _localStore->Start();
     _remoteStore->Start();
   });
 }

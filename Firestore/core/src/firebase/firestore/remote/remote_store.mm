@@ -19,8 +19,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
-
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
@@ -36,6 +34,7 @@ namespace firestore {
 namespace remote {
 
 using core::Transaction;
+using local::LocalStore;
 using local::QueryData;
 using local::QueryPurpose;
 using model::BatchId;
@@ -58,7 +57,7 @@ using util::Status;
 constexpr int kMaxPendingWrites = 10;
 
 RemoteStore::RemoteStore(
-    FSTLocalStore* local_store,
+    LocalStore* local_store,
     std::shared_ptr<Datastore> datastore,
     const std::shared_ptr<AsyncQueue>& worker_queue,
     std::function<void(model::OnlineState)> online_state_handler)
@@ -83,7 +82,7 @@ void RemoteStore::EnableNetwork() {
 
   if (CanUseNetwork()) {
     // Load any saved stream token from persistent storage
-    write_stream_->SetLastStreamToken([local_store_ lastStreamToken]);
+    write_stream_->SetLastStreamToken(local_store_->GetLastStreamToken());
 
     if (ShouldStartWatchStream()) {
       StartWatchStream();
@@ -259,7 +258,7 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   }
 
   if (snapshot_version != SnapshotVersion::None() &&
-      snapshot_version >= [local_store_ lastRemoteSnapshotVersion]) {
+      snapshot_version >= local_store_->GetLastRemoteSnapshotVersion()) {
     // We have received a target change with a global snapshot if the snapshot
     // version is not equal to `SnapshotVersion::None()`.
     RaiseWatchSnapshot(snapshot_version);
@@ -273,7 +272,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   RemoteEvent remote_event =
       watch_change_aggregator_->CreateRemoteEvent(snapshot_version);
 
-  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent
+  // Update in-memory resume tokens. `LocalStore` will update the persistent
   // view of these when applying the completed `RemoteEvent`.
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
@@ -351,7 +350,7 @@ void RemoteStore::FillWritePipeline() {
                                         : write_pipeline_.back().batch_id();
   while (CanAddToWritePipeline()) {
     absl::optional<MutationBatch> batch =
-        [local_store_ nextMutationBatchAfterBatchID:last_batch_id_retrieved];
+        local_store_->GetNextMutationBatch(last_batch_id_retrieved);
     if (!batch) {
       if (write_pipeline_.empty()) {
         write_stream_->MarkIdle();
@@ -399,7 +398,7 @@ void RemoteStore::OnWriteStreamOpen() {
 
 void RemoteStore::OnWriteStreamHandshakeComplete() {
   // Record the stream token.
-  [local_store_ setLastStreamToken:write_stream_->GetLastStreamToken()];
+  local_store_->SetLastStreamToken(write_stream_->GetLastStreamToken());
 
   // Send the write pipeline now that the stream is established.
   for (const MutationBatch& write : write_pipeline_) {
@@ -471,7 +470,7 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
               "error code: '%s', details: '%s'",
               this, token, status.code(), status.error_message());
     write_stream_->SetLastStreamToken({});
-    [local_store_ setLastStreamToken:{}];
+    local_store_->SetLastStreamToken({});
   } else {
     // Some other error, don't reset stream token. Our stream logic will just
     // retry with exponential backoff.
@@ -528,7 +527,7 @@ void RemoteStore::HandleCredentialChange() {
   if (CanUseNetwork()) {
     // Tear down and re-create our network streams. This will ensure we get a
     // fresh auth token for the new user and re-fill the write pipeline with new
-    // mutations from the `FSTLocalStore` (since mutations are per-user).
+    // mutations from the `LocalStore` (since mutations are per-user).
     LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
     is_network_enabled_ = false;
     DisableNetworkInternal();

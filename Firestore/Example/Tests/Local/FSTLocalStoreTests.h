@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalStoreTests : XCTestCase
 
 /** Creates and returns an appropriate Persistence implementation. */
-- (std::unique_ptr<local::Persistence>)persistence;
+- (std::unique_ptr<firebase::firestore::local::Persistence>)persistence;
 
 @end
 
