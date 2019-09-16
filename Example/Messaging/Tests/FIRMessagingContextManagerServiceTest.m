@@ -86,7 +86,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
-#pragma pop
+#pragma clang diagnostic pop
   NSDate *date = [self.dateFormatter dateFromString:startTimeString];
   XCTAssertEqual([notification.fireDate compare:date], NSOrderedSame);
 #endif
@@ -139,7 +139,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
-#pragma pop
+#pragma clang diagnostic pop
   // schedule notification after start date
   XCTAssertEqual([notification.fireDate compare:startDate], NSOrderedDescending);
   // schedule notification after end date
@@ -171,7 +171,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
-#pragma pop
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(notification.userInfo[messageIdentifierKey], messageIdentifier);
   XCTAssertEqualObjects(notification.userInfo[customDataKey], customData);
 #endif
@@ -199,7 +199,7 @@
         }
         return NO;
       }]];
-#pragma pop
+#pragma clang diagnostic pop
 #endif
 }
 
