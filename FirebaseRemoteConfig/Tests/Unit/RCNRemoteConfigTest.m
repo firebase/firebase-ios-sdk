@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfig_Internal.h"
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
@@ -224,8 +224,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  // Causes crash if main thread exits before the RCNConfigDB queue cleans up
-  //  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [super tearDown];
 }

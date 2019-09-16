@@ -105,15 +105,7 @@ do {
       // Move all the bundles in the frameworks out to a common "Resources" directory to match the
       // existing Zip structure.
       let resourcesDir = fullPath.appendingPathComponent("Resources")
-      let bundles = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
-
-      // Remove any extra bundles that were packaged, if possible, by using the folder name and
-      // getting the CocoaPod selected.
-      if let pod = CocoaPod(rawValue: fileOrFolder) {
-        let duplicateResources = pod.duplicateResourcesToRemove()
-        let toRemove = bundles.filter { duplicateResources.contains($0.lastPathComponent) }
-        try toRemove.forEach(fileManager.removeItem(at:))
-      }
+      _ = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
     }
   }
 

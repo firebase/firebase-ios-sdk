@@ -1284,18 +1284,16 @@
       },
       {
         "drainQueue": true,
-        "clientIndex": 1
-      },
-      {
-        "expectIsShutdown": true,
+        "stateExpect": {
+          "isShutdown": true
+        },
         "clientIndex": 1
       },
       {
         "drainQueue": true,
-        "clientIndex": 2
-      },
-      {
-        "expectIsShutdown": true,
+        "stateExpect": {
+          "isShutdown": true
+        },
         "clientIndex": 2
       }
     ]

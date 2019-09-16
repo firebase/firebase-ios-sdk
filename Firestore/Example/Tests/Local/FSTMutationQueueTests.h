@@ -18,7 +18,18 @@
 
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 
-@protocol FSTPersistence;
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class MutationQueue;
+class Persistence;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
+
+namespace local = firebase::firestore::local;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,8 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
  * + override -tearDown, cleaning up mutationQueue and persistence
  */
 @interface FSTMutationQueueTests : XCTestCase
-@property(nonatomic, nullable) firebase::firestore::local::MutationQueue *mutationQueue;
-@property(nonatomic, strong, nullable) id<FSTPersistence> persistence;
+
+@property(nonatomic, nullable) local::MutationQueue *mutationQueue;
+
+@property(nonatomic, nullable) local::Persistence *persistence;
+
 @end
 
 NS_ASSUME_NONNULL_END

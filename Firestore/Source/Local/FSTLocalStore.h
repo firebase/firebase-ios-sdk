@@ -34,6 +34,12 @@
 
 namespace firebase {
 namespace firestore {
+namespace local {
+
+class Persistence;
+
+}  // namespace local
+
 namespace remote {
 
 class RemoteEvent;
@@ -41,10 +47,6 @@ class RemoteEvent;
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-@class FSTLocalViewChanges;
-@class FSTLocalWriteResult;
-@protocol FSTPersistence;
 
 namespace auth = firebase::firestore::auth;
 namespace core = firebase::firestore::core;
@@ -93,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalStore : NSObject
 
 /** Creates a new instance of the FSTLocalStore with its required dependencies as parameters. */
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
+- (instancetype)initWithPersistence:(local::Persistence *)persistence
                         initialUser:(const auth::User &)initialUser NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;

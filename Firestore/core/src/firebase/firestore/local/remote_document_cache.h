@@ -17,19 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -98,7 +90,5 @@ class RemoteDocumentCache {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REMOTE_DOCUMENT_CACHE_H_

@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/create_channel.h"

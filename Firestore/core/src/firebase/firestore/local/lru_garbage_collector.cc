@@ -63,8 +63,8 @@ class RollingSequenceNumberBuffer {
     if (queue_.size() < max_elements_) {
       queue_.push(sequence_number);
     } else {
-      ListenSequenceNumber highestValue = queue_.top();
-      if (sequence_number < highestValue) {
+      ListenSequenceNumber highest_value = queue_.top();
+      if (sequence_number < highest_value) {
         queue_.pop();
         queue_.push(sequence_number);
       }
@@ -96,9 +96,9 @@ LruParams LruParams::Disabled() {
   return LruParams{api::Settings::CacheSizeUnlimited, 0, 0};
 }
 
-LruParams LruParams::WithCacheSize(int64_t cacheSize) {
+LruParams LruParams::WithCacheSize(int64_t cache_size) {
   LruParams params = Default();
-  params.min_bytes_threshold = cacheSize;
+  params.min_bytes_threshold = cache_size;
   return params;
 }
 
@@ -113,8 +113,8 @@ LruResults LruGarbageCollector::Collect(const LiveQueryMap& live_targets) {
     return LruResults::DidNotRun();
   }
 
-  size_t current_size = CalculateByteSize();
-  if (current_size < static_cast<size_t>(params_.min_bytes_threshold)) {
+  int64_t current_size = CalculateByteSize();
+  if (current_size < params_.min_bytes_threshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
     LOG_DEBUG(
         "Garbage collection skipped; Cache size %s is lower than threshold %s",
@@ -181,12 +181,12 @@ ListenSequenceNumber LruGarbageCollector::SequenceNumberForQueryCount(
 
   RollingSequenceNumberBuffer buffer(query_count);
 
-  delegate_->EnumerateTargets([&buffer](const QueryData& queryData) {
-    buffer.AddElement(queryData.sequence_number());
+  delegate_->EnumerateTargets([&buffer](const QueryData& query_data) {
+    buffer.AddElement(query_data.sequence_number());
   });
 
   delegate_->EnumerateOrphanedDocuments(
-      [&buffer](const DocumentKey& docKey,
+      [&buffer](const DocumentKey& doc_key,
                 ListenSequenceNumber sequence_number) {
         buffer.AddElement(sequence_number);
       });

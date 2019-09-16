@@ -267,9 +267,9 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvide
 }
 
 TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(
-    const DocumentKey &document_key, const std::vector<TargetId> &targets) {
+    const ResourcePath &path, const std::vector<TargetId> &targets) {
   TestTargetMetadataProvider metadata_provider;
-  core::Query query(document_key.path());
+  core::Query query(path);
 
   for (TargetId target_id : targets) {
     QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
@@ -305,14 +305,25 @@ using firebase::firestore::remote::TestTargetMetadataProvider;
 
 RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
                                     const std::vector<TargetId> &addedToTargets) {
-  HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
-              "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{addedToTargets, {}, doc.key(), doc};
+  std::vector<MaybeDocument> docs{doc};
+  return FSTTestAddedRemoteEvent(docs, addedToTargets);
+}
+
+RemoteEvent FSTTestAddedRemoteEvent(const std::vector<MaybeDocument> &docs,
+                                    const std::vector<TargetId> &addedToTargets) {
+  HARD_ASSERT(!docs.empty(), "Cannot pass empty docs array");
+
+  const ResourcePath &collectionPath = docs[0].key().path().PopLast();
   auto metadataProvider =
-      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key(), addedToTargets);
+      TestTargetMetadataProvider::CreateEmptyResultProvider(collectionPath, addedToTargets);
   WatchChangeAggregator aggregator{&metadataProvider};
-  aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version());
+  for (const MaybeDocument &doc : docs) {
+    HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
+                "Docs from remote updates shouldn't have local changes.");
+    DocumentWatchChange change{addedToTargets, {}, doc.key(), doc};
+    aggregator.HandleDocumentChange(change);
+  }
+  return aggregator.CreateRemoteEvent(docs[0].version());
 }
 
 TargetChange FSTTestTargetChangeMarkCurrent() {

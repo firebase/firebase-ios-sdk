@@ -326,7 +326,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   }
 
   // Finally handle remote event
-  [sync_engine_ applyRemoteEvent:remote_event];
+  sync_engine_->ApplyRemoteEvent(remote_event);
 }
 
 void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
@@ -338,8 +338,7 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
     if (found != listen_targets_.end()) {
       listen_targets_.erase(found);
       watch_change_aggregator_->RemoveTarget(target_id);
-      [sync_engine_ rejectListenWithTargetID:target_id
-                                       error:util::MakeNSError(change.cause())];
+      sync_engine_->HandleRejectedListen(target_id, change.cause());
     }
   }
 }
@@ -418,10 +417,10 @@ void RemoteStore::OnWriteStreamMutationResult(
   MutationBatch batch = write_pipeline_.front();
   write_pipeline_.erase(write_pipeline_.begin());
 
-  MutationBatchResult batchResult(std::move(batch), commit_version,
-                                  std::move(mutation_results),
-                                  write_stream_->GetLastStreamToken());
-  [sync_engine_ applySuccessfulWriteWithResult:batchResult];
+  MutationBatchResult batch_result(std::move(batch), commit_version,
+                                   std::move(mutation_results),
+                                   write_stream_->GetLastStreamToken());
+  sync_engine_->HandleSuccessfulWrite(batch_result);
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.
@@ -497,8 +496,7 @@ void RemoteStore::HandleWriteError(const Status& status) {
   // down--this was just a bad request so inhibit backoff on the next restart.
   write_stream_->InhibitBackoff();
 
-  [sync_engine_ rejectFailedWriteWithBatchID:batch.batch_id()
-                                       error:util::MakeNSError(status)];
+  sync_engine_->HandleRejectedWrite(batch.batch_id(), status);
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.
@@ -516,7 +514,7 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
 }
 
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
-  return [sync_engine_ remoteKeysForTarget:target_id];
+  return sync_engine_->GetRemoteKeys(target_id);
 }
 
 absl::optional<QueryData> RemoteStore::GetQueryDataForTarget(

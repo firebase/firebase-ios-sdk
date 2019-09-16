@@ -21,10 +21,10 @@
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 #ifdef RCN_STAGING_SERVER

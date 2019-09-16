@@ -29,6 +29,7 @@ extension Transaction {
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
+  @discardableResult
   public func setData<T: Encodable>(from value: T,
                                     forDocument doc: DocumentReference,
                                     encoder: Firestore.Encoder = Firestore.Encoder()) throws -> Transaction {
@@ -50,6 +51,7 @@ extension Transaction {
   ///            document.
   ///   - encoder: The encoder instance to use to run the encoding.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
+  @discardableResult
   public func setData<T: Encodable>(from value: T,
                                     forDocument doc: DocumentReference,
                                     merge: Bool,
@@ -76,6 +78,7 @@ extension Transaction {
   ///                  document.
   ///   - encoder: The encoder instance to use to run the encoding.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
+  @discardableResult
   public func setData<T: Encodable>(from value: T,
                                     forDocument doc: DocumentReference,
                                     mergeFields: [Any],

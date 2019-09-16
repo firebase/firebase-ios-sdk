@@ -47,7 +47,6 @@
 @class FIRGeoPoint;
 @class FIRTimestamp;
 @class FSTDocumentKeyReference;
-@class FSTLocalViewChanges;
 @class FSTUserDataConverter;
 
 namespace firebase {
@@ -190,7 +189,7 @@ class TestTargetMetadataProvider : public TargetMetadataProvider {
    * `GetQueryDataForTarget` target.
    */
   static TestTargetMetadataProvider CreateEmptyResultProvider(
-      const model::DocumentKey &document_key, const std::vector<model::TargetId> &targets);
+      const model::ResourcePath &path, const std::vector<model::TargetId> &targets);
 
   /** Sets or replaces the local state for the provided query data. */
   void SetSyncedKeys(model::DocumentKeySet keys, local::QueryData query_data);
@@ -283,6 +282,11 @@ firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(
 /** Creates a remote event that inserts a new document. */
 firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
     const model::MaybeDocument &doc,
+    const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
+
+/** Creates a remote event that inserts a list of documents. */
+firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
+    const std::vector<model::MaybeDocument> &doc,
     const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
 
 /** Creates a remote event with changes to a document. */

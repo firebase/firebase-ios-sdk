@@ -36,6 +36,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
+#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
@@ -56,6 +57,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Query;
+using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::Source;
@@ -185,8 +187,9 @@ FIRQuery *Wrap(Query &&query) {
       firestore->client()->ListenToQuery(query, internalOptions, async_listener);
 
   return [[FSTListenerRegistration alloc]
-      initWithRegistration:ListenerRegistration(firestore->client(), std::move(async_listener),
-                                                std::move(query_listener))];
+      initWithRegistration:absl::make_unique<QueryListenerRegistration>(firestore->client(),
+                                                                        std::move(async_listener),
+                                                                        std::move(query_listener))];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
