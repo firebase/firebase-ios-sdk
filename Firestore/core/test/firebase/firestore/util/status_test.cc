@@ -87,6 +87,13 @@ TEST(Status, MoveAssign) {
   ASSERT_EQ(reassigned, Status(Error::InvalidArgument, "Foo"));
 }
 
+TEST(Status, AccessMovedFromThrows) {
+  Status ok;
+  Status assigned = std::move(ok);
+
+  ASSERT_ANY_THROW(ok.error_message());
+}
+
 TEST(Status, CanAssignToMovedFromStatus) {
   Status a(Error::InvalidArgument, "Invalid");
   Status b = std::move(a);

@@ -80,11 +80,11 @@ class ABSL_MUST_USE_RESULT Status {
   }
 
   Error code() const {
-    return ok() ? Error::Ok : state_->code;
+    return ok() ? Error::Ok : AssertStatePtr()->code;
   }
 
   const std::string& error_message() const {
-    return ok() ? empty_string() : state_->msg;
+    return ok() ? empty_string() : AssertStatePtr()->msg;
   }
 
   bool operator==(const Status& x) const;
@@ -152,6 +152,14 @@ class ABSL_MUST_USE_RESULT Status {
     // NSError* to Status and back to NSError* losslessly.
     std::unique_ptr<PlatformError> platform_error;
   };
+
+  // Asserts if `state_` is a valid pointer, should be used at all places where
+  // it is used as a pointer, instead of using `state_`.
+  const State::StatePtr& AssertStatePtr() const {
+    HARD_ASSERT(state_.get() != State::MovedFromIndicator(),
+    "Internal State is accessed after Status instance is moved from.");
+    return state_;
+  }
 
   // OK status has a `nullptr` `state_`. If this instance is moved, state_ has
   // the value of `State::MovedFromIndicator()`. Otherwise `state_` points to

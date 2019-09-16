@@ -47,15 +47,15 @@ Status& Status::CausedBy(const Status& cause) {
     return *this;
   }
 
-  absl::StrAppend(&state_->msg, ": ", cause.error_message());
+  absl::StrAppend(&AssertStatePtr()->msg, ": ", cause.error_message());
 
   // If this Status has no accompanying PlatformError but the cause does, create
   // a PlatformError for this Status ahead of time to preserve the causal chain
   // that Status doesn't otherwise support.
-  if (state_->platform_error == nullptr &&
-      cause.state_->platform_error != nullptr) {
-    state_->platform_error =
-        cause.state_->platform_error->WrapWith(code(), error_message());
+  if (AssertStatePtr()->platform_error == nullptr &&
+      cause.AssertStatePtr()->platform_error != nullptr) {
+    AssertStatePtr()->platform_error =
+        cause.AssertStatePtr()->platform_error->WrapWith(code(), error_message());
   }
 
   return *this;
@@ -63,7 +63,7 @@ Status& Status::CausedBy(const Status& cause) {
 
 Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
   HARD_ASSERT(!ok(), "Platform errors should not be applied to Status::OK()");
-  state_->platform_error = std::move(error);
+  AssertStatePtr()->platform_error = std::move(error);
   return *this;
 }
 
@@ -150,7 +150,7 @@ std::string Status::ToString() const {
         break;
     }
     result += ": ";
-    result += state_->msg;
+    result += AssertStatePtr()->msg;
     return result;
   }
 }
