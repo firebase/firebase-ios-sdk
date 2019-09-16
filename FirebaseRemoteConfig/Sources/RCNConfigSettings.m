@@ -465,11 +465,11 @@ static NSString *const RCNExternalUserDefaultsKeyLatestETag = @"frc.latestETag";
   if (!hasMinimumFetchIntervalElapsed && _sharedUserDefaults) {
     // Check if the latest eTag across main app and extensions is different than our eTag. If so,
     // let the fetch go through.
-    NSString *allAppExtensionsLatestETag = [[_sharedUserDefaults instanceUserDefaults]
+    NSString *lastEtagAcrossAppsAndExtensions = [[_sharedUserDefaults instanceUserDefaults]
         objectForKey:RCNExternalUserDefaultsKeyLatestETag];
 
     // If the eTag is different, check the fetch times.
-    if (![self.lastETag isEqualToString:allAppExtensionsLatestETag]) {
+    if (![self.lastETag isEqualToString:lastEtagAcrossAppsAndExtensions]) {
       NSNumber *latestFetchTimeAcrossAppsAndExtensions = [[_sharedUserDefaults instanceUserDefaults]
           objectForKey:RCNExternalUserDefaultsKeyLastSuccessfulFetchTime];
       if (self.lastFetchTimeInterval < latestFetchTimeAcrossAppsAndExtensions.doubleValue) {
