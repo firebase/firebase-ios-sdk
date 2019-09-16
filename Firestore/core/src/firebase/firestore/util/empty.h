@@ -21,7 +21,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// An empty value.
+/**
+ * Used to represent an empty value.
+ */
 struct Empty {
   friend bool operator==(Empty /* left */, Empty /* right */) {
     return true;

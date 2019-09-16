@@ -562,11 +562,7 @@ using firebase::firestore::util::TimerId;
     }
   }];
 
-  [ref setData:@{@"foo" : @3}
-      completion:^(NSError *error) {
-        XCTAssertNil(error);
-      }];
-  [self awaitExpectations];
+  [self writeDocumentRef:ref data:@{@"foo" : @3}];
 }
 
 - (void)testListenCanBeCalledMultipleTimes {

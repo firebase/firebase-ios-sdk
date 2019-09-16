@@ -323,12 +323,13 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)resetSnapshotsInSyncEvents;
 
 /**
- * Adds a snapshots-in-sync listener from the event manager the spec test vector.
+ * Adds a snpahots-in-sync listener to the event manager and keeps track of it so that it
+ * can be easily removed later.
  */
 - (void)addSnapshotsInSyncListener;
 
 /**
- * Removes a snapshots-in-sync listener from the event manager the spec test vector.
+ * Removes the snapshots-in-sync listener from the event manager.
  */
 - (void)removeSnapshotsInSyncListener;
 

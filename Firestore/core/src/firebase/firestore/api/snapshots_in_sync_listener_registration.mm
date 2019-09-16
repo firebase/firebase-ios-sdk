@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
 
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
@@ -35,8 +37,8 @@ void SnapshotsInSyncListenerRegistration::Remove() {
     async_listener_.reset();
   }
 
-  client_.reset();
   client_->RemoveSnapshotsInSyncListener(async_listener);
+  client_.reset();
 }
 
 }  // namespace api

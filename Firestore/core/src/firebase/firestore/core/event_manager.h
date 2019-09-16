@@ -76,6 +76,11 @@ class EventManager : public SyncEngineCallback {
 
  private:
   /**
+   * Call all global snapshot listeners that have been set.
+   */
+  void RaiseSnapshotsInSyncEvent();
+
+  /**
    * Holds the listeners and the last received ViewSnapshot for a query being
    * tracked by EventManager.
    */
@@ -111,11 +116,6 @@ class EventManager : public SyncEngineCallback {
   std::unordered_map<core::Query, QueryListenersInfo> queries_;
   std::unordered_set<std::shared_ptr<EventListener<util::Empty>>>
       snapshots_in_sync_listeners_;
-
-  /**
-   * Call all global snapshot listeners that have been set.
-   */
-  void RaiseSnapshotsInSyncEvent();
 };
 
 }  // namespace core

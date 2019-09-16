@@ -467,8 +467,9 @@ void FirestoreClient::AddSnapshotsInSyncListener(
 
 void FirestoreClient::RemoveSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
-  // do stuff
+  event_manager_->RemoveSnapshotsInSyncListener(user_listener);
 }
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

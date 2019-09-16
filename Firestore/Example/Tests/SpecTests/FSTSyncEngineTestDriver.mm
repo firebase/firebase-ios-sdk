@@ -252,10 +252,6 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
-//- (const std::vector<std::shared_ptr<EventListener<Empty>>>&)snapshotsInSyncListeners {
-//  return _snapshotsInSyncListeners;
-//}
-
 - (void)incrementSnapshotsInSyncEvents {
   _snapshotsInSyncEvents += 1;
 }
@@ -266,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addSnapshotsInSyncListener {
   std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
-      [self](const StatusOr<Empty> &v) { [self incrementSnapshotsInSyncEvents]; });
+      [self](const StatusOr<Empty>) { [self incrementSnapshotsInSyncEvents]; });
   _snapshotsInSyncListeners.push_back(eventListener);
   _eventManager->AddSnapshotsInSyncListener(eventListener);
 }

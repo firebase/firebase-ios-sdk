@@ -186,7 +186,7 @@ std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(
       client_->user_executor(), std::move(listener));
   client_->AddSnapshotsInSyncListener(std::move(async_listener));
   return absl::make_unique<SnapshotsInSyncListenerRegistration>(
-      std::move(client()), std::move(async_listener));
+      client_, std::move(async_listener));
 }
 
 void Firestore::EnsureClientConfigured() {

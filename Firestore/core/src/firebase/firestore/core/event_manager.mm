@@ -104,9 +104,9 @@ void EventManager::HandleOnlineStateChange(model::OnlineState online_state) {
 }
 
 void EventManager::RaiseSnapshotsInSyncEvent() {
-  for (const std::shared_ptr<EventListener<Empty>>& listener :
-       snapshots_in_sync_listeners_) {
-    listener->OnEvent(Empty());
+  Empty empty{};
+  for (const auto& listener : snapshots_in_sync_listeners_) {
+    listener->OnEvent(empty);
   }
 }
 
@@ -147,6 +147,7 @@ void EventManager::OnError(const core::Query& query,
   // stopListening] after an error.
   queries_.erase(found_iter);
 }
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

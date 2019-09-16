@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A FIRListenerRegistration object that can be used to remove the
  * listener.
  */
-- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)())listener
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener
     NS_SWIFT_NAME(addSnapshotsInSyncListener(_:));
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;

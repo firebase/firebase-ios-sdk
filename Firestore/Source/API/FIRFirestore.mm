@@ -335,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->Terminate(util::MakeCallback(completion));
 }
 
-- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)())listener {
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener {
   std::unique_ptr<core::EventListener<Empty>> eventListener =
       core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
   std::unique_ptr<ListenerRegistration> result =
