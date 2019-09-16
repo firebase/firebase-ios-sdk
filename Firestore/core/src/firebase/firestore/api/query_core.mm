@@ -30,8 +30,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/algorithm/container.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -416,5 +414,3 @@ std::string Query::Describe(Filter::Operator op) const {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
