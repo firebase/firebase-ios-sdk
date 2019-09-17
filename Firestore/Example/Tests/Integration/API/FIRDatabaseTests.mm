@@ -536,27 +536,19 @@ using firebase::firestore::util::TimerId;
   FIRDocumentReference *ref = [coll addDocumentWithData:@{@"foo" : @1}];
   NSMutableArray<NSString *> *events = [NSMutableArray array];
 
-  XCTestExpectation *gotInitialSnapshot = [self expectationWithDescription:@"gotInitialSnapshot"];
-  __block bool setupComplete = false;
-
   [ref addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     XCTAssertNil(error);
     [events addObject:@"doc"];
-    if (!setupComplete) {
-      setupComplete = true;
-      [gotInitialSnapshot fulfill];
-    }
   }];
-  [self awaitExpectations];
-  [events removeAllObjects];
 
   XCTestExpectation *done = [self expectationWithDescription:@"SnapshotsInSyncListenerDone"];
   [ref.firestore addSnapshotsInSyncListener:^() {
     [events addObject:@"snapshots-in-sync"];
-    if ([events count] == 3) {
+    if ([events count] == 4) {
       // We should have an initial snapshots-in-sync event, then a snapshot event
       // for set(), then another event to indicate we're in sync again.
-      NSArray<NSString *> *expected = @[ @"snapshots-in-sync", @"doc", @"snapshots-in-sync" ];
+      NSArray<NSString *> *expected =
+          @[ @"doc", @"snapshots-in-sync", @"doc", @"snapshots-in-sync" ];
       XCTAssertEqualObjects(events, expected);
       [done fulfill];
     }

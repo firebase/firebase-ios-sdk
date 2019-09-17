@@ -26,7 +26,9 @@
 namespace firebase {
 namespace firestore {
 namespace core {
+
 class FirestoreClient;
+
 }  // namespace core
 
 namespace api {
@@ -34,8 +36,8 @@ namespace api {
 /**
  * An internal handle that encapsulates a user's ability to request that we
  * stop listening to the snapshots-in-sync listener. When a user calls Remove(),
- * ListenerRegistration will synchronously mute the listener and then send a
- * request to actually unlisten.
+ * SnapshotsInSyncListenerRegistration will synchronously mute the listener and
+ * then send a request to actually unlisten.
  */
 class SnapshotsInSyncListenerRegistration : public ListenerRegistration {
  public:

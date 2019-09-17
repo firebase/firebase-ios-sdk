@@ -262,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addSnapshotsInSyncListener {
   std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
-      [self](const StatusOr<Empty>) { [self incrementSnapshotsInSyncEvents]; });
+      [self](const StatusOr<Empty> &) { [self incrementSnapshotsInSyncEvents]; });
   _snapshotsInSyncListeners.push_back(eventListener);
   _eventManager->AddSnapshotsInSyncListener(eventListener);
 }
