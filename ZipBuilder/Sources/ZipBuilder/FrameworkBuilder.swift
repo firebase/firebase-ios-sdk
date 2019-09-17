@@ -483,7 +483,7 @@ struct FrameworkBuilder {
     }
 
     // Replace everything from the start of the string until the end of the `Pods/Headers/`.
-    let toRemove = fullPath.startIndex..<foundRange.upperBound
+    let toRemove = fullPath.startIndex ..< foundRange.upperBound
     return fullPath.replacingCharacters(in: toRemove, with: "")
   }
 }
