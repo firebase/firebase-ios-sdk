@@ -44,12 +44,12 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
 
 /// Indicates whether updated data was successfully fetched and activated.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchAndActivateStatus) {
-  // The remote fetch succeeded and fetched data was activated.
+  /// The remote fetch succeeded and fetched data was activated.
   FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote,
-  // The fetch and activate succeeded from already fetched but yet unexpired config data. You can
-  // control this using minimumFetchInterval property in FIRRemoteConfigSettings.
+  /// The fetch and activate succeeded from already fetched but yet unexpired config data. You can
+  /// control this using minimumFetchInterval property in FIRRemoteConfigSettings.
   FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData,
-  // The fetch and activate failed.
+  /// The fetch and activate failed.
   FIRRemoteConfigFetchAndActivateStatusError
 } NS_SWIFT_NAME(RemoteConfigFetchAndActivateStatus);
 
