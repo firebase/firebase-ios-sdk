@@ -439,16 +439,24 @@ struct FrameworkBuilder {
     // Get all the header aliases from the CocoaPods directory and get their real path as well as
     // their relative path to the Headers directory they are in. This is needed to preserve proper
     // imports for nested folders.
-    let standardizedHeaders = headersDir.standardizedFileURL
     let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
     let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
+      // The `headersDir` and `aliasedHeader` prefixes may be different, but they both should have
+      // `Pods/Headers/` in the path. Ignore everything up until that, then strip the remainder of
+      // the `headersDir` from the `aliasedHeader` in order to get path relative to the headers
+      // directory.
+      let trimmedHeader = removeHeaderPathPrefix(from: $0)
+      let trimmedDir = removeHeaderPathPrefix(from: headersDir)
+      var relativePath = trimmedHeader.replacingOccurrences(of: trimmedDir, with: "")
+
+      // Remove any leading `/` for the relative path.
+      if relativePath.starts(with: "/") {
+        _ = relativePath.removeFirst()
+      }
+
       // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
-      // are symlinked to each other on macOS. This will let us remove the `headersDir` prefix and
-      // be left with just the relative path we need.
-      let standardized = $0.standardizedFileURL
-      let relativePath = standardized.path.replacingOccurrences(of: "\(standardizedHeaders.path)/",
-                                                                with: "")
-      let resolvedLocation = standardized.resolvingSymlinksInPath()
+      // are symlinked to each other on macOS.
+      let resolvedLocation = $0.standardizedFileURL.resolvingSymlinksInPath()
       return (relativePath, resolvedLocation)
     }
 
@@ -465,5 +473,17 @@ struct FrameworkBuilder {
 
       try fileManager.copyItem(at: location, to: finalPath)
     }
+  }
+
+  private func removeHeaderPathPrefix(from url: URL) -> String {
+    let fullPath = url.standardizedFileURL.path
+    guard let foundRange = fullPath.range(of: "Pods/Headers/") else {
+      fatalError("Could not copy headers for framework: full path do not contain `Pods/Headers`:" +
+        fullPath)
+    }
+
+    // Replace everything from the start of the string until the end of the `Pods/Headers/`.
+    let toRemove = fullPath.startIndex ..< foundRange.upperBound
+    return fullPath.replacingCharacters(in: toRemove, with: "")
   }
 }
