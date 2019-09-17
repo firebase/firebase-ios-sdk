@@ -283,11 +283,7 @@ ByteString MakeResumeToken(NSString *specString) {
 }
 
 - (void)doRemoveSnapshotsInSyncListener {
-  if ([self.driver snapshotsInSyncListeners].empty()) {
-    HARD_FAIL("There must be a listener to unlisten to");
-  } else {
-    [self.driver removeSnapshotsInSyncListener];
-  }
+  [self.driver removeSnapshotsInSyncListener];
 }
 
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {

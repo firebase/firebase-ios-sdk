@@ -268,16 +268,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeSnapshotsInSyncListener {
-  _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
-  _snapshotsInSyncListeners.pop_back();
+  if (_snapshotsInSyncListeners.empty()) {
+    HARD_FAIL("There must be a listener to unlisten to");
+  } else {
+    _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
+    _snapshotsInSyncListeners.pop_back();
+  }
 }
 
 - (int)snapshotsInSyncEvents {
   return _snapshotsInSyncEvents;
-}
-
-- (const std::vector<std::shared_ptr<EventListener<Empty>>>)snapshotsInSyncListeners {
-  return _snapshotsInSyncListeners;
 }
 
 - (void)start {

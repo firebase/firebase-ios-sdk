@@ -314,7 +314,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /**
- * The number of snapshots-in-sync calls that have been run.
+ * The number of snapshots-in-sync events that have been received.
  */
 @property(nonatomic, readonly) int snapshotsInSyncEvents;
 
@@ -332,9 +332,6 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * Removes the snapshots-in-sync listener from the event manager.
  */
 - (void)removeSnapshotsInSyncListener;
-
-- (const std::vector<std::shared_ptr<core::EventListener<firebase::firestore::util::Empty>>>)
-    snapshotsInSyncListeners;
 
 /** The set of active targets as observed on the watch stream. */
 - (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)activeTargets;
