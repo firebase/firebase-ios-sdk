@@ -439,13 +439,15 @@ struct FrameworkBuilder {
     // Get all the header aliases from the CocoaPods directory and get their real path as well as
     // their relative path to the Headers directory they are in. This is needed to preserve proper
     // imports for nested folders.
+    let standardizedHeaders = headersDir.standardizedFileURL
     let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
     let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
       // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
       // are symlinked to each other on macOS. This will let us remove the `headersDir` prefix and
       // be left with just the relative path we need.
       let standardized = $0.standardizedFileURL
-      let relativePath = standardized.path.replacingOccurrences(of: "\(headersDir.path)/", with: "")
+      let relativePath = standardized.path.replacingOccurrences(of: "\(standardizedHeaders.path)/",
+                                                                with: "")
       let resolvedLocation = standardized.resolvingSymlinksInPath()
       return (relativePath, resolvedLocation)
     }
