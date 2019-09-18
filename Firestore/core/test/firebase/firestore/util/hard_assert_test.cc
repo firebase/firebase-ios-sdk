@@ -47,6 +47,29 @@ TEST(HardAssertTest, WithMessage) {
   EXPECT_ANY_THROW(AssertWithMessage(false));
 }
 
+TEST(HardAssertTest, NonDefaultFailureHandler) {
+  // Used to ensure the original failure handler is restored.
+  class FailureHandlerRestorer {
+   public:
+    explicit FailureHandlerRestorer(FailureHandler orig) : orig_(orig) {
+    }
+    ~FailureHandlerRestorer() {
+      SetFailureHandler(orig_);
+    }
+
+   private:
+    FailureHandler orig_;
+  };
+
+  struct FakeException {};
+  FailureHandler prev =
+      SetFailureHandler([](const char*, const char*, const int,
+                           const std::string&) { throw FakeException(); });
+  FailureHandlerRestorer _(prev);
+
+  EXPECT_THROW(Assert(false), FakeException);
+}
+
 }  //  namespace util
 }  //  namespace firestore
 }  //  namespace firebase

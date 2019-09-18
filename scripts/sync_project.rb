@@ -130,6 +130,10 @@ def sync_firestore(test_only)
 
       # Protobuf wants to #include <google/protobuf/stubs/common.h>
       '"${PODS_ROOT}/ProtobufCpp/src"',
+    ],
+
+    'OTHER_CFLAGS' => [
+      '-Werror'
     ]
   }
 
@@ -141,7 +145,7 @@ def sync_firestore(test_only)
 
   ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_Example_#{platform}" do |t|
-      t.xcconfig = xcconfig_objc + {
+      t.xcconfig = xcconfig_objc + xcconfig_swift + {
         # Passing -all_load is required to get all our C++ code into the test
         # host.
         #
@@ -171,7 +175,7 @@ def sync_firestore(test_only)
         # These files are integration tests, handled below
         'Firestore/Example/Tests/Integration/**',
       ]
-      t.xcconfig = xcconfig_objc
+      t.xcconfig = xcconfig_objc + xcconfig_swift
     end
   end
 

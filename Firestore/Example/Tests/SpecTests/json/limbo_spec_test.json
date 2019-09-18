@@ -611,7 +611,7 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "version": 1002,
               "value": {
                 "key": "b"
               },
@@ -948,7 +948,7 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "version": 1002,
               "value": {
                 "key": "b"
               },
@@ -1055,7 +1055,7 @@
             "added": [
               {
                 "key": "collection/a",
-                "version": 1000,
+                "version": 1002,
                 "value": {
                   "key": "b"
                 },

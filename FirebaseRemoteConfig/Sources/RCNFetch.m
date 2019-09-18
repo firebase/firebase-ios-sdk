@@ -16,16 +16,15 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRErrorCode.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 #ifdef RCN_STAGING_SERVER
@@ -64,6 +63,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusTooManyRequests = 429;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
+
+// Deprecated error code previously from FirebaseCore
+static const NSInteger FIRErrorCodeConfigFailed = -114;
 
 static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
@@ -106,6 +108,19 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     _options = options;
   }
   return self;
+}
+
+/// Force a new NSURLSession creation for updated config.
+- (void)recreateNetworkSession {
+  if (_fetchSession) {
+    [_fetchSession invalidateAndCancel];
+  }
+  _fetchSession = [self newFetchSession];
+}
+
+/// Return the current session. (Tests).
+- (NSURLSession *)currentNetworkSession {
+  return _fetchSession;
 }
 
 - (void)dealloc {

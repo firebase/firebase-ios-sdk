@@ -32,7 +32,7 @@
 @implementation GDTCCTNanopbHelpersTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
 }
 
 - (void)tearDown {
@@ -42,14 +42,16 @@
 
 /** Tests that the event generator is generating consistent events. */
 - (void)testGeneratingFiveConsistentEvents {
-  NSArray<GDTStoredEvent *> *events1 = [self.generator generateTheFiveConsistentStoredEvents];
-  NSArray<GDTStoredEvent *> *events2 = [self.generator generateTheFiveConsistentStoredEvents];
+  NSArray<GDTCORStoredEvent *> *events1 = [self.generator generateTheFiveConsistentStoredEvents];
+  NSArray<GDTCORStoredEvent *> *events2 = [self.generator generateTheFiveConsistentStoredEvents];
   XCTAssertEqual(events1.count, events2.count);
   XCTAssertEqual(events1.count, 5);
   for (int i = 0; i < events1.count; i++) {
-    GDTStoredEvent *storedEvent1 = events1[i];
-    GDTStoredEvent *storedEvent2 = events2[i];
-    XCTAssertEqualObjects(storedEvent1, storedEvent2);
+    GDTCORStoredEvent *storedEvent1 = events1[i];
+    GDTCORStoredEvent *storedEvent2 = events2[i];
+    NSData *storedEvent1Data = [NSData dataWithContentsOfURL:storedEvent1.dataFuture.fileURL];
+    NSData *storedEvent2Data = [NSData dataWithContentsOfURL:storedEvent2.dataFuture.fileURL];
+    XCTAssertEqualObjects(storedEvent1Data, storedEvent2Data);
   }
 }
 
@@ -62,9 +64,18 @@
   ];
   NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
   for (NSString *dataFile in testData) {
-    NSURL *fileURL = [testBundle URLForResource:dataFile withExtension:nil];
+    NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
+                                                                     withExtension:nil]];
+    XCTAssertNotNil(messageData);
+    NSString *cachePath = NSTemporaryDirectory();
+    NSString *filePath = [cachePath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                  CFAbsoluteTimeGetCurrent()]];
+    [messageData writeToFile:filePath atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
-    [storedEvents addObject:[_generator generateStoredEvent:GDTEventQosDefault fileURL:fileURL]];
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath]);
+    [storedEvents addObject:[_generator generateStoredEvent:GDTCOREventQosDefault fileURL:fileURL]];
   }
   gdt_cct_BatchedLogRequest batch = gdt_cct_BatchedLogRequest_init_default;
   XCTAssertNoThrow((batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents})));
@@ -80,9 +91,18 @@
   ];
   NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
   for (NSString *dataFile in testData) {
-    NSURL *fileURL = [testBundle URLForResource:dataFile withExtension:nil];
+    NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
+                                                                     withExtension:nil]];
+    XCTAssertNotNil(messageData);
+    NSString *cachePath = NSTemporaryDirectory();
+    NSString *filePath = [cachePath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                  CFAbsoluteTimeGetCurrent()]];
+    [messageData writeToFile:filePath atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
-    [storedEvents addObject:[_generator generateStoredEvent:GDTEventQosDefault fileURL:fileURL]];
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath]);
+    [storedEvents addObject:[_generator generateStoredEvent:GDTCOREventQosDefault fileURL:fileURL]];
   }
   gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
   NSData *encodedBatchLogRequest;
@@ -93,8 +113,9 @@
 
 /** Tests that the bytes generated are decodable. */
 - (void)testBytesAreDecodable {
-  NSArray<GDTStoredEvent *> *storedEventsA = [self.generator generateTheFiveConsistentStoredEvents];
-  NSSet<GDTStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
+  NSArray<GDTCORStoredEvent *> *storedEventsA =
+      [self.generator generateTheFiveConsistentStoredEvents];
+  NSSet<GDTCORStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
   gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
   NSData *encodedBatchLogRequest = GDTCCTEncodeBatchedLogRequest(&batch);
   gdt_cct_BatchedLogRequest decodedBatch = gdt_cct_BatchedLogRequest_init_default;

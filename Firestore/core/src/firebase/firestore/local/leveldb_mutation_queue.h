@@ -37,9 +37,7 @@
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
-@class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTMutationBatch;
 @class FSTPBMutationQueue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace local {
+
+class LevelDbPersistence;
 
 /**
  * Returns one larger than the largest batch ID that has been stored. If there
@@ -57,38 +57,38 @@ model::BatchId LoadNextBatchIdFromDb(leveldb::DB* db);
 class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const auth::User& user,
-                       FSTLevelDB* db,
+                       LevelDbPersistence* db,
                        FSTLocalSerializer* serializer);
 
   void Start() override;
 
   bool IsEmpty() override;
 
-  void AcknowledgeBatch(FSTMutationBatch* batch,
+  void AcknowledgeBatch(const model::MutationBatch& batch,
                         const nanopb::ByteString& stream_token) override;
 
-  FSTMutationBatch* AddMutationBatch(
+  model::MutationBatch AddMutationBatch(
       const Timestamp& local_write_time,
       std::vector<model::Mutation>&& base_mutations,
       std::vector<model::Mutation>&& mutations) override;
 
-  void RemoveMutationBatch(FSTMutationBatch* batch) override;
+  void RemoveMutationBatch(const model::MutationBatch& batch) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatches() override;
+  std::vector<model::MutationBatch> AllMutationBatches() override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKeys(
       const model::DocumentKeySet& document_keys) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKey(
       const model::DocumentKey& key) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
+  std::vector<model::MutationBatch> AllMutationBatchesAffectingQuery(
       const core::Query& query) override;
 
-  FSTMutationBatch* _Nullable LookupMutationBatch(
+  absl::optional<model::MutationBatch> LookupMutationBatch(
       model::BatchId batch_id) override;
 
-  FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
+  absl::optional<model::MutationBatch> NextMutationBatchAfterBatchId(
       model::BatchId batch_id) override;
 
   model::BatchId GetHighestUnacknowledgedBatchId() override;
@@ -101,10 +101,10 @@ class LevelDbMutationQueue : public MutationQueue {
 
  private:
   /**
-   * Constructs a vector of matching batches, sorted by batchID to ensure that
+   * Constructs a vector of matching batches, sorted by batch_id to ensure that
    * multiple mutations affecting the same document key are applied in order.
    */
-  std::vector<FSTMutationBatch*> AllMutationBatchesWithIds(
+  std::vector<model::MutationBatch> AllMutationBatchesWithIds(
       const std::set<model::BatchId>& batch_ids);
 
   std::string mutation_queue_key() {
@@ -118,16 +118,16 @@ class LevelDbMutationQueue : public MutationQueue {
   /** Parses the MutationQueue metadata from the given LevelDB row contents. */
   FSTPBMutationQueue* _Nullable MetadataForKey(const std::string& key);
 
-  FSTMutationBatch* ParseMutationBatch(absl::string_view encoded);
+  model::MutationBatch ParseMutationBatch(absl::string_view encoded);
 
-  // This instance is owned by FSTLevelDB; avoid a retain cycle.
-  __weak FSTLevelDB* db_;
+  // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
 
   FSTLocalSerializer* serializer_;
 
   /**
-   * The normalized userID (e.g. nil UID => @"" userID) used in our LevelDB
-   * keys.
+   * The normalized user_id (i.e. after converting null to empty) as used in our
+   * LevelDB keys.
    */
   std::string user_id_;
 

@@ -19,11 +19,10 @@
 #include <memory>
 #include <vector>
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -98,20 +97,22 @@ void ExpectMapHasDocs(XCTestCase *self,
 }
 
 - (void)tearDown {
-  [self.persistence shutdown];
+  if (self.persistence) {
+    self.persistence->Shutdown();
+  }
 }
 
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testReadDocumentNotInCache", [&] {
+  self.persistence->Run("testReadDocumentNotInCache", [&] {
     XCTAssertEqual(absl::nullopt, self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
 }
 
 // Helper for next two tests.
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
-  self.persistence.run("setAndReadADocumentAtPath", [&] {
+  self.persistence->Run("setAndReadADocumentAtPath", [&] {
     Document written = [self setTestDocumentAtPath:path];
     absl::optional<MaybeDocument> read = self.remoteDocumentCache->Get(testutil::Key(path));
     XCTAssertEqual(*read, written);
@@ -127,7 +128,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadSeveralDocuments {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadSeveralDocuments", [=] {
+  self.persistence->Run("testSetAndReadSeveralDocuments", [=] {
     std::vector<Document> written = {
         [self setTestDocumentAtPath:kDocPath],
         [self setTestDocumentAtPath:kLongDocPath],
@@ -141,7 +142,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadSeveralDocumentsIncludingMissingDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=] {
+  self.persistence->Run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=] {
     std::vector<Document> written = {
         [self setTestDocumentAtPath:kDocPath],
         [self setTestDocumentAtPath:kLongDocPath],
@@ -167,7 +168,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetAndReadDeletedDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetAndReadDeletedDocument", [&] {
+  self.persistence->Run("testSetAndReadDeletedDocument", [&] {
     absl::optional<MaybeDocument> deletedDoc = DeletedDoc(kDocPath, kVersion);
     self.remoteDocumentCache->Add(*deletedDoc);
 
@@ -178,7 +179,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testSetDocumentToNewValue {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testSetDocumentToNewValue", [&] {
+  self.persistence->Run("testSetDocumentToNewValue", [&] {
     [self setTestDocumentAtPath:kDocPath];
     absl::optional<MaybeDocument> newDoc = Doc(kDocPath, kVersion, Map("data", 2));
     self.remoteDocumentCache->Add(*newDoc);
@@ -189,7 +190,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testRemoveDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testRemoveDocument", [&] {
+  self.persistence->Run("testRemoveDocument", [&] {
     [self setTestDocumentAtPath:kDocPath];
     self.remoteDocumentCache->Remove(testutil::Key(kDocPath));
 
@@ -200,7 +201,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testRemoveNonExistentDocument {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testRemoveNonExistentDocument", [&] {
+  self.persistence->Run("testRemoveNonExistentDocument", [&] {
     // no-op, but make sure it doesn't throw.
     XCTAssertNoThrow(self.remoteDocumentCache->Remove(testutil::Key(kDocPath)));
   });
@@ -210,7 +211,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 - (void)testDocumentsMatchingQuery {
   if (!self.remoteDocumentCache) return;
 
-  self.persistence.run("testDocumentsMatchingQuery", [&] {
+  self.persistence->Run("testDocumentsMatchingQuery", [&] {
     // TODO(rsgowman): This just verifies that we do a prefix scan against the
     // query path. We'll need more tests once we add index support.
     [self setTestDocumentAtPath:"a/1"];

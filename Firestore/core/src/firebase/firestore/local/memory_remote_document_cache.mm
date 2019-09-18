@@ -18,15 +18,14 @@
 
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
+#include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
-namespace {
 
 using core::Query;
 using model::Document;
@@ -38,29 +37,15 @@ using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 
-/**
- * Returns an estimate of the number of bytes used to store the given
- * document key in memory. This is only an estimate and includes the size
- * of the segments of the path, but not any object overhead or path separators.
- */
-size_t DocumentKeyByteSize(const DocumentKey& key) {
-  size_t count = 0;
-  for (const auto& segment : key.path()) {
-    count += segment.size();
-  }
-  return count;
-}
-}  // namespace
-
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
-    FSTMemoryPersistence* persistence) {
+    MemoryPersistence* persistence) {
   persistence_ = persistence;
 }
 
 void MemoryRemoteDocumentCache::Add(const MaybeDocument& document) {
   docs_ = docs_.insert(document.key(), document);
 
-  persistence_.indexManager->AddToCollectionParentIndex(
+  persistence_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
 }
 
@@ -114,14 +99,13 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
 }
 
 std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
-    FSTMemoryLRUReferenceDelegate* reference_delegate,
+    MemoryLruReferenceDelegate* reference_delegate,
     ListenSequenceNumber upper_bound) {
   std::vector<DocumentKey> removed;
   MaybeDocumentMap updated_docs = docs_;
   for (const auto& kv : docs_) {
     const DocumentKey& key = kv.first;
-    if (![reference_delegate isPinnedAtSequenceNumber:upper_bound
-                                             document:key]) {
+    if (!reference_delegate->IsPinnedAtSequenceNumber(upper_bound, key)) {
       updated_docs = updated_docs.erase(key);
       removed.push_back(key);
     }
@@ -130,12 +114,10 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
   return removed;
 }
 
-size_t MemoryRemoteDocumentCache::CalculateByteSize(
-    FSTLocalSerializer* serializer) {
-  size_t count = 0;
+int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
+  int64_t count = 0;
   for (const auto& kv : docs_) {
-    count += DocumentKeyByteSize(kv.first);
-    count += [[serializer encodedMaybeDocument:kv.second] serializedSize];
+    count += sizer.CalculateByteSize(kv.second);
   }
   return count;
 }

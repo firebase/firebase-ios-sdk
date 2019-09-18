@@ -98,8 +98,8 @@ class QueryData {
   }
 
   /**
-   * The TargetId to which the query corresponds, assigned by the FSTLocalStore
-   * for user queries or the FSTSyncEngine for limbo queries.
+   * The TargetId to which the query corresponds, assigned by the LocalStore for
+   * user queries or the SyncEngine for limbo queries.
    */
   model::TargetId target_id() const {
     return target_id_;

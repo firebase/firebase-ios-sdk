@@ -22,7 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,7 +30,7 @@ namespace core {
 
 /**
  * Interface implemented by `EventManager` to handle notifications from
- * `FSTSyncEngine`.
+ * `SyncEngine`.
  */
 class SyncEngineCallback {
  public:
@@ -39,7 +39,7 @@ class SyncEngineCallback {
   /** Handles new view snapshots. */
   virtual void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) = 0;
   /** Handles the failure of a query. */
-  virtual void OnError(const core::Query& query, util::Status error) = 0;
+  virtual void OnError(const core::Query& query, const util::Status& error) = 0;
 };
 
 }  // namespace core

@@ -17,12 +17,12 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FIRRemoteConfig.h"
-#import "RCNConfigContent.h"
-#import "RCNConfigDBManager.h"
-#import "RCNConfigSettings.h"
-#import "RCNConfigValue_Internal.h"
-#import "RCNTestUtilities.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 @interface RCNConfigContent (Testing)
 - (void)checkAndWaitForInitialDatabaseLoad;
