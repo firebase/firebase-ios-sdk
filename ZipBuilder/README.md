@@ -119,3 +119,7 @@ files and folders.
 ### Prefer File `URL`s over Strings
 Instead of relying on `String`s to represent file paths, use `URL`s as soon as possible to avoid any
 missed or double slashes along with other issues.
+
+## Updating protobuf generated Swift files
+- Install [Swift Protobuf](https://github.com/apple/swift-protobuf#building-and-installing-the-code-generator-plugin)
+- Run `protoc Sources/ManifestReader/*.proto  --swift_opt=Visibility=Public --swift_out=./`

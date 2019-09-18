@@ -36,108 +36,108 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
 }
 
 /// A list of all Firebase SDKs.
-struct ZipBuilder_FirebaseSDKs {
+public struct ZipBuilder_FirebaseSDKs {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var sdk: [ZipBuilder_SDK] = []
+  public var sdk: [ZipBuilder_SDK] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Represents a single SDK that should be released.
-struct ZipBuilder_SDK {
+public struct ZipBuilder_SDK {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// SDK name
-  var name: String {
+  public var name: String {
     get {return _storage._name}
     set {_uniqueStorage()._name = newValue}
   }
 
   /// MPM name for the blueprint. For internal use only.
-  var mpmName: String {
+  public var mpmName: String {
     get {return _storage._mpmName}
     set {_uniqueStorage()._mpmName = newValue}
   }
 
   /// Public version
-  var publicVersion: String {
+  public var publicVersion: String {
     get {return _storage._publicVersion}
     set {_uniqueStorage()._publicVersion = newValue}
   }
 
   /// List of MPM patterns to build
-  var mpmPattern: [String] {
+  public var mpmPattern: [String] {
     get {return _storage._mpmPattern}
     set {_uniqueStorage()._mpmPattern = newValue}
   }
 
   /// An optional list of additional build flags. For internal use only.
-  var buildFlags: ZipBuilder_BuildFlag {
+  public var buildFlags: ZipBuilder_BuildFlag {
     get {return _storage._buildFlags ?? ZipBuilder_BuildFlag()}
     set {_uniqueStorage()._buildFlags = newValue}
   }
   /// Returns true if `buildFlags` has been explicitly set.
-  var hasBuildFlags: Bool {return _storage._buildFlags != nil}
+  public var hasBuildFlags: Bool {return _storage._buildFlags != nil}
   /// Clears the value of `buildFlags`. Subsequent reads from it will return its default value.
-  mutating func clearBuildFlags() {_uniqueStorage()._buildFlags = nil}
+  public mutating func clearBuildFlags() {_uniqueStorage()._buildFlags = nil}
 
   /// List of MPM patterns to build (optional nightly override). For internal use only.
-  var nightlyMpmPattern: [String] {
+  public var nightlyMpmPattern: [String] {
     get {return _storage._nightlyMpmPattern}
     set {_uniqueStorage()._nightlyMpmPattern = newValue}
   }
 
   /// Whether or not the SDK is built from open-source. For internal use only.
-  var openSource: Bool {
+  public var openSource: Bool {
     get {return _storage._openSource}
     set {_uniqueStorage()._openSource = newValue}
   }
 
   /// Whether or not to strip the i386 architecture from the build.
-  var stripI386: Bool {
+  public var stripI386: Bool {
     get {return _storage._stripI386}
     set {_uniqueStorage()._stripI386 = newValue}
   }
 
   /// List of build targets. For internal use only.
-  var buildTarget: [String] {
+  public var buildTarget: [String] {
     get {return _storage._buildTarget}
     set {_uniqueStorage()._buildTarget = newValue}
   }
 
   /// Whether or not to strip both the i386 and armv7 architectures from the
-  /// build. For internal use only.
-  var strip32Bits: Bool {
+  /// build. All SDKs that use this flag are built internally so this should be ignored.
+  public var strip32Bits: Bool {
     get {return _storage._strip32Bits}
     set {_uniqueStorage()._strip32Bits = newValue}
   }
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 /// Any extra build flags needed to build the SDK. For internal use only.
-struct ZipBuilder_BuildFlag {
+public struct ZipBuilder_BuildFlag {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// An additional build flag needed to build the SDK
-  var flag: [String] = []
+  public var flag: [String] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -145,12 +145,12 @@ struct ZipBuilder_BuildFlag {
 fileprivate let _protobuf_package = "ZipBuilder"
 
 extension ZipBuilder_FirebaseSDKs: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".FirebaseSDKs"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".FirebaseSDKs"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "sdk"),
   ]
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeRepeatedMessageField(value: &self.sdk)
@@ -159,14 +159,14 @@ extension ZipBuilder_FirebaseSDKs: SwiftProtobuf.Message, SwiftProtobuf._Message
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.sdk.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.sdk, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_FirebaseSDKs, rhs: ZipBuilder_FirebaseSDKs) -> Bool {
+  public static func ==(lhs: ZipBuilder_FirebaseSDKs, rhs: ZipBuilder_FirebaseSDKs) -> Bool {
     if lhs.sdk != rhs.sdk {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -174,8 +174,8 @@ extension ZipBuilder_FirebaseSDKs: SwiftProtobuf.Message, SwiftProtobuf._Message
 }
 
 extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".SDK"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".SDK"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "name"),
     2: .standard(proto: "mpm_name"),
     3: .standard(proto: "public_version"),
@@ -225,7 +225,7 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     return _storage
   }
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     _ = _uniqueStorage()
     try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
       while let fieldNumber = try decoder.nextFieldNumber() {
@@ -246,7 +246,7 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
       if !_storage._name.isEmpty {
         try visitor.visitSingularStringField(value: _storage._name, fieldNumber: 1)
@@ -282,7 +282,7 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_SDK, rhs: ZipBuilder_SDK) -> Bool {
+  public static func ==(lhs: ZipBuilder_SDK, rhs: ZipBuilder_SDK) -> Bool {
     if lhs._storage !== rhs._storage {
       let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
         let _storage = _args.0
@@ -307,12 +307,12 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
 }
 
 extension ZipBuilder_BuildFlag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".BuildFlag"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".BuildFlag"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "flag"),
   ]
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeRepeatedStringField(value: &self.flag)
@@ -321,14 +321,14 @@ extension ZipBuilder_BuildFlag: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.flag.isEmpty {
       try visitor.visitRepeatedStringField(value: self.flag, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_BuildFlag, rhs: ZipBuilder_BuildFlag) -> Bool {
+  public static func ==(lhs: ZipBuilder_BuildFlag, rhs: ZipBuilder_BuildFlag) -> Bool {
     if lhs.flag != rhs.flag {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
