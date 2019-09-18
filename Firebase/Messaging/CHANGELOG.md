@@ -1,3 +1,6 @@
+# 2019-09-25 -- v4.1.5
+- [fixed] Fixed deprecated warnings with local notification. (#3856)
+
 # 2019-09-03 -- v4.1.4
 - [fixed] Fixed notification open event is not logged when scheduling a local timezone message. (#3670, #3638)
 - [fixed] Fixed FirebaseApp.delete() results in unusable Messaging singleton. (#3411)
