@@ -177,23 +177,15 @@ struct LaunchArgs {
       outputDir = nil
     }
 
-    // Parse the release candidate number. This should only be used in conjunction with the other
-    // release related flags.
-    if let rcFlag = defaults.string(forKey: Key.rc.rawValue) {
-      guard let parsedFlag = Int(rcFlag) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.rc) key: value passed in is not " +
-          "an integer. Value: \(rcFlag)")
-      }
-
+    // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore
+    // it and don't fail since we can append something else to the filenames.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue),
+      !rcFlag.isEmpty,
+      let parsedFlag = Int(rcFlag) {
+      print("Parsed release candidate version number \(parsedFlag).")
       rcNumber = parsedFlag
     } else {
-      // TEMPORARY REMOVAL: We don't currently pass in the RC to Kokoro, so ignore the missing flag.
-      // Check if we have other release related flags. If so, fail since we need an RC number.
-//      guard currentReleasePath == nil else {
-//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed " +
-//          "in when specifiying \(Key.releasingSDKs).")
-//      }
-
+      print("Did not parse a release candidate version number.")
       rcNumber = nil
     }
 
