@@ -17,13 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
 
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
@@ -37,8 +36,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-
-@class FSTLocalStore;
 
 namespace firebase {
 namespace firestore {
@@ -104,7 +101,7 @@ class RemoteStore : public TargetMetadataProvider,
                     public WatchStreamCallback,
                     public WriteStreamCallback {
  public:
-  RemoteStore(FSTLocalStore* local_store,
+  RemoteStore(local::LocalStore* local_store,
               std::shared_ptr<Datastore> datastore,
               const std::shared_ptr<util::AsyncQueue>& worker_queue,
               std::function<void(model::OnlineState)> online_state_handler);
@@ -115,7 +112,7 @@ class RemoteStore : public TargetMetadataProvider,
 
   /**
    * Starts up the remote store, creating streams, restoring state from
-   * `FSTLocalStore`, etc.
+   * `LocalStore`, etc.
    */
   void Start();
 
@@ -155,7 +152,7 @@ class RemoteStore : public TargetMetadataProvider,
   void StopListening(model::TargetId target_id);
 
   /**
-   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+   * Attempts to fill our write pipeline with writes from the `LocalStore`.
    *
    * Called internally to bootstrap or refill the write pipeline and by
    * `SyncEngine` whenever there are new mutations to process.
@@ -241,7 +238,7 @@ class RemoteStore : public TargetMetadataProvider,
    * The local store, used to fill the write pipeline with outbound mutations
    * and resolve existence filter mismatches.
    */
-  FSTLocalStore* local_store_ = nil;
+  local::LocalStore* local_store_ = nullptr;
 
   /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> datastore_;
