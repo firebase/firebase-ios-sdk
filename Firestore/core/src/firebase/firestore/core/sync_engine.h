@@ -266,7 +266,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void FailOutstandingPendingWriteCallbacks(absl::string_view message);
 
   /** The local store, used to persist mutations and cached documents. */
-  local::LocalStore* local_store_;
+  local::LocalStore* local_store_ = nullptr;
 
   /** The remote store for sending writes, watches, etc. to the backend. */
   remote::RemoteStore* remote_store_ = nullptr;

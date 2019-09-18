@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
+// TODO(wuandy): Move `local_store.h` here once this test is ported to C++.
 
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
@@ -26,6 +25,7 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"

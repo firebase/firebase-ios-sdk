@@ -21,7 +21,6 @@
 #include <memory>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
@@ -38,6 +37,7 @@ namespace local {
 class IndexManager;
 class MutationQueue;
 class QueryCache;
+class ReferenceDelegate;
 class RemoteDocumentCache;
 
 /**

@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 
 namespace firebase {
 namespace firestore {
@@ -41,7 +42,6 @@ class MemoryQueryCache;
 class MemoryRemoteDocumentCache;
 class MutationQueue;
 class QueryCache;
-class ReferenceDelegate;
 class RemoteDocumentCache;
 class Sizer;
 
