@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 
 #include <functional>
-#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
