@@ -25,7 +25,7 @@ do {
 }
 
 // Get the launch arguments, parsed by user defaults.
-let args = LaunchArgs()
+let args = LaunchArgs.shared
 
 // Keep timing for how long it takes to build the zip file for information purposes.
 let buildStart = Date()
@@ -87,7 +87,12 @@ do {
       // Save the directory for later copying.
       carthageRoot = carthageDir
     } catch {
-      fatalError("Could not copy output directory for Carthage build: \(error)")
+      // TODO: This can fail on CI due to size requirements, let's fail gracefully in the meantime
+      //       and not block the rest of the build.
+      //      fatalError("Could not copy output directory for Carthage build: \(error)")
+      print("--------- CARTHAGE ERROR ---------")
+      print("Could not copy output directory for Carthage build: \(error)")
+      print("------- END CARTHAGE ERROR -------")
     }
   }
 
