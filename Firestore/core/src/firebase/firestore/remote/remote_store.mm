@@ -273,7 +273,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   RemoteEvent remote_event =
       watch_change_aggregator_->CreateRemoteEvent(snapshot_version);
 
-  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent
+  // Update in-memory resume tokens. `LocalStore` will update the persistent
   // view of these when applying the completed `RemoteEvent`.
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
@@ -528,7 +528,7 @@ void RemoteStore::HandleCredentialChange() {
   if (CanUseNetwork()) {
     // Tear down and re-create our network streams. This will ensure we get a
     // fresh auth token for the new user and re-fill the write pipeline with new
-    // mutations from the `FSTLocalStore` (since mutations are per-user).
+    // mutations from the `LocalStore` (since mutations are per-user).
     LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
     is_network_enabled_ = false;
     DisableNetworkInternal();

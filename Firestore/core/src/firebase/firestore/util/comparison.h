@@ -320,7 +320,7 @@ bool DoubleBitwiseEquals(double left, double right);
 
 /**
  * Computes a bitwise hash of a double, but normalizes NaN values, suitable for
- * use when using FSTDoublesAreBitwiseEqual for equality.
+ * use when using DoubleBitwiseEquals for equality.
  */
 size_t DoubleBitwiseHash(double d);
 
