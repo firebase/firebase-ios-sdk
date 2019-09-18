@@ -32,7 +32,7 @@
 @implementation GDTCCTNanopbHelpersTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
 }
 
 - (void)tearDown {
@@ -49,7 +49,9 @@
   for (int i = 0; i < events1.count; i++) {
     GDTCORStoredEvent *storedEvent1 = events1[i];
     GDTCORStoredEvent *storedEvent2 = events2[i];
-    XCTAssertEqualObjects(storedEvent1, storedEvent2);
+    NSData *storedEvent1Data = [NSData dataWithContentsOfURL:storedEvent1.dataFuture.fileURL];
+    NSData *storedEvent2Data = [NSData dataWithContentsOfURL:storedEvent2.dataFuture.fileURL];
+    XCTAssertEqualObjects(storedEvent1Data, storedEvent2Data);
   }
 }
 
@@ -62,8 +64,17 @@
   ];
   NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
   for (NSString *dataFile in testData) {
-    NSURL *fileURL = [testBundle URLForResource:dataFile withExtension:nil];
+    NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
+                                                                     withExtension:nil]];
+    XCTAssertNotNil(messageData);
+    NSString *cachePath = NSTemporaryDirectory();
+    NSString *filePath = [cachePath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                  CFAbsoluteTimeGetCurrent()]];
+    [messageData writeToFile:filePath atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath]);
     [storedEvents addObject:[_generator generateStoredEvent:GDTCOREventQosDefault fileURL:fileURL]];
   }
   gdt_cct_BatchedLogRequest batch = gdt_cct_BatchedLogRequest_init_default;
@@ -80,8 +91,17 @@
   ];
   NSMutableSet *storedEvents = [[NSMutableSet alloc] init];
   for (NSString *dataFile in testData) {
-    NSURL *fileURL = [testBundle URLForResource:dataFile withExtension:nil];
+    NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:dataFile
+                                                                     withExtension:nil]];
+    XCTAssertNotNil(messageData);
+    NSString *cachePath = NSTemporaryDirectory();
+    NSString *filePath = [cachePath
+        stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                  CFAbsoluteTimeGetCurrent()]];
+    [messageData writeToFile:filePath atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
     XCTAssertNotNil(fileURL);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath]);
     [storedEvents addObject:[_generator generateStoredEvent:GDTCOREventQosDefault fileURL:fileURL]];
   }
   gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
