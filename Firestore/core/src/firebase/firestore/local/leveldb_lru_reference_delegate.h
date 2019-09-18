@@ -81,7 +81,7 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
   // Persistence instances are owned by FirestoreClient
   LevelDbPersistence* db_;
 
-  // Additional references are owned by FSTLocalStore
+  // Additional references are owned by LocalStore
   ReferenceSet* additional_references_;
 
   // This needs to be a pointer because initialization is delayed until after

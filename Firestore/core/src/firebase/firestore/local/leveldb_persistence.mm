@@ -226,7 +226,7 @@ model::ListenSequenceNumber LevelDbPersistence::current_sequence_number()
 }
 
 void LevelDbPersistence::Shutdown() {
-  HARD_ASSERT(started_, "FSTLevelDB shutdown without start!");
+  HARD_ASSERT(started_, "LevelDbPersistence shutdown without start!");
   started_ = false;
   db_.reset();
 }

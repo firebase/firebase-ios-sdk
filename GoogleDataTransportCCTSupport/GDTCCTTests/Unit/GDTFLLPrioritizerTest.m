@@ -18,19 +18,19 @@
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GDTCCTLibrary/Private/GDTFLLPrioritizer.h"
 
-@interface GDTCCTPrioritizerTest : XCTestCase
+@interface GDTFLLPrioritizerTest : XCTestCase
 
 /** An event generator for testing. */
 @property(nonatomic) GDTCCTEventGenerator *generator;
 
 @end
 
-@implementation GDTCCTPrioritizerTest
+@implementation GDTFLLPrioritizerTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetFLL];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
 }
 
 - (void)tearDown {
@@ -39,8 +39,8 @@
 }
 
 /** Tests prioritizing events. */
-- (void)testCCTPrioritizeEvent {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+- (void)testFLLPrioritizeEvent {
+  GDTFLLPrioritizer *prioritizer = [[GDTFLLPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
     XCTAssertEqual(prioritizer.events.count, 1);
@@ -48,8 +48,8 @@
 }
 
 /** Tests prioritizing multiple events. */
-- (void)testCCTPrioritizeMultipleEvents {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+- (void)testFLLPrioritizeMultipleEvents {
+  GDTFLLPrioritizer *prioritizer = [[GDTFLLPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
@@ -65,8 +65,8 @@
 }
 
 /** Tests unprioritizing events. */
-- (void)testCCTPackageDelivered {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+- (void)testFLLPackageDelivered {
+  GDTFLLPrioritizer *prioritizer = [[GDTFLLPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
@@ -87,8 +87,8 @@
 }
 
 /** Tests providing events for upload. */
-- (void)testCCTEventsForUpload {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+- (void)testFLLEventsForUpload {
+  GDTFLLPrioritizer *prioritizer = [[GDTFLLPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSTelemetry]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
@@ -116,8 +116,8 @@
 }
 
 /** Tests providing daily uploaded events. */
-- (void)testCCTDailyUpload {
-  GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
+- (void)testFLLDailyUpload {
+  GDTFLLPrioritizer *prioritizer = [[GDTFLLPrioritizer alloc] init];
   GDTCORStoredEvent *dailyEvent = [_generator generateStoredEvent:GDTCOREventQoSDaily];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
   GDTCORStoredEvent *telemetryEvent = [_generator generateStoredEvent:GDTCOREventQoSTelemetry];

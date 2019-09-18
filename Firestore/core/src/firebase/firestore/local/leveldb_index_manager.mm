@@ -26,8 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -76,5 +74,3 @@ std::vector<ResourcePath> LevelDbIndexManager::GetCollectionParents(
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

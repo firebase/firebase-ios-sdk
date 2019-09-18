@@ -30,7 +30,7 @@ namespace core {
 
 /**
  * Interface implemented by `EventManager` to handle notifications from
- * `FSTSyncEngine`.
+ * `SyncEngine`.
  */
 class SyncEngineCallback {
  public:
