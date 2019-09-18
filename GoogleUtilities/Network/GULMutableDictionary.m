@@ -49,6 +49,7 @@
   });
   return object;
 }
+
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
   dispatch_async(_queue, ^{
     [self->_objects setObject:object forKey:key];
