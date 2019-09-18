@@ -118,6 +118,8 @@ do {
   var candidateName = "Firebase-\(firebaseVersion)"
   if let rcNumber = args.rcNumber {
     candidateName += "-rc\(rcNumber)"
+  } else {
+    candidateName += "-latest-manual"
   }
   candidateName += ".zip"
   let zipped = Zip.zipContents(ofDir: location, name: candidateName)
