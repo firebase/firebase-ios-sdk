@@ -31,6 +31,8 @@ endif()
 cc_library(
   firebase_firestore_testutil
   SOURCES
+    async_testing.cc
+    async_testing.h
     equals_tester.h
     testutil.cc
     testutil.h
