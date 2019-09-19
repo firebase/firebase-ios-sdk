@@ -25,8 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -90,5 +88,3 @@ void WriteBatch::ValidateReference(const DocumentReference& reference) const {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

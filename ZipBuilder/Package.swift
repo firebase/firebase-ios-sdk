@@ -27,6 +27,10 @@ let package = Package(
   targets: [
     .target(
       name: "ZipBuilder",
+      dependencies: ["ManifestReader"]
+    ),
+    .target(
+      name: "ManifestReader",
       dependencies: ["SwiftProtobuf"]
     ),
   ]

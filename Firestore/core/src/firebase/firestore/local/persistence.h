@@ -17,9 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_H_
 
+#include <functional>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {

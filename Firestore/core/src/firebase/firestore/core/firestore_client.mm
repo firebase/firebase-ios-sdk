@@ -20,11 +20,8 @@
 #include <memory>
 #include <utility>
 
-#import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -62,6 +59,7 @@ using api::ThrowIllegalState;
 using auth::CredentialsProvider;
 using auth::User;
 using local::LevelDbPersistence;
+using local::LocalStore;
 using local::LruParams;
 using local::MemoryPersistence;
 using model::DatabaseId;
@@ -186,21 +184,20 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     persistence_ = MemoryPersistence::WithEagerGarbageCollector();
   }
 
-  local_store_ = [[FSTLocalStore alloc] initWithPersistence:persistence_.get()
-                                                initialUser:user];
+  local_store_ = absl::make_unique<LocalStore>(persistence_.get(), user);
 
   auto datastore = std::make_shared<Datastore>(database_info_, worker_queue(),
                                                credentials_provider_);
 
   std::weak_ptr<FirestoreClient> weak_this(shared_from_this());
   remote_store_ = absl::make_unique<RemoteStore>(
-      local_store_, std::move(datastore), worker_queue(),
+      local_store_.get(), std::move(datastore), worker_queue(),
       [weak_this](OnlineState online_state) {
         weak_this.lock()->sync_engine_->HandleOnlineStateChange(online_state);
       });
 
-  sync_engine_ =
-      absl::make_unique<SyncEngine>(local_store_, remote_store_.get(), user);
+  sync_engine_ = absl::make_unique<SyncEngine>(local_store_.get(),
+                                               remote_store_.get(), user);
 
   event_manager_ = absl::make_unique<EventManager>(sync_engine_.get());
 
@@ -209,7 +206,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens,
   // refilling mutation queue, etc.) so must be started after LocalStore.
-  [local_store_ start];
+  local_store_->Start();
   remote_store_->Start();
 }
 
@@ -223,8 +220,8 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
   auto shared_this = shared_from_this();
   lru_callback_ = worker_queue()->EnqueueAfterDelay(
       delay, TimerId::GarbageCollectionDelay, [shared_this] {
-        [shared_this->local_store_
-            collectGarbage:shared_this->lru_delegate_->garbage_collector()];
+        shared_this->local_store_->CollectGarbage(
+            shared_this->lru_delegate_->garbage_collector());
         shared_this->gc_has_run_ = true;
         shared_this->ScheduleLruGarbageCollection();
       });
@@ -346,7 +343,7 @@ void FirestoreClient::GetDocumentFromLocalCache(
   auto shared_this = shared_from_this();
   worker_queue()->Enqueue([shared_this, doc, shared_callback] {
     absl::optional<MaybeDocument> maybe_document =
-        [shared_this->local_store_ readDocument:doc.key()];
+        shared_this->local_store_->ReadDocument(doc.key());
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
     if (maybe_document && maybe_document->is_document()) {
@@ -383,7 +380,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   auto shared_this = shared_from_this();
   worker_queue()->Enqueue([shared_this, query, shared_callback] {
-    DocumentMap docs = [shared_this->local_store_ executeQuery:query.query()];
+    DocumentMap docs = shared_this->local_store_->ExecuteQuery(query.query());
 
     View view(query.query(), DocumentKeySet{});
     ViewDocumentChanges view_doc_changes =

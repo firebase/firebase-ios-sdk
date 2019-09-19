@@ -190,7 +190,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // shared for all spawned gRPC streams and calls).
   std::unique_ptr<util::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
-  // TODO(varconst): move `ConnectivityMonitor` to `FSTFirestoreClient`.
+  // TODO(varconst): move `ConnectivityMonitor` to `FirestoreClient`.
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcConnection grpc_connection_;
 

@@ -35,57 +35,57 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-struct ZipBuilder_Release {
+public struct ZipBuilder_Release {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Targeted release date
-  var targetDate: String = String()
+  public var targetDate: String = String()
 
   /// Release name (e.g. M15 - Beryllium)
-  var name: String = String()
+  public var name: String = String()
 
   /// Release code (e.g. M15)
-  var code: String = String()
+  public var code: String = String()
 
   /// Whether or not the release went out
-  var released: Bool = false
+  public var released: Bool = false
 
   /// List of SDKs that are part of the release
-  var sdk: [ZipBuilder_ReleasingSDK] = []
+  public var sdk: [ZipBuilder_ReleasingSDK] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
-struct ZipBuilder_ReleasingSDK {
+public struct ZipBuilder_ReleasingSDK {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// SDK name as from all_firebase_ios_sdks.textproto
-  var sdkName: String = String()
+  public var sdkName: String = String()
 
   /// The version of SDK to release
-  var sdkVersion: String = String()
+  public var sdkVersion: String = String()
 
   /// Whether or not a launchal is required for this release
-  var launchcalRequired: Bool = false
+  public var launchcalRequired: Bool = false
 
   /// Ariane link
-  var launchcalLink: String = String()
+  public var launchcalLink: String = String()
 
   /// An link to the change log
-  var changelogLink: String = String()
+  public var changelogLink: String = String()
 
   /// A link to the release hotlist
-  var hotlistLink: String = String()
+  public var hotlistLink: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -93,8 +93,8 @@ struct ZipBuilder_ReleasingSDK {
 fileprivate let _protobuf_package = "ZipBuilder"
 
 extension ZipBuilder_Release: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Release"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".Release"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "target_date"),
     2: .same(proto: "name"),
     3: .same(proto: "code"),
@@ -102,7 +102,7 @@ extension ZipBuilder_Release: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     5: .same(proto: "sdk"),
   ]
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeSingularStringField(value: &self.targetDate)
@@ -115,7 +115,7 @@ extension ZipBuilder_Release: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.targetDate.isEmpty {
       try visitor.visitSingularStringField(value: self.targetDate, fieldNumber: 1)
     }
@@ -134,7 +134,7 @@ extension ZipBuilder_Release: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_Release, rhs: ZipBuilder_Release) -> Bool {
+  public static func ==(lhs: ZipBuilder_Release, rhs: ZipBuilder_Release) -> Bool {
     if lhs.targetDate != rhs.targetDate {return false}
     if lhs.name != rhs.name {return false}
     if lhs.code != rhs.code {return false}
@@ -146,8 +146,8 @@ extension ZipBuilder_Release: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
 }
 
 extension ZipBuilder_ReleasingSDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".ReleasingSDK"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".ReleasingSDK"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .standard(proto: "sdk_name"),
     2: .standard(proto: "sdk_version"),
     3: .standard(proto: "launchcal_required"),
@@ -156,7 +156,7 @@ extension ZipBuilder_ReleasingSDK: SwiftProtobuf.Message, SwiftProtobuf._Message
     6: .standard(proto: "hotlist_link"),
   ]
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeSingularStringField(value: &self.sdkName)
@@ -170,7 +170,7 @@ extension ZipBuilder_ReleasingSDK: SwiftProtobuf.Message, SwiftProtobuf._Message
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.sdkName.isEmpty {
       try visitor.visitSingularStringField(value: self.sdkName, fieldNumber: 1)
     }
@@ -192,7 +192,7 @@ extension ZipBuilder_ReleasingSDK: SwiftProtobuf.Message, SwiftProtobuf._Message
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_ReleasingSDK, rhs: ZipBuilder_ReleasingSDK) -> Bool {
+  public static func ==(lhs: ZipBuilder_ReleasingSDK, rhs: ZipBuilder_ReleasingSDK) -> Bool {
     if lhs.sdkName != rhs.sdkName {return false}
     if lhs.sdkVersion != rhs.sdkVersion {return false}
     if lhs.launchcalRequired != rhs.launchcalRequired {return false}

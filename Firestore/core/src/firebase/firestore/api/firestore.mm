@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
@@ -25,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -117,13 +116,11 @@ WriteBatch Firestore::GetBatch() {
   return WriteBatch(shared_from_this());
 }
 
-FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
+core::Query Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
-  core::Query query(ResourcePath::Empty(), std::make_shared<const std::string>(
-                                               std::move(collection_id)));
-  return [[FIRQuery alloc] initWithQuery:std::move(query)
-                               firestore:shared_from_this()];
+  return core::Query(ResourcePath::Empty(), std::make_shared<const std::string>(
+                                                std::move(collection_id)));
 }
 
 void Firestore::RunTransaction(

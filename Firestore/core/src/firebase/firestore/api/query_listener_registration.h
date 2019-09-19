@@ -46,7 +46,7 @@ class QueryListenerRegistration : public ListenerRegistration {
       std::shared_ptr<core::QueryListener> query_listener);
 
   /**
-   * Removes the listener being tracked by this FIRListenerRegistration.
+   * Removes the listener being tracked by this QueryListenerRegistration.
    */
   void Remove() override;
 

@@ -321,6 +321,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeNullUser = 17067,
 
+    /** Indicates that a Firebase Dynamic Link is not activated.
+     */
+    FIRAuthErrorCodeDynamicLinkNotActivated = 17068,
+
     /**
      * Represents the error code for when the given provider id for a web operation is invalid.
      */
@@ -330,6 +334,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
         unauthorized for the current project.
      */
     FIRAuthErrorCodeInvalidDynamicLinkDomain = 17074,
+
+    /** Indicates that the credential is rejected because it's misformed or mismatching.
+     */
+    FIRAuthErrorCodeRejectedCredential = 17075,
 
     /** Indicates that the GameKit framework is not linked prior to attempting Game Center signin.
      */

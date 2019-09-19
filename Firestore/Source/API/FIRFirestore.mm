@@ -31,6 +31,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
@@ -203,7 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
                          collectionID);
   }
 
-  return _firestore->GetCollectionGroup(util::MakeString(collectionID));
+  auto query = _firestore->GetCollectionGroup(util::MakeString(collectionID));
+  return [[FIRQuery alloc] initWithQuery:std::move(query) firestore:_firestore];
 }
 
 - (FIRWriteBatch *)batch {

@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 
-#include <dispatch/dispatch.h>
-
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
@@ -38,17 +36,15 @@
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/any.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FIRQuery);
-OBJC_CLASS(FIRTransaction);
-OBJC_CLASS(NSString);
-
 namespace firebase {
 namespace firestore {
 namespace core {
+
 class FirestoreClient;
-}
+class Query;
+
+}  // namespace core
+
 namespace api {
 
 class CollectionReference;
@@ -89,7 +85,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   CollectionReference GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
   WriteBatch GetBatch();
-  FIRQuery* GetCollectionGroup(std::string collection_id);
+  core::Query GetCollectionGroup(std::string collection_id);
 
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback);
@@ -125,7 +121,5 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_

@@ -143,8 +143,8 @@ void EventManager::OnError(const core::Query& query,
     listener->OnError(error);
   }
 
-  // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine
-  // stopListening] after an error.
+  // Remove all listeners. NOTE: We don't need to call
+  // `SyncEngine::StopListening()` after an error.
   queries_.erase(found_iter);
 }
 

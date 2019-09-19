@@ -17,16 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_FIRESTORE_CLIENT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #import <Foundation/Foundation.h>
 
 #include <memory>
 #include <vector>
-
-#import "Firestore/Source/Local/FSTLocalStore.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
@@ -40,9 +34,9 @@
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
@@ -205,7 +199,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<util::Executor> user_executor_;
 
   std::unique_ptr<local::Persistence> persistence_;
-  FSTLocalStore* _Nonnull local_store_;
+  std::unique_ptr<local::LocalStore> local_store_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
   std::unique_ptr<SyncEngine> sync_engine_;
   std::unique_ptr<EventManager> event_manager_;

@@ -37,6 +37,7 @@ namespace {
 
 using firestore::Error;
 using auth::User;
+using local::LocalStore;
 using local::LocalViewChanges;
 using local::LocalWriteResult;
 using local::QueryData;
@@ -71,7 +72,7 @@ bool ErrorIsInteresting(const Status& error) {
 
 }  // namespace
 
-SyncEngine::SyncEngine(FSTLocalStore* local_store,
+SyncEngine::SyncEngine(LocalStore* local_store,
                        remote::RemoteStore* remote_store,
                        const auth::User& initial_user)
     : local_store_(local_store),
@@ -91,7 +92,7 @@ TargetId SyncEngine::Listen(Query query) {
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  QueryData query_data = [local_store_ allocateQuery:query];
+  QueryData query_data = local_store_->AllocateQuery(query);
   ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(query_data);
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
@@ -105,9 +106,9 @@ TargetId SyncEngine::Listen(Query query) {
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
     const local::QueryData& query_data) {
-  DocumentMap docs = [local_store_ executeQuery:query_data.query()];
+  DocumentMap docs = local_store_->ExecuteQuery(query_data.query());
   DocumentKeySet remote_keys =
-      [local_store_ remoteDocumentKeysForTarget:query_data.target_id()];
+      local_store_->GetRemoteDocumentKeys(query_data.target_id());
 
   View view(query_data.query(), std::move(remote_keys));
   ViewDocumentChanges view_doc_changes =
@@ -134,7 +135,7 @@ void SyncEngine::StopListening(const Query& query) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
-  [local_store_ releaseQuery:query];
+  local_store_->ReleaseQuery(query);
   remote_store_->StopListening(query_view->target_id());
   RemoveAndCleanupQuery(query_view);
 }
@@ -159,8 +160,7 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
                                 StatusCallback callback) {
   AssertCallbackExists("WriteMutations");
 
-  LocalWriteResult result =
-      [local_store_ locallyWriteMutations:std::move(mutations)];
+  LocalWriteResult result = local_store_->WriteLocally(std::move(mutations));
   mutation_callbacks_[current_user_].insert(
       std::make_pair(result.batch_id(), std::move(callback)));
 
@@ -175,7 +175,8 @@ void SyncEngine::RegisterPendingWritesCallback(StatusCallback callback) {
               "complete until the network is enabled.");
   }
 
-  int largest_pending_batch_id = [local_store_ getHighestUnacknowledgedBatchId];
+  int largest_pending_batch_id =
+      local_store_->GetHighestUnacknowledgedBatchId();
 
   if (largest_pending_batch_id == kBatchIdUnknown) {
     // Trigger the callback right away if there is no pending writes at the
@@ -212,7 +213,7 @@ void SyncEngine::HandleCredentialChange(const auth::User& user) {
         "'waitForPendingWrites' callback is cancelled due to a user change.");
     // Notify local store and emit any resulting events from swapping out the
     // mutation queue.
-    MaybeDocumentMap changes = [local_store_ userDidChange:user];
+    MaybeDocumentMap changes = local_store_->HandleUserChange(user);
     EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
   }
 
@@ -256,7 +257,7 @@ void SyncEngine::ApplyRemoteEvent(const RemoteEvent& remote_event) {
     }
   }
 
-  MaybeDocumentMap changes = [local_store_ applyRemoteEvent:remote_event];
+  MaybeDocumentMap changes = local_store_->ApplyRemoteEvent(remote_event);
   EmitNewSnapshotsAndNotifyLocalStore(changes, remote_event);
 }
 
@@ -292,7 +293,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
                 target_id);
     auto query_view = found->second;
     const Query& query = query_view->query();
-    [local_store_ releaseQuery:query];
+    local_store_->ReleaseQuery(query);
     RemoveAndCleanupQuery(query_view);
     if (ErrorIsInteresting(error)) {
       LOG_WARN("Listen for query at %s failed: %s",
@@ -314,8 +315,7 @@ void SyncEngine::HandleSuccessfulWrite(
 
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
 
-  MaybeDocumentMap changes =
-      [local_store_ acknowledgeBatchWithResult:batch_result];
+  MaybeDocumentMap changes = local_store_->AcknowledgeBatch(batch_result);
   EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
 }
 
@@ -323,7 +323,7 @@ void SyncEngine::HandleRejectedWrite(
     firebase::firestore::model::BatchId batch_id, Status error) {
   AssertCallbackExists("HandleRejectedWrite");
 
-  MaybeDocumentMap changes = [local_store_ rejectBatchID:batch_id];
+  MaybeDocumentMap changes = local_store_->RejectBatch(batch_id);
 
   if (!changes.empty() && ErrorIsInteresting(error)) {
     const DocumentKey& min_key = changes.min()->first;
@@ -428,7 +428,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       // The query has a limit and some docs were removed/updated, so we need to
       // re-run the query against the local store to make sure we didn't lose
       // any good docs that had been past the limit.
-      DocumentMap docs = [local_store_ executeQuery:query_view->query()];
+      DocumentMap docs = local_store_->ExecuteQuery(query_view->query());
       view_doc_changes =
           view.ComputeDocumentChanges(docs.underlying_map(), view_doc_changes);
     }
@@ -456,7 +456,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
   }
 
   sync_engine_callback_->OnViewSnapshots(std::move(new_snapshots));
-  [local_store_ notifyLocalViewChanges:document_changes_in_all_views];
+  local_store_->NotifyLocalViewChanges(document_changes_in_all_views);
 }
 
 void SyncEngine::UpdateTrackedLimboDocuments(

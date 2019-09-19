@@ -651,7 +651,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Test that the global data collection switch triggers setting Analytics when no explicit flag is
   // set.
   id optionsMock = OCMClassMock([FIROptions class]);
-  OCMStub([optionsMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
+  OCMStub([optionsMock isAnalyticsCollectionExplicitlySet]).andReturn(NO);
 
   // We need to use the default app name since Analytics only associates with the default app.
   FIRApp *defaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:optionsMock];
@@ -670,7 +670,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testAnalyticsNotSetByGlobalDataCollectionSwitch {
   // Test that the global data collection switch doesn't override an explicitly set Analytics flag.
   id optionsMock = OCMClassMock([FIROptions class]);
-  OCMStub([optionsMock isAnalyticsCollectionExpicitlySet]).andReturn(YES);
+  OCMStub([optionsMock isAnalyticsCollectionExplicitlySet]).andReturn(YES);
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testAnalyticsNotSet" options:optionsMock];
 
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);

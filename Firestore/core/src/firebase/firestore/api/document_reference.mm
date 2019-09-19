@@ -19,11 +19,8 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
@@ -40,8 +37,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -255,5 +250,3 @@ bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

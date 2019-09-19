@@ -36,7 +36,6 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
