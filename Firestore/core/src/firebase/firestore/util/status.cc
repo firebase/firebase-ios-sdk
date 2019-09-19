@@ -38,25 +38,25 @@ void Status::Update(const Status& new_status) {
 }
 
 Status& Status::CausedBy(const Status& cause) {
-  if (cause.ok() || this == &cause) {
+  if (cause.ok() || this == &cause || cause.IsMovedFrom()) {
     return *this;
   }
 
-  if (ok()) {
+  if (ok() || IsMovedFrom()) {
     *this = cause;
     return *this;
   }
 
-  absl::StrAppend(&AssertStatePtr()->msg, ": ", cause.error_message());
+  std::string new_message = error_message();
+  absl::StrAppend(&state_->msg, ": ", cause.error_message());
 
   // If this Status has no accompanying PlatformError but the cause does, create
   // a PlatformError for this Status ahead of time to preserve the causal chain
   // that Status doesn't otherwise support.
-  if (AssertStatePtr()->platform_error == nullptr &&
-      cause.AssertStatePtr()->platform_error != nullptr) {
-    AssertStatePtr()->platform_error =
-        cause.AssertStatePtr()->platform_error->WrapWith(code(),
-                                                         error_message());
+  if (state_->platform_error == nullptr &&
+      cause.state_->platform_error != nullptr) {
+    state_->platform_error =
+        cause.state_->platform_error->WrapWith(code(), error_message());
   }
 
   return *this;
@@ -64,7 +64,11 @@ Status& Status::CausedBy(const Status& cause) {
 
 Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
   HARD_ASSERT(!ok(), "Platform errors should not be applied to Status::OK()");
-  AssertStatePtr()->platform_error = std::move(error);
+  if (IsMovedFrom()) {
+    std::string message = moved_from_message();
+    state_ = State::MakePtr(Error::Internal, std::move(message));
+  }
+  state_->platform_error = std::move(error);
   return *this;
 }
 
@@ -90,6 +94,11 @@ void Status::SlowCopyFrom(const State* src) {
 const std::string& Status::empty_string() {
   static std::string* empty = new std::string;
   return *empty;
+}
+
+const std::string& Status::moved_from_message() {
+  static std::string* message = new std::string("Status accessed after move.");
+  return *message;
 }
 
 std::string Status::ToString() const {
@@ -151,7 +160,7 @@ std::string Status::ToString() const {
         break;
     }
     result += ": ";
-    result += AssertStatePtr()->msg;
+    result += IsMovedFrom() ? moved_from_message() : state_->msg;
     return result;
   }
 }

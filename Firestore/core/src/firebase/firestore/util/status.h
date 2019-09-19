@@ -81,11 +81,12 @@ class ABSL_MUST_USE_RESULT Status {
   }
 
   Error code() const {
-    return ok() ? Error::Ok : AssertStatePtr()->code;
+    return ok() ? Error::Ok : (IsMovedFrom() ? Error::Internal : state_->code);
   }
 
   const std::string& error_message() const {
-    return ok() ? empty_string() : AssertStatePtr()->msg;
+    return ok() ? empty_string()
+                : (IsMovedFrom() ? moved_from_message() : state_->msg);
   }
 
   bool operator==(const Status& x) const;
@@ -121,6 +122,7 @@ class ABSL_MUST_USE_RESULT Status {
 
  private:
   static const std::string& empty_string();
+  static const std::string& moved_from_message();
 
   struct State {
     State() = default;
@@ -156,11 +158,8 @@ class ABSL_MUST_USE_RESULT Status {
 
   // Asserts if `state_` is a valid pointer, should be used at all places where
   // it is used as a pointer, instead of using `state_`.
-  const State::StatePtr& AssertStatePtr() const {
-    HARD_ASSERT(
-        state_.get() != State::MovedFromIndicator(),
-        "Internal State is accessed after Status instance is moved from.");
-    return state_;
+  bool IsMovedFrom() const {
+    return state_.get() == State::MovedFromIndicator();
   }
 
   // OK status has a `nullptr` `state_`. If this instance is moved, state_ has

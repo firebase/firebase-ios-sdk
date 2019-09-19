@@ -87,11 +87,13 @@ TEST(Status, MoveAssign) {
   ASSERT_EQ(reassigned, Status(Error::InvalidArgument, "Foo"));
 }
 
-TEST(Status, AccessMovedFromThrows) {
-  Status ok;
+TEST(Status, CanAccessMovedFrom) {
+  Status ok = Status::OK();
   Status assigned = std::move(ok);
 
-  ASSERT_ANY_THROW(ok.error_message());
+  ASSERT_FALSE(ok.ok());
+  ASSERT_EQ(ok.error_message(), "Status accessed after move.");
+  ASSERT_EQ(ok.code(), Error::Internal);
 }
 
 TEST(Status, CanAssignToMovedFromStatus) {
@@ -115,6 +117,14 @@ TEST(Status, Update) {
   s.Update(Status::OK());
   ASSERT_EQ(s.ToString(), a.ToString());
   ASSERT_FALSE(s.ok());
+}
+
+TEST(Status, CanUpdateMovedFrom) {
+  Status a(Error::InvalidArgument, "Invalid");
+  Status b = std::move(a);
+
+  a.Update(b);
+  ASSERT_EQ(a.ToString(), "Internal: Status accessed after move.");
 }
 
 TEST(Status, EqualsOK) {
@@ -143,6 +153,17 @@ TEST(Status, EqualsDifferentMessage) {
   Status a(Error::InvalidArgument, "message");
   Status b(Error::InvalidArgument, "another");
   ASSERT_NE(a, b);
+}
+
+TEST(Status, EqualsApplyToMovedFrom) {
+  Status a(Error::InvalidArgument, "message");
+  Status unused = std::move(a);
+  Status b(Error::InvalidArgument, "message");
+
+  ASSERT_NE(a, b);
+
+  unused = std::move(b);
+  ASSERT_EQ(a, b);
 }
 
 TEST(Status, FromErrno) {
@@ -196,6 +217,15 @@ TEST(Status, CausedBy_Chain) {
 TEST(Status, CauseBy_Self) {
   Status not_found(Error::NotFound, "file not found");
   Status result = not_found.CausedBy(not_found);
+  EXPECT_EQ(not_found, result);
+}
+
+TEST(Status, CauseBy_OnMovedFrom) {
+  Status not_ready(Error::FailedPrecondition, "DB not ready");
+  Status not_found(Error::NotFound, "file not found");
+  Status unused = std::move(not_ready);
+
+  Status result = not_ready.CausedBy(not_found);
   EXPECT_EQ(not_found, result);
 }
 
