@@ -43,6 +43,8 @@ cc_library(
     firebase_firestore_nanopb
 
     ${TESTUTIL_DEPENDS}
+    absl_time
     firebase_firestore_core
     firebase_firestore_model
+    firebase_firestore_util
 )
