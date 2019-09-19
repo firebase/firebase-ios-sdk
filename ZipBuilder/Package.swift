@@ -21,6 +21,9 @@ import PackageDescription
 
 let package = Package(
   name: "ZipBuilder",
+  products: [
+    .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
+  ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.2.0")),
   ],
