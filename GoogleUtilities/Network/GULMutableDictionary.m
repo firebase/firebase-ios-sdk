@@ -76,18 +76,18 @@
   return count;
 }
 
-- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-  dispatch_async(_queue, ^{
-    self->_objects[key] = obj;
-  });
-}
-
 - (id)objectForKeyedSubscript:(id<NSCopying>)key {
   __block id object;
   dispatch_sync(_queue, ^{
     object = self->_objects[key];
   });
   return object;
+}
+
+- (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
+  dispatch_async(_queue, ^{
+    self->_objects[key] = obj;
+  });
 }
 
 - (NSDictionary *)dictionary {
