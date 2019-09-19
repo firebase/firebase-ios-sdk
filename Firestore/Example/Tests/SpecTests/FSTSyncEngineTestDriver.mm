@@ -42,14 +42,17 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -78,7 +81,7 @@ using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::Executor;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
@@ -193,9 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
     _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
-    dispatch_queue_t queue =
-        dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
-    _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+    _workerQueue = testutil::AsyncQueueForTesting();
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
 

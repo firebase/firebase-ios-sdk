@@ -39,10 +39,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
@@ -75,7 +75,6 @@ using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -232,9 +231,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _databaseInfo =
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
-  dispatch_queue_t queue = dispatch_queue_create(
-      "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _testWorkerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+  _testWorkerQueue = testutil::AsyncQueueForTesting();
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
                                            std::make_shared<EmptyCredentialsProvider>());
 
