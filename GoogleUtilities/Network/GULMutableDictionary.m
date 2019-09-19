@@ -77,11 +77,17 @@
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-  [self setObject:obj forKey:key];
+  dispatch_async(_queue, ^{
+    self->_objects[key] = obj;
+  });
 }
 
 - (id)objectForKeyedSubscript:(id<NSCopying>)key {
-  return [self objectForKey:key];
+  __block id object;
+  dispatch_sync(_queue, ^{
+    object = self->_objects[key];
+  });
+  return object;
 }
 
 - (NSDictionary *)dictionary {
