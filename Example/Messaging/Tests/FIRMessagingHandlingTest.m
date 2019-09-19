@@ -22,6 +22,7 @@
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
@@ -67,9 +68,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [super setUp];
 
   // Create the messaging instance with all the necessary dependencies.
-  NSUserDefaults *defaults =
-      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  id mockInstanceID = OCMClassMock([FIRInstanceID class]);
+  GULUserDefaults *defaults = [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults mockInstanceID:mockInstanceID];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
@@ -80,7 +81,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 - (void)tearDown {
-  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
   [_mockMessagingAnalytics stopMocking];
@@ -88,6 +88,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];
   _messaging = nil;
+  [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain] removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   [super tearDown];
 }
 
