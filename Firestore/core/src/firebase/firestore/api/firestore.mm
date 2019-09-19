@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
@@ -46,7 +46,6 @@ using model::DocumentKey;
 using model::ResourcePath;
 using util::AsyncQueue;
 using util::Executor;
-using util::ExecutorLibdispatch;
 using util::Status;
 
 Firestore::Firestore(model::DatabaseId database_id,
@@ -86,8 +85,7 @@ void Firestore::set_settings(const Settings& settings) {
   settings_ = settings;
 }
 
-void Firestore::set_user_executor(
-    std::unique_ptr<util::Executor> user_executor) {
+void Firestore::set_user_executor(std::unique_ptr<Executor> user_executor) {
   std::lock_guard<std::mutex> lock{mutex_};
   HARD_ASSERT(!client_ && user_executor,
               "set_user_executor() must be called with a valid executor, "
