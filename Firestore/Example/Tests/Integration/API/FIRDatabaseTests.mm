@@ -541,6 +541,8 @@ using firebase::firestore::util::TimerId;
   [ref addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     XCTAssertNil(error);
     [events addObject:@"doc"];
+    // Wait for the initial event from the backend so that we know we'll get exactly one snapshot
+    // event for our local write below.
     if (!setupComplete) {
       setupComplete = true;
       [gotInitialSnapshot fulfill];
