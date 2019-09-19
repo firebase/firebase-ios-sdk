@@ -23,6 +23,7 @@
 #include <thread>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
@@ -32,11 +33,13 @@ namespace firestore {
 namespace util {
 
 namespace chr = std::chrono;
+
 using async::Schedule;
+using testutil::Now;
 
 class ScheduleTest : public ::testing::Test {
  public:
-  ScheduleTest() : start_time{now()} {
+  ScheduleTest() : start_time{Now()} {
   }
 
   using ScheduleT = Schedule<int>;
@@ -83,13 +86,13 @@ TEST_F(ScheduleTest, PopBlocking) {
   EXPECT_FALSE(schedule.PopIfDue().has_value());
 
   EXPECT_EQ(schedule.PopBlocking(), 1);
-  EXPECT_GE(now(), start_time + chr::milliseconds(3));
+  EXPECT_GE(Now(), start_time + chr::milliseconds(3));
   EXPECT_TRUE(schedule.empty());
 }
 
 TEST_F(ScheduleTest, RemoveIf) {
   schedule.Push(1, start_time);
-  schedule.Push(2, now() + chr::minutes(1));
+  schedule.Push(2, Now() + chr::minutes(1));
 
   auto maybe_removed = schedule.RemoveIf([](const int v) { return v == 1; });
   EXPECT_TRUE(maybe_removed.has_value());
@@ -160,7 +163,7 @@ TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 3);
     // Make sure schedule hasn't been waiting longer than necessary.
-    EXPECT_LT(now(), far_away);
+    EXPECT_LT(Now(), far_away);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
@@ -176,7 +179,7 @@ TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
   const auto future = std::async(std::launch::async, [&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 1);
-    EXPECT_LT(now(), far_away);
+    EXPECT_LT(Now(), far_away);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
@@ -213,7 +216,7 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
 
   // Wait (with timeout) for both values to appear in the schedule.
   while (schedule.size() != 2) {
-    if (now() - start_time >= kTimeout) {
+    if (Now() - start_time >= kTimeout) {
       Abort();
     }
     std::this_thread::sleep_for(chr::milliseconds(1));
