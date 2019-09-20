@@ -743,8 +743,8 @@ ByteString MakeResumeToken(NSString *specString) {
     for (NSDictionary *step in steps) {
       LOG_DEBUG("Doing step %s", step);
       [self doStep:step];
-      [self validateStepExpectations:step[@"expect"]];
-      [self validateStateExpectations:step[@"stateExpect"]];
+      [self validateStepExpectations:step[@"expectedSnapshotEvents"]];
+      [self validateStateExpectations:step[@"expectedState"]];
       int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
       [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
     }
