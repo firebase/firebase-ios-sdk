@@ -97,6 +97,7 @@
     }
   }];
   dispatch_async(_eventWritingQueue, ^{
+    self->_runningInBackground = YES;
     if (bgID != GDTCORBackgroundIdentifierInvalid) {
       [app endBackgroundTask:bgID];
       bgID = GDTCORBackgroundIdentifierInvalid;

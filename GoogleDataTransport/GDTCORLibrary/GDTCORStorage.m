@@ -216,6 +216,10 @@ static NSString *GDTCORStoragePath() {
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
+  dispatch_async(_storageQueue, ^{
+    self.runningInBackground = NO;
+  });
+
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
     [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:nil];
@@ -227,8 +231,8 @@ static NSString *GDTCORStoragePath() {
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
-  self->_runningInBackground = YES;
   dispatch_async(_storageQueue, ^{
+    self.runningInBackground = YES;
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                            requiringSecureCoding:YES

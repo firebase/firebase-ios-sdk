@@ -186,12 +186,14 @@ static NSString *const ktargetToInFlightPackagesKey =
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   // Not entirely thread-safe, but it should be fine.
+  // QUESTION: Should this be in the _coordinationQueue?
   self->_runningInBackground = NO;
   [self startTimer];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
   // Not entirely thread-safe, but it should be fine.
+  // QUESTION: Should this be in the _coordinationQueue?
   self->_runningInBackground = YES;
 
   // Should be thread-safe. If it ends up not being, put this in a dispatch_sync.
