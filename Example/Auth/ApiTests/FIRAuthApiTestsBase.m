@@ -35,10 +35,10 @@
   }
 
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Anonymousy sign-in finished."];
+      [self expectationWithDescription:@"Anonymous sign-in finished."];
   [auth signInAnonymouslyWithCompletion:^(FIRAuthDataResult *result, NSError *error) {
     if (error) {
-      NSLog(@"Anonymousy sign in error: %@", error);
+      NSLog(@"Anonymous sign in error: %@", error);
     }
     [expectation fulfill];
   }];

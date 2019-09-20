@@ -40,20 +40,20 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>$REVERSE_CLIENT_ID</string>
+			<string>$REVERSED_CLIENT_ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>$REVERSE_CLIENT_ID</string>
+				<string>$REVERSED_CLIENT_ID</string>
 			</array>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>$REVERSE_CLIENT_MULTI_ID</string>
+			<string>$REVERSED_CLIENT_MULTI_ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>$REVERSE_CLIENT_MULTI_ID</string>
+				<string>$REVERSED_CLIENT_MULTI_ID</string>
 			</array>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>

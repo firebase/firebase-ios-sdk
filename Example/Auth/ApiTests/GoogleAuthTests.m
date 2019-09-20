@@ -63,12 +63,16 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
                                            error.localizedDescription);
                                  }
                                }];
-  XCTAssertEqualObjects(auth.currentUser.displayName, kGoogleTestAccountName);
+
+  if (auth.currentUser.displayName) {
+    XCTAssertEqualObjects(auth.currentUser.displayName, kGoogleTestAccountName);
+  }
 }
 
 /** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
  * access token. Returns a dictionary that constains "access_token", "token_type", "expires_in" and
- * "id_token".
+ * sometimes the "id_token". (The id_token is not guaranteed to be returned during a refresh
+ * exchange; see https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse)
  */
 - (NSDictionary *)getGoogleAccessToken {
   NSString *googleOauth2TokenServerUrl = @"https://www.googleapis.com/oauth2/v4/token";
