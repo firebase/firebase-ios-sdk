@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
-
+#include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
 #include <vector>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
@@ -32,45 +29,42 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
+#include "Firestore/core/test/firebase/firestore/testutil/view_testing.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
-namespace core = firebase::firestore::core;
+namespace firebase {
+namespace firestore {
+namespace core {
 
-using firebase::firestore::Error;
-using firebase::firestore::core::AsyncEventListener;
-using firebase::firestore::core::EventListener;
-using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::EventListener;
-using firebase::firestore::core::ListenOptions;
-using firebase::firestore::core::QueryListener;
-using firebase::firestore::core::View;
-using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::remote::TargetChange;
-using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::ExecutorLibdispatch;
-using firebase::firestore::util::Status;
-using firebase::firestore::util::StatusOr;
+using model::Document;
+using model::DocumentKeySet;
+using model::DocumentSet;
+using model::DocumentState;
+using model::OnlineState;
+using remote::TargetChange;
+using util::DelayedConstructor;
+using util::Executor;
+using util::Status;
+using util::StatusOr;
 
-using firebase::firestore::testutil::Doc;
-using firebase::firestore::testutil::Map;
-using firebase::firestore::testutil::Query;
 using testing::ElementsAre;
 using testing::IsEmpty;
-
-NS_ASSUME_NONNULL_BEGIN
+using testutil::AckTarget;
+using testutil::ApplyChanges;
+using testutil::Doc;
+using testutil::Expectation;
+using testutil::Map;
+using testutil::MarkCurrent;
 
 namespace {
 
-ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
+ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
   return ViewSnapshot{
       snapshot.query(),
       snapshot.documents(),
@@ -83,44 +77,44 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   };
 }
 
-ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
+ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot>* values) {
   return EventListener<ViewSnapshot>::Create(
-      [values](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+      [values](const StatusOr<ViewSnapshot>& maybe_snapshot) {
         values->push_back(maybe_snapshot.ValueOrDie());
       });
 }
 
 }  // namespace
 
-@interface FSTQueryListenerTests : XCTestCase
-@end
+class QueryListenerTest : public testing::Test, public testutil::AsyncTest {
+ protected:
+  void SetUp() override {
+    _executor = testutil::ExecutorForTesting("worker");
+    include_metadata_changes_ = ListenOptions::FromIncludeMetadataChanges(true);
+  }
 
-@implementation FSTQueryListenerTests {
-  std::shared_ptr<ExecutorLibdispatch> _executor;
-  ListenOptions _includeMetadataChanges;
-}
+  std::shared_ptr<Executor> _executor;
+  ListenOptions include_metadata_changes_;
+};
 
-- (void)setUp {
-  _executor = std::make_shared<ExecutorLibdispatch>(
-      dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
-  _includeMetadataChanges = ListenOptions::FromIncludeMetadataChanges(true);
-}
-
-- (void)testRaisesCollectionEvents {
+TEST_F(QueryListenerTest, RaisesCollectionEvents) {
   std::vector<ViewSnapshot> accum;
-  std::vector<ViewSnapshot> otherAccum;
+  std::vector<ViewSnapshot> other_accum;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc2prime = Doc("rooms/Hades", 3, Map("name", "Hades", "owner", "Jonny"));
+  Document doc2prime =
+      Doc("rooms/Hades", 3, Map("name", "Hades", "owner", "Jonny"));
 
-  auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
-  auto otherListener = QueryListener::Create(query, Accumulating(&otherAccum));
+  auto listener = QueryListener::Create(query, include_metadata_changes_,
+                                        Accumulating(&accum));
+  auto other_listener =
+      QueryListener::Create(query, Accumulating(&other_accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2prime}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {doc2prime}, absl::nullopt).value();
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
@@ -129,131 +123,133 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   listener->OnViewSnapshot(snap1);
   listener->OnViewSnapshot(snap2);
-  otherListener->OnViewSnapshot(snap2);
+  other_listener->OnViewSnapshot(snap2);
 
-  XC_ASSERT_THAT(accum, ElementsAre(snap1, snap2));
-  XC_ASSERT_THAT(accum[0].document_changes(), ElementsAre(change1, change2));
-  XC_ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
+  ASSERT_THAT(accum, ElementsAre(snap1, snap2));
+  ASSERT_THAT(accum[0].document_changes(), ElementsAre(change1, change2));
+  ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
-  ViewSnapshot expectedSnap2{snap2.query(),
-                             snap2.documents(),
-                             /*old_documents=*/DocumentSet{snap2.query().Comparator()},
-                             /*document_changes=*/{change1, change4},
-                             snap2.mutated_keys(),
-                             snap2.from_cache(),
-                             /*sync_state_changed=*/true,
-                             /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(otherAccum, ElementsAre(expectedSnap2));
+  ViewSnapshot expected_snap2{
+      snap2.query(),
+      snap2.documents(),
+      /*old_documents=*/DocumentSet{snap2.query().Comparator()},
+      /*document_changes=*/{change1, change4},
+      snap2.mutated_keys(),
+      snap2.from_cache(),
+      /*sync_state_changed=*/true,
+      /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(other_accum, ElementsAre(expected_snap2));
 }
 
-- (void)testRaisesErrorEvent {
+TEST_F(QueryListenerTest, RaisesErrorEvent) {
   __block std::vector<Status> accum;
-  core::Query query = Query("rooms/Eros");
+  Query query = testutil::Query("rooms/Eros");
 
-  auto listener = QueryListener::Create(query, ^(const StatusOr<ViewSnapshot> &maybe_snapshot) {
-    accum.push_back(maybe_snapshot.status());
-  });
+  auto listener = QueryListener::Create(
+      query, ^(const StatusOr<ViewSnapshot>& maybe_snapshot) {
+        accum.push_back(maybe_snapshot.status());
+      });
 
-  Status testError{Error::Unauthenticated, "Some info"};
-  listener->OnError(testError);
+  Status test_error{Error::Unauthenticated, "Some info"};
+  listener->OnError(test_error);
 
-  XC_ASSERT_THAT(accum, ElementsAre(testError));
+  ASSERT_THAT(accum, ElementsAre(test_error));
 }
 
-- (void)testRaisesEventForEmptyCollectionAfterSync {
+TEST_F(QueryListenerTest, RaisesEventForEmptyCollectionAfterSync) {
   std::vector<ViewSnapshot> accum;
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
 
-  auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
+  auto listener = QueryListener::Create(query, include_metadata_changes_,
+                                        Accumulating(&accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {}, FSTTestTargetChangeMarkCurrent()).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {}, MarkCurrent()).value();
 
   listener->OnViewSnapshot(snap1);
-  XC_ASSERT_THAT(accum, IsEmpty());
+  ASSERT_THAT(accum, IsEmpty());
 
   listener->OnViewSnapshot(snap2);
-  XC_ASSERT_THAT(accum, ElementsAre(snap2));
+  ASSERT_THAT(accum, ElementsAre(snap2));
 }
 
-- (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
+TEST_F(QueryListenerTest, MutingAsyncListenerPreventsAllSubsequentEvents) {
   std::vector<ViewSnapshot> accum;
 
-  core::Query query = Query("rooms/Eros");
+  Query query = testutil::Query("rooms/Eros");
   Document doc1 = Doc("rooms/Eros", 3, Map("name", "Eros"));
   Document doc2 = Doc("rooms/Eros", 4, Map("name", "Eros2"));
 
   std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
       AsyncEventListener<ViewSnapshot>::Create(
           _executor, EventListener<ViewSnapshot>::Create(
-                         [&accum, &listener](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+                         [&accum, &listener](
+                             const StatusOr<ViewSnapshot>& maybe_snapshot) {
                            accum.push_back(maybe_snapshot.ValueOrDie());
                            listener->Mute();
                          }));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
-  ViewSnapshot viewSnapshot2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
+  ViewSnapshot view_snapshot1 =
+      ApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot view_snapshot2 =
+      ApplyChanges(&view, {doc2}, absl::nullopt).value();
 
-  listener->OnEvent(viewSnapshot1);
-  listener->OnEvent(viewSnapshot2);
+  listener->OnEvent(view_snapshot1);
+  listener->OnEvent(view_snapshot2);
 
   // Drain queue
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Queue drained"];
-  _executor->Execute([=] { [expectation fulfill]; });
-
-  [self waitForExpectationsWithTimeout:4.0
-                               handler:^(NSError *_Nullable expectationError) {
-                                 if (expectationError) {
-                                   XCTFail(@"Error waiting for timeout: %@", expectationError);
-                                 }
-                               }];
+  Expectation drained;
+  _executor->Execute(drained.AsCallback());
+  Await(drained);
 
   // We should get the first snapshot but not the second.
-  XC_ASSERT_THAT(accum, ElementsAre(viewSnapshot1));
+  ASSERT_THAT(accum, ElementsAre(view_snapshot1));
 }
 
-- (void)testDoesNotRaiseEventsForMetadataChangesUnlessSpecified {
-  std::vector<ViewSnapshot> filteredAccum;
-  std::vector<ViewSnapshot> fullAccum;
+TEST_F(QueryListenerTest, DoesNotRaiseEventsForMetadataChangesUnlessSpecified) {
+  std::vector<ViewSnapshot> filtered_accum;
+  std::vector<ViewSnapshot> full_accum;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
-  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
-  auto fullListener =
-      QueryListener::Create(query, _includeMetadataChanges, Accumulating(&fullAccum));
+  auto filtered_listener =
+      QueryListener::Create(query, Accumulating(&filtered_accum));
+  auto full_listener = QueryListener::Create(query, include_metadata_changes_,
+                                             Accumulating(&full_accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1}, absl::nullopt).value();
 
-  TargetChange ackTarget = FSTTestTargetChangeAckDocuments({doc1.key()});
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {}, ackTarget).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
+  TargetChange ack_target = AckTarget({doc1});
+  ViewSnapshot snap2 = ApplyChanges(&view, {}, ack_target).value();
+  ViewSnapshot snap3 = ApplyChanges(&view, {doc2}, absl::nullopt).value();
 
-  filteredListener->OnViewSnapshot(snap1);  // local event
-  filteredListener->OnViewSnapshot(snap2);  // no event
-  filteredListener->OnViewSnapshot(snap3);  // doc2 update
+  filtered_listener->OnViewSnapshot(snap1);  // local event
+  filtered_listener->OnViewSnapshot(snap2);  // no event
+  filtered_listener->OnViewSnapshot(snap3);  // doc2 update
 
-  fullListener->OnViewSnapshot(snap1);  // local event
-  fullListener->OnViewSnapshot(snap2);  // state change event
-  fullListener->OnViewSnapshot(snap3);  // doc2 update
+  full_listener->OnViewSnapshot(snap1);  // local event
+  full_listener->OnViewSnapshot(snap2);  // state change event
+  full_listener->OnViewSnapshot(snap3);  // doc2 update
 
-  XC_ASSERT_THAT(filteredAccum,
-                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
-  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
+  ASSERT_THAT(filtered_accum, ElementsAre(ExcludingMetadataChanges(snap1),
+                                          ExcludingMetadataChanges(snap3)));
+  ASSERT_THAT(full_accum, ElementsAre(snap1, snap2, snap3));
 }
 
-- (void)testRaisesDocumentMetadataEventsOnlyWhenSpecified {
-  std::vector<ViewSnapshot> filteredAccum;
-  std::vector<ViewSnapshot> fullAccum;
+TEST_F(QueryListenerTest, RaisesDocumentMetadataEventsOnlyWhenSpecified) {
+  std::vector<ViewSnapshot> filtered_accum;
+  std::vector<ViewSnapshot> full_accum;
 
-  core::Query query = Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
+  Query query = testutil::Query("rooms");
+  Document doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc1Prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
   ListenOptions options(
@@ -261,65 +257,72 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
       /*include_document_metadata_changes=*/true,
       /*wait_for_sync_when_online=*/false);
 
-  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
-  auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
+  auto filtered_listener =
+      QueryListener::Create(query, Accumulating(&filtered_accum));
+  auto full_listener =
+      QueryListener::Create(query, options, Accumulating(&full_accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime}, absl::nullopt).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc3}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {doc1_prime}, absl::nullopt).value();
+  ViewSnapshot snap3 = ApplyChanges(&view, {doc3}, absl::nullopt).value();
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
-  DocumentViewChange change3{doc1Prime, DocumentViewChange::Type::Metadata};
+  DocumentViewChange change3{doc1_prime, DocumentViewChange::Type::Metadata};
   DocumentViewChange change4{doc3, DocumentViewChange::Type::Added};
 
-  filteredListener->OnViewSnapshot(snap1);
-  filteredListener->OnViewSnapshot(snap2);
-  filteredListener->OnViewSnapshot(snap3);
-  fullListener->OnViewSnapshot(snap1);
-  fullListener->OnViewSnapshot(snap2);
-  fullListener->OnViewSnapshot(snap3);
+  filtered_listener->OnViewSnapshot(snap1);
+  filtered_listener->OnViewSnapshot(snap2);
+  filtered_listener->OnViewSnapshot(snap3);
+  full_listener->OnViewSnapshot(snap1);
+  full_listener->OnViewSnapshot(snap2);
+  full_listener->OnViewSnapshot(snap3);
 
-  XC_ASSERT_THAT(filteredAccum,
-                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
-  XC_ASSERT_THAT(filteredAccum[0].document_changes(), ElementsAre(change1, change2));
-  XC_ASSERT_THAT(filteredAccum[1].document_changes(), ElementsAre(change4));
+  ASSERT_THAT(filtered_accum, ElementsAre(ExcludingMetadataChanges(snap1),
+                                          ExcludingMetadataChanges(snap3)));
+  ASSERT_THAT(filtered_accum[0].document_changes(),
+              ElementsAre(change1, change2));
+  ASSERT_THAT(filtered_accum[1].document_changes(), ElementsAre(change4));
 
-  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
-  XC_ASSERT_THAT(fullAccum[0].document_changes(), ElementsAre(change1, change2));
-  XC_ASSERT_THAT(fullAccum[1].document_changes(), ElementsAre(change3));
-  XC_ASSERT_THAT(fullAccum[2].document_changes(), ElementsAre(change4));
+  ASSERT_THAT(full_accum, ElementsAre(snap1, snap2, snap3));
+  ASSERT_THAT(full_accum[0].document_changes(), ElementsAre(change1, change2));
+  ASSERT_THAT(full_accum[1].document_changes(), ElementsAre(change3));
+  ASSERT_THAT(full_accum[2].document_changes(), ElementsAre(change4));
 }
 
-- (void)testRaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges {
-  std::vector<ViewSnapshot> fullAccum;
+TEST_F(QueryListenerTest,
+       RaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges) {
+  std::vector<ViewSnapshot> full_accum;
 
-  core::Query query = Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"), DocumentState::kLocalMutations);
-  Document doc1Prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2Prime = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  Query query = testutil::Query("rooms");
+  Document doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
+  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"),
+                      DocumentState::kLocalMutations);
+  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  Document doc2_prime = Doc("rooms/Hades", 2, Map("name", "Hades"));
   Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
   ListenOptions options(
       /*include_query_metadata_changes=*/true,
       /*include_document_metadata_changes=*/false,
       /*wait_for_sync_when_online=*/false);
-  auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
+  auto full_listener =
+      QueryListener::Create(query, options, Accumulating(&full_accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime}, absl::nullopt).value();
-  ViewSnapshot snap3 = FSTTestApplyChanges(&view, {doc3}, absl::nullopt).value();
-  ViewSnapshot snap4 = FSTTestApplyChanges(&view, {doc2Prime}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {doc1_prime}, absl::nullopt).value();
+  ViewSnapshot snap3 = ApplyChanges(&view, {doc3}, absl::nullopt).value();
+  ViewSnapshot snap4 = ApplyChanges(&view, {doc2_prime}, absl::nullopt).value();
 
-  fullListener->OnViewSnapshot(snap1);
-  fullListener->OnViewSnapshot(snap2);  // Emits no events.
-  fullListener->OnViewSnapshot(snap3);
-  fullListener->OnViewSnapshot(snap4);  // Metadata change event.
+  full_listener->OnViewSnapshot(snap1);
+  full_listener->OnViewSnapshot(snap2);  // Emits no events.
+  full_listener->OnViewSnapshot(snap3);
+  full_listener->OnViewSnapshot(snap4);  // Metadata change event.
 
-  ViewSnapshot expectedSnap4{
+  ViewSnapshot expected_snap4{
       snap4.query(),
       snap4.documents(),
       snap3.documents(),
@@ -327,48 +330,55 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
       snap4.mutated_keys(),
       snap4.from_cache(),
       snap4.sync_state_changed(),
-      /*excludes_metadata_changes=*/true  // This test excludes document metadata changes
+      /*excludes_metadata_changes=*/true  // This test excludes document
+                                          // metadata changes
   };
 
-  XC_ASSERT_THAT(fullAccum, ElementsAre(ExcludingMetadataChanges(snap1),
-                                        ExcludingMetadataChanges(snap3), expectedSnap4));
+  ASSERT_THAT(full_accum,
+              ElementsAre(ExcludingMetadataChanges(snap1),
+                          ExcludingMetadataChanges(snap3), expected_snap4));
 }
 
-- (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
-  std::vector<ViewSnapshot> filteredAccum;
+TEST_F(QueryListenerTest,
+       TestMetadataOnlyDocChangesAreRemovedWhenIncludeMetadataChangesIsFalse) {
+  std::vector<ViewSnapshot> filtered_accum;
 
-  core::Query query = Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
+  Query query = testutil::Query("rooms");
+  Document doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc1Prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
-  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
+  auto filtered_listener =
+      QueryListener::Create(query, Accumulating(&filtered_accum));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc1Prime, doc3}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1, doc2}, absl::nullopt).value();
+  ViewSnapshot snap2 =
+      ApplyChanges(&view, {doc1_prime, doc3}, absl::nullopt).value();
 
   DocumentViewChange change3{doc3, DocumentViewChange::Type::Added};
 
-  filteredListener->OnViewSnapshot(snap1);
-  filteredListener->OnViewSnapshot(snap2);
+  filtered_listener->OnViewSnapshot(snap1);
+  filtered_listener->OnViewSnapshot(snap2);
 
-  ViewSnapshot expectedSnap2{snap2.query(),
-                             snap2.documents(),
-                             snap1.documents(),
-                             /*document_changes=*/{change3},
-                             snap2.mutated_keys(),
-                             snap2.from_cache(),
-                             snap2.sync_state_changed(),
-                             /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(filteredAccum, ElementsAre(ExcludingMetadataChanges(snap1), expectedSnap2));
+  ViewSnapshot expected_snap2{snap2.query(),
+                              snap2.documents(),
+                              snap1.documents(),
+                              /*document_changes=*/{change3},
+                              snap2.mutated_keys(),
+                              snap2.from_cache(),
+                              snap2.sync_state_changed(),
+                              /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(filtered_accum,
+              ElementsAre(ExcludingMetadataChanges(snap1), expected_snap2));
 }
 
-- (void)testWillWaitForSyncIfOnline {
+TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
   std::vector<ViewSnapshot> events;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
@@ -379,11 +389,9 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
-  ViewSnapshot snap3 =
-      FSTTestApplyChanges(&view, {}, FSTTestTargetChangeAckDocuments({doc1.key(), doc2.key()}))
-          .value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {doc2}, absl::nullopt).value();
+  ViewSnapshot snap3 = ApplyChanges(&view, {}, AckTarget({doc1, doc2})).value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);  // no event
   listener->OnViewSnapshot(snap1);
@@ -394,21 +402,22 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
-  ViewSnapshot expectedSnap{snap3.query(),
-                            snap3.documents(),
-                            /*old_documents=*/DocumentSet{snap3.query().Comparator()},
-                            /*document_changes=*/{change1, change2},
-                            snap3.mutated_keys(),
-                            /*from_cache=*/false,
-                            /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
+  ViewSnapshot expected_snap{
+      snap3.query(),
+      snap3.documents(),
+      /*old_documents=*/DocumentSet{snap3.query().Comparator()},
+      /*document_changes=*/{change1, change2},
+      snap3.mutated_keys(),
+      /*from_cache=*/false,
+      /*sync_state_changed=*/true,
+      /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 
-- (void)testWillRaiseInitialEventWhenGoingOffline {
+TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
   std::vector<ViewSnapshot> events;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
@@ -420,8 +429,8 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
   auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {doc1}, absl::nullopt).value();
-  ViewSnapshot snap2 = FSTTestApplyChanges(&view, {doc2}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {doc1}, absl::nullopt).value();
+  ViewSnapshot snap2 = ApplyChanges(&view, {doc2}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);   // no event
   listener->OnViewSnapshot(snap1);                       // no event
@@ -432,73 +441,78 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
-  ViewSnapshot expectedSnap1{query,
-                             /*documents=*/snap1.documents(),
-                             /*old_documents=*/DocumentSet{snap1.query().Comparator()},
-                             /*document_changes=*/{change1},
-                             snap1.mutated_keys(),
-                             /*from_cache=*/true,
-                             /*sync_state_changed=*/true,
-                             /*excludes_metadata_changes=*/true};
+  ViewSnapshot expected_snap1{
+      query,
+      /*documents=*/snap1.documents(),
+      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*document_changes=*/{change1},
+      snap1.mutated_keys(),
+      /*from_cache=*/true,
+      /*sync_state_changed=*/true,
+      /*excludes_metadata_changes=*/true};
 
-  ViewSnapshot expectedSnap2{query,
-                             /*documents=*/snap2.documents(),
-                             /*old_documents=*/snap1.documents(),
-                             /*document_changes=*/{change2},
-                             snap2.mutated_keys(),
-                             /*from_cache=*/true,
-                             /*sync_state_changed=*/false,
-                             /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(events, ElementsAre(expectedSnap1, expectedSnap2));
+  ViewSnapshot expected_snap2{query,
+                              /*documents=*/snap2.documents(),
+                              /*old_documents=*/snap1.documents(),
+                              /*document_changes=*/{change2},
+                              snap2.mutated_keys(),
+                              /*from_cache=*/true,
+                              /*sync_state_changed=*/false,
+                              /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(events, ElementsAre(expected_snap1, expected_snap2));
 }
 
-- (void)testWillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs {
+TEST_F(QueryListenerTest,
+       WillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs) {
   std::vector<ViewSnapshot> events;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Online);   // no event
   listener->OnViewSnapshot(snap1);                       // no event
   listener->OnOnlineStateChanged(OnlineState::Offline);  // event
 
-  ViewSnapshot expectedSnap{query,
-                            /*documents=*/snap1.documents(),
-                            /*old_documents=*/DocumentSet{snap1.query().Comparator()},
-                            /*document_changes=*/{},
-                            snap1.mutated_keys(),
-                            /*from_cache=*/true,
-                            /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
+  ViewSnapshot expected_snap{
+      query,
+      /*documents=*/snap1.documents(),
+      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*document_changes=*/{},
+      snap1.mutated_keys(),
+      /*from_cache=*/true,
+      /*sync_state_changed=*/true,
+      /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 
-- (void)testWillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs {
+TEST_F(QueryListenerTest,
+       WillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs) {
   std::vector<ViewSnapshot> events;
 
-  core::Query query = Query("rooms");
+  Query query = testutil::Query("rooms");
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
-  ViewSnapshot snap1 = FSTTestApplyChanges(&view, {}, absl::nullopt).value();
+  ViewSnapshot snap1 = ApplyChanges(&view, {}, absl::nullopt).value();
 
   listener->OnOnlineStateChanged(OnlineState::Offline);  // no event
   listener->OnViewSnapshot(snap1);                       // event
 
-  ViewSnapshot expectedSnap{query,
-                            /*documents=*/snap1.documents(),
-                            /*old_documents=*/DocumentSet{snap1.query().Comparator()},
-                            /*document_changes=*/{},
-                            snap1.mutated_keys(),
-                            /*from_cache=*/true,
-                            /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/true};
-  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
+  ViewSnapshot expected_snap{
+      query,
+      /*documents=*/snap1.documents(),
+      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*document_changes=*/{},
+      snap1.mutated_keys(),
+      /*from_cache=*/true,
+      /*sync_state_changed=*/true,
+      /*excludes_metadata_changes=*/true};
+  ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace core
+}  // namespace firestore
+}  // namespace firebase
