@@ -43,6 +43,7 @@ cc_library(
     firebase_firestore_nanopb
 
     ${TESTUTIL_DEPENDS}
+    GTest::GTest
     absl_time
     firebase_firestore_core
     firebase_firestore_model
