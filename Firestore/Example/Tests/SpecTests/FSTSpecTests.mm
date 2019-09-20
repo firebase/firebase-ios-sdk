@@ -278,6 +278,14 @@ ByteString MakeResumeToken(NSString *specString) {
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
 }
 
+- (void)doAddSnapshotsInSyncListener {
+  [self.driver addSnapshotsInSyncListener];
+}
+
+- (void)doRemoveSnapshotsInSyncListener {
+  [self.driver removeSnapshotsInSyncListener];
+}
+
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
   WatchTargetChange change{WatchTargetChangeState::Added, ConvertTargetsArray(ackedTargets)};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
@@ -479,6 +487,10 @@ ByteString MakeResumeToken(NSString *specString) {
     [self doPatch:step[@"userPatch"]];
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
+  } else if (step[@"addSnapshotsInSyncListener"]) {
+    [self doAddSnapshotsInSyncListener];
+  } else if (step[@"removeSnapshotsInSyncListener"]) {
+    [self doRemoveSnapshotsInSyncListener];
   } else if (step[@"drainQueue"]) {
     [self doDrainQueue];
   } else if (step[@"watchAck"]) {
@@ -651,6 +663,11 @@ ByteString MakeResumeToken(NSString *specString) {
   [self validateActiveTargets];
 }
 
+- (void)validateSnapshotsInSyncEvents:(int)expectedSnapshotInSyncEvents {
+  XCTAssertEqual(expectedSnapshotInSyncEvents, [self.driver snapshotsInSyncEvents]);
+  [self.driver resetSnapshotsInSyncEvents];
+}
+
 - (void)validateUserCallbacks:(nullable NSDictionary *)expected {
   NSDictionary *expectedCallbacks = expected[@"userCallbacks"];
   NSArray<NSString *> *actualAcknowledgedDocs =
@@ -728,6 +745,8 @@ ByteString MakeResumeToken(NSString *specString) {
       [self doStep:step];
       [self validateStepExpectations:step[@"expect"]];
       [self validateStateExpectations:step[@"stateExpect"]];
+      int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
+      [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
     }
     [self.driver validateUsage];
   } @finally {

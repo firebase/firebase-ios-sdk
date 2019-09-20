@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -32,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 
 namespace firebase {
 namespace firestore {
@@ -310,6 +312,26 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
+
+/**
+ * The number of snapshots-in-sync events that have been received.
+ */
+@property(nonatomic, readonly) int snapshotsInSyncEvents;
+
+- (void)incrementSnapshotsInSyncEvents;
+
+- (void)resetSnapshotsInSyncEvents;
+
+/**
+ * Adds a snpahots-in-sync listener to the event manager and keeps track of it so that it
+ * can be easily removed later.
+ */
+- (void)addSnapshotsInSyncListener;
+
+/**
+ * Removes the snapshots-in-sync listener from the event manager.
+ */
+- (void)removeSnapshotsInSyncListener;
 
 /** The set of active targets as observed on the watch stream. */
 - (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)activeTargets;
