@@ -579,10 +579,10 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 }
 
-- (void)validateStepExpectations:(NSArray *_Nullable)stepExpectations {
+- (void)validateExpectedSnapshotEvents:(NSArray *_Nullable)expectedEvents {
   NSArray<FSTQueryEvent *> *events = self.driver.capturedEventsSinceLastCall;
 
-  if (!stepExpectations) {
+  if (!expectedEvents) {
     XCTAssertEqual(events.count, 0);
     for (FSTQueryEvent *event in events) {
       XCTFail(@"Unexpected event: %@", event);
@@ -590,12 +590,12 @@ ByteString MakeResumeToken(NSString *specString) {
     return;
   }
 
-  XCTAssertEqual(events.count, stepExpectations.count);
+  XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
         return util::WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
       }];
-  stepExpectations = [stepExpectations
+  expectedEvents = [expectedEvents
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         Query leftQuery = [self parseQuery:left[@"query"]];
         Query rightQuery = [self parseQuery:right[@"query"]];
@@ -603,42 +603,43 @@ ByteString MakeResumeToken(NSString *specString) {
       }];
 
   NSUInteger i = 0;
-  for (; i < stepExpectations.count && i < events.count; ++i) {
-    [self validateEvent:events[i] matches:stepExpectations[i]];
+  for (; i < expectedEvents.count && i < events.count; ++i) {
+    [self validateEvent:events[i] matches:expectedEvents[i]];
   }
-  for (; i < stepExpectations.count; ++i) {
-    XCTFail(@"Missing event: %@", stepExpectations[i]);
+  for (; i < expectedEvents.count; ++i) {
+    XCTFail(@"Missing event: %@", expectedEvents[i]);
   }
   for (; i < events.count; ++i) {
     XCTFail(@"Unexpected event: %@", events[i]);
   }
 }
 
-- (void)validateStateExpectations:(nullable NSDictionary *)expected {
-  if (expected) {
-    if (expected[@"numOutstandingWrites"]) {
-      XCTAssertEqual([self.driver sentWritesCount], [expected[@"numOutstandingWrites"] intValue]);
+- (void)validateExpectedState:(nullable NSDictionary *)expectedState {
+  if (expectedState) {
+    if (expectedState[@"numOutstandingWrites"]) {
+      XCTAssertEqual([self.driver sentWritesCount],
+                     [expectedState[@"numOutstandingWrites"] intValue]);
     }
-    if (expected[@"writeStreamRequestCount"]) {
+    if (expectedState[@"writeStreamRequestCount"]) {
       XCTAssertEqual([self.driver writeStreamRequestCount],
-                     [expected[@"writeStreamRequestCount"] intValue]);
+                     [expectedState[@"writeStreamRequestCount"] intValue]);
     }
-    if (expected[@"watchStreamRequestCount"]) {
+    if (expectedState[@"watchStreamRequestCount"]) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
-                     [expected[@"watchStreamRequestCount"] intValue]);
+                     [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expected[@"limboDocs"]) {
+    if (expectedState[@"limboDocs"]) {
       DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expected[@"limboDocs"];
+      NSArray *docNames = expectedState[@"limboDocs"];
       for (NSString *name in docNames) {
         expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
-    if (expected[@"activeTargets"]) {
+    if (expectedState[@"activeTargets"]) {
       __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
-      [expected[@"activeTargets"]
+      [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *stop) {
             TargetId targetID = [targetIDString intValue];
@@ -656,7 +657,7 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 
   // Always validate the we received the expected number of callbacks.
-  [self validateUserCallbacks:expected];
+  [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
   [self validateLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
@@ -743,8 +744,8 @@ ByteString MakeResumeToken(NSString *specString) {
     for (NSDictionary *step in steps) {
       LOG_DEBUG("Doing step %s", step);
       [self doStep:step];
-      [self validateStepExpectations:step[@"expectedSnapshotEvents"]];
-      [self validateStateExpectations:step[@"expectedState"]];
+      [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
+      [self validateExpectedState:step[@"expectedState"]];
       int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
       [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
     }
