@@ -34,9 +34,11 @@ using model::DocumentState;
 using testutil::Doc;
 using testutil::Map;
 
+using Type = DocumentViewChange::Type;
+
 TEST(ViewSnapshotTest, DocumentChangeConstructor) {
   Document doc = Doc("a/b", 0, Map());
-  DocumentViewChange::Type type = DocumentViewChange::Type::Modified;
+  Type type = Type::Modified;
   DocumentViewChange change{doc, type};
   ASSERT_EQ(change.document(), doc);
   ASSERT_EQ(change.type(), type);
@@ -55,55 +57,43 @@ TEST(ViewSnapshotTest, Track) {
   Document doc_modified_then_removed = Doc("b/4", 0, Map());
   Document doc_modified_then_modified = Doc("b/5", 0, Map());
 
-  set.AddChange(DocumentViewChange{doc_added, DocumentViewChange::Type::Added});
-  set.AddChange(
-      DocumentViewChange{doc_removed, DocumentViewChange::Type::Removed});
-  set.AddChange(
-      DocumentViewChange{doc_modified, DocumentViewChange::Type::Modified});
-  set.AddChange(DocumentViewChange{doc_added_then_modified,
-                                   DocumentViewChange::Type::Added});
-  set.AddChange(DocumentViewChange{doc_added_then_modified,
-                                   DocumentViewChange::Type::Modified});
-  set.AddChange(DocumentViewChange{doc_added_then_removed,
-                                   DocumentViewChange::Type::Added});
-  set.AddChange(DocumentViewChange{doc_added_then_removed,
-                                   DocumentViewChange::Type::Removed});
-  set.AddChange(DocumentViewChange{doc_removed_then_added,
-                                   DocumentViewChange::Type::Removed});
-  set.AddChange(DocumentViewChange{doc_removed_then_added,
-                                   DocumentViewChange::Type::Added});
-  set.AddChange(DocumentViewChange{doc_modified_then_removed,
-                                   DocumentViewChange::Type::Modified});
-  set.AddChange(DocumentViewChange{doc_modified_then_removed,
-                                   DocumentViewChange::Type::Removed});
-  set.AddChange(DocumentViewChange{doc_modified_then_modified,
-                                   DocumentViewChange::Type::Modified});
-  set.AddChange(DocumentViewChange{doc_modified_then_modified,
-                                   DocumentViewChange::Type::Modified});
+  set.AddChange(DocumentViewChange{doc_added, Type::Added});
+  set.AddChange(DocumentViewChange{doc_removed, Type::Removed});
+  set.AddChange(DocumentViewChange{doc_modified, Type::Modified});
+  set.AddChange(DocumentViewChange{doc_added_then_modified, Type::Added});
+  set.AddChange(DocumentViewChange{doc_added_then_modified, Type::Modified});
+  set.AddChange(DocumentViewChange{doc_added_then_removed, Type::Added});
+  set.AddChange(DocumentViewChange{doc_added_then_removed, Type::Removed});
+  set.AddChange(DocumentViewChange{doc_removed_then_added, Type::Removed});
+  set.AddChange(DocumentViewChange{doc_removed_then_added, Type::Added});
+  set.AddChange(DocumentViewChange{doc_modified_then_removed, Type::Modified});
+  set.AddChange(DocumentViewChange{doc_modified_then_removed, Type::Removed});
+  set.AddChange(DocumentViewChange{doc_modified_then_modified, Type::Modified});
+  set.AddChange(DocumentViewChange{doc_modified_then_modified, Type::Modified});
 
   std::vector<DocumentViewChange> changes = set.GetChanges();
   ASSERT_EQ(changes.size(), 7);
 
   ASSERT_EQ(changes[0].document(), doc_added);
-  ASSERT_EQ(changes[0].type(), DocumentViewChange::Type::Added);
+  ASSERT_EQ(changes[0].type(), Type::Added);
 
   ASSERT_EQ(changes[1].document(), doc_removed);
-  ASSERT_EQ(changes[1].type(), DocumentViewChange::Type::Removed);
+  ASSERT_EQ(changes[1].type(), Type::Removed);
 
   ASSERT_EQ(changes[2].document(), doc_modified);
-  ASSERT_EQ(changes[2].type(), DocumentViewChange::Type::Modified);
+  ASSERT_EQ(changes[2].type(), Type::Modified);
 
   ASSERT_EQ(changes[3].document(), doc_added_then_modified);
-  ASSERT_EQ(changes[3].type(), DocumentViewChange::Type::Added);
+  ASSERT_EQ(changes[3].type(), Type::Added);
 
   ASSERT_EQ(changes[4].document(), doc_removed_then_added);
-  ASSERT_EQ(changes[4].type(), DocumentViewChange::Type::Modified);
+  ASSERT_EQ(changes[4].type(), Type::Modified);
 
   ASSERT_EQ(changes[5].document(), doc_modified_then_removed);
-  ASSERT_EQ(changes[5].type(), DocumentViewChange::Type::Removed);
+  ASSERT_EQ(changes[5].type(), Type::Removed);
 
   ASSERT_EQ(changes[6].document(), doc_modified_then_modified);
-  ASSERT_EQ(changes[6].type(), DocumentViewChange::Type::Modified);
+  ASSERT_EQ(changes[6].type(), Type::Modified);
 }
 
 TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
@@ -111,8 +101,8 @@ TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
   DocumentSet documents = DocumentSet{DocumentComparator::ByKey()};
   DocumentSet old_documents = documents;
   documents = documents.insert(Doc("c/a", 1, Map()));
-  std::vector<DocumentViewChange> document_changes{DocumentViewChange{
-      Doc("c/a", 1, Map()), DocumentViewChange::Type::Added}};
+  std::vector<DocumentViewChange> document_changes{
+      DocumentViewChange{Doc("c/a", 1, Map()), Type::Added}};
 
   bool from_cache = true;
   DocumentKeySet mutated_keys;
