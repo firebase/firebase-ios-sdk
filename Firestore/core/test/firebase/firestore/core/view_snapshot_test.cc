@@ -30,7 +30,6 @@ using model::DocumentComparator;
 using model::DocumentKeySet;
 using model::DocumentSet;
 using model::DocumentState;
-using testutil::Query;
 
 using testutil::Doc;
 using testutil::Map;
@@ -108,7 +107,7 @@ TEST(ViewSnapshotTest, Track) {
 }
 
 TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
-  core::Query query = Query("a");
+  Query query = testutil::Query("a");
   DocumentSet documents = DocumentSet{DocumentComparator::ByKey()};
   DocumentSet old_documents = documents;
   documents = documents.insert(Doc("c/a", 1, Map()));
