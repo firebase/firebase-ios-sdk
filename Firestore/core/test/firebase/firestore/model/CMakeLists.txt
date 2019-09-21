@@ -27,6 +27,7 @@ cc_test(
     precondition_test.cc
     resource_path_test.cc
     snapshot_version_test.cc
+    transform_operation_test.cc
   DEPENDS
     firebase_firestore_model
     firebase_firestore_testutil
