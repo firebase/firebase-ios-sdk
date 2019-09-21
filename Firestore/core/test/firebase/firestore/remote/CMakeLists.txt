@@ -20,6 +20,7 @@ cc_test(
     grpc_stream_test.cc
     grpc_streaming_reader_test.cc
     grpc_unary_call_test.cc
+    remote_event_test.cc
     serializer_test.cc
     watch_change_test.mm
   DEPENDS
