@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param target The target backend of this transport.
  * @return A transport that will send events.
  */
-- (instancetype)initWithMappingID:(NSString *)mappingID
+- (nullable instancetype)initWithMappingID:(NSString *)mappingID
                      transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
                            target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
 

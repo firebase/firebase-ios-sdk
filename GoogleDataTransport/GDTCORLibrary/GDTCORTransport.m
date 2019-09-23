@@ -25,7 +25,7 @@
 
 @implementation GDTCORTransport
 
-- (instancetype)initWithMappingID:(NSString *)mappingID
+- (nullable instancetype)initWithMappingID:(NSString *)mappingID
                      transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
                            target:(NSInteger)target {
   GDTCORAssert(mappingID.length > 0, @"A mapping ID cannot be nil or empty");
