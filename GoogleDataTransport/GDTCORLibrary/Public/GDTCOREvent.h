@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
  * @return An instance of this class.
  */
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
-                           target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+                                    target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
 
 /** Returns the GDTCORStoredEvent equivalent of self.
  *
