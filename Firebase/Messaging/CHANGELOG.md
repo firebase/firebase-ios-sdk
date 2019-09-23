@@ -1,3 +1,6 @@
+# 2019-09 -- v4.1.5
+- [fixed] Mute FCM deprecated warnings with Xcode 11 and min iOS >= 10. (#3857)
+
 # 2019-09-03 -- v4.1.4
 - [fixed] Fixed notification open event is not logged when scheduling a local timezone message. (#3670, #3638)
 - [fixed] Fixed FirebaseApp.delete() results in unusable Messaging singleton. (#3411)
