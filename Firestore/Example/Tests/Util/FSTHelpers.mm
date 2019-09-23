@@ -51,6 +51,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
@@ -94,6 +95,7 @@ using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::FakeTargetMetadataProvider;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -238,71 +240,6 @@ absl::optional<ViewSnapshot> FSTTestApplyChanges(View *view,
   return change.snapshot();
 }
 
-namespace firebase {
-namespace firestore {
-namespace remote {
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
-    DocumentKey document_key,
-    const std::vector<TargetId> &listen_targets,
-    const std::vector<TargetId> &limbo_targets) {
-  TestTargetMetadataProvider metadata_provider;
-  core::Query query(document_key.path());
-
-  for (TargetId target_id : listen_targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
-  }
-  for (TargetId target_id : limbo_targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::LimboResolution);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
-  }
-
-  return metadata_provider;
-}
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
-    DocumentKey document_key, const std::vector<TargetId> &targets) {
-  return CreateSingleResultProvider(document_key, targets, /*limbo_targets=*/{});
-}
-
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(
-    const ResourcePath &path, const std::vector<TargetId> &targets) {
-  TestTargetMetadataProvider metadata_provider;
-  core::Query query(path);
-
-  for (TargetId target_id : targets) {
-    QueryData query_data(query, target_id, 0, QueryPurpose::Listen);
-    metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
-  }
-
-  return metadata_provider;
-}
-
-void TestTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys, QueryData query_data) {
-  synced_keys_[query_data.target_id()] = keys;
-  query_data_[query_data.target_id()] = std::move(query_data);
-}
-
-DocumentKeySet TestTargetMetadataProvider::GetRemoteKeysForTarget(TargetId target_id) const {
-  auto it = synced_keys_.find(target_id);
-  HARD_ASSERT(it != synced_keys_.end(), "Cannot process unknown target %s", target_id);
-  return it->second;
-}
-
-absl::optional<QueryData> TestTargetMetadataProvider::GetQueryDataForTarget(
-    TargetId target_id) const {
-  auto it = query_data_.find(target_id);
-  HARD_ASSERT(it != query_data_.end(), "Cannot process unknown target %s", target_id);
-  return it->second;
-}
-
-}  // namespace remote
-}  // namespace firestore
-}  // namespace firebase
-
-using firebase::firestore::remote::TestTargetMetadataProvider;
-
 RemoteEvent FSTTestAddedRemoteEvent(const MaybeDocument &doc,
                                     const std::vector<TargetId> &addedToTargets) {
   std::vector<MaybeDocument> docs{doc};
@@ -315,7 +252,7 @@ RemoteEvent FSTTestAddedRemoteEvent(const std::vector<MaybeDocument> &docs,
 
   const ResourcePath &collectionPath = docs[0].key().path().PopLast();
   auto metadataProvider =
-      TestTargetMetadataProvider::CreateEmptyResultProvider(collectionPath, addedToTargets);
+      FakeTargetMetadataProvider::CreateEmptyResultProvider(collectionPath, addedToTargets);
   WatchChangeAggregator aggregator{&metadataProvider};
   for (const MaybeDocument &doc : docs) {
     HARD_ASSERT(!doc.is_document() || !Document(doc).has_local_mutations(),
@@ -355,7 +292,7 @@ RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
   auto metadataProvider =
-      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens, limboTargets);
+      FakeTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens, limboTargets);
   WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version());

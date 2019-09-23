@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cc_library(
+  firebase_firestore_remote_testing
+  SOURCES
+    fake_target_metadata_provider.cc
+    fake_target_metadata_provider.h
+  DEPENDS
+    firebase_firestore_remote
+)
+
 cc_test(
   firebase_firestore_remote_test
   SOURCES
@@ -28,6 +37,7 @@ cc_test(
     firebase_firestore_protos_libprotobuf
     firebase_firestore_core
     firebase_firestore_remote
+    firebase_firestore_remote_testing
     firebase_firestore_remote_test_util
     firebase_firestore_testutil
     firebase_firestore_util_async_std
