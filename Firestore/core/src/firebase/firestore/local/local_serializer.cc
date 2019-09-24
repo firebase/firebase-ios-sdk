@@ -123,8 +123,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
     const Document& doc) const {
   google_firestore_v1_Document result{};
 
-  result.name =
-      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
+  result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
   pb_size_t count = CheckedSize(doc.data().GetInternalValue().size());
@@ -148,8 +147,7 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
     const NoDocument& no_doc) const {
   firestore_client_NoDocument result{};
 
-  result.name =
-      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(no_doc.key()));
+  result.name = rpc_serializer_.EncodeKey(no_doc.key());
   result.read_time = rpc_serializer_.EncodeVersion(no_doc.version());
 
   return result;
@@ -163,9 +161,7 @@ NoDocument LocalSerializer::DecodeNoDocument(
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
   // we'll defer until the nanopb-master gets merged to master.
-  return NoDocument(rpc_serializer_.DecodeKey(
-                        reader, rpc_serializer_.DecodeString(proto.name)),
-                    version,
+  return NoDocument(rpc_serializer_.DecodeKey(reader, proto.name), version,
                     /*has_committed_mutations=*/false);
 }
 
@@ -173,8 +169,7 @@ firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
     const UnknownDocument& unknown_doc) const {
   firestore_client_UnknownDocument result{};
 
-  result.name = rpc_serializer_.EncodeString(
-      rpc_serializer_.EncodeKey(unknown_doc.key()));
+  result.name = rpc_serializer_.EncodeKey(unknown_doc.key());
   result.version = rpc_serializer_.EncodeVersion(unknown_doc.version());
 
   return result;
@@ -185,8 +180,7 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
 
-  return UnknownDocument(rpc_serializer_.DecodeKey(
-                             reader, rpc_serializer_.DecodeString(proto.name)),
+  return UnknownDocument(rpc_serializer_.DecodeKey(reader, proto.name),
                          version);
 }
 
