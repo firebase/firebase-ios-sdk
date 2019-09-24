@@ -67,6 +67,22 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  */
 + (nullable GDTCORApplication *)sharedApplication;
 
+/** Flag to determine if the application is running in the background.
+ *
+ * @return YES if the app is running in the background, otherwise NO.
+ */
+- (BOOL)isRunningInBackground;
+
+/** Creates a background task with the returned identifier if on a suitable platform.
+ *
+ * @name name The name of the task, useful for debugging which background tasks are running.
+ * @param handler The handler block that is called if the background task expires.
+ * @return An identifier for the background task, or GDTCORBackgroundIdentifierInvalid if one
+ * couldn't be created.
+ */
+- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
+                                        expirationHandler:(void (^__nullable)(void))handler;
+
 /** Creates a background task with the returned identifier if on a suitable platform.
  *
  * @param handler The handler block that is called if the background task expires.
@@ -74,7 +90,8 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  * couldn't be created.
  */
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:
-    (void (^__nullable)(void))handler;
+    (void (^__nullable)(void))handler
+    DEPRECATED_MSG_ATTRIBUTE("Use `beginBackgroundTaskWithName:expirationHandler:` instead.");
 
 /** Ends the background task if the identifier is valid.
  *
