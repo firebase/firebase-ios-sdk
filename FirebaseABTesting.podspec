@@ -42,7 +42,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   }
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseCore', '~> 6.1'
-  s.dependency 'Protobuf', '~> 3.9'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/*.[mh]'
