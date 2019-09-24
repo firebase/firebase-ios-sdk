@@ -49,7 +49,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Reachability', '~> 6.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
-  s.dependency 'Protobuf', '~> 3.1'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'Example/Messaging/Tests/*.{m,h,swift}'
