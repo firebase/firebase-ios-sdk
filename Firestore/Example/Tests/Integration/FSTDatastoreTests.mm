@@ -29,6 +29,8 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -49,7 +51,11 @@ namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LocalStore;
+using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
@@ -204,7 +210,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
 @implementation FSTDatastoreTests {
   std::shared_ptr<AsyncQueue> _testWorkerQueue;
-  FSTLocalStore *_localStore;
+  std::unique_ptr<LocalStore> _localStore;
+  std::unique_ptr<Persistence> _persistence;
 
   DatabaseInfo _databaseInfo;
   std::shared_ptr<Datastore> _datastore;
@@ -231,8 +238,11 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
                                            std::make_shared<EmptyCredentialsProvider>());
 
-  _remoteStore =
-      absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue, [](OnlineState) {});
+  _persistence = MemoryPersistence::WithEagerGarbageCollector();
+  _localStore = absl::make_unique<LocalStore>(_persistence.get(), User::Unauthenticated());
+
+  _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
+                                                [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }

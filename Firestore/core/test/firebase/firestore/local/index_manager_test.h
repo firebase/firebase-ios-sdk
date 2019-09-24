@@ -28,15 +28,15 @@
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "gtest/gtest.h"
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
-using FactoryFunc = id<FSTPersistence> _Nonnull (*)();
+class Persistence;
+
+using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
 class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
  public:
@@ -44,7 +44,7 @@ class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
   IndexManagerTest() : persistence{GetParam()()} {
   }
 
-  id<FSTPersistence> persistence;
+  std::unique_ptr<Persistence> persistence;
 
   virtual ~IndexManagerTest();
 

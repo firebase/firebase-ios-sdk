@@ -292,9 +292,8 @@ void Stream::HandleErrorStatus(const Status& status) {
 
 void Stream::OnStreamFinish(const Status& status) {
   EnsureOnQueue();
-  // TODO(varconst): log error here?
-  LOG_DEBUG("%s Stream error", GetDebugDescription());
 
+  LOG_DEBUG("%s Stream error: '%s'", GetDebugDescription(), status.ToString());
   Close(status);
 }
 

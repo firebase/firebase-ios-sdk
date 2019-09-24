@@ -19,11 +19,9 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
@@ -39,8 +37,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -142,9 +138,9 @@ void DocumentReference::GetDocument(Source source,
 
       // Remove query first before passing event to user to avoid user actions
       // affecting the now stale query.
-      ListenerRegistration registration =
+      std::unique_ptr<ListenerRegistration> registration =
           registration_promise_.get_future().get();
-      registration.Remove();
+      registration->Remove();
 
       if (!snapshot.exists() && snapshot.metadata().from_cache()) {
         // TODO(dimond): Reconsider how to raise missing documents when
@@ -172,7 +168,7 @@ void DocumentReference::GetDocument(Source source,
       }
     }
 
-    void Resolve(ListenerRegistration&& registration) {
+    void Resolve(std::unique_ptr<ListenerRegistration> registration) {
       registration_promise_.set_value(std::move(registration));
     }
 
@@ -180,18 +176,18 @@ void DocumentReference::GetDocument(Source source,
     Source source_;
     DocumentSnapshot::Listener listener_;
 
-    std::promise<ListenerRegistration> registration_promise_;
+    std::promise<std::unique_ptr<ListenerRegistration>> registration_promise_;
   };
   auto listener = absl::make_unique<ListenOnce>(source, std::move(callback));
   auto listener_unowned = listener.get();
 
-  ListenerRegistration registration =
+  std::unique_ptr<ListenerRegistration> registration =
       AddSnapshotListener(std::move(options), std::move(listener));
 
   listener_unowned->Resolve(std::move(registration));
 }
 
-ListenerRegistration DocumentReference::AddSnapshotListener(
+std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
     ListenOptions options, DocumentSnapshot::Listener&& user_listener) {
   // Convert from ViewSnapshots to DocumentSnapshots.
   class Converter : public EventListener<ViewSnapshot> {
@@ -241,8 +237,10 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
   std::shared_ptr<QueryListener> query_listener =
       firestore_->client()->ListenToQuery(std::move(query), options,
                                           async_listener);
-  return ListenerRegistration(firestore_->client(), std::move(async_listener),
-                              std::move(query_listener));
+
+  return absl::make_unique<QueryListenerRegistration>(
+      firestore_->client(), std::move(async_listener),
+      std::move(query_listener));
 }
 
 bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {
@@ -252,5 +250,3 @@ bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

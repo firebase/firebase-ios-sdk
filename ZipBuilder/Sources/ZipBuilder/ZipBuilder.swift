@@ -16,6 +16,8 @@
 
 import Foundation
 
+import ManifestReader
+
 /// Misc. constants used in the build tool.
 public struct Constants {
   /// Constants related to the Xcode project template.

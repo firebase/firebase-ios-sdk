@@ -22,14 +22,13 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "absl/algorithm/container.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -94,9 +93,9 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
 
       // Remove query first before passing event to user to avoid user actions
       // affecting the now stale query.
-      ListenerRegistration registration =
+      std::unique_ptr<ListenerRegistration> registration =
           registration_promise_.get_future().get();
-      registration.Remove();
+      registration->Remove();
 
       if (snapshot.metadata().from_cache() && source_ == Source::Server) {
         listener_->OnEvent(Status{
@@ -109,7 +108,7 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
       }
     };
 
-    void Resolve(ListenerRegistration&& registration) {
+    void Resolve(std::unique_ptr<ListenerRegistration> registration) {
       registration_promise_.set_value(std::move(registration));
     }
 
@@ -117,19 +116,19 @@ void Query::GetDocuments(Source source, QuerySnapshot::Listener&& callback) {
     Source source_;
     QuerySnapshot::Listener listener_;
 
-    std::promise<ListenerRegistration> registration_promise_;
+    std::promise<std::unique_ptr<ListenerRegistration>> registration_promise_;
   };
 
   auto listener = absl::make_unique<ListenOnce>(source, std::move(callback));
   auto listener_unowned = listener.get();
 
-  ListenerRegistration registration =
+  std::unique_ptr<ListenerRegistration> registration =
       AddSnapshotListener(std::move(options), std::move(listener));
 
   listener_unowned->Resolve(std::move(registration));
 }
 
-ListenerRegistration Query::AddSnapshotListener(
+std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
     ListenOptions options, QuerySnapshot::Listener&& user_listener) {
   // Convert from ViewSnapshots to QuerySnapshots.
   class Converter : public EventListener<ViewSnapshot> {
@@ -172,8 +171,9 @@ ListenerRegistration Query::AddSnapshotListener(
       firestore_->client()->ListenToQuery(this->query(), options,
                                           async_listener);
 
-  return ListenerRegistration(firestore_->client(), std::move(async_listener),
-                              std::move(query_listener));
+  return absl::make_unique<QueryListenerRegistration>(
+      firestore_->client(), std::move(async_listener),
+      std::move(query_listener));
 }
 
 Query Query::Filter(FieldPath field_path,
@@ -414,5 +414,3 @@ std::string Query::Describe(Filter::Operator op) const {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

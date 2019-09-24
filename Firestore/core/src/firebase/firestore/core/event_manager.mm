@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
-
 #include <utility>
+
+#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
+
+using util::Empty;
 
 EventManager::EventManager(QueryEventSource* query_event_source)
     : query_event_source_(query_event_source) {
@@ -37,10 +40,15 @@ model::TargetId EventManager::AddQueryListener(
 
   query_info.listeners.push_back(listener);
 
-  listener->OnOnlineStateChanged(online_state_);
+  bool raised_event = listener->OnOnlineStateChanged(online_state_);
+  HARD_ASSERT(!raised_event, "onOnlineStateChanged() shouldn't raise an event "
+                             "for brand-new listeners.");
 
   if (query_info.view_snapshot().has_value()) {
-    listener->OnViewSnapshot(query_info.view_snapshot().value());
+    raised_event = listener->OnViewSnapshot(query_info.view_snapshot().value());
+    if (raised_event) {
+      RaiseSnapshotsInSyncEvent();
+    }
   }
 
   if (first_listen) {
@@ -67,29 +75,59 @@ void EventManager::RemoveQueryListener(
   }
 }
 
+void EventManager::AddSnapshotsInSyncListener(
+    const std::shared_ptr<EventListener<Empty>>& listener) {
+  snapshots_in_sync_listeners_.insert(listener);
+  listener->OnEvent(Empty());
+}
+
+void EventManager::RemoveSnapshotsInSyncListener(
+    const std::shared_ptr<EventListener<Empty>>& listener) {
+  snapshots_in_sync_listeners_.erase(listener);
+}
+
 void EventManager::HandleOnlineStateChange(model::OnlineState online_state) {
+  bool raised_event = false;
   online_state_ = online_state;
 
   for (auto&& kv : queries_) {
     QueryListenersInfo& info = kv.second;
     for (auto&& listener : info.listeners) {
-      listener->OnOnlineStateChanged(online_state_);
+      if (listener->OnOnlineStateChanged(online_state_)) {
+        raised_event = true;
+      }
     }
+  }
+  if (raised_event) {
+    RaiseSnapshotsInSyncEvent();
+  }
+}
+
+void EventManager::RaiseSnapshotsInSyncEvent() {
+  Empty empty{};
+  for (const auto& listener : snapshots_in_sync_listeners_) {
+    listener->OnEvent(empty);
   }
 }
 
 void EventManager::OnViewSnapshots(
     std::vector<core::ViewSnapshot>&& snapshots) {
+  bool raised_event = false;
   for (ViewSnapshot& snapshot : snapshots) {
     const Query& query = snapshot.query();
     auto found_iter = queries_.find(query);
     if (found_iter != queries_.end()) {
       QueryListenersInfo& query_info = found_iter->second;
       for (const auto& listener : query_info.listeners) {
-        listener->OnViewSnapshot(snapshot);
+        if (listener->OnViewSnapshot(snapshot)) {
+          raised_event = true;
+        }
       }
       query_info.set_view_snapshot(std::move(snapshot));
     }
+  }
+  if (raised_event) {
+    RaiseSnapshotsInSyncEvent();
   }
 }
 
@@ -105,8 +143,8 @@ void EventManager::OnError(const core::Query& query,
     listener->OnError(error);
   }
 
-  // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine
-  // stopListening] after an error.
+  // Remove all listeners. NOTE: We don't need to call
+  // `SyncEngine::StopListening()` after an error.
   queries_.erase(found_iter);
 }
 

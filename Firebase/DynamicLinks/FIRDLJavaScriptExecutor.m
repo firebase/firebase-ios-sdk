@@ -18,14 +18,6 @@
 
 #import "DynamicLinks/FIRDLJavaScriptExecutor.h"
 
-// define below needed because nullability of UIWebViewDelegate method param was changed between
-// iOS SDK versions
-#if (defined(__IPHONE_10_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0))
-#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nonnull
-#else
-#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nullable
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kJSMethodName = @"generateFingerprint";
@@ -50,7 +42,7 @@ NSString *GINFingerprintJSMethodString() {
   return methodString;
 }
 
-@interface FIRDLJavaScriptExecutor () <UIWebViewDelegate, WKNavigationDelegate>
+@interface FIRDLJavaScriptExecutor () <WKNavigationDelegate>
 @end
 
 @implementation FIRDLJavaScriptExecutor {

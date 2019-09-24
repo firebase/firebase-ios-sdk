@@ -21,7 +21,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfig_Internal.h"
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 @interface FIRRemoteConfigComponentTest : XCTestCase

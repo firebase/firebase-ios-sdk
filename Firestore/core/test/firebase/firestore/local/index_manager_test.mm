@@ -22,6 +22,7 @@
 #include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "gtest/gtest.h"
 
@@ -33,7 +34,7 @@ using model::ResourcePath;
 
 void IndexManagerTest::AssertParents(const std::string& collection_id,
                                      std::vector<std::string> expected) {
-  IndexManager* index_manager = persistence.indexManager;
+  IndexManager* index_manager = persistence->index_manager();
   std::vector<ResourcePath> actual_paths =
       index_manager->GetCollectionParents(collection_id);
   std::vector<std::string> actual;
@@ -48,12 +49,12 @@ void IndexManagerTest::AssertParents(const std::string& collection_id,
 }
 
 IndexManagerTest::~IndexManagerTest() {
-  [persistence shutdown];
+  persistence->Shutdown();
 }
 
 TEST_P(IndexManagerTest, AddAndReadCollectionParentIndexEntries) {
-  IndexManager* index_manager = persistence.indexManager;
-  persistence.run("AddAndReadCollectionParentIndexEntries", [&]() {
+  IndexManager* index_manager = persistence->index_manager();
+  persistence->Run("AddAndReadCollectionParentIndexEntries", [&]() {
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
     index_manager->AddToCollectionParentIndex(

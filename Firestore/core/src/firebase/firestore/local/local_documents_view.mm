@@ -29,8 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -245,5 +243,3 @@ DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
