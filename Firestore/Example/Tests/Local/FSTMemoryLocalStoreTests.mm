@@ -19,6 +19,7 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

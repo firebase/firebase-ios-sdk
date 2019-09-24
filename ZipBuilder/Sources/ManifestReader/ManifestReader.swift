@@ -18,12 +18,12 @@ import Foundation
 
 /// Common functions for Firebase iOS SDK Release manifests. Intentionally empty, this enum is used
 /// as a namespace.
-enum ManifestReader {}
+public enum ManifestReader {}
 
 extension ManifestReader {
   /// Load all the publicly released SDKs and their versions. Will cause a fatal error if the file
   /// cannot be read or proto cannot be generated.
-  static func loadAllReleasedSDKs(fromTextproto textproto: URL) -> ZipBuilder_FirebaseSDKs {
+  public static func loadAllReleasedSDKs(fromTextproto textproto: URL) -> ZipBuilder_FirebaseSDKs {
     // Read the textproto and create it from the proto's generated API. Fail if anything fails in
     // the process.
     do {
@@ -44,7 +44,7 @@ extension ManifestReader {
   ///
   /// - Parameter textproto: The path to the textproto file describing the current release.
   /// - Returns: An instance of ZipBuilder_Release describing specific versions to build.
-  static func loadCurrentRelease(fromTextproto textproto: URL) -> ZipBuilder_Release {
+  public static func loadCurrentRelease(fromTextproto textproto: URL) -> ZipBuilder_Release {
     // Read the textproto and create it from the proto's generated API. Fail if anything fails in
     // the process.
     do {

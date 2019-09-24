@@ -21,8 +21,14 @@
 
 @implementation GDTCCTEventGenerator
 
-// Atomic, but not threadsafe.
-static volatile NSUInteger gCounter = 0;
+- (instancetype)initWithTarget:(GDTCORTarget)target {
+  self = [super init];
+  if (self) {
+    _target = target;
+    _allGeneratedEvents = [[NSMutableSet alloc] init];
+  }
+  return self;
+}
 
 - (void)deleteGeneratedFilesFromDisk {
   for (GDTCORStoredEvent *storedEvent in self.allGeneratedEvents) {
@@ -35,13 +41,12 @@ static volatile NSUInteger gCounter = 0;
 - (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier {
   NSString *cachePath = NSTemporaryDirectory();
   NSString *filePath = [cachePath
-      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
-                                                                (unsigned long)gCounter]];
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                CFAbsoluteTimeGetCurrent()]];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
-  gCounter++;
   GDTCORDataFuture *future =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
   GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
@@ -50,10 +55,9 @@ static volatile NSUInteger gCounter = 0;
 }
 
 - (GDTCORStoredEvent *)generateStoredEvent:(GDTCOREventQoS)qosTier fileURL:(NSURL *)fileURL {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
-  gCounter++;
   GDTCORDataFuture *future =
       [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
   GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
@@ -61,11 +65,29 @@ static volatile NSUInteger gCounter = 0;
   return storedEvent;
 }
 
+/** Generates a file URL that has the message resource data copied into it.
+ *
+ * @param messageResource The message resource name to copy.
+ * @return A new file containing the data of the message resource.
+ */
+- (NSURL *)writeConsistentMessageToDisk:(NSString *)messageResource {
+  NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+  NSString *cachePath = NSTemporaryDirectory();
+  NSString *filePath = [cachePath
+      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%lf.txt",
+                                                                CFAbsoluteTimeGetCurrent()]];
+  NSAssert([[NSFileManager defaultManager] fileExistsAtPath:filePath] == NO,
+           @"There should be no duplicate files generated.");
+  NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:messageResource
+                                                                   withExtension:nil]];
+  [messageData writeToFile:filePath atomically:YES];
+  return [NSURL fileURLWithPath:filePath];
+}
+
 - (NSArray<GDTCORStoredEvent *> *)generateTheFiveConsistentStoredEvents {
   NSMutableArray<GDTCORStoredEvent *> *storedEvents = [[NSMutableArray alloc] init];
-  NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
   {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -73,42 +95,42 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam" : @1337};
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc]
-        initWithFileURL:[testBundle URLForResource:@"message-32347456.dat" withExtension:nil]];
+    NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
+    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
   {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
     [event.clockSnapshot setValue:@(1111111111111333) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSWifiOnly;
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc]
-        initWithFileURL:[testBundle URLForResource:@"message-35458880.dat" withExtension:nil]];
+    NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
+    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
   {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
     [event.clockSnapshot setValue:@(1111111111111444) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc]
-        initWithFileURL:[testBundle URLForResource:@"message-39882816.dat" withExtension:nil]];
+    NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
+    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
   {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -116,14 +138,14 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc]
-        initWithFileURL:[testBundle URLForResource:@"message-40043840.dat" withExtension:nil]];
+    NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
+    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
   {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetCCT];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -131,8 +153,8 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSTelemetry;
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
-    GDTCORDataFuture *future = [[GDTCORDataFuture alloc]
-        initWithFileURL:[testBundle URLForResource:@"message-40657984.dat" withExtension:nil]];
+    NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
+    GDTCORDataFuture *future = [[GDTCORDataFuture alloc] initWithFileURL:messageDataURL];
     GDTCORStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }

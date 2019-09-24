@@ -24,8 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -137,8 +135,6 @@ const SnapshotVersion& MemoryQueryCache::GetLastRemoteSnapshotVersion() const {
 void MemoryQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
 }
-
-NS_ASSUME_NONNULL_END
 
 }  // namespace local
 }  // namespace firestore

@@ -17,18 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_INDEX_MANAGER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_INDEX_MANAGER_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
 #include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -64,7 +58,5 @@ class LevelDbIndexManager : public IndexManager {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_INDEX_MANAGER_H_

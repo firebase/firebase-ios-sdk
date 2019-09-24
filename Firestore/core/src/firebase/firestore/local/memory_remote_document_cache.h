@@ -56,7 +56,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   /** Underlying cache of documents. */
   model::MaybeDocumentMap docs_;
 
-  // This instance is owned by FSTMemoryPersistence; avoid a retain cycle.
+  // This instance is owned by MemoryPersistence; avoid a retain cycle.
   MemoryPersistence* persistence_;
 };
 

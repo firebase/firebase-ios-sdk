@@ -77,7 +77,7 @@ class LruDelegate : public ReferenceDelegate {
 
   /**
    * Enumerates all the targets that the delegate is aware of. This is typically
-   * all of the targets in an FSTQueryCache.
+   * all of the targets in an QueryCache.
    */
   virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 

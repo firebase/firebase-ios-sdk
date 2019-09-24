@@ -37,7 +37,7 @@
 @implementation GDTCCTUploaderTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
   self.testServer = [[GDTCCTTestServer alloc] init];
   [self.testServer registerLogBatchPath];
   [self.testServer start];
@@ -50,7 +50,7 @@
   [self.testServer stop];
 }
 
-- (void)testUploadGivenConditions {
+- (void)testCCTUploadGivenConditions {
   NSArray<GDTCORStoredEvent *> *storedEventsA =
       [self.generator generateTheFiveConsistentStoredEvents];
   NSSet<GDTCORStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];

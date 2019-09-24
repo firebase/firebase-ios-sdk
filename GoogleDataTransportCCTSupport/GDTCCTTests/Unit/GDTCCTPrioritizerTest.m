@@ -30,7 +30,7 @@
 @implementation GDTCCTPrioritizerTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetFLL];
 }
 
 - (void)tearDown {
@@ -39,7 +39,7 @@
 }
 
 /** Tests prioritizing events. */
-- (void)testPrioritizeEvent {
+- (void)testCCTPrioritizeEvent {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   dispatch_sync(prioritizer.queue, ^{
@@ -48,7 +48,7 @@
 }
 
 /** Tests prioritizing multiple events. */
-- (void)testPrioritizeMultipleEvents {
+- (void)testCCTPrioritizeMultipleEvents {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
@@ -65,7 +65,7 @@
 }
 
 /** Tests unprioritizing events. */
-- (void)testPackageDelivered {
+- (void)testCCTPackageDelivered {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQosDefault]];
@@ -87,7 +87,7 @@
 }
 
 /** Tests providing events for upload. */
-- (void)testEventsForUpload {
+- (void)testCCTEventsForUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSTelemetry]];
@@ -116,7 +116,7 @@
 }
 
 /** Tests providing daily uploaded events. */
-- (void)testDailyUpload {
+- (void)testCCTDailyUpload {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCORStoredEvent *dailyEvent = [_generator generateStoredEvent:GDTCOREventQoSDaily];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTCOREventQoSWifiOnly]];

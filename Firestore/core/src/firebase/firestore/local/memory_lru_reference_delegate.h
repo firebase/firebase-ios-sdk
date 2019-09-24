@@ -92,7 +92,7 @@ class MemoryLruReferenceDelegate : public LruDelegate {
                      model::DocumentKeyHash>
       sequence_numbers_;
 
-  // This ReferenceSet is owned by FSTLocalStore.
+  // This ReferenceSet is owned by LocalStore.
   ReferenceSet* additional_references_ = nullptr;
 
   // This needs to be a pointer because initialization is delayed until after

@@ -18,7 +18,9 @@
 
 #include <memory>
 
-#import "Firestore/Source/Local/FSTLocalStore.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
+
+namespace local = firebase::firestore::local;
 
 NS_ASSUME_NONNULL_BEGIN
 

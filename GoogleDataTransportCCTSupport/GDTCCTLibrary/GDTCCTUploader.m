@@ -34,7 +34,7 @@
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
 
-/** If running in the background, the current background ID. */
+/** Set to YES if running in the background. */
 @property(nonatomic) BOOL runningInBackground;
 
 @end

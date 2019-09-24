@@ -62,7 +62,7 @@ class MemoryEagerReferenceDelegate : public ReferenceDelegate {
   // This instance is owned by MemoryPersistence.
   MemoryPersistence* persistence_;
 
-  // The ReferenceSet is owned by FSTLocalStore.
+  // The ReferenceSet is owned by LocalStore.
   ReferenceSet* additional_references_;
 };
 
