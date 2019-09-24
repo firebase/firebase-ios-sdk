@@ -1,3 +1,7 @@
+# v6.3.0 -- M56
+- [changed] Transitive GoogleDataTransport dependency incremented to v2.0.0. (#3729)
+- [fixed] Fixed "expiclitlySet" typo. (#3853)
+
 # v6.2.0 -- M53
 - [added] Added AppKit dependency on macOS and UIKit dependency on iOS and tvOS. (#3459)
 - [added] Added support for Firebase Segmentation. (#3430)

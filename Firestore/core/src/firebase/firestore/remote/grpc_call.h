@@ -19,7 +19,7 @@
 
 #include <map>
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/support/string_ref.h"
 

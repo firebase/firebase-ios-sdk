@@ -18,13 +18,11 @@
 
 #include <vector>
 
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -37,7 +35,7 @@ using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
 
-MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
+MemoryQueryCache::MemoryQueryCache(MemoryPersistence* persistence)
     : persistence_(persistence),
       highest_listen_sequence_number_(ListenSequenceNumber(0)),
       highest_target_id_(TargetId(0)),
@@ -102,7 +100,7 @@ void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
                                        TargetId target_id) {
   references_.AddReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
-    [persistence_.referenceDelegate addReference:key];
+    persistence_->reference_delegate()->AddReference(key);
   }
 }
 
@@ -110,7 +108,7 @@ void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
                                           TargetId target_id) {
   references_.RemoveReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
-    [persistence_.referenceDelegate removeReference:key];
+    persistence_->reference_delegate()->RemoveReference(key);
   }
 }
 
@@ -137,8 +135,6 @@ const SnapshotVersion& MemoryQueryCache::GetLastRemoteSnapshotVersion() const {
 void MemoryQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
 }
-
-NS_ASSUME_NONNULL_END
 
 }  // namespace local
 }  // namespace firestore

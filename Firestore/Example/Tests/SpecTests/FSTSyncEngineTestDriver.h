@@ -17,10 +17,12 @@
 #import <Foundation/Foundation.h>
 
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
@@ -31,8 +33,17 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 
-@protocol FSTPersistence;
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class Persistence;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
@@ -101,14 +112,14 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
  * garbage collection policy.
  */
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence;
+- (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence;
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
- * a set of existing outstandingWrites (useful when your FSTPersistence object has
- * persisted mutation queues).
+ * a set of existing outstandingWrites (useful when your Persistence object has persisted
+ * mutation queues).
  */
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
+- (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
                         initialUser:(const firebase::firestore::auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
     NS_DESIGNATED_INITIALIZER;
@@ -290,7 +301,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * It is exposed specifically for use with the
  * initWithPersistence:GCEnabled:outstandingWrites: initializer to test persistence
- * scenarios where the FSTSyncEngine is restarted while the FSTPersistence implementation still has
+ * scenarios where the FSTSyncEngine is restarted while the Persistence implementation still has
  * outstanding persisted mutations.
  *
  * Note: The size of the list for the current user will generally be the same as
@@ -301,6 +312,26 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
+
+/**
+ * The number of snapshots-in-sync events that have been received.
+ */
+@property(nonatomic, readonly) int snapshotsInSyncEvents;
+
+- (void)incrementSnapshotsInSyncEvents;
+
+- (void)resetSnapshotsInSyncEvents;
+
+/**
+ * Adds a snpahots-in-sync listener to the event manager and keeps track of it so that it
+ * can be easily removed later.
+ */
+- (void)addSnapshotsInSyncListener;
+
+/**
+ * Removes the snapshots-in-sync listener from the event manager.
+ */
+- (void)removeSnapshotsInSyncListener;
 
 /** The set of active targets as observed on the watch stream. */
 - (const std::unordered_map<firebase::firestore::model::TargetId, local::QueryData> &)activeTargets;

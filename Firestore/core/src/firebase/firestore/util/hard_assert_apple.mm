@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
 
 #import <Foundation/Foundation.h>
-
-#include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
-void Fail(const char* file,
-          const char* func,
-          const int line,
-          const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandler(const char* file,
+                                                const char* func,
+                                                const int line,
+                                                const std::string& message) {
   [[NSAssertionHandler currentHandler]
       handleFailureInFunction:MakeNSString(func)
                          file:MakeNSString(file)
@@ -40,21 +37,6 @@ void Fail(const char* file,
   abort();
 }
 
-void Fail(const char* file,
-          const char* func,
-          const int line,
-          const std::string& message,
-          const char* condition) {
-  std::string failure;
-  if (message.empty()) {
-    failure = condition;
-  } else {
-    failure = StringFormat("%s (expected %s)", message, condition);
-  }
-  Fail(file, func, line, failure);
-}
-
-}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

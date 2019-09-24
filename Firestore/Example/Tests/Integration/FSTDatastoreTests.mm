@@ -29,6 +29,8 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/local_store.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -49,7 +51,11 @@ namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LocalStore;
+using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
@@ -65,6 +71,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
+using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
@@ -75,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteStoreEventCapture
 
-@interface FSTRemoteStoreEventCapture : NSObject <FSTRemoteSyncer>
+@interface FSTRemoteStoreEventCapture : NSObject
 
 - (instancetype)init __attribute__((unavailable("Use initWithTestCase:")));
 
@@ -153,6 +160,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+class RemoteStoreEventCapture : public RemoteStoreCallback {
+ public:
+  explicit RemoteStoreEventCapture(XCTestCase *test_case) {
+    underlying_capture_ = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:test_case];
+  }
+
+  void ExpectWriteEvent(NSString *description) {
+    [underlying_capture_ expectWriteEventWithDescription:description];
+  }
+
+  void ExpectListenEvent(NSString *description) {
+    [underlying_capture_ expectListenEventWithDescription:description];
+  }
+
+  void ApplyRemoteEvent(const RemoteEvent &remote_event) override {
+    [underlying_capture_ applyRemoteEvent:remote_event];
+  }
+
+  void HandleRejectedListen(TargetId target_id, Status error) override {
+    [underlying_capture_ rejectListenWithTargetID:target_id error:error.ToNSError()];
+  }
+
+  void HandleSuccessfulWrite(const MutationBatchResult &batch_result) override {
+    [underlying_capture_ applySuccessfulWriteWithResult:batch_result];
+  }
+
+  void HandleRejectedWrite(BatchId batch_id, Status error) override {
+    [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
+  }
+
+  void HandleOnlineStateChange(OnlineState online_state) override {
+    HARD_FAIL("Not implemented");
+  }
+
+  model::DocumentKeySet GetRemoteKeys(TargetId target_id) const override {
+    return [underlying_capture_ remoteKeysForTarget:target_id];
+  }
+
+ private:
+  FSTRemoteStoreEventCapture *underlying_capture_;
+};
+
 #pragma mark - FSTDatastoreTests
 
 @interface FSTDatastoreTests : XCTestCase
@@ -161,7 +210,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDatastoreTests {
   std::shared_ptr<AsyncQueue> _testWorkerQueue;
-  FSTLocalStore *_localStore;
+  std::unique_ptr<LocalStore> _localStore;
+  std::unique_ptr<Persistence> _persistence;
 
   DatabaseInfo _databaseInfo;
   std::shared_ptr<Datastore> _datastore;
@@ -188,8 +238,11 @@ NS_ASSUME_NONNULL_BEGIN
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
                                            std::make_shared<EmptyCredentialsProvider>());
 
-  _remoteStore =
-      absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue, [](OnlineState) {});
+  _persistence = MemoryPersistence::WithEagerGarbageCollector();
+  _localStore = absl::make_unique<LocalStore>(_persistence.get(), User::Unauthenticated());
+
+  _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
+                                                [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }
@@ -217,10 +270,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testStreamingWrite {
-  FSTRemoteStoreEventCapture *capture = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:self];
-  [capture expectWriteEventWithDescription:@"write mutations"];
+  RemoteStoreEventCapture capture = RemoteStoreEventCapture(self);
+  capture.ExpectWriteEvent(@"write mutations");
 
-  _remoteStore->set_sync_engine(capture);
+  _remoteStore->set_sync_engine(&capture);
 
   auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
   MutationBatch batch = MutationBatch(23, Timestamp::Now(), {}, {mutation});

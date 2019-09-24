@@ -605,4 +605,69 @@ class FirestoreEncoderTests: XCTestCase {
     decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
     XCTAssertEqual(decoded, fieldIsNotNull)
   }
+
+  func testAutomaticallyPopulatesSelfDocumentIDField() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: SelfDocumentID
+    }
+
+    let decoded = try Firestore.Decoder().decode(Model.self, from: ["name": "abc"], in: FSTTestDocRef("abc/123"))
+    XCTAssertEqual(decoded, Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
+  }
+
+  func testSelfDocumentIDIgnoredInEncoding() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: SelfDocumentID
+    }
+
+    let model = Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123")))
+    _ = assertEncodes(model, to: ["name": "abc"])
+  }
+
+  func testEncodingSelfDocumentIDNotEmbeddedThrows() {
+    let doc = SelfDocumentID(from: FSTTestDocRef("abc/xyz"))
+    do {
+      _ = try Firestore.Encoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
+
+  func testSelfDocumentIDWithJsonEncoderThrows() {
+    let doc = SelfDocumentID(from: FSTTestDocRef("abc/xyz"))
+    do {
+      _ = try JSONEncoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
+
+  func testDecodingSelfDocumentIDWithConfictingFieldsThrows() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      var docId: SelfDocumentID
+    }
+
+    do {
+      _ = try Firestore.Decoder().decode(
+        Model.self,
+        from: ["name": "abc", "docId": "Causing conflict"],
+        in: FSTTestDocRef("abc/123")
+      )
+      XCTFail("Failed to throw")
+    } catch let FirestoreDecodingError.fieldNameConfict(msg) {
+      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\"," + " cannot assign the document reference to this field.")
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
 }
