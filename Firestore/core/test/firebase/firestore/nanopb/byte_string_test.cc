@@ -160,7 +160,7 @@ TEST(ByteStringTest, ToString) {
   EXPECT_EQ(ByteString{""}.ToString(), "");
   EXPECT_EQ(ByteString{"abc"}.ToString(), "abc");
   EXPECT_EQ(ByteString{"abc\ndef"}.ToString(), "abc\\ndef");
-  EXPECT_EQ(ByteString{"abc\x02"}.ToString(), "abc\\0x02");
+  EXPECT_EQ(ByteString{"abc\002"}.ToString(), "abc\\002");
 }
 
 }  //  namespace nanopb

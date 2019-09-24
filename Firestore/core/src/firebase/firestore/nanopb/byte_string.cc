@@ -115,18 +115,7 @@ size_t ByteString::Hash() const {
 }
 
 std::string ByteString::ToString() const {
-  std::stringstream stream;
-  for (uint8_t e : *this) {
-    // `stringstream` is supposed to handle the case where the unsigned value
-    // cannot be represented by signed char.
-    auto ch = static_cast<unsigned char>(e);
-    if (!std::iscntrl(ch)) {
-      stream << ch;
-    } else {
-      stream << AsEscapeSequence(static_cast<char>(ch));
-    }
-  }
-  return stream.str();
+  return absl::CEscape(MakeStringView(*this));
 }
 
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {
