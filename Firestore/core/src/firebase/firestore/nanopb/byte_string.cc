@@ -32,31 +32,6 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-namespace {
-
-std::string AsEscapeSequence(char ch) {
-  switch (ch) {
-    case '\n':
-      return "\\n";
-    case '\r':
-      return "\\r";
-    case '\t':
-      return "\\t";
-    case '\\':
-      return "\\\\";
-    case '\'':
-      return "\\'";
-    case '\"':
-      return "\\\\";
-    default: {
-      absl::string_view view(&ch, 1);
-      return std::string("\\0x") + absl::BytesToHexString(view);
-    }
-  }
-}
-
-}  // namespace
-
 ByteString::ByteString(const pb_bytes_array_t* bytes) {
   if (bytes != nullptr) {
     bytes_ = MakeBytesArray(bytes->bytes, bytes->size);

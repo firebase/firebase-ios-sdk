@@ -215,7 +215,6 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_Target_QueryTarget& proto);
 
-  static google_type_LatLng EncodeGeoPoint(const GeoPoint& geo_point_value);
   static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
                                  const google_type_LatLng& latlng_proto);
 
@@ -229,6 +228,17 @@ class Serializer {
       const model::ObjectValue& object_value) const;
 
  private:
+  google_firestore_v1_Value EncodeNull() const;
+  google_firestore_v1_Value EncodeBoolean(bool value) const;
+  google_firestore_v1_Value EncodeInteger(int64_t value) const;
+  google_firestore_v1_Value EncodeDouble(double value) const;
+  google_firestore_v1_Value EncodeTimestampValue(Timestamp value) const;
+  google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
+  google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
+  google_firestore_v1_Value EncodeReference(
+      const model::FieldValue::Reference& value) const;
+  google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
+
   model::Document DecodeFoundDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
@@ -257,8 +267,6 @@ class Serializer {
 
   model::DatabaseId DecodeDatabaseId(
       nanopb::Reader* reader, const model::ResourcePath& resource_name) const;
-  pb_bytes_array_t* EncodeReference(
-      const model::FieldValue::Reference& ref) const;
   model::FieldValue DecodeReference(
       nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
 

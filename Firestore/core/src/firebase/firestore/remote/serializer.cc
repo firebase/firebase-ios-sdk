@@ -209,72 +209,133 @@ void Serializer::FreeNanopbMessage(const pb_field_t fields[],
 
 google_firestore_v1_Value Serializer::EncodeFieldValue(
     const FieldValue& field_value) const {
-  // TODO(rsgowman): some refactoring is in order... but will wait until after a
-  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  google_firestore_v1_Value result{};
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      result.which_value_type = google_firestore_v1_Value_null_value_tag;
-      result.null_value = google_protobuf_NullValue_NULL_VALUE;
-      return result;
+      return EncodeNull();
 
     case FieldValue::Type::Boolean:
-      result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
-      result.boolean_value = field_value.boolean_value();
-      return result;
+      return EncodeBoolean(field_value.boolean_value());
 
     case FieldValue::Type::Integer:
-      result.which_value_type = google_firestore_v1_Value_integer_value_tag;
-      result.integer_value = field_value.integer_value();
-      return result;
+      return EncodeInteger(field_value.integer_value());
 
     case FieldValue::Type::Double:
-      result.which_value_type = google_firestore_v1_Value_double_value_tag;
-      result.double_value = field_value.double_value();
-      return result;
+      return EncodeDouble(field_value.double_value());
 
     case FieldValue::Type::Timestamp:
-      result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-      result.timestamp_value = EncodeTimestamp(field_value.timestamp_value());
-      return result;
+      return EncodeTimestampValue(field_value.timestamp_value());
 
     case FieldValue::Type::String:
-      result.which_value_type = google_firestore_v1_Value_string_value_tag;
-      result.string_value = EncodeString(field_value.string_value());
-      return result;
+      return EncodeStringValue(field_value.string_value());
 
     case FieldValue::Type::Blob:
-      result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-      // Copy the blob so that pb_release can do the right thing.
-      result.bytes_value =
-          nanopb::CopyBytesArray(field_value.blob_value().get());
-      return result;
+      return EncodeBlob(field_value.blob_value());
 
     case FieldValue::Type::Reference:
-      result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-      result.reference_value = EncodeReference(field_value.reference_value());
-      return result;
+      return EncodeReference(field_value.reference_value());
 
     case FieldValue::Type::GeoPoint:
-      result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
-      result.geo_point_value = EncodeGeoPoint(field_value.geo_point_value());
-      return result;
+      return EncodeGeoPoint(field_value.geo_point_value());
 
-    case FieldValue::Type::Array:
+    case FieldValue::Type::Array: {
+      google_firestore_v1_Value result{};
       result.which_value_type = google_firestore_v1_Value_array_value_tag;
       result.array_value = EncodeArray(field_value.array_value());
       return result;
+    }
 
-    case FieldValue::Type::Object:
+    case FieldValue::Type::Object: {
+      google_firestore_v1_Value result{};
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
       result.map_value = EncodeMapValue(ObjectValue(field_value));
       return result;
+    }
 
     case FieldValue::Type::ServerTimestamp:
       HARD_FAIL("Unhandled type %s on %s", field_value.type(),
                 field_value.ToString());
   }
   UNREACHABLE();
+}
+
+google_firestore_v1_Value Serializer::EncodeNull() const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_null_value_tag;
+  result.null_value = google_protobuf_NullValue_NULL_VALUE;
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeBoolean(bool value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  result.boolean_value = value;
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeInteger(int64_t value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_integer_value_tag;
+  result.integer_value = value;
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeDouble(double value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_double_value_tag;
+  result.double_value = value;
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeTimestampValue(
+    Timestamp value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result.timestamp_value = EncodeTimestamp(value);
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeStringValue(
+    const std::string& value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_string_value_tag;
+  result.string_value = EncodeString(value);
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeBlob(
+    const nanopb::ByteString& value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  // Copy the blob so that pb_release can do the right thing.
+  result.bytes_value = nanopb::CopyBytesArray(value.get());
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeReference(
+    const FieldValue::Reference& value) const {
+  HARD_ASSERT(database_id_ == value.database_id(),
+              "Database %s cannot encode reference from %s",
+              database_id_.ToString(), value.database_id().ToString());
+
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result.reference_value =
+      EncodeResourceName(value.database_id(), value.key().path());
+
+  return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeGeoPoint(
+    const GeoPoint& value) const {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+
+  google_type_LatLng geo_point{};
+  geo_point.latitude = value.latitude();
+  geo_point.longitude = value.longitude();
+  result.geo_point_value = geo_point;
+
+  return result;
 }
 
 FieldValue::Map::value_type Serializer::DecodeFieldsEntry(
@@ -942,14 +1003,6 @@ Timestamp Serializer::DecodeTimestamp(
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
-pb_bytes_array_t* Serializer::EncodeReference(
-    const FieldValue::Reference& ref) const {
-  HARD_ASSERT(database_id_ == ref.database_id(),
-              "Database %s cannot encode reference from %s",
-              database_id_.ToString(), ref.database_id().ToString());
-  return EncodeResourceName(ref.database_id(), ref.key().path());
-}
-
 FieldValue Serializer::DecodeReference(
     Reader* reader, const pb_bytes_array_t* resource_name_raw) const {
   ResourcePath resource_name =
@@ -959,14 +1012,6 @@ FieldValue Serializer::DecodeReference(
   DocumentKey key = DecodeKey(reader, resource_name);
 
   return FieldValue::FromReference(std::move(database_id), std::move(key));
-}
-
-/* static */
-google_type_LatLng Serializer::EncodeGeoPoint(const GeoPoint& geo_point_value) {
-  google_type_LatLng result{};
-  result.latitude = geo_point_value.latitude();
-  result.longitude = geo_point_value.longitude();
-  return result;
 }
 
 /* static */
