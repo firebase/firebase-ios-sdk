@@ -98,7 +98,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                              selector:@selector(scheduleNextSendFromForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-    
+
     if (@available(iOS 13.0, *)) {
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(scheduleNextSendFromForeground)

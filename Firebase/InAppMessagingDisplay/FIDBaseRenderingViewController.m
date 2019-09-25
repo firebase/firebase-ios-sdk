@@ -52,7 +52,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
                                            selector:@selector(appDidBecomeActive)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
-  
+
   if (@available(iOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillBecomeInactive)

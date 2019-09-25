@@ -24,7 +24,18 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    if (@available(iOS 13.0, *)) {
+      UIWindowScene *foregroundedScene = nil;
+      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+          foregroundedScene = connectedScene;
+          break;
+        }
+      }
+      UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else {
+      UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    }
     UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
   return UIWindowForModal;
@@ -35,7 +46,19 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    if (@available(iOS 13.0, *)) {
+      UIWindowScene *foregroundedScene = nil;
+      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+          foregroundedScene = connectedScene;
+          break;
+        }
+      }
+      UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else {
+      UIWindowForBanner =
+          [[FIDBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    }
     UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
@@ -47,7 +70,18 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    if (@available(iOS 13.0, *)) {
+      UIWindowScene *foregroundedScene = nil;
+      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+          foregroundedScene = connectedScene;
+          break;
+        }
+      }
+      UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else {
+      UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    }
     UIWindowForImageOnly.windowLevel = UIWindowLevelNormal;
   });
 
