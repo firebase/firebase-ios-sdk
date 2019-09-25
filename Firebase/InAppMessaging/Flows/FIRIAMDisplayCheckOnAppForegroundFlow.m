@@ -26,12 +26,19 @@
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM500002",
               @"Start observing app foreground notifications for rendering messages.");
   [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(appWillEnterForeground:)
+                                           selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground)
                                                name:UIApplicationWillEnterForegroundNotification
                                              object:nil];
+  
+  if (@available(iOS 13.0, *)) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground)
+                                                 name:UISceneWillEnterForegroundNotification
+                                               object:nil];
+  }
 }
 
-- (void)appWillEnterForeground:(UIApplication *)application {
+- (void)checkAndDisplayNextAppForegroundMessageFromForeground {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM500001",
               @"App foregrounded, wake up to check in-app messaging.");
 
