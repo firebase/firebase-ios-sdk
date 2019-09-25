@@ -25,13 +25,7 @@
 
   dispatch_once(&onceToken, ^{
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = nil;
-      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-          foregroundedScene = connectedScene;
-          break;
-        }
-      }
+      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
       UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -47,13 +41,7 @@
 
   dispatch_once(&onceToken, ^{
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = nil;
-      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-          foregroundedScene = connectedScene;
-          break;
-        }
-      }
+      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
       UIWindowForBanner =
@@ -71,13 +59,7 @@
 
   dispatch_once(&onceToken, ^{
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = nil;
-      for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-        if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-          foregroundedScene = connectedScene;
-          break;
-        }
-      }
+      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
       UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -86,5 +68,14 @@
   });
 
   return UIWindowForImageOnly;
+}
+
++ (UIWindowScene *)foregroundedScene API_AVAILABLE(ios(13.0)) {
+  for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+    if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+      return connectedScene;
+    }
+  }
+  return nil;
 }
 @end
