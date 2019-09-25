@@ -231,7 +231,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
-@interface FIRAuth () <UIApplicationDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <UIApplicationDelegate, UISceneDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
 #else
 @interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
@@ -1389,6 +1389,16 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   return result;
 }
 #endif
+
+#pragma mark - UISceneDelegate
+
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
+  NSLog(@"~~~~~~~~~~~~~~~ FIRAuth scene openURLContexts");
+  for (UIOpenURLContext *urlContext in URLContexts) {
+    NSURL *url = [urlContext URL];
+    [self canHandleURL:url];
+  }
+}
 
 #pragma mark - Internal Methods
 

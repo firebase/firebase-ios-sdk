@@ -31,6 +31,14 @@ typedef BOOL (*GULRealOpenURLSourceApplicationAnnotationIMP)(
 typedef BOOL (*GULRealOpenURLOptionsIMP)(
     id, SEL, GULApplication *, NSURL *, NSDictionary<NSString *, id> *);
 
+API_AVAILABLE(ios(13.0))
+typedef void (*GULOpenURLContextsIMP)(
+    id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
+
+API_AVAILABLE(ios(13.0))
+typedef UISceneConfiguration* (*GULConfigurationForConnectingSceneSessionOptionsIMP)(
+    id, SEL, GULApplication *, UISceneSession *, UISceneConnectionOptions *);
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 typedef void (*GULRealHandleEventsForBackgroundURLSessionIMP)(
@@ -67,6 +75,9 @@ typedef void (^GULAppDelegateInterceptorCallback)(id<GULApplicationDelegate>);
 // The strings below are the keys for associated objects.
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
 static char const *const kGULRealClassKey = "GUL_realClass";
+
+// [className][selectorString][IMP]
+static char const *const kGULSceneDelegateIMPDictKey = "GUL_sceneDelegateIMPDict";
 
 static NSString *const kGULAppDelegateKeyPath = @"delegate";
 
@@ -289,6 +300,18 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     id<GULApplicationDelegate> originalDelegate =
         [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
+
+    if (@available(iOS 13.0, *)) {
+      id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+      objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
+                               [NSDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+      NSString* sceneDelegateClassName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"][@"UISceneConfigurations"][@"UIWindowSceneSessionRoleApplication"][0][@"UISceneDelegateClassName"];
+      Class sceneDelegateClass = NSClassFromString(sceneDelegateClassName);
+      [GULAppDelegateSwizzler proxySceneDelegateWithClass:sceneDelegateClass];
+    } else {
+      // Fallback on earlier versions
+    }
   });
 }
 
@@ -427,6 +450,16 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                               realClass:realClass
        storeDestinationImplementationTo:realImplementationsBySelector];
 #endif  // TARGET_OS_IOS
+
+  // For application:configurationForConnectingSceneSession:options:
+  SEL configurationForConnectingSceneSessionOptionsSEL = @selector(application:configurationForConnectingSceneSession:options:);
+
+  [self proxyDestinationSelector:configurationForConnectingSceneSessionOptionsSEL
+      implementationsFromSourceSelector:configurationForConnectingSceneSessionOptionsSEL
+                              fromClass:[GULAppDelegateSwizzler class]
+                                toClass:appDelegateSubClass
+                              realClass:realClass
+       storeDestinationImplementationTo:realImplementationsBySelector];
 
   // Override the description too so the custom class name will not show up.
   [GULAppDelegateSwizzler addInstanceMethodWithDestinationSelector:@selector(description)
@@ -761,6 +794,59 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 #endif  // TARGET_OS_IOS
 
+#pragma mark - [Donor Methods] UISceneDelegate URL handler
+
+- (void)scene:(UIScene *)scene
+openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
+  NSLog(@"~~~~~~~~~~~~~~~ swizzled openURLContexts");
+  SEL methodSelector = @selector(scene:openURLContexts:);
+  // Call the real implementation if the real App Delegate has any.
+  id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+  NSDictionary *sceneDelegateIMPDict = objc_getAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey);
+  NSValue *openURLContextsIMPPointer = sceneDelegateIMPDict[NSStringFromClass([scene.delegate class])][NSStringFromSelector(methodSelector)];
+  GULOpenURLContextsIMP openURLContextsIMP = [openURLContextsIMPPointer pointerValue];
+
+  // This is needed to for the library to be warning free on iOS versions < 9.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+  [GULAppDelegateSwizzler
+   notifyInterceptorsWithMethodSelector:methodSelector
+   callback:^(id<GULApplicationDelegate> interceptor) {
+    if ([interceptor conformsToProtocol:@protocol(UISceneDelegate)]) {
+      id<UISceneDelegate> sceneInterceptor = interceptor;
+      [sceneInterceptor scene:scene openURLContexts:URLContexts];
+    }
+  }];
+#pragma clang diagnostic pop
+
+  if (openURLContextsIMP) {
+//    [scene.delegate scene:scene openURLContexts:URLContexts];
+    openURLContextsIMP(self, methodSelector, scene, URLContexts);
+  }
+}
+
+#pragma mark - [Donor Methods] UIApplicationDelegate Scene Management
+
+- (UISceneConfiguration *)application:(UIApplication *)application
+configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                              options:(UISceneConnectionOptions *)options API_AVAILABLE(ios(13.0)) {
+  NSLog(@"~~~~~~~~~~~~~~~ swizzled application configurationForConnectingSceneSession");
+  SEL methodSelector = @selector(application:configurationForConnectingSceneSession:options:);
+  // Call the real implementation if the real App Delegate has any.
+  NSValue *methodIMPPointer =
+  [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
+  GULConfigurationForConnectingSceneSessionOptionsIMP methodIMP = [methodIMPPointer pointerValue];
+
+  // Swizzle UISceneDelegate
+  [GULAppDelegateSwizzler proxySceneDelegateWithClass:[connectingSceneSession.scene.delegate class]];
+
+  if (methodIMP) {
+    return methodIMP(self, methodSelector, application, connectingSceneSession, options);
+  } else {
+    return nil;
+  }
+}
+
 #pragma mark - [Donor Methods] Network overridden handler methods
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -1000,6 +1086,48 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                 [GULAppDelegateSwizzler correctAlternativeWhenAppDelegateProxyNotCreated]);
     return;
   }
+}
+
++ (void)proxySceneDelegateWithClass:(Class)sceneDelegateClass API_AVAILABLE(ios(13.0)) {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    SEL methodSelector = @selector(scene:openURLContexts:);
+
+    Method originalMethod = class_getInstanceMethod(sceneDelegateClass, methodSelector);
+    Method swizzledMethod = class_getInstanceMethod([self class], methodSelector);
+
+    id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+    NSMutableDictionary *sceneDelegateIMPDict = [objc_getAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey) mutableCopy];
+
+    NSString *sceneDelegateClassName = NSStringFromClass(sceneDelegateClass);
+    if (sceneDelegateIMPDict[sceneDelegateClassName]) {
+      return;
+    }
+
+//    IMP orignalImplementation = [sceneDelegateClass methodForSelector:methodSelector]; // TODO: won't work?
+    IMP orignalImplementation = method_getImplementation(originalMethod);
+    NSValue *originalImplementationPointer = [NSValue valueWithPointer:orignalImplementation];
+    NSDictionary *sceneDelegateSELIMPPair = @{NSStringFromSelector(methodSelector): originalImplementationPointer};
+    sceneDelegateIMPDict[sceneDelegateClassName] = sceneDelegateSELIMPPair;
+
+    objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
+                             [sceneDelegateIMPDict copy], OBJC_ASSOCIATION_RETAIN);
+
+    BOOL didAddMethod =
+    class_addMethod(sceneDelegateClass,
+                    methodSelector,
+                    method_getImplementation(swizzledMethod),
+                    method_getTypeEncoding(swizzledMethod));
+
+    if (didAddMethod) {
+      class_replaceMethod(sceneDelegateClass,
+                          methodSelector,
+                          method_getImplementation(originalMethod),
+                          method_getTypeEncoding(originalMethod));
+    } else {
+      method_exchangeImplementations(originalMethod, swizzledMethod);
+    }
+  });
 }
 
 #pragma mark - Methods to print correct debug logs
