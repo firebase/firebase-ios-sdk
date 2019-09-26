@@ -33,6 +33,7 @@ cc_test(
     executor_test.cc
     executor_test.h
   DEPENDS
+    firebase_firestore_testutil
     firebase_firestore_util_async_std
 )
 
@@ -48,6 +49,7 @@ if(HAVE_LIBDISPATCH)
       executor_test.cc
       executor_test.h
     DEPENDS
+      firebase_firestore_testutil
       firebase_firestore_util_async_libdispatch
   )
 endif()

@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>
@@ -59,6 +60,10 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   }
 
   util::ComparisonResult CompareTo(const DatabaseId& rhs) const;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const DatabaseId& database_id);
 
   size_t Hash() const;
 

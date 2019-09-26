@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.0'
+  s.version          = '4.4.1'
   s.summary          = 'Firebase RemoteConfig for iOS'
 
   s.description      = <<-DESC
@@ -44,7 +44,7 @@ app update.
   s.dependency 'FirebaseInstanceID', '~> 4.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
-  s.dependency 'Protobuf', '~> 3.9'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.

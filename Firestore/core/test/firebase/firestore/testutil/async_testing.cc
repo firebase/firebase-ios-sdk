@@ -16,6 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 
+#include <string>
+
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/strings/str_cat.h"
