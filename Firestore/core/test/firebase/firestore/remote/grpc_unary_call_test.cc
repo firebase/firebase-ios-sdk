@@ -20,9 +20,9 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
@@ -38,7 +38,6 @@ using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
-using util::ExecutorStd;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::Status;
@@ -48,8 +47,7 @@ using Type = GrpcCompletion::Type;
 class GrpcUnaryCallTest : public testing::Test {
  public:
   GrpcUnaryCallTest()
-      : worker_queue{std::make_shared<AsyncQueue>(
-            absl::make_unique<ExecutorStd>())},
+      : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
         call{tester.CreateUnaryCall()} {

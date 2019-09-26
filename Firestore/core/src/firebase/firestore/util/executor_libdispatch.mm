@@ -90,6 +90,8 @@ void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
 
 }  // namespace
 
+// MARK: - TimeSlot
+
 // Represents a "busy" time slot on the schedule.
 //
 // Since libdispatch doesn't provide a way to cancel a scheduled operation, once
@@ -197,7 +199,7 @@ void TimeSlot::RemoveFromSchedule() {
   executor_->RemoveFromSchedule(this);
 }
 
-// ExecutorLibdispatch
+// MARK: - ExecutorLibdispatch
 
 ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
     : dispatch_queue_{dispatch_queue} {
@@ -301,6 +303,13 @@ ExecutorLibdispatch::PopFromSchedule() {
   });
 
   return result;
+}
+
+// MARK: - Executor
+
+std::unique_ptr<Executor> Executor::CreateSerial(const char* label) {
+  dispatch_queue_t queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+  return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
 }  // namespace util
