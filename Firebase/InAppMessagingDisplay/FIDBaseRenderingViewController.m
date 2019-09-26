@@ -52,7 +52,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
                                            selector:@selector(appDidBecomeActive)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
-
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillBecomeInactive)
@@ -64,7 +64,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
                                                  name:UISceneDidActivateNotification
                                                object:nil];
   }
-
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   self.aggregateImpressionTimeInSeconds = 0;
 }
 

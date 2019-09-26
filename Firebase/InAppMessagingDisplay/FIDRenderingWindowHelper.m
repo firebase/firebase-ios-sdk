@@ -24,12 +24,16 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
   return UIWindowForModal;
@@ -40,13 +44,17 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForBanner =
           [[FIDBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
+#endif
     UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
@@ -58,18 +66,23 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
       UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     UIWindowForImageOnly.windowLevel = UIWindowLevelNormal;
   });
 
   return UIWindowForImageOnly;
 }
 
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 + (UIWindowScene *)foregroundedScene API_AVAILABLE(ios(13.0)) {
   for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
     if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
@@ -78,4 +91,5 @@
   }
   return nil;
 }
+#endif
 @end
