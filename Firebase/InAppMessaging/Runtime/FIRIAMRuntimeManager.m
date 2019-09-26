@@ -347,7 +347,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                              activityLogger:self.activityLogger
                                        analyticsEventLogger:analyticsEventLogger];
 
-  // Setting the message display component and suppression. It's needed in case 
+  // Setting the message display component and suppression. It's needed in case
   // headless SDK is initialized after the these properties are already set on FIRInAppMessaging.
   self.displayExecutor.messageDisplayComponent =
       FIRInAppMessaging.inAppMessaging.messageDisplayComponent;
