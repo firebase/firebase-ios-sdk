@@ -953,11 +953,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
 - (void)deleteExperimentTableForKey:(NSString *)key {
   __weak RCNConfigDBManager *weakSelf = self;
-  RCNConfigDBManager *strongSelf = weakSelf;
-  if (!strongSelf) {
-    return;
-  }
   dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
     NSArray *params = @[ key ];
     const char *SQL = "DELETE FROM " RCNTableNameExperiment " WHERE key = ?";
     [strongSelf executeQuery:SQL withParams:params];

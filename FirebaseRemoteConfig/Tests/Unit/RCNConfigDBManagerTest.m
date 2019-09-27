@@ -261,13 +261,12 @@
 // Create a key each for two namespaces, delete it from one namespace, read both namespaces.
 - (void)testDeleteParamAndLoadMainTable {
   XCTestExpectation *namespaceDeleteExpectation =
-      [self expectationWithDescription:
-                @"Write a key to namespace_delete, delete it and try reading back again."];
+      [self expectationWithDescription:@"Contents of 'namespace_delete' should be deleted."];
   XCTestExpectation *namespaceKeepExpectation =
       [self expectationWithDescription:@"Write a key to namespace_keep and read back again."];
   NSString *namespaceToDelete = @"namespace_delete";
   NSString *namespaceToKeep = @"namespace_keep";
-  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *bundleIdentifier = @"testBundleID";
 
   // Write something to the database for both namespaces.
   // Completion handler for the write to namespace_delete namespace.
