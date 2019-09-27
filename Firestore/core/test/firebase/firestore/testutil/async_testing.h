@@ -61,7 +61,12 @@ class Expectation {
  public:
   Expectation();
 
-  /** Marks this expectation as fulfilled. */
+  /**
+   * Marks this expectation as fulfilled.
+   *
+   * Only a single call to `Fulfill` is allowed for any given `Expectaction`. An
+   * exception is thrown if `Fulfill` is called more than once.
+   */
   void Fulfill();
 
   /**
@@ -73,12 +78,16 @@ class Expectation {
   std::function<void()> AsCallback() const;
 
   /**
-   * Returns a `future` that represents the completion of this Expectation.
+   * Returns a `shared_future` that represents the completion of this
+   * Expectation.
    */
-  std::future<void> get_future() const;
+  const std::shared_future<void>& get_future() const {
+    return future_;
+  }
 
  private:
   std::shared_ptr<std::promise<void>> promise_;
+  std::shared_future<void> future_;
 };
 
 /**
@@ -86,15 +95,9 @@ class Expectation {
  */
 class AsyncTest {
  public:
-  AsyncTest()
-      : trace_("Test case name",
-               1,
-               testing::Message() << testing::UnitTest::GetInstance()
-                                         ->current_test_info()
-                                         ->name()) {
-  }
+  AsyncTest() = default;
 
-  std::future<void> Async(std::function<void()> action);
+  std::future<void> Async(std::function<void()> action) const;
 
   /**
    * Waits for the future to become ready.
@@ -102,32 +105,34 @@ class AsyncTest {
    * Fails the current test if the timeout occurs.
    */
   void Await(const std::future<void>& future,
-             std::chrono::milliseconds timeout = kTimeout);
+             std::chrono::milliseconds timeout = kTimeout) const;
 
   /**
-   * Waits for the promise to become ready. The future associated with the
-   * promise is consumed via `promise.get_future()`.
+   * Waits for the shared future to become ready.
    *
    * Fails the current test if the timeout occurs.
    */
-  void Await(std::promise<void>& promise,  // NOLINT(runtime/references)
-             std::chrono::milliseconds timeout = kTimeout);
+  void Await(const std::shared_future<void>& future,
+             std::chrono::milliseconds timeout = kTimeout) const;
 
   /**
    * Waits for the expectation to become fulfilled.
    *
    * Fails the current test if the timeout occurs.
    */
-  void Await(const Expectation& expectation,
-             std::chrono::milliseconds timeout = kTimeout);
+  void Await(Expectation& expectation,  // NOLINT(runtime/references)
+             std::chrono::milliseconds timeout = kTimeout) const;
 
   /**
    * Sleeps the current thread for the given number of milliseconds.
    */
-  void SleepFor(int millis);
+  void SleepFor(int millis) const;
 
  private:
-  testing::ScopedTrace trace_;
+  testing::ScopedTrace trace_{
+      "Test case name", 1,
+      testing::Message()
+          << testing::UnitTest::GetInstance()->current_test_info()->name()};
 };
 
 }  // namespace testutil

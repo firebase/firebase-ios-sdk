@@ -17,7 +17,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -68,7 +68,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -128,7 +128,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -159,7 +159,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -205,7 +205,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -251,7 +251,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -282,7 +282,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -308,7 +308,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -341,7 +341,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -392,7 +392,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -427,7 +427,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {}
         }
       },
@@ -440,7 +440,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -452,7 +452,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -510,7 +510,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -543,7 +543,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -605,7 +605,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -655,7 +655,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -667,7 +667,7 @@
             "hasPendingWrites": false
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -725,7 +725,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "stateExpect": {
+        "expectedState": {
           "limboDocs": [
             "collection/2"
           ],
@@ -767,7 +767,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "stateExpect": {
+        "expectedState": {
           "limboDocs": [],
           "activeTargets": {
             "2": {
@@ -780,7 +780,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -826,7 +826,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -888,7 +888,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -933,7 +933,7 @@
           },
           "runBackoffTimer": true
         },
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -964,7 +964,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -976,7 +976,7 @@
             "hasPendingWrites": false
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1034,7 +1034,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "stateExpect": {
+        "expectedState": {
           "limboDocs": [
             "collection/2"
           ],
@@ -1076,7 +1076,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "stateExpect": {
+        "expectedState": {
           "limboDocs": [],
           "activeTargets": {
             "2": {
@@ -1089,7 +1089,7 @@
             }
           }
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1135,7 +1135,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1186,7 +1186,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1246,7 +1246,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1271,7 +1271,7 @@
             "hasPendingWrites": false
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1351,7 +1351,7 @@
           "version": 3000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1397,7 +1397,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1448,7 +1448,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/a",
@@ -1486,7 +1486,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection/a",
@@ -1532,7 +1532,7 @@
             "orderBys": []
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1594,7 +1594,7 @@
           "version": 1000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1644,7 +1644,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",
@@ -1656,7 +1656,7 @@
             "hasPendingWrites": false
           }
         ],
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1714,7 +1714,7 @@
           "version": 2000,
           "targetIds": []
         },
-        "stateExpect": {
+        "expectedState": {
           "limboDocs": [
             "collection/2"
           ],
@@ -1747,7 +1747,7 @@
             "code": 7
           }
         },
-        "stateExpect": {
+        "expectedState": {
           "activeTargets": {
             "2": {
               "query": {
@@ -1760,7 +1760,7 @@
           },
           "limboDocs": []
         },
-        "expect": [
+        "expectedSnapshotEvents": [
           {
             "query": {
               "path": "collection",

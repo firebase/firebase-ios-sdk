@@ -42,7 +42,9 @@ std::shared_ptr<util::AsyncQueue> AsyncQueueForTesting() {
 
 // MARK: - Expectation
 
-Expectation::Expectation() : promise_(std::make_shared<std::promise<void>>()) {
+Expectation::Expectation()
+    : promise_(std::make_shared<std::promise<void>>()),
+      future_(promise_->get_future().share()) {
 }
 
 void Expectation::Fulfill() {
@@ -57,13 +59,9 @@ std::function<void()> Expectation::AsCallback() const {
   return [promise] { promise->set_value(); };
 }
 
-std::future<void> Expectation::get_future() const {
-  return promise_->get_future();
-}
-
 // MARK: - AsyncTest
 
-std::future<void> AsyncTest::Async(std::function<void()> action) {
+std::future<void> AsyncTest::Async(std::function<void()> action) const {
   std::packaged_task<void()> task(std::move(action));
   auto future = task.get_future();
 
@@ -73,26 +71,31 @@ std::future<void> AsyncTest::Async(std::function<void()> action) {
 }
 
 void AsyncTest::Await(const std::future<void>& future,
-                      const std::chrono::milliseconds timeout) {
+                      std::chrono::milliseconds timeout) const {
   std::future_status result = future.wait_for(timeout);
   if (result == std::future_status::ready) {
     return;
   }
 
-  ADD_FAILURE();
+  ADD_FAILURE() << "Test timed out after " << timeout.count() << " ms";
 }
 
-void AsyncTest::Await(std::promise<void>& promise,
-                      const std::chrono::milliseconds timeout) {
-  return Await(promise.get_future(), timeout);
+void AsyncTest::Await(const std::shared_future<void>& future,
+                      std::chrono::milliseconds timeout) const {
+  std::future_status result = future.wait_for(timeout);
+  if (result == std::future_status::ready) {
+    return;
+  }
+
+  ADD_FAILURE() << "Test timed out after " << timeout.count() << " ms";
 }
 
-void AsyncTest::Await(const Expectation& expectation,
-                      const std::chrono::milliseconds timeout) {
+void AsyncTest::Await(Expectation& expectation,
+                      std::chrono::milliseconds timeout) const {
   return Await(expectation.get_future(), timeout);
 }
 
-void AsyncTest::SleepFor(int millis) {
+void AsyncTest::SleepFor(int millis) const {
   std::this_thread::sleep_for(std::chrono::milliseconds(millis));
 }
 
