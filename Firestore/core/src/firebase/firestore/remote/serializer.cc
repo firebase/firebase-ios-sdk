@@ -1210,25 +1210,25 @@ Serializer::EncodeFieldFilterOperator(Filter::Operator op) const {
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN;
 
     case Filter::Operator::LessThanOrEqual:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL;
+      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL;  // NOLINT
 
     case Filter::Operator::GreaterThan:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN;
+      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN;  // NOLINT
 
     case Filter::Operator::GreaterThanOrEqual:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;
+      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;  // NOLINT
 
     case Filter::Operator::Equal:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL;
 
     case Filter::Operator::ArrayContains:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
+      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;  // NOLINT
 
     case Filter::Operator::In:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN;
 
     case Filter::Operator::ArrayContainsAny:
-      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
+      return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;  // NOLINT
 
     default:
       HARD_FAIL("Unhandled Filter::Operator: %s", op);
@@ -1242,25 +1242,25 @@ Filter::Operator Serializer::DecodeFieldFilterOperator(
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
       return Filter::Operator::LessThan;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:  // NOLINT
       return Filter::Operator::LessThanOrEqual;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
       return Filter::Operator::GreaterThan;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:  // NOLINT
       return Filter::Operator::GreaterThanOrEqual;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
       return Filter::Operator::Equal;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:  // NOLINT
       return Filter::Operator::ArrayContains;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
       return Filter::Operator::In;
 
-    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:
+    case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:  // NOLINT
       return Filter::Operator::ArrayContainsAny;
 
     default:

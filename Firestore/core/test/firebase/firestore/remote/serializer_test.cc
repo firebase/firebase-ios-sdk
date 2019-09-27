@@ -64,8 +64,8 @@ namespace remote {
 namespace {
 
 namespace v1 = google::firestore::v1;
-using google::protobuf::util::MessageDifferencer;
 using core::Bound;
+using google::protobuf::util::MessageDifferencer;
 using local::QueryData;
 using local::QueryPurpose;
 using model::DatabaseId;
@@ -1304,8 +1304,9 @@ TEST_F(SerializerTest, EncodesSortOrders) {
 TEST_F(SerializerTest, EncodesBounds) {
   core::Query q =
       Query("docs")
-    .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
-    .EndingAt(Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
+          .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
+          .EndingAt(
+              Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
