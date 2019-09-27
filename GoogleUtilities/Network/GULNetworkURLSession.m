@@ -224,14 +224,19 @@
 
 #pragma mark - NSURLSessionDataDelegate
 
-/// Called the NSURLSession once the data task has completed fetching the data from the network.
+/// Called by the NSURLSession when the data task has received some of the expected data.
 /// Once the session is completed, URLSession:task:didCompleteWithError will be called and the
 /// completion handler will be called with the downloaded data.
 - (void)URLSession:(NSURLSession *)session
-          dataTask:(nonnull NSURLSessionDataTask *)dataTask
-    didReceiveData:(nonnull NSData *)data {
-  if (data) {
-    _downloadedData = [data copy];
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
+  @synchronized(self) {
+    NSMutableData *mutableData = [[NSMutableData alloc] init];
+    if (_downloadedData) {
+      mutableData = _downloadedData.mutableCopy;
+    }
+    [mutableData appendData:data];
+    _downloadedData = mutableData;
   }
 }
 
