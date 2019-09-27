@@ -202,12 +202,6 @@
 
 #pragma mark - GDTCORLifecycleProtocol
 
-- (void)appWillBackground:(GDTCORApplication *)app {
-}
-
-- (void)appWillForeground:(GDTCORApplication *)app {
-}
-
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_uploaderQueue, ^{
     [self.currentTask cancel];

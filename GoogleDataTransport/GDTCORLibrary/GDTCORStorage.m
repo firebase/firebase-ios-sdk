@@ -231,13 +231,14 @@ static NSString *GDTCORStoragePath() {
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
     // Create an immediate background task to run until the end of the current queue of work.
-    __block GDTCORBackgroundIdentifier bgID = [app beginBackgroundTaskWithName:@"GDTStorage"
-                                                             expirationHandler:^{
-      if (bgID != GDTCORBackgroundIdentifierInvalid) {
-        [app endBackgroundTask:bgID];
-        bgID = GDTCORBackgroundIdentifierInvalid;
-      }
-    }];
+    __block GDTCORBackgroundIdentifier bgID =
+        [app beginBackgroundTaskWithName:@"GDTStorage"
+                       expirationHandler:^{
+                         if (bgID != GDTCORBackgroundIdentifierInvalid) {
+                           [app endBackgroundTask:bgID];
+                           bgID = GDTCORBackgroundIdentifierInvalid;
+                         }
+                       }];
 
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       NSError *error;

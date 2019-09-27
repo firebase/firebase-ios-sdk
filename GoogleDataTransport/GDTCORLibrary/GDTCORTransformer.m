@@ -73,18 +73,16 @@
       }
     }
     [self.storageInstance storeEvent:transformedEvent];
-    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-    bgID = GDTCORBackgroundIdentifierInvalid;
+
+    // The work is done, cancel the background task if it's valid.
+    if (bgID != GDTCORBackgroundIdentifierInvalid) {
+      [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+      bgID = GDTCORBackgroundIdentifierInvalid;
+    }
   });
 }
 
 #pragma mark - GDTCORLifecycleProtocol
-
-- (void)appWillForeground:(GDTCORApplication *)app {
-}
-
-- (void)appWillBackground:(GDTCORApplication *)app {
-}
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   // Flush the queue immediately.
