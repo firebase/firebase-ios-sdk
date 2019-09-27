@@ -38,6 +38,7 @@
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
@@ -64,6 +65,7 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using google::protobuf::util::MessageDifferencer;
+using core::Bound;
 using local::QueryData;
 using local::QueryPurpose;
 using model::DatabaseId;
@@ -1296,6 +1298,46 @@ TEST_F(SerializerTest, EncodesSortOrders) {
       std::move(order2);
 
   SCOPED_TRACE("EncodesSortOrders");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesBounds) {
+  core::Query q =
+      Query("docs")
+    .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
+    .EndingAt(Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
+  QueryData model = CreateQueryData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  v1::Cursor start_at;
+  start_at.set_before(false);
+  *start_at.add_values() = ValueProto("prop");
+  *start_at.add_values() = ValueProto(42);
+  *proto.mutable_query()->mutable_structured_query()->mutable_start_at() =
+      std::move(start_at);
+
+  v1::Cursor end_at;
+  end_at.set_before(true);
+  *end_at.add_values() = ValueProto("author");
+  *end_at.add_values() = ValueProto("dimond");
+  *proto.mutable_query()->mutable_structured_query()->mutable_end_at() =
+      std::move(end_at);
+
+  SCOPED_TRACE("EncodesBounds");
   ExpectRoundTrip(model, proto);
 }
 
