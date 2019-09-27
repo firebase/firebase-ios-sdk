@@ -22,8 +22,9 @@
 #import "Private/GULNetworkMessageCode.h"
 
 @interface GULNetworkURLSession () <NSURLSessionDelegate,
-                                    NSURLSessionTaskDelegate,
-                                    NSURLSessionDownloadDelegate>
+                                    NSURLSessionDataDelegate,
+                                    NSURLSessionDownloadDelegate,
+                                    NSURLSessionTaskDelegate>
 @end
 
 @implementation GULNetworkURLSession {
@@ -219,6 +220,19 @@
   [downloadTask resume];
 
   return _sessionID;
+}
+
+#pragma mark - NSURLSessionDataDelegate
+
+/// Called the NSURLSession once the data task has completed fetching the data from the network.
+/// Once the session is completed, URLSession:task:didCompleteWithError will be called and the
+/// completion handler will be called with the downloaded data.
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(nonnull NSURLSessionDataTask *)dataTask
+    didReceiveData:(nonnull NSData *)data {
+  if (data) {
+    _downloadedData = [data copy];
+  }
 }
 
 #pragma mark - NSURLSessionTaskDelegate
