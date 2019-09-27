@@ -26,6 +26,7 @@ cc_test(
     absl_base
     firebase_firestore_protos_libprotobuf
     firebase_firestore_core
+    firebase_firestore_local
     firebase_firestore_remote
     firebase_firestore_remote_test_util
     firebase_firestore_testutil
