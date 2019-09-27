@@ -1155,6 +1155,7 @@ TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
   *proto.mutable_query()->mutable_structured_query()->add_order_by() =
       std::move(order);
 
+  SCOPED_TRACE("EncodesNestedAncestorQueries");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1191,6 +1192,7 @@ TEST_F(SerializerTest, EncodesSingleFiltersAtFirstLevelCollections) {
   filter.set_op(v1::StructuredQuery::FieldFilter::LESS_THAN);
   filter.mutable_value()->set_integer_value(42);
 
+  SCOPED_TRACE("EncodesSingleFiltersAtFirstLevelCollections");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1252,6 +1254,7 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
   *proto.mutable_query()->mutable_structured_query()->add_order_by() =
       std::move(order2);
 
+  SCOPED_TRACE("EncodesMultipleFiltersOnDeeperCollections");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1292,6 +1295,7 @@ TEST_F(SerializerTest, EncodesSortOrders) {
   *proto.mutable_query()->mutable_structured_query()->add_order_by() =
       std::move(order2);
 
+  SCOPED_TRACE("EncodesSortOrders");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1322,6 +1326,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
   *proto.mutable_query()->mutable_structured_query()->add_order_by() =
       std::move(order2);
 
+  SCOPED_TRACE("EncodesSortOrdersDescending");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1346,6 +1351,7 @@ TEST_F(SerializerTest, EncodesLimits) {
   proto.mutable_query()->mutable_structured_query()->mutable_limit()->set_value(
       26);
 
+  SCOPED_TRACE("EncodesLimits");
   ExpectRoundTrip(model, proto);
 }
 
@@ -1371,6 +1377,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
 
   proto.set_resume_token("\001\002\003");
 
+  SCOPED_TRACE("EncodesResumeTokens");
   ExpectRoundTrip(model, proto);
 }
 

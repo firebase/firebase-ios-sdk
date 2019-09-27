@@ -136,7 +136,6 @@ class NanopbGenerator(object):
 
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
-        '--verbose',
         '--source-extension=.cc',
         '--no-timestamp',
         # Make sure Nanopb finds the `.options` files. See
