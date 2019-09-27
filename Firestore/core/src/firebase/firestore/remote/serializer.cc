@@ -944,6 +944,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   }
 
   if (query.limit() != Query::kNoLimit) {
+    result.structured_query.has_limit = true;
     result.structured_query.limit.value = query.limit();
   }
 
@@ -1002,7 +1003,7 @@ Query Serializer::DecodeQueryTarget(
   }
 
   int32_t limit = Query::kNoLimit;
-  if (query.limit.value != Query::kNoLimit) {  // FIXME
+  if (query.has_limit) {
     limit = query.limit.value;
   }
 

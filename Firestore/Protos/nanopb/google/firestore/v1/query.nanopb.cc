@@ -34,7 +34,7 @@ const pb_field_t google_firestore_v1_StructuredQuery_fields[9] = {
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_StructuredQuery, from, select, &google_firestore_v1_StructuredQuery_CollectionSelector_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_StructuredQuery, where, from, &google_firestore_v1_StructuredQuery_Filter_fields),
     PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_StructuredQuery, order_by, where, &google_firestore_v1_StructuredQuery_Order_fields),
-    PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_StructuredQuery, limit, order_by, &google_protobuf_Int32Value_fields),
+    PB_FIELD(  5, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_StructuredQuery, limit, order_by, &google_protobuf_Int32Value_fields),
     PB_FIELD(  6, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1_StructuredQuery, offset, limit, 0),
     PB_FIELD(  7, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_StructuredQuery, start_at, offset, &google_firestore_v1_Cursor_fields),
     PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_StructuredQuery, end_at, start_at, &google_firestore_v1_Cursor_fields),
