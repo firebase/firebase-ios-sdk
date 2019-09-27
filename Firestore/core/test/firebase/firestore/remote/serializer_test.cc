@@ -29,7 +29,9 @@
 
 #include <pb.h>
 #include <pb_encode.h>
+#include <functional>
 #include <limits>
+#include <utility>
 #include <vector>
 
 #include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
@@ -48,6 +50,7 @@
 #include "Firestore/core/test/firebase/firestore/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
+#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
@@ -57,11 +60,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 namespace v1 = google::firestore::v1;
 using google::protobuf::util::MessageDifferencer;
+using local::QueryData;
+using local::QueryPurpose;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
+using model::FieldPath;
 using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
@@ -76,10 +84,38 @@ using nanopb::ProtobufSerialize;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::Serializer;
+using testutil::Bytes;
+using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
+using testutil::OrderBy;
+using testutil::Query;
+using testutil::Value;
 using util::Status;
 using util::StatusOr;
+
+const char* const kProjectId = "p";
+const char* const kDatabaseId = "d";
+
+// These helper functions are just shorter aliases to reduce verbosity.
+ByteString ToBytes(const std::string& str) {
+  return ByteString{Serializer::EncodeString(str)};
+}
+
+std::string FromBytes(pb_bytes_array_t*&& ptr) {
+  auto byte_string = ByteString::Take(ptr);
+  return Serializer::DecodeString(byte_string.get());
+}
+
+QueryData CreateQueryData(core::Query query) {
+  return QueryData(std::move(query), 1, 0, QueryPurpose::Listen);
+}
+
+QueryData CreateQueryData(absl::string_view str) {
+  return CreateQueryData(Query(str));
+}
+
+}  // namespace
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -92,7 +128,7 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(DatabaseId("p", "d")) {
+  SerializerTest() : serializer(DatabaseId(kProjectId, kDatabaseId)) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
@@ -233,6 +269,12 @@ class SerializerTest : public ::testing::Test {
     return ProtobufParse<v1::Value>(bytes);
   }
 
+  v1::Value ValueProto(const FieldValue::Reference& ref) {
+    ByteString bytes = EncodeFieldValue(
+        FieldValue::FromReference(ref.database_id(), ref.key()));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
   v1::Value ValueProto(const GeoPoint& geo_point) {
     ByteString bytes = EncodeFieldValue(FieldValue::FromGeoPoint(geo_point));
     return ProtobufParse<v1::Value>(bytes);
@@ -265,6 +307,36 @@ class SerializerTest : public ::testing::Test {
         doc_proto->mutable_create_time();
     create_time_proto->set_seconds(8765);
     create_time_proto->set_nanos(4321);
+  }
+
+  void ExpectUnaryOperator(const FieldValue& value,
+                           v1::StructuredQuery::UnaryFilter::Operator op) {
+    core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
+    QueryData model = CreateQueryData(std::move(q));
+
+    v1::Target proto;
+    proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+    proto.set_target_id(1);
+
+    v1::StructuredQuery::CollectionSelector from;
+    from.set_collection_id("docs");
+    *proto.mutable_query()->mutable_structured_query()->add_from() =
+        std::move(from);
+
+    v1::StructuredQuery::Order order;
+    order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+    order.set_direction(v1::StructuredQuery::ASCENDING);
+    *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+        std::move(order);
+
+    v1::StructuredQuery::UnaryFilter& filter = *proto.mutable_query()
+                                                    ->mutable_structured_query()
+                                                    ->mutable_where()
+                                                    ->mutable_unary_filter();
+    filter.mutable_field()->set_field_path("prop");
+    filter.set_op(op);
+
+    ExpectRoundTrip(model, proto);
   }
 
  private:
@@ -363,6 +435,55 @@ class SerializerTest : public ::testing::Test {
       case MaybeDocument::Type::Invalid:
         FAIL() << "We somehow created an invalid model object";
     }
+  }
+
+  void ExpectSerializationRoundTrip(const QueryData& model,
+                                    const v1::Target& proto) {
+    ByteString bytes = Encode(google_firestore_v1_Target_fields,
+                              serializer.EncodeTarget(model));
+    auto actual_proto = ProtobufParse<v1::Target>(bytes);
+
+    EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
+  }
+
+  void ExpectDeserializationRoundTrip(const QueryData& model,
+                                      const v1::Target& proto) {
+    core::Query actual_model;
+    if (proto.has_documents()) {
+      actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
+          google_firestore_v1_Target_DocumentsTarget_fields,
+          std::mem_fn(&Serializer::DecodeDocumentsTarget), proto.documents());
+
+    } else {
+      actual_model = Decode<google_firestore_v1_Target_QueryTarget>(
+          google_firestore_v1_Target_QueryTarget_fields,
+          std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
+    }
+
+    EXPECT_EQ(model.query(), actual_model);
+  }
+
+  template <typename T>
+  ByteString Encode(const pb_field_t* fields, T&& nanopb_proto) {
+    ByteStringWriter writer;
+    writer.WriteNanopbMessage(fields, &nanopb_proto);
+    serializer.FreeNanopbMessage(fields, &nanopb_proto);
+    return writer.Release();
+  }
+
+  template <typename T, typename F, typename P>
+  auto Decode(const pb_field_t* fields, F decode_func, const P& proto) ->
+      typename F::result_type {
+    ByteString bytes = ProtobufSerialize(proto);
+    Reader reader{bytes};
+
+    T nanopb_proto{};
+    reader.ReadNanopbMessage(fields, &nanopb_proto);
+    auto model = decode_func(serializer, &reader, nanopb_proto);
+    reader.FreeNanopbMessage(fields, &nanopb_proto);
+
+    EXPECT_OK(reader.status());
+    return model;
   }
 
   std::string message_differences;
@@ -508,6 +629,19 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
   auto parsed_proto = ProtobufParse<v1::Value>(bytes);
   std::string actual = parsed_proto.bytes_value();
   EXPECT_EQ(actual, "");
+}
+
+TEST_F(SerializerTest, EncodesReferences) {
+  std::vector<FieldValue::Reference> cases{
+      {DatabaseId{kProjectId, kDatabaseId},
+       DocumentKey::FromPathString("baz/a")},
+  };
+
+  for (const auto& ref_value : cases) {
+    FieldValue model =
+        FieldValue::FromReference(ref_value.database_id(), ref_value.key());
+    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
+  }
 }
 
 TEST_F(SerializerTest, EncodesGeoPoint) {
@@ -841,24 +975,28 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents",
+            FromBytes(serializer.EncodeKey(Key(""))));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
-            serializer.EncodeKey(Key("one/two/three/four")));
+            FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "projects/p/databases/d/documents/one/two/three/four"));
+            serializer.DecodeKey(
+                &reader, ToBytes("projects/p/databases/d/documents").get()));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   // Same, but with a leading slash
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "/projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("/projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   EXPECT_OK(reader.status());
 }
 
@@ -877,7 +1015,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     Reader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, bad_key);
+    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -889,7 +1027,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   doc_proto->mutable_fields();
 
   google::protobuf::Timestamp* update_time_proto =
@@ -920,7 +1058,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Map<std::string, v1::Value>& m =
       *doc_proto->mutable_fields();
   m["foo"] = ValueProto("bar");
@@ -948,7 +1086,7 @@ TEST_F(SerializerTest, DecodesNoDocument) {
       SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
 
   v1::BatchGetDocumentsResponse proto;
-  proto.set_missing(serializer.EncodeKey(key));
+  proto.set_missing(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
   read_time_proto->set_seconds(read_time.timestamp().seconds());
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
@@ -962,6 +1100,278 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
   ByteString bytes = ProtobufSerialize(proto);
   ExpectFailedStatusDuringMaybeDocumentDecode(
       Status(Error::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
+  QueryData model = CreateQueryData("docs/1");
+
+  v1::Target proto;
+  proto.mutable_documents()->add_documents(
+      "projects/p/databases/d/documents/docs/1");
+  proto.set_target_id(1);
+
+  SCOPED_TRACE("EncodesFirstLevelKeyQueries");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
+  QueryData model = CreateQueryData("messages");
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("messages");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  SCOPED_TRACE("EncodesFirstLevelAncestorQueries");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
+  QueryData model = CreateQueryData("rooms/1/messages/10/attachments");
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(
+      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("attachments");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesSingleFiltersAtFirstLevelCollections) {
+  core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
+  QueryData model = CreateQueryData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order1;
+  order1.mutable_field()->set_field_path("prop");
+  order1.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order1);
+
+  v1::StructuredQuery::Order order2;
+  order2.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order2.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order2);
+
+  v1::StructuredQuery::FieldFilter& filter = *proto.mutable_query()
+                                                  ->mutable_structured_query()
+                                                  ->mutable_where()
+                                                  ->mutable_field_filter();
+  filter.mutable_field()->set_field_path("prop");
+  filter.set_op(v1::StructuredQuery::FieldFilter::LESS_THAN);
+  filter.mutable_value()->set_integer_value(42);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
+  core::Query q =
+      Query("rooms/1/messages/10/attachments")
+          .AddingFilter(Filter("prop", ">=", 42))
+          .AddingFilter(Filter("author", "==", "dimond"))
+          .AddingFilter(Filter("tags", "array_contains", "pending"));
+  QueryData model = CreateQueryData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(
+      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("attachments");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Filter filter1;
+  v1::StructuredQuery::FieldFilter& field1 = *filter1.mutable_field_filter();
+  field1.mutable_field()->set_field_path("prop");
+  field1.set_op(v1::StructuredQuery::FieldFilter::GREATER_THAN_OR_EQUAL);
+  field1.mutable_value()->set_integer_value(42);
+
+  v1::StructuredQuery::Filter filter2;
+  v1::StructuredQuery::FieldFilter& field2 = *filter2.mutable_field_filter();
+  field2.mutable_field()->set_field_path("author");
+  field2.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
+  field2.mutable_value()->set_string_value("dimond");
+
+  v1::StructuredQuery::Filter filter3;
+  v1::StructuredQuery::FieldFilter& field3 = *filter3.mutable_field_filter();
+  field3.mutable_field()->set_field_path("tags");
+  field3.set_op(v1::StructuredQuery::FieldFilter::ARRAY_CONTAINS);
+  field3.mutable_value()->set_string_value("pending");
+
+  v1::StructuredQuery::CompositeFilter& composite =
+      *proto.mutable_query()
+           ->mutable_structured_query()
+           ->mutable_where()
+           ->mutable_composite_filter();
+  composite.set_op(v1::StructuredQuery::CompositeFilter::AND);
+  *composite.add_filters() = std::move(filter1);
+  *composite.add_filters() = std::move(filter2);
+  *composite.add_filters() = std::move(filter3);
+
+  v1::StructuredQuery::Order order1;
+  order1.mutable_field()->set_field_path("prop");
+  order1.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order1);
+
+  v1::StructuredQuery::Order order2;
+  order2.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order2.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order2);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNullFilter) {
+  SCOPED_TRACE("EncodesNullFilter");
+  ExpectUnaryOperator(Value(nullptr),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NULL);
+}
+
+TEST_F(SerializerTest, EncodesNanFilter) {
+  SCOPED_TRACE("EncodesNanFilter");
+  ExpectUnaryOperator(Value(NAN),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NAN);
+}
+
+TEST_F(SerializerTest, EncodesSortOrders) {
+  core::Query q = Query("docs").AddingOrderBy(testutil::OrderBy("prop", "asc"));
+  QueryData model = CreateQueryData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order1;
+  order1.mutable_field()->set_field_path("prop");
+  order1.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order1);
+
+  v1::StructuredQuery::Order order2;
+  order2.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order2.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order2);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesSortOrdersDescending) {
+  core::Query q = Query("rooms/1/messages/10/attachments")
+                      .AddingOrderBy(OrderBy("prop", "desc"));
+  QueryData model = CreateQueryData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(
+      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("attachments");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order1;
+  order1.mutable_field()->set_field_path("prop");
+  order1.set_direction(v1::StructuredQuery::DESCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order1);
+
+  v1::StructuredQuery::Order order2;
+  order2.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order2.set_direction(v1::StructuredQuery::DESCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order2);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesLimits) {
+  QueryData model = CreateQueryData(Query("docs").WithLimit(26));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  proto.mutable_query()->mutable_structured_query()->mutable_limit()->set_value(
+      26);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesResumeTokens) {
+  core::Query q = Query("docs");
+  QueryData model(std::move(q), 1, 0, QueryPurpose::Listen,
+                  SnapshotVersion::None(), Bytes(1, 2, 3));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  proto.set_resume_token("\001\002\003");
+
+  ExpectRoundTrip(model, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

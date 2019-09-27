@@ -18,15 +18,11 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
-
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::ExecutorStd;
-using firebase::firestore::util::TestWithTimeoutMixin;
-using firebase::firestore::util::TimerId;
 
 namespace chr = std::chrono;
 
@@ -34,11 +30,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using util::AsyncQueue;
+using util::Executor;
+using util::TestWithTimeoutMixin;
+using util::TimerId;
+
 class ExponentialBackoffTest : public TestWithTimeoutMixin,
                                public testing::Test {
  public:
   ExponentialBackoffTest()
-      : queue{std::make_shared<AsyncQueue>(absl::make_unique<ExecutorStd>())},
+      : queue{testutil::AsyncQueueForTesting()},
         backoff{queue, timer_id, 1.5, chr::seconds{5}, chr::seconds{30}} {
   }
 
