@@ -594,7 +594,7 @@ private class EncodableSubject<X: Equatable & Encodable> {
     do {
       _ = try Firestore.Encoder().encode(subject)
       XCTFail("Failed to throw", file: file, line: line)
-    } catch FirestoreEncodingError.encodingIsNotSupported {
+    } catch EncodingError.invalidValue(_, _) {
       return
     } catch {
       XCTFail("Unrecognized error: \(error)", file: file, line: line)
