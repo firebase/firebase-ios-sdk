@@ -91,10 +91,19 @@ function RunXcodebuild() {
   fi
 }
 
-ios_flags=(
-  -sdk 'iphonesimulator'
-  -destination 'platform=iOS Simulator'
-)
+# Remove this if test when Firestore moves up to Xcode 11
+if [[ $product == 'Firestore' ]]; then
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 7'
+  )
+else
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 11'
+  )
+fi
+
 macos_flags=(
   -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
