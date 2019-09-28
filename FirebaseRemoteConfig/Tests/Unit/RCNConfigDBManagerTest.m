@@ -278,7 +278,7 @@
                                       bundleIdentifier:bundleIdentifier
                                             fromSource:RCNDBSourceActive];
 
-    // check DB read correctly
+    // Read from the database and verify expected values.
     [_DBManager
         loadMainWithBundleIdentifier:bundleIdentifier
                    completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
