@@ -93,7 +93,7 @@ function RunXcodebuild() {
 
 ios_flags=(
   -sdk 'iphonesimulator'
-  -destination 'platform=iOS Simulator,name=iPhone 7'
+  -destination 'platform=iOS Simulator,name=iPhone 11'
 )
 macos_flags=(
   -sdk 'macosx'
