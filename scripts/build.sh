@@ -107,6 +107,11 @@ else
   )
 fi
 
+ipad_flags=(
+  -sdk 'iphonesimulator'
+  -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
+)
+
 macos_flags=(
   -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
@@ -121,6 +126,10 @@ case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
     ;;
+
+  iPad)
+    xcb_flags=("${ipad_flags[@]}")
+  ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
@@ -250,8 +259,7 @@ case "$product-$method-$platform" in
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
+        "${xcb_flags[@]}" \
         build \
         test
     ;;

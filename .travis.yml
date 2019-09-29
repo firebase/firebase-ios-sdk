@@ -256,7 +256,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
-#      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -265,7 +264,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-#      osx_image: xcode10.3
+      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -274,7 +273,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-#      osx_image: xcode10.3
+      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
