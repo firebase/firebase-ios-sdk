@@ -90,8 +90,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   InAppMessaging-iOS-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
+    ;;
+
+  InAppMessagingDisplay-*-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
