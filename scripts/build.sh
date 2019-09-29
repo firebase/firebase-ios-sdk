@@ -246,16 +246,7 @@ case "$product-$method-$platform" in
         test
   ;;
 
-  InAppMessagingDisplay-xcodebuild-iOS)
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
-        -scheme 'FiamDisplaySwiftExample' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-    ;;
-
-  InAppMessagingDisplay-xcodebuild-iPad)
+  InAppMessagingDisplay-xcodebuild-*)
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
