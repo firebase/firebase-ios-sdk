@@ -88,12 +88,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  InAppMessaging-iOS-xcodebuild)
+  FIAM-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
     ;;
 
-  InAppMessagingDisplay-*-xcodebuild)
+  FIAMDisplay-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     ;;

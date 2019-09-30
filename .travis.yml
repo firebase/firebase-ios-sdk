@@ -257,16 +257,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-#      osx_image: xcode10.3
-      env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=FIAM PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -275,7 +266,16 @@ jobs:
     - stage: test
       osx_image: xcode10.3
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
+        - PROJECT=FIAMDisplay PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=FIAMDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -573,4 +573,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-split-iam-travis
