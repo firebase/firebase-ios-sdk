@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTUploadPackage.h>
+#import <GoogleDataTransport/GDTCORUploadPackage.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
@@ -37,7 +37,7 @@
 @implementation GDTCCTUploaderTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] init];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
   self.testServer = [[GDTCCTTestServer alloc] init];
   [self.testServer registerLogBatchPath];
   [self.testServer start];
@@ -50,11 +50,12 @@
   [self.testServer stop];
 }
 
-- (void)testUploadGivenConditions {
-  NSArray<GDTStoredEvent *> *storedEventsA = [self.generator generateTheFiveConsistentStoredEvents];
-  NSSet<GDTStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
+- (void)testCCTUploadGivenConditions {
+  NSArray<GDTCORStoredEvent *> *storedEventsA =
+      [self.generator generateTheFiveConsistentStoredEvents];
+  NSSet<GDTCORStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
 
-  GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetCCT];
+  GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetCCT];
   package.events = storedEvents;
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
   uploader.serverURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDocumentChangeConstructor {
   Document doc = Doc("a/b", 0, Map());
-  DocumentViewChange::Type type = DocumentViewChange::Type::kModified;
+  DocumentViewChange::Type type = DocumentViewChange::Type::Modified;
   DocumentViewChange change{doc, type};
   XCTAssertEqual(change.document(), doc);
   XCTAssertEqual(change.type(), type);
@@ -65,43 +65,43 @@ NS_ASSUME_NONNULL_BEGIN
   Document docModifiedThenRemoved = Doc("b/4", 0, Map());
   Document docModifiedThenModified = Doc("b/5", 0, Map());
 
-  set.AddChange(DocumentViewChange{docAdded, DocumentViewChange::Type::kAdded});
-  set.AddChange(DocumentViewChange{docRemoved, DocumentViewChange::Type::kRemoved});
-  set.AddChange(DocumentViewChange{docModified, DocumentViewChange::Type::kModified});
-  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::kAdded});
-  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::kModified});
-  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::kAdded});
-  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::kRemoved});
-  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::kRemoved});
-  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::kAdded});
-  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::kModified});
-  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::kRemoved});
-  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::kModified});
-  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::kModified});
+  set.AddChange(DocumentViewChange{docAdded, DocumentViewChange::Type::Added});
+  set.AddChange(DocumentViewChange{docRemoved, DocumentViewChange::Type::Removed});
+  set.AddChange(DocumentViewChange{docModified, DocumentViewChange::Type::Modified});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::Added});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::Modified});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::Added});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::Removed});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::Removed});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::Added});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::Modified});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::Removed});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::Modified});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::Modified});
 
   std::vector<DocumentViewChange> changes = set.GetChanges();
   XCTAssertEqual(changes.size(), 7);
 
   XCTAssertEqual(changes[0].document(), docAdded);
-  XCTAssertEqual(changes[0].type(), DocumentViewChange::Type::kAdded);
+  XCTAssertEqual(changes[0].type(), DocumentViewChange::Type::Added);
 
   XCTAssertEqual(changes[1].document(), docRemoved);
-  XCTAssertEqual(changes[1].type(), DocumentViewChange::Type::kRemoved);
+  XCTAssertEqual(changes[1].type(), DocumentViewChange::Type::Removed);
 
   XCTAssertEqual(changes[2].document(), docModified);
-  XCTAssertEqual(changes[2].type(), DocumentViewChange::Type::kModified);
+  XCTAssertEqual(changes[2].type(), DocumentViewChange::Type::Modified);
 
   XCTAssertEqual(changes[3].document(), docAddedThenModified);
-  XCTAssertEqual(changes[3].type(), DocumentViewChange::Type::kAdded);
+  XCTAssertEqual(changes[3].type(), DocumentViewChange::Type::Added);
 
   XCTAssertEqual(changes[4].document(), docRemovedThenAdded);
-  XCTAssertEqual(changes[4].type(), DocumentViewChange::Type::kModified);
+  XCTAssertEqual(changes[4].type(), DocumentViewChange::Type::Modified);
 
   XCTAssertEqual(changes[5].document(), docModifiedThenRemoved);
-  XCTAssertEqual(changes[5].type(), DocumentViewChange::Type::kRemoved);
+  XCTAssertEqual(changes[5].type(), DocumentViewChange::Type::Removed);
 
   XCTAssertEqual(changes[6].document(), docModifiedThenModified);
-  XCTAssertEqual(changes[6].type(), DocumentViewChange::Type::kModified);
+  XCTAssertEqual(changes[6].type(), DocumentViewChange::Type::Modified);
 }
 
 - (void)testViewSnapshotConstructor {
@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentSet oldDocuments = documents;
   documents = documents.insert(Doc("c/a", 1, Map()));
   std::vector<DocumentViewChange> documentChanges{
-      DocumentViewChange{Doc("c/a", 1, Map()), DocumentViewChange::Type::kAdded}};
+      DocumentViewChange{Doc("c/a", 1, Map()), DocumentViewChange::Type::Added}};
 
   bool fromCache = true;
   DocumentKeySet mutatedKeys;

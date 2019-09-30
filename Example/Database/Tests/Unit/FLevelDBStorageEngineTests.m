@@ -473,7 +473,7 @@
 // It is kind of bad we raise "invalid" data, but at least we don't crash *trollface*
 - (void)testExtremeDoublesAsServerCache {
 #ifdef TARGET_OS_IOS
-  if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
+  if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 11) {
     // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
     return;
   }
@@ -532,8 +532,14 @@
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualInt), kCFNumberSInt64Type);
   XCTAssertEqualObjects([actualLong stringValue], [longValue stringValue]);
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualLong), kCFNumberSInt64Type);
-#if TARGET_OS_MACCATALYST
-  // Catalyst uses int128_t but CFNumber still calls it 64 bits
+#ifdef TARGET_OS_IOS
+  // Catalyst and iOS 13 use int128_t but CFNumber still calls it 64 bits.
+  if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 13) {
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
+  } else {
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
+  }
+#elif TARGET_OS_MACCATALYST
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
 #else
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);

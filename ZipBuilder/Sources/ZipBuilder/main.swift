@@ -16,18 +16,16 @@
 
 import Foundation
 
-// Get the launch arguments, parsed by user defaults.
-let args = LaunchArgs()
-
-// Clear the cache if requested.
-if args.deleteCache {
-  do {
-    let cacheDir = try FileManager.default.firebaseCacheDirectory()
-    try FileManager.default.removeItem(at: cacheDir)
-  } catch {
-    fatalError("Could not empty the cache before building the zip file: \(error)")
-  }
+// Delete the cache directory, if it exists.
+do {
+  let cacheDir = try FileManager.default.firebaseCacheDirectory()
+  FileManager.default.removeDirectoryIfExists(at: cacheDir)
+} catch {
+  fatalError("Could not remove the cache before packaging the release: \(error)")
 }
+
+// Get the launch arguments, parsed by user defaults.
+let args = LaunchArgs.shared
 
 // Keep timing for how long it takes to build the zip file for information purposes.
 let buildStart = Date()
@@ -43,9 +41,7 @@ var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir)
 paths.allSDKsPath = args.allSDKsPath
 paths.currentReleasePath = args.currentReleasePath
 paths.logsOutputDir = args.outputDir?.appendingPathComponent("build_logs")
-let builder = ZipBuilder(paths: paths,
-                         customSpecRepos: args.customSpecRepos,
-                         useCache: args.cacheEnabled)
+let builder = ZipBuilder(paths: paths, customSpecRepos: args.customSpecRepos)
 
 do {
   // Build the zip file and get the path.
@@ -73,6 +69,8 @@ do {
       var output = carthageDir.appendingPathComponent(firebaseVersion)
       if let rcNumber = args.rcNumber {
         output.appendPathComponent("rc\(rcNumber)")
+      } else {
+        output.appendPathComponent("latest-non-rc")
       }
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       CarthageUtils.generateCarthageRelease(fromPackagedDir: carthagePath,
@@ -89,7 +87,12 @@ do {
       // Save the directory for later copying.
       carthageRoot = carthageDir
     } catch {
-      fatalError("Could not copy output directory for Carthage build: \(error)")
+      // TODO: This can fail on CI due to size requirements, let's fail gracefully in the meantime
+      //       and not block the rest of the build.
+      //      fatalError("Could not copy output directory for Carthage build: \(error)")
+      print("--------- CARTHAGE ERROR ---------")
+      print("Could not copy output directory for Carthage build: \(error)")
+      print("------- END CARTHAGE ERROR -------")
     }
   }
 
@@ -107,15 +110,7 @@ do {
       // Move all the bundles in the frameworks out to a common "Resources" directory to match the
       // existing Zip structure.
       let resourcesDir = fullPath.appendingPathComponent("Resources")
-      let bundles = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
-
-      // Remove any extra bundles that were packaged, if possible, by using the folder name and
-      // getting the CocoaPod selected.
-      if let pod = CocoaPod(rawValue: fileOrFolder) {
-        let duplicateResources = pod.duplicateResourcesToRemove()
-        let toRemove = bundles.filter { duplicateResources.contains($0.lastPathComponent) }
-        try toRemove.forEach(fileManager.removeItem(at:))
-      }
+      _ = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
     }
   }
 
@@ -123,6 +118,8 @@ do {
   var candidateName = "Firebase-\(firebaseVersion)"
   if let rcNumber = args.rcNumber {
     candidateName += "-rc\(rcNumber)"
+  } else {
+    candidateName += "-latest-manual"
   }
   candidateName += ".zip"
   let zipped = Zip.zipContents(ofDir: location, name: candidateName)

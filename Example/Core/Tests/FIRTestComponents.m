@@ -14,7 +14,9 @@
 
 #import "FIRTestComponents.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRDependency.h>
 
 #pragma mark - Standard Component
 
@@ -92,9 +94,6 @@
 - (void)appWillBeDeleted:(FIRApp *)app {
 }
 
-- (void)doSomething {
-}
-
 @end
 
 #pragma mark - Cached Component
@@ -118,7 +117,50 @@
 - (void)appWillBeDeleted:(FIRApp *)app {
 }
 
-- (void)doSomething {
+/// FIRTestProtocolCached conformance.
+- (void)cacheCow {
+}
+
+@end
+
+#pragma mark - Test Component with Dependency
+
+@implementation FIRTestClassCachedWithDep
+
+- (instancetype)initWithTest:(id<FIRTestProtocolCached>)testInstance {
+  self = [super init];
+  if (self != nil) {
+    self.testProperty = testInstance;
+  }
+  return self;
+}
+
+- (void)appWillBeDeleted:(nonnull FIRApp *)app {
+  // Do something that depends on the instance from our dependency.
+  [self.testProperty cacheCow];
+
+  // Fetch from the container in the deletion function.
+  id<FIRTestProtocolCached> anotherInstance = FIR_COMPONENT(FIRTestProtocolCached, app.container);
+  [anotherInstance cacheCow];
+}
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *dep = [FIRDependency dependencyWithProtocol:@protocol(FIRTestProtocolCached)];
+  FIRComponent *testComponent = [FIRComponent
+      componentWithProtocol:@protocol(FIRTestProtocolCachedWithDep)
+        instantiationTiming:FIRInstantiationTimingLazy
+               dependencies:@[ dep ]
+              creationBlock:^id _Nullable(FIRComponentContainer *_Nonnull container,
+                                          BOOL *_Nonnull isCacheable) {
+                // Fetch from the container in the instantiation block.
+                *isCacheable = YES;
+
+                id<FIRTestProtocolCached> test = FIR_COMPONENT(FIRTestProtocolCached, container);
+                FIRTestClassCachedWithDep *instance =
+                    [[FIRTestClassCachedWithDep alloc] initWithTest:test];
+                return instance;
+              }];
+  return @[ testComponent ];
 }
 
 @end

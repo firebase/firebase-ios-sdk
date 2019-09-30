@@ -17,14 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
 
-#if !defined(__OBJC__)
-// TODO(varconst): the only dependency is `NSData`
-// (used to represent the resume token).
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -32,16 +24,14 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-
-@class FSTQueryData;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -64,10 +54,10 @@ class TargetMetadataProvider {
       model::TargetId target_id) const = 0;
 
   /**
-   * Returns the FSTQueryData for an active target ID or 'null' if this query
-   * has become inactive
+   * Returns the QueryData for an active target ID or `nullopt` if this query
+   * has become inactive.
    */
-  virtual FSTQueryData* GetQueryDataForTarget(
+  virtual absl::optional<local::QueryData> GetQueryDataForTarget(
       model::TargetId target_id) const = 0;
 };
 
@@ -84,7 +74,7 @@ class TargetChange {
  public:
   TargetChange() = default;
 
-  TargetChange(NSData* resume_token,
+  TargetChange(nanopb::ByteString resume_token,
                bool current,
                model::DocumentKeySet added_documents,
                model::DocumentKeySet modified_documents,
@@ -102,7 +92,7 @@ class TargetChange {
    * query. The resume token essentially identifies a point in time from which
    * the server should resume sending results.
    */
-  NSData* resume_token() const {
+  const nanopb::ByteString& resume_token() const {
     return resume_token_;
   }
 
@@ -140,7 +130,7 @@ class TargetChange {
   }
 
  private:
-  NSData* resume_token_ = nil;
+  nanopb::ByteString resume_token_;
   bool current_ = false;
   model::DocumentKeySet added_documents_;
   model::DocumentKeySet modified_documents_;
@@ -152,8 +142,6 @@ bool operator==(const TargetChange& lhs, const TargetChange& rhs);
 /** Tracks the internal state of a Watch target. */
 class TargetState {
  public:
-  TargetState();
-
   /**
    * Whether this target has been marked 'current'.
    *
@@ -167,7 +155,7 @@ class TargetState {
   }
 
   /** The last resume token sent to us for this target. */
-  NSData* resume_token() const {
+  const nanopb::ByteString& resume_token() const {
     return resume_token_;
   }
 
@@ -185,7 +173,7 @@ class TargetState {
    * Applies the resume token to the `TargetChange`, but only when it has a new
    * value. Empty resume tokens are discarded.
    */
-  void UpdateResumeToken(NSData* resume_token);
+  void UpdateResumeToken(nanopb::ByteString resume_token);
 
   /**
    * Creates a target change from the current set of changes.
@@ -223,7 +211,7 @@ class TargetState {
                      model::DocumentKeyHash>
       document_changes_;
 
-  NSData* resume_token_;
+  nanopb::ByteString resume_token_;
 
   bool current_ = false;
 
@@ -398,11 +386,11 @@ class WatchChangeAggregator {
   bool IsActiveTarget(model::TargetId target_id) const;
 
   /**
-   * Returns the `FSTQueryData` for an active target (i.e., a target that the
-   * user is still interested in that has no outstanding target change
-   * requests).
+   * Returns the `QueryData` for an active target (i.e., a target that the user
+   * is still interested in that has no outstanding target change requests).
    */
-  FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
+  absl::optional<local::QueryData> QueryDataForActiveTarget(
+      model::TargetId target_id) const;
 
   /**
    * Resets the state of a Watch target to its initial state (e.g. sets
@@ -444,7 +432,5 @@ class WatchChangeAggregator {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_

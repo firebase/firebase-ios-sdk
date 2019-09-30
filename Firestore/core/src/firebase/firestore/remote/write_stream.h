@@ -31,11 +31,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
@@ -102,7 +101,7 @@ class WriteStream : public Stream {
               GrpcConnection* grpc_connection,
               WriteStreamCallback* callback);
 
-  void SetLastStreamToken(NSData* token);
+  void SetLastStreamToken(const nanopb::ByteString& token);
   /**
    * The last received stream token from the server, used to acknowledge which
    * responses the client has processed. Stream tokens are opaque checkpoint
@@ -111,7 +110,7 @@ class WriteStream : public Stream {
    * `WriteStream` manages propagating this value from responses to the
    * next request.
    */
-  NSData* GetLastStreamToken() const;
+  nanopb::ByteString GetLastStreamToken() const;
 
   /**
    * Tracks whether or not a handshake has been successfully exchanged and

@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 
-#import <Foundation/Foundation.h>
-
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
@@ -29,10 +27,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@class FSTMutationBatch;
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -41,7 +35,7 @@ namespace local {
  * A readonly view of the local state of all documents we're tracking (i.e. we
  * have a cached version in remoteDocumentCache or local mutations for the
  * document). The view is computed by applying the mutations in the
- * FSTMutationQueue to the FSTRemoteDocumentCache.
+ * MutationQueue to the RemoteDocumentCache.
  */
 class LocalDocumentsView {
  public:
@@ -84,7 +78,7 @@ class LocalDocumentsView {
   /** Internal version of GetDocument that allows re-using batches. */
   absl::optional<model::MaybeDocument> GetDocument(
       const model::DocumentKey& key,
-      const std::vector<FSTMutationBatch*>& batches);
+      const std::vector<model::MutationBatch>& batches);
 
   /**
    * Returns the view of the given `docs` as they would appear after applying
@@ -92,7 +86,7 @@ class LocalDocumentsView {
    */
   model::OptionalMaybeDocumentMap ApplyLocalMutationsToDocuments(
       const model::OptionalMaybeDocumentMap& docs,
-      const std::vector<FSTMutationBatch*>& batches);
+      const std::vector<model::MutationBatch>& batches);
 
   /** Performs a simple document lookup for the given path. */
   model::DocumentMap GetDocumentsMatchingDocumentQuery(
@@ -115,7 +109,7 @@ class LocalDocumentsView {
    * lead to missing results for the query.
    */
   model::DocumentMap AddMissingBaseDocuments(
-      const std::vector<FSTMutationBatch*>& matching_batches,
+      const std::vector<model::MutationBatch>& matching_batches,
       model::DocumentMap existing_docs);
 
   RemoteDocumentCache* remote_document_cache_;
@@ -126,7 +120,5 @@ class LocalDocumentsView {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_DOCUMENTS_VIEW_H_

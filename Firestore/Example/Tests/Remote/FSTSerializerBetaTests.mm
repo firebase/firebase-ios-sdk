@@ -36,8 +36,6 @@
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -47,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -57,6 +56,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -70,6 +70,8 @@ using firebase::firestore::Error;
 using firebase::firestore::core::Direction;
 using firebase::firestore::core::FieldFilter;
 using firebase::firestore::core::OrderBy;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
@@ -86,6 +88,8 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformMutation;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
@@ -94,6 +98,7 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::util::Status;
 
+using testutil::Bytes;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
@@ -520,26 +525,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesListenRequestLabels {
   core::Query query = Query("collection/key");
-  FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                       targetID:2
-                                           listenSequenceNumber:3
-                                                        purpose:FSTQueryPurposeListen];
+  QueryData queryData(query, 2, 3, QueryPurpose::Listen);
 
   NSDictionary<NSString *, NSString *> *result =
       [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertNil(result);
 
-  queryData = [[FSTQueryData alloc] initWithQuery:query
-                                         targetID:2
-                             listenSequenceNumber:3
-                                          purpose:FSTQueryPurposeLimboResolution];
+  queryData = QueryData(query, 2, 3, QueryPurpose::LimboResolution);
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"limbo-document"});
 
-  queryData = [[FSTQueryData alloc] initWithQuery:query
-                                         targetID:2
-                             listenSequenceNumber:3
-                                          purpose:FSTQueryPurposeExistenceFilterMismatch];
+  queryData = QueryData(query, 2, 3, QueryPurpose::ExistenceFilterMismatch);
   result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
   XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
 }
@@ -637,7 +633,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesFirstLevelKeyQueries {
   core::Query query = Query("docs/1");
-  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
+  QueryData model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   [expected.documents.documentsArray addObject:@"projects/p/databases/d/documents/docs/1"];
@@ -648,7 +644,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesFirstLevelAncestorQueries {
   core::Query q = Query("messages");
-  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
+  QueryData model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -664,7 +660,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesNestedAncestorQueries {
   core::Query q = Query("rooms/1/messages/10/attachments");
-  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
+  QueryData model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -680,7 +676,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "<", 42));
-  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
+  QueryData model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -706,7 +702,7 @@ NS_ASSUME_NONNULL_BEGIN
                       .AddingFilter(Filter("prop", ">=", 42))
                       .AddingFilter(Filter("author", "==", "dimond"))
                       .AddingFilter(Filter("tags", "array_contains", "pending"));
-  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
+  QueryData model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -761,7 +757,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unaryFilterTestWithValue:(FieldValue)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
   core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
-  FSTQueryData *model = [self queryDataForQuery:std::move(q)];
+  QueryData model = [self queryDataForQuery:std::move(q)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -781,7 +777,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesSortOrders {
   core::Query query = Query("docs").AddingOrderBy(OrderBy("prop", "asc"));
-  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
+  QueryData model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -800,7 +796,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesSortOrdersDescending {
   core::Query query =
       Query("rooms/1/messages/10/attachments").AddingOrderBy(OrderBy("prop", "desc"));
-  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
+  QueryData model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents/rooms/1/messages/10";
@@ -818,7 +814,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesLimits {
   core::Query query = Query("docs").WithLimit(26);
-  FSTQueryData *model = [self queryDataForQuery:std::move(query)];
+  QueryData model = [self queryDataForQuery:std::move(query)];
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -835,12 +831,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesResumeTokens {
   core::Query q = Query("docs");
-  FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:std::move(q)
-                                                   targetID:1
-                                       listenSequenceNumber:0
-                                                    purpose:FSTQueryPurposeListen
-                                            snapshotVersion:SnapshotVersion::None()
-                                                resumeToken:FSTTestData(1, 2, 3, -1)];
+  QueryData model(std::move(q), 1, 0, QueryPurpose::Listen, SnapshotVersion::None(),
+                  testutil::Bytes(1, 2, 3));
 
   GCFSTarget *expected = [GCFSTarget message];
   expected.query.parent = @"projects/p/databases/d/documents";
@@ -850,22 +842,17 @@ NS_ASSUME_NONNULL_BEGIN
   [expected.query.structuredQuery.orderByArray
       addObject:[GCFSStructuredQuery_Order messageWithProperty:kDocumentKeyPath ascending:YES]];
   expected.targetId = 1;
-  expected.resumeToken = FSTTestData(1, 2, 3, -1);
+  expected.resumeToken = MakeNSData(testutil::Bytes(1, 2, 3));
 
   [self assertRoundTripForQueryData:model proto:expected];
 }
 
-- (FSTQueryData *)queryDataForQuery:(core::Query)query {
-  return [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                    targetID:1
-                        listenSequenceNumber:0
-                                     purpose:FSTQueryPurposeListen
-                             snapshotVersion:SnapshotVersion::None()
-                                 resumeToken:[NSData data]];
+- (QueryData)queryDataForQuery:(core::Query)query {
+  return QueryData(std::move(query), 1, 0, QueryPurpose::Listen);
 }
 
-- (void)assertRoundTripForQueryData:(FSTQueryData *)queryData proto:(GCFSTarget *)proto {
-  // Verify that the encoded FSTQueryData matches the target.
+- (void)assertRoundTripForQueryData:(const QueryData &)queryData proto:(GCFSTarget *)proto {
+  // Verify that the encoded QueryData matches the target.
   GCFSTarget *actualProto = [self.serializer encodedTarget:queryData];
   XCTAssertEqualObjects(actualProto, proto);
 
@@ -877,7 +864,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     actualModel = [self.serializer decodedQueryFromDocumentsTarget:proto.documents];
   }
-  XCTAssertEqual(actualModel, queryData.query);
+  XCTAssertEqual(actualModel, queryData.query());
 }
 
 - (void)testConvertsTargetChangeWithAdded {
@@ -894,14 +881,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testConvertsTargetChangeWithRemoved {
   WatchTargetChange expected{WatchTargetChangeState::Removed,
                              {1, 4},
-                             FSTTestData(0, 1, 2, -1),
+                             Bytes(0, 1, 2),
                              Status{Error::PermissionDenied, "Error message"}};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;
   listenResponse.targetChange.cause.code = FIRFirestoreErrorCodePermissionDenied;
   listenResponse.targetChange.cause.message = @"Error message";
-  listenResponse.targetChange.resumeToken = FSTTestData(0, 1, 2, -1);
+  listenResponse.targetChange.resumeToken = MakeNSData(Bytes(0, 1, 2));
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 

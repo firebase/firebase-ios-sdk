@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="appleTV" orientation="landscape">
+        <adaptation id="light"/>
+    </device>
+    <dependencies>
+        <deployment identifier="tvOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="GoogleDataTransport_tvOS_TestApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GoogleDataTransport tvOS Test App" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PAv-tl-dPd">
+                                <rect key="frame" x="110" y="60" width="621" height="46"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OZi-i7-uhg">
+                                <rect key="frame" x="110" y="130" width="1700" height="86"/>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Generate Data Event"/>
+                                <connections>
+                                    <action selector="generateDataEventWithSender:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="4ic-PI-54M"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ydy-iV-b3g">
+                                <rect key="frame" x="110" y="240" width="1700" height="86"/>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Generate Telemetry Event"/>
+                                <connections>
+                                    <action selector="generateTelemetryEventWithSender:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="36q-tC-v7K"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Snj-cN-92G">
+                                <rect key="frame" x="110" y="350" width="1700" height="86"/>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Generate High Priority Event"/>
+                                <connections>
+                                    <action selector="generateHighPriorityEventWithSender:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="Of6-CF-Ir6"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sbe-wM-1b4">
+                                <rect key="frame" x="110" y="460" width="1700" height="86"/>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Generate Wifi Only Event"/>
+                                <connections>
+                                    <action selector="generateWifiOnlyEventWithSender:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="I2y-Vl-2nw"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wdl-V2-pfc">
+                                <rect key="frame" x="110" y="570" width="1700" height="86"/>
+                                <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                                <state key="normal" title="Generate Daily Event"/>
+                                <connections>
+                                    <action selector="generateDailyEventWithSender:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="e3b-FX-Tp4"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="trailing" secondItem="Snj-cN-92G" secondAttribute="trailing" id="3PE-yK-8z7"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="trailing" secondItem="Ydy-iV-b3g" secondAttribute="trailing" id="AbY-dJ-cIN"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="top" secondItem="PAv-tl-dPd" secondAttribute="bottom" constant="24" id="I07-Px-UEC"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="leading" secondItem="Sbe-wM-1b4" secondAttribute="leading" id="MDL-uA-RLV"/>
+                            <constraint firstItem="PAv-tl-dPd" firstAttribute="top" secondItem="wu6-TO-1qx" secondAttribute="top" id="OJK-fA-4cA"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="leading" secondItem="wdl-V2-pfc" secondAttribute="leading" id="RYL-pN-gHK"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="trailing" secondItem="wdl-V2-pfc" secondAttribute="trailing" id="RZb-0q-alZ"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Rvu-oZ-fca"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="leading" secondItem="PAv-tl-dPd" secondAttribute="leading" id="cUa-3v-wVe"/>
+                            <constraint firstItem="PAv-tl-dPd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="eLV-dH-c3t"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="leading" secondItem="Ydy-iV-b3g" secondAttribute="leading" id="fwC-0d-5uC"/>
+                            <constraint firstItem="wdl-V2-pfc" firstAttribute="top" secondItem="Sbe-wM-1b4" secondAttribute="bottom" constant="24" id="h6u-6q-Lwm"/>
+                            <constraint firstItem="Snj-cN-92G" firstAttribute="top" secondItem="Ydy-iV-b3g" secondAttribute="bottom" constant="24" id="oci-tR-And"/>
+                            <constraint firstItem="Ydy-iV-b3g" firstAttribute="top" secondItem="OZi-i7-uhg" secondAttribute="bottom" constant="24" id="rMm-MB-B6X"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="leading" secondItem="Snj-cN-92G" secondAttribute="leading" id="tg4-ev-Pxz"/>
+                            <constraint firstItem="Sbe-wM-1b4" firstAttribute="top" secondItem="Snj-cN-92G" secondAttribute="bottom" constant="24" id="tjx-AZ-2zQ"/>
+                            <constraint firstItem="OZi-i7-uhg" firstAttribute="trailing" secondItem="Sbe-wM-1b4" secondAttribute="trailing" id="xsG-pP-aIM"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="wu6-TO-1qx"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

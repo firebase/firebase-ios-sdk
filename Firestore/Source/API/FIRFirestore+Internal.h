@@ -15,6 +15,7 @@
  */
 
 #import "FIRFirestore.h"
+#import "FIRListenerRegistration.h"
 
 #include <memory>
 #include <string>
@@ -64,33 +65,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
-/**
- * Shuts down this `FIRFirestore` instance.
- *
- * After shutdown only the `clearPersistence` method may be used. Any other method
- * will throw an error.
- *
- * To restart after shutdown, simply create a new instance of FIRFirestore with
- * `firestore` or `firestoreForApp` methods.
- *
- * Shutdown does not cancel any pending writes and any tasks that are awaiting a response from
- * the server will not be resolved. The next time you start this instance, it will resume
- * attempting to send these writes to the server.
- *
- * Note: Under normal circumstances, calling this method is not required. This
- * method is useful only when you want to force this instance to release all of its resources or
- * in combination with `clearPersistence` to ensure that all local state is destroyed
- * between test runs.
- *
- * @param completion A block to execute once everything has shut down.
- */
-// TODO(b/135755126): Make this public.
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(shutdown(completion:));
-
-- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+- (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
+
+/**
+ * Attaches a listener for a snapshots-in-sync event. Server-generated
+ * updates and local changes can affect multiple snapshot listeners.
+ * The snapshots-in-sync event indicates that all listeners affected by
+ * a given change have fired.
+ *
+ * NOTE: The snapshots-in-sync event only indicates that listeners are
+ * in sync with each other, but does not relate to whether those
+ * snapshots are in sync with the server. Use SnapshotMetadata in the
+ * individual listeners to determine if a snapshot is from the cache or
+ * the server.
+ *
+ * @param listener A callback to be called every time all snapshot
+ * listeners are in sync with each other.
+ * @return A FIRListenerRegistration object that can be used to remove the
+ * listener.
+ */
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener
+    NS_SWIFT_NAME(addSnapshotsInSyncListener(_:));
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 

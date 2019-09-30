@@ -34,8 +34,6 @@
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
@@ -43,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -83,6 +82,8 @@ using firebase::firestore::core::FilterList;
 using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
@@ -389,7 +390,7 @@ absl::any Wrap(GCFSDocument *doc) {
   const DocumentKey key{[self localResourcePathForQualifiedResourcePath:path]};
 
   const DatabaseId database_id(project, database);
-  HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot encode reference from %s:%s",
+  HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot decode reference from %s:%s",
               _databaseID.project_id(), _databaseID.database_id(), database_id.project_id(),
               database_id.database_id());
   return FieldValue::FromReference(_databaseID, key);
@@ -449,7 +450,7 @@ absl::any Wrap(GCFSDocument *doc) {
 - (ObjectValue)decodedFields:(NSDictionary<NSString *, GCFSValue *> *)fields {
   __block ObjectValue result = ObjectValue::Empty();
   [fields enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, GCFSValue *_Nonnull obj,
-                                              BOOL *_Nonnull stop) {
+                                              BOOL *_Nonnull) {
     FieldPath path{util::MakeString(key)};
     FieldValue value = [self decodedFieldValue:obj];
     result = result.Set(path, std::move(value));
@@ -533,7 +534,7 @@ absl::any Wrap(GCFSDocument *doc) {
       proto.transform.fieldTransformsArray =
           [self encodedFieldTransforms:transform.field_transforms()];
       // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
-      // TransformMutations with an SetMutation or PatchMutation which (if successful) should
+      // TransformMutations with a SetMutation or PatchMutation which (if successful) should
       // end up with an existing document.
       proto.currentDocument.exists = YES;
       return proto;
@@ -724,7 +725,7 @@ absl::any Wrap(GCFSDocument *doc) {
 
 - (std::vector<FieldValue>)decodedArrayTransformElements:(GCFSArrayValue *)proto {
   __block std::vector<FieldValue> elements;
-  [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
+  [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger, BOOL *) {
     elements.push_back([self decodedFieldValue:value]);
   }];
   return elements;
@@ -747,11 +748,11 @@ absl::any Wrap(GCFSDocument *doc) {
   return MutationResult(std::move(version), std::move(transformResults));
 }
 
-#pragma mark - FSTQueryData => GCFSTarget proto
+#pragma mark - QueryData => GCFSTarget proto
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (FSTQueryData *)queryData {
-  NSString *value = [self encodedLabelForPurpose:queryData.purpose];
+    (const QueryData &)queryData {
+  NSString *value = [self encodedLabelForPurpose:queryData.purpose()];
   if (!value) {
     return nil;
   }
@@ -762,22 +763,22 @@ absl::any Wrap(GCFSDocument *doc) {
   return result;
 }
 
-- (nullable NSString *)encodedLabelForPurpose:(FSTQueryPurpose)purpose {
+- (nullable NSString *)encodedLabelForPurpose:(QueryPurpose)purpose {
   switch (purpose) {
-    case FSTQueryPurposeListen:
+    case QueryPurpose::Listen:
       return nil;
-    case FSTQueryPurposeExistenceFilterMismatch:
+    case QueryPurpose::ExistenceFilterMismatch:
       return @"existence-filter-mismatch";
-    case FSTQueryPurposeLimboResolution:
+    case QueryPurpose::LimboResolution:
       return @"limbo-document";
     default:
       HARD_FAIL("Unrecognized query purpose: %s", purpose);
   }
 }
 
-- (GCFSTarget *)encodedTarget:(FSTQueryData *)queryData {
+- (GCFSTarget *)encodedTarget:(const QueryData &)queryData {
   GCFSTarget *result = [GCFSTarget message];
-  const Query &query = queryData.query;
+  const Query &query = queryData.query();
 
   if (query.IsDocumentQuery()) {
     result.documents = [self encodedDocumentsTarget:query];
@@ -785,10 +786,8 @@ absl::any Wrap(GCFSDocument *doc) {
     result.query = [self encodedQueryTarget:query];
   }
 
-  result.targetId = queryData.targetID;
-  if (queryData.resumeToken.length > 0) {
-    result.resumeToken = queryData.resumeToken;
-  }
+  result.targetId = queryData.target_id();
+  result.resumeToken = MakeNullableNSData(queryData.resume_token());
 
   return result;
 }
@@ -1168,11 +1167,11 @@ absl::any Wrap(GCFSDocument *doc) {
   WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
   __block std::vector<TargetId> targetIDs;
 
-  [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
+  [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger, BOOL *) {
     targetIDs.push_back(value);
   }];
 
-  NSData *resumeToken = change.resumeToken;
+  ByteString resumeToken = MakeByteString(change.resumeToken);
 
   util::Status cause;
   if (change.hasCause) {
@@ -1180,7 +1179,7 @@ absl::any Wrap(GCFSDocument *doc) {
         util::Status{static_cast<Error>(change.cause.code), util::MakeString(change.cause.message)};
   }
 
-  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
+  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
                                               std::move(cause));
 }
 
@@ -1204,7 +1203,7 @@ absl::any Wrap(GCFSDocument *doc) {
 - (std::vector<TargetId>)decodedIntegerArray:(GPBInt32Array *)values {
   __block std::vector<TargetId> result;
   result.reserve(values.count);
-  [values enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
+  [values enumerateValuesWithBlock:^(int32_t value, NSUInteger, BOOL *) {
     result.push_back(value);
   }];
   return result;

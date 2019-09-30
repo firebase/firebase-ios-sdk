@@ -1,3 +1,6 @@
+# 2019-09-03 -- v0.15.4
+- [fixed] Undeprecated initializer for FIRInAppMessagingAction so it can be used going forward in custom UI display (#3545).
+
 # 2019-07-23 -- v0.15.2
 - [fixed] Fixed issue with messages to be triggered on app launch (#3237).
 

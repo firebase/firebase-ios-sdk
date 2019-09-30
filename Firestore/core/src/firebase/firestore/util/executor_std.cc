@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 
 #include <future>  // NOLINT(build/c++11)
+#include <memory>
 #include <sstream>
 
 namespace firebase {
@@ -34,6 +35,8 @@ std::string ThreadIdToString(const std::thread::id thread_id) {
 }
 
 }  // namespace
+
+// MARK: - ExecutorStd
 
 ExecutorStd::ExecutorStd() {
   // Somewhat counter-intuitively, constructor of `std::atomic` assigns the
@@ -146,6 +149,18 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
   }
   return {std::move(removed.value().tagged)};
 }
+
+// MARK: - Executor
+
+// Only defined on non-Apple platforms. On Apple platforms, see the alternative
+// definition in executor_libdispatch.mm.
+#if !__APPLE__
+
+std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
+  return absl::make_unique<ExecutorStd>();
+}
+
+#endif  // !__APPLE__
 
 }  // namespace util
 }  // namespace firestore

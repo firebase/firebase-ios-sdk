@@ -28,10 +28,11 @@
 namespace firebase {
 namespace firestore {
 namespace util {
+namespace {
 
 namespace chr = std::chrono;
 
-namespace {
+using testutil::Expectation;
 
 DelayedOperation Schedule(Executor* const executor,
                           const Executor::Milliseconds delay,
@@ -44,8 +45,9 @@ DelayedOperation Schedule(Executor* const executor,
 }  // namespace
 
 TEST_P(ExecutorTest, Execute) {
-  executor->Execute([&] { signal_finished(); });
-  EXPECT_TRUE(WaitForTestToFinish());
+  Expectation ran;
+  executor->Execute(ran.AsCallback());
+  Await(ran);
 }
 
 TEST_P(ExecutorTest, ExecuteBlocking) {
@@ -55,14 +57,14 @@ TEST_P(ExecutorTest, ExecuteBlocking) {
 }
 
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     auto another_executor = GetParam()();
     Schedule(another_executor.get(), chr::minutes(5), [] {});
     Schedule(another_executor.get(), chr::minutes(10), [] {});
     // Destructor shouldn't block waiting for the 5/10-minute-away operations.
   });
 
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 // TODO(varconst): this test is inherently flaky because it can't be guaranteed
@@ -71,23 +73,24 @@ TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
 // test is unlikely to fail in practice. Need to revisit this.
 TEST_P(ExecutorTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
-
+  Expectation ran;
   executor->Execute([&steps] { steps += '1'; });
   Schedule(executor.get(), Executor::Milliseconds(20), [&] {
     steps += '4';
-    signal_finished();
+    ran.Fulfill();
   });
   Schedule(executor.get(), Executor::Milliseconds(10),
            [&steps] { steps += '3'; });
   executor->Execute([&steps] { steps += '2'; });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "1234");
 }
 
 TEST_P(ExecutorTest, CanCancelDelayedOperations) {
   std::string steps;
 
+  Expectation ran;
   executor->Execute([&] {
     executor->Execute([&steps] { steps += '1'; });
 
@@ -96,21 +99,23 @@ TEST_P(ExecutorTest, CanCancelDelayedOperations) {
 
     Schedule(executor.get(), Executor::Milliseconds(5), [&] {
       steps += '3';
-      signal_finished();
+      ran.Fulfill();
     });
 
     delayed_operation.Cancel();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "13");
 }
 
 TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
-  DelayedOperation delayed_operation = Schedule(
-      executor.get(), Executor::Milliseconds(1), [&] { signal_finished(); });
+  Expectation ran;
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  DelayedOperation delayed_operation =
+      Schedule(executor.get(), Executor::Milliseconds(1), ran.AsCallback());
+
+  Await(ran);
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
@@ -122,19 +127,20 @@ TEST_P(ExecutorTest, CancelingEmptyDelayedOperationIsValid) {
 TEST_P(ExecutorTest, DoubleCancelingDelayedOperationIsValid) {
   std::string steps;
 
+  Expectation ran;
   executor->Execute([&] {
     DelayedOperation delayed_operation = Schedule(
         executor.get(), Executor::Milliseconds(1), [&steps] { steps += '1'; });
     Schedule(executor.get(), Executor::Milliseconds(5), [&] {
       steps += '2';
-      signal_finished();
+      ran.Fulfill();
     });
 
     delayed_operation.Cancel();
     delayed_operation.Cancel();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
   EXPECT_EQ(steps, "2");
 }
 
@@ -152,13 +158,14 @@ TEST_P(ExecutorTest, IsCurrentExecutor) {
     EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
   });
 
+  Expectation ran;
   Schedule(executor.get(), Executor::Milliseconds(1), [&] {
     EXPECT_TRUE(executor->IsCurrentExecutor());
     EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
-    signal_finished();
+    ran.Fulfill();
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(ran);
 }
 
 TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {

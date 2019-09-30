@@ -123,8 +123,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
     const Document& doc) const {
   google_firestore_v1_Document result{};
 
-  result.name =
-      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
+  result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
   pb_size_t count = CheckedSize(doc.data().GetInternalValue().size());
@@ -148,8 +147,7 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
     const NoDocument& no_doc) const {
   firestore_client_NoDocument result{};
 
-  result.name =
-      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(no_doc.key()));
+  result.name = rpc_serializer_.EncodeKey(no_doc.key());
   result.read_time = rpc_serializer_.EncodeVersion(no_doc.version());
 
   return result;
@@ -163,9 +161,7 @@ NoDocument LocalSerializer::DecodeNoDocument(
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
   // we'll defer until the nanopb-master gets merged to master.
-  return NoDocument(rpc_serializer_.DecodeKey(
-                        reader, rpc_serializer_.DecodeString(proto.name)),
-                    version,
+  return NoDocument(rpc_serializer_.DecodeKey(reader, proto.name), version,
                     /*has_committed_mutations=*/false);
 }
 
@@ -173,8 +169,7 @@ firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
     const UnknownDocument& unknown_doc) const {
   firestore_client_UnknownDocument result{};
 
-  result.name = rpc_serializer_.EncodeString(
-      rpc_serializer_.EncodeKey(unknown_doc.key()));
+  result.name = rpc_serializer_.EncodeKey(unknown_doc.key());
   result.version = rpc_serializer_.EncodeVersion(unknown_doc.version());
 
   return result;
@@ -185,8 +180,7 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
 
-  return UnknownDocument(rpc_serializer_.DecodeKey(
-                             reader, rpc_serializer_.DecodeString(proto.name)),
+  return UnknownDocument(rpc_serializer_.DecodeKey(reader, proto.name),
                          version);
 }
 
@@ -249,7 +243,7 @@ QueryData LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return QueryData::Invalid();
   return QueryData(std::move(query), target_id, sequence_number,
-                   QueryPurpose::kListen, version, std::move(resume_token));
+                   QueryPurpose::Listen, version, std::move(resume_token));
 }
 
 firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
@@ -257,15 +251,25 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
   firestore_client_WriteBatch result{};
 
   result.batch_id = mutation_batch.batch_id();
-  pb_size_t count = CheckedSize(mutation_batch.mutations().size());
+
+  pb_size_t count = CheckedSize(mutation_batch.base_mutations().size());
+  result.base_writes_count = count;
+  result.base_writes = MakeArray<google_firestore_v1_Write>(count);
+  int i = 0;
+  for (const auto& mutation : mutation_batch.base_mutations()) {
+    result.base_writes[i] = rpc_serializer_.EncodeMutation(mutation);
+    i++;
+  }
+
+  count = CheckedSize(mutation_batch.mutations().size());
   result.writes_count = count;
   result.writes = MakeArray<google_firestore_v1_Write>(count);
-  int i = 0;
+  i = 0;
   for (const auto& mutation : mutation_batch.mutations()) {
-    HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
     result.writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
+
   result.local_write_time =
       rpc_serializer_.EncodeTimestamp(mutation_batch.local_write_time());
 
@@ -277,13 +281,21 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   int batch_id = proto.batch_id;
   Timestamp local_write_time =
       rpc_serializer_.DecodeTimestamp(reader, proto.local_write_time);
+
+  std::vector<Mutation> base_mutations;
+  for (size_t i = 0; i < proto.base_writes_count; i++) {
+    base_mutations.push_back(
+        rpc_serializer_.DecodeMutation(reader, proto.base_writes[i]));
+  }
+
   std::vector<Mutation> mutations;
   for (size_t i = 0; i < proto.writes_count; i++) {
     mutations.push_back(
         rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
   }
 
-  return MutationBatch(batch_id, local_write_time, std::move(mutations));
+  return MutationBatch(batch_id, local_write_time, std::move(base_mutations),
+                       std::move(mutations));
 }
 
 }  // namespace local

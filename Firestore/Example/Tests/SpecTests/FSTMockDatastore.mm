@@ -21,12 +21,12 @@
 #include <queue>
 #include <utility>
 
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Mutation;
 using firebase::firestore::model::MutationResult;
@@ -77,7 +78,7 @@ class MockWatchStream : public WatchStream {
         callback_{callback} {
   }
 
-  const std::unordered_map<TargetId, FSTQueryData*>& ActiveTargets() const {
+  const std::unordered_map<TargetId, QueryData>& ActiveTargets() const {
     return active_targets_;
   }
 
@@ -100,15 +101,15 @@ class MockWatchStream : public WatchStream {
     return open_;
   }
 
-  void WatchQuery(FSTQueryData* query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query.ToString(), query.resumeToken);
+  void WatchQuery(const QueryData& query) override {
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.query().ToString(),
+              query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire
-    FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
-                                                                 resumeToken:query.resumeToken
-                                                              sequenceNumber:query.sequenceNumber];
+    QueryData sentQueryData =
+        query.Copy(SnapshotVersion::None(), query.resume_token(), query.sequence_number());
     datastore_->IncrementWatchStreamRequests();
-    active_targets_[query.targetID] = sentQueryData;
+    active_targets_[query.target_id()] = sentQueryData;
   }
 
   void UnwatchTargetId(model::TargetId target_id) override {
@@ -150,7 +151,7 @@ class MockWatchStream : public WatchStream {
 
  private:
   bool open_ = false;
-  std::unordered_map<TargetId, FSTQueryData*> active_targets_;
+  std::unordered_map<TargetId, QueryData> active_targets_;
   MockDatastore* datastore_ = nullptr;
   WatchStreamCallback* callback_ = nullptr;
 };
@@ -274,7 +275,7 @@ void MockDatastore::FailWatchStream(const Status& error) {
   watch_stream_->FailStream(error);
 }
 
-const std::unordered_map<TargetId, FSTQueryData*>& MockDatastore::ActiveTargets() const {
+const std::unordered_map<TargetId, QueryData>& MockDatastore::ActiveTargets() const {
   return watch_stream_->ActiveTargets();
 }
 
