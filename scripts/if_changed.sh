@@ -100,6 +100,10 @@ else
       ;;
 
     InAppMessaging-*)
+      check_changes '^(InAppMessaging|Firebase/InAppMessaging)'
+      ;;
+
+    InAppMessagingDisplay-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
       ;;
