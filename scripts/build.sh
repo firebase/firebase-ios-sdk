@@ -94,7 +94,7 @@ function RunXcodebuild() {
 # Remove each product when it moves up to Xcode 11
 if [[ $product == 'Firestore' || # #3949
       $product == 'GoogleDataTransport' || # #3947
-      $product == 'Fabc' # #3948
+      $product == 'InAppMessagin' # #3948
    ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
@@ -228,7 +228,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  Fabc-xcodebuild-iOS)
+  InAppMessagin-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
         -scheme 'InAppMessaging_Example_iOS' \

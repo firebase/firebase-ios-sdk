@@ -88,7 +88,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  Fabc-iOS-xcodebuild)
+  InAppMessagin-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
