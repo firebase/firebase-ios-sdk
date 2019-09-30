@@ -155,6 +155,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 #endif
 }
 
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !TARGET_OS_MACCATALYST
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
   __weak id weakKeyRef;
 
