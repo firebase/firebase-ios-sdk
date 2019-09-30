@@ -257,25 +257,25 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=FIAM PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-#      osx_image: xcode10.3
+      osx_image: xcode10.3
       env:
-        - PROJECT=FIAMDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-#      osx_image: xcode10.3
+      osx_image: xcode10.3
       env:
-        - PROJECT=FIAMDisplay PLATFORM=iPad METHOD=xcodebuild
+        - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:

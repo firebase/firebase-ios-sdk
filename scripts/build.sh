@@ -32,8 +32,8 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
-  FIAM
-  FIAMDisplay
+  InAppMessaging
+  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -95,7 +95,7 @@ function RunXcodebuild() {
 # Remove each product when it moves up to Xcode 11
 if [[ $product == 'Firestore' || # #3949
       $product == 'GoogleDataTransport' || # #3947
-      $product == 'FIAMDisplayXXXXXX' # #3948
+      $product == 'InAppMessagingDisplay' # #3948
    ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
@@ -238,7 +238,7 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  FIAM-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
         -scheme 'InAppMessaging_Example_iOS' \
@@ -247,7 +247,7 @@ case "$product-$method-$platform" in
         test
   ;;
 
-  FIAMDisplay-xcodebuild-*)
+  InAppMessagingDisplay-xcodebuild-*)
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
