@@ -27,11 +27,13 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/optional.h"
@@ -96,9 +98,7 @@ class WatchStreamSerializer {
  */
 class WriteStreamSerializer {
  public:
-  explicit WriteStreamSerializer(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
-  }
+  explicit WriteStreamSerializer(FSTSerializerBeta* serializer);
 
   void UpdateLastStreamToken(GCFSWriteResponse* proto);
   void SetLastStreamToken(const nanopb::ByteString& token) {
@@ -108,13 +108,16 @@ class WriteStreamSerializer {
     return last_stream_token_;
   }
 
-  GCFSWriteRequest* CreateHandshake() const;
+  google_firestore_v1_WriteRequest CreateHandshake() const;
   GCFSWriteRequest* CreateWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations) const;
   GCFSWriteRequest* CreateEmptyMutationsList() {
     return CreateWriteMutationsRequest({});
   }
+
   static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
+  static grpc::ByteBuffer ToByteBuffer(
+      google_firestore_v1_WriteRequest&& request);
 
   /**
    * If parsing fails, will return nil and write information on the error to
@@ -128,11 +131,13 @@ class WriteStreamSerializer {
       GCFSWriteResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
+  static std::string Describe(const google_firestore_v1_WriteRequest& request);
   static NSString* Describe(GCFSWriteRequest* request);
   static NSString* Describe(GCFSWriteResponse* request);
 
  private:
   FSTSerializerBeta* serializer_;
+  Serializer cc_serializer_;
   nanopb::ByteString last_stream_token_;
 };
 

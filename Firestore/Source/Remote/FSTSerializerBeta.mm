@@ -144,6 +144,10 @@ absl::any Wrap(GCFSDocument *doc) {
   return self;
 }
 
+- (const DatabaseId&) databaseID {
+  return _databaseID;
+}
+
 #pragma mark - SnapshotVersion <=> GPBTimestamp
 
 - (GPBTimestamp *)encodedTimestamp:(const Timestamp &)timestamp {

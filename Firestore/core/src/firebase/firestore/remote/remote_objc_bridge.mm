@@ -25,6 +25,8 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -44,8 +46,11 @@ using model::Mutation;
 using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
+using nanopb::ByteString;
+using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
+using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
 using util::Status;
@@ -174,14 +179,20 @@ NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
 
 // WriteStreamSerializer
 
+WriteStreamSerializer::WriteStreamSerializer(FSTSerializerBeta* serializer)
+    : serializer_{serializer}, cc_serializer_{serializer.databaseID} {
+}
+
 void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
   last_stream_token_ = MakeByteString(proto.streamToken);
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
-  // The initial request cannot contain mutations, but must contain a projectID.
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.database = [serializer_ encodedDatabaseID];
+google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
+    const {
+  // The initial request cannot contain mutations, but must contain a project
+  // ID.
+  google_firestore_v1_WriteRequest request{};
+  request.database = cc_serializer_.EncodeDatabaseId();
   return request;
 }
 
@@ -198,6 +209,17 @@ GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
   request.streamToken = MakeNullableNSData(last_stream_token_);
 
   return request;
+}
+
+grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
+    google_firestore_v1_WriteRequest&& request) {
+  ByteStringWriter writer;
+  writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
+  Serializer::FreeNanopbMessage(google_firestore_v1_Value_fields, &request);
+  ByteString bytes = writer.Release();
+
+  grpc::Slice slice{bytes.data(), bytes.size()};
+  return grpc::ByteBuffer{&slice, 1};
 }
 
 grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
@@ -227,6 +249,12 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
                                            commitVersion:commitVersion]);
   };
   return results;
+}
+
+std::string WriteStreamSerializer::Describe(
+    const google_firestore_v1_WriteRequest& request) {
+  // FIXME
+  return "";
 }
 
 NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) {

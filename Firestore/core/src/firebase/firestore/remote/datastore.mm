@@ -19,8 +19,6 @@
 #include <unordered_set>
 #include <utility>
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"

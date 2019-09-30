@@ -113,7 +113,7 @@ namespace {
  * Creates the prefix for a fully qualified resource path, without a local path
  * on the end.
  */
-ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+ResourcePath EncodeDatabaseIdInternal(const DatabaseId& database_id) {
   return ResourcePath{"projects", database_id.project_id(), "databases",
                       database_id.database_id()};
 }
@@ -124,7 +124,7 @@ ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
  */
 pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
                                      const ResourcePath& path) {
-  return Serializer::EncodeString(EncodeDatabaseId(database_id)
+  return Serializer::EncodeString(EncodeDatabaseIdInternal(database_id)
                                       .Append("documents")
                                       .Append(path)
                                       .CanonicalString());
@@ -192,12 +192,16 @@ Filter InvalidFilter() {
 
 Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)),
-      database_name_(EncodeDatabaseId(database_id_).CanonicalString()) {
+      database_name_(EncodeDatabaseIdInternal(database_id_).CanonicalString()) {
 }
 
 void Serializer::FreeNanopbMessage(const pb_field_t fields[],
                                    void* dest_struct) {
   pb_release(fields, dest_struct);
+}
+
+pb_bytes_array_t* Serializer::EncodeDatabaseId() const {
+  return EncodeString(EncodeDatabaseIdInternal(database_id_).CanonicalString());
 }
 
 google_firestore_v1_Value Serializer::EncodeFieldValue(

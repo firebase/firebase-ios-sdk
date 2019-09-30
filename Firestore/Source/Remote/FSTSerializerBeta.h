@@ -72,6 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID NS_DESIGNATED_INITIALIZER;
 
+- (const model::DatabaseId&) databaseID;
+
 - (GCFSValue *)encodedNull;
 - (GCFSValue *)encodedBool:(bool)value;
 - (GCFSValue *)encodedDouble:(double)value;
@@ -84,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (GPBTimestamp *)encodedVersion:(const model::SnapshotVersion &)version;
 - (model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
 
-/** Returns the database ID, such as `projects/{project id}/databases/{database_id}`. */
+/** Returns the database ID, such as `projects/{project_id}/databases/{database_id}`. */
 - (NSString *)encodedDatabaseID;
 
 /**

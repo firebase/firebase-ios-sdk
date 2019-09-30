@@ -61,10 +61,10 @@ void WriteStream::WriteHandshake() {
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
   HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
-  GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
+  auto request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
