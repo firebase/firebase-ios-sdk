@@ -91,13 +91,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   FIAM-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     ;;
 
   FIAMDisplay-*-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
+    bundle exec pod repo update
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
