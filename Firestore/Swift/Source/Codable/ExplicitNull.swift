@@ -99,8 +99,10 @@ public enum Swift4ExplicitNull<Wrapped> {
   }
 }
 
+@available(swift, deprecated: 5.1)
 extension Swift4ExplicitNull: Equatable where Wrapped: Equatable {}
 
+@available(swift, deprecated: 5.1)
 extension Swift4ExplicitNull: Encodable where Wrapped: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
@@ -113,6 +115,7 @@ extension Swift4ExplicitNull: Encodable where Wrapped: Encodable {
   }
 }
 
+@available(swift, deprecated: 5.1)
 extension Swift4ExplicitNull: Decodable where Wrapped: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()

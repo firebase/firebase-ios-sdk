@@ -171,6 +171,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 #endif  // swift(>=5.1)
 
+  @available(swift, deprecated: 5.1)
   func testSwift4ExplicitNull() throws {
     struct Model: Encodable {
       var name: String
