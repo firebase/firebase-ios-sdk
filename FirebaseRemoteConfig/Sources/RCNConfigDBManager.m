@@ -1027,8 +1027,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 - (void)deleteRecordFromMainTableWithNamespace:(NSString *)namespace_p
                               bundleIdentifier:(NSString *)bundleIdentifier
                                     fromSource:(RCNDBSource)source {
-  __weak RCNConfigDBManager *weakSelf;
+  __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
     NSArray *params = @[ bundleIdentifier, namespace_p ];
     const char *SQL =
         "DELETE FROM " RCNTableNameMain " WHERE bundle_identifier = ? and namespace = ?";
@@ -1037,7 +1041,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     } else if (source == RCNDBSourceActive) {
       SQL = "DELETE FROM " RCNTableNameMainActive " WHERE bundle_identifier = ? and namespace = ?";
     }
-    [weakSelf executeQuery:SQL withParams:params];
+    [strongSelf executeQuery:SQL withParams:params];
   });
 }
 
@@ -1059,27 +1063,35 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
 - (void)deleteRecordWithBundleIdentifier:(NSString *)bundleIdentifier
                             isInternalDB:(BOOL)isInternalDB {
-  __weak RCNConfigDBManager *weakSelf;
+  __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
     const char *SQL = "DELETE FROM " RCNTableNameInternalMetadata " WHERE key LIKE ?";
     if (!isInternalDB) {
       SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ?";
     }
     NSArray *params = @[ bundleIdentifier ];
-    [weakSelf executeQuery:SQL withParams:params];
+    [strongSelf executeQuery:SQL withParams:params];
   });
 }
 
 - (void)deleteAllRecordsFromTableWithSource:(RCNDBSource)source {
-  __weak RCNConfigDBManager *weakSelf;
+  __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
     const char *SQL = "DELETE FROM " RCNTableNameMain;
     if (source == RCNDBSourceDefault) {
       SQL = "DELETE FROM " RCNTableNameMainDefault;
     } else if (source == RCNDBSourceActive) {
       SQL = "DELETE FROM " RCNTableNameMainActive;
     }
-    [weakSelf executeQuery:SQL];
+    [strongSelf executeQuery:SQL];
   });
 }
 
@@ -1095,11 +1107,15 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 }
 
 - (void)deleteExperimentTableForKey:(NSString *)key {
-  __weak RCNConfigDBManager *weakSelf;
+  __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
     NSArray *params = @[ key ];
     const char *SQL = "DELETE FROM " RCNTableNameExperiment " WHERE key = ?";
-    [weakSelf executeQuery:SQL withParams:params];
+    [strongSelf executeQuery:SQL withParams:params];
   });
 }
 

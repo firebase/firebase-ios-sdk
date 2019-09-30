@@ -390,7 +390,7 @@ absl::any Wrap(GCFSDocument *doc) {
   const DocumentKey key{[self localResourcePathForQualifiedResourcePath:path]};
 
   const DatabaseId database_id(project, database);
-  HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot encode reference from %s:%s",
+  HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot decode reference from %s:%s",
               _databaseID.project_id(), _databaseID.database_id(), database_id.project_id(),
               database_id.database_id());
   return FieldValue::FromReference(_databaseID, key);

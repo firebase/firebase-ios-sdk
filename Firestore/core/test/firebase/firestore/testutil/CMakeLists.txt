@@ -31,6 +31,8 @@ endif()
 cc_library(
   firebase_firestore_testutil
   SOURCES
+    async_testing.cc
+    async_testing.h
     equals_tester.h
     testutil.cc
     testutil.h
@@ -41,6 +43,9 @@ cc_library(
     firebase_firestore_nanopb
 
     ${TESTUTIL_DEPENDS}
+    GTest::GTest
+    absl_time
     firebase_firestore_core
     firebase_firestore_model
+    firebase_firestore_util
 )
