@@ -258,7 +258,7 @@ jobs:
     - stage: test
       osx_image: xcode10.3
       env:
-        - PROJECT=FIAM PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Fabc PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
