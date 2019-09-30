@@ -119,10 +119,6 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   });
   dispatch_resume(timer);
 
-  // Run for a bit, several seconds longer than the previous bit.
-  [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
-
   XCTestExpectation *taskCreatedExpectation = [self expectationWithDescription:@"task created"];
   XCTestExpectation *taskDoneExpectation = [self expectationWithDescription:@"task done"];
 
@@ -140,6 +136,10 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
               [taskDoneExpectation fulfill];
             }
           })];
+
+  // Run for a bit, several seconds longer than the previous bit.
+  //  [[NSRunLoop currentRunLoop]
+  //       runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
 
   // Send a high priority event to flush events.
   GDTCOREvent *event = [self.transport eventForTransport];

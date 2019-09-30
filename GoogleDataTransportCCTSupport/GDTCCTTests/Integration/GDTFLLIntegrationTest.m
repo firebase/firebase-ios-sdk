@@ -104,27 +104,27 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
     return;
   }
 
-  NSUInteger lengthOfTestToRunInSeconds = 10;
-  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-  dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-  dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
-  dispatch_source_set_event_handler(timer, ^{
-    static int numberOfTimesCalled = 0;
-    numberOfTimesCalled++;
-    if (numberOfTimesCalled < lengthOfTestToRunInSeconds) {
-      [self generateEvent];
-    } else {
-      dispatch_source_cancel(timer);
-    }
-  });
-  dispatch_resume(timer);
+  dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_queue_t queue2 = dispatch_queue_create("com.gdtffl.test", DISPATCH_QUEUE_SERIAL);
 
-  // Run for a bit, several seconds longer than the previous bit.
-  [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
+  for (int i = 0; i < 12; i++) {
+    int result = i % 3;
+    if (result == 0) {
+      [self generateEvent];
+    } else if (result == 1) {
+      dispatch_async(queue1, ^{
+        [self generateEvent];
+      });
+    } else if (result == 2) {
+      dispatch_async(queue2, ^{
+        [self generateEvent];
+      });
+    }
+  }
 
   XCTestExpectation *taskCreatedExpectation = [self expectationWithDescription:@"task created"];
   XCTestExpectation *taskDoneExpectation = [self expectationWithDescription:@"task done"];
+  XCTestExpectation *eventsSent = [self expectationForNotification:<#(nonnull NSNotificationName)#> object:<#(nullable id)#> handler:<#^BOOL(NSNotification * _Nonnull notification)handler#>]
 
   taskCreatedExpectation.assertForOverFulfill = NO;
   taskDoneExpectation.assertForOverFulfill = NO;
@@ -147,11 +147,15 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   event.qosTier = GDTCOREventQoSFast;
   [self.transport sendDataEvent:event];
 
-  [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:60.0];
 
-  // Just run for a minute whilst generating events.
+  // TODO: Validate that all 11 events were sent?
+  [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:60.0];
+}
+
+- (void)testRunsWithoutCrashing {
+//   Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;
-  [self generateEvents];
+  [self recursivelyGenerateEvent];
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(secondsToRun * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
                    self.generateEvents = NO;
