@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode10.3
+osx_image: xcode11
 language: objective-c
 cache:
   - bundler
@@ -256,6 +256,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
+      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -328,6 +329,7 @@ jobs:
         - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     - stage: test
+      osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
