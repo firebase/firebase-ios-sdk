@@ -264,7 +264,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.3
+#      osx_image: xcode10.3
       env:
         - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -573,3 +573,4 @@ jobs:
 branches:
   only:
     - master
+    - pb-split-iam-travis
