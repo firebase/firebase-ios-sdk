@@ -264,7 +264,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.3
+#      osx_image: xcode10.3
       env:
         - PROJECT=FIAMDisplay PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -273,7 +273,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      osx_image: xcode10.3
+#      osx_image: xcode10.3
       env:
         - PROJECT=FIAMDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
