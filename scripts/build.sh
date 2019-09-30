@@ -213,18 +213,6 @@ case "$product-$method-$platform" in
     if [[ $platform == 'iOS' ]]; then
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
-
-      # Test iOS Objective-C static library build
-      cd Example
-      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-      pod update --no-repo-update
-      cd ..
-      RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "AllUnitTests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
     fi
     ;;
 
