@@ -329,7 +329,6 @@ jobs:
         - travis_wait 45 ./scripts/pod_lib_lint.rb FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     - stage: test
-      osx_image: xcode10.3
       env:
         - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
       script:
