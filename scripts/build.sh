@@ -94,7 +94,6 @@ function RunXcodebuild() {
 
 # Remove each product when it moves up to Xcode 11
 if [[ $product == 'Firestore' || # #3949
-      $product == 'GoogleDataTransport' || # #3947
       $product == 'InAppMessagingDisplay' # #3948
    ]]; then
   ios_flags=(
