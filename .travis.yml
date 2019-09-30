@@ -573,4 +573,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-split-iam-travis
