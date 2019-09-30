@@ -58,12 +58,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  Firebase-*-xcodebuild)
-    gem install xcpretty
-    bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=GoogleUtilities/Example
-    ;;
-
   Auth-*)
     # Install the workspace for integration testing.
     gem install xcpretty
@@ -88,15 +82,14 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     install_secrets
     ;;
 
-  FIAM-*-xcodebuild)
+  FIAM-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
     ;;
 
-  FIAMDisplay-*-xcodebuild)
+  FIAMDisplay-iOS-xcodebuild)
     gem install xcpretty
-    bundle exec pod repo update
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
