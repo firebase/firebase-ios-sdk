@@ -458,9 +458,32 @@ class FirestoreEncoderTests: XCTestCase {
     assertThat(ts).failsEncodingAtTopLevel()
   }
 
-  func testServerTimestamp() throws {
+  #if swift(>=5.1)
+    func testServerTimestamp() throws {
+      struct Model: Codable, Equatable {
+        @ServerTimestamp var timestamp: Timestamp? = nil
+      }
+
+      // Encoding a pending server timestamp
+      assertThat(Model())
+        .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
+
+      // Encoding a resolved server timestamp yields a timestamp; decoding yields
+      // it back.
+      let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 4321)
+      assertThat(Model(timestamp: timestamp))
+        .roundTrips(to: ["timestamp": timestamp])
+
+      // Decoding a NSNull() leads to nil.
+      assertThat(["timestamp": NSNull()])
+        .decodes(to: Model(timestamp: nil))
+    }
+  #endif // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ServerTimestamp() throws {
     struct Model: Codable, Equatable {
-      var timestamp: ServerTimestamp
+      var timestamp: Swift4ServerTimestamp
     }
 
     // Encoding a pending server timestamp
