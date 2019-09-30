@@ -536,6 +536,8 @@
   // Catalyst and iOS 13 use int128_t but CFNumber still calls it 64 bits.
   if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 13) {
     XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
+  } else {
+    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
   }
 #elif TARGET_OS_MACCATALYST
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
