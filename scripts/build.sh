@@ -91,10 +91,10 @@ function RunXcodebuild() {
   fi
 }
 
-# Remove this if test when Firestore moves up to Xcode 11
-if [[ $product == 'Firestore' ||
-      $product == 'GoogleDataTransport' ||
-      $product == 'InAppMessaging'
+# Remove each product when it moves up to Xcode 11
+if [[ $product == 'Firestore' || # #3949
+      $product == 'GoogleDataTransport' || # #3947
+      $product == 'InAppMessaging' # #3948
    ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
