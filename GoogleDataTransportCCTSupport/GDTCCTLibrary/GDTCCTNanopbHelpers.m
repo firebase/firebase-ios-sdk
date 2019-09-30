@@ -22,7 +22,7 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -50,8 +50,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    GDTCORLogError(GDTCORMCEGeneralError, @"Error in nanopb encoding for size: %s",
-                   PB_GET_ERROR(&sizestream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for size: %s",
+                PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -59,8 +59,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    GDTCORLogError(GDTCORMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
-                   PB_GET_ERROR(&ostream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
+                PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -68,7 +68,7 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
 }
 
 gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
-    NSDictionary<NSString *, NSSet<GDTCORStoredEvent *> *> *logMappingIDToLogSet) {
+    NSDictionary<NSString *, NSSet<GDTStoredEvent *> *> *logMappingIDToLogSet) {
   gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_default;
   NSUInteger numberOfLogRequests = logMappingIDToLogSet.count;
   gdt_cct_LogRequest *logRequests = malloc(sizeof(gdt_cct_LogRequest) * numberOfLogRequests);
@@ -76,7 +76,7 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
   __block int i = 0;
   [logMappingIDToLogSet enumerateKeysAndObjectsUsingBlock:^(
                             NSString *_Nonnull logMappingID,
-                            NSSet<GDTCORStoredEvent *> *_Nonnull logSet, BOOL *_Nonnull stop) {
+                            NSSet<GDTStoredEvent *> *_Nonnull logSet, BOOL *_Nonnull stop) {
     int32_t logSource = [logMappingID intValue];
     gdt_cct_LogRequest logRequest = GDTCCTConstructLogRequest(logSource, logSet);
     logRequests[i] = logRequest;
@@ -89,10 +89,9 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
 }
 
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
-                                             NSSet<GDTCORStoredEvent *> *_Nonnull logSet) {
+                                             NSSet<GDTStoredEvent *> *_Nonnull logSet) {
   if (logSet.count == 0) {
-    GDTCORLogError(GDTCORMCEGeneralError, @"%@",
-                   @"An empty event set can't be serialized to proto.");
+    GDTLogError(GDTMCEGeneralError, @"%@", @"An empty event set can't be serialized to proto.");
     gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
     return logRequest;
   }
@@ -103,7 +102,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   logRequest.has_client_info = 1;
   logRequest.log_event = malloc(sizeof(gdt_cct_LogEvent) * logSet.count);
   int i = 0;
-  for (GDTCORStoredEvent *log in logSet) {
+  for (GDTStoredEvent *log in logSet) {
     gdt_cct_LogEvent logEvent = GDTCCTConstructLogEvent(log);
     logRequest.log_event[i] = logEvent;
     i++;
@@ -113,7 +112,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   return logRequest;
 }
 
-gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCORStoredEvent *event) {
+gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
   gdt_cct_LogEvent logEvent = gdt_cct_LogEvent_init_default;
   logEvent.event_time_ms = event.clockSnapshot.timeMillis;
   logEvent.has_event_time_ms = 1;
@@ -128,8 +127,8 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCORStoredEvent *event) {
                                                  options:0
                                                    error:&error];
   if (error) {
-    GDTCORLogError(GDTCORMCEGeneralError,
-                   @"There was an error reading extension bytes from disk: %@", error);
+    GDTLogError(GDTMCEGeneralError, @"There was an error reading extension bytes from disk: %@",
+                error);
     return logEvent;
   }
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.

@@ -19,8 +19,7 @@
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
-
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 
@@ -31,7 +30,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using leveldb::WriteOptions;
-using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::util::OrderedCode;
@@ -48,16 +46,16 @@ static const char *kDummy = "1";
 @end
 
 @implementation FSTLevelDBRemoteDocumentCacheTests {
-  std::unique_ptr<LevelDbPersistence> _db;
-  LevelDbRemoteDocumentCache *_cache;
+  FSTLevelDB *_db;
+  std::unique_ptr<LevelDbRemoteDocumentCache> _cache;
 }
 
 - (void)setUp {
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
-  self.persistence = _db.get();
+  self.persistence = _db;
   HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = _db->remote_document_cache();
+  _cache = absl::make_unique<LevelDbRemoteDocumentCache>(_db, _db.serializer);
 
   // Write a couple dummy rows that should appear before/after the remote_documents table to make
   // sure the tests are unaffected.
@@ -66,15 +64,15 @@ static const char *kDummy = "1";
 }
 
 - (RemoteDocumentCache *_Nullable)remoteDocumentCache {
-  return _cache;
+  return _cache.get();
 }
 
 - (void)tearDown {
   [super tearDown];
   self.remoteDocumentCache = nil;
   self.persistence = nil;
-  _cache = nullptr;
-  _db.reset();
+  _cache.reset();
+  _db = nil;
 }
 
 - (void)writeDummyRowWithSegments:(NSArray<NSString *> *)segments {
@@ -83,7 +81,7 @@ static const char *kDummy = "1";
     OrderedCode::WriteString(&key, segment.UTF8String);
   }
 
-  _db->ptr()->Put(WriteOptions(), key, kDummy);
+  _db.ptr->Put(WriteOptions(), key, kDummy);
 }
 
 @end

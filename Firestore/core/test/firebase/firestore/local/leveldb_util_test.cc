@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 #include "gtest/gtest.h"
 

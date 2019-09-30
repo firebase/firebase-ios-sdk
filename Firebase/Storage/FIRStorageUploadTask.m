@@ -141,6 +141,8 @@
     // Process fetches
     strongSelf.state = FIRStorageTaskStateRunning;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
     strongSelf->_fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
       // Fire last progress updates
       [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
@@ -170,12 +172,11 @@
 
       [self finishTaskWithStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     };
+#pragma clang diagnostic pop
 
     [strongSelf->_uploadFetcher
         beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
-          if (weakSelf.fetcherCompletion != nil) {
-            weakSelf.fetcherCompletion(data, error);
-          }
+          weakSelf.fetcherCompletion(data, error);
         }];
   }];
 }

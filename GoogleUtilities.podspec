@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.3.0'
+  s.version          = '6.2.5'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -102,11 +102,6 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.public_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.dependency 'GoogleUtilities/Logger'
-  end
-
-  s.subspec 'SecureCoding' do |sc|
-    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
-    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
   end
 
   s.test_spec 'unit' do |unit_tests|

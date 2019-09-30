@@ -17,7 +17,7 @@
             "orderBys": []
           }
         ],
-        "expectedState": {
+        "stateExpect": {
           "activeTargets": {
             "2": {
               "query": {
@@ -68,7 +68,7 @@
           "version": 1001,
           "targetIds": []
         },
-        "expectedSnapshotEvents": [
+        "expect": [
           {
             "query": {
               "path": "collection",
@@ -114,7 +114,7 @@
             "orderBys": []
           }
         ],
-        "expectedState": {
+        "stateExpect": {
           "activeTargets": {
             "2": {
               "query": {
@@ -134,7 +134,7 @@
             "foo": "bar"
           }
         ],
-        "expectedSnapshotEvents": [
+        "expect": [
           {
             "query": {
               "path": "collection",

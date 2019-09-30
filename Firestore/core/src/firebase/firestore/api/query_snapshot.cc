@@ -81,12 +81,12 @@ void QuerySnapshot::ForEachDocument(
 static DocumentChange::Type DocumentChangeTypeForChange(
     const DocumentViewChange& change) {
   switch (change.type()) {
-    case DocumentViewChange::Type::Added:
+    case DocumentViewChange::Type::kAdded:
       return DocumentChange::Type::Added;
-    case DocumentViewChange::Type::Modified:
-    case DocumentViewChange::Type::Metadata:
+    case DocumentViewChange::Type::kModified:
+    case DocumentViewChange::Type::kMetadata:
       return DocumentChange::Type::Modified;
-    case DocumentViewChange::Type::Removed:
+    case DocumentViewChange::Type::kRemoved:
       return DocumentChange::Type::Removed;
   }
 
@@ -117,7 +117,7 @@ void QuerySnapshot::ForEachChange(
           /*from_cache=*/snapshot_.from_cache());
       DocumentSnapshot document(firestore_, doc.key(), doc, metadata);
 
-      HARD_ASSERT(change.type() == DocumentViewChange::Type::Added,
+      HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
       HARD_ASSERT(!last_document || util::Ascending(doc_comparator.Compare(
                                         *last_document, change.document())),
@@ -134,7 +134,7 @@ void QuerySnapshot::ForEachChange(
     DocumentSet index_tracker = snapshot_.old_documents();
     for (const DocumentViewChange& change : snapshot_.document_changes()) {
       if (!include_metadata_changes &&
-          change.type() == DocumentViewChange::Type::Metadata) {
+          change.type() == DocumentViewChange::Type::kMetadata) {
         continue;
       }
 
@@ -146,13 +146,13 @@ void QuerySnapshot::ForEachChange(
 
       size_t old_index = DocumentChange::npos;
       size_t new_index = DocumentChange::npos;
-      if (change.type() != DocumentViewChange::Type::Added) {
+      if (change.type() != DocumentViewChange::Type::kAdded) {
         old_index = index_tracker.IndexOf(change.document().key());
         HARD_ASSERT(old_index != DocumentSet::npos,
                     "Index for document not found");
         index_tracker = index_tracker.erase(change.document().key());
       }
-      if (change.type() != DocumentViewChange::Type::Removed) {
+      if (change.type() != DocumentViewChange::Type::kRemoved) {
         index_tracker = index_tracker.insert(change.document());
         new_index = index_tracker.IndexOf(change.document().key());
       }

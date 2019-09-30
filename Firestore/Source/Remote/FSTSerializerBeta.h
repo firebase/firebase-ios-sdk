@@ -22,7 +22,6 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -33,6 +32,9 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+
+@class FSTMutationBatch;
+@class FSTQueryData;
 
 @class GCFSBatchGetDocumentsResponse;
 @class GCFSDocument;
@@ -52,7 +54,6 @@
 @class GPBTimestamp;
 
 namespace core = firebase::firestore::core;
-namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
 
@@ -109,9 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
                                  commitVersion:(const model::SnapshotVersion &)commitVersion;
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (const local::QueryData &)queryData;
+    (FSTQueryData *)queryData;
 
-- (GCFSTarget *)encodedTarget:(const local::QueryData &)queryData;
+- (GCFSTarget *)encodedTarget:(FSTQueryData *)queryData;
 
 - (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(const core::Query &)query;
 - (core::Query)decodedQueryFromDocumentsTarget:(GCFSTarget_DocumentsTarget *)target;

@@ -17,7 +17,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleTest'
-  s.version          = '1.8.1'
+  s.version          = '1.8.0'
   s.summary          = 'Google Test'
 
   s.description      = <<-DESC

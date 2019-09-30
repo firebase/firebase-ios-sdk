@@ -49,19 +49,6 @@ public enum ServerTimestamp: Codable, Equatable {
   /// value to `stamp`.
   case resolved(Timestamp)
 
-  /// Returns this value as an `Optional<Timestamp>`.
-  ///
-  /// If the server timestamp is still pending, the returned optional will be `.none`.
-  /// Once resolved, the returned optional will be `.some` with the resolved timestamp.
-  public var timestamp: Timestamp? {
-    switch self {
-    case .pending:
-      return .none
-    case let .resolved(timestamp):
-      return .some(timestamp)
-    }
-  }
-
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {

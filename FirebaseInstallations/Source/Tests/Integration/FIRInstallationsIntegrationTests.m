@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-// Uncomment or set the flag in GCC_PREPROCESSOR_DEFINITIONS to enable integration tests.
-//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
+// Uncomment to enable integration tests.
+//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED 1
+
+#ifdef FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED
 
 #import <XCTest/XCTest.h>
 
@@ -29,8 +31,6 @@
 #import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
 
-static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
-
 @interface FIRInstallationsIntegrationTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
 @end
@@ -38,11 +38,10 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 @implementation FIRInstallationsIntegrationTests
 
 - (void)setUp {
-  [self configureFirebaseDefaultAppIfCan];
-
-  if (![self isDefaultAppConfigured]) {
-    return;
-  }
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [FIRApp configure];
+  });
 
   self.installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
 }
@@ -55,29 +54,19 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
   // Wait for any pending background job to be completed.
   FBLWaitForPromisesWithTimeout(10);
-
-  [FIRApp resetApps];
 }
 
 // TODO: Enable the test once Travis configured.
 // Need to configure the GoogleService-Info.plist copying from the encrypted archive.
 // So far, let's run the tests locally.
-- (void)testGetFID {
-  if (![self isDefaultAppConfigured]) {
-    return;
-  }
-
+- (void)disabled_testGetFID {
   NSString *FID1 = [self getFID];
   NSString *FID2 = [self getFID];
 
   XCTAssertEqualObjects(FID1, FID2);
 }
 
-- (void)testAuthToken {
-  if (![self isDefaultAppConfigured]) {
-    return;
-  }
-
+- (void)disabled_testAuthToken {
   XCTestExpectation *authTokenExpectation =
       [self expectationWithDescription:@"authTokenExpectation"];
 
@@ -95,11 +84,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   [self waitForExpectations:@[ authTokenExpectation ] timeout:2];
 }
 
-- (void)testDeleteInstallation {
-  if (![self isDefaultAppConfigured]) {
-    return;
-  }
-
+- (void)disabled_testDeleteInstallation {
   NSString *FIDBefore = [self getFID];
   FIRInstallationsAuthTokenResult *authTokenBefore = [self getAuthToken];
 
@@ -126,13 +111,11 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
   // Wait for finishing all background operations.
   FBLWaitForPromisesWithTimeout(10);
+
+  [FIRApp resetApps];
 }
 
 - (void)testDefaultAppInstallation {
-  if (![self isDefaultAppConfigured]) {
-    return;
-  }
-
   XCTAssertNotNil(self.installations);
   XCTAssertEqualObjects(self.installations.appOptions.googleAppID,
                         [FIRApp defaultApp].options.googleAppID);
@@ -140,6 +123,8 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
   // Wait for finishing all background operations.
   FBLWaitForPromisesWithTimeout(10);
+
+  [FIRApp resetApps];
 }
 
 #endif  // !TARGET_OS_OSX
@@ -212,30 +197,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   return [FIRApp appNamed:name];
 }
 
-- (void)configureFirebaseDefaultAppIfCan {
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-  NSString *plistPath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
-  if (plistPath == nil) {
-    return;
-  }
-
-  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
-  [FIRApp configureWithOptions:options];
-  sFIRInstallationsFirebaseDefaultAppConfigured = YES;
-}
-
-- (BOOL)isDefaultAppConfigured {
-  if (!sFIRInstallationsFirebaseDefaultAppConfigured) {
-#if FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
-    XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to "
-            @"your project.");
-#else
-    NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
-          self.name);
-#endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED
-  }
-
-  return sFIRInstallationsFirebaseDefaultAppConfigured;
-}
-
 @end
+
+#endif  // FIR_INSTALLATIONS_INTEGRATION_TESTS_ENABLED

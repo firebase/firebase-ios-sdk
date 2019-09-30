@@ -21,6 +21,8 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -37,10 +39,13 @@
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/status.h"
+
+#import "Firestore/Source/Core/FSTTypes.h"
 
 namespace firebase {
 namespace firestore {
@@ -190,7 +195,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // shared for all spawned gRPC streams and calls).
   std::unique_ptr<util::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
-  // TODO(varconst): move `ConnectivityMonitor` to `FirestoreClient`.
+  // TODO(varconst): move `ConnectivityMonitor` to `FSTFirestoreClient`.
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcConnection grpc_connection_;
 

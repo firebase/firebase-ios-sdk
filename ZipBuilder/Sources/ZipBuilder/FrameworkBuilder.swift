@@ -76,43 +76,78 @@ struct FrameworkBuilder {
   /// - Parameters:
   ///   - framework: The name of the Framework being built.
   ///   - version: String representation of the version.
+  ///   - cacheKey: The key used for caching this framework build. If nil, the framework name will
+  ///               be used.
+  ///   - cacheEnabled: Flag for enabling the cache. Defaults to false.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
   public func buildFramework(withName podName: String,
                              version: String,
+                             cacheKey: String?,
+                             cacheEnabled: Bool = false,
                              logsOutputDir: URL? = nil) -> URL {
     print("Building \(podName)")
+
+//  Cache is temporarily disabled due to pod cache list issues.
+    // Get the CocoaPods cache to see if we can pull from any frameworks already built.
+//    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
+//
+//    guard let cachedVersions = podsCache[podName] else {
+//      fatalError("Cannot find a pod cache for framework \(podName).")
+//    }
+//
+//    guard let podInfo = cachedVersions[version] else {
+//      fatalError("""
+//      Cannot find a pod cache for framework \(podName) at version \(version).
+//      Something could be wrong with your CocoaPods cache - try running the following:
+//
+//      pod cache clean '\(podName)' --all
+//      """)
+//    }
+//
+//    // TODO: Figure out if we need the MD5 at all.
+    let md5 = podName
+//    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default
     var cachedFrameworkRoot: URL
     do {
       let cacheDir = try fileManager.firebaseCacheDirectory()
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, md5])
+      if let cacheKey = cacheKey {
+        cachedFrameworkRoot.appendPathComponent(cacheKey)
+      }
     } catch {
       fatalError("Could not create caches directory for building frameworks: \(error)")
     }
 
     // Build the full cached framework path.
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
-    let frameworkDir = compileFrameworkAndResources(withName: podName)
-    do {
-      // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
-      // fail.
-      fileManager.removeDirectoryIfExists(at: cachedFrameworkDir)
-
-      // Create the root cache directory if it doesn't exist.
-      if !fileManager.directoryExists(at: cachedFrameworkRoot) {
-        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
-        try fileManager.createDirectory(at: cachedFrameworkRoot,
-                                        withIntermediateDirectories: true)
-      }
-
-      // Move the newly built framework to the cache directory.
-      try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
+    let cachedFrameworkExists = fileManager.directoryExists(at: cachedFrameworkDir)
+    if cachedFrameworkExists, cacheEnabled {
+      print("Framework \(podName) version \(version) has already been built and cached at " +
+        "\(cachedFrameworkDir)")
       return cachedFrameworkDir
-    } catch {
-      fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
+    } else {
+      let frameworkDir = compileFrameworkAndResources(withName: podName)
+      do {
+        // Remove the previously cached framework, if it exists, otherwise the `moveItem` call will
+        // fail.
+        if cachedFrameworkExists {
+          try fileManager.removeItem(at: cachedFrameworkDir)
+        } else if !fileManager.directoryExists(at: cachedFrameworkRoot) {
+          // If the root directory doesn't exist, create it so the `moveItem` will succeed.
+          try fileManager.createDirectory(at: cachedFrameworkRoot,
+                                          withIntermediateDirectories: true)
+        }
+
+        // Move the newly built framework to the cache directory.
+        try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
+        return cachedFrameworkDir
+      } catch {
+        fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
+      }
     }
   }
 
@@ -441,22 +476,12 @@ struct FrameworkBuilder {
     // imports for nested folders.
     let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
     let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
-      // The `headersDir` and `aliasedHeader` prefixes may be different, but they both should have
-      // `Pods/Headers/` in the path. Ignore everything up until that, then strip the remainder of
-      // the `headersDir` from the `aliasedHeader` in order to get path relative to the headers
-      // directory.
-      let trimmedHeader = removeHeaderPathPrefix(from: $0)
-      let trimmedDir = removeHeaderPathPrefix(from: headersDir)
-      var relativePath = trimmedHeader.replacingOccurrences(of: trimmedDir, with: "")
-
-      // Remove any leading `/` for the relative path.
-      if relativePath.starts(with: "/") {
-        _ = relativePath.removeFirst()
-      }
-
       // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
-      // are symlinked to each other on macOS.
-      let resolvedLocation = $0.standardizedFileURL.resolvingSymlinksInPath()
+      // are symlinked to each other on macOS. This will let us remove the `headersDir` prefix and
+      // be left with just the relative path we need.
+      let standardized = $0.standardizedFileURL
+      let relativePath = standardized.path.replacingOccurrences(of: "\(headersDir.path)/", with: "")
+      let resolvedLocation = standardized.resolvingSymlinksInPath()
       return (relativePath, resolvedLocation)
     }
 
@@ -473,17 +498,5 @@ struct FrameworkBuilder {
 
       try fileManager.copyItem(at: location, to: finalPath)
     }
-  }
-
-  private func removeHeaderPathPrefix(from url: URL) -> String {
-    let fullPath = url.standardizedFileURL.path
-    guard let foundRange = fullPath.range(of: "Pods/Headers/") else {
-      fatalError("Could not copy headers for framework: full path do not contain `Pods/Headers`:" +
-        fullPath)
-    }
-
-    // Replace everything from the start of the string until the end of the `Pods/Headers/`.
-    let toRemove = fullPath.startIndex ..< foundRange.upperBound
-    return fullPath.replacingCharacters(in: toRemove, with: "")
   }
 }

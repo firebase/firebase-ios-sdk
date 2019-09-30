@@ -44,8 +44,6 @@ cc_library(
     mutation.h
     mutation_batch.cc
     mutation_batch.h
-    mutation_batch_result.cc
-    mutation_batch_result.h
     no_document.cc
     no_document.h
     patch_mutation.cc

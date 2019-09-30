@@ -175,7 +175,8 @@ public extension CarthageUtils {
   ///
   /// - Parameters:
   ///   - destination: The destination directory for the Firebase framework.
-  ///   - rootDir: The root directory that contains other required files (like the Firebase header).
+  ///   - rootDir: The root directory that contains other required files (like the modulemap and
+  ///       Firebase header).
   ///   - templateDir: The template directory containing the dummy Firebase library.
   private static func createFirebaseFramework(inDir destination: URL,
                                               rootDir: URL,
@@ -197,20 +198,13 @@ public extension CarthageUtils {
 
     // Copy the Firebase header and modulemap that was created in the Zip file.
     let header = rootDir.appendingPathComponent(Constants.ProjectPath.firebaseHeader)
+    let modulemap = rootDir.appendingPathComponent(Constants.ProjectPath.modulemap)
     do {
       try fm.copyItem(at: header, to: headersDir.appendingPathComponent(header.lastPathComponent))
-
-      // Generate the new modulemap since it differs from the Zip modulemap.
-      let carthageModulemap = """
-      framework module Firebase {
-        header "Firebase.h"
-        export *
-      }
-      """
-      let modulemapPath = modulesDir.appendingPathComponent("module.modulemap")
-      try carthageModulemap.write(to: modulemapPath, atomically: true, encoding: .utf8)
+      try fm.copyItem(at: modulemap,
+                      to: modulesDir.appendingPathComponent(modulemap.lastPathComponent))
     } catch {
-      fatalError("Couldn't write required files for Firebase framework in Carthage. \(error)")
+      fatalError("Couldn't copy required files for Firebase framework in Carthage. \(error)")
     }
 
     // Copy the dummy Firebase library.

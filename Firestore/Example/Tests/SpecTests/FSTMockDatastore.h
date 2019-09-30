@@ -23,7 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,7 +71,7 @@ class MockDatastore : public Datastore {
   void FailWatchStream(const util::Status& error);
 
   /** Returns the set of active targets on the watch stream. */
-  const std::unordered_map<model::TargetId, local::QueryData>& ActiveTargets() const;
+  const std::unordered_map<model::TargetId, FSTQueryData*>& ActiveTargets() const;
   /** Helper method to expose watch stream state to verify in tests. */
   bool IsWatchStreamOpen() const;
 

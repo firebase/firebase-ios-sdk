@@ -31,23 +31,16 @@ endif()
 cc_library(
   firebase_firestore_testutil
   SOURCES
-    async_testing.cc
-    async_testing.h
     equals_tester.h
     testutil.cc
     testutil.h
     time_testing.cc
     time_testing.h
-    view_testing.cc
-    view_testing.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     firebase_firestore_nanopb
 
     ${TESTUTIL_DEPENDS}
-    GTest::GTest
-    absl_time
     firebase_firestore_core
     firebase_firestore_model
-    firebase_firestore_util
 )

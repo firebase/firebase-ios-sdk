@@ -33,14 +33,13 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
 #include "Firestore/core/src/firebase/firestore/core/direction.h"
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/order_by.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -57,7 +56,6 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Query;
-using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::Source;
@@ -180,16 +178,15 @@ FIRQuery *Wrap(Query &&query) {
       });
 
   // Call the view_listener on the user Executor.
-  auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
-      firestore->client()->user_executor(), std::move(view_listener));
+  auto async_listener = AsyncEventListener<ViewSnapshot>::Create(firestore->client().userExecutor,
+                                                                 std::move(view_listener));
 
   std::shared_ptr<QueryListener> query_listener =
-      firestore->client()->ListenToQuery(query, internalOptions, async_listener);
+      [firestore->client() listenToQuery:query options:internalOptions listener:async_listener];
 
   return [[FSTListenerRegistration alloc]
-      initWithRegistration:absl::make_unique<QueryListenerRegistration>(firestore->client(),
-                                                                        std::move(async_listener),
-                                                                        std::move(query_listener))];
+      initWithRegistration:ListenerRegistration(firestore->client(), std::move(async_listener),
+                                                std::move(query_listener))];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {

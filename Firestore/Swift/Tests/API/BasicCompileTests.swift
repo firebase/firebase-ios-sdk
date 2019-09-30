@@ -63,10 +63,6 @@ func main() {
   clearPersistence(database: db)
 
   types()
-
-  waitForPendingWrites(database: db)
-
-  terminateDb(database: db)
 }
 
 func initializeDb() -> Firestore {
@@ -451,22 +447,4 @@ func types() {
   let _: SnapshotMetadata
   let _: Transaction
   let _: WriteBatch
-}
-
-func waitForPendingWrites(database db: Firestore) {
-  db.waitForPendingWrites { error in
-    if let e = error {
-      print("Uh oh! \(e)")
-      return
-    }
-  }
-}
-
-func terminateDb(database db: Firestore) {
-  db.terminate { error in
-    if let e = error {
-      print("Uh oh! \(e)")
-      return
-    }
-  }
 }

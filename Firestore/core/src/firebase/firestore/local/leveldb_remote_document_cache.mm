@@ -21,10 +21,10 @@
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "leveldb/db.h"
 
@@ -43,29 +43,28 @@ using model::OptionalMaybeDocumentMap;
 using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
-    LevelDbPersistence* db, FSTLocalSerializer* serializer)
+    FSTLevelDB* db, FSTLocalSerializer* serializer)
     : db_(db), serializer_(serializer) {
 }
 
 void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
-  db_->current_transaction()->Put(ldb_key,
-                                  [serializer_ encodedMaybeDocument:document]);
+  db_.currentTransaction->Put(ldb_key,
+                              [serializer_ encodedMaybeDocument:document]);
 
-  db_->index_manager()->AddToCollectionParentIndex(
-      document.key().path().PopLast());
+  db_.indexManager->AddToCollectionParentIndex(document.key().path().PopLast());
 }
 
 void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(key);
-  db_->current_transaction()->Delete(ldb_key);
+  db_.currentTransaction->Delete(ldb_key);
 }
 
 absl::optional<MaybeDocument> LevelDbRemoteDocumentCache::Get(
     const DocumentKey& key) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(key);
   std::string value;
-  Status status = db_->current_transaction()->Get(ldb_key, &value);
+  Status status = db_.currentTransaction->Get(ldb_key, &value);
   if (status.IsNotFound()) {
     return absl::nullopt;
   } else if (status.ok()) {
@@ -80,13 +79,13 @@ OptionalMaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
   OptionalMaybeDocumentMap results;
 
-  LevelDbRemoteDocumentKey current_key;
-  auto it = db_->current_transaction()->NewIterator();
+  LevelDbRemoteDocumentKey currentKey;
+  auto it = db_.currentTransaction->NewIterator();
 
   for (const DocumentKey& key : keys) {
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
-    if (!it->Valid() || !current_key.Decode(it->key()) ||
-        current_key.document_key() != key) {
+    if (!it->Valid() || !currentKey.Decode(it->key()) ||
+        currentKey.document_key() != key) {
       results = results.insert(key, absl::nullopt);
     } else {
       results = results.insert(key, DecodeMaybeDocument(it->value(), key));
@@ -110,7 +109,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   std::string start_key = LevelDbRemoteDocumentKey::KeyPrefix(query_path);
-  auto it = db_->current_transaction()->NewIterator();
+  auto it = db_.currentTransaction->NewIterator();
   it->Seek(start_key);
 
   LevelDbRemoteDocumentKey current_key;
@@ -149,11 +148,11 @@ MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }
 
-  MaybeDocument maybe_document = [serializer_ decodedMaybeDocument:proto];
-  HARD_ASSERT(maybe_document.key() == key,
+  MaybeDocument maybeDocument = [serializer_ decodedMaybeDocument:proto];
+  HARD_ASSERT(maybeDocument.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
-              maybe_document.key().ToString(), key.ToString());
-  return maybe_document;
+              maybeDocument.key().ToString(), key.ToString());
+  return maybeDocument;
 }
 
 }  // namespace local

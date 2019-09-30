@@ -1,6 +1,3 @@
-# v1.1.0
-- Updates GDT dependency to GDTCOR prefixed version.
-
 # v1.0.0
 Initial Release--for Google use only. This library collects diagnostics and
 usage data for internal use by Firebase. Data gathered by this library will

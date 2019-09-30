@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
@@ -45,7 +46,7 @@ class DocumentViewChange {
    * NOTE: We sort document changes by their type, so the ordering of this enum
    * is significant.
    */
-  enum class Type { Removed = 0, Added, Modified, Metadata };
+  enum class Type { kRemoved = 0, kAdded, kModified, kMetadata };
 
   DocumentViewChange() = default;
 

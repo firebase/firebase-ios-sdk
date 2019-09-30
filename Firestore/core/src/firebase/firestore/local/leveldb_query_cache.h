@@ -27,22 +27,21 @@
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
+@class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace local {
-
-class LevelDbPersistence;
 
 /** Cached Queries backed by LevelDB. */
 class LevelDbQueryCache : public QueryCache {
@@ -59,21 +58,21 @@ class LevelDbQueryCache : public QueryCache {
    *
    * @param db The LevelDB in which to create the cache.
    */
-  LevelDbQueryCache(LevelDbPersistence* db, FSTLocalSerializer* serializer);
+  LevelDbQueryCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
   // Target-related methods
-  void AddTarget(const QueryData& query_data) override;
+  void AddTarget(FSTQueryData* query_data) override;
 
-  void UpdateTarget(const QueryData& query_data) override;
+  void UpdateTarget(FSTQueryData* query_data) override;
 
-  void RemoveTarget(const QueryData& query_data) override;
+  void RemoveTarget(FSTQueryData* query_data) override;
 
-  absl::optional<QueryData> GetTarget(const core::Query& query) override;
+  FSTQueryData* _Nullable GetTarget(const core::Query& query) override;
 
   void EnumerateTargets(const TargetCallback& callback) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    const std::unordered_map<model::TargetId, QueryData>&
+                    const std::unordered_map<model::TargetId, FSTQueryData*>&
                         live_targets) override;
 
   // Key-related methods
@@ -121,17 +120,17 @@ class LevelDbQueryCache : public QueryCache {
   void EnumerateOrphanedDocuments(const OrphanedDocumentCallback& callback);
 
  private:
-  void Save(const QueryData& query_data);
-  bool UpdateMetadata(const QueryData& query_data);
+  void Save(FSTQueryData* query_data);
+  bool UpdateMetadata(FSTQueryData* query_data);
   void SaveMetadata();
   /**
    * Parses the given bytes as an FSTPBTarget protocol buffer and then converts
    * to the equivalent query data.
    */
-  QueryData DecodeTarget(absl::string_view encoded);
+  FSTQueryData* DecodeTarget(absl::string_view encoded);
 
-  // The LevelDbQueryCache is owned by LevelDbPersistence.
-  LevelDbPersistence* db_;
+  // This instance is owned by FSTLevelDB; avoid a retain cycle.
+  __weak FSTLevelDB* db_;
   FSTLocalSerializer* serializer_;
   /** A write-through cached copy of the metadata for the query cache. */
   FSTPBTargetGlobal* metadata_;

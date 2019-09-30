@@ -82,8 +82,6 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    remote_event.cc
-    remote_event.h
     serializer.cc
     serializer.h
     watch_change.h

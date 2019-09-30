@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
+#import "Firestore/Source/Local/FSTLevelDB.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
-namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
-
 using firebase::Timestamp;
-using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::local::LevelDbQueryCache;
-using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -58,38 +51,35 @@ NS_ASSUME_NONNULL_BEGIN
  * @a queryCache.
  */
 @implementation FSTLevelDBQueryCacheTests {
-  std::unique_ptr<LevelDbPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
-- (LevelDbQueryCache *)getCache:(Persistence *)persistence {
-  return static_cast<LevelDbQueryCache *>(persistence->query_cache());
+- (LevelDbQueryCache *)getCache:(id<FSTPersistence>)persistence {
+  return static_cast<LevelDbQueryCache *>(persistence.queryCache);
 }
 
 - (void)setUp {
   [super setUp];
 
-  _db = [FSTPersistenceTestHelpers levelDBPersistence];
-  self.persistence = _db.get();
-  self.queryCache = [self getCache:_db.get()];
-  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
+  self.persistence = [FSTPersistenceTestHelpers levelDBPersistence];
+  self.queryCache = [self getCache:self.persistence];
+  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
 }
 
 - (void)tearDown {
   [super tearDown];
-  self.persistence = nullptr;
-  self.queryCache = nullptr;
+  self.persistence = nil;
+  self.queryCache = nil;
 }
 
 - (void)testMetadataPersistedAcrossRestarts {
-  self.persistence->Shutdown();
-  _db.reset();
-  self.persistence = nullptr;
+  [self.persistence shutdown];
+  self.persistence = nil;
 
   Path dir = [FSTPersistenceTestHelpers levelDBDir];
 
-  auto db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
-  LevelDbQueryCache *queryCache = [self getCache:db1.get()];
+  FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
+  LevelDbQueryCache *queryCache = [self getCache:db1];
 
   XCTAssertEqual(0, queryCache->highest_listen_sequence_number());
   XCTAssertEqual(0, queryCache->highest_target_id());
@@ -100,34 +90,36 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId lastTargetId = 5;
   SnapshotVersion lastVersion(Timestamp(1, 2));
 
-  db1->Run("add query data", [&] {
+  db1.run("add query data", [&]() {
     core::Query query = Query("some/path");
-    QueryData queryData(std::move(query), lastTargetId, minimumSequenceNumber,
-                        QueryPurpose::Listen);
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:std::move(query)
+                                                         targetID:lastTargetId
+                                             listenSequenceNumber:minimumSequenceNumber
+                                                          purpose:FSTQueryPurposeListen];
     queryCache->AddTarget(queryData);
     queryCache->SetLastRemoteSnapshotVersion(lastVersion);
   });
 
-  db1->Shutdown();
-  db1.reset();
+  [db1 shutdown];
+  db1 = nil;
 
-  auto db2 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
-  db2->Run("verify sequence number", [&] {
+  FSTLevelDB *db2 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
+  db2.run("verify sequence number", [&]() {
     // We should remember the previous sequence number, and the next transaction should
     // have a higher one.
-    XCTAssertGreaterThan(db2->current_sequence_number(), minimumSequenceNumber);
+    XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
   });
 
-  LevelDbQueryCache *queryCache2 = [self getCache:db2.get()];
+  LevelDbQueryCache *queryCache2 = [self getCache:db2];
   XCTAssertEqual(lastTargetId, queryCache2->highest_target_id());
   XCTAssertEqual(lastVersion, queryCache2->GetLastRemoteSnapshotVersion());
 
-  db2->Shutdown();
-  db2.reset();
+  [db2 shutdown];
+  db2 = nil;
 }
 
 - (void)testRemoveMatchingKeysForTargetID {
-  self.persistence->Run("testRemoveMatchingKeysForTargetID", [&]() {
+  self.persistence.run("testRemoveMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");

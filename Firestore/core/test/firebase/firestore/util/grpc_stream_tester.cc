@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -38,7 +37,6 @@ using remote::GrpcCompletion;
 using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
-using testutil::ExecutorForTesting;
 using util::CompletionEndState;
 
 // Misc
@@ -129,7 +127,8 @@ void CompletionEndState::Apply(GrpcCompletion* completion) {
 // FakeGrpcQueue
 
 FakeGrpcQueue::FakeGrpcQueue(grpc::CompletionQueue* grpc_queue)
-    : dedicated_executor_{ExecutorForTesting("rpc")}, grpc_queue_{grpc_queue} {
+    : dedicated_executor_{absl::make_unique<ExecutorStd>()},
+      grpc_queue_{grpc_queue} {
 }
 
 void FakeGrpcQueue::Shutdown() {

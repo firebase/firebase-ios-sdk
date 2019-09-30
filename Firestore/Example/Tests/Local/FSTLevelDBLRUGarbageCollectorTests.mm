@@ -19,16 +19,12 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::local::LevelDbDocumentTargetKey;
-using firebase::firestore::local::LevelDbPersistence;
-using firebase::firestore::local::Persistence;
 using firebase::firestore::model::DocumentKey;
 
 using firebase::firestore::local::LruParams;
@@ -40,15 +36,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLevelDBLRUGarbageCollectorTests
 
-- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
   return [FSTPersistenceTestHelpers levelDBPersistenceWithLruParams:lruParams];
 }
 
 - (BOOL)sentinelExists:(const DocumentKey &)key {
-  auto db = static_cast<local::LevelDbPersistence *>(self.persistence);
+  FSTLevelDB *db = (FSTLevelDB *)self.persistence;
   std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
   std::string unusedValue;
-  return !db->current_transaction()->Get(sentinelKey, &unusedValue).IsNotFound();
+  return !db.currentTransaction->Get(sentinelKey, &unusedValue).IsNotFound();
 }
 
 @end

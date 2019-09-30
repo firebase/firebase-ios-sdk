@@ -99,9 +99,12 @@
   Class targetClass = isClassSelector ? object_getClass(_generatedClass) : _generatedClass;
   IMP implementation = method_getImplementation(method);
   const char *typeEncoding = method_getTypeEncoding(method);
-  BOOL success __unused = class_addMethod(targetClass, selector, implementation, typeEncoding);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+  BOOL success = class_addMethod(targetClass, selector, implementation, typeEncoding);
   NSAssert(success, @"Unable to add selector %@ to class %@", NSStringFromSelector(selector),
            NSStringFromClass(targetClass));
+#pragma clang diagnostic pop
 }
 
 - (void)setAssociatedObjectWithKey:(NSString *)key
@@ -136,9 +139,12 @@
     NSAssert(class_getInstanceSize(_originalClass) == class_getInstanceSize(_generatedClass),
              @"The instance size of the generated class must be equal to the original class.");
     objc_registerClassPair(_generatedClass);
-    Class doubleCheckOriginalClass __unused = object_setClass(_swizzledObject, _generatedClass);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+    Class doubleCheckOriginalClass = object_setClass(_swizzledObject, _generatedClass);
     NSAssert(_originalClass == doubleCheckOriginalClass,
              @"The original class must be the same as the class returned by object_setClass");
+#pragma clang diagnostic pop
   } else {
     NSAssert(NO, @"You can't swizzle a nil object");
   }

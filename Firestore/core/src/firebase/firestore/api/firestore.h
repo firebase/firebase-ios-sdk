@@ -17,34 +17,33 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 
+#include <dispatch/dispatch.h>
+
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/empty.h"
-#include "Firestore/core/src/firebase/firestore/util/nullability.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/any.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+OBJC_CLASS(FIRQuery);
+OBJC_CLASS(FIRTransaction);
+OBJC_CLASS(FSTFirestoreClient);
+OBJC_CLASS(NSString);
 
 namespace firebase {
 namespace firestore {
-namespace core {
-
-class FirestoreClient;
-class Query;
-
-}  // namespace core
-
 namespace api {
 
 class CollectionReference;
@@ -69,7 +68,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
     return persistence_key_;
   }
 
-  const std::shared_ptr<core::FirestoreClient>& client();
+  FSTFirestoreClient* client();
 
   const std::shared_ptr<util::AsyncQueue>& worker_queue();
 
@@ -85,16 +84,13 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   CollectionReference GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
   WriteBatch GetBatch();
-  core::Query GetCollectionGroup(std::string collection_id);
+  FIRQuery* GetCollectionGroup(std::string collection_id);
 
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback);
 
-  void Terminate(util::StatusCallback callback);
+  void Shutdown(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);
-  void WaitForPendingWrites(util::StatusCallback callback);
-  std::unique_ptr<ListenerRegistration> AddSnapshotsInSyncListener(
-      std::unique_ptr<core::EventListener<util::Empty>> listener);
 
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
@@ -106,7 +102,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   model::DatabaseId database_id_;
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
-  std::shared_ptr<core::FirestoreClient> client_;
+  objc::Handle<FSTFirestoreClient> client_;
 
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
@@ -121,5 +117,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_

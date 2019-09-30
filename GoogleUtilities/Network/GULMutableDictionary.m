@@ -45,14 +45,14 @@
 - (id)objectForKey:(id)key {
   __block id object;
   dispatch_sync(_queue, ^{
-    object = [self->_objects objectForKey:key];
+    object = self->_objects[key];
   });
   return object;
 }
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
   dispatch_async(_queue, ^{
-    [self->_objects setObject:object forKey:key];
+    self->_objects[key] = object;
   });
 }
 
@@ -77,17 +77,13 @@
 }
 
 - (id)objectForKeyedSubscript:(id<NSCopying>)key {
-  __block id object;
-  dispatch_sync(_queue, ^{
-    object = self->_objects[key];
-  });
-  return object;
+  // The method this calls is already synchronized.
+  return [self objectForKey:key];
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-  dispatch_async(_queue, ^{
-    self->_objects[key] = obj;
-  });
+  // The method this calls is already synchronized.
+  [self setObject:obj forKey:key];
 }
 
 - (NSDictionary *)dictionary {

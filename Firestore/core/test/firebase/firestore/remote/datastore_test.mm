@@ -20,10 +20,9 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
@@ -48,9 +47,10 @@ using util::CompletionEndState;
 using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
-using util::Executor;
+using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::ExecutorStd;
 using util::Status;
 using Type = GrpcCompletion::Type;
 
@@ -104,7 +104,9 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : worker_queue{testutil::AsyncQueueForTesting()},
+      : worker_queue{std::make_shared<AsyncQueue>(
+            absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
+                "datastore_test", DISPATCH_QUEUE_SERIAL)))},
         database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         datastore{CreateDatastore(database_info, worker_queue, credentials)},
         fake_grpc_queue{datastore->queue()} {

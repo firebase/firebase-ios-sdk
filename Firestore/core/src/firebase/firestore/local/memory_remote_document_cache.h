@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 
+#if !defined(__OBJC__)
+#error "For now, this file must only be included by ObjC source files."
+#endif  // !defined(__OBJC__)
+
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -25,17 +29,19 @@
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
+@class FSTLocalSerializer;
+@class FSTMemoryLRUReferenceDelegate;
+@class FSTMemoryPersistence;
+
+NS_ASSUME_NONNULL_BEGIN
+
 namespace firebase {
 namespace firestore {
 namespace local {
 
-class MemoryLruReferenceDelegate;
-class MemoryPersistence;
-class Sizer;
-
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  explicit MemoryRemoteDocumentCache(MemoryPersistence* persistence);
+  explicit MemoryRemoteDocumentCache(FSTMemoryPersistence* persistence);
 
   void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
@@ -47,21 +53,23 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   model::DocumentMap GetMatching(const core::Query& query) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
-      MemoryLruReferenceDelegate* reference_delegate,
+      FSTMemoryLRUReferenceDelegate* reference_delegate,
       model::ListenSequenceNumber upper_bound);
 
-  int64_t CalculateByteSize(const Sizer& sizer);
+  size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
  private:
   /** Underlying cache of documents. */
   model::MaybeDocumentMap docs_;
 
-  // This instance is owned by MemoryPersistence; avoid a retain cycle.
-  MemoryPersistence* persistence_;
+  // This instance is owned by FSTMemoryPersistence; avoid a retain cycle.
+  __weak FSTMemoryPersistence* persistence_;
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_

@@ -16,11 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#include <memory>
+#import "Firestore/Source/Local/FSTLocalStore.h"
 
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-
-namespace local = firebase::firestore::local;
+@protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,12 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
  * To test a specific implementation of FSTLocalStore:
  *
  * + Subclass FSTLocalStoreTests
- * + override -persistence, creating a new instance of Persistence.
+ * + override -persistence, creating a new instance of FSTPersistence.
  */
 @interface FSTLocalStoreTests : XCTestCase
 
-/** Creates and returns an appropriate Persistence implementation. */
-- (std::unique_ptr<local::Persistence>)persistence;
+/** Creates and returns an appropriate id<FSTPersistence> implementation. */
+- (id<FSTPersistence>)persistence;
 
 @end
 

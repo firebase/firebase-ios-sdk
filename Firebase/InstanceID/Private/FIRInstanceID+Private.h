@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#import "FIRInstanceID.h"
 
-/**
- *  @related FIRInstanceIDCheckinService
- *
- *  The completion handler invoked once the fetch from Checkin server finishes.
- *  For successful fetches we returned checkin information by the checkin service
- *  and `nil` error, else we return the appropriate error object as reported by the
- *  Checkin Service.
- *
- *  @param checkinPreferences The checkin preferences as fetched from the server.
- *  @param error              The error object which fetching GServices data.
- */
-typedef void (^FIRInstanceIDDeviceCheckinCompletion)(
-    FIRInstanceIDCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error);
+#import "FIRInstanceIDCheckinService.h"
 
 /**
  * Private API used by Firebase SDK teams by calling in reflection or internal teams.

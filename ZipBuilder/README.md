@@ -41,7 +41,7 @@ These arguments assume you're running the command from the `ZipBuilder` director
 - `-templateDir $(pwd)/Template`
   - This should always be the same.
 
-Optional common arguments:
+Optional comon arguments:
 - `-updatePodRepo false`
   - This is for speedups when `pod repo update` has already been run recently.
 
@@ -119,7 +119,3 @@ files and folders.
 ### Prefer File `URL`s over Strings
 Instead of relying on `String`s to represent file paths, use `URL`s as soon as possible to avoid any
 missed or double slashes along with other issues.
-
-## Updating protobuf generated Swift files
-- Install [Swift Protobuf](https://github.com/apple/swift-protobuf#building-and-installing-the-code-generator-plugin)
-- Run `protoc Sources/ManifestReader/*.proto  --swift_opt=Visibility=Public --swift_out=./`

@@ -18,7 +18,6 @@ cc_test(
     database_info_test.cc
     target_id_generator_test.cc
     query_test.cc
-    view_test.cc
   DEPENDS
     GMock::GMock
     firebase_firestore_core

@@ -16,18 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-namespace firebase {
-namespace firestore {
-namespace local {
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 
-class Persistence;
-class RemoteDocumentCache;
-
-}  // namespace local
-}  // namespace firestore
-}  // namespace firebase
-
-namespace local = firebase::firestore::local;
+@protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
  * + override -tearDown, cleaning up remoteDocumentCache and persistence
  */
 @interface FSTRemoteDocumentCacheTests : XCTestCase
-@property(nonatomic, nullable) local::RemoteDocumentCache* remoteDocumentCache;
-@property(nonatomic, nullable) local::Persistence* persistence;
+@property(nonatomic, nullable) firebase::firestore::local::RemoteDocumentCache* remoteDocumentCache;
+@property(nonatomic, strong, nullable) id<FSTPersistence> persistence;
 @end
 
 NS_ASSUME_NONNULL_END

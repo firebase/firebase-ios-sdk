@@ -1,7 +1,3 @@
-# 6.3.0
-- GULSecureCoding introduced. (#3707)
-- Mark unused variables. (#3854)
-
 # 6.2.5
 - Remove test-only method and update tests to include Catalyst. (#3544)
 

@@ -399,7 +399,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   return [value boolValue];
 }
 
-- (BOOL)isAnalyticsCollectionExplicitlySet {
+- (BOOL)isAnalyticsCollectionExpicitlySet {
   // If it's de-activated, it classifies as explicity set. If not, it's not a good enough indication
   // that the developer wants FirebaseAnalytics enabled so continue checking.
   if (self.isAnalyticsCollectionDeactivated) {

@@ -451,18 +451,6 @@ static NSString *const kFIRAuthErrorMessageInternalError = @"An internal error h
 static NSString *const kFIRAuthErrorMessageMalformedJWT =
     @"Failed to parse JWT. Check the userInfo dictionary for the full token.";
 
-/** @var kFIRAuthErrorMessageDynamicLinkNotActivated
-    @brief Error message constant describing @c FIRAuthErrorCodeDynamicLinkNotActivated errors.
- */
-static NSString *const kFIRAuthErrorMessageDynamicLinkNotActivated =
-    @"Please activate Dynamic Links in the Firebase Console and agree to the terms and conditions.";
-
-/** @var kFIRAuthErrorMessageRejectedCredential
-    @brief Error message constant describing @c FIRAuthErrorCodeRejectedCredential errors.
- */
-static NSString *const kFIRAuthErrorMessageRejectedCredential =
-    @"The request contains malformed or mismatching credentials.";
-
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -595,10 +583,6 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageLocalPlayerNotAuthenticated;
     case FIRAuthErrorCodeGameKitNotLinked:
       return kFIRAuthErrorMessageGameKitNotLinked;
-    case FIRAuthErrorCodeDynamicLinkNotActivated:
-      return kFIRAuthErrorMessageDynamicLinkNotActivated;
-    case FIRAuthErrorCodeRejectedCredential:
-      return kFIRAuthErrorMessageRejectedCredential;
   }
 }
 
@@ -734,10 +718,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_LOCAL_PLAYER_NOT_AUTHENTICATED";
     case FIRAuthErrorCodeGameKitNotLinked:
       return @"ERROR_GAME_KIT_NOT_LINKED";
-    case FIRAuthErrorCodeDynamicLinkNotActivated:
-      return @"ERROR_DYNAMIC_LINK_NOT_ACTIVATED";
-    case FIRAuthErrorCodeRejectedCredential:
-      return @"ERROR_REJECTED_CREDENTIAL";
   }
 }
 

@@ -25,39 +25,32 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::core::Query;
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::Mutation;
-using firebase::firestore::model::MutationBatch;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::UnknownDocument;
-using firebase::firestore::nanopb::ByteString;
-using firebase::firestore::nanopb::MakeByteString;
-using firebase::firestore::nanopb::MakeNSData;
 
 @interface FSTLocalSerializer ()
 
@@ -188,25 +181,25 @@ using firebase::firestore::nanopb::MakeNSData;
   return UnknownDocument(std::move(key), version);
 }
 
-- (FSTPBWriteBatch *)encodedMutationBatch:(const MutationBatch &)batch {
+- (FSTPBWriteBatch *)encodedMutationBatch:(FSTMutationBatch *)batch {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTPBWriteBatch *proto = [FSTPBWriteBatch message];
-  proto.batchId = batch.batch_id();
-  proto.localWriteTime = [remoteSerializer encodedTimestamp:batch.local_write_time()];
+  proto.batchId = batch.batchID;
+  proto.localWriteTime = [remoteSerializer encodedTimestamp:batch.localWriteTime];
 
   NSMutableArray<GCFSWrite *> *baseWrites = proto.baseWritesArray;
-  for (const Mutation &baseMutation : batch.base_mutations()) {
+  for (const Mutation &baseMutation : [batch baseMutations]) {
     [baseWrites addObject:[remoteSerializer encodedMutation:baseMutation]];
   }
   NSMutableArray<GCFSWrite *> *writes = proto.writesArray;
-  for (const Mutation &mutation : batch.mutations()) {
+  for (const Mutation &mutation : [batch mutations]) {
     [writes addObject:[remoteSerializer encodedMutation:mutation]];
   }
   return proto;
 }
 
-- (MutationBatch)decodedMutationBatch:(FSTPBWriteBatch *)batch {
+- (FSTMutationBatch *)decodedMutationBatch:(FSTPBWriteBatch *)batch {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   int batchID = batch.batchId;
@@ -222,23 +215,26 @@ using firebase::firestore::nanopb::MakeNSData;
 
   Timestamp localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
 
-  return MutationBatch(batchID, localWriteTime, std::move(baseMutations), std::move(mutations));
+  return [[FSTMutationBatch alloc] initWithBatchID:batchID
+                                    localWriteTime:localWriteTime
+                                     baseMutations:std::move(baseMutations)
+                                         mutations:std::move(mutations)];
 }
 
-- (FSTPBTarget *)encodedQueryData:(const QueryData &)queryData {
+- (FSTPBTarget *)encodedQueryData:(FSTQueryData *)queryData {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
-  HARD_ASSERT(queryData.purpose() == QueryPurpose::Listen,
-              "only queries with purpose %s may be stored, got %s", QueryPurpose::Listen,
-              queryData.purpose());
+  HARD_ASSERT(queryData.purpose == FSTQueryPurposeListen,
+              "only queries with purpose %s may be stored, got %s", FSTQueryPurposeListen,
+              queryData.purpose);
 
   FSTPBTarget *proto = [FSTPBTarget message];
-  proto.targetId = queryData.target_id();
-  proto.lastListenSequenceNumber = queryData.sequence_number();
-  proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshot_version()];
-  proto.resumeToken = MakeNullableNSData(queryData.resume_token());
+  proto.targetId = queryData.targetID;
+  proto.lastListenSequenceNumber = queryData.sequenceNumber;
+  proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshotVersion];
+  proto.resumeToken = queryData.resumeToken;
 
-  const Query &query = queryData.query();
+  const Query &query = queryData.query;
   if (query.IsDocumentQuery()) {
     proto.documents = [remoteSerializer encodedDocumentsTarget:query];
   } else {
@@ -248,13 +244,13 @@ using firebase::firestore::nanopb::MakeNSData;
   return proto;
 }
 
-- (QueryData)decodedQueryData:(FSTPBTarget *)target {
+- (FSTQueryData *)decodedQueryData:(FSTPBTarget *)target {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   TargetId targetID = target.targetId;
   ListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
   SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
-  ByteString resumeToken = MakeByteString(target.resumeToken);
+  NSData *resumeToken = target.resumeToken;
 
   Query query;
   switch (target.targetTypeOneOfCase) {
@@ -270,8 +266,12 @@ using firebase::firestore::nanopb::MakeNSData;
       HARD_FAIL("Unknown Target.targetType %s", target.targetTypeOneOfCase);
   }
 
-  return QueryData(std::move(query), targetID, sequenceNumber, QueryPurpose::Listen, version,
-                   std::move(resumeToken));
+  return [[FSTQueryData alloc] initWithQuery:std::move(query)
+                                    targetID:targetID
+                        listenSequenceNumber:sequenceNumber
+                                     purpose:FSTQueryPurposeListen
+                             snapshotVersion:version
+                                 resumeToken:resumeToken];
 }
 
 - (GPBTimestamp *)encodedVersion:(const SnapshotVersion &)version {

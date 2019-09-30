@@ -16,12 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
-#include <cctype>
 #include <cstdlib>
 #include <cstring>
-#include <iomanip>
 #include <ostream>
-#include <sstream>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -90,16 +87,12 @@ size_t ByteString::Hash() const {
 }
 
 std::string ByteString::ToString() const {
-  return absl::CEscape(MakeStringView(*this));
+  std::string hex = absl::BytesToHexString(MakeStringView(*this));
+  return absl::StrCat("<", hex, ">");
 }
 
 std::ostream& operator<<(std::ostream& out, const ByteString& str) {
   return out << str.ToString();
-}
-
-std::string ByteString::ToHexString() const {
-  std::string hex = absl::BytesToHexString(MakeStringView(*this));
-  return absl::StrCat("<", hex, ">");
 }
 
 }  // namespace nanopb

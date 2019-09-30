@@ -19,27 +19,22 @@
 #include <set>
 #include <utility>
 
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
-namespace core = firebase::firestore::core;
 namespace testutil = firebase::firestore::testutil;
-
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::nanopb::ByteString;
 
 using testutil::Filter;
 using testutil::Query;
@@ -63,9 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
-  if (self.persistence) {
-    self.persistence->Shutdown();
-  }
+  [self.persistence shutdown];
 }
 
 /**
@@ -79,58 +72,56 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testReadQueryNotInCache {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testReadQueryNotInCache", [&]() {
-    XCTAssertEqual(self.queryCache->GetTarget(_queryRooms), absl::nullopt);
-  });
+  self.persistence.run("testReadQueryNotInCache",
+                       [&]() { XCTAssertNil(self.queryCache->GetTarget(_queryRooms)); });
 }
 
 - (void)testSetAndReadAQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testSetAndReadAQuery", [&]() {
-    QueryData queryData = [self queryDataWithQuery:_queryRooms];
+  self.persistence.run("testSetAndReadAQuery", [&]() {
+    FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(queryData);
 
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertNotEqual(result, absl::nullopt);
-    XCTAssertEqual(result->query(), queryData.query());
-    XCTAssertEqual(result->target_id(), queryData.target_id());
-    XCTAssertEqual(result->resume_token(), queryData.resume_token());
+    FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);
+    XCTAssertEqual(result.query, queryData.query);
+    XCTAssertEqual(result.targetID, queryData.targetID);
+    XCTAssertEqualObjects(result.resumeToken, queryData.resumeToken);
   });
 }
 
 - (void)testCanonicalIDCollision {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testCanonicalIDCollision", [&]() {
+  self.persistence.run("testCanonicalIDCollision", [&]() {
     // Type information is currently lost in our canonicalID implementations so this currently an
     // easy way to force colliding canonicalIDs
     core::Query q1 = Query("a").AddingFilter(Filter("foo", "==", 1));
     core::Query q2 = Query("a").AddingFilter(Filter("foo", "==", "1"));
     XCTAssertEqual(q1.CanonicalId(), q2.CanonicalId());
 
-    QueryData data1 = [self queryDataWithQuery:q1];
+    FSTQueryData *data1 = [self queryDataWithQuery:q1];
     self.queryCache->AddTarget(data1);
 
     // Using the other query should not return the query cache entry despite equal canonicalIDs.
-    XCTAssertEqual(self.queryCache->GetTarget(q2), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), data1);
+    XCTAssertNil(self.queryCache->GetTarget(q2));
+    XCTAssertEqualObjects(self.queryCache->GetTarget(q1), data1);
 
-    QueryData data2 = [self queryDataWithQuery:q2];
+    FSTQueryData *data2 = [self queryDataWithQuery:q2];
     self.queryCache->AddTarget(data2);
     XCTAssertEqual(self.queryCache->size(), 2);
 
-    XCTAssertEqual(self.queryCache->GetTarget(q1), data1);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), data2);
+    XCTAssertEqualObjects(self.queryCache->GetTarget(q1), data1);
+    XCTAssertEqualObjects(self.queryCache->GetTarget(q2), data2);
 
     self.queryCache->RemoveTarget(data1);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), data2);
+    XCTAssertNil(self.queryCache->GetTarget(q1));
+    XCTAssertEqualObjects(self.queryCache->GetTarget(q2), data2);
     XCTAssertEqual(self.queryCache->size(), 1);
 
     self.queryCache->RemoveTarget(data2);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), absl::nullopt);
+    XCTAssertNil(self.queryCache->GetTarget(q1));
+    XCTAssertNil(self.queryCache->GetTarget(q2));
     XCTAssertEqual(self.queryCache->size(), 0);
   });
 }
@@ -138,46 +129,46 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSetQueryToNewValue {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testSetQueryToNewValue", [&]() {
-    QueryData queryData1 = [self queryDataWithQuery:_queryRooms
-                                           targetID:1
-                               listenSequenceNumber:10
-                                            version:1];
+  self.persistence.run("testSetQueryToNewValue", [&]() {
+    FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms
+                                               targetID:1
+                                   listenSequenceNumber:10
+                                                version:1];
     self.queryCache->AddTarget(queryData1);
 
-    QueryData queryData2 = [self queryDataWithQuery:_queryRooms
-                                           targetID:1
-                               listenSequenceNumber:10
-                                            version:2];
+    FSTQueryData *queryData2 = [self queryDataWithQuery:_queryRooms
+                                               targetID:1
+                                   listenSequenceNumber:10
+                                                version:2];
     self.queryCache->AddTarget(queryData2);
 
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertNotEqual(queryData2.resume_token(), queryData1.resume_token());
-    XCTAssertNotEqual(queryData2.snapshot_version(), queryData1.snapshot_version());
-    XCTAssertEqual(result->resume_token(), queryData2.resume_token());
-    XCTAssertEqual(result->snapshot_version(), queryData2.snapshot_version());
+    FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);
+    XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
+    XCTAssertNotEqual(queryData2.snapshotVersion, queryData1.snapshotVersion);
+    XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
+    XCTAssertEqual(result.snapshotVersion, queryData2.snapshotVersion);
   });
 }
 
 - (void)testRemoveQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testRemoveQuery", [&]() {
-    QueryData queryData1 = [self queryDataWithQuery:_queryRooms];
+  self.persistence.run("testRemoveQuery", [&]() {
+    FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(queryData1);
 
     self.queryCache->RemoveTarget(queryData1);
 
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertEqual(result, absl::nullopt);
+    FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);
+    XCTAssertNil(result);
   });
 }
 
 - (void)testRemoveNonExistentQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testRemoveNonExistentQuery", [&]() {
-    QueryData queryData = [self queryDataWithQuery:_queryRooms];
+  self.persistence.run("testRemoveNonExistentQuery", [&]() {
+    FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
     // no-op, but make sure it doesn't throw.
     XCTAssertNoThrow(self.queryCache->RemoveTarget(queryData));
@@ -187,14 +178,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testRemoveQueryRemovesMatchingKeysToo {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
-    QueryData rooms = [self queryDataWithQuery:_queryRooms];
+  self.persistence.run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
+    FSTQueryData *rooms = [self queryDataWithQuery:_queryRooms];
     self.queryCache->AddTarget(rooms);
 
     DocumentKey key1 = testutil::Key("rooms/foo");
     DocumentKey key2 = testutil::Key("rooms/bar");
-    [self addMatchingKey:key1 forTargetID:rooms.target_id()];
-    [self addMatchingKey:key2 forTargetID:rooms.target_id()];
+    [self addMatchingKey:key1 forTargetID:rooms.targetID];
+    [self addMatchingKey:key2 forTargetID:rooms.targetID];
 
     XCTAssertTrue(self.queryCache->Contains(key1));
     XCTAssertTrue(self.queryCache->Contains(key2));
@@ -208,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAddOrRemoveMatchingKeys {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testAddOrRemoveMatchingKeys", [&]() {
+  self.persistence.run("testAddOrRemoveMatchingKeys", [&]() {
     DocumentKey key = testutil::Key("foo/bar");
 
     XCTAssertFalse(self.queryCache->Contains(key));
@@ -230,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMatchingKeysForTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testMatchingKeysForTargetID", [&]() {
+  self.persistence.run("testMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
@@ -251,10 +242,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestListenSequenceNumber {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testHighestListenSequenceNumber", [&]() {
-    QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
+  self.persistence.run("testHighestListenSequenceNumber", [&]() {
+    FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:Query("rooms")
+                                                      targetID:1
+                                          listenSequenceNumber:10
+                                                       purpose:FSTQueryPurposeListen];
     self.queryCache->AddTarget(query1);
-    QueryData query2(Query("halls"), 2, 20, QueryPurpose::Listen);
+    FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:Query("halls")
+                                                      targetID:2
+                                          listenSequenceNumber:20
+                                                       purpose:FSTQueryPurposeListen];
     self.queryCache->AddTarget(query2);
     XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 20);
 
@@ -262,7 +259,10 @@ NS_ASSUME_NONNULL_BEGIN
     self.queryCache->RemoveTarget(query2);
     XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 20);
 
-    QueryData query3(Query("garages"), 42, 100, QueryPurpose::Listen);
+    FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:Query("garages")
+                                                      targetID:42
+                                          listenSequenceNumber:100
+                                                       purpose:FSTQueryPurposeListen];
     self.queryCache->AddTarget(query3);
     XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 100);
 
@@ -277,17 +277,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHighestTargetID {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testHighestTargetID", [&]() {
+  self.persistence.run("testHighestTargetID", [&]() {
     XCTAssertEqual(self.queryCache->highest_target_id(), 0);
 
-    QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
+    FSTQueryData *query1 = [[FSTQueryData alloc] initWithQuery:Query("rooms")
+                                                      targetID:1
+                                          listenSequenceNumber:10
+                                                       purpose:FSTQueryPurposeListen];
     DocumentKey key1 = testutil::Key("rooms/bar");
     DocumentKey key2 = testutil::Key("rooms/foo");
     self.queryCache->AddTarget(query1);
     [self addMatchingKey:key1 forTargetID:1];
     [self addMatchingKey:key2 forTargetID:1];
 
-    QueryData query2(Query("halls"), 2, 20, QueryPurpose::Listen);
+    FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:Query("halls")
+                                                      targetID:2
+                                          listenSequenceNumber:20
+                                                       purpose:FSTQueryPurposeListen];
     DocumentKey key3 = testutil::Key("halls/foo");
     self.queryCache->AddTarget(query2);
     [self addMatchingKey:key3 forTargetID:2];
@@ -298,7 +304,10 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(self.queryCache->highest_target_id(), 2);
 
     // A query with an empty result set still counts.
-    QueryData query3(Query("garages"), 42, 100, QueryPurpose::Listen);
+    FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:Query("garages")
+                                                      targetID:42
+                                          listenSequenceNumber:100
+                                                       purpose:FSTQueryPurposeListen];
     self.queryCache->AddTarget(query3);
     XCTAssertEqual(self.queryCache->highest_target_id(), 42);
 
@@ -313,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testLastRemoteSnapshotVersion {
   if ([self isTestBaseClass]) return;
 
-  self.persistence->Run("testLastRemoteSnapshotVersion", [&]() {
+  self.persistence.run("testLastRemoteSnapshotVersion", [&]() {
     XCTAssertEqual(self.queryCache->GetLastRemoteSnapshotVersion(), SnapshotVersion::None());
 
     // Can set the snapshot version.
@@ -325,23 +334,27 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Helpers
 
 /**
- * Creates a new QueryData object from the given parameters, synthesizing a resume token from the
- * snapshot version.
+ * Creates a new FSTQueryData object from the given parameters, synthesizing a resume token from
+ * the snapshot version.
  */
-- (QueryData)queryDataWithQuery:(core::Query)query {
+- (FSTQueryData *)queryDataWithQuery:(core::Query)query {
   return [self queryDataWithQuery:std::move(query)
                          targetID:++_previousTargetID
              listenSequenceNumber:++_previousSequenceNumber
                           version:++_previousSnapshotVersion];
 }
 
-- (QueryData)queryDataWithQuery:(core::Query)query
-                       targetID:(TargetId)targetID
-           listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                        version:(FSTTestSnapshotVersion)version {
-  ByteString resumeToken = testutil::ResumeToken(version);
-  return QueryData(std::move(query), targetID, sequenceNumber, QueryPurpose::Listen,
-                   testutil::Version(version), resumeToken);
+- (FSTQueryData *)queryDataWithQuery:(core::Query)query
+                            targetID:(TargetId)targetID
+                listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
+                             version:(FSTTestSnapshotVersion)version {
+  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(version);
+  return [[FSTQueryData alloc] initWithQuery:std::move(query)
+                                    targetID:targetID
+                        listenSequenceNumber:sequenceNumber
+                                     purpose:FSTQueryPurposeListen
+                             snapshotVersion:testutil::Version(version)
+                                 resumeToken:resumeToken];
 }
 
 - (void)addMatchingKey:(const DocumentKey &)key forTargetID:(TargetId)targetID {

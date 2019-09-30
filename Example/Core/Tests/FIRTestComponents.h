@@ -46,33 +46,17 @@
 /// A test class that is a component registrant that provides a component requiring eager
 /// instantiation, and is cached for easier validation that it was instantiated.
 @interface FIRTestClassEagerCached
-    : NSObject <FIRTestProtocolEagerCached, FIRComponentLifecycleMaintainer, FIRLibrary>
+    : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end
 
 #pragma mark - Cached Component
 
 /// A test protocol to be used for container testing.
 @protocol FIRTestProtocolCached
-- (void)cacheCow;
 @end
 
 /// A test class that is a component registrant that provides a component that requests to be
 /// cached.
 @interface FIRTestClassCached
-    : NSObject <FIRTestProtocolCached, FIRComponentLifecycleMaintainer, FIRLibrary>
-@end
-
-#pragma mark - Dependency on Standard
-
-/// A test protocol to be used for container testing.
-@protocol FIRTestProtocolCachedWithDep
-@property(nonatomic, strong) id<FIRTestProtocolCached> testProperty;
-@end
-
-/// A test class that is a component registrant that provides a component with a dependency on
-// `FIRTestProtocolCached`.
-@interface FIRTestClassCachedWithDep
-    : NSObject <FIRTestProtocolCachedWithDep, FIRComponentLifecycleMaintainer, FIRLibrary>
-@property(nonatomic, strong) id<FIRTestProtocolCached> testProperty;
-- (instancetype)initWithTest:(id<FIRTestProtocolCached>)testInstance;
+    : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end

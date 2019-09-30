@@ -19,6 +19,10 @@
 
 #include <cstdint>
 
+#if defined(__OBJC__)
+#import <Foundation/Foundation.h>
+#endif
+
 namespace firebase {
 namespace firestore {
 namespace model {

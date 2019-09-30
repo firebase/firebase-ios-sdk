@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,13 +40,10 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-class LevelDbPersistence;
-
 /** Cached Remote Documents backed by leveldb. */
 class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  LevelDbRemoteDocumentCache(LevelDbPersistence* db,
-                             FSTLocalSerializer* serializer);
+  LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
   void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
@@ -60,8 +58,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   model::MaybeDocument DecodeMaybeDocument(absl::string_view encoded,
                                            const model::DocumentKey& key);
 
-  // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
-  LevelDbPersistence* db_;
+  // This instance is owned by FSTLevelDB; avoid a retain cycle.
+  __weak FSTLevelDB* db_;
   FSTLocalSerializer* serializer_;
 };
 

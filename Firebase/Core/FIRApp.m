@@ -352,7 +352,7 @@ static NSMutableDictionary *sLibraryVersions;
   }
 
   // Check if the Analytics flag is explicitly set. If so, no further actions are necessary.
-  if ([self.options isAnalyticsCollectionExplicitlySet]) {
+  if ([self.options isAnalyticsCollectionExpicitlySet]) {
     return;
   }
 

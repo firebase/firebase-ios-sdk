@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <OCMock/OCMock.h>
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static NSString *const kDeviceAuthId = @"1234";
 static NSString *const kSecretToken = @"567890";
