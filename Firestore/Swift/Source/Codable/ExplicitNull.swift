@@ -16,15 +16,65 @@
 
 import FirebaseFirestore
 
-/// Wraps around a `Optional` such that it explicitly sets the corresponding document field
-/// to Null, instead of not setting the field at all.
+#if swift(>=5.1)
+
+/// Wraps an `Optional` field in a `Codable` object such that when the field has a `nil` value it
+/// will encode to a null value in Firestore. Normally, optional fields are omitted from the encoded
+/// document.
 ///
-/// When encoded into a Firestore document by `Firestore.Encoder`, an `Optional` field with
-/// `nil` value will be skipped, so the resulting document simply will not have the field.
+/// This is useful for ensuring a field is present in a Firestore document, even when there is no
+/// associated value.
+@propertyWrapper
+public struct ExplicitNull<Value> {
+  var value: Value?
+
+  public init(wrappedValue value: Value?) {
+    self.value = value
+  }
+
+  public var wrappedValue: Value? {
+    get { value }
+    set { value = newValue }
+  }
+}
+
+extension ExplicitNull: Equatable where Value: Equatable {}
+
+extension ExplicitNull: Encodable where Value: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    if let value = value {
+      try container.encode(value)
+    } else {
+      try container.encodeNil()
+    }
+  }
+}
+
+extension ExplicitNull: Decodable where Value: Decodable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    if container.decodeNil() {
+      value = nil
+    } else {
+      value = try container.decode(Value.self)
+    }
+  }
+}
+
+#endif  // swift(>=5.1)
+
+/// A compatibility version of `ExplicitNull` that does not use property wrappers, suitable for use
+/// in older versions of Swift.
 ///
-/// When setting the field to `Null` instead of skipping it is desired, `ExplicitNull` can be
-/// used instead of `Optional`.
-public enum ExplicitNull<Wrapped> {
+/// Wraps an `Optional` field in a `Codable` object such that when the field has a `nil` value it
+/// will encode to a null value in Firestore. Normally, optional fields are omitted from the encoded
+/// document.
+///
+/// This is useful for ensuring a field is present in a Firestore document, even when there is no
+/// associated value.
+@available(swift, deprecated: 5.1)
+public enum Swift4ExplicitNull<Wrapped> {
   case none
   case some(Wrapped)
 
@@ -49,9 +99,9 @@ public enum ExplicitNull<Wrapped> {
   }
 }
 
-extension ExplicitNull: Equatable where Wrapped: Equatable {}
+extension Swift4ExplicitNull: Equatable where Wrapped: Equatable {}
 
-extension ExplicitNull: Encodable where Wrapped: Encodable {
+extension Swift4ExplicitNull: Encodable where Wrapped: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
@@ -63,7 +113,7 @@ extension ExplicitNull: Encodable where Wrapped: Encodable {
   }
 }
 
-extension ExplicitNull: Decodable where Wrapped: Decodable {
+extension Swift4ExplicitNull: Decodable where Wrapped: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {
