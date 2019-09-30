@@ -283,7 +283,8 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion
-                        NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:);
+                        NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
+                        API_AVAILABLE(ios(8.0));
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -388,7 +389,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objectiv
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion
-              NS_SWIFT_NAME(link(with:uiDelegate:completion:);
+              NS_SWIFT_NAME(link(with:uiDelegate:completion:))
+              API_AVAILABLE(ios(8.0));
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.
