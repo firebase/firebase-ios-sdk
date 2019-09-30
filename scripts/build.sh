@@ -91,10 +91,22 @@ function RunXcodebuild() {
   fi
 }
 
-ios_flags=(
-  -sdk 'iphonesimulator'
-  -destination 'platform=iOS Simulator,name=iPhone 7'
-)
+# Remove each product when it moves up to Xcode 11
+if [[ $product == 'Firestore' || # #3949
+      $product == 'GoogleDataTransport' || # #3947
+      $product == 'InAppMessaging' # #3948
+   ]]; then
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 7'
+  )
+else
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 11'
+  )
+fi
+
 macos_flags=(
   -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
@@ -201,18 +213,6 @@ case "$product-$method-$platform" in
     if [[ $platform == 'iOS' ]]; then
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
-
-      # Test iOS Objective-C static library build
-      cd Example
-      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-      pod update --no-repo-update
-      cd ..
-      RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "AllUnitTests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
     fi
     ;;
 

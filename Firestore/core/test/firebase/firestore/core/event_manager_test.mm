@@ -151,8 +151,9 @@ TEST(EventManagerTest, WillForwardOnlineStateChanges) {
                         NoopViewSnapshotHandler()) {
     }
 
-    void OnOnlineStateChanged(OnlineState online_state) override {
+    bool OnOnlineStateChanged(OnlineState online_state) override {
       events.push_back(online_state);
+      return false;
     }
 
     std::vector<OnlineState> events;
