@@ -1,3 +1,7 @@
+# 6.3.1
+- Fix GULMutableDictionary keyed subscript methods. (#3882)
+- Update Networking to receive data for POST requests. (#3940)
+
 # 6.3.0
 - GULSecureCoding introduced. (#3707)
 - Mark unused variables. (#3854)
