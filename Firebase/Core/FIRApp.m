@@ -84,6 +84,27 @@ NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
 NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
     @"FIRAuthStateDidChangeInternalNotificationUIDKey";
 
+// Internal class used to associate an initialization priority to a library
+@interface FIRLibraryRegistration : NSObject
+@property (nonatomic, strong) Class<FIRLibrary> library;
+@property (nonatomic, assign) FIRInitializationPriority priority;
+
+- (id)initWithLibrary:(Class<FIRLibrary>)library withPriority:(FIRInitializationPriority)priority;
+
+@end
+
+@implementation FIRLibraryRegistration
+
+- (id)initWithLibrary:(Class<FIRLibrary>)library withPriority:(FIRInitializationPriority)priority {
+  if (self = [super init]) {
+    self.library = library;
+    self.priority = priority;
+  }
+  return self;
+}
+
+@end
+
 /**
  * The URL to download plist files.
  */
@@ -93,7 +114,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
  * An array of all classes that registered as `FIRCoreConfigurable` in order to receive lifecycle
  * events from Core.
  */
-static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
+static NSMutableArray<FIRLibraryRegistration *> *sRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
@@ -420,8 +441,15 @@ static NSMutableDictionary *sLibraryVersions;
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
   @synchronized(self) {
-    for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
-      [library configureWithApp:app];
+    NSArray<FIRLibraryRegistration *> *sortedRegistration;
+    sortedRegistration = [sRegisteredAsConfigurable sortedArrayUsingComparator:^NSComparisonResult(FIRLibraryRegistration *a, FIRLibraryRegistration *b) {
+      NSNumber *firstPriority = [[NSNumber alloc] initWithLong:a.priority];
+      NSNumber *secondPriority = [[NSNumber alloc] initWithLong:b.priority];
+      return [firstPriority compare: secondPriority];
+    }];
+
+    for (FIRLibraryRegistration *registration in sortedRegistration) {
+      [registration.library configureWithApp:app];
     }
   }
 }
@@ -489,8 +517,15 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+    withName:(nonnull NSString *)name
+ withVersion:(nonnull NSString *)version {
+  [FIRApp registerInternalLibrary:library withName:name withVersion:version withPriority:FIRInitializationPriorityNormal];
+}
+    
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
                        withName:(nonnull NSString *)name
-                    withVersion:(nonnull NSString *)version {
+                    withVersion:(nonnull NSString *)version
+                   withPriority:(FIRInitializationPriority)priority {
   // This is called at +load time, keep the work to a minimum.
 
   // Ensure the class given conforms to the proper protocol.
@@ -509,7 +544,9 @@ static NSMutableDictionary *sLibraryVersions;
       sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
     });
     @synchronized(self) {
-      [sRegisteredAsConfigurable addObject:library];
+      [sRegisteredAsConfigurable addObject:
+        [[FIRLibraryRegistration alloc] initWithLibrary:library
+                                           withPriority:priority]];
     }
   }
   [self registerLibrary:name withVersion:version];
