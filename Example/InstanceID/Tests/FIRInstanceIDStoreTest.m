@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <OCMock/OCMock.h>
 #import "FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
@@ -27,6 +26,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 

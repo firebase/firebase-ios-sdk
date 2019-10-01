@@ -147,13 +147,8 @@ class ByteString : public util::Comparable<ByteString> {
 
   size_t Hash() const;
 
-  // Interprets the value as an ASCII string; the way control characters are
-  // represented is implementation-defined.
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& out, const ByteString& str);
-
-  // Represents the value as hexademical values.
-  std::string ToHexString() const;
 
  private:
   /**

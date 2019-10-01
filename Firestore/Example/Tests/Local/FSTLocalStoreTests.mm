@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// TODO(wuandy): Move `local_store.h` here once this test is ported to C++.
+
+#import "Firestore/Source/Local/FSTLocalStore.h"
 
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
@@ -23,6 +24,9 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
@@ -30,14 +34,10 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/local/local_write_result.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation_batch_result.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -46,11 +46,8 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::auth::User;
-using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::local::LocalWriteResult;
-using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryData;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -59,14 +56,11 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::Mutation;
-using firebase::firestore::model::MutationBatch;
-using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -107,14 +101,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalStoreTests ()
 
+@property(nonatomic, strong, readwrite) id<FSTPersistence> localStorePersistence;
+@property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
+
+@property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *batches;
 @property(nonatomic, assign, readwrite) TargetId lastTargetID;
 
 @end
 
 @implementation FSTLocalStoreTests {
-  std::unique_ptr<LocalStore> _localStore;
-  std::unique_ptr<Persistence> _localStorePersistence;
-  std::vector<MutationBatch> _batches;
   MaybeDocumentMap _lastChanges;
 }
 
@@ -125,24 +120,23 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  std::unique_ptr<Persistence> persistence = [self persistence];
-  _localStorePersistence = std::move(persistence);
-  _localStore =
-      absl::make_unique<LocalStore>(_localStorePersistence.get(), User::Unauthenticated());
-  _localStore->Start();
+  id<FSTPersistence> persistence = [self persistence];
+  self.localStorePersistence = persistence;
+  self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
+                                                   initialUser:User::Unauthenticated()];
+  [self.localStore start];
 
+  _batches = [NSMutableArray array];
   _lastTargetID = 0;
 }
 
 - (void)tearDown {
-  if (_localStorePersistence) {
-    _localStorePersistence->Shutdown();
-  }
+  [self.localStorePersistence shutdown];
 
   [super tearDown];
 }
 
-- (std::unique_ptr<Persistence>)persistence {
+- (id<FSTPersistence>)persistence {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -160,33 +154,32 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeMutation:(Mutation)mutation {
-  [self writeMutations:{std::move(mutation)}];
+  [self writeMutations:{mutation}];
 }
 
 - (void)writeMutations:(std::vector<Mutation> &&)mutations {
   auto mutationsCopy = mutations;
-  LocalWriteResult result = _localStore->WriteLocally(std::move(mutationsCopy));
-  _batches.emplace_back(result.batch_id(), Timestamp::Now(), std::vector<Mutation>{},
-                        std::move(mutations));
+  LocalWriteResult result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
+  [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batch_id()
+                                                     localWriteTime:Timestamp::Now()
+                                                      baseMutations:{}
+                                                          mutations:std::move(mutations)]];
   _lastChanges = result.changes();
 }
 
 - (void)applyRemoteEvent:(const RemoteEvent &)event {
-  _lastChanges = _localStore->ApplyRemoteEvent(event);
+  _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 
 - (void)notifyLocalViewChanges:(LocalViewChanges)changes {
-  _localStore->NotifyLocalViewChanges(std::vector<LocalViewChanges>{std::move(changes)});
+  [self.localStore notifyLocalViewChanges:std::vector<LocalViewChanges>{std::move(changes)}];
 }
 
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion
                        transformResult:(id _Nullable)transformResult {
-  XCTAssertGreaterThan(_batches.size(), 0, @"Missing batch to acknowledge.");
-  MutationBatch batch = _batches.front();
-  _batches.erase(_batches.begin());
-
-  XCTAssertEqual(batch.mutations().size(), 1,
-                 @"Acknowledging more than one mutation not supported.");
+  FSTMutationBatch *batch = [self.batches firstObject];
+  [self.batches removeObjectAtIndex:0];
+  XCTAssertEqual(batch.mutations.size(), 1, @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
 
   absl::optional<std::vector<FieldValue>> mutationTransformResult;
@@ -195,8 +188,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   MutationResult mutationResult(version, mutationTransformResult);
-  MutationBatchResult result(batch, version, {mutationResult}, {});
-  _lastChanges = _localStore->AcknowledgeBatch(result);
+  FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
+                                                             commitVersion:version
+                                                           mutationResults:{mutationResult}
+                                                               streamToken:nil];
+  _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
 }
 
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion {
@@ -204,15 +200,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectMutation {
-  MutationBatch batch = _batches.front();
-  _batches.erase(_batches.begin());
-  _lastChanges = _localStore->RejectBatch(batch.batch_id());
+  FSTMutationBatch *batch = [self.batches firstObject];
+  [self.batches removeObjectAtIndex:0];
+  _lastChanges = [self.localStore rejectBatchID:batch.batchID];
 }
 
 - (TargetId)allocateQuery:(core::Query)query {
-  QueryData queryData = _localStore->AllocateQuery(std::move(query));
-  self.lastTargetID = queryData.target_id();
-  return queryData.target_id();
+  FSTQueryData *queryData = [self.localStore allocateQuery:std::move(query)];
+  self.lastTargetID = queryData.targetID;
+  return queryData.targetID;
 }
 
 /** Asserts that the last target ID is the given number. */
@@ -249,19 +245,19 @@ NS_ASSUME_NONNULL_BEGIN
   } while (0)
 
 /** Asserts that the given local store contains the given document. */
-#define FSTAssertContains(document)                                                   \
-  do {                                                                                \
-    MaybeDocument expected = (document);                                              \
-    absl::optional<MaybeDocument> actual = _localStore->ReadDocument(expected.key()); \
-    XCTAssertEqual(actual, expected);                                                 \
+#define FSTAssertContains(document)                                                       \
+  do {                                                                                    \
+    MaybeDocument expected = (document);                                                  \
+    absl::optional<MaybeDocument> actual = [self.localStore readDocument:expected.key()]; \
+    XCTAssertEqual(actual, expected);                                                     \
   } while (0)
 
 /** Asserts that the given local store does not contain the given document. */
-#define FSTAssertNotContains(keyPathString)                                \
-  do {                                                                     \
-    DocumentKey key = Key(keyPathString);                                  \
-    absl::optional<MaybeDocument> actual = _localStore->ReadDocument(key); \
-    XCTAssertEqual(actual, absl::nullopt);                                 \
+#define FSTAssertNotContains(keyPathString)                                    \
+  do {                                                                         \
+    DocumentKey key = Key(keyPathString);                                      \
+    absl::optional<MaybeDocument> actual = [self.localStore readDocument:key]; \
+    XCTAssertEqual(actual, absl::nullopt);                                     \
   } while (0)
 
 - (void)testMutationBatchKeys {
@@ -270,8 +266,11 @@ NS_ASSUME_NONNULL_BEGIN
   Mutation base = FSTTestSetMutation(@"foo/ignore", @{@"foo" : @"bar"});
   Mutation set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
   Mutation set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
-  MutationBatch batch = MutationBatch(1, Timestamp::Now(), {base}, {set1, set2});
-  DocumentKeySet keys = batch.keys();
+  FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
+                                                       localWriteTime:Timestamp::Now()
+                                                        baseMutations:{base}
+                                                            mutations:{set1, set2}];
+  DocumentKeySet keys = [batch keys];
   XCTAssertEqual(keys.size(), 2u);
 }
 
@@ -365,7 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
   // Verify we didn't lose anything
   FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
 
@@ -521,7 +520,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Remove the target so only the mutation is pinning the document
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved("foo/bar");
@@ -548,7 +547,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(DeletedDoc("foo/bar"));
 
   // Don't need to keep it pinned anymore
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved("foo/bar");
@@ -601,7 +600,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertChanged(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
 
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
   [self acknowledgeMutationWithVersion:2];  // delete mutation
   FSTAssertChanged(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bar", 2, Map("foo", "bar"), DocumentState::kLocalMutations));
@@ -725,7 +724,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
@@ -760,7 +759,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
@@ -809,10 +808,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(Doc("foo/baz", 2, Map("foo", "baz")));
 
   [self notifyLocalViewChanges:TestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
+  [self.localStore releaseQuery:query];
+
   FSTAssertNotContains("foo/bar");
   FSTAssertNotContains("foo/baz");
-
-  _localStore->ReleaseQuery(query);
 }
 
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {
@@ -829,13 +828,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanExecuteDocumentQueries {
   if ([self isTestBaseClass]) return;
 
-  _localStore->WriteLocally({
+  [self.localStore locallyWriteMutations:{
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"}),
         FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
         FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
-  });
+  }];
   core::Query query = Query("foo/bar");
-  DocumentMap docs = _localStore->ExecuteQuery(query);
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqual(DocMapToArray(docs),
                  Vector(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations)));
 }
@@ -843,15 +842,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanExecuteCollectionQueries {
   if ([self isTestBaseClass]) return;
 
-  _localStore->WriteLocally({
+  [self.localStore locallyWriteMutations:{
     FSTTestSetMutation(@"fo/bar", @{@"fo" : @"bar"}),
         FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"}),
         FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
         FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"}),
         FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
-  });
+  }];
   core::Query query = Query("foo");
-  DocumentMap docs = _localStore->ExecuteQuery(query);
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqual(DocMapToArray(docs),
                  Vector(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations),
                         Doc("foo/baz", 0, Map("foo", "baz"), DocumentState::kLocalMutations)));
@@ -867,9 +866,9 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2}, {})];
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2}, {})];
 
-  _localStore->WriteLocally({ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) });
+  [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
-  DocumentMap docs = _localStore->ExecuteQuery(query);
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqual(DocMapToArray(docs),
                  Vector(Doc("foo/bar", 20, Map("a", "b")), Doc("foo/baz", 10, Map("a", "b")),
                         Doc("foo/bonk", 0, Map("a", "b"), DocumentState::kLocalMutations)));
@@ -881,10 +880,10 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self gcIsEager]) return;
 
   core::Query query = Query("foo/bar");
-  QueryData queryData = _localStore->AllocateQuery(query);
-  ListenSequenceNumber initialSequenceNumber = queryData.sequence_number();
-  TargetId targetID = queryData.target_id();
-  ByteString resumeToken = testutil::ResumeToken(1000);
+  FSTQueryData *queryData = [self.localStore allocateQuery:query];
+  ListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
+  TargetId targetID = queryData.targetID;
+  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
   auto metadataProvider = TestTargetMetadataProvider::CreateSingleResultProvider(
@@ -895,14 +894,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:remoteEvent];
 
   // Stop listening so that the query should become inactive (but persistent)
-  _localStore->ReleaseQuery(query);
+  [self.localStore releaseQuery:query];
 
   // Should come back with the same resume token
-  QueryData queryData2 = _localStore->AllocateQuery(query);
-  XCTAssertEqual(queryData2.resume_token(), resumeToken);
+  FSTQueryData *queryData2 = [self.localStore allocateQuery:query];
+  XCTAssertEqualObjects(queryData2.resumeToken, resumeToken);
 
   // The sequence number should have been bumped when we saved the new resume token.
-  ListenSequenceNumber newSequenceNumber = queryData2.sequence_number();
+  ListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;
   XCTAssertGreaterThan(newSequenceNumber, initialSequenceNumber);
 }
 
@@ -916,13 +915,13 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/baz", 10, Map("a", "b")), {2})];
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 20, Map("a", "b")), {2})];
 
-  _localStore->WriteLocally({ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) });
+  [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
-  DocumentKeySet keys = _localStore->GetRemoteDocumentKeys(2);
+  DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
   DocumentKeySet expected{testutil::Key("foo/bar"), testutil::Key("foo/baz")};
   XCTAssertEqual(keys, expected);
 
-  keys = _localStore->GetRemoteDocumentKeys(2);
+  keys = [self.localStore remoteDocumentKeysForTarget:2];
   XCTAssertEqual(keys, (DocumentKeySet{testutil::Key("foo/bar"), testutil::Key("foo/baz")}));
 }
 
@@ -1053,9 +1052,9 @@ NS_ASSUME_NONNULL_BEGIN
   // The sum transform is not idempotent and the backend's updated value is ignored. The
   // ArrayUnion transform is recomputed and includes the backend value.
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             Doc("foo/bar", 2, Map("sum", 1337, "array_union", Array("bar"))), {2},
+                             Doc("foo/bar", 1, Map("sum", 1337, "array_union", Array("bar"))), {2},
                              {})];
-  FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 1, "array_union", Array("bar", "foo")),
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("bar", "foo")),
                        DocumentState::kLocalMutations));
 }
 
@@ -1103,44 +1102,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
-}
-
-- (void)testGetHighestUnacknowledgeBatchId {
-  if ([self isTestBaseClass]) return;
-
-  XCTAssertEqual(-1, _localStore->GetHighestUnacknowledgedBatchId());
-
-  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"abc" : @123})];
-  XCTAssertEqual(1, _localStore->GetHighestUnacknowledgedBatchId());
-
-  [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"abc" : @321}, {})];
-  XCTAssertEqual(2, _localStore->GetHighestUnacknowledgedBatchId());
-
-  [self acknowledgeMutationWithVersion:1];
-  XCTAssertEqual(2, _localStore->GetHighestUnacknowledgedBatchId());
-
-  [self rejectMutation];
-  XCTAssertEqual(-1, _localStore->GetHighestUnacknowledgedBatchId());
-}
-
-- (void)testOnlyPersistsUpdatesForDocumentsWhenVersionChanges {
-  if ([self isTestBaseClass]) return;
-
-  core::Query query = Query("foo");
-  [self allocateQuery:query];
-  FSTAssertTargetID(2);
-
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(Doc("foo/bar", 1, Map("val", "old")), {2})];
-  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
-  FSTAssertChanged(Doc("foo/bar", 1, Map("val", "old")));
-
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent({Doc("foo/bar", 1, Map("val", "new")),
-                                                  Doc("foo/baz", 2, Map("val", "new"))},
-                                                 {2})];
-  // The update to foo/bar is ignored.
-  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
-  FSTAssertContains(Doc("foo/baz", 2, Map("val", "new")));
-  FSTAssertChanged(Doc("foo/baz", 2, Map("val", "new")));
 }
 
 @end

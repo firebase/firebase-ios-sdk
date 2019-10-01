@@ -18,11 +18,6 @@
 #
 # Builds the given product for the given platform using the given build method
 
-function pod_gen() {
-  # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
-}
-
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -33,7 +28,6 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
-  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -92,24 +86,10 @@ function RunXcodebuild() {
   fi
 }
 
-# Remove Firestore when it moves up to Xcode 11
-if [[ $product == 'Firestore' ]]; then # #3949
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 7'
-  )
-else
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
-  )
-fi
-
-ipad_flags=(
+ios_flags=(
   -sdk 'iphonesimulator'
-  -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
+  -destination 'platform=iOS Simulator,name=iPhone 7'
 )
-
 macos_flags=(
   -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
@@ -124,10 +104,6 @@ case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
     ;;
-
-  iPad)
-    xcb_flags=("${ipad_flags[@]}")
-  ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
@@ -217,9 +193,28 @@ case "$product-$method-$platform" in
         build \
         test
 
+    RunXcodebuild \
+        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
+        -scheme "Example_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     if [[ $platform == 'iOS' ]]; then
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
+
+      # Test iOS Objective-C static library build
+      cd Example
+      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+      pod update --no-repo-update
+      cd ..
+      RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "AllUnitTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
     fi
     ;;
 
@@ -237,18 +232,58 @@ case "$product-$method-$platform" in
 
   InAppMessaging-xcodebuild-iOS)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
         -scheme 'InAppMessaging_Example_iOS' \
         "${xcb_flags[@]}" \
         build \
         test
-  ;;
 
-  InAppMessagingDisplay-xcodebuild-*)
+    cd InAppMessaging/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
     RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    # Run UI tests on both iPad and iPhone simulators
+    # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
+    # Consider separating static library tests to a separate job.
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
+        build \
+        test
+
+    cd InAppMessagingDisplay/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
+    # Run UI tests on both iPad and iPhone simulators
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
     ;;
@@ -297,12 +332,66 @@ case "$product-$method-$platform" in
         build
     ;;
 
+  GoogleDataTransport-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -scheme "GoogleDataTransport-$platform-Unit-Tests-Lifecycle" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    ;;
+
+  GoogleDataTransportIntegrationTest-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -scheme "GoogleDataTransport-$platform-Unit-Tests-Integration" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    ;;
+
+  GoogleDataTransportCCTSupport-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Unit" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    ;;
+
   Database-xcodebuild-*)
-    pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
+      -scheme "FirebaseDatabase-iOS-Unit-unit" \
       "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -312,26 +401,25 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-        -scheme "FirebaseDatabase-Unit-integration" \
+        -scheme "FirebaseDatabase-iOS-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
         test
       fi
+    ;;
 
-    pod_gen FirebaseDatabase.podspec --platforms=macos --clean
+  Messaging-xcodebuild-*)
     RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
-      "${macos_flags[@]}" \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
-
-    pod_gen FirebaseDatabase.podspec --platforms=tvos --clean
     RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-tvOS-Unit-unit" \
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
@@ -339,11 +427,24 @@ case "$product-$method-$platform" in
     ;;
 
   Storage-xcodebuild-*)
-    pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
+      -scheme "FirebaseStorage-iOS-Unit-unit" \
       "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -353,30 +454,12 @@ case "$product-$method-$platform" in
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-Unit-integration" \
+        -scheme "FirebaseStorage-iOS-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
         test
       fi
-
-    pod_gen FirebaseStorage.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

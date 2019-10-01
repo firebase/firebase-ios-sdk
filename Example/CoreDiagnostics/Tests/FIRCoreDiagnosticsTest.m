@@ -21,9 +21,9 @@
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTEventDataObject.h>
+#import <GoogleDataTransport/GDTTransport.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -47,12 +47,12 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 @interface FIRCoreDiagnostics : NSObject
 // Initialization.
 + (instancetype)sharedInstance;
-- (instancetype)initWithTransport:(GDTCORTransport *)transport
+- (instancetype)initWithTransport:(GDTTransport *)transport
              heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage;
 
 // Properties.
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
-@property(nonatomic, readonly) GDTCORTransport *transport;
+@property(nonatomic, readonly) GDTTransport *transport;
 @property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
 
 // Install string helpers.
@@ -111,7 +111,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 
 @end
 
-@interface FIRCoreDiagnosticsLog : NSObject <GDTCOREventDataObject>
+@interface FIRCoreDiagnosticsLog : NSObject <GDTEventDataObject>
 
 @property(nonatomic) logs_proto_mobilesdk_ios_ICoreConfiguration config;
 
@@ -136,9 +136,9 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 - (void)setUp {
   [super setUp];
 
-  self.mockTransport = OCMClassMock([GDTCORTransport class]);
+  self.mockTransport = OCMClassMock([GDTTransport class]);
   OCMStub([self.mockTransport eventForTransport])
-      .andReturn([[GDTCOREvent alloc] initWithMappingID:@"111" target:2]);
+      .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
 
   self.mockDateStorage = OCMClassMock([FIRCoreDiagnosticsDateFileStorage class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
@@ -220,10 +220,12 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->dynamic_framework_count = numFrameworks;
   config->has_dynamic_framework_count = 1;
   config->apple_framework_version = FIREncodeString(combinedVersions);
+#if !TARGET_OS_IOS
   NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
   if (minVersion) {
     config->min_supported_ios_version = FIREncodeString(minVersion);
   }
+#endif  // TARGET_OS_IOS
   config->using_zip_file = 0;
   config->has_using_zip_file = 1;
   config->deployment_type = logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS;
@@ -319,8 +321,8 @@ extern void FIRPopulateProtoWithInfoPlistValues(
 }
 
 - (void)expectEventToBeSentToTransportWithHeartbeat:(BOOL)isHeartbeat {
-  id eventValidation = [OCMArg checkWithBlock:^BOOL(GDTCOREvent *obj) {
-    XCTAssert([obj isKindOfClass:[GDTCOREvent class]]);
+  id eventValidation = [OCMArg checkWithBlock:^BOOL(GDTEvent *obj) {
+    XCTAssert([obj isKindOfClass:[GDTEvent class]]);
     FIRCoreDiagnosticsLog *dataObject = obj.dataObject;
     XCTAssert([dataObject isKindOfClass:[FIRCoreDiagnosticsLog class]]);
 

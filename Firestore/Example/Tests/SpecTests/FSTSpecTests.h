@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
+@protocol FSTPersistence;
+
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const kEagerGC;
@@ -35,7 +37,7 @@ extern NSString *const kDurablePersistence;
  * store implementation. To create a new variant of FSTSpecTests:
  *
  * + Subclass FSTSpecTests
- * + override -persistence to create and return an appropriate Persistence implementation.
+ * + override -persistence to create and return an appropriate id<FSTPersistence> implementation.
  */
 @interface FSTSpecTests : XCTestCase
 

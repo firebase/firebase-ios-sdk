@@ -235,9 +235,7 @@
         moved = YES;
         XCTAssertEqualObjects(snapshot.key, @"greg", @"");
         XCTAssertEqualObjects(prevName, @"rob", @"");
-        XCTAssertEqualObjects(
-            snapshot.value,
-            @{@"nuggets" : @57}, @"");
+        XCTAssertEqualObjects(snapshot.value, @{@"nuggets" : @57}, @"");
       }];
 
   [ref setValue:initial];

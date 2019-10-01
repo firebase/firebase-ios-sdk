@@ -1,9 +1,3 @@
-# v4.0.5
-- [fixed] Removed references to UIWebViewDelegate to comply with App Store Submission warning. (#3722)
-
-# v4.0.4
-- [fixed] Removed references to UIWebView to comply with App Store Submission warning. (#3722)
-
 # v4.0.3
 - [added] Added support for custom domains for internal Google apps. (#3540)
 

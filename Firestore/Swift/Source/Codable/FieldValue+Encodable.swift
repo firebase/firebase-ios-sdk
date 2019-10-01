@@ -19,10 +19,9 @@ import FirebaseFirestore
 /** Extends FieldValue to conform to Encodable. */
 extension FieldValue: Encodable {
   /// Encoding a FieldValue will throw by default unless the encoder implementation
-  /// explicitly handles it, which is what Firestore.Encoder does.
+  /// explicitly handles it, which is what FirestoreEncoder does.
   public func encode(to encoder: Encoder) throws {
-    throw FirestoreEncodingError.encodingIsNotSupported(
-      "FieldValue values can only be encoded with Firestore.Encoder")
+    throw FirestoreEncodingError.encodingIsNotSupported
   }
 }
 
@@ -49,19 +48,6 @@ public enum ServerTimestamp: Codable, Equatable {
   /// When being written (encoded) to Firestore, `resolved(stamp)` will set the field
   /// value to `stamp`.
   case resolved(Timestamp)
-
-  /// Returns this value as an `Optional<Timestamp>`.
-  ///
-  /// If the server timestamp is still pending, the returned optional will be `.none`.
-  /// Once resolved, the returned optional will be `.some` with the resolved timestamp.
-  public var timestamp: Timestamp? {
-    switch self {
-    case .pending:
-      return .none
-    case let .resolved(timestamp):
-      return .some(timestamp)
-    }
-  }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()

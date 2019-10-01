@@ -16,16 +16,14 @@
 
 #include <memory>
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
-
-#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::local::MemoryPersistence;
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
+
 using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::local::RemoteDocumentCache;
 
@@ -38,25 +36,23 @@ using firebase::firestore::local::RemoteDocumentCache;
  * tearing down the @a remoteDocumentCache.
  */
 @implementation FSTMemoryRemoteDocumentCacheTests {
-  std::unique_ptr<MemoryPersistence> _db;
-  MemoryRemoteDocumentCache *_cache;
+  std::unique_ptr<MemoryRemoteDocumentCache> _cache;
 }
 
 - (void)setUp {
   [super setUp];
 
-  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  self.persistence = _db.get();
+  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = _db->remote_document_cache();
+  _cache = absl::make_unique<MemoryRemoteDocumentCache>(self.persistence);
 }
 
 - (RemoteDocumentCache *)remoteDocumentCache {
-  return _cache;
+  return _cache.get();
 }
 
 - (void)tearDown {
-  _cache = nullptr;
+  _cache.reset();
   self.persistence = nil;
 
   [super tearDown];

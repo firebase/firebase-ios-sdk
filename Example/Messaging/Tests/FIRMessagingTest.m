@@ -29,7 +29,7 @@
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 /// The NSUserDefaults domain for testing.
-static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
+NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @interface FIRMessaging ()
 

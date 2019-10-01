@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <OCMock/OCMock.h>
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
@@ -31,6 +30,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation+Private.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 

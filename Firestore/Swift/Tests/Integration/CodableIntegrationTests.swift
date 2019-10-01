@@ -55,11 +55,11 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
         do {
           if let merge = merge {
-            try transaction.setData(from: value, forDocument: doc, merge: merge)
+            _ = try transaction.setData(from: value, forDocument: doc, merge: merge)
           } else if let mergeFields = mergeFields {
-            try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
+            _ = try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
-            try transaction.setData(from: value, forDocument: doc)
+            _ = try transaction.setData(from: value, forDocument: doc)
           }
         } catch {
           XCTFail("setData with transaction failed.")
@@ -67,8 +67,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
         return nil
       }) { object, error in
         completion?(error)
-      }
-    }
+    } }
 
     awaitExpectations()
   }
@@ -148,7 +147,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     struct Model: Encodable {
       var name: String
       var explicitNull: ExplicitNull<String>
-      var optional: String?
+      var optional: Optional<String>
     }
     let model = Model(
       name: "name",
@@ -167,30 +166,6 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(data!["explicitNull"] as! NSNull, NSNull(), "Failed with flavor \(flavor)")
       XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
     }
-  }
-
-  func testSelfDocumentID() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-
-    let docToWrite = documentRef()
-    let model = Model(
-      name: "name",
-      docId: SelfDocumentID()
-    )
-
-    try setData(from: model, forDocument: docToWrite, withFlavor: .docRef)
-    let data = readDocument(forRef: docToWrite).data()
-
-    // "docId" is ignored during encoding
-    XCTAssertEqual(data! as! [String: String], ["name": "name"])
-
-    // Decoded result has "docId" auto-populated.
-    let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
-    XCTAssertEqual(decoded!, Model(name: "name",
-                                   docId: SelfDocumentID(from: docToWrite)))
   }
 
   func testSetThenMerge() throws {
@@ -222,24 +197,5 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(readAfterUpdate!, Model(name: "test",
                                              age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
     }
-  }
-
-  func testAddDocument() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-    }
-
-    let collection = collectionRef()
-    let model = Model(name: "test")
-
-    let added = expectation(description: "Add document")
-    let docRef = try collection.addDocument(from: model) { error in
-      XCTAssertNil(error)
-      added.fulfill()
-    }
-    awaitExpectations()
-
-    let result = try readDocument(forRef: docRef).data(as: Model.self)
-    XCTAssertEqual(model, result)
   }
 }

@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
+#include <memory>
+
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::util::DelayedConstructor;
+
 @implementation FSTListenerRegistration {
-  std::unique_ptr<api::ListenerRegistration> _registration;
+  DelayedConstructor<api::ListenerRegistration> _registration;
 }
 
-- (instancetype)initWithRegistration:(std::unique_ptr<api::ListenerRegistration>)registration {
+- (instancetype)initWithRegistration:(api::ListenerRegistration &&)registration {
   if (self = [super init]) {
-    _registration = std::move(registration);
+    _registration.Init(std::move(registration));
   }
   return self;
 }

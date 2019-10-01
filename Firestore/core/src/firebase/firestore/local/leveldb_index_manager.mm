@@ -20,11 +20,14 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
+
+#import "Firestore/Source/Local/FSTLevelDB.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -32,7 +35,7 @@ namespace local {
 
 using model::ResourcePath;
 
-LevelDbIndexManager::LevelDbIndexManager(LevelDbPersistence* db) : db_(db) {
+LevelDbIndexManager::LevelDbIndexManager(FSTLevelDB* db) : db_(db) {
 }
 
 void LevelDbIndexManager::AddToCollectionParentIndex(
@@ -46,7 +49,7 @@ void LevelDbIndexManager::AddToCollectionParentIndex(
     std::string key =
         LevelDbCollectionParentKey::Key(collection_id, parent_path);
     std::string empty_buffer;
-    db_->current_transaction()->Put(key, empty_buffer);
+    db_.currentTransaction->Put(key, empty_buffer);
   }
 }
 
@@ -54,7 +57,7 @@ std::vector<ResourcePath> LevelDbIndexManager::GetCollectionParents(
     const std::string& collection_id) {
   std::vector<ResourcePath> results;
 
-  auto index_iterator = db_->current_transaction()->NewIterator();
+  auto index_iterator = db_.currentTransaction->NewIterator();
   std::string index_prefix =
       LevelDbCollectionParentKey::KeyPrefix(collection_id);
   LevelDbCollectionParentKey row_key;
@@ -74,3 +77,5 @@ std::vector<ResourcePath> LevelDbIndexManager::GetCollectionParents(
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END

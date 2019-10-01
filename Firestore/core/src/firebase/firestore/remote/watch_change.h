@@ -17,13 +17,20 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_CHANGE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_CHANGE_H_
 
+#if !defined(__OBJC__)
+// TODO(varconst): the only dependency is `NSData`
+// (used to represent the resume token).
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
+#import <Foundation/Foundation.h>
+
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -141,31 +148,30 @@ class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids)
-      : WatchTargetChange{state, std::move(target_ids), nanopb::ByteString(),
+      : WatchTargetChange{state, std::move(target_ids), [NSData data],
                           util::Status::OK()} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
-                    nanopb::ByteString resume_token)
-      : WatchTargetChange{state, std::move(target_ids), std::move(resume_token),
+                    NSData* resume_token)
+      : WatchTargetChange{state, std::move(target_ids), resume_token,
                           util::Status::OK()} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
                     util::Status cause)
-      : WatchTargetChange{state, std::move(target_ids), nanopb::ByteString(),
-                          cause} {
+      : WatchTargetChange{state, std::move(target_ids), [NSData data], cause} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
-                    nanopb::ByteString resume_token,
+                    NSData* resume_token,
                     util::Status cause)
       : state_{state},
         target_ids_{std::move(target_ids)},
-        resume_token_{std::move(resume_token)},
+        resume_token_{resume_token},
         cause_{std::move(cause)} {
   }
 
@@ -189,7 +195,7 @@ class WatchTargetChange : public WatchChange {
    * matches the query. The resume token essentially identifies a point in
    * time from which the server should resume sending results.
    */
-  const nanopb::ByteString& resume_token() const {
+  NSData* resume_token() const {
     return resume_token_;
   }
 
@@ -204,7 +210,7 @@ class WatchTargetChange : public WatchChange {
  private:
   WatchTargetChangeState state_;
   std::vector<model::TargetId> target_ids_;
-  nanopb::ByteString resume_token_;
+  NSData* resume_token_;
   util::Status cause_;
 };
 

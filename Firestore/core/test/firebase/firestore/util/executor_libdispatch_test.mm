@@ -19,16 +19,14 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace {
 
-using testutil::Expectation;
+namespace {
 
 std::unique_ptr<Executor> ExecutorFactory() {
   return absl::make_unique<ExecutorLibdispatch>(
@@ -44,8 +42,8 @@ INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
                         ::testing::Values(ExecutorFactory));
 
 namespace internal {
-class ExecutorLibdispatchOnlyTests : public ::testing::Test,
-                                     public testutil::AsyncTest {
+class ExecutorLibdispatchOnlyTests : public TestWithTimeoutMixin,
+                                     public ::testing::Test {
  public:
   ExecutorLibdispatchOnlyTests() : executor{ExecutorFactory()} {
   }
@@ -54,24 +52,22 @@ class ExecutorLibdispatchOnlyTests : public ::testing::Test,
 };
 
 TEST_F(ExecutorLibdispatchOnlyTests, NameReturnsLabelOfTheQueue) {
-  Expectation ran;
   EXPECT_EQ(executor->Name(), "ExecutorLibdispatchTests");
   executor->Execute([&] {
     EXPECT_EQ(executor->CurrentExecutorName(), "ExecutorLibdispatchTests");
-    ran.Fulfill();
+    signal_finished();
   });
-  Await(ran);
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests,
        ExecuteBlockingOnTheCurrentQueueIsNotAllowed) {
-  Expectation ran;
   EXPECT_NO_THROW(executor->ExecuteBlocking([] {}));
   executor->Execute([&] {
     EXPECT_ANY_THROW(executor->ExecuteBlocking([] {}));
-    ran.Fulfill();
+    signal_finished();
   });
-  Await(ran);
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {

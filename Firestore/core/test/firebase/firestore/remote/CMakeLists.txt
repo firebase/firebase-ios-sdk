@@ -28,6 +28,5 @@ cc_test(
     firebase_firestore_core
     firebase_firestore_remote
     firebase_firestore_remote_test_util
-    firebase_firestore_testutil
     firebase_firestore_util_async_std
 )

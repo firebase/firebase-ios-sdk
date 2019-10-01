@@ -16,15 +16,12 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
+
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
-#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
-
 NS_ASSUME_NONNULL_BEGIN
-
-using firebase::firestore::local::Persistence;
 
 /**
  * An implementation of FSTSpecTests that uses the memory-only implementation of local storage.
@@ -37,7 +34,7 @@ using firebase::firestore::local::Persistence;
 @implementation FSTMemorySpecTests
 
 /** Overrides -[FSTSpecTests persistence] */
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   if (GCEnabled) {
     return [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   } else {

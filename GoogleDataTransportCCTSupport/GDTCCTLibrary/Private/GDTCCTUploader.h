@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORUploader.h>
+#import <GoogleDataTransport/GDTUploader.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Class capable of uploading events to the CCT backend. */
-@interface GDTCCTUploader : NSObject <GDTCORUploader>
+@interface GDTCCTUploader : NSObject <GDTUploader>
 
 /** The queue on which all CCT uploading will occur. */
 @property(nonatomic, readonly) dispatch_queue_t uploaderQueue;
@@ -36,10 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
 
 /** Current upload package. */
-@property(nullable, nonatomic) GDTCORUploadPackage *currentUploadPackage;
+@property(nullable, nonatomic) GDTUploadPackage *currentUploadPackage;
 
 /** The next upload time. */
-@property(nullable, nonatomic) GDTCORClock *nextUploadTime;
+@property(nullable, nonatomic) GDTClock *nextUploadTime;
 
 /** Creates and/or returns the singleton instance of this class.
  *

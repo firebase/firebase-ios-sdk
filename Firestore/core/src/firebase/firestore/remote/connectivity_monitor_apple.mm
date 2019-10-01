@@ -24,6 +24,7 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
@@ -36,6 +37,7 @@ namespace {
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
+using util::ExecutorLibdispatch;
 
 NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
   if (!(flags & kSCNetworkReachabilityFlagsReachable)) {
@@ -122,7 +124,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   }
 
   void OnReachabilityChanged(SCNetworkReachabilityFlags flags) {
-    queue()->Enqueue(
+    queue()->ExecuteBlocking(
         [this, flags] { MaybeInvokeCallbacks(ToNetworkStatus(flags)); });
   }
 

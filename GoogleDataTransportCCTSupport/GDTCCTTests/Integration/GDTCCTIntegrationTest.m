@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTEventDataObject.h>
+#import <GoogleDataTransport/GDTTransport.h>
 
 #import <SystemConfiguration/SCNetworkReachability.h>
 
@@ -27,7 +27,7 @@
 
 typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 
-@interface GDTCCTTestDataObject : NSObject <GDTCOREventDataObject>
+@interface GDTCCTTestDataObject : NSObject <GDTEventDataObject>
 
 @end
 
@@ -55,7 +55,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 @property(nonatomic) BOOL generateEvents;
 
 /** The transporter used by the test. */
-@property(nonatomic) GDTCORTransport *transport;
+@property(nonatomic) GDTTransport *transport;
 
 @end
 
@@ -70,15 +70,15 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   if (success) {
     self.okToRunTest =
         (flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
-    self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
-                                                   transformers:nil
-                                                         target:kGDTCORTargetCCT];
+    self.transport = [[GDTTransport alloc] initWithMappingID:@"1018"
+                                                transformers:nil
+                                                      target:kGDTTargetCCT];
   }
 }
 
 /** Generates an event and sends it through the transport infrastructure. */
 - (void)generateEvent {
-  GDTCOREvent *event = [self.transport eventForTransport];
+  GDTEvent *event = [self.transport eventForTransport];
   event.dataObject = [[GDTCCTTestDataObject alloc] init];
   [self.transport sendDataEvent:event];
 }
@@ -86,7 +86,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 /** Generates events recursively at random intervals between 0 and 5 seconds. */
 - (void)recursivelyGenerateEvent {
   if (self.generateEvents) {
-    GDTCOREvent *event = [self.transport eventForTransport];
+    GDTEvent *event = [self.transport eventForTransport];
     event.dataObject = [[GDTCCTTestDataObject alloc] init];
     [self.transport sendDataEvent:event];
     dispatch_after(
@@ -142,9 +142,9 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
           })];
 
   // Send a high priority event to flush events.
-  GDTCOREvent *event = [self.transport eventForTransport];
+  GDTEvent *event = [self.transport eventForTransport];
   event.dataObject = [[GDTCCTTestDataObject alloc] init];
-  event.qosTier = GDTCOREventQoSFast;
+  event.qosTier = GDTEventQoSFast;
   [self.transport sendDataEvent:event];
 
   [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:25.0];

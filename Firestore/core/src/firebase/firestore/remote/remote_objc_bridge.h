@@ -28,16 +28,15 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-#include "absl/types/optional.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/byte_buffer.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
@@ -68,7 +67,7 @@ class WatchStreamSerializer {
       : serializer_{serializer} {
   }
 
-  GCFSListenRequest* CreateWatchRequest(const local::QueryData& query) const;
+  GCFSListenRequest* CreateWatchRequest(FSTQueryData* query) const;
   GCFSListenRequest* CreateUnwatchRequest(model::TargetId target_id) const;
   static grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request);
 
@@ -101,10 +100,10 @@ class WriteStreamSerializer {
   }
 
   void UpdateLastStreamToken(GCFSWriteResponse* proto);
-  void SetLastStreamToken(const nanopb::ByteString& token) {
+  void SetLastStreamToken(NSData* token) {
     last_stream_token_ = token;
   }
-  nanopb::ByteString GetLastStreamToken() const {
+  NSData* GetLastStreamToken() const {
     return last_stream_token_;
   }
 
@@ -133,7 +132,7 @@ class WriteStreamSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
-  nanopb::ByteString last_stream_token_;
+  NSData* last_stream_token_;
 };
 
 /**

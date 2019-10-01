@@ -16,17 +16,15 @@
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::local::Persistence;
-
 /**
  * The tests for FSTLevelDBLocalStore are performed on the FSTLocalStore protocol in
- * FSTLocalStoreTests. This class is merely responsible for creating a new Persistence
+ * FSTLocalStoreTests. This class is merely responsible for creating a new FSTPersistence
  * implementation on demand.
  */
 @interface FSTLevelDBLocalStoreTests : FSTLocalStoreTests
@@ -34,7 +32,7 @@ using firebase::firestore::local::Persistence;
 
 @implementation FSTLevelDBLocalStoreTests
 
-- (std::unique_ptr<Persistence>)persistence {
+- (id<FSTPersistence>)persistence {
   return [FSTPersistenceTestHelpers levelDBPersistence];
 }
 

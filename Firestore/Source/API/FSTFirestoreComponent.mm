@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
     [_instances removeAllObjects];
   }
   for (NSString *key in instances) {
-    [instances[key] terminateInternalWithCompletion:nil];
+    [instances[key] shutdownInternalWithCompletion:nil];
   }
 }
 

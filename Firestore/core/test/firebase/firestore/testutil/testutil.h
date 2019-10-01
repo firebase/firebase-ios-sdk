@@ -66,11 +66,6 @@ constexpr const char* kDeleteSentinel = "<DELETE>";
 
 // Convenience methods for creating instances for tests.
 
-template <typename... Ints>
-nanopb::ByteString Bytes(Ints... octets) {
-  return nanopb::ByteString{static_cast<uint8_t>(octets)...};
-}
-
 inline model::FieldValue Value(std::nullptr_t) {
   return model::FieldValue::Null();
 }
@@ -112,7 +107,7 @@ EnableForExactlyBool<T, model::FieldValue> Value(T bool_value) {
  *
  * @tparam T Any integral type (but not bool). Types larger than int64_t will
  *     likely generate a warning.
- * @param value An integer value.
+ * @param int_value An integer value.
  */
 template <typename T>
 EnableForInts<T, model::FieldValue> Value(T value) {
@@ -322,7 +317,7 @@ inline model::UnknownDocument UnknownDoc(absl::string_view key,
 #if __APPLE__
 
 /**
- * Creates a DocumentComparator that will compare Documents by the given
+ * Creates an DocumentComparator that will compare Documents by the given
  * fieldPath string then by key.
  */
 model::DocumentComparator DocComparator(absl::string_view field_path);

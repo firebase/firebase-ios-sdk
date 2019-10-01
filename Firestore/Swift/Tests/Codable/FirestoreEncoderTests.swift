@@ -19,6 +19,49 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import XCTest
 
+private func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
+  let enc = assertEncodes(model, to: encoded)
+  assertDecodes(enc, to: model)
+}
+
+private func assertEncodes<X: Equatable & Codable>(_ model: X, to expected: [String: Any]) -> [String: Any] {
+  do {
+    let enc = try Firestore.Encoder().encode(model)
+    XCTAssertEqual(enc as NSDictionary, expected as NSDictionary)
+    return enc
+  } catch {
+    XCTFail("Failed to encode \(X.self): error: \(error)")
+  }
+  return ["": -1]
+}
+
+private func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], to expected: X) -> Void {
+  do {
+    let decoded = try Firestore.Decoder().decode(X.self, from: model)
+    XCTAssertEqual(decoded, expected)
+  } catch {
+    XCTFail("Failed to decode \(X.self): \(error)")
+  }
+}
+
+private func assertEncodingThrows<X: Equatable & Codable>(_ model: X) -> Void {
+  do {
+    _ = try Firestore.Encoder().encode(model)
+  } catch {
+    return
+  }
+  XCTFail("Failed to throw")
+}
+
+private func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+  do {
+    _ = try Firestore.Decoder().decode(X.self, from: model)
+  } catch {
+    return
+  }
+  XCTFail("Failed to throw")
+}
+
 class FirestoreEncoderTests: XCTestCase {
   func testInt() {
     struct Model: Codable, Equatable {
@@ -26,19 +69,21 @@ class FirestoreEncoderTests: XCTestCase {
     }
     let model = Model(x: 42)
     let dict = ["x": 42]
-    assertThat(model).roundTrips(to: dict)
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   func testEmpty() {
     struct Model: Codable, Equatable {}
-    assertThat(Model()).roundTrips(to: [String: Any]())
+    _ = assertEncodes(Model(), to: [String: Any]())
   }
 
-  func testString() throws {
+  func testString() {
     struct Model: Codable, Equatable {
       let s: String
     }
-    assertThat(Model(s: "abc")).roundTrips(to: ["s": "abc"])
+    let model = Model(s: "abc")
+    let encodedDict = try! Firestore.Encoder().encode(model)
+    XCTAssertEqual(encodedDict["s"] as! String, "abc")
   }
 
   func testOptional() {
@@ -46,13 +91,13 @@ class FirestoreEncoderTests: XCTestCase {
       let x: Int
       let opt: Int?
     }
-    assertThat(Model(x: 42, opt: nil)).roundTrips(to: ["x": 42])
-    assertThat(Model(x: 42, opt: 7)).roundTrips(to: ["x": 42, "opt": 7])
-    assertThat(["x": 42, "opt": 5]).decodes(to: Model(x: 42, opt: 5))
-    assertThat(["x": 42, "opt": true]).failsDecoding(to: Model.self)
-    assertThat(["x": 42, "opt": "abc"]).failsDecoding(to: Model.self)
-    assertThat(["x": 45.55, "opt": 5]).failsDecoding(to: Model.self)
-    assertThat(["opt": 5]).failsDecoding(to: Model.self)
+    assertRoundTrip(model: Model(x: 42, opt: nil), encoded: ["x": 42])
+    assertRoundTrip(model: Model(x: 42, opt: 7), encoded: ["x": 42, "opt": 7])
+    assertDecodes(["x": 42, "opt": 5], to: Model(x: 42, opt: 5))
+    assertDecodingThrows(["x": 42, "opt": true], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["x": 42, "opt": "abc"], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["x": 45.55, "opt": 5], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["opt": 5], encoded: Model(x: 42, opt: nil))
 
     // TODO: - handle encoding keys with nil values
     // See https://stackoverflow.com/questions/47266862/encode-nil-value-as-null-with-jsonencoder
@@ -110,15 +155,13 @@ class FirestoreEncoderTests: XCTestCase {
       let e: MyEnum
     }
 
-    assertThat(Model(x: 42, e: MyEnum.num(number: 4)))
-      .roundTrips(to: ["x": 42, "e": ["num": 4]])
-
-    assertThat(Model(x: 43, e: MyEnum.text("abc")))
-      .roundTrips(to: ["x": 43, "e": ["text": "abc"]])
-
+    let model = Model(x: 42, e: MyEnum.num(number: 4))
+    assertRoundTrip(model: model, encoded: ["x": 42, "e": ["num": 4]])
+    let model2 = Model(x: 43, e: MyEnum.text("abc"))
+    assertRoundTrip(model: model2, encoded: ["x": 43, "e": ["text": "abc"]])
     let timestamp = Timestamp(date: Date())
-    assertThat(Model(x: 43, e: MyEnum.timestamp(timestamp)))
-      .roundTrips(to: ["x": 43, "e": ["timestamp": timestamp]])
+    let model3 = Model(x: 43, e: MyEnum.timestamp(timestamp))
+    assertRoundTrip(model: model3, encoded: ["x": 43, "e": ["timestamp": timestamp]])
   }
 
   func testGeoPoint() {
@@ -126,7 +169,8 @@ class FirestoreEncoderTests: XCTestCase {
       let p: GeoPoint
     }
     let geopoint = GeoPoint(latitude: 1, longitude: -2)
-    assertThat(Model(p: geopoint)).roundTrips(to: ["p": geopoint])
+    let model = Model(p: geopoint)
+    assertRoundTrip(model: model, encoded: ["p": geopoint])
   }
 
   func testDate() {
@@ -134,7 +178,8 @@ class FirestoreEncoderTests: XCTestCase {
       let date: Date
     }
     let date = Date(timeIntervalSinceReferenceDate: 0)
-    assertThat(Model(date: date)).roundTrips(to: ["date": date])
+    let model = Model(date: date)
+    assertRoundTrip(model: model, encoded: ["date": date])
   }
 
   func testTimestampCanDecodeAsDate() {
@@ -144,12 +189,12 @@ class FirestoreEncoderTests: XCTestCase {
     struct DecodingModel: Codable, Equatable {
       let date: Date
     }
-
     let date = Date(timeIntervalSinceReferenceDate: 0)
     let timestamp = Timestamp(date: date)
-    assertThat(EncodingModel(date: timestamp))
-      .encodes(to: ["date": timestamp])
-      .decodes(to: DecodingModel(date: date))
+    let model = EncodingModel(date: timestamp)
+    let decoded = DecodingModel(date: date)
+    let encoded = assertEncodes(model, to: ["date": timestamp])
+    assertDecodes(encoded, to: decoded)
   }
 
   func testDocumentReference() {
@@ -157,15 +202,32 @@ class FirestoreEncoderTests: XCTestCase {
       let doc: DocumentReference
     }
     let d = FSTTestDocRef("abc/xyz")
-    assertThat(Model(doc: d)).roundTrips(to: ["doc": d])
+    let model = Model(doc: d)
+    assertRoundTrip(model: model, encoded: ["doc": d])
   }
 
   func testEncodingDocumentReferenceThrowsWithJSONEncoder() {
-    assertThat(FSTTestDocRef("abc/xyz")).failsEncodingWithJSONEncoder()
+    let doc = FSTTestDocRef("abc/xyz")
+    do {
+      _ = try JSONEncoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
   }
 
   func testEncodingDocumentReferenceNotEmbeddedThrows() {
-    assertThat(FSTTestDocRef("abc/xyz")).failsEncodingAtTopLevel()
+    let doc = FSTTestDocRef("abc/xyz")
+    do {
+      _ = try Firestore.Encoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
   }
 
   func testTimestamp() {
@@ -173,22 +235,27 @@ class FirestoreEncoderTests: XCTestCase {
       let timestamp: Timestamp
     }
     let t = Timestamp(date: Date())
-    assertThat(Model(timestamp: t)).roundTrips(to: ["timestamp": t])
+    let model = Model(timestamp: t)
+    assertRoundTrip(model: model, encoded: ["timestamp": t])
   }
 
   func testBadValue() {
     struct Model: Codable, Equatable {
       let x: Int
     }
-    assertThat(["x": "abc"]).failsDecoding(to: Model.self) // Wrong type
+    let dict = ["x": "abc"] // Wrong type;
+    let model = Model(x: 42)
+    assertDecodingThrows(dict, encoded: model)
   }
 
   func testValueTooBig() {
     struct Model: Codable, Equatable {
       let x: CChar
     }
-    assertThat(Model(x: 42)).roundTrips(to: ["x": 42])
-    assertThat(["x": 12345]).failsDecoding(to: Model.self) // Overflow
+    let dict = ["x": 12345] // Overflow
+    let model = Model(x: 42)
+    assertDecodingThrows(dict, encoded: model)
+    assertRoundTrip(model: model, encoded: ["x": 42])
   }
 
   // Inspired by https://github.com/firebase/firebase-android-sdk/blob/master/firebase-firestore/src/test/java/com/google/firebase/firestore/util/MapperTest.java
@@ -242,26 +309,59 @@ class FirestoreEncoderTests: XCTestCase {
       "casESensitivE": "ccc",
     ] as [String: Any]
 
-    assertThat(model).roundTrips(to: dict)
+    assertRoundTrip(model: model, encoded: dict)
   }
 
-  func testCodingKeysCanCustomizeEncodingAndDecoding() throws {
+  func testCodingKeysCanCustomizeEncodingAndDecoding() {
     struct Model: Codable, Equatable {
       var s: String
-      var ms: String = "filler"
+      var ms: String
       var d: Double
-      var md: Double = 42.42
+      var md: Double
 
       // Use CodingKeys to only encode part of the struct.
       enum CodingKeys: String, CodingKey {
         case s
         case d
       }
-    }
 
-    assertThat(Model(s: "abc", ms: "dummy", d: 123.3, md: 0))
-      .encodes(to: ["s": "abc", "d": 123.3])
-      .decodes(to: Model(s: "abc", ms: "filler", d: 123.3, md: 42.42))
+      public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        s = try values.decode(String.self, forKey: .s)
+        d = try values.decode(Double.self, forKey: .d)
+        ms = "filler"
+        md = 42.42
+      }
+
+      public init(ins: String, inms: String, ind: Double, inmd: Double) {
+        s = ins
+        d = ind
+        ms = inms
+        md = inmd
+      }
+    }
+    let model = Model(
+      ins: "abc",
+      inms: "dummy",
+      ind: 123.3,
+      inmd: 0
+    )
+    let dict = [
+      "s": "abc",
+      "d": 123.3,
+    ] as [String: Any]
+
+    let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
+    XCTAssertEqual(model.s, model2.s)
+    XCTAssertEqual(model.d, model2.d)
+    XCTAssertEqual(model2.ms, "filler")
+    XCTAssertEqual(model2.md, 42.42)
+
+    let encodedDict = try! Firestore.Encoder().encode(model)
+    XCTAssertEqual(encodedDict["s"] as! String, "abc")
+    XCTAssertEqual(encodedDict["d"] as! Double, 123.3)
+    XCTAssertNil(encodedDict["ms"])
+    XCTAssertNil(encodedDict["md"])
   }
 
   func testNestedObjects() {
@@ -280,51 +380,35 @@ class FirestoreEncoderTests: XCTestCase {
       var group: NestedModel
     }
 
-    let model = Model(
-      id: 123,
-      group: NestedModel(
-        group: "g1",
-        groupList: [
-          SecondLevelNestedModel(age: 20, weight: 80.1),
-          SecondLevelNestedModel(age: 25, weight: 85.1),
-        ],
-        groupMap: [
-          "name1": SecondLevelNestedModel(age: 30, weight: 64.2),
-          "name2": SecondLevelNestedModel(age: 35, weight: 79.2),
-        ],
-        point: GeoPoint(latitude: 12.0, longitude: 9.1)
-      )
-    )
+    let model = Model(id: 123, group: NestedModel(group: "g1", groupList: [SecondLevelNestedModel(age: 20, weight: 80.1), SecondLevelNestedModel(age: 25, weight: 85.1)], groupMap: ["name1": SecondLevelNestedModel(age: 30, weight: 64.2), "name2": SecondLevelNestedModel(age: 35, weight: 79.2)],
+                                                  point: GeoPoint(latitude: 12.0, longitude: 9.1)))
 
-    let dict = [
-      "group": [
-        "group": "g1",
-        "point": GeoPoint(latitude: 12.0, longitude: 9.1),
-        "groupList": [
-          [
-            "age": 20,
-            "weight": 80.1,
-          ],
-          [
-            "age": 25,
-            "weight": 85.1,
-          ],
+    let dict = ["group": [
+      "group": "g1",
+      "point": GeoPoint(latitude: 12.0, longitude: 9.1),
+      "groupList": [
+        [
+          "age": 20,
+          "weight": 80.1,
         ],
-        "groupMap": [
-          "name1": [
-            "age": 30,
-            "weight": 64.2,
-          ],
-          "name2": [
-            "age": 35,
-            "weight": 79.2,
-          ],
+        [
+          "age": 25,
+          "weight": 85.1,
         ],
       ],
-      "id": 123,
-    ] as [String: Any]
+      "groupMap": [
+        "name1": [
+          "age": 30,
+          "weight": 64.2,
+        ],
+        "name2": [
+          "age": 35,
+          "weight": 79.2,
+        ],
+      ],
+    ], "id": 123] as [String: Any]
 
-    assertThat(model).roundTrips(to: dict)
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   func testCollapsingNestedObjects() {
@@ -363,11 +447,11 @@ class FirestoreEncoderTests: XCTestCase {
       }
     }
 
-    assertThat(Model(id: 12345, name: "ModelName"))
-      .roundTrips(to: [
-        "id": 12345,
-        "nested": ["name": "ModelName"],
-      ])
+    let model = Model(id: 12345, name: "ModelName")
+    let dict = ["id": 12345,
+                "nested": ["name": "ModelName"]] as [String: Any]
+
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   class SuperModel: Codable, Equatable {
@@ -431,51 +515,70 @@ class FirestoreEncoderTests: XCTestCase {
   }
 
   func testClassHierarchy() {
-    assertThat(SubModel(power: 100, name: "name", seconds: 123_456_789, nano: 654_321))
-      .roundTrips(to: [
-        "super": ["superPower": 100, "superName": "name"],
-        "timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 654_321),
-      ])
+    let model = SubModel(power: 100, name: "name", seconds: 123_456_789, nano: 654_321)
+    let dict = ["super": ["superPower": 100, "superName": "name"],
+                "timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 654_321)] as [String: Any]
+
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   func testEncodingEncodableArrayNotSupported() {
     struct Model: Codable, Equatable {
       var name: String
     }
-    assertThat([Model(name: "1")]).failsToEncode()
+    assertEncodingThrows([Model(name: "1")])
   }
 
-  func testFieldValuePassthrough() throws {
+  func testFieldValuePassthrough() {
     struct Model: Encodable, Equatable {
       var fieldValue: FieldValue
     }
-    assertThat(Model(fieldValue: FieldValue.delete()))
-      .encodes(to: ["fieldValue": FieldValue.delete()])
+
+    let model = Model(fieldValue: FieldValue.delete())
+    let dict = ["fieldValue": FieldValue.delete()]
+
+    let encoded = try! Firestore.Encoder().encode(model)
+
+    XCTAssertEqual(dict, encoded as! [String: FieldValue])
   }
 
   func testEncodingFieldValueNotEmbeddedThrows() {
     let ts = FieldValue.serverTimestamp()
-    assertThat(ts).failsEncodingAtTopLevel()
+    do {
+      _ = try Firestore.Encoder().encode(ts)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
   }
 
-  func testServerTimestamp() throws {
-    struct Model: Codable, Equatable {
+  func testServerTimestamp() {
+    struct Model: Codable {
       var timestamp: ServerTimestamp
     }
 
-    // Encoding a pending server timestamp
-    assertThat(Model(timestamp: .pending))
-      .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
+    // Encoding `pending`
+    var encoded = try! Firestore.Encoder().encode(Model(timestamp: .pending))
+    XCTAssertEqual(encoded["timestamp"] as! FieldValue, FieldValue.serverTimestamp())
 
-    // Encoding a resolved server timestamp yields a timestamp; decoding yields
-    // it back.
-    let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 4321)
-    assertThat(Model(timestamp: .resolved(timestamp)))
-      .roundTrips(to: ["timestamp": timestamp])
+    // Encoding `resolved`
+    encoded = try! Firestore.Encoder().encode(Model(timestamp: .resolved(Timestamp(seconds: 123_456_789, nanoseconds: 4321))))
+    XCTAssertEqual(encoded["timestamp"] as! Timestamp,
+                   Timestamp(seconds: 123_456_789, nanoseconds: 4321))
 
-    // Decoding a NSNull() leads to nil.
-    assertThat(["timestamp": NSNull()])
-      .decodes(to: Model(timestamp: .pending))
+    // Decoding a Timestamp leads to `resolved`
+    var dict = ["timestamp": Timestamp(seconds: 123_456_789, nanoseconds: 4321)] as [String: Any]
+    var decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    XCTAssertEqual(decoded.timestamp,
+                   ServerTimestamp.resolved(Timestamp(seconds: 123_456_789, nanoseconds: 4321)))
+
+    // Decoding a NSNull() leads to `pending`.
+    dict = ["timestamp": NSNull()] as [String: Any]
+    decoded = try! Firestore.Decoder().decode(Model.self, from: dict)
+    XCTAssertEqual(decoded.timestamp,
+                   ServerTimestamp.pending)
   }
 
   func testExplicitNull() throws {
@@ -483,168 +586,23 @@ class FirestoreEncoderTests: XCTestCase {
       var name: ExplicitNull<String>
     }
 
-    assertThat(Model(name: .none))
-      .roundTrips(to: ["name": NSNull()])
+    // Encoding 'none'
+    let fieldIsNull = Model(name: .none)
+    var encoded = try Firestore.Encoder().encode(fieldIsNull)
+    XCTAssertTrue(encoded.keys.contains("name"))
+    XCTAssertEqual(encoded["name"]! as! NSNull, NSNull())
 
-    assertThat(Model(name: .some("good name")))
-      .roundTrips(to: ["name": "good name"])
-  }
+    // Decoding null
+    var decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    XCTAssertEqual(decoded, fieldIsNull)
 
-  func testAutomaticallyPopulatesSelfDocumentIDField() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(["name": "abc"], in: "abc/123")
-      .decodes(to: Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-  }
+    // Encoding 'some'
+    let fieldIsNotNull = Model(name: .some("good name"))
+    encoded = try Firestore.Encoder().encode(fieldIsNotNull)
+    XCTAssertEqual(encoded["name"]! as! String, "good name")
 
-  func testSelfDocumentIDIgnoredInEncoding() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-      .encodes(to: ["name": "abc"])
-  }
-
-  func testEncodingSelfDocumentIDNotEmbeddedThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingAtTopLevel()
-  }
-
-  func testSelfDocumentIDWithJsonEncoderThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingWithJSONEncoder()
-  }
-
-  func testDecodingSelfDocumentIDWithConfictingFieldsThrows() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-
-    do {
-      _ = try Firestore.Decoder().decode(
-        Model.self,
-        from: ["name": "abc", "docId": "Causing conflict"],
-        in: FSTTestDocRef("abc/123")
-      )
-      XCTFail("Failed to throw")
-    } catch let FirestoreDecodingError.fieldNameConfict(msg) {
-      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
-        + "cannot assign the document reference to this field.")
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)")
-    }
-  }
-}
-
-private func assertThat(_ dictionary: [String: Any], in document: String? = nil, file: StaticString = #file, line: UInt = #line) -> DictionarySubject {
-  return DictionarySubject(dictionary, in: document, file: file, line: line)
-}
-
-private func assertThat<X: Equatable & Codable>(_ model: X, file: StaticString = #file, line: UInt = #line) -> CodableSubject<X> {
-  return CodableSubject(model, file: file, line: line)
-}
-
-private func assertThat<X: Equatable & Encodable>(_ model: X, file: StaticString = #file, line: UInt = #line) -> EncodableSubject<X> {
-  return EncodableSubject(model, file: file, line: line)
-}
-
-private class EncodableSubject<X: Equatable & Encodable> {
-  var subject: X
-  var file: StaticString
-  var line: UInt
-
-  init(_ subject: X, file: StaticString, line: UInt) {
-    self.subject = subject
-    self.file = file
-    self.line = line
-  }
-
-  @discardableResult
-  func encodes(to expected: [String: Any]) -> DictionarySubject {
-    let encoded = assertEncodes(to: expected)
-    return DictionarySubject(encoded, file: file, line: line)
-  }
-
-  func failsToEncode() {
-    do {
-      _ = try Firestore.Encoder().encode(subject)
-    } catch {
-      return
-    }
-    XCTFail("Failed to throw")
-  }
-
-  func failsEncodingWithJSONEncoder() {
-    do {
-      _ = try JSONEncoder().encode(subject)
-      XCTFail("Failed to throw", file: file, line: line)
-    } catch FirestoreEncodingError.encodingIsNotSupported {
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)", file: file, line: line)
-    }
-  }
-
-  func failsEncodingAtTopLevel() {
-    do {
-      _ = try Firestore.Encoder().encode(subject)
-      XCTFail("Failed to throw", file: file, line: line)
-    } catch EncodingError.invalidValue(_, _) {
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)", file: file, line: line)
-    }
-  }
-
-  private func assertEncodes(to expected: [String: Any]) -> [String: Any] {
-    do {
-      let enc = try Firestore.Encoder().encode(subject)
-      XCTAssertEqual(enc as NSDictionary, expected as NSDictionary, file: file, line: line)
-      return enc
-    } catch {
-      XCTFail("Failed to encode \(X.self): error: \(error)")
-      return ["": -1]
-    }
-  }
-}
-
-private class CodableSubject<X: Equatable & Codable>: EncodableSubject<X> {
-  func roundTrips(to expected: [String: Any]) {
-    let reverseSubject = encodes(to: expected)
-    reverseSubject.decodes(to: subject)
-  }
-}
-
-private class DictionarySubject {
-  var subject: [String: Any]
-  var document: DocumentReference?
-  var file: StaticString
-  var line: UInt
-
-  init(_ subject: [String: Any], in documentName: String? = nil, file: StaticString, line: UInt) {
-    self.subject = subject
-    if let documentName = documentName {
-      document = FSTTestDocRef(documentName)
-    }
-    self.file = file
-    self.line = line
-  }
-
-  func decodes<X: Equatable & Codable>(to expected: X) -> Void {
-    do {
-      let decoded = try Firestore.Decoder().decode(X.self, from: subject, in: document)
-      XCTAssertEqual(decoded, expected)
-    } catch {
-      XCTFail("Failed to decode \(X.self): \(error)", file: file, line: line)
-    }
-  }
-
-  func failsDecoding<X: Equatable & Codable>(to _: X.Type) -> Void {
-    XCTAssertThrowsError(try Firestore.Decoder().decode(X.self, from: subject), file: file, line: line)
+    // Decoding not-null value
+    decoded = try Firestore.Decoder().decode(Model.self, from: encoded)
+    XCTAssertEqual(decoded, fieldIsNotNull)
   }
 }

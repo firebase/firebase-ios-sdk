@@ -41,7 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
 
@@ -125,8 +125,8 @@ class Serializer {
   /**
    * @brief Converts the FieldValue model passed into bytes.
    */
-  google_firestore_v1_Value EncodeFieldValue(
-      const model::FieldValue& field_value) const;
+  static google_firestore_v1_Value EncodeFieldValue(
+      const model::FieldValue& field_value);
 
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
@@ -135,21 +135,21 @@ class Serializer {
   // used for is error handling. This seems questionable. We probably need to
   // rework error handling. Again. But we'll defer that for now and continue
   // just passing the reader object.
-  model::FieldValue DecodeFieldValue(
-      nanopb::Reader* reader, const google_firestore_v1_Value& proto) const;
+  static model::FieldValue DecodeFieldValue(
+      nanopb::Reader* reader, const google_firestore_v1_Value& proto);
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
    * databaseId associated with this Serializer and the key path.
    */
-  pb_bytes_array_t* EncodeKey(
+  std::string EncodeKey(
       const firebase::firestore::model::DocumentKey& key) const;
 
   /**
    * Decodes the given document key from a fully qualified name.
    */
   firebase::firestore::model::DocumentKey DecodeKey(
-      nanopb::Reader* reader, const pb_bytes_array_t* name) const;
+      nanopb::Reader* reader, absl::string_view name) const;
 
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
@@ -175,19 +175,10 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_Precondition& precondition);
 
-  static google_firestore_v1_DocumentMask EncodeFieldMask(
+  static google_firestore_v1_DocumentMask EncodeDocumentMask(
       const model::FieldMask& mask);
-  static model::FieldMask DecodeFieldMask(
+  static model::FieldMask DecodeDocumentMask(
       const google_firestore_v1_DocumentMask& mask);
-
-  google_firestore_v1_DocumentTransform_FieldTransform EncodeFieldTransform(
-      const model::FieldTransform& field_transform) const;
-  model::FieldTransform DecodeFieldTransform(
-      nanopb::Reader* reader,
-      const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
-
-  static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
-  static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);
 
   /**
    * @brief Converts the Query into bytes, representing a
@@ -215,30 +206,17 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_Target_QueryTarget& proto);
 
+  static google_type_LatLng EncodeGeoPoint(const GeoPoint& geo_point_value);
   static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
                                  const google_type_LatLng& latlng_proto);
 
-  google_firestore_v1_ArrayValue EncodeArray(
-      const std::vector<model::FieldValue>& array_value) const;
-  std::vector<model::FieldValue> DecodeArray(
+  static google_firestore_v1_ArrayValue EncodeArray(
+      const std::vector<model::FieldValue>& array_value);
+  static std::vector<model::FieldValue> DecodeArray(
       nanopb::Reader* reader,
-      const google_firestore_v1_ArrayValue& array_proto) const;
-
-  google_firestore_v1_MapValue EncodeMapValue(
-      const model::ObjectValue& object_value) const;
+      const google_firestore_v1_ArrayValue& array_proto);
 
  private:
-  google_firestore_v1_Value EncodeNull() const;
-  google_firestore_v1_Value EncodeBoolean(bool value) const;
-  google_firestore_v1_Value EncodeInteger(int64_t value) const;
-  google_firestore_v1_Value EncodeDouble(double value) const;
-  google_firestore_v1_Value EncodeTimestampValue(Timestamp value) const;
-  google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
-  google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
-  google_firestore_v1_Value EncodeReference(
-      const model::FieldValue::Reference& value) const;
-  google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
-
   model::Document DecodeFoundDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
@@ -246,29 +224,7 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
-  pb_bytes_array_t* EncodeQueryPath(const model::ResourcePath& path) const;
-
-  void ValidateDocumentKeyPath(nanopb::Reader* reader,
-                               const model::ResourcePath& resource_name) const;
-  model::DocumentKey DecodeKey(nanopb::Reader* reader,
-                               const model::ResourcePath& resource_name) const;
-
-  model::FieldValue::Map::value_type DecodeFieldsEntry(
-      nanopb::Reader* reader,
-      const google_firestore_v1_Document_FieldsEntry& fields) const;
-  model::FieldValue::Map DecodeFields(
-      nanopb::Reader* reader,
-      size_t count,
-      const google_firestore_v1_Document_FieldsEntry* fields) const;
-
-  model::FieldValue::Map DecodeMapValue(
-      nanopb::Reader* reader,
-      const google_firestore_v1_MapValue& map_value) const;
-
-  model::DatabaseId DecodeDatabaseId(
-      nanopb::Reader* reader, const model::ResourcePath& resource_name) const;
-  model::FieldValue DecodeReference(
-      nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
+  std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
   model::DatabaseId database_id_;
   const std::string database_name_;

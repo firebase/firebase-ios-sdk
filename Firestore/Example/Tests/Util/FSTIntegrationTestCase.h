@@ -55,16 +55,11 @@ extern "C" {
 /** Returns a new Firestore connected to the project with the given projectID. */
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID;
 
-/** Triggers a user change with given user id. */
-- (void)triggerUserChangeWithUid:(NSString *)uid;
-
-/**
- * Returns a new Firestore connected to the project with the given app.
- */
+/** Returns a new Firestore connected to the project with the given app. */
 - (FIRFirestore *)firestoreWithApp:(FIRApp *)app;
 
-/** Synchronously terminates the given firestore. */
-- (void)terminateFirestore:(FIRFirestore *)firestore;
+/** Synchronously shuts down the given firestore. */
+- (void)shutdownFirestore:(FIRFirestore *)firestore;
 
 /** Synchronously deletes the given FIRapp. */
 - (void)deleteApp:(FIRApp *)app;

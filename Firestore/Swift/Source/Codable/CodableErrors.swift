@@ -15,10 +15,9 @@
  */
 
 public enum FirestoreDecodingError: Error {
-  case decodingIsNotSupported(String)
-  case fieldNameConfict(String)
+  case decodingIsNotSupported
 }
 
 public enum FirestoreEncodingError: Error {
-  case encodingIsNotSupported(String)
+  case encodingIsNotSupported
 }
