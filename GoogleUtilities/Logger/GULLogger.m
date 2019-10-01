@@ -163,7 +163,7 @@ void GULLogBasic(GULLoggerLevel level,
 #endif
   NSString *logMsg;
   if (args_ptr == NULL) {
-    logMsg = [message copy];
+    logMsg = message;
   } else {
     logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
   }
