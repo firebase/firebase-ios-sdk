@@ -86,8 +86,8 @@ NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
 
 // Internal class used to associate an initialization priority to a library
 @interface FIRLibraryRegistration : NSObject
-@property (nonatomic, strong) Class<FIRLibrary> library;
-@property (nonatomic, assign) FIRInitializationPriority priority;
+@property(nonatomic, strong) Class<FIRLibrary> library;
+@property(nonatomic, assign) FIRInitializationPriority priority;
 
 - (id)initWithLibrary:(Class<FIRLibrary>)library withPriority:(FIRInitializationPriority)priority;
 
@@ -441,14 +441,15 @@ static NSMutableDictionary *sLibraryVersions;
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
   @synchronized(self) {
-    NSArray<FIRLibraryRegistration *> *sortedRegistration;
-    sortedRegistration = [sRegisteredAsConfigurable sortedArrayUsingComparator:^NSComparisonResult(FIRLibraryRegistration *a, FIRLibraryRegistration *b) {
-      NSNumber *firstPriority = [[NSNumber alloc] initWithLong:a.priority];
-      NSNumber *secondPriority = [[NSNumber alloc] initWithLong:b.priority];
-      return [firstPriority compare: secondPriority];
-    }];
+    NSArray<FIRLibraryRegistration *> *sortedRegistrations =
+        [sRegisteredAsConfigurable sortedArrayUsingComparator:^NSComparisonResult(
+                                       FIRLibraryRegistration *a, FIRLibraryRegistration *b) {
+          NSNumber *firstPriority = [[NSNumber alloc] initWithLong:a.priority];
+          NSNumber *secondPriority = [[NSNumber alloc] initWithLong:b.priority];
+          return [firstPriority compare:secondPriority];
+        }];
 
-    for (FIRLibraryRegistration *registration in sortedRegistration) {
+    for (FIRLibraryRegistration *registration in sortedRegistrations) {
       [registration.library configureWithApp:app];
     }
   }
@@ -517,11 +518,14 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
-    withName:(nonnull NSString *)name
- withVersion:(nonnull NSString *)version {
-  [FIRApp registerInternalLibrary:library withName:name withVersion:version withPriority:FIRInitializationPriorityNormal];
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version {
+  [FIRApp registerInternalLibrary:library
+                         withName:name
+                      withVersion:version
+                     withPriority:FIRInitializationPriorityNormal];
 }
-    
+
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
                        withName:(nonnull NSString *)name
                     withVersion:(nonnull NSString *)version
@@ -544,9 +548,8 @@ static NSMutableDictionary *sLibraryVersions;
       sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
     });
     @synchronized(self) {
-      [sRegisteredAsConfigurable addObject:
-        [[FIRLibraryRegistration alloc] initWithLibrary:library
-                                           withPriority:priority]];
+      [sRegisteredAsConfigurable
+          addObject:[[FIRLibraryRegistration alloc] initWithLibrary:library withPriority:priority]];
     }
   }
   [self registerLibrary:name withVersion:version];

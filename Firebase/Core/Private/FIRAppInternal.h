@@ -141,18 +141,18 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
                     withVersion:(nonnull NSString *)version;
 
 /**
-* Registers a given internal library with the given version number to be reported for
-* analytics.
-*
-* @param library Optional parameter for component registration.
-* @param name Name of the library.
-* @param version Version of the library.
-* @param priority Initialization priority of the library.
-*/
+ * Registers a given internal library with the given version number to be reported for
+ * analytics.
+ *
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ * @param version Version of the library.
+ * @param priority Initialization priority of the library.
+ */
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
-   withName:(nonnull NSString *)name
-withVersion:(nonnull NSString *)version
-                   withPriority:(FIRInitializationPriority) priority;
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version
+                   withPriority:(FIRInitializationPriority)priority;
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.
