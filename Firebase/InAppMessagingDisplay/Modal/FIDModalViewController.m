@@ -116,7 +116,8 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 
   // make the background half transparent
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
-
+  self.messageCardView.layer.cornerRadius = 4;
+  
   // populating values for display elements
 
   self.titleLabel.text = self.modalDisplayMessage.title;
