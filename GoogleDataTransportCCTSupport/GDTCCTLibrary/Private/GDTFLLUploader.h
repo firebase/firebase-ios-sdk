@@ -20,6 +20,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if DEBUG
+extern NSNotificationName const GDTFLLUploadCompleteNotification;
+#endif  // #if DEBUG
+
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTFLLUploader : NSObject <GDTCORUploader>
 
