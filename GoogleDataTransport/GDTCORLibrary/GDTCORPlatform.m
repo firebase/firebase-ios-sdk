@@ -135,7 +135,7 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   BOOL runningInBackground =
       [[self sharedApplicationForBackgroundTask] applicationState] == UIApplicationStateBackground;
   return runningInBackground;
-#elif TARGET_OS_OSX
+#else  // For macoS and Catalyst apps.
   return NO;
 #endif
 }
