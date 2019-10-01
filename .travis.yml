@@ -270,9 +270,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
-      # a single Podfile.
-      osx_image: xcode10.1
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
@@ -403,9 +400,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
-      # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
-      # a single Podfile.
-      osx_image: xcode10.1
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=xcodebuild
       before_install:
@@ -414,9 +408,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-      # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
-      # a single Podfile.
-      osx_image: xcode10.1
       env:
         - PROJECT=Firestore PLATFORM=tvOS METHOD=xcodebuild
       before_install:
@@ -427,9 +418,6 @@ jobs:
     # Firestore sanitizers
 
     - stage:
-      # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
-      # a single Podfile.
-      osx_image: xcode10.1
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
@@ -438,9 +426,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
-      # TODO(paulb777,wilhuff) Replace with a solution that doesn't include multiple platforms in
-      # a single Podfile.
-      osx_image: xcode10.1
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
