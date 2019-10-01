@@ -157,7 +157,6 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                           [eventsUploaded class]);
                 }
 
-                NSLog(@"Notification fired: %ld events", (long)eventsUploaded.integerValue);
                 eventsSent += eventsUploaded.integerValue;
                 if (eventsSent == self.totalEventsGenerated) {
                   [eventCountsMatchExpectation fulfill];
