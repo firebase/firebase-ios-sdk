@@ -107,7 +107,6 @@ target 'Firestore_Example_iOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 
@@ -125,7 +124,6 @@ target 'Firestore_Example_iOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 
@@ -154,7 +152,6 @@ target 'Firestore_Example_macOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 
@@ -166,7 +163,6 @@ target 'Firestore_Example_macOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 end
@@ -183,7 +179,6 @@ target 'Firestore_Example_tvOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 
@@ -195,7 +190,6 @@ target 'Firestore_Example_tvOS' do
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-    pod 'OCMock'
     pod 'leveldb-library'
   end
 end
