@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode10.3
+osx_image: xcode11
 language: objective-c
 cache:
   - bundler
@@ -258,6 +258,24 @@ jobs:
     - stage: test
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=InAppMessagingDisplay PLATFORM=iPad METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -545,8 +563,6 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
-    - env:
-      - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

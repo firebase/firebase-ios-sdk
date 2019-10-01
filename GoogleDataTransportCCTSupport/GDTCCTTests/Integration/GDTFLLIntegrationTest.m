@@ -147,7 +147,7 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   event.qosTier = GDTCOREventQoSFast;
   [self.transport sendDataEvent:event];
 
-  [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:25.0];
+  [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:60.0];
 
   // Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;

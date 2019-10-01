@@ -40,11 +40,11 @@ QueryListener::QueryListener(Query query,
       listener_(std::move(listener)) {
 }
 
-void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
+bool QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
   HARD_ASSERT(
       !snapshot.document_changes().empty() || snapshot.sync_state_changed(),
       "We got a new snapshot with no changes?");
-
+  bool raised_event = false;
   if (!options_.include_document_metadata_changes()) {
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
@@ -67,24 +67,33 @@ void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
   if (!raised_initial_event_) {
     if (ShouldRaiseInitialEvent(snapshot, online_state_)) {
       RaiseInitialEvent(snapshot);
+      raised_event = true;
     }
   } else if (ShouldRaiseEvent(snapshot)) {
     listener_->OnEvent(snapshot);
+    raised_event = true;
   }
 
   snapshot_ = std::move(snapshot);
+  return raised_event;
 }
 
 void QueryListener::OnError(Status error) {
   listener_->OnEvent(std::move(error));
 }
 
-void QueryListener::OnOnlineStateChanged(OnlineState online_state) {
+/**
+ * Returns whether a snaphsot was raised.
+ */
+bool QueryListener::OnOnlineStateChanged(OnlineState online_state) {
   online_state_ = online_state;
+  bool raised_event = false;
   if (snapshot_.has_value() && !raised_initial_event_ &&
       ShouldRaiseInitialEvent(snapshot_.value(), online_state)) {
     RaiseInitialEvent(snapshot_.value());
+    raised_event = true;
   }
+  return raised_event;
 }
 
 bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,

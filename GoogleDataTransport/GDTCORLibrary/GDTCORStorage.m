@@ -120,12 +120,13 @@ static NSString *GDTCORStoragePath() {
     // Write state to disk.
     if (self->_runningInBackground) {
       if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+        NSError *error;
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                              requiringSecureCoding:YES
-                                                             error:nil];
+                                                             error:&error];
         [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
       } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
         [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
       }
@@ -217,10 +218,11 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
-    [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:nil];
+    [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
 #endif
   }
@@ -230,12 +232,13 @@ static NSString *GDTCORStoragePath() {
   self->_runningInBackground = YES;
   dispatch_async(_storageQueue, ^{
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+      NSError *error;
       NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                            requiringSecureCoding:YES
-                                                           error:nil];
+                                                           error:&error];
       [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
     } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
     }
@@ -258,12 +261,13 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+    NSError *error;
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self
                                          requiringSecureCoding:YES
-                                                         error:nil];
+                                                         error:&error];
     [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
   }
