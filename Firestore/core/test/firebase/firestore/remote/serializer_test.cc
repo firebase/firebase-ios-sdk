@@ -426,26 +426,30 @@ TEST_F(SerializerTest, EncodesDoubles) {
   static_assert(std::numeric_limits<double>::is_iec559,
                 "IEC559/IEEE764 floating point required");
 
-  std::vector<double> cases{-std::numeric_limits<double>::infinity(),
-                            std::numeric_limits<double>::lowest(),
-                            std::numeric_limits<int64_t>::min() - 1.0,
-                            -2.0,
-                            -1.1,
-                            -1.0,
-                            -std::numeric_limits<double>::epsilon(),
-                            -std::numeric_limits<double>::min(),
-                            -std::numeric_limits<double>::denorm_min(),
-                            -0.0,
-                            0.0,
-                            std::numeric_limits<double>::denorm_min(),
-                            std::numeric_limits<double>::min(),
-                            std::numeric_limits<double>::epsilon(),
-                            1.0,
-                            1.1,
-                            2.0,
-                            std::numeric_limits<int64_t>::max() + 1.0,
-                            std::numeric_limits<double>::max(),
-                            std::numeric_limits<double>::infinity()};
+  std::vector<double> cases{
+      -std::numeric_limits<double>::infinity(),
+      std::numeric_limits<double>::lowest(),
+      std::numeric_limits<int64_t>::min() - 1.0,
+      -2.0,
+      -1.1,
+      -1.0,
+      -std::numeric_limits<double>::epsilon(),
+      -std::numeric_limits<double>::min(),
+      -std::numeric_limits<double>::denorm_min(),
+      -0.0,
+      0.0,
+      std::numeric_limits<double>::denorm_min(),
+      std::numeric_limits<double>::min(),
+      std::numeric_limits<double>::epsilon(),
+      1.0,
+      1.1,
+      2.0,
+      // Static cast silences warning about the conversion changing the value.
+      static_cast<double>(std::numeric_limits<int64_t>::max()) - 1.0,
+      static_cast<double>(std::numeric_limits<int64_t>::max()),
+      static_cast<double>(std::numeric_limits<int64_t>::max()) + 1.0,
+      std::numeric_limits<double>::max(),
+      std::numeric_limits<double>::infinity()};
 
   for (double double_value : cases) {
     FieldValue model = FieldValue::FromDouble(double_value);
