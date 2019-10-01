@@ -44,23 +44,23 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   // app foreground/background events since viewDidAppear/viewDidDisappear are not
   // triggered when app switches happen.
   [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(appWillBecomeInactive)
+                                           selector:@selector(appWillBecomeInactive:)
                                                name:UIApplicationWillResignActiveNotification
                                              object:nil];
 
   [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(appDidBecomeActive)
+                                           selector:@selector(appDidBecomeActive:)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillBecomeInactive)
+                                             selector:@selector(appWillBecomeInactive:)
                                                  name:UISceneWillDeactivateNotification
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidBecomeActive)
+                                             selector:@selector(appDidBecomeActive:)
                                                  name:UISceneDidActivateNotification
                                                object:nil];
   }
@@ -104,11 +104,11 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
-- (void)appWillBecomeInactive {
+- (void)appWillBecomeInactive:(NSNotification *)notification {
   [self impressionStopCheckpoint];
 }
 
-- (void)appDidBecomeActive {
+- (void)appDidBecomeActive:(NSNotification *)notification {
   [self impressionStartCheckpoint];
 }
 
