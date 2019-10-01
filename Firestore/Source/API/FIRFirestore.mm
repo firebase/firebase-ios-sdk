@@ -309,6 +309,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self terminateInternalWithCompletion:completion];
 }
 
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener {
+  std::unique_ptr<core::EventListener<Empty>> eventListener =
+  core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
+  std::unique_ptr<ListenerRegistration> result =
+  _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
+  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
+}
+
 @end
 
 @implementation FIRFirestore (Internal)
@@ -335,14 +343,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   _firestore->Terminate(util::MakeCallback(completion));
-}
-
-- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener {
-  std::unique_ptr<core::EventListener<Empty>> eventListener =
-      core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
-  std::unique_ptr<ListenerRegistration> result =
-      _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
-  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
 @end
