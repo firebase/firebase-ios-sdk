@@ -22,11 +22,11 @@
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/string_view.h"
@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueue;
+using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::local::LoadNextBatchIdFromDb;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
@@ -70,38 +71,38 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 }
 
 @implementation FSTLevelDBMutationQueueTests {
-  FSTLevelDB *_db;
+  std::unique_ptr<LevelDbPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
-  [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
+  _db->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 
-  self.mutationQueue = [_db mutationQueueForUser:User("user")];
-  self.persistence = _db;
+  self.mutationQueue = _db->GetMutationQueueForUser(User("user"));
+  self.persistence = _db.get();
 
-  self.persistence.run("Setup", [&]() { self.mutationQueue->Start(); });
+  self.persistence->Run("Setup", [&]() { self.mutationQueue->Start(); });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {
   // Initial seek is invalid
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 1);
 }
 
 - (void)testLoadNextBatchID_zeroWhenNoMutations {
   // Initial seek finds no mutations
   [self setDummyValueForKey:MutationLikeKey("mutationr", "foo", 20)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 1);
 }
 
 - (void)testLoadNextBatchID_findsSingleRow {
   // Seeks off the end of the table altogether
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
 
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 7);
 }
 
 - (void)testLoadNextBatchID_findsSingleRowAmongNonMutations {
@@ -109,7 +110,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
 
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 7);
 }
 
 - (void)testLoadNextBatchID_findsMaxAcrossUsers {
@@ -120,7 +121,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 2)];
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 1)];
 
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 7);
 }
 
 - (void)testLoadNextBatchID_onlyFindsMutations {
@@ -137,7 +138,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
   // None of the higher tables should match -- this is the only entry that's in the mutations
   // table
-  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 4);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db->ptr()), 4);
 }
 
 - (void)testEmptyProtoCanBeUpgraded {
@@ -159,7 +160,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 }
 
 - (void)setDummyValueForKey:(const std::string &)key {
-  _db.ptr->Put(WriteOptions(), key, kDummy);
+  _db->ptr()->Put(WriteOptions(), key, kDummy);
 }
 
 @end

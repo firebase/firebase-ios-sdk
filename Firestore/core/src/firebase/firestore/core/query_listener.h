@@ -24,11 +24,8 @@
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/types/optional.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -86,9 +83,18 @@ class QueryListener {
     return snapshot_;
   }
 
-  virtual void OnViewSnapshot(ViewSnapshot snapshot);
+  /**
+   * Applies the new ViewSnapshot to this listener, raising a user-facing event
+   * if applicable (depending on what changed, whether the user has opted into
+   * metadata-only changes, etc.). Returns true if a user-facing event was
+   * indeed raised.
+   */
+  virtual bool OnViewSnapshot(ViewSnapshot snapshot);
+
   virtual void OnError(util::Status error);
-  virtual void OnOnlineStateChanged(model::OnlineState online_state);
+
+  /** Returns whether a snapshot was raised. */
+  virtual bool OnOnlineStateChanged(model::OnlineState online_state);
 
  private:
   bool ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
@@ -121,7 +127,5 @@ class QueryListener {
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_LISTENER_H_

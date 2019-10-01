@@ -62,6 +62,12 @@ class ExponentialBackoff {
                      util::AsyncQueue::Milliseconds max_delay);
 
   /**
+   * Instantiates the exponential backoff with the default values.
+   */
+  ExponentialBackoff(const std::shared_ptr<util::AsyncQueue>& queue,
+                     util::TimerId timer_id);
+
+  /**
    * Resets the backoff delay.
    *
    * The very next `backoffAndRun` will have no delay. If it is called again
@@ -94,7 +100,6 @@ class ExponentialBackoff {
 
  private:
   using Milliseconds = util::AsyncQueue::Milliseconds;
-
   // Returns a random value in the range [-current_base_/2, current_base_/2].
   Milliseconds GetDelayWithJitter();
   Milliseconds ClampDelay(Milliseconds delay) const;

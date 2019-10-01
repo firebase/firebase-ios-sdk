@@ -169,7 +169,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeQueryData(local::LocalSerializer* serializer,
                              const QueryData& query_data) {
-    EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
+    EXPECT_EQ(query_data.purpose(), QueryPurpose::Listen);
     ByteStringWriter writer;
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
@@ -216,6 +216,10 @@ class LocalSerializerTest : public ::testing::Test {
 };
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
+  Mutation base =
+      PatchMutation(Key("bar/baz"), WrapObject("a", "b"), FieldMask{Field("a")},
+                    Precondition::Exists(true));
+
   Mutation set = testutil::SetMutation("foo/bar", Map("a", "b", "num", 1));
   Mutation patch =
       PatchMutation(Key("bar/baz"), WrapObject("a", "b", "num", 1),
@@ -223,16 +227,19 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
   Mutation del = testutil::DeleteMutation("baz/quux");
 
   Timestamp write_time = Timestamp::Now();
-  std::vector<Mutation> mutations;
-  mutations.push_back(std::move(set));
-  mutations.push_back(std::move(patch));
-  mutations.push_back(std::move(del));
-  MutationBatch model(42, write_time, std::move(mutations));
+  MutationBatch model(42, write_time, {base}, {set, patch, del});
 
   v1::Value b_value{};
   *b_value.mutable_string_value() = "b";
   v1::Value one_value{};
   one_value.set_integer_value(1);
+
+  v1::Write base_proto{};
+  *base_proto.mutable_update()->mutable_name() =
+      "projects/p/databases/d/documents/bar/baz";
+  (*base_proto.mutable_update()->mutable_fields())["a"] = b_value;
+  base_proto.mutable_update_mask()->add_field_paths("a");
+  base_proto.mutable_current_document()->set_exists(true);
 
   v1::Write set_proto{};
   *set_proto.mutable_update()->mutable_name() =
@@ -257,6 +264,7 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
 
   ::firestore::client::WriteBatch batch_proto{};
   batch_proto.set_batch_id(42);
+  *batch_proto.add_base_writes() = base_proto;
   *batch_proto.add_writes() = set_proto;
   assert(batch_proto.writes(0).update().name() ==
          "projects/p/databases/d/documents/foo/bar");
@@ -316,7 +324,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   ByteString resume_token = testutil::ResumeToken(1039);
 
   QueryData query_data(core::Query(query), target_id, sequence_number,
-                       QueryPurpose::kListen, SnapshotVersion(version),
+                       QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.

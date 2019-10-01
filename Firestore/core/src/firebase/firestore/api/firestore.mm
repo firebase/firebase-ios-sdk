@@ -16,24 +16,20 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
-
 #include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/firebase/firestore/api/snapshots_in_sync_listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
@@ -43,13 +39,16 @@ namespace firestore {
 namespace api {
 
 using auth::CredentialsProvider;
+using core::AsyncEventListener;
 using core::DatabaseInfo;
+using core::FirestoreClient;
 using core::Transaction;
+using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
 using util::AsyncQueue;
+using util::Empty;
 using util::Executor;
-using util::ExecutorLibdispatch;
 using util::Status;
 
 Firestore::Firestore(model::DatabaseId database_id,
@@ -64,7 +63,7 @@ Firestore::Firestore(model::DatabaseId database_id,
       extension_{extension} {
 }
 
-FSTFirestoreClient* Firestore::client() {
+const std::shared_ptr<FirestoreClient>& Firestore::client() {
   HARD_ASSERT(client_, "Client is not yet configured.");
   return client_;
 }
@@ -89,8 +88,7 @@ void Firestore::set_settings(const Settings& settings) {
   settings_ = settings;
 }
 
-void Firestore::set_user_executor(
-    std::unique_ptr<util::Executor> user_executor) {
+void Firestore::set_user_executor(std::unique_ptr<Executor> user_executor) {
   std::lock_guard<std::mutex> lock{mutex_};
   HARD_ASSERT(!client_ && user_executor,
               "set_user_executor() must be called with a valid executor, "
@@ -116,13 +114,11 @@ WriteBatch Firestore::GetBatch() {
   return WriteBatch(shared_from_this());
 }
 
-FIRQuery* Firestore::GetCollectionGroup(std::string collection_id) {
+core::Query Firestore::GetCollectionGroup(std::string collection_id) {
   EnsureClientConfigured();
 
-  core::Query query(ResourcePath::Empty(), std::make_shared<const std::string>(
-                                               std::move(collection_id)));
-  return [[FIRQuery alloc] initWithQuery:std::move(query)
-                               firestore:shared_from_this()];
+  return core::Query(ResourcePath::Empty(), std::make_shared<const std::string>(
+                                                std::move(collection_id)));
 }
 
 void Firestore::RunTransaction(
@@ -130,16 +126,20 @@ void Firestore::RunTransaction(
     core::TransactionResultCallback result_callback) {
   EnsureClientConfigured();
 
-  [client_ transactionWithRetries:5
-                   updateCallback:std::move(update_callback)
-                   resultCallback:std::move(result_callback)];
+  client_->Transaction(5, std::move(update_callback),
+                       std::move(result_callback));
 }
 
-void Firestore::Shutdown(util::StatusCallback callback) {
+void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  [client_ shutdownWithCallback:std::move(callback)];
+  client_->Terminate(std::move(callback));
+}
+
+void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
+  EnsureClientConfigured();
+  client_->WaitForPendingWrites(std::move(callback));
 }
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
@@ -152,7 +152,7 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
 
     {
       std::lock_guard<std::mutex> lock{mutex_};
-      if (client_ && !client().isShutdown) {
+      if (client_ && !client()->is_terminated()) {
         Yield(util::Status(
             Error::FailedPrecondition,
             "Persistence cannot be cleared while the client is running."));
@@ -160,18 +160,28 @@ void Firestore::ClearPersistence(util::StatusCallback callback) {
       }
     }
 
-    Yield([FSTLevelDB clearPersistence:MakeDatabaseInfo()]);
+    Yield(LevelDbPersistence::ClearPersistence(MakeDatabaseInfo()));
   });
 }
 
 void Firestore::EnableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ enableNetworkWithCallback:std::move(callback)];
+  client_->EnableNetwork(std::move(callback));
 }
 
 void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ disableNetworkWithCallback:std::move(callback)];
+  client_->DisableNetwork(std::move(callback));
+}
+
+std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(
+    std::unique_ptr<core::EventListener<Empty>> listener) {
+  EnsureClientConfigured();
+  auto async_listener = AsyncEventListener<Empty>::Create(
+      client_->user_executor(), std::move(listener));
+  client_->AddSnapshotsInSyncListener(std::move(async_listener));
+  return absl::make_unique<SnapshotsInSyncListenerRegistration>(
+      client_, std::move(async_listener));
 }
 
 void Firestore::EnsureClientConfigured() {
@@ -179,12 +189,9 @@ void Firestore::EnsureClientConfigured() {
 
   if (!client_) {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
-    client_ = [FSTFirestoreClient
-        clientWithDatabaseInfo:MakeDatabaseInfo()
-                      settings:settings_
-           credentialsProvider:std::move(credentials_provider_)
-                  userExecutor:user_executor_
-                   workerQueue:worker_queue_];
+    client_ = FirestoreClient::Create(MakeDatabaseInfo(), settings_,
+                                      std::move(credentials_provider_),
+                                      user_executor_, worker_queue_);
   }
 }
 

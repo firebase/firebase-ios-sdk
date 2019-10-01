@@ -30,6 +30,8 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
@@ -44,20 +46,30 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::util::ObjcFailureHandler;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::SetFailureHandler;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::Empty;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -73,6 +85,12 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
   __weak id<FSTFirestoreInstanceRegistry> _registry;
+}
+
++ (void)initialize {
+  if (self == [FIRFirestore class]) {
+    SetFailureHandler(ObjcFailureHandler);
+  }
 }
 
 + (instancetype)firestore {
@@ -186,7 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
                          collectionID);
   }
 
-  return _firestore->GetCollectionGroup(util::MakeString(collectionID));
+  auto query = _firestore->GetCollectionGroup(util::MakeString(collectionID));
+  return [[FIRQuery alloc] initWithQuery:std::move(query) firestore:_firestore];
 }
 
 - (FIRWriteBatch *)batch {
@@ -277,6 +296,27 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->ClearPersistence(util::MakeCallback(completion));
 }
 
+- (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion {
+  _firestore->WaitForPendingWrites(util::MakeCallback(completion));
+}
+
+- (void)terminateWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
+  if (strongRegistry) {
+    [strongRegistry
+        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
+  }
+  [self terminateInternalWithCompletion:completion];
+}
+
+- (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener {
+  std::unique_ptr<core::EventListener<Empty>> eventListener =
+      core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
+  std::unique_ptr<ListenerRegistration> result =
+      _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
+  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
+}
+
 @end
 
 @implementation FIRFirestore (Internal)
@@ -301,17 +341,8 @@ NS_ASSUME_NONNULL_BEGIN
   return (__bridge FIRFirestore *)firestore->extension();
 }
 
-- (void)shutdownInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->Shutdown(util::MakeCallback(completion));
-}
-
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  id<FSTFirestoreInstanceRegistry> strongRegistry = _registry;
-  if (strongRegistry) {
-    [strongRegistry
-        removeInstanceWithDatabase:util::MakeNSString(_firestore->database_id().database_id())];
-  }
-  [self shutdownInternalWithCompletion:completion];
+- (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->Terminate(util::MakeCallback(completion));
 }
 
 @end

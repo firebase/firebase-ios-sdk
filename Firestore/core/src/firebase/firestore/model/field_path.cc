@@ -81,7 +81,7 @@ struct JoinEscaped {
 };
 }  // namespace
 
-constexpr char FieldPath::kDocumentKeyPath[];
+constexpr const char* FieldPath::kDocumentKeyPath;
 
 FieldPath FieldPath::FromDotSeparatedString(absl::string_view path) {
   if (path.find_first_of("~*/[]") != absl::string_view::npos) {

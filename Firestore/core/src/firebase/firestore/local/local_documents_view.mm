@@ -19,8 +19,6 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTMutationBatch.h"
-
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -30,8 +28,6 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -45,6 +41,7 @@ using model::DocumentMap;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::Mutation;
+using model::MutationBatch;
 using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
@@ -53,16 +50,16 @@ using util::MakeString;
 
 absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
     const DocumentKey& key) {
-  std::vector<FSTMutationBatch*> batches =
+  std::vector<MutationBatch> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKey(key);
   return GetDocument(key, batches);
 }
 
 absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
-    const DocumentKey& key, const std::vector<FSTMutationBatch*>& batches) {
+    const DocumentKey& key, const std::vector<MutationBatch>& batches) {
   absl::optional<MaybeDocument> document = remote_document_cache_->Get(key);
-  for (FSTMutationBatch* batch : batches) {
-    document = [batch applyToLocalDocument:document documentKey:key];
+  for (const MutationBatch& batch : batches) {
+    document = batch.ApplyToLocalDocument(document, key);
   }
 
   return document;
@@ -70,14 +67,14 @@ absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
 
 OptionalMaybeDocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
     const OptionalMaybeDocumentMap& docs,
-    const std::vector<FSTMutationBatch*>& batches) {
+    const std::vector<MutationBatch>& batches) {
   OptionalMaybeDocumentMap results;
 
   for (const auto& kv : docs) {
     const DocumentKey& key = kv.first;
     absl::optional<MaybeDocument> local_view = kv.second;
-    for (FSTMutationBatch* batch : batches) {
-      local_view = [batch applyToLocalDocument:local_view documentKey:key];
+    for (const MutationBatch& batch : batches) {
+      local_view = batch.ApplyToLocalDocument(local_view, key);
     }
     results = results.insert(key, local_view);
   }
@@ -99,7 +96,7 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
   for (const auto& kv : base_docs) {
     all_keys = all_keys.insert(kv.first);
   }
-  std::vector<FSTMutationBatch*> batches =
+  std::vector<MutationBatch> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKeys(all_keys);
 
   OptionalMaybeDocumentMap docs =
@@ -172,13 +169,13 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     const Query& query) {
   DocumentMap results = remote_document_cache_->GetMatching(query);
   // Get locally persisted mutation batches.
-  std::vector<FSTMutationBatch*> matchingBatches =
+  std::vector<MutationBatch> matching_batches =
       mutation_queue_->AllMutationBatchesAffectingQuery(query);
 
-  results = AddMissingBaseDocuments(matchingBatches, std::move(results));
+  results = AddMissingBaseDocuments(matching_batches, std::move(results));
 
-  for (FSTMutationBatch* batch : matchingBatches) {
-    for (const Mutation& mutation : [batch mutations]) {
+  for (const MutationBatch& batch : matching_batches) {
+    for (const Mutation& mutation : batch.mutations()) {
       // Only process documents belonging to the collection.
       if (!query.path().IsImmediateParentOf(mutation.key().path())) {
         continue;
@@ -190,8 +187,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       absl::optional<MaybeDocument> base_doc =
           results.underlying_map().get(key);
 
-      absl::optional<MaybeDocument> mutated_doc =
-          mutation.ApplyToLocalView(base_doc, base_doc, batch.localWriteTime);
+      absl::optional<MaybeDocument> mutated_doc = mutation.ApplyToLocalView(
+          base_doc, base_doc, batch.local_write_time());
 
       if (mutated_doc && mutated_doc->is_document()) {
         results = results.insert(key, Document(*mutated_doc));
@@ -218,11 +215,11 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
 }
 
 DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
-    const std::vector<FSTMutationBatch*>& matching_batches,
+    const std::vector<MutationBatch>& matching_batches,
     DocumentMap existing_docs) {
   DocumentKeySet missing_doc_keys;
-  for (FSTMutationBatch* batch : matching_batches) {
-    for (const Mutation& mutation : [batch mutations]) {
+  for (const MutationBatch& batch : matching_batches) {
+    for (const Mutation& mutation : batch.mutations()) {
       const DocumentKey& key = mutation.key();
       if (mutation.type() == Mutation::Type::Patch &&
           !existing_docs.underlying_map().contains(key)) {
@@ -246,5 +243,3 @@ DocumentMap LocalDocumentsView::AddMissingBaseDocuments(
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

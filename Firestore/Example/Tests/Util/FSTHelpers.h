@@ -21,8 +21,10 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -45,9 +47,7 @@
 @class FIRGeoPoint;
 @class FIRTimestamp;
 @class FSTDocumentKeyReference;
-@class FSTLocalViewChanges;
 @class FSTUserDataConverter;
-@class FSTView;
 
 namespace firebase {
 namespace firestore {
@@ -59,6 +59,7 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 
@@ -180,7 +181,7 @@ class TestTargetMetadataProvider : public TargetMetadataProvider {
       const std::vector<model::TargetId> &limbo_targets);
 
   /**
-   * Creates an `TestTargetMetadataProvider` that behaves as if there's an established listen for
+   * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
    * each of the given targets, where each target has not seen any previous document.
    *
    * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
@@ -188,17 +189,17 @@ class TestTargetMetadataProvider : public TargetMetadataProvider {
    * `GetQueryDataForTarget` target.
    */
   static TestTargetMetadataProvider CreateEmptyResultProvider(
-      const model::DocumentKey &document_key, const std::vector<model::TargetId> &targets);
+      const model::ResourcePath &path, const std::vector<model::TargetId> &targets);
 
   /** Sets or replaces the local state for the provided query data. */
-  void SetSyncedKeys(model::DocumentKeySet keys, FSTQueryData *query_data);
+  void SetSyncedKeys(model::DocumentKeySet keys, local::QueryData query_data);
 
   model::DocumentKeySet GetRemoteKeysForTarget(model::TargetId target_id) const override;
-  FSTQueryData *GetQueryDataForTarget(model::TargetId target_id) const override;
+  absl::optional<local::QueryData> GetQueryDataForTarget(model::TargetId target_id) const override;
 
  private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
-  std::unordered_map<model::TargetId, FSTQueryData *> query_data_;
+  std::unordered_map<model::TargetId, local::QueryData> query_data_;
 };
 
 }  // namespace remote
@@ -249,8 +250,8 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseID, NSString *path);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(
-    FSTView *view,
+absl::optional<core::ViewSnapshot> FSTTestApplyChanges(
+    core::View *view,
     const std::vector<model::MaybeDocument> &docs,
     const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
 
@@ -281,6 +282,11 @@ firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(
 /** Creates a remote event that inserts a new document. */
 firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
     const model::MaybeDocument &doc,
+    const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
+
+/** Creates a remote event that inserts a list of documents. */
+firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
+    const std::vector<model::MaybeDocument> &doc,
     const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
 
 /** Creates a remote event with changes to a document. */

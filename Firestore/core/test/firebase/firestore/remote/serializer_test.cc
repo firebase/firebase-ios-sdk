@@ -57,6 +57,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 namespace v1 = google::firestore::v1;
 using google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
@@ -81,6 +83,21 @@ using testutil::Map;
 using util::Status;
 using util::StatusOr;
 
+const char* const kProjectId = "p";
+const char* const kDatabaseId = "d";
+
+// These helper functions are just shorter aliases to reduce verbosity.
+ByteString ToBytes(const std::string& str) {
+  return ByteString{Serializer::EncodeString(str)};
+}
+
+std::string FromBytes(pb_bytes_array_t*&& ptr) {
+  auto byte_string = ByteString::Take(ptr);
+  return Serializer::DecodeString(byte_string.get());
+}
+
+}  // namespace
+
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
   // nanopb is concerned but that it can run at all is proof that all the
@@ -92,7 +109,7 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(DatabaseId("p", "d")) {
+  SerializerTest() : serializer(DatabaseId(kProjectId, kDatabaseId)) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
@@ -149,26 +166,27 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), reader.status().code());
   }
 
-  v1::Value ValueProto(std::nullptr_t) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::Null());
-    return ProtobufParse<v1::Value>(bytes);
-  }
-
-  ByteString EncodeFieldValue(Serializer* serializer, const FieldValue& fv) {
+  ByteString EncodeFieldValue(const FieldValue& fv) {
     ByteStringWriter writer;
-    google_firestore_v1_Value proto = serializer->EncodeFieldValue(fv);
+    google_firestore_v1_Value proto = serializer.EncodeFieldValue(fv);
     writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
-    serializer->FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
     return writer.Release();
   }
 
-  ByteString EncodeDocument(Serializer* serializer,
-                            const DocumentKey& key,
-                            const ObjectValue& value) {
+  ByteString EncodeDocument(const DocumentKey& key, const ObjectValue& value) {
     ByteStringWriter writer;
-    google_firestore_v1_Document proto = serializer->EncodeDocument(key, value);
+    google_firestore_v1_Document proto = serializer.EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
-    serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
+    return writer.Release();
+  }
+
+  ByteString EncodeMutation(const Mutation& mutation) {
+    ByteStringWriter writer;
+    google_firestore_v1_Write proto = serializer.EncodeMutation(mutation);
+    writer.WriteNanopbMessage(google_firestore_v1_Write_fields, &proto);
+    serializer.FreeNanopbMessage(google_firestore_v1_Write_fields, &proto);
     return writer.Release();
   }
 
@@ -187,21 +205,30 @@ class SerializerTest : public ::testing::Test {
     *byte = new_value;
   }
 
+  v1::Value ValueProto(std::nullptr_t) {
+    ByteString bytes = EncodeFieldValue(FieldValue::Null());
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
   v1::Value ValueProto(bool b) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromBoolean(b));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromBoolean(b));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(int64_t i) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromInteger(i));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromInteger(i));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(double d) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::FromDouble(d));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromDouble(d));
     return ProtobufParse<v1::Value>(bytes);
+  }
+
+  // int64_t and double are equally good overloads for integer literals so this
+  // avoids ambiguity
+  v1::Value ValueProto(int i) {
+    return ValueProto(static_cast<int64_t>(i));
   }
 
   v1::Value ValueProto(const char* s) {
@@ -209,31 +236,33 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(const std::string& s) {
-    ByteString bytes = EncodeFieldValue(&serializer, FieldValue::FromString(s));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromString(s));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const Timestamp& ts) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromTimestamp(ts));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromTimestamp(ts));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const ByteString& blob) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromBlob(blob));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromBlob(blob));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
+  v1::Value ValueProto(const FieldValue::Reference& ref) {
+    ByteString bytes = EncodeFieldValue(
+        FieldValue::FromReference(ref.database_id(), ref.key()));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const GeoPoint& geo_point) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromGeoPoint(geo_point));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromGeoPoint(geo_point));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const std::vector<FieldValue>& array) {
-    ByteString bytes =
-        EncodeFieldValue(&serializer, FieldValue::FromArray(array));
+    ByteString bytes = EncodeFieldValue(FieldValue::FromArray(array));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -266,7 +295,7 @@ class SerializerTest : public ::testing::Test {
                                     const v1::Value& proto,
                                     FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
-    ByteString bytes = EncodeFieldValue(&serializer, model);
+    ByteString bytes = EncodeFieldValue(model);
     auto actual_proto = ProtobufParse<v1::Value>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
@@ -294,7 +323,7 @@ class SerializerTest : public ::testing::Test {
       const ObjectValue& value,
       const SnapshotVersion& update_time,
       const v1::BatchGetDocumentsResponse& proto) {
-    ByteString bytes = EncodeDocument(&serializer, key, value);
+    ByteString bytes = EncodeDocument(key, value);
     auto actual_proto = ProtobufParse<v1::Document>(bytes);
 
     // Note that the client can only serialize Documents (and cannot serialize
@@ -504,6 +533,19 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
   EXPECT_EQ(actual, "");
 }
 
+TEST_F(SerializerTest, EncodesReferences) {
+  std::vector<FieldValue::Reference> cases{
+      {DatabaseId{kProjectId, kDatabaseId},
+       DocumentKey::FromPathString("baz/a")},
+  };
+
+  for (const auto& ref_value : cases) {
+    FieldValue model =
+        FieldValue::FromReference(ref_value.database_id(), ref_value.key());
+    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
+  }
+}
+
 TEST_F(SerializerTest, EncodesGeoPoint) {
   std::vector<GeoPoint> cases{
       {1.23, 4.56},
@@ -662,8 +704,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 }
 
 TEST_F(SerializerTest, BadNullValue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -674,7 +715,7 @@ TEST_F(SerializerTest, BadNullValue) {
 
 TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
   std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::FromBoolean(true)));
+      MakeVector(EncodeFieldValue(FieldValue::FromBoolean(true)));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
@@ -692,8 +733,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
 TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
   auto max_int = FieldValue::FromInteger(std::numeric_limits<uint64_t>::max());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, max_int));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_int));
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
     ASSERT_EQ(0xff, bytes[i]);
@@ -710,7 +750,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
 
 TEST_F(SerializerTest, BadStringValue) {
   std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::FromString("a")));
+      MakeVector(EncodeFieldValue(FieldValue::FromString("a")));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -722,8 +762,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   auto max_ts = FieldValue::FromTimestamp(TimestampInternal::Max());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, max_ts));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_ts));
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -734,8 +773,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   auto min_ts = FieldValue::FromTimestamp(TimestampInternal::Min());
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, min_ts));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(min_ts));
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
@@ -750,8 +788,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // assume some sort of default type in this situation, we've decided to fail
   // the deserialization process in this case instead.
 
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
 
   // The v1::Value value_type oneof currently has tags up to 18. For this test,
   // we'll pick a tag that's unlikely to be added in the near term but still
@@ -813,8 +850,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(&serializer, FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload
@@ -841,24 +877,28 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents",
+            FromBytes(serializer.EncodeKey(Key(""))));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
-            serializer.EncodeKey(Key("one/two/three/four")));
+            FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "projects/p/databases/d/documents/one/two/three/four"));
+            serializer.DecodeKey(
+                &reader, ToBytes("projects/p/databases/d/documents").get()));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   // Same, but with a leading slash
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "/projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("/projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   EXPECT_OK(reader.status());
 }
 
@@ -877,7 +917,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     Reader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, bad_key);
+    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -889,7 +929,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   doc_proto->mutable_fields();
 
   google::protobuf::Timestamp* update_time_proto =
@@ -920,7 +960,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Map<std::string, v1::Value>& m =
       *doc_proto->mutable_fields();
   m["foo"] = ValueProto("bar");
@@ -948,7 +988,7 @@ TEST_F(SerializerTest, DecodesNoDocument) {
       SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
 
   v1::BatchGetDocumentsResponse proto;
-  proto.set_missing(serializer.EncodeKey(key));
+  proto.set_missing(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
   read_time_proto->set_seconds(read_time.timestamp().seconds());
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());

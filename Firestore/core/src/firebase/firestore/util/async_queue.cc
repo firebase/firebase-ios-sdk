@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -98,20 +99,19 @@ void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
   executor_->Execute(Wrap(operation));
 }
 
-DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
+DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
                                                const TimerId timer_id,
                                                const Operation& operation) {
   std::lock_guard<std::mutex> lock{shut_down_mutex_};
   VerifyIsCurrentExecutor();
 
-  // While not necessarily harmful, we currently don't expect to have multiple
-  // callbacks with the same timer_id in the queue, so defensively reject
-  // them.
-  HARD_ASSERT(!IsScheduled(timer_id),
-              "Attempted to schedule multiple operations with id %s", timer_id);
-
   if (is_shutting_down_) {
     return DelayedOperation();
+  }
+
+  // Skip delays for timer_ids that have been overriden
+  if (absl::c_linear_search(timer_ids_to_skip_, timer_id)) {
+    delay = Milliseconds(0);
   }
 
   Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
@@ -164,6 +164,10 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
       }
     }
   });
+}
+
+void AsyncQueue::SkipDelaysForTimerId(TimerId timer_id) {
+  timer_ids_to_skip_.push_back(timer_id);
 }
 
 }  // namespace util

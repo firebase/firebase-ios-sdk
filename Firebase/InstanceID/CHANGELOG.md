@@ -1,3 +1,9 @@
+# 2019-09 -- 4.2.5
+- [fixed] Fix private header imports (#3796).
+
+# 2019-09 -- 4.2.4
+- [changed] Moved two headers from internal to private for Remote Config open sourcing (#3621).
+
 # 2019-08 -- 4.2.3
 - [fixed] Fixed a crash that could occur if InstanceID was shut down when fetching a new instance ID (#3439).
 

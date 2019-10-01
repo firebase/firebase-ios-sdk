@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -31,12 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
@@ -93,7 +92,8 @@ class WatchStream : public Stream {
    * query will be streamed back as WatchChange messages that reference the
    * target ID included in `query`.
    */
-  virtual /*virtual for tests only*/ void WatchQuery(FSTQueryData* query);
+  virtual /*virtual for tests only*/ void WatchQuery(
+      const local::QueryData& query);
 
   /**
    * Unregisters interest in the results of the query associated with the given

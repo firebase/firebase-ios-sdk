@@ -23,7 +23,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 

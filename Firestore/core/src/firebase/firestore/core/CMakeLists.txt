@@ -45,12 +45,15 @@ cc_library(
     query_listener.h
     target_id_generator.cc
     target_id_generator.h
-    user_data.h
     user_data.cc
+    user_data.h
+    view.cc
+    view.h
     view_snapshot.cc
     view_snapshot.h
   DEPENDS
     absl_strings
     firebase_firestore_model
     firebase_firestore_objc
+    firebase_firestore_remote
 )

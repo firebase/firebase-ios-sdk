@@ -20,7 +20,18 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@protocol FSTPersistence;
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class Persistence;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
+
+namespace local = firebase::firestore::local;
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,17 +47,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryCacheTests : XCTestCase
 
 /** Helper method to add a single document key to target association */
-- (void)addMatchingKey:(const firebase::firestore::model::DocumentKey&)key
-           forTargetID:(firebase::firestore::model::TargetId)targetID;
+- (void)addMatchingKey:(const model::DocumentKey&)key forTargetID:(model::TargetId)targetID;
 
 /** The implementation of the query cache to test. */
-@property(nonatomic, nullable) firebase::firestore::local::QueryCache* queryCache;
+@property(nonatomic, nullable) local::QueryCache* queryCache;
 
 /**
  * The persistence implementation to use while testing the queryCache (e.g. for committing write
  * groups).
  */
-@property(nonatomic, strong, nullable) id<FSTPersistence> persistence;
+@property(nonatomic, nullable) local::Persistence* persistence;
 
 @end
 

@@ -26,8 +26,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -35,6 +33,8 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
@@ -63,6 +64,9 @@ using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::local::Persistence;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -75,6 +79,8 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -116,16 +122,16 @@ NSString *const kDurablePersistence = @"durable-persistence";
 
 namespace {
 
-NSString *Describe(NSData *data) {
-  return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}
-
 std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   std::vector<TargetId> result;
   for (NSNumber *targetID in from) {
     result.push_back(targetID.intValue);
   }
   return result;
+}
+
+ByteString MakeResumeToken(NSString *specString) {
+  return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 }  // namespace
@@ -141,7 +147,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   FSTUserDataConverter *_converter;
 }
 
-- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -166,8 +172,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence];
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)];
   [self.driver start];
 }
 
@@ -272,6 +278,14 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
 }
 
+- (void)doAddSnapshotsInSyncListener {
+  [self.driver addSnapshotsInSyncListener];
+}
+
+- (void)doRemoveSnapshotsInSyncListener {
+  [self.driver removeSnapshotsInSyncListener];
+}
+
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
   WatchTargetChange change{WatchTargetChangeState::Added, ConvertTargetsArray(ackedTargets)};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
@@ -279,7 +293,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
-  NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(currentSpec[1]);
   WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
                            resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
@@ -365,7 +379,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   // set of target IDs.
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
-  NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
+  ByteString resumeToken = MakeResumeToken(watchSnapshot[@"resumeToken"]);
   WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
                            resumeToken};
   [self.driver receiveWatchChange:change
@@ -452,8 +466,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
   [self.driver shutdown];
 
-  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence
+  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
@@ -473,6 +487,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     [self doPatch:step[@"userPatch"]];
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
+  } else if (step[@"addSnapshotsInSyncListener"]) {
+    [self doAddSnapshotsInSyncListener];
+  } else if (step[@"removeSnapshotsInSyncListener"]) {
+    [self doRemoveSnapshotsInSyncListener];
   } else if (step[@"drainQueue"]) {
     [self doDrainQueue];
   } else if (step[@"watchAck"]) {
@@ -529,22 +547,22 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kRemoved]);
+                                           ofType:DocumentViewChange::Type::Removed]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kAdded]);
+                                           ofType:DocumentViewChange::Type::Added]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kModified]);
+                                           ofType:DocumentViewChange::Type::Modified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kMetadata]);
+                                           ofType:DocumentViewChange::Type::Metadata]);
     }
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
@@ -561,10 +579,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   }
 }
 
-- (void)validateStepExpectations:(NSArray *_Nullable)stepExpectations {
+- (void)validateExpectedSnapshotEvents:(NSArray *_Nullable)expectedEvents {
   NSArray<FSTQueryEvent *> *events = self.driver.capturedEventsSinceLastCall;
 
-  if (!stepExpectations) {
+  if (!expectedEvents) {
     XCTAssertEqual(events.count, 0);
     for (FSTQueryEvent *event in events) {
       XCTFail(@"Unexpected event: %@", event);
@@ -572,12 +590,12 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     return;
   }
 
-  XCTAssertEqual(events.count, stepExpectations.count);
+  XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
         return util::WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
       }];
-  stepExpectations = [stepExpectations
+  expectedEvents = [expectedEvents
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         Query leftQuery = [self parseQuery:left[@"query"]];
         Query rightQuery = [self parseQuery:right[@"query"]];
@@ -585,68 +603,70 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       }];
 
   NSUInteger i = 0;
-  for (; i < stepExpectations.count && i < events.count; ++i) {
-    [self validateEvent:events[i] matches:stepExpectations[i]];
+  for (; i < expectedEvents.count && i < events.count; ++i) {
+    [self validateEvent:events[i] matches:expectedEvents[i]];
   }
-  for (; i < stepExpectations.count; ++i) {
-    XCTFail(@"Missing event: %@", stepExpectations[i]);
+  for (; i < expectedEvents.count; ++i) {
+    XCTFail(@"Missing event: %@", expectedEvents[i]);
   }
   for (; i < events.count; ++i) {
     XCTFail(@"Unexpected event: %@", events[i]);
   }
 }
 
-- (void)validateStateExpectations:(nullable NSDictionary *)expected {
-  if (expected) {
-    if (expected[@"numOutstandingWrites"]) {
-      XCTAssertEqual([self.driver sentWritesCount], [expected[@"numOutstandingWrites"] intValue]);
+- (void)validateExpectedState:(nullable NSDictionary *)expectedState {
+  if (expectedState) {
+    if (expectedState[@"numOutstandingWrites"]) {
+      XCTAssertEqual([self.driver sentWritesCount],
+                     [expectedState[@"numOutstandingWrites"] intValue]);
     }
-    if (expected[@"writeStreamRequestCount"]) {
+    if (expectedState[@"writeStreamRequestCount"]) {
       XCTAssertEqual([self.driver writeStreamRequestCount],
-                     [expected[@"writeStreamRequestCount"] intValue]);
+                     [expectedState[@"writeStreamRequestCount"] intValue]);
     }
-    if (expected[@"watchStreamRequestCount"]) {
+    if (expectedState[@"watchStreamRequestCount"]) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
-                     [expected[@"watchStreamRequestCount"] intValue]);
+                     [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expected[@"limboDocs"]) {
+    if (expectedState[@"limboDocs"]) {
       DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expected[@"limboDocs"];
+      NSArray *docNames = expectedState[@"limboDocs"];
       for (NSString *name in docNames) {
         expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
-    if (expected[@"activeTargets"]) {
-      __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
-      [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
-                                                                      NSDictionary *queryData,
-                                                                      BOOL *stop) {
-        TargetId targetID = [targetIDString intValue];
-        Query query = [self parseQuery:queryData[@"query"]];
-        NSData *resumeToken = [queryData[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
-        // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
-        // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
-        // the right value.
-        expectedActiveTargets[targetID] =
-            [[FSTQueryData alloc] initWithQuery:std::move(query)
-                                       targetID:targetID
-                           listenSequenceNumber:0
-                                        purpose:FSTQueryPurposeListen
-                                snapshotVersion:SnapshotVersion::None()
-                                    resumeToken:resumeToken];
-      }];
+    if (expectedState[@"activeTargets"]) {
+      __block std::unordered_map<TargetId, QueryData> expectedActiveTargets;
+      [expectedState[@"activeTargets"]
+          enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
+                                              BOOL *stop) {
+            TargetId targetID = [targetIDString intValue];
+            Query query = [self parseQuery:queryData[@"query"]];
+            ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
+            // TODO(mcg): populate the purpose of the target once it's possible to encode that in
+            // the spec tests. For now, hard-code that it's a listen despite the fact that it's not
+            // always the right value.
+            expectedActiveTargets[targetID] =
+                QueryData(std::move(query), targetID, 0, QueryPurpose::Listen,
+                          SnapshotVersion::None(), std::move(resumeToken));
+          }];
       [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
   }
 
   // Always validate the we received the expected number of callbacks.
-  [self validateUserCallbacks:expected];
+  [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
   [self validateLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
+}
+
+- (void)validateSnapshotsInSyncEvents:(int)expectedSnapshotInSyncEvents {
+  XCTAssertEqual(expectedSnapshotInSyncEvents, [self.driver snapshotsInSyncEvents]);
+  [self.driver resetSnapshotsInSyncEvents];
 }
 
 - (void)validateUserCallbacks:(nullable NSDictionary *)expected {
@@ -690,26 +710,26 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     return;
   }
 
-  // Create a copy so we can modify it in tests
-  std::unordered_map<TargetId, FSTQueryData *> actualTargets = [self.driver activeTargets];
+  // Create a copy so we can modify it below
+  std::unordered_map<TargetId, QueryData> actualTargets = [self.driver activeTargets];
 
   for (const auto &kv : [self.driver activeTargets]) {
     TargetId targetID = kv.first;
-    FSTQueryData *queryData = kv.second;
-    XCTAssertNotNil(actualTargets[targetID], @"Expected active target not found: %@", queryData);
+    const QueryData &queryData = kv.second;
+
+    auto found = actualTargets.find(targetID);
+    XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
+                      queryData.ToString().c_str());
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
     // spec tests. For now, only validate properties that can be validated.
     // XCTAssertEqualObjects(actualTargets[targetID], queryData);
 
-    FSTQueryData *actual = actualTargets[targetID];
-    XCTAssertNotNil(actual);
-    if (actual) {
-      XCTAssertEqual(actual.query, queryData.query);
-      XCTAssertEqual(actual.targetID, queryData.targetID);
-      XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
-      XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
-    }
+    const QueryData &actual = found->second;
+    XCTAssertEqual(actual.query(), queryData.query());
+    XCTAssertEqual(actual.target_id(), queryData.target_id());
+    XCTAssertEqual(actual.snapshot_version(), queryData.snapshot_version());
+    XCTAssertEqual(actual.resume_token(), queryData.resume_token());
 
     actualTargets.erase(targetID);
   }
@@ -724,8 +744,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     for (NSDictionary *step in steps) {
       LOG_DEBUG("Doing step %s", step);
       [self doStep:step];
-      [self validateStepExpectations:step[@"expect"]];
-      [self validateStateExpectations:step[@"stateExpect"]];
+      [self validateExpectedSnapshotEvents:step[@"expectedSnapshotEvents"]];
+      [self validateExpectedState:step[@"expectedState"]];
+      int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
+      [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
     }
     [self.driver validateUsage];
   } @finally {
