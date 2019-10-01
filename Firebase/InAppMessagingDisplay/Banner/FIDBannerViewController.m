@@ -284,7 +284,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 
 // Handlers for app become active inactive so that we can better adjust our auto dismiss feature
 - (void)appWillBecomeInactive:(NSNotification *)notification {
-  [super appWillBecomeInactive:<#notification #>];
+  [super appWillBecomeInactive:notification];
   [self.autoDismissTimer invalidate];
 }
 
