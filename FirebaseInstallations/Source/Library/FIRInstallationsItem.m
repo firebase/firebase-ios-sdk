@@ -70,9 +70,10 @@
   uuid_t uuidBytes;
   [uuid getUUIDBytes:uuidBytes];
 
-  NSData *uuidData = [NSData dataWithBytes:uuidBytes length:16];
+  NSUInteger UUIDLength = sizeof(uuid_t);
+  NSData *uuidData = [NSData dataWithBytes:uuidBytes length:UUIDLength];
 
-  uint8_t uuidLast4Bits = uuidBytes[15] & 0b00001111;
+  uint8_t uuidLast4Bits = uuidBytes[UUIDLength - 1] & 0b00001111;
 
   // FID first 4 bits must be `0111`. The last 4 UUID bits will be cut later to form a proper FID.
   // To keep 16 random bytes we copy these last 4 UUID to the FID 1st byte after `0111` prefix.
