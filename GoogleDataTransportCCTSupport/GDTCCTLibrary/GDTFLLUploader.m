@@ -107,7 +107,7 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
-  GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTFLLUploader-upload"
                 expirationHandler:^{
@@ -168,6 +168,7 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
         [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+        bgID = GDTCORBackgroundIdentifierInvalid;
       }
       self.currentTask = nil;
       self.currentUploadPackage = nil;

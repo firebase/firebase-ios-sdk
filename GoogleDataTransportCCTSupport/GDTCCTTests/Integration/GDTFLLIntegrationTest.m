@@ -111,7 +111,7 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   // Send a number of events across multiple queues in order to ensure the threading is working as
   // expected.
   dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-  dispatch_queue_t queue2 = dispatch_queue_create("com.gdtffl.test", DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_t queue2 = dispatch_queue_create("com.gdtfll.test", DISPATCH_QUEUE_SERIAL);
   for (int i = 0; i < 12; i++) {
     int result = i % 3;
     if (result == 0) {

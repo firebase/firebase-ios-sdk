@@ -29,6 +29,10 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+#if !NDEBUG
+NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
+#endif  // #if !NDEBUG
+
 @interface GDTCCTUploader ()
 
 // Redeclared as readwrite.
@@ -82,7 +86,7 @@
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
-  GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
                 expirationHandler:^{
@@ -121,11 +125,18 @@
         self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
       }
       pb_release(gdt_cct_LogResponse_fields, &logResponse);
+#if !NDEBUG
+      // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
+      // for validation during tests.
+      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                          object:@(package.events.count)];
+#endif  // #if !NDEBUG
       [package completeDelivery];
 
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
         [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+        bgID = GDTCORBackgroundIdentifierInvalid;
       }
       self.currentTask = nil;
       self.currentUploadPackage = nil;

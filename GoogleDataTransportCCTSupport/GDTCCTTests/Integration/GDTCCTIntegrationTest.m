@@ -54,6 +54,9 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 /** If YES, allow the recursive generating of events. */
 @property(nonatomic) BOOL generateEvents;
 
+/** The total number of events generated for this test. */
+@property(nonatomic) NSInteger totalEventsGenerated;
+
 /** The transporter used by the test. */
 @property(nonatomic) GDTCORTransport *transport;
 
@@ -77,18 +80,18 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 }
 
 /** Generates an event and sends it through the transport infrastructure. */
-- (void)generateEvent {
+- (void)generateEventWithQoSTier:(GDTCOREventQoS)qosTier {
   GDTCOREvent *event = [self.transport eventForTransport];
   event.dataObject = [[GDTCCTTestDataObject alloc] init];
+  event.qosTier = qosTier;
   [self.transport sendDataEvent:event];
+  self.totalEventsGenerated += 1;
 }
 
 /** Generates events recursively at random intervals between 0 and 5 seconds. */
 - (void)recursivelyGenerateEvent {
   if (self.generateEvents) {
-    GDTCOREvent *event = [self.transport eventForTransport];
-    event.dataObject = [[GDTCCTTestDataObject alloc] init];
-    [self.transport sendDataEvent:event];
+    [self generateEventWithQoSTier:GDTCOREventQosDefault];
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(6) * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
@@ -104,74 +107,95 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
     return;
   }
 
-  NSUInteger lengthOfTestToRunInSeconds = 10;
-  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-  dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-  dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
-  dispatch_source_set_event_handler(timer, ^{
-    static int numberOfTimesCalled = 0;
-    numberOfTimesCalled++;
-    if (numberOfTimesCalled < lengthOfTestToRunInSeconds) {
-      [self generateEvent];
-    } else {
-      dispatch_source_cancel(timer);
+  // Send a number of events across multiple queues in order to ensure the threading is working as
+  // expected.
+  dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_queue_t queue2 = dispatch_queue_create("com.gdtcct.test", DISPATCH_QUEUE_SERIAL);
+  for (int i = 0; i < 12; i++) {
+    int result = i % 3;
+    if (result == 0) {
+      [self generateEventWithQoSTier:GDTCOREventQosDefault];
+    } else if (result == 1) {
+      dispatch_async(queue1, ^{
+        [self generateEventWithQoSTier:GDTCOREventQosDefault];
+      });
+    } else if (result == 2) {
+      dispatch_async(queue2, ^{
+        [self generateEventWithQoSTier:GDTCOREventQosDefault];
+      });
     }
-  });
-  dispatch_resume(timer);
+  }
 
-  XCTestExpectation *taskCreatedExpectation = [self expectationWithDescription:@"task created"];
-  XCTestExpectation *taskDoneExpectation = [self expectationWithDescription:@"task done"];
-
-  taskCreatedExpectation.assertForOverFulfill = NO;
-  taskDoneExpectation.assertForOverFulfill = NO;
-
-  [[GDTCCTUploader sharedInstance]
-      addObserver:self
-       forKeyPath:@"currentTask"
-          options:NSKeyValueObservingOptionNew
-          context:(__bridge void *_Nullable)(^(NSURLSessionUploadTask *_Nullable task) {
-            if (task) {
-              [taskCreatedExpectation fulfill];
-            } else {
-              [taskDoneExpectation fulfill];
-            }
-          })];
-
-  // Run for a bit, several seconds longer than the previous bit.
-  //  [[NSRunLoop currentRunLoop]
-  //       runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
+  // Add a notification expectation for the right number of events sent by the uploader.
+  XCTestExpectation *eventCountsMatchExpectation = [self expectationForEventsUploadedCount];
 
   // Send a high priority event to flush events.
-  GDTCOREvent *event = [self.transport eventForTransport];
-  event.dataObject = [[GDTCCTTestDataObject alloc] init];
-  event.qosTier = GDTCOREventQoSFast;
-  [self.transport sendDataEvent:event];
+  [self generateEventWithQoSTier:GDTCOREventQoSFast];
 
-  [self waitForExpectations:@[ taskCreatedExpectation, taskDoneExpectation ] timeout:25.0];
+  // Validate all events were sent.
+  [self waitForExpectations:@[ eventCountsMatchExpectation ] timeout:60.0];
+}
 
+- (void)testRunsWithoutCrashing {
   // Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;
-  [self generateEvents];
+
+  // Keep track of how many events have been sent over the course of the test.
+  __block NSInteger eventsSent = 0;
+  XCTestExpectation *eventCountsMatchExpectation = [self
+      expectationWithDescription:@"Events uploaded should equal the amount that were generated."];
+  [[NSNotificationCenter defaultCenter]
+      addObserverForName:GDTCCTUploadCompleteNotification
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull note) {
+                NSNumber *eventsUploaded = note.object;
+                if (![eventsUploaded isKindOfClass:[NSNumber class]]) {
+                  XCTFail(@"Expected notification object of events uploaded, "
+                          @"instead got a %@.",
+                          [eventsUploaded class]);
+                }
+
+                eventsSent += eventsUploaded.integerValue;
+                if (eventsSent == self.totalEventsGenerated) {
+                  [eventCountsMatchExpectation fulfill];
+                }
+              }];
+
+  [self recursivelyGenerateEvent];
+
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(secondsToRun * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
                    self.generateEvents = NO;
+
+                   // Send a high priority event to flush other events.
+                   [self generateEventWithQoSTier:GDTCOREventQoSFast];
+
+                   [self waitForExpectations:@[ eventCountsMatchExpectation ] timeout:60.0];
                  });
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun]];
 }
 
-// KVO is utilized here to know whether or not the task has completed.
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
-                       context:(void *)context {
-  if ([keyPath isEqualToString:@"currentTask"]) {
-    NSURLSessionUploadTask *task = change[NSKeyValueChangeNewKey];
-    typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
-    if (context) {
-      GDTCCTIntegrationTestBlock block = (__bridge GDTCCTIntegrationTestBlock)context;
-      block([task isKindOfClass:[NSNull class]] ? nil : task);
-    }
-  }
+/** An expectation that listens for the notification from the clearcut uploader in order to match
+ *  the number of events uploaded with the number of events sent to be uploaded.
+ */
+- (XCTestExpectation *)expectationForEventsUploadedCount {
+  return [self
+      expectationForNotification:GDTCCTUploadCompleteNotification
+                          object:nil
+                         handler:^BOOL(NSNotification *_Nonnull notification) {
+                           NSNumber *eventsUploaded = notification.object;
+                           if (![eventsUploaded isKindOfClass:[NSNumber class]]) {
+                             XCTFail(@"Expected notification object of events uploaded, "
+                                     @"instead got a %@.",
+                                     [eventsUploaded class]);
+                           }
+
+                           // Expect the number of events uploaded match what was sent from
+                           // the tests.
+                           XCTAssertEqual(eventsUploaded.integerValue, self.totalEventsGenerated);
+                           return YES;
+                         }];
 }
 
 @end
