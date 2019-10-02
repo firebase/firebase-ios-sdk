@@ -478,9 +478,24 @@ class FirestoreEncoderTests: XCTestCase {
       .decodes(to: Model(timestamp: .pending))
   }
 
+#if swift(>=5.1)
   func testExplicitNull() throws {
     struct Model: Codable, Equatable {
-      var name: ExplicitNull<String>
+      @ExplicitNull var name: String?
+    }
+
+    assertThat(Model(name: nil))
+      .roundTrips(to: ["name": NSNull()])
+
+    assertThat(Model(name: "good name"))
+      .roundTrips(to: ["name": "good name"])
+  }
+#endif  // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ExplicitNull() throws {
+    struct Model: Codable, Equatable {
+      var name: Swift4ExplicitNull<String>
     }
 
     assertThat(Model(name: .none))
