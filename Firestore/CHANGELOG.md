@@ -1,4 +1,6 @@
 # Unreleased
+
+# v1.6.0
 - [feature] Added an `addSnapshotsInSyncListener()` method to
   `FIRFirestore` that notifies you when all your snapshot listeners are
   in sync with each other.
