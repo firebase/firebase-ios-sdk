@@ -85,7 +85,7 @@ static NSString *GDTCORStoragePath() {
       beginBackgroundTaskWithName:@"GDTStorage"
                 expirationHandler:^{
                   // End the background task if it's still valid.
-                  [self.app endBackgroundTask:bgID];
+                  [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
                   bgID = GDTCORBackgroundIdentifierInvalid;
                 }];
 
@@ -132,7 +132,7 @@ static NSString *GDTCORStoragePath() {
     }
 
     // Cancel or end the associated background task if it's still valid.
-    [self.app endBackgroundTask:bgID];
+    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
   });
 }
