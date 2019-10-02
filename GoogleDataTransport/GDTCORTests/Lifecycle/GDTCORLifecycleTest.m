@@ -105,8 +105,8 @@
       },
       5.0);
 
-  // TODO: This notification no longer triggers the `isRunningInBackground` flag. Find another way
-  // to test it.
+  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
+  // another way to test it.
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
@@ -134,8 +134,8 @@
       },
       5.0);
 
-  // TODO: This notification no longer triggers the `isRunningInBackground` flag. Find another way
-  // to test it.
+  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
+  // another way to test it.
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
 
@@ -146,8 +146,8 @@
       },
       5.0);
 
-  // TODO: This notification no longer triggers the `isRunningInBackground` flag. Find another way
-  // to test it.
+  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
+  // another way to test it.
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
   XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);

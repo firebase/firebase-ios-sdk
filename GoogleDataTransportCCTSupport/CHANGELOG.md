@@ -1,6 +1,7 @@
 # v1.2.0
 - Updates GDT dependency to improve backgrounding logic.
 - Reduces requests for background task creation. (#3893)
+- Fix unbalanced background task creation in GDTCCTUploader. (#3838)
 
 # v1.1.0
 - Updates GDT dependency to GDTCOR prefixed version.
