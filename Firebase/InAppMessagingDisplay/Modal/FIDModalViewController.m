@@ -116,6 +116,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 
   // make the background half transparent
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
+  self.messageCardView.layer.cornerRadius = 4;
 
   // populating values for display elements
 
@@ -266,11 +267,21 @@ struct TitleBodyButtonHeightInfo {
   // for tablet case, since we use a fixed card height, the reference would be just the card height
   // for non-tablet case, we want to use a dynamic height , so the reference would be the window
   // height
-  CGFloat heightCalcReference =
-      self.messageCardHeightMaxInTabletCase.active
-          ? self.messageCardView.frame.size.height - TopBottomPaddingAroundContent * 2
-          : self.view.window.frame.size.height - TopBottomPaddingAroundContent * 2 -
-                TopBottomPaddingAroundMsgCard * 2;
+  CGFloat heightCalcReference = 0;
+  if (self.messageCardHeightMaxInTabletCase.active) {
+    heightCalcReference =
+        self.messageCardView.frame.size.height - TopBottomPaddingAroundContent * 2;
+  } else {
+    heightCalcReference = self.view.window.frame.size.height - TopBottomPaddingAroundContent * 2 -
+                          TopBottomPaddingAroundMsgCard * 2;
+
+    // Factor in space for the top notch on iPhone X*.
+#if defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+    if (@available(iOS 11.0, *)) {
+      heightCalcReference -= self.view.safeAreaInsets.top;
+    }
+#endif  // defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+  }
 
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300004",
               @"The height calc reference is %lf "

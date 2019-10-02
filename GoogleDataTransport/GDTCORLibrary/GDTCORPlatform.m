@@ -102,9 +102,10 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   return self;
 }
 
-- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
-  return
-      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
+- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
+                                        expirationHandler:(void (^)(void))handler {
+  return [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
+                                                              expirationHandler:handler];
 }
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
@@ -120,6 +121,16 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
 #elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
+- (BOOL)isRunningInBackground {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  BOOL runningInBackground =
+      [[self sharedApplicationForBackgroundTask] applicationState] == UIApplicationStateBackground;
+  return runningInBackground;
+#else  // For macoS and Catalyst apps.
   return NO;
 #endif
 }
