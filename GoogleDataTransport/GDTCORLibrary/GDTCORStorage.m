@@ -227,7 +227,8 @@ static NSString *GDTCORStoragePath() {
 
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
-    // Create an immediate background task to run until the end of the current queue of work.
+    // Immediately request a background task to run until the end of the current queue of work, and
+    // cancel it once the work is done.
     __block GDTCORBackgroundIdentifier bgID =
         [app beginBackgroundTaskWithName:@"GDTStorage"
                        expirationHandler:^{
