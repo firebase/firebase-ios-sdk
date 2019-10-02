@@ -449,7 +449,8 @@ TEST_F(SerializerTest, EncodesDoubles) {
       static_cast<double>(std::numeric_limits<int64_t>::max()),
       static_cast<double>(std::numeric_limits<int64_t>::max()) + 1.0,
       std::numeric_limits<double>::max(),
-      std::numeric_limits<double>::infinity()};
+      std::numeric_limits<double>::infinity(),
+  };
 
   for (double double_value : cases) {
     FieldValue model = FieldValue::FromDouble(double_value);
