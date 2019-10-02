@@ -70,6 +70,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 - (void)setUp {
   // Don't recursively generate events by default.
   self.generateEvents = NO;
+  self.totalEventsGenerated = 0;
   SCNetworkReachabilityRef reachabilityRef =
       SCNetworkReachabilityCreateWithName(CFAllocatorGetDefault(), "https://google.com");
   SCNetworkReachabilityFlags flags;
@@ -87,6 +88,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   if (self.uploadObserver) {
     [[NSNotificationCenter defaultCenter] removeObserver:self.uploadObserver];
   }
+  self.uploadObserver = nil;
 
   [super tearDown];
 }
@@ -98,7 +100,6 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   event.qosTier = qosTier;
   [self.transport sendDataEvent:event];
   self.totalEventsGenerated += 1;
-  NSLog(@"EVENT GENERATED: %ld total now", (long)self.totalEventsGenerated);
 }
 
 /** Generates events recursively at random intervals between 0 and 5 seconds. */
