@@ -102,7 +102,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertNoThrow(GULLogDebug(@"my service", NO, kMessageCode, @"Configure %@.", @"blah"));
 }
 
-
 // The GULLoggerLevel enum must match the ASL_LEVEL_* constants, but we manually redefine
 // them in GULLoggerLevel.h since we cannot include <asl.h> (see b/34976089 for more details).
 // This test ensures the constants match.
