@@ -37,10 +37,12 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif  // TARGET_OS_IOS
 }
 
-@interface GDTCORApplication () {
-  /** Private flag to match the existing `readonly` public flag. */
-  BOOL _isRunningInBackground;
-}
+@interface GDTCORApplication ()
+/**
+ Private flag to match the existing `readonly` public flag. This will be accurate for all platforms,
+ since we handle each platform's lifecycle notifications separately.
+ */
+@property(atomic, readwrite) BOOL isRunningInBackground;
 
 @end
 
@@ -133,12 +135,6 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #elif TARGET_OS_OSX
   return NO;
 #endif
-}
-
-- (BOOL)isRunningInBackground {
-  // This will be accurate for all platforms, since we handle each platform's lifecycle
-  // notifications separately.
-  return _isRunningInBackground;
 }
 
 /** Returns a UIApplication instance if on the appropriate platform.

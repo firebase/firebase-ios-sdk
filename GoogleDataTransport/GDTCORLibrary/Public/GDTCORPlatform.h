@@ -62,7 +62,7 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 @interface GDTCORApplication : NSObject <GDTCORApplicationDelegate>
 
 /** Flag to determine if the application is running in the background. */
-@property(nonatomic, readonly) BOOL isRunningInBackground;
+@property(atomic, readonly) BOOL isRunningInBackground;
 
 /** Creates and/or returns the shared application instance.
  *
