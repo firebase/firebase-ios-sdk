@@ -83,16 +83,6 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^__nullable)(void))handler;
 
-/** Creates a background task with the returned identifier if on a suitable platform.
- *
- * @param handler The handler block that is called if the background task expires.
- * @return An identifier for the background task, or GDTCORBackgroundIdentifierInvalid if one
- * couldn't be created.
- */
-- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:
-    (void (^__nullable)(void))handler
-    DEPRECATED_MSG_ATTRIBUTE("Use `beginBackgroundTaskWithName:expirationHandler:` instead.");
-
 /** Ends the background task if the identifier is valid.
  *
  * @param bgID The background task to end.

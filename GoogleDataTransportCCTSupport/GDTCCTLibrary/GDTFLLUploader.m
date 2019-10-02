@@ -31,9 +31,9 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
-#if DEBUG
+#if !NDEBUG
 NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader.UploadComplete";
-#endif  // #if DEBUG
+#endif  // #if !NDEBUG
 
 @interface GDTFLLUploader ()
 
@@ -156,12 +156,12 @@ NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader
           ((NSHTTPURLResponse *)response).statusCode == 503) {
         [package retryDeliveryInTheFuture];
       } else {
-#if DEBUG
+#if !NDEBUG
         // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
         // for validation during tests.
         [[NSNotificationCenter defaultCenter] postNotificationName:GDTFLLUploadCompleteNotification
                                                             object:@(package.events.count)];
-#endif  // #if DEBUG
+#endif  // #if !NDEBUG
         [package completeDelivery];
       }
 

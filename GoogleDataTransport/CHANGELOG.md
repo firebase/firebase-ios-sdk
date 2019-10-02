@@ -1,3 +1,7 @@
+# v3.0.0
+- Changes backgrounding logic to reduce background usage and properly complete
+all tasks. (#3893)
+
 # v2.0.0
 - Change/rename all classes and references from GDT to GDTCOR. (#3729)
 

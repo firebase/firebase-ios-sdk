@@ -102,11 +102,6 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   return self;
 }
 
-- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
-  return
-      [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithExpirationHandler:handler];
-}
-
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
   return [[self sharedApplicationForBackgroundTask] beginBackgroundTaskWithName:name
