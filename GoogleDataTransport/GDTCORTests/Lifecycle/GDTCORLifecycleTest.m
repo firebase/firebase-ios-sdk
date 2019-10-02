@@ -90,8 +90,11 @@
   [[GDTCORUploadCoordinator sharedInstance] reset];
 }
 
+// Backgrounding and foregrounding are only applicable for iOS and tvOS.
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 /** Tests that the library serializes itself to disk when the app backgrounds. */
-- (void)DISABLED_testBackgrounding {
+- (void)testBackgrounding {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
@@ -105,10 +108,8 @@
       },
       5.0);
 
-  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
-  // another way to test it.
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
 
   GDTCORWaitForBlock(
@@ -120,7 +121,7 @@
 }
 
 /** Tests that the library deserializes itself from disk when the app foregrounds. */
-- (void)DISABLED_testForegrounding {
+- (void)testForegrounding {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
@@ -134,10 +135,8 @@
       },
       5.0);
 
-  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
-  // another way to test it.
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
 
   GDTCORWaitForBlock(
       ^BOOL {
@@ -146,10 +145,8 @@
       },
       5.0);
 
-  // TODO(#3973): This notification no longer triggers the `isRunningInBackground` flag. Find
-  // another way to test it.
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
+  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
   XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);
   GDTCORWaitForBlock(
       ^BOOL {
@@ -157,6 +154,7 @@
       },
       5.0);
 }
+#endif  // #if TARGET_OS_IOS || TARGET_OS_TV
 
 /** Tests that the library gracefully stops doing stuff when terminating. */
 - (void)testTermination {

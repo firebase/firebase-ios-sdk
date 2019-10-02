@@ -37,6 +37,13 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #endif  // TARGET_OS_IOS
 }
 
+@interface GDTCORApplication () {
+  /** Private flag to match the existing `readonly` public flag. */
+  BOOL _isRunningInBackground;
+}
+
+@end
+
 @implementation GDTCORApplication
 
 + (void)load {
@@ -61,6 +68,9 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 - (instancetype)init {
   self = [super init];
   if (self) {
+    // This class will be instantiated in the foreground.
+    _isRunningInBackground = NO;
+
 #if TARGET_OS_IOS || TARGET_OS_TV
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
@@ -126,13 +136,9 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 }
 
 - (BOOL)isRunningInBackground {
-#if TARGET_OS_IOS || TARGET_OS_TV
-  BOOL runningInBackground =
-      [[self sharedApplicationForBackgroundTask] applicationState] == UIApplicationStateBackground;
-  return runningInBackground;
-#else  // For macoS and Catalyst apps.
-  return NO;
-#endif
+  // This will be accurate for all platforms, since we handle each platform's lifecycle
+  // notifications separately.
+  return _isRunningInBackground;
 }
 
 /** Returns a UIApplication instance if on the appropriate platform.
@@ -160,11 +166,15 @@ BOOL GDTCORReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)iOSApplicationDidEnterBackground:(NSNotification *)notif {
+  _isRunningInBackground = YES;
+
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
 }
 
 - (void)iOSApplicationWillEnterForeground:(NSNotification *)notif {
+  _isRunningInBackground = NO;
+
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
 }
