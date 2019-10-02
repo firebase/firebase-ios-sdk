@@ -84,10 +84,9 @@ static NSString *GDTCORStoragePath() {
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTStorage"
                 expirationHandler:^{
-                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
-                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                    bgID = GDTCORBackgroundIdentifierInvalid;
-                  }
+                  // End the background task if it's still valid.
+                  [self.app endBackgroundTask:bgID];
+                  bgID = GDTCORBackgroundIdentifierInvalid;
                 }];
 
   dispatch_async(_storageQueue, ^{
@@ -132,11 +131,9 @@ static NSString *GDTCORStoragePath() {
       }
     }
 
-    // Cancel or end the associated background task.
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-      bgID = GDTCORBackgroundIdentifierInvalid;
-    }
+    // Cancel or end the associated background task if it's still valid.
+    [self.app endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
   });
 }
 
@@ -234,10 +231,8 @@ static NSString *GDTCORStoragePath() {
     __block GDTCORBackgroundIdentifier bgID =
         [app beginBackgroundTaskWithName:@"GDTStorage"
                        expirationHandler:^{
-                         if (bgID != GDTCORBackgroundIdentifierInvalid) {
-                           [app endBackgroundTask:bgID];
-                           bgID = GDTCORBackgroundIdentifierInvalid;
-                         }
+                         [app endBackgroundTask:bgID];
+                         bgID = GDTCORBackgroundIdentifierInvalid;
                        }];
 
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
@@ -252,11 +247,9 @@ static NSString *GDTCORStoragePath() {
 #endif
     }
 
-    // End the background task.
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:bgID];
-      bgID = GDTCORBackgroundIdentifierInvalid;
-    }
+    // End the background task if it's still valid.
+    [app endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
   });
 }
 

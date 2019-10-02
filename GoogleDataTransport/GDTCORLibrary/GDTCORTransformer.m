@@ -53,10 +53,8 @@
   bgID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTTransformer"
                 expirationHandler:^{
-                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
-                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                    bgID = GDTCORBackgroundIdentifierInvalid;
-                  }
+                  [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                  bgID = GDTCORBackgroundIdentifierInvalid;
                 }];
   dispatch_async(_eventWritingQueue, ^{
     GDTCOREvent *transformedEvent = event;
@@ -75,10 +73,8 @@
     [self.storageInstance storeEvent:transformedEvent];
 
     // The work is done, cancel the background task if it's valid.
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-      bgID = GDTCORBackgroundIdentifierInvalid;
-    }
+    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
   });
 }
 
