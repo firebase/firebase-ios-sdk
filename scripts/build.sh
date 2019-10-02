@@ -33,6 +33,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -91,11 +92,8 @@ function RunXcodebuild() {
   fi
 }
 
-# Remove each product when it moves up to Xcode 11
-if [[ $product == 'Firestore' || # #3949
-      $product == 'GoogleDataTransport' || # #3947
-      $product == 'InAppMessaging' # #3948
-   ]]; then
+# Remove Firestore when it moves up to Xcode 11
+if [[ $product == 'Firestore' ]]; then # #3949
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 7'
@@ -106,6 +104,11 @@ else
     -destination 'platform=iOS Simulator,name=iPhone 11'
   )
 fi
+
+ipad_flags=(
+  -sdk 'iphonesimulator'
+  -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
+)
 
 macos_flags=(
   -sdk 'macosx'
@@ -121,6 +124,10 @@ case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
     ;;
+
+  iPad)
+    xcb_flags=("${ipad_flags[@]}")
+  ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
@@ -230,58 +237,18 @@ case "$product-$method-$platform" in
 
   InAppMessaging-xcodebuild-iOS)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
         -scheme 'InAppMessaging_Example_iOS' \
         "${xcb_flags[@]}" \
         build \
         test
+  ;;
 
-    cd InAppMessaging/Example
-    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-    pod update --no-repo-update
-    cd ../..
+  InAppMessagingDisplay-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
-        -scheme 'InAppMessaging_Example_iOS' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    # Run UI tests on both iPad and iPhone simulators
-    # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
-    # Consider separating static library tests to a separate job.
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
-        -scheme 'FiamDisplaySwiftExample' \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
-        build \
-        test
-
-    cd InAppMessagingDisplay/Example
-    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-    pod update --no-repo-update
-    cd ../..
-    # Run UI tests on both iPad and iPhone simulators
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
-        -scheme 'FiamDisplaySwiftExample' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
-        -scheme 'FiamDisplaySwiftExample' \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
     ;;

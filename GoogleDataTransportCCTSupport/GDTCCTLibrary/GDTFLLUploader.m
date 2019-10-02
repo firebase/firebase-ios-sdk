@@ -31,13 +31,14 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+#if !NDEBUG
+NSNotificationName const GDTFLLUploadCompleteNotification = @"com.GDTFLLUploader.UploadComplete";
+#endif  // #if !NDEBUG
+
 @interface GDTFLLUploader ()
 
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
-
-/** Set to YES if running in the background. */
-@property(nonatomic) BOOL runningInBackground;
 
 @end
 
@@ -106,14 +107,19 @@
 }
 
 - (void)uploadPackage:(GDTCORUploadPackage *)package {
-  GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  if (_runningInBackground) {
-    bgID = [[GDTCORApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      if (bgID != GDTCORBackgroundIdentifierInvalid) {
-        [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-      }
-    }];
-  }
+  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  bgID = [[GDTCORApplication sharedApplication]
+      beginBackgroundTaskWithName:@"GDTFLLUploader-upload"
+                expirationHandler:^{
+                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+                    // Cancel the upload and complete delivery.
+                    [self.currentTask cancel];
+                    [self.currentUploadPackage completeDelivery];
+
+                    // End the background task.
+                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                  }
+                }];
 
   dispatch_async(_uploaderQueue, ^{
     if (self->_currentTask || self->_currentUploadPackage) {
@@ -150,12 +156,19 @@
           ((NSHTTPURLResponse *)response).statusCode == 503) {
         [package retryDeliveryInTheFuture];
       } else {
+#if !NDEBUG
+        // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
+        // for validation during tests.
+        [[NSNotificationCenter defaultCenter] postNotificationName:GDTFLLUploadCompleteNotification
+                                                            object:@(package.events.count)];
+#endif  // #if !NDEBUG
         [package completeDelivery];
       }
 
       // End the background task if there was one.
       if (bgID != GDTCORBackgroundIdentifierInvalid) {
         [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+        bgID = GDTCORBackgroundIdentifierInvalid;
       }
       self.currentTask = nil;
       self.currentUploadPackage = nil;
@@ -305,24 +318,6 @@
 }
 
 #pragma mark - GDTCORLifecycleProtocol
-
-- (void)appWillBackground:(GDTCORApplication *)app {
-  _runningInBackground = YES;
-  __block GDTCORBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:bgID];
-    }
-  }];
-  if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    dispatch_async(_uploaderQueue, ^{
-      [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-    });
-  }
-}
-
-- (void)appWillForeground:(GDTCORApplication *)app {
-  _runningInBackground = NO;
-}
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_uploaderQueue, ^{
