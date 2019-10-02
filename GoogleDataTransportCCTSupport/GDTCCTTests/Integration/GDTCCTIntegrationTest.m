@@ -157,7 +157,11 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                 }
 
                 eventsSent += eventsUploaded.integerValue;
-                if (eventsSent == self.totalEventsGenerated) {
+                NSLog(@"Single upload event of %ld, combined for %ld/%ld total expected.",
+                      (long)eventsUploaded.integerValue, (long)eventsSent,
+                      (long)self.totalEventsGenerated);
+                // Only fulfill the expectation once event generation is done and the numbers match.
+                if (self.generateEvents == NO && eventsSent == self.totalEventsGenerated) {
                   [eventCountsMatchExpectation fulfill];
                 }
               }];
