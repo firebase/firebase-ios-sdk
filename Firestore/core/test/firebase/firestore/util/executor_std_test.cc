@@ -23,8 +23,8 @@
 #include <thread>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -35,9 +35,10 @@ namespace util {
 namespace chr = std::chrono;
 
 using async::Schedule;
+using testutil::kTimeout;
 using testutil::Now;
 
-class ScheduleTest : public ::testing::Test {
+class ScheduleTest : public ::testing::Test, public testutil::AsyncTest {
  public:
   ScheduleTest() : start_time{Now()} {
   }
@@ -131,35 +132,35 @@ TEST_F(ScheduleTest, Ordering) {
 }
 
 TEST_F(ScheduleTest, AddingEntryUnblocksEmptyQueue) {
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 1);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
   schedule.Push(1, start_time);
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingUnblocksOnNewPastDueEntries) {
   const auto far_away = start_time + chr::seconds(10);
   schedule.Push(5, far_away);
 
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 3);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
   schedule.Push(3, start_time);
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
   const auto far_away = start_time + chr::seconds(10);
   schedule.Push(5, far_away);
 
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 3);
     // Make sure schedule hasn't been waiting longer than necessary.
@@ -168,7 +169,7 @@ TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
 
   std::this_thread::sleep_for(chr::milliseconds(5));
   schedule.Push(3, start_time + chr::milliseconds(100));
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
@@ -176,21 +177,21 @@ TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
   const auto very_far_away = start_time + chr::seconds(10);
   schedule.Push(3, very_far_away);
 
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 1);
     EXPECT_LT(Now(), far_away);
   });
 
-  std::this_thread::sleep_for(chr::milliseconds(5));
+  SleepFor(5);
   schedule.Push(2, far_away);
-  std::this_thread::sleep_for(chr::milliseconds(1));
+  SleepFor(1);
   schedule.Push(1, start_time + chr::milliseconds(100));
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingNoticesRemovals) {
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     schedule.Push(1, start_time + chr::milliseconds(50));
     schedule.Push(2, start_time + chr::milliseconds(100));
     ASSERT_FALSE(schedule.PopIfDue().has_value());
@@ -198,16 +199,16 @@ TEST_F(ScheduleTest, PopBlockingNoticesRemovals) {
   });
 
   while (schedule.empty()) {
-    std::this_thread::sleep_for(chr::milliseconds(1));
+    SleepFor(1);
   }
   const auto maybe_removed =
       schedule.RemoveIf([](const int v) { return v == 1; });
   EXPECT_EQ(maybe_removed.value(), 1);
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
-  const auto future = std::async(std::launch::async, [&] {
+  const auto future = Async([&] {
     schedule.Push(1, start_time + chr::milliseconds(50));
     schedule.Push(2, start_time + chr::seconds(10));
     ASSERT_FALSE(schedule.PopIfDue().has_value());
@@ -217,7 +218,7 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
   // Wait (with timeout) for both values to appear in the schedule.
   while (schedule.size() != 2) {
     if (Now() - start_time >= kTimeout) {
-      Abort();
+      FAIL() << "Timed out.";
     }
     std::this_thread::sleep_for(chr::milliseconds(1));
   }
@@ -225,7 +226,7 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
       schedule.RemoveIf([](const int v) { return v == 2; });
   ASSERT_TRUE(maybe_removed.has_value());
   EXPECT_EQ(maybe_removed.value(), 2);
-  ABORT_ON_TIMEOUT(future);
+  Await(future);
 }
 
 // ExecutorStd tests
