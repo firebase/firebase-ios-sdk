@@ -66,22 +66,22 @@
 }
 
 + (NSString *)generateFID {
-  NSUUID *uuid = [NSUUID UUID];
-  uuid_t uuidBytes;
-  [uuid getUUIDBytes:uuidBytes];
+  NSUUID *UUID = [NSUUID UUID];
+  uuid_t UUIDBytes;
+  [UUID getUUIDBytes:UUIDBytes];
 
   NSUInteger UUIDLength = sizeof(uuid_t);
-  NSData *uuidData = [NSData dataWithBytes:uuidBytes length:UUIDLength];
+  NSData *UUIDData = [NSData dataWithBytes:UUIDBytes length:UUIDLength];
 
-  uint8_t uuidLast4Bits = uuidBytes[UUIDLength - 1] & 0b00001111;
+  uint8_t UUIDLast4Bits = UUIDBytes[UUIDLength - 1] & 0b00001111;
 
   // FID first 4 bits must be `0111`. The last 4 UUID bits will be cut later to form a proper FID.
   // To keep 16 random bytes we copy these last 4 UUID to the FID 1st byte after `0111` prefix.
-  uint8_t fidPrefix = 0b01110000 | uuidLast4Bits;
-  NSMutableData *fidData = [NSMutableData dataWithBytes:&fidPrefix length:1];
+  uint8_t FIDPrefix = 0b01110000 | UUIDLast4Bits;
+  NSMutableData *FIDData = [NSMutableData dataWithBytes:&FIDPrefix length:1];
 
-  [fidData appendData:uuidData];
-  NSString *fidString = [self base64URLEncodedStringWithData:fidData];
+  [FIDData appendData:UUIDData];
+  NSString *FIDString = [self base64URLEncodedStringWithData:FIDData];
 
   // A valid FID has exactly 22 base64 characters, which is 132 bits, or 16.5 bytes.
   // Our generated ID has 16 bytes UUID + 1 byte prefix which after encoding with base64 will become
@@ -89,7 +89,7 @@
 
   // Remove the 23rd character that was added because of the extra 4 bits at the
   // end of our 17 byte data and the '=' padding.
-  return [fidString substringWithRange:NSMakeRange(0, 22)];
+  return [FIDString substringWithRange:NSMakeRange(0, 22)];
 }
 
 + (NSString *)base64URLEncodedStringWithData:(NSData *)data {
