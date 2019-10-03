@@ -85,10 +85,16 @@ QueryData QueryData::Invalid() {
                    SnapshotVersion(SnapshotVersion::None()), {});
 }
 
-QueryData QueryData::Copy(SnapshotVersion snapshot_version,
-                          ByteString resume_token,
-                          model::ListenSequenceNumber sequence_number) const {
+QueryData QueryData::WithSequenceNumber(
+    model::ListenSequenceNumber sequence_number) const {
   return QueryData(Query(query_), target_id_, sequence_number, purpose_,
+                   snapshot_version_, resume_token_);
+}
+
+QueryData QueryData::WithResumeToken(
+    nanopb::ByteString resume_token,
+    model::SnapshotVersion snapshot_version) const {
+  return QueryData(Query(query_), target_id_, sequence_number_, purpose_,
                    std::move(snapshot_version), std::move(resume_token));
 }
 

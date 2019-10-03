@@ -266,8 +266,10 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       const ByteString& resume_token = change.resume_token();
       // Update the resume token if the change includes one.
       if (!resume_token.empty()) {
-        QueryData new_query_data = old_query_data.Copy(
-            remote_event.snapshot_version(), resume_token, sequence_number);
+        QueryData new_query_data =
+            old_query_data
+                .WithResumeToken(resume_token, remote_event.snapshot_version())
+                .WithSequenceNumber(sequence_number);
         target_ids[target_id] = new_query_data;
 
         // Update the query data if there are target changes (or if sufficient
