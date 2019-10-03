@@ -40,7 +40,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=CoreCron METHOD=pod-lib-lint
       script:
@@ -60,7 +60,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=CoreDiagnosticsCron METHOD=pod-lib-lint
       script:
@@ -80,7 +80,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=ABTestingCron METHOD=pod-lib-lint
       script:
@@ -104,7 +104,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=AuthCron METHOD=pod-lib-lint
       script:
@@ -125,7 +125,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=InstanceIDCron METHOD=pod-lib-lint
       script:
@@ -149,7 +149,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=DatabaseCron METHOD=pod-lib-lint
       script:
@@ -177,7 +177,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=MessagingCron METHOD=pod-lib-lint
       script:
@@ -200,7 +200,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
       script:
@@ -224,7 +224,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=macos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=StorageCron METHOD=pod-lib-lint
       script:
@@ -287,7 +287,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
@@ -315,7 +315,7 @@ jobs:
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=InAppMessagingCron METHOD=pod-lib-lint
       script:
@@ -325,7 +325,7 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessagingDisplay.podspec --use-modular-headers
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=Firestore METHOD=pod-lib-lint
       script:
@@ -342,7 +342,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
       script:
@@ -362,7 +362,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=GoogleDataTransportCCTSupportCron METHOD=pod-lib-lint
       script:
@@ -375,7 +375,7 @@ jobs:
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
       before_install:
