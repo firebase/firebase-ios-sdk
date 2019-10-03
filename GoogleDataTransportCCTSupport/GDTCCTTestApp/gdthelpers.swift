@@ -17,11 +17,11 @@
 import GoogleDataTransport
 
 class FirelogTestMessageHolder: NSObject, GDTCOREventDataObject {
-  public var root : FirelogTestMessage = FirelogTestMessage()
+  public var root: FirelogTestMessage = FirelogTestMessage()
 
   func transportBytes() -> Data {
     do {
-      let data : Data? = try root.serializedData()
+      let data: Data? = try root.serializedData()
       return data!
     } catch {
       print("There was an error producing proto bytes.")

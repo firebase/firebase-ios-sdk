@@ -36,12 +36,18 @@ import GoogleDataTransport
     @IBOutlet var backendSwitch: UISegmentedControl?
 
     var transport: GDTCORTransport {
-            DispatchQueue.main.sync {
-        if Globals.IsMonkeyTesting {
-          backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
-        }
-        return backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
+      var theTransport: GDTCORTransport = fllTransport
+      if Globals.IsMonkeyTesting {
+        backendSwitch?.selectedSegmentIndex = Int(arc4random_uniform(2))
       }
+      if !Thread.current.isMainThread {
+        DispatchQueue.main.sync {
+          theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
+        }
+      } else {
+        theTransport = backendSwitch?.selectedSegmentIndex == 0 ? cctTransport : fllTransport
+      }
+      return theTransport
     }
   }
 
@@ -62,12 +68,18 @@ import GoogleDataTransport
     @IBOutlet var backendSwitch: NSSegmentedControl?
 
     var transport: GDTCORTransport {
-      DispatchQueue.main.sync {
-        if Globals.IsMonkeyTesting {
-          backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
-        }
-        return backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
+      var theTransport: GDTCORTransport = fllTransport
+      if Globals.IsMonkeyTesting {
+        backendSwitch?.selectedSegment = Int(arc4random_uniform(2))
       }
+      if !Thread.current.isMainThread {
+        DispatchQueue.main.sync {
+          theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
+        }
+      } else {
+        theTransport = backendSwitch?.selectedSegment == 0 ? cctTransport : fllTransport
+      }
+      return theTransport
     }
   }
 #endif

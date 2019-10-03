@@ -31,11 +31,11 @@ public extension ViewController {
     let testMessage = FirelogTestMessageHolder()
     testMessage.root.identifier = "ios_test_app_data_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
-    testMessage.root.warriorChampionships = 0001111110
+    testMessage.root.warriorChampionships = 1_111_110
     testMessage.root.subMessage.starTrekData = "technoBabble".data(using: String.Encoding.utf8)!
     testMessage.root.subMessage.repeatedSubMessage = [
       SubMessageTwo(),
-      SubMessageTwo()
+      SubMessageTwo(),
     ]
     testMessage.root.subMessage.repeatedSubMessage[0].samplingPercentage = 13.37
     event.dataObject = testMessage
