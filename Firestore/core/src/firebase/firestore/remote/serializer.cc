@@ -189,11 +189,11 @@ Filter InvalidFilter() {
   return FieldFilter::Create({}, {}, {});
 }
 
+}  // namespace
+
 Query InvalidQuery() {
   return Query();
 }
-
-}  // namespace
 
 Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)),
