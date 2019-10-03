@@ -35,7 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -57,15 +57,12 @@ using util::AsyncQueue;
 using util::Status;
 using util::StatusOr;
 using util::Executor;
-using util::ExecutorLibdispatch;
 
 const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
 
 std::unique_ptr<Executor> CreateExecutor() {
-  auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",
-                                     DISPATCH_QUEUE_SERIAL);
-  return absl::make_unique<ExecutorLibdispatch>(queue);
+  return Executor::CreateSerial("com.google.firebase.firestore.rpc");
 }
 
 std::string MakeString(grpc::string_ref grpc_str) {

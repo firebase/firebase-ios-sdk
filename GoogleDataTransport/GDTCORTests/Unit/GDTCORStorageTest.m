@@ -271,7 +271,7 @@ static NSInteger target = kGDTCORTargetCCT;
                                           requiringSecureCoding:YES
                                                           error:nil];
     } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
       storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]];
 #endif
     }
@@ -290,7 +290,7 @@ static NSInteger target = kGDTCORTargetCCT;
                                                           fromData:storageData
                                                              error:&error];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
 #endif
   }
@@ -311,7 +311,7 @@ static NSInteger target = kGDTCORTargetCCT;
                                           requiringSecureCoding:YES
                                                           error:nil];
     } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
       storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTCORStorage sharedInstance]];
 #endif
     }
@@ -329,7 +329,7 @@ static NSInteger target = kGDTCORTargetCCT;
                                                           fromData:storageData
                                                              error:nil];
   } else {
-#if !defined(TARGET_OS_MACCATALYST)
+#if !TARGET_OS_MACCATALYST
     unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
 #endif
   }

@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -38,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 
@@ -138,6 +140,18 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   void Transaction(int retries,
                    TransactionUpdateCallback update_callback,
                    TransactionResultCallback result_callback);
+
+  /**
+   * Adds a listener to be called when a snapshots-in-sync event fires.
+   */
+  void AddSnapshotsInSyncListener(
+      const std::shared_ptr<EventListener<util::Empty>>& listener);
+
+  /**
+   * Removes a specific listener for snapshots-in-sync events.
+   */
+  void RemoveSnapshotsInSyncListener(
+      const std::shared_ptr<EventListener<util::Empty>>& listener);
 
   /** The database ID of the DatabaseInfo this client was initialized with. */
   const model::DatabaseId& database_id() const {

@@ -42,20 +42,24 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
@@ -78,7 +82,8 @@ using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::Empty;
+using firebase::firestore::util::Executor;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
@@ -170,7 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseInfo _databaseInfo;
   User _currentUser;
 
+  std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
+
+  int _snapshotsInSyncEvents;
 }
 
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
@@ -193,9 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
     _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
-    dispatch_queue_t queue =
-        dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
-    _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+    _workerQueue = testutil::AsyncQueueForTesting();
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), initialUser);
 
@@ -244,6 +250,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const User &)currentUser {
   return _currentUser;
+}
+
+- (void)incrementSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents += 1;
+}
+
+- (void)resetSnapshotsInSyncEvents {
+  _snapshotsInSyncEvents = 0;
+}
+
+- (void)addSnapshotsInSyncListener {
+  std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
+      [self](const StatusOr<Empty> &) { [self incrementSnapshotsInSyncEvents]; });
+  _snapshotsInSyncListeners.push_back(eventListener);
+  _eventManager->AddSnapshotsInSyncListener(eventListener);
+}
+
+- (void)removeSnapshotsInSyncListener {
+  if (_snapshotsInSyncListeners.empty()) {
+    HARD_FAIL("There must be a listener to unlisten to");
+  } else {
+    _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
+    _snapshotsInSyncListeners.pop_back();
+  }
+}
+
+- (int)snapshotsInSyncEvents {
+  return _snapshotsInSyncEvents;
 }
 
 - (void)start {

@@ -18,15 +18,10 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
-
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::ExecutorStd;
-using firebase::firestore::util::TestWithTimeoutMixin;
-using firebase::firestore::util::TimerId;
 
 namespace chr = std::chrono;
 
@@ -34,11 +29,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class ExponentialBackoffTest : public TestWithTimeoutMixin,
-                               public testing::Test {
+using testutil::Expectation;
+using util::AsyncQueue;
+using util::Executor;
+using util::TimerId;
+
+class ExponentialBackoffTest : public testing::Test,
+                               public testutil::AsyncTest {
  public:
   ExponentialBackoffTest()
-      : queue{std::make_shared<AsyncQueue>(absl::make_unique<ExecutorStd>())},
+      : queue{testutil::AsyncQueueForTesting()},
         backoff{queue, timer_id, 1.5, chr::seconds{5}, chr::seconds{30}} {
   }
 
@@ -50,12 +50,13 @@ class ExponentialBackoffTest : public TestWithTimeoutMixin,
 TEST_F(ExponentialBackoffTest, CanScheduleOperations) {
   EXPECT_FALSE(queue->IsScheduled(timer_id));
 
+  Expectation finished;
   queue->EnqueueBlocking([&] {
-    backoff.BackoffAndRun([&] { signal_finished(); });
+    backoff.BackoffAndRun(finished.AsCallback());
     EXPECT_TRUE(queue->IsScheduled(timer_id));
   });
 
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(finished);
   EXPECT_FALSE(queue->IsScheduled(timer_id));
 }
 
@@ -74,16 +75,17 @@ TEST_F(ExponentialBackoffTest, CanCancelOperations) {
 }
 
 TEST_F(ExponentialBackoffTest, SequentialCallsToBackoffAndRun) {
+  Expectation finished;
   queue->EnqueueBlocking([&] {
     backoff.BackoffAndRun([] {});
     backoff.BackoffAndRun([] {});
-    backoff.BackoffAndRun([&] { signal_finished(); });
+    backoff.BackoffAndRun(finished.AsCallback());
   });
 
   // The chosen value of initial_delay is large enough that it shouldn't be
   // realistically possible for backoff to finish already.
   queue->RunScheduledOperationsUntil(timer_id);
-  EXPECT_TRUE(WaitForTestToFinish());
+  Await(finished);
 }
 
 }  // namespace remote

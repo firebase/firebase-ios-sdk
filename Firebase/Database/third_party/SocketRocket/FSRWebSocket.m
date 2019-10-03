@@ -1510,7 +1510,9 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
 
         case NSStreamEventErrorOccurred: {
-            SRFastLog(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
+            // Note: The upstream code for SocketRocket logs the error message, but this causes
+            // crashes on iOS 13 (https://github.com/firebase/firebase-ios-sdk/issues/3950)
+            SRFastLog(@"NSStreamEventErrorOccurred %@", aStream);
             /// TODO specify error better!
                     [self _failWithError:aStream.streamError];
             _readBufferOffset = 0;

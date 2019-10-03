@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-IB_DESIGNABLE
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EMPTY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EMPTY_H_
 
-// A UIView subclass that allows for tweaking corner radius via a storyboard.
-@interface RoundedCornersView : UIView
-@property(nonatomic) IBInspectable CGFloat cornerRadius;
-@end
+namespace firebase {
+namespace firestore {
+namespace util {
+
+/**
+ * Used to represent an empty value.
+ */
+struct Empty {
+  friend bool operator==(Empty /* left */, Empty /* right */) {
+    return true;
+  }
+};
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EMPTY_H_

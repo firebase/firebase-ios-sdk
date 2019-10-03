@@ -57,6 +57,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 namespace v1 = google::firestore::v1;
 using google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
@@ -81,6 +83,21 @@ using testutil::Map;
 using util::Status;
 using util::StatusOr;
 
+const char* const kProjectId = "p";
+const char* const kDatabaseId = "d";
+
+// These helper functions are just shorter aliases to reduce verbosity.
+ByteString ToBytes(const std::string& str) {
+  return ByteString{Serializer::EncodeString(str)};
+}
+
+std::string FromBytes(pb_bytes_array_t*&& ptr) {
+  auto byte_string = ByteString::Take(ptr);
+  return Serializer::DecodeString(byte_string.get());
+}
+
+}  // namespace
+
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
   // nanopb is concerned but that it can run at all is proof that all the
@@ -92,7 +109,7 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(DatabaseId("p", "d")) {
+  SerializerTest() : serializer(DatabaseId(kProjectId, kDatabaseId)) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
@@ -230,6 +247,12 @@ class SerializerTest : public ::testing::Test {
 
   v1::Value ValueProto(const ByteString& blob) {
     ByteString bytes = EncodeFieldValue(FieldValue::FromBlob(blob));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
+  v1::Value ValueProto(const FieldValue::Reference& ref) {
+    ByteString bytes = EncodeFieldValue(
+        FieldValue::FromReference(ref.database_id(), ref.key()));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -403,26 +426,31 @@ TEST_F(SerializerTest, EncodesDoubles) {
   static_assert(std::numeric_limits<double>::is_iec559,
                 "IEC559/IEEE764 floating point required");
 
-  std::vector<double> cases{-std::numeric_limits<double>::infinity(),
-                            std::numeric_limits<double>::lowest(),
-                            std::numeric_limits<int64_t>::min() - 1.0,
-                            -2.0,
-                            -1.1,
-                            -1.0,
-                            -std::numeric_limits<double>::epsilon(),
-                            -std::numeric_limits<double>::min(),
-                            -std::numeric_limits<double>::denorm_min(),
-                            -0.0,
-                            0.0,
-                            std::numeric_limits<double>::denorm_min(),
-                            std::numeric_limits<double>::min(),
-                            std::numeric_limits<double>::epsilon(),
-                            1.0,
-                            1.1,
-                            2.0,
-                            std::numeric_limits<int64_t>::max() + 1.0,
-                            std::numeric_limits<double>::max(),
-                            std::numeric_limits<double>::infinity()};
+  std::vector<double> cases{
+      -std::numeric_limits<double>::infinity(),
+      std::numeric_limits<double>::lowest(),
+      std::numeric_limits<int64_t>::min() - 1.0,
+      -2.0,
+      -1.1,
+      -1.0,
+      -std::numeric_limits<double>::epsilon(),
+      -std::numeric_limits<double>::min(),
+      -std::numeric_limits<double>::denorm_min(),
+      -0.0,
+      0.0,
+      std::numeric_limits<double>::denorm_min(),
+      std::numeric_limits<double>::min(),
+      std::numeric_limits<double>::epsilon(),
+      1.0,
+      1.1,
+      2.0,
+      // Static cast silences warning about the conversion changing the value.
+      static_cast<double>(std::numeric_limits<int64_t>::max()) - 1.0,
+      static_cast<double>(std::numeric_limits<int64_t>::max()),
+      static_cast<double>(std::numeric_limits<int64_t>::max()) + 1.0,
+      std::numeric_limits<double>::max(),
+      std::numeric_limits<double>::infinity(),
+  };
 
   for (double double_value : cases) {
     FieldValue model = FieldValue::FromDouble(double_value);
@@ -508,6 +536,19 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
   auto parsed_proto = ProtobufParse<v1::Value>(bytes);
   std::string actual = parsed_proto.bytes_value();
   EXPECT_EQ(actual, "");
+}
+
+TEST_F(SerializerTest, EncodesReferences) {
+  std::vector<FieldValue::Reference> cases{
+      {DatabaseId{kProjectId, kDatabaseId},
+       DocumentKey::FromPathString("baz/a")},
+  };
+
+  for (const auto& ref_value : cases) {
+    FieldValue model =
+        FieldValue::FromReference(ref_value.database_id(), ref_value.key());
+    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
+  }
 }
 
 TEST_F(SerializerTest, EncodesGeoPoint) {
@@ -841,24 +882,28 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents",
+            FromBytes(serializer.EncodeKey(Key(""))));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
-            serializer.EncodeKey(Key("one/two/three/four")));
+            FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "projects/p/databases/d/documents/one/two/three/four"));
+            serializer.DecodeKey(
+                &reader, ToBytes("projects/p/databases/d/documents").get()));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   // Same, but with a leading slash
-  EXPECT_EQ(
-      Key("one/two/three/four"),
-      serializer.DecodeKey(
-          &reader, "/projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                &reader,
+                ToBytes("/projects/p/databases/d/documents/one/two/three/four")
+                    .get()));
   EXPECT_OK(reader.status());
 }
 
@@ -877,7 +922,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     Reader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, bad_key);
+    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -889,7 +934,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   doc_proto->mutable_fields();
 
   google::protobuf::Timestamp* update_time_proto =
@@ -920,7 +965,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
-  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->set_name(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Map<std::string, v1::Value>& m =
       *doc_proto->mutable_fields();
   m["foo"] = ValueProto("bar");
@@ -948,7 +993,7 @@ TEST_F(SerializerTest, DecodesNoDocument) {
       SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
 
   v1::BatchGetDocumentsResponse proto;
-  proto.set_missing(serializer.EncodeKey(key));
+  proto.set_missing(FromBytes(serializer.EncodeKey(key)));
   google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
   read_time_proto->set_seconds(read_time.timestamp().seconds());
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());

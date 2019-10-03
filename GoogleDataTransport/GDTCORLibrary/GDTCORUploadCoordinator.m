@@ -80,7 +80,7 @@
     dispatch_source_set_timer(self->_timer, DISPATCH_TIME_NOW, self->_timerInterval,
                               self->_timerLeeway);
     dispatch_source_set_event_handler(self->_timer, ^{
-      if (!self->_runningInBackground) {
+      if (![[GDTCORApplication sharedApplication] isRunningInBackground]) {
         GDTCORUploadConditions conditions = [self uploadConditions];
         [self uploadTargets:[self.registrar.targetToUploader allKeys] conditions:conditions];
       }
@@ -186,30 +186,12 @@ static NSString *const ktargetToInFlightPackagesKey =
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   // Not entirely thread-safe, but it should be fine.
-  self->_runningInBackground = NO;
   [self startTimer];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
-  // Not entirely thread-safe, but it should be fine.
-  self->_runningInBackground = YES;
-
   // Should be thread-safe. If it ends up not being, put this in a dispatch_sync.
   [self stopTimer];
-
-  // Create an immediate background task to run until the end of the current queue of work.
-  __block GDTCORBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:bgID];
-      bgID = GDTCORBackgroundIdentifierInvalid;
-    }
-  }];
-  dispatch_async(_coordinationQueue, ^{
-    if (bgID != GDTCORBackgroundIdentifierInvalid) {
-      [app endBackgroundTask:bgID];
-      bgID = GDTCORBackgroundIdentifierInvalid;
-    }
-  });
 }
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
@@ -242,7 +224,9 @@ static NSString *const ktargetToInFlightPackagesKey =
         [prioritizer packageDelivered:package successful:successful];
       }
     }
-    [self.storage removeEvents:package.events];
+    if (package.events != nil) {
+      [self.storage removeEvents:package.events];
+    }
   });
 }
 
