@@ -3,6 +3,7 @@
   "FirebaseAuth":"6.3.0",
   "FirebaseCore":"6.3.1",
   "FirebaseCoreDiagnostics":"1.1.1",
+  "FirebaseDatabase":"6.1.1",
   "FirebaseFirestore":"1.6.0",
   "FirebaseInAppMessaging":"0.15.5",
   "FirebaseInAppMessagingDisplay":"0.15.5",
