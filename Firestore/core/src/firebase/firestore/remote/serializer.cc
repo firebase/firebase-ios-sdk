@@ -1365,6 +1365,16 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
     FieldValue value = DecodeFieldValue(reader, cursor.values[i]);
     index_components.push_back(std::move(value));
   }
+}
+
+google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
+    const OrderByList& orders) const {
+  auto* result = MakeArray<google_firestore_v1_StructuredQuery_Order>(
+      CheckedSize(orders.size()));
+
+  int i = 0;
+  for (const OrderBy& order : orders) {
+    auto& encoded_order = result[i];
 
   return std::make_shared<Bound>(std::move(index_components), cursor.before);
 }

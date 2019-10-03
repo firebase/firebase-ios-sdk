@@ -60,12 +60,16 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 /** The transporter used by the test. */
 @property(nonatomic) GDTCORTransport *transport;
 
+/** The local notification listener, to be removed after each test. */
+@property(nonatomic, strong) id<NSObject> uploadObserver;
+
 @end
 
 @implementation GDTFLLIntegrationTest
 
 - (void)setUp {
-  self.generateEvents = YES;
+  // Don't recursively generate events by default.
+  self.generateEvents = NO;
   self.totalEventsGenerated = 0;
   SCNetworkReachabilityRef reachabilityRef =
       SCNetworkReachabilityCreateWithName(CFAllocatorGetDefault(), "https://google.com");
@@ -78,6 +82,15 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                                                    transformers:nil
                                                          target:kGDTCORTargetFLL];
   }
+}
+
+- (void)tearDown {
+  if (self.uploadObserver) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self.uploadObserver];
+    self.uploadObserver = nil;
+  }
+
+  [super tearDown];
 }
 
 /** Generates an event and sends it through the transport infrastructure. */
@@ -127,41 +140,28 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
     }
   }
 
-  // Add a notification expectation for the right number of events sent by the uploader.
-  XCTestExpectation *eventCountsMatchExpectation = [self expectationForEventsUploadedCount];
+  XCTestExpectation *eventsUploaded =
+      [self expectationWithDescription:@"Events were successfully uploaded to FLL."];
+  [eventsUploaded setAssertForOverFulfill:NO];
+  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
 
   // Send a high priority event to flush events.
   [self generateEventWithQoSTier:GDTCOREventQoSFast];
 
-  // Validate all events were sent.
-  [self waitForExpectations:@[ eventCountsMatchExpectation ] timeout:60.0];
+  // Validate that at least one event was uploaded.
+  [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
 }
 
 - (void)testRunsWithoutCrashing {
   //   Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;
+  self.generateEvents = YES;
 
-  // Keep track of how many events have been sent over the course of the test.
-  __block NSInteger eventsSent = 0;
-  XCTestExpectation *eventCountsMatchExpectation = [self
-      expectationWithDescription:@"Events uploaded should equal the amount that were generated."];
-  [[NSNotificationCenter defaultCenter]
-      addObserverForName:GDTFLLUploadCompleteNotification
-                  object:nil
-                   queue:nil
-              usingBlock:^(NSNotification *_Nonnull note) {
-                NSNumber *eventsUploaded = note.object;
-                if (![eventsUploaded isKindOfClass:[NSNumber class]]) {
-                  XCTFail(@"Expected notification object of events uploaded, "
-                          @"instead got a %@.",
-                          [eventsUploaded class]);
-                }
+  XCTestExpectation *eventsUploaded =
+      [self expectationWithDescription:@"Events were successfully uploaded to FLL."];
+  [eventsUploaded setAssertForOverFulfill:NO];
 
-                eventsSent += eventsUploaded.integerValue;
-                if (eventsSent == self.totalEventsGenerated) {
-                  [eventCountsMatchExpectation fulfill];
-                }
-              }];
+  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
 
   [self recursivelyGenerateEvent];
 
@@ -172,31 +172,30 @@ typedef void (^GDTFLLIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                    // Send a high priority event to flush other events.
                    [self generateEventWithQoSTier:GDTCOREventQoSFast];
 
-                   [self waitForExpectations:@[ eventCountsMatchExpectation ] timeout:60.0];
+                   [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
                  });
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5]];
 }
 
-/** An expectation that listens for the notification from the clearcut uploader in order to match
- *  the number of events uploaded with the number of events sent to be uploaded.
- */
-- (XCTestExpectation *)expectationForEventsUploadedCount {
-  return [self
-      expectationForNotification:GDTFLLUploadCompleteNotification
-                          object:nil
-                         handler:^BOOL(NSNotification *_Nonnull notification) {
-                           NSNumber *eventsUploaded = notification.object;
-                           if (![eventsUploaded isKindOfClass:[NSNumber class]]) {
-                             XCTFail(@"Expected notification object of events uploaded, "
-                                     @"instead got a %@.",
-                                     [eventsUploaded class]);
-                           }
-
-                           // Expect the number of events uploaded match what was sent from
-                           // the tests.
-                           XCTAssertEqual(eventsUploaded.integerValue, self.totalEventsGenerated);
-                           return YES;
-                         }];
+/** Registers a notification observer for when an upload occurs and returns the observer. */
+- (id<NSObject>)uploadNotificationObserverWithExpectation:(XCTestExpectation *)expectation {
+  return [[NSNotificationCenter defaultCenter]
+      addObserverForName:GDTFLLUploadCompleteNotification
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull note) {
+                NSNumber *eventsUploadedNumber = note.object;
+                if (![eventsUploadedNumber isKindOfClass:[NSNumber class]]) {
+                  XCTFail(@"Expected notification object of events uploaded, "
+                          @"instead got a %@.",
+                          [eventsUploadedNumber class]);
+                }
+                // We don't necessarily need *all* uploads to have happened, just some (due to
+                // timing). As long as there are some events uploaded, call it a success.
+                NSInteger eventsUploaded = eventsUploadedNumber.integerValue;
+                if (eventsUploaded > 0 && eventsUploaded <= self.totalEventsGenerated) {
+                  [expectation fulfill];
+                }
+              }];
 }
-
 @end
