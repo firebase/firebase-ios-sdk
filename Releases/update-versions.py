@@ -232,7 +232,7 @@ def PushPodspecs(version_data):
   tmp_dir = tempfile.mkdtemp()
   for pod in pods:
     LogOrRun('pod cache clean {} --all'.format(pod))
-    if pod == 'FirebaseFirestore':
+    if pod == 'PodNameHere':
       warnings_ok = ' --allow-warnings'
     else:
       warnings_ok = ''
