@@ -637,6 +637,12 @@ google_firestore_v1_Write Serializer::EncodeMutation(
             EncodeFieldTransform(field_transform);
         i++;
       }
+
+      // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
+      // TransformMutations with a SetMutation or PatchMutation which (if successful) should
+      // end up with an existing document.
+      result.current_document.exists = true;
+
       return result;
     }
 

@@ -101,11 +101,13 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
 }
 
 template <typename T>
-grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request) {
+grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request, bool free = true) {
   ByteStringWriter writer;
 
   writer.WriteNanopbMessage(fields, &request);
-  Serializer::FreeNanopbMessage(fields, &request);
+  if (free) {
+    Serializer::FreeNanopbMessage(fields, &request);
+  }
   ByteString bytes = writer.Release();
 
   grpc::Slice slice{bytes.data(), bytes.size()};
@@ -260,10 +262,20 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
 std::string WriteStreamSerializer::Describe(
     const google_firestore_v1_WriteRequest& request) {
   // FIXME
-  ByteStringWriter writer;
-  writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
-  ByteString bytes = writer.Release();
-  return bytes.ToString();
+  // return "";
+
+  google_firestore_v1_WriteRequest copy{};
+  std::memcpy(&copy, &request, sizeof(copy));
+
+  auto bytes = ConvertToByteBuffer(google_firestore_v1_WriteRequest_fields, copy, false);
+  auto ns_data = ConvertToNsData(bytes, nil);
+  GCFSWriteRequest* objc_request = [GCFSWriteRequest parseFromData:ns_data error:nil];
+  return util::MakeString([objc_request description]);
+
+  // ByteStringWriter writer;
+  // writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
+  // ByteString bytes = writer.Release();
+  // return bytes.ToString();
 }
 
 NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
