@@ -109,13 +109,12 @@ class WriteStreamSerializer {
   }
 
   google_firestore_v1_WriteRequest CreateHandshake() const;
-  GCFSWriteRequest* CreateWriteMutationsRequest(
+  google_firestore_v1_WriteRequest CreateWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations) const;
-  GCFSWriteRequest* CreateEmptyMutationsList() {
+  google_firestore_v1_WriteRequest CreateEmptyMutationsList() {
     return CreateWriteMutationsRequest({});
   }
 
-  static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
   static grpc::ByteBuffer ToByteBuffer(
       google_firestore_v1_WriteRequest&& request);
 
@@ -132,7 +131,6 @@ class WriteStreamSerializer {
 
   /** Creates a pretty-printed description of the proto for debugging. */
   static std::string Describe(const google_firestore_v1_WriteRequest& request);
-  static NSString* Describe(GCFSWriteRequest* request);
   static NSString* Describe(GCFSWriteResponse* request);
 
  private:

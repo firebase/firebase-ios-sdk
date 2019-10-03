@@ -26,8 +26,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -97,6 +97,18 @@ NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
 
 grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
   grpc::Slice slice{[data bytes], [data length]};
+  return grpc::ByteBuffer{&slice, 1};
+}
+
+template <typename T>
+grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request) {
+  ByteStringWriter writer;
+
+  writer.WriteNanopbMessage(fields, &request);
+  Serializer::FreeNanopbMessage(fields, &request);
+  ByteString bytes = writer.Release();
+
+  grpc::Slice slice{bytes.data(), bytes.size()};
   return grpc::ByteBuffer{&slice, 1};
 }
 
@@ -196,35 +208,29 @@ google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
   return request;
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
+google_firestore_v1_WriteRequest
+WriteStreamSerializer::CreateWriteMutationsRequest(
     const std::vector<Mutation>& mutations) const {
-  NSMutableArray<GCFSWrite*>* protos =
-      [NSMutableArray arrayWithCapacity:mutations.size()];
-  for (const Mutation& mutation : mutations) {
-    [protos addObject:[serializer_ encodedMutation:mutation]];
-  };
+  google_firestore_v1_WriteRequest request{};
 
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.writesArray = protos;
-  request.streamToken = MakeNullableNSData(last_stream_token_);
+  if (!mutations.empty()) {
+    request.writes_count = nanopb::CheckedSize(mutations.size());
+    request.writes = MakeArray<google_firestore_v1_Write>(request.writes_count);
+
+    for (pb_size_t i = 0; i != request.writes_count; ++i) {
+      request.writes[i] = cc_serializer_.EncodeMutation(mutations[i]);
+    }
+  }
+
+  request.stream_token = nanopb::CopyBytesArray(last_stream_token_.get());
 
   return request;
 }
 
 grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
     google_firestore_v1_WriteRequest&& request) {
-  ByteStringWriter writer;
-  writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
-  Serializer::FreeNanopbMessage(google_firestore_v1_Value_fields, &request);
-  ByteString bytes = writer.Release();
-
-  grpc::Slice slice{bytes.data(), bytes.size()};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
-grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    GCFSWriteRequest* request) {
-  return ConvertToByteBuffer([request data]);
+  return ConvertToByteBuffer(google_firestore_v1_WriteRequest_fields,
+                             std::move(request));
 }
 
 GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
@@ -255,10 +261,6 @@ std::string WriteStreamSerializer::Describe(
     const google_firestore_v1_WriteRequest& request) {
   // FIXME
   return "";
-}
-
-NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) {
-  return [request description];
 }
 
 NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {

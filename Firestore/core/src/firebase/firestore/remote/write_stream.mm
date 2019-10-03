@@ -76,11 +76,10 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
-  GCFSWriteRequest* request =
-      serializer_bridge_.CreateWriteMutationsRequest(mutations);
+  auto request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -94,8 +93,9 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // Send an empty write request to the backend to indicate imminent stream
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
-    GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
-    grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
+    auto request = serializer_bridge_.CreateEmptyMutationsList();
+    grpc_stream->WriteAndFinish(
+        serializer_bridge_.ToByteBuffer(std::move(request)));
   } else {
     grpc_stream->FinishImmediately();
   }
