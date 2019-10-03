@@ -30,6 +30,8 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "grpcpp/support/status.h"
 
@@ -54,6 +56,7 @@ using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
 using util::Status;
+using util::StatusOr;
 using util::StringFormat;
 
 namespace {
@@ -101,13 +104,22 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
 }
 
 template <typename T>
-grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request, bool free = true) {
+grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields,
+                                     const T& request) {
+  ByteStringWriter writer;
+  writer.WriteNanopbMessage(fields, &request);
+  ByteString bytes = writer.Release();
+
+  grpc::Slice slice{bytes.data(), bytes.size()};
+  return grpc::ByteBuffer{&slice, 1};
+}
+
+template <typename T>
+grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request) {
   ByteStringWriter writer;
 
   writer.WriteNanopbMessage(fields, &request);
-  if (free) {
-    Serializer::FreeNanopbMessage(fields, &request);
-  }
+  Serializer::FreeNanopbMessage(fields, &request);
   ByteString bytes = writer.Release();
 
   grpc::Slice slice{bytes.data(), bytes.size()};
@@ -138,7 +150,44 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   return nil;
 }
 
+template <typename T, typename U>
+std::string DescribeRequest(const pb_field_t* fields, const U& request) {
+  // FIXME inefficient implementation.
+  auto bytes = ConvertToByteBuffer(fields, request);
+  auto ns_data = ConvertToNsData(bytes, nil);
+  T* objc_request = [GCFSWriteRequest parseFromData:ns_data error:nil];
+  return util::MakeString([objc_request description]);
+}
+
 }  // namespace
+
+namespace internal {
+
+StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
+  std::vector<grpc::Slice> slices;
+  grpc::Status status = buffer.Dump(&slices);
+  if (!status.ok()) {
+    Status error{Error::Internal,
+                 "Trying to convert an invalid grpc::ByteBuffer"};
+    error.CausedBy(status);
+    return error;
+  }
+
+  if (slices.size() == 1) {
+    return ByteString{slices.front().begin(), slices.front().size()};
+
+  } else {
+    std::vector<uint8_t> data;
+    data.reserve(buffer.Length());
+    for (const auto& slice : slices) {
+      data.insert(data.end(), slice.begin(), slice.begin() + slice.size());
+    }
+
+    return ByteString{data.data(), data.size()};
+  }
+}
+
+}
 
 bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
@@ -235,18 +284,19 @@ grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
                              std::move(request));
 }
 
-GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSWriteResponse>(message, out_status);
+StatusOr<google_firestore_v1_WriteResponse>
+WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return ToProto<google_firestore_v1_WriteResponse>(
+      google_firestore_v1_WriteResponse_fields, message);
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
-    GCFSWriteResponse* proto) const {
+    const google_firestore_v1_WriteResponse& proto) const {
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
 std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
-    GCFSWriteResponse* response) const {
+    const google_firestore_v1_WriteResponse& proto) const {
   NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
   std::vector<MutationResult> results;
   results.reserve(responses.count);
@@ -261,25 +311,14 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
 
 std::string WriteStreamSerializer::Describe(
     const google_firestore_v1_WriteRequest& request) {
-  // FIXME
-  // return "";
-
-  google_firestore_v1_WriteRequest copy{};
-  std::memcpy(&copy, &request, sizeof(copy));
-
-  auto bytes = ConvertToByteBuffer(google_firestore_v1_WriteRequest_fields, copy, false);
-  auto ns_data = ConvertToNsData(bytes, nil);
-  GCFSWriteRequest* objc_request = [GCFSWriteRequest parseFromData:ns_data error:nil];
-  return util::MakeString([objc_request description]);
-
-  // ByteStringWriter writer;
-  // writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
-  // ByteString bytes = writer.Release();
-  // return bytes.ToString();
+  return DescribeRequest<GCFSWriteRequest>(
+      google_firestore_v1_WriteRequest_fields, request);
 }
 
-NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
-  return [response description];
+std::string WriteStreamSerializer::Describe(
+    const google_firestore_v1_WriteResponse& response) {
+  return DescribeRequest<GCFSWriteResponse>(
+      google_firestore_v1_WriteResponse_fields, response);
 }
 
 // DatastoreSerializer

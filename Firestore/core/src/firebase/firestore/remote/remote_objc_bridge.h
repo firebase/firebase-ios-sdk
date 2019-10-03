@@ -60,6 +60,40 @@ bool IsLoggingEnabled();
  * not-yet-ported code.
  */
 
+namespace internal {
+
+StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer);
+
+}
+
+template <typename T>
+class NanopbProto {
+ public:
+  explicit NanopbProto(const pb_field_t* fields) : fields_{fields} {
+  }
+
+  ~NanopbProto() {
+    Serializer::FreeNanopbMessage(fields_, &proto_);
+  }
+
+  NanopbProto(const NanopbProto&) = delete;
+  NanopbProto(NanopbProto&&) = default;
+
+  NanopbProto& operator=(const NanopbProto&) = delete;
+  NanopbProto& operator=(NanopbProto&&) = default;
+
+  const T& get() const {
+    return proto_;
+  }
+
+  static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
+                                     const grpc::ByteBuffer& message);
+
+ private:
+  const pb_field_t* fields_ = nullptr;
+  T proto_{};
+};
+
 /**
  * A C++ bridge to `FSTSerializerBeta` that allows creating
  * `GCFSListenRequest`s and parsing `GCFSListenResponse`s.
@@ -118,20 +152,17 @@ class WriteStreamSerializer {
   static grpc::ByteBuffer ToByteBuffer(
       google_firestore_v1_WriteRequest&& request);
 
-  /**
-   * If parsing fails, will return nil and write information on the error to
-   * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
-   * ok.
-   */
-  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
-                                   util::Status* out_status) const;
-  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
+  util::StatusOr<google_firestore_v1_WriteResponse> ParseResponse(
+      const grpc::ByteBuffer& message) const;
+  model::SnapshotVersion ToCommitVersion(
+      const google_firestore_v1_WriteResponse& proto) const;
   std::vector<model::MutationResult> ToMutationResults(
-      GCFSWriteResponse* proto) const;
+      const google_firestore_v1_WriteResponse& proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
   static std::string Describe(const google_firestore_v1_WriteRequest& request);
-  static NSString* Describe(GCFSWriteResponse* request);
+  static std::string Describe(
+      const google_firestore_v1_WriteResponse& response);
 
  private:
   FSTSerializerBeta* serializer_;
@@ -173,6 +204,24 @@ class DatastoreSerializer {
  private:
   FSTSerializerBeta* serializer_;
 };
+
+static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
+                                   const grpc::ByteBuffer& message) {
+  auto maybe_bytes = ToByteString(message);
+  if (!maybe_bytes.ok()) {
+    return maybe_bytes.status();
+  }
+
+  auto bytes = maybe_bytes.ValueOrDie();
+  Reader reader{bytes};
+
+  NanopbProto result;
+  reader.ReadNanopbMessage(fields, &result.proto_);
+
+  // TODO(varconst): additional error handling? Currently, `nanopb::Reader`
+  // simply fails upon any error.
+  return result;
+}
 
 }  // namespace bridge
 }  // namespace remote
