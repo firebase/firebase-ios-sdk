@@ -708,6 +708,29 @@ TEST(QueryTest, CanonicalIDs) {
                                      "desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
 
+TEST(QueryTest, MatchesAllDocuments) {
+  auto baseQuery = testutil::Query("coll");
+  EXPECT_TRUE(baseQuery.MatchesAllDocuments());
+
+  auto query = baseQuery.AddingOrderBy(OrderBy("__name__"));
+  EXPECT_TRUE(query.MatchesAllDocuments());
+
+  query = baseQuery.AddingOrderBy(OrderBy("foo"));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = baseQuery.AddingFilter(Filter("foo", "==", "bar"));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = baseQuery.WithLimit(1);
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = baseQuery.StartingAt(Bound({Value("SFO")}, true));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+
+  query = baseQuery.StartingAt(Bound({Value("OAK")}, true));
+  EXPECT_FALSE(query.MatchesAllDocuments());
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
