@@ -346,12 +346,12 @@ jobs:
       env:
         - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=macos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos --use-modular-headers
 
     - stage: test
       env:
@@ -366,12 +366,12 @@ jobs:
       env:
         - PROJECT=GoogleDataTransportCCTSupportCron METHOD=pod-lib-lint
       script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
