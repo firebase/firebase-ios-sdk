@@ -38,6 +38,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+namespace {
+
 using core::Query;
 using model::Document;
 using model::MaybeDocument;
@@ -50,9 +52,12 @@ using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::Reader;
 using nanopb::Writer;
+using remote::InvalidQuery;
 using remote::MakeArray;
 using util::Status;
 using util::StringFormat;
+
+}  // namespace
 
 firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
     const MaybeDocument& maybe_doc) const {
@@ -225,7 +230,7 @@ QueryData LocalSerializer::DecodeQueryData(
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
   ByteString resume_token(proto.resume_token);
-  Query query = Query::Invalid();
+  Query query = InvalidQuery();
 
   switch (proto.which_target_type) {
     case firestore_client_Target_query_tag:

@@ -189,12 +189,11 @@ Filter InvalidFilter() {
   return FieldFilter::Create({}, {}, {});
 }
 
-Query InvalidQuery() {
-  // This method largely exists for consistency with `InvalidFilter`.
-  return Query::Invalid();
-}
-
 }  // namespace
+
+Query InvalidQuery() {
+  return Query();
+}
 
 Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)),

@@ -80,7 +80,7 @@ QueryData::QueryData(Query query,
 }
 
 QueryData QueryData::Invalid() {
-  return QueryData(Query::Invalid(), /*target_id=*/-1, /*sequence_number=*/-1,
+  return QueryData(Query(), /*target_id=*/-1, /*sequence_number=*/-1,
                    QueryPurpose::Listen,
                    SnapshotVersion(SnapshotVersion::None()), {});
 }
