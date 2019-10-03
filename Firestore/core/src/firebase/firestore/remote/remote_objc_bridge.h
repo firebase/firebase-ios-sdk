@@ -152,7 +152,7 @@ class WriteStreamSerializer {
   static grpc::ByteBuffer ToByteBuffer(
       google_firestore_v1_WriteRequest&& request);
 
-  util::StatusOr<google_firestore_v1_WriteResponse> ParseResponse(
+  StatusOr<NanopbProto<google_firestore_v1_WriteResponse>> ParseResponse(
       const grpc::ByteBuffer& message) const;
   model::SnapshotVersion ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
@@ -207,7 +207,7 @@ class DatastoreSerializer {
 
 static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
                                    const grpc::ByteBuffer& message) {
-  auto maybe_bytes = ToByteString(message);
+  auto maybe_bytes = internal::ToByteString(message);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();
   }
@@ -215,7 +215,7 @@ static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
   auto bytes = maybe_bytes.ValueOrDie();
   Reader reader{bytes};
 
-  NanopbProto result;
+  NanopbProto result{fields};
   reader.ReadNanopbMessage(fields, &result.proto_);
 
   // TODO(varconst): additional error handling? Currently, `nanopb::Reader`

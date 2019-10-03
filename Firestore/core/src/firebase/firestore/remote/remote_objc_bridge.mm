@@ -246,8 +246,9 @@ WriteStreamSerializer::WriteStreamSerializer(FSTSerializerBeta* serializer)
     : serializer_{serializer}, cc_serializer_{serializer.databaseID} {
 }
 
-void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
-  last_stream_token_ = MakeByteString(proto.streamToken);
+void WriteStreamSerializer::UpdateLastStreamToken(
+    const google_firestore_v1_WriteResponse& proto) {
+  last_stream_token_ = ByteString{proto.stream_token};
 }
 
 google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
@@ -284,28 +285,33 @@ grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
                              std::move(request));
 }
 
-StatusOr<google_firestore_v1_WriteResponse>
+StatusOr<NanopbProto<google_firestore_v1_WriteResponse>>
 WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return ToProto<google_firestore_v1_WriteResponse>(
+  return NanopbProto<google_firestore_v1_WriteResponse>::Parse(
       google_firestore_v1_WriteResponse_fields, message);
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     const google_firestore_v1_WriteResponse& proto) const {
-  return [serializer_ decodedVersion:proto.commitTime];
+  Reader reader;
+  auto result = cc_serializer_.DecodeVersion(&reader, proto);
+  // FIXME check error
+  return result;
 }
 
 std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
     const google_firestore_v1_WriteResponse& proto) const {
-  NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
+  const SnapshotVersion commit_version = ToCommitVersion(response);
+  const google_firestore_v1_WriteResult* writes = proto.write_results;
   std::vector<MutationResult> results;
-  results.reserve(responses.count);
+  results.reserve(proto.write_results_count);
 
-  const model::SnapshotVersion commitVersion = ToCommitVersion(response);
-  for (GCFSWriteResult* proto in responses) {
-    results.push_back([serializer_ decodedMutationResult:proto
-                                           commitVersion:commitVersion]);
+  // TODO: instantiate and pass `Reader`.
+  for (pb_size_t i = 0; i != count; ++i) {
+    results.push_back(cc_serializer_.DecodeMutationResult(writes[i], commit_version);
   };
+
+  // FIXME check error
   return results;
 }
 

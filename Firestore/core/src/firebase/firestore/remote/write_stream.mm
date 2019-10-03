@@ -113,18 +113,18 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  Status status;
-  GCFSWriteResponse* response =
-      serializer_bridge_.ParseResponse(message, &status);
-  if (!status.ok()) {
-    return status;
+  auto maybe_response = serializer_bridge_.ParseResponse(message);
+  if (!maybe_response.ok()) {
+    return maybe_response.status();
   }
 
+  NanopbProto<google_firestore_v1_WriteResponse> response =
+      std::move(maybe_response).ValueOrDie();
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+            serializer_bridge_.Describe(response.get()));
 
   // Always capture the last stream token.
-  serializer_bridge_.UpdateLastStreamToken(response);
+  serializer_bridge_.UpdateLastStreamToken(response.get());
 
   if (!handshake_complete()) {
     // The first response is the handshake response
@@ -137,8 +137,8 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     backoff_.Reset();
 
     callback_->OnWriteStreamMutationResult(
-        serializer_bridge_.ToCommitVersion(response),
-        serializer_bridge_.ToMutationResults(response));
+        serializer_bridge_.ToCommitVersion(response.get()),
+        serializer_bridge_.ToMutationResults(response.get()));
   }
 
   return Status::OK();
