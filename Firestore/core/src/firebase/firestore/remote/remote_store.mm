@@ -288,8 +288,8 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
       // A watched target might have been removed already.
       if (query_data) {
-        listen_targets_[target_id] = query_data->Copy(
-            snapshot_version, resumeToken, query_data->sequence_number());
+        listen_targets_[target_id] =
+            query_data->WithResumeToken(resumeToken, snapshot_version);
       }
     }
   }
