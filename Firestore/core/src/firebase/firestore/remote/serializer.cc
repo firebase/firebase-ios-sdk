@@ -190,8 +190,7 @@ Filter InvalidFilter() {
 }
 
 Query InvalidQuery() {
-  // This method largely exists for consistency with `InvalidFilter`.
-  return Query::Invalid();
+  return Query();
 }
 
 }  // namespace
