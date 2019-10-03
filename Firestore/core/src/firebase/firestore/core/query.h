@@ -99,6 +99,12 @@ class Query {
     return collection_group_ != nullptr;
   }
 
+  /**
+   * Returns true if this query does not specify any query constraints that
+   * could remove results.
+   */
+  bool MatchesAllDocuments() const;
+
   /** The filters on the documents returned by the query. */
   const FilterList& filters() const {
     return filters_;
