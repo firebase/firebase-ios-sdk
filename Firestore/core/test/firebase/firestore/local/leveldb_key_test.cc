@@ -24,6 +24,7 @@
 
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
 namespace firebase {
@@ -52,6 +53,12 @@ std::string TargetDocKey(TargetId target_id, absl::string_view key) {
 
 std::string DocTargetKey(absl::string_view key, TargetId target_id) {
   return LevelDbDocumentTargetKey::Key(testutil::Key(key), target_id);
+}
+
+std::string RemoteDocumentReadTimeKey(absl::string_view collection_path,
+                                      int64_t version) {
+  return LevelDbRemoteDocumentReadTimeKey::Key(
+      testutil::Resource(collection_path), testutil::Version(version));
 }
 
 }  // namespace
@@ -354,6 +361,48 @@ TEST(RemoteDocumentKeyTest, Description) {
   AssertExpectedKeyDescription(
       "[remote_document: path=foo/bar/baz/quux]",
       LevelDbRemoteDocumentKey::Key(testutil::Key("foo/bar/baz/quux")));
+}
+
+TEST(RemoteDocumentReadTimeKeyTest, Ordering) {
+  // Different paths:
+  ASSERT_LT(RemoteDocumentReadTimeKey("bar", 1),
+            RemoteDocumentReadTimeKey("baz", 1));
+  ASSERT_LT(RemoteDocumentReadTimeKey("bar", 1),
+            RemoteDocumentReadTimeKey("foo/doc/bar", 1));
+  ASSERT_LT(RemoteDocumentReadTimeKey("foo/doc/bar", 1),
+            RemoteDocumentReadTimeKey("foo/doc/baz", 1));
+
+  // Different read times:
+  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1),
+            RemoteDocumentReadTimeKey("foo", 2));
+  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1),
+            RemoteDocumentReadTimeKey("foo", 1000000));
+  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1000000),
+            RemoteDocumentReadTimeKey("foo", 1000001));
+}
+
+TEST(RemoteDocumentReadTimeKeyTest, EncodeDecodeCycle) {
+  LevelDbRemoteDocumentReadTimeKey key;
+
+  std::vector<std::string> paths{"foo", "foo/doc/bar", "foo/doc/bar/doc/baz"};
+  std::vector<int64_t> versions{1, 1000000, 1000001};
+
+  for (auto&& path : paths) {
+    for (auto version : versions) {
+      auto encoded = RemoteDocumentReadTimeKey(path, version);
+      bool ok = key.Decode(encoded);
+      ASSERT_TRUE(ok);
+      ASSERT_EQ(testutil::Resource(path), key.collection_path());
+      ASSERT_EQ(testutil::Version(version), key.read_time());
+    }
+  }
+}
+
+TEST(RemoteDocumentReadTimeKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[remote_document_read_time: path=foo "
+      "snapshot_version=Timestamp(seconds=1, nanoseconds=1000)]",
+      RemoteDocumentReadTimeKey("foo", 1000001));
 }
 
 #undef AssertExpectedKeyDescription
