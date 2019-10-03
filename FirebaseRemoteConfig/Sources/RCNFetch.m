@@ -215,14 +215,27 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                     @"Failed to register InstanceID with error : %@.", error);
       }
       if (token) {
-        NSError *IIDError;
         strongSelf->_settings.configInstanceIDToken = [token copy];
-        strongSelf->_settings.configInstanceID = [instanceID appInstanceID:&IIDError];
-        FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
-                   strongSelf->_settings.configInstanceID);
+        __weak RCNConfigFetch *instanceIDSelf = strongSelf;
+        [instanceID getIDWithHandler:^(NSString *_Nullable identity, NSError *_Nullable error) {
+          RCNConfigFetch *instanceIDStrongSelf = instanceIDSelf;
+          instanceIDStrongSelf->_settings.configInstanceID = identity;
+
+          if (identity && !error) {
+            FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
+                       instanceIDStrongSelf->_settings.configInstanceID);
+          } else {
+            FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000055", @"Error getting iid : %@.",
+                          error);
+          }
+          // Continue the fetch regardless of whether fetch of instance ID succeeded.
+          [instanceIDStrongSelf fetchCheckinInfoWithCompletionHandler:completionHandler];
+        }];
+
+      } else {
+        // Continue the fetch regardless of whether fetch of instance ID succeeded.
+        [strongSelf fetchCheckinInfoWithCompletionHandler:completionHandler];
       }
-      // Continue the fetch regardless of whether fetch of instance ID succeeded.
-      [strongSelf fetchCheckinInfoWithCompletionHandler:completionHandler];
     });
   };
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
