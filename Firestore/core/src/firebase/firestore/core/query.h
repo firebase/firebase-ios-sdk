@@ -48,10 +48,6 @@ class Query {
 
   Query() = default;
 
-  static Query Invalid() {
-    return Query();
-  }
-
   explicit Query(model::ResourcePath path,
                  CollectionGroupId collection_group = nullptr)
       : path_(std::move(path)), collection_group_(std::move(collection_group)) {

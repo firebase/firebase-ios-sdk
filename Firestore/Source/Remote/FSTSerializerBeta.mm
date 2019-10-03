@@ -840,7 +840,7 @@ absl::any Wrap(GCFSDocument *doc) {
   }
 
   if (query.limit() != Query::kNoLimit) {
-    queryTarget.structuredQuery.limit.value = (int32_t)query.limit();
+    queryTarget.structuredQuery.limit.value = query.limit();
   }
 
   if (query.start_at()) {

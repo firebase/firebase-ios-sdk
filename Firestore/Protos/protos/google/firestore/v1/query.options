@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,23 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
-  firebase_firestore_remote_test
-  SOURCES
-    exponential_backoff_test.cc
-    grpc_connection_test.cc
-    grpc_stream_test.cc
-    grpc_streaming_reader_test.cc
-    grpc_unary_call_test.cc
-    serializer_test.cc
-    watch_change_test.mm
-  DEPENDS
-    absl_base
-    firebase_firestore_protos_libprotobuf
-    firebase_firestore_core
-    firebase_firestore_local
-    firebase_firestore_remote
-    firebase_firestore_remote_test_util
-    firebase_firestore_testutil
-    firebase_firestore_util_async_std
-)
+# In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
+# fields having default values, even for non-primitive types. Using the
+# workaround suggested in
+# https://github.com/nanopb/nanopb/issues/255#issuecomment-291842903
+# 0 is a valid value for limit, so being able to distinguish it from unset is
+# crucial.
+google.firestore.v1.StructuredQuery.limit proto3:false
