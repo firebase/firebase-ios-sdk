@@ -87,12 +87,15 @@ using nanopb::Reader;
 using nanopb::Writer;
 using remote::Serializer;
 using testutil::Bytes;
+using testutil::DeletedDoc;
+using testutil::Doc;
 using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
 using testutil::Value;
+using testutil::Version;
 using util::Status;
 using util::StatusOr;
 
@@ -115,6 +118,25 @@ QueryData CreateQueryData(core::Query query) {
 
 QueryData CreateQueryData(absl::string_view str) {
   return CreateQueryData(Query(str));
+}
+
+bool operator==(const WatchChange& lhs, const WatchChange& rhs) {
+  if (lhs.type() != rhs.type()) {
+    return false;
+  }
+  switch (lhs.type()) {
+    case WatchChange::Type::Document:
+      return static_cast<const DocumentWatchChange&>(lhs) ==
+             static_cast<const DocumentWatchChange&>(rhs);
+    case WatchChange::Type::TargetChange:
+      return static_cast<const WatchTargetChange&>(lhs) ==
+             static_cast<const WatchTargetChange&>(rhs);
+    case WatchChange::Type::ExistenceFilter:
+      return static_cast<const ExistenceFilterWatchChange&>(lhs) ==
+             static_cast<const ExistenceFilterWatchChange&>(rhs);
+    default:
+      HARD_FAIL("Unknown WatchChange.type() %s", lhs.type());
+  }
 }
 
 }  // namespace
@@ -154,6 +176,11 @@ class SerializerTest : public ::testing::Test {
       const SnapshotVersion& read_time,
       const v1::BatchGetDocumentsResponse& proto) {
     ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
+  }
+
+  void ExpectWatchChangeDeserializationRoundTrip(
+      const WatchChange& watch_change, const v1::ListenResponse& proto) {
+    ExpectDeserializationRoundTrip(watch_change, proto);
   }
 
   /**
@@ -463,6 +490,15 @@ class SerializerTest : public ::testing::Test {
     }
 
     EXPECT_EQ(model.query(), actual_model);
+  }
+
+  void ExpectDeserializationRoundTrip(const WatchChange& model,
+                                      const v1::ListenResponse& proto) {
+    auto actual_model = Decode<google_firestore_v1_ListenResponse>(
+        google_firestore_v1_ListenResponse_fields,
+        std::mem_fn(&Serializer::DecodeWatchChange), proto);
+
+    ASSERT_TRUE(model == *actual_model);
   }
 
   template <typename T>
@@ -1422,6 +1458,115 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
 
   SCOPED_TRACE("EncodesResumeTokens");
   ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesListenRequestLabels) {
+  core::Query q = Query("docs");
+
+  std::vector<
+      std::pair<QueryPurpose, std::unordered_map<std::string, std::string>>>
+      purposeToLabel = {
+          {QueryPurpose::Listen, {}},
+          {QueryPurpose::LimboResolution,
+           {{"goog-listen-tags", "limbo-document"}}},
+          {QueryPurpose::ExistenceFilterMismatch,
+           {{"goog-listen-tags", "existence-filter-mismatch"}}},
+      };
+
+  for (const auto& p : purposeToLabel) {
+    QueryData model(q, 1, 0, p.first, SnapshotVersion::None(), Bytes(1, 2, 3));
+
+    auto result = serializer.EncodeListenRequestLabels(model);
+    EXPECT_EQ(result, p.second);
+  }
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithTargetChange) {
+  WatchTargetChange model(WatchTargetChangeState::Added, {1, 2},
+                          ByteString("resume_token"));
+
+  v1::ListenResponse proto;
+
+  proto.mutable_target_change()->set_target_change_type(
+      v1::TargetChange_TargetChangeType::TargetChange_TargetChangeType_ADD);
+  proto.mutable_target_change()->add_target_ids(1);
+  proto.mutable_target_change()->add_target_ids(2);
+  proto.mutable_target_change()->set_resume_token("resume_token");
+
+  SCOPED_TRACE("DecodesListenResponseWithTargetChange");
+  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithDocumentChange) {
+  SnapshotVersion version = Version(123456789L);
+  DocumentWatchChange model(
+      {1, 3}, {2, 4}, Key("one/two/three/four"),
+      Doc("one/two/three/four", 123456789L, Map("foo", "bar")));
+
+  v1::ListenResponse proto;
+
+  auto document_change = proto.mutable_document_change();
+  document_change->mutable_document()->set_name(
+      "projects/p/databases/d/documents/one/two/three/four");
+  document_change->mutable_document()->mutable_update_time()->set_seconds(
+      version.timestamp().seconds());
+  document_change->mutable_document()->mutable_update_time()->set_nanos(
+      version.timestamp().nanoseconds());
+  (*document_change->mutable_document()->mutable_fields())["foo"] =
+      ValueProto("bar");
+
+  document_change->add_target_ids(1);
+  document_change->add_target_ids(3);
+  document_change->add_removed_target_ids(2);
+  document_change->add_removed_target_ids(4);
+
+  SCOPED_TRACE("DecodesListenResponseWithDocumentChange");
+  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithDocumentDelete) {
+  DocumentWatchChange model({}, {1}, Key("one/two/three/four"),
+                            DeletedDoc("one/two/three/four"));
+
+  v1::ListenResponse proto;
+
+  auto document_delete = proto.mutable_document_delete();
+  document_delete->set_document(
+      "projects/p/databases/d/documents/one/two/three/four");
+
+  document_delete->add_removed_target_ids(1);
+
+  SCOPED_TRACE("DecodesListenResponseWithDocumentDelete");
+  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
+  DocumentWatchChange model({}, {1, 2}, Key("one/two/three/four"),
+                            absl::nullopt);
+
+  v1::ListenResponse proto;
+
+  auto document_remove = proto.mutable_document_remove();
+  document_remove->set_document(
+      "projects/p/databases/d/documents/one/two/three/four");
+
+  document_remove->add_removed_target_ids(1);
+  document_remove->add_removed_target_ids(2);
+
+  SCOPED_TRACE("DecodesListenResponseWithDocumentRemove");
+  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
+  ExistenceFilterWatchChange model(ExistenceFilter(2), 100);
+
+  v1::ListenResponse proto;
+
+  proto.mutable_filter()->set_count(2);
+  proto.mutable_filter()->set_target_id(100);
+
+  SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
+  ExpectWatchChangeDeserializationRoundTrip(model, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

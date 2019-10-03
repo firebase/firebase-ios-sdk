@@ -235,6 +235,7 @@ typedef struct _google_firestore_v1_TargetChange {
     google_firestore_v1_TargetChange_TargetChangeType target_change_type;
     pb_size_t target_ids_count;
     int32_t *target_ids;
+    bool has_cause;
     google_rpc_Status cause;
     pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
@@ -334,7 +335,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0}
 #define google_firestore_v1_Target_DocumentsTarget_init_default {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}}
-#define google_firestore_v1_TargetChange_init_default {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1_TargetChange_init_default {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_ListCollectionIdsRequest_init_default {NULL, 0, NULL}
 #define google_firestore_v1_ListCollectionIdsResponse_init_default {0, NULL, NULL}
 #define google_firestore_v1_GetDocumentRequest_init_zero {NULL, google_firestore_v1_DocumentMask_init_zero, 0, {NULL}}
@@ -361,7 +362,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0}
 #define google_firestore_v1_Target_DocumentsTarget_init_zero {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}}
-#define google_firestore_v1_TargetChange_init_zero {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1_TargetChange_init_zero {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_ListCollectionIdsRequest_init_zero {NULL, 0, NULL}
 #define google_firestore_v1_ListCollectionIdsResponse_init_zero {0, NULL, NULL}
 
