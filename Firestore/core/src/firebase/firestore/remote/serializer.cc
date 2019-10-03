@@ -810,6 +810,8 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       return proto;
 
     case Type::Increment: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
       proto.increment = EncodeFieldValue(increment.operand());

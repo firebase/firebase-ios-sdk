@@ -260,7 +260,10 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
 std::string WriteStreamSerializer::Describe(
     const google_firestore_v1_WriteRequest& request) {
   // FIXME
-  return "";
+  ByteStringWriter writer;
+  writer.WriteNanopbMessage(google_firestore_v1_WriteRequest_fields, &request);
+  ByteString bytes = writer.Release();
+  return bytes.ToString();
 }
 
 NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
