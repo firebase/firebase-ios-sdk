@@ -99,8 +99,9 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
           (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
            [app isDefaultApp]);
       if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
-        @synchronized (self) {
-          [self instantiateInstanceForProtocol:component.protocol withBlock:component.creationBlock];
+        @synchronized(self) {
+          [self instantiateInstanceForProtocol:component.protocol
+                                     withBlock:component.creationBlock];
         }
       }
     }
@@ -153,7 +154,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
   NSString *protocolName = NSStringFromProtocol(protocol);
 
   id cachedInstance;
-  @synchronized (self) {
+  @synchronized(self) {
     cachedInstance = self.cachedInstances[protocolName];
     if (!cachedInstance) {
       // Use the creation block to instantiate an instance and return it.
@@ -167,8 +168,9 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 #pragma mark - Lifecycle
 
 - (void)removeAllCachedInstances {
-  @synchronized (self) {
-    // Loop through the cache and notify each instance that is a maintainer to clean up after itself.
+  @synchronized(self) {
+    // Loop through the cache and notify each instance that is a maintainer to clean up after
+    // itself.
     for (id instance in self.cachedInstances.allValues) {
       if ([instance conformsToProtocol:@protocol(FIRComponentLifecycleMaintainer)] &&
           [instance respondsToSelector:@selector(appWillBeDeleted:)]) {
