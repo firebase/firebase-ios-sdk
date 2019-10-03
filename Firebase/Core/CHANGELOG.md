@@ -1,3 +1,6 @@
+# v6.3.1 -- M57
+- [fixed] Fixed race condition in component container. (#3967, #3924)
+
 # v6.3.0 -- M56
 - [changed] Transitive GoogleDataTransport dependency incremented to v2.0.0. (#3729)
 - [fixed] Fixed "expiclitlySet" typo. (#3853)
