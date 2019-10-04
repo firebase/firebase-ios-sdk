@@ -128,10 +128,6 @@ class WatchStreamSerializer {
   FSTSerializerBeta* serializer_;
 };
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSWriteRequest`s and parsing `GCFSWriteResponse`s.
- */
 class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(FSTSerializerBeta* serializer);
