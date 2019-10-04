@@ -55,6 +55,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseABTesting', '~> 3.1.1'
   end
 
+  s.subspec 'AdMob' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.dependency 'FirebaseABTesting', '~> 7.49'
+  end
+
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAuth', '~> 6.2.3'
@@ -110,7 +115,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseRemoteConfig', '~> 4.4.1'
   end
 
-  s.subspec 'Storagae' do |ss|
+  s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseStorage', '~> 3.4.1'
   end
