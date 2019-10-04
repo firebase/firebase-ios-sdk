@@ -196,26 +196,47 @@ bool IsLoggingEnabled() {
 
 // WatchStreamSerializer
 
-GCFSListenRequest* WatchStreamSerializer::CreateWatchRequest(
+WatchStreamSerializer::WatchStreamSerializer(FSTSerializerBeta* serializer)
+    : serializer_{serializer}, cc_serializer_{serializer.databaseID} {
+}
+
+google_firestore_v1_ListenRequest WatchStreamSerializer::CreateWatchRequest(
     const QueryData& query) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.addTarget = [serializer_ encodedTarget:query];
-  request.labels = [serializer_ encodedListenRequestLabelsForQueryData:query];
+  google_firestore_v1_ListenRequest request{};
+
+  request.database = cc_serializer_.EncodeDatabaseId();
+  request.which_target_change =
+      google_firestore_v1_ListenRequest_add_target_tag;
+  request.add_target = cc_serializer_.EncodeTarget(query);
+
+  auto labels = cc_serializer_.EncodeListenRequestLabels(query);
+  request.labels_count = nanopb::CheckedSize(labels.size());
+  pb_size_t i = 0;
+  for (const auto& e : labels) {
+    request.labels[i].key = Serializer::EncodeString(e.first);
+    request.labels[i].value = Serializer::EncodeString(e.second);
+    ++i;
+  }
+
   return request;
 }
 
-GCFSListenRequest* WatchStreamSerializer::CreateUnwatchRequest(
+google_firestore_v1_ListenRequest WatchStreamSerializer::CreateUnwatchRequest(
     TargetId target_id) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.removeTarget = target_id;
+  google_firestore_v1_ListenRequest request{};
+
+  request.database = cc_serializer_.EncodeDatabaseId();
+  request.which_target_change =
+      google_firestore_v1_ListenRequest_remove_target_tag;
+  request.remove_target = target_id;
+
   return request;
 }
 
 grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
-    GCFSListenRequest* request) {
-  return ConvertToByteBuffer([request data]);
+    google_firestore_v1_ListenRequest&& request) {
+  return ConvertToByteBuffer(google_firestore_v1_ListenRequest_fields,
+                             std::move(request));
 }
 
 GCFSListenResponse* WatchStreamSerializer::ParseResponse(
@@ -233,8 +254,10 @@ SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
   return [serializer_ versionFromListenResponse:proto];
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
-  return [request description];
+std::string WatchStreamSerializer::Describe(
+    const google_firestore_v1_ListenRequest& request) {
+  return DescribeRequest<GCFSListenRequest>(
+      google_firestore_v1_ListenRequest_fields, request);
 }
 
 NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
@@ -244,7 +267,7 @@ NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
 // WriteStreamSerializer
 
 WriteStreamSerializer::WriteStreamSerializer(FSTSerializerBeta* serializer)
-    : serializer_{serializer}, cc_serializer_{serializer.databaseID} {
+    : cc_serializer_{serializer.databaseID} {
 }
 
 void WriteStreamSerializer::UpdateLastStreamToken(
@@ -312,8 +335,8 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
 
   nanopb::Reader reader{nullptr, 0};
   for (pb_size_t i = 0; i != count; ++i) {
-    results.push_back(
-        cc_serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
+    results.push_back(cc_serializer_.DecodeMutationResult(&reader, writes[i],
+                                                          commit_version));
   };
 
   // FIXME check error

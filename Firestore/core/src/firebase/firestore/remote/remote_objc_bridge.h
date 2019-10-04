@@ -105,19 +105,14 @@ class NanopbProto {
   T proto_{};
 };
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSListenRequest`s and parsing `GCFSListenResponse`s.
- */
 class WatchStreamSerializer {
  public:
-  explicit WatchStreamSerializer(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
-  }
+  explicit WatchStreamSerializer(FSTSerializerBeta* serializer);
 
-  GCFSListenRequest* CreateWatchRequest(const local::QueryData& query) const;
-  GCFSListenRequest* CreateUnwatchRequest(model::TargetId target_id) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request);
+  google_firestore_v1_ListenRequest CreateWatchRequest(
+      const local::QueryData& query) const;
+  google_firestore_v1_ListenRequest CreateUnwatchRequest(model::TargetId target_id) const;
+  static grpc::ByteBuffer ToByteBuffer(google_firestore_v1_ListenRequest&& request);
 
   /**
    * If parsing fails, will return nil and write information on the error to
@@ -130,11 +125,12 @@ class WatchStreamSerializer {
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  static NSString* Describe(GCFSListenRequest* request);
+  static std::string Describe(const google_firestore_v1_ListenRequest& request);
   static NSString* Describe(GCFSListenResponse* request);
 
  private:
   FSTSerializerBeta* serializer_;
+  Serializer cc_serializer_;
 };
 
 class WriteStreamSerializer {
@@ -172,7 +168,6 @@ class WriteStreamSerializer {
       const google_firestore_v1_WriteResponse& response);
 
  private:
-  FSTSerializerBeta* serializer_;
   Serializer cc_serializer_;
   nanopb::ByteString last_stream_token_;
 };

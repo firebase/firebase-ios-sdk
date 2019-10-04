@@ -51,20 +51,20 @@ WatchStream::WatchStream(
 void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
-  GCFSListenRequest* request = serializer_bridge_.CreateWatchRequest(query);
+  auto request = serializer_bridge_.CreateWatchRequest(query);
   LOG_DEBUG("%s watch: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
   EnsureOnQueue();
 
-  GCFSListenRequest* request =
+  auto request =
       serializer_bridge_.CreateUnwatchRequest(target_id);
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
