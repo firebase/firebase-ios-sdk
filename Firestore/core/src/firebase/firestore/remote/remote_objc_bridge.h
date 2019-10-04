@@ -111,25 +111,29 @@ class WatchStreamSerializer {
 
   google_firestore_v1_ListenRequest CreateWatchRequest(
       const local::QueryData& query) const;
-  google_firestore_v1_ListenRequest CreateUnwatchRequest(model::TargetId target_id) const;
-  static grpc::ByteBuffer ToByteBuffer(google_firestore_v1_ListenRequest&& request);
+  google_firestore_v1_ListenRequest CreateUnwatchRequest(
+      model::TargetId target_id) const;
+  static grpc::ByteBuffer ToByteBuffer(
+      google_firestore_v1_ListenRequest&& request);
 
   /**
    * If parsing fails, will return nil and write information on the error to
    * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
    * ok.
    */
-  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message,
-                                    util::Status* out_status) const;
-  std::unique_ptr<WatchChange> ToWatchChange(GCFSListenResponse* proto) const;
-  model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
+  util::StatusOr<NanopbProto<google_firestore_v1_ListenResponse>> ParseResponse(
+      const grpc::ByteBuffer& message) const;
+  std::unique_ptr<WatchChange> ToWatchChange(
+      const google_firestore_v1_ListenResponse& response) const;
+  model::SnapshotVersion ToSnapshotVersion(
+      const google_firestore_v1_ListenResponse& response) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
   static std::string Describe(const google_firestore_v1_ListenRequest& request);
-  static NSString* Describe(GCFSListenResponse* request);
+  static std::string Describe(
+      const google_firestore_v1_ListenResponse& response);
 
  private:
-  FSTSerializerBeta* serializer_;
   Serializer cc_serializer_;
 };
 
@@ -205,6 +209,7 @@ class DatastoreSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
+  Serializer cc_serializer_;
 };
 
 template <typename T>

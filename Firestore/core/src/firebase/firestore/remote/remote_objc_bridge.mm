@@ -197,7 +197,7 @@ bool IsLoggingEnabled() {
 // WatchStreamSerializer
 
 WatchStreamSerializer::WatchStreamSerializer(FSTSerializerBeta* serializer)
-    : serializer_{serializer}, cc_serializer_{serializer.databaseID} {
+    : cc_serializer_{serializer.databaseID} {
 }
 
 google_firestore_v1_ListenRequest WatchStreamSerializer::CreateWatchRequest(
@@ -239,19 +239,22 @@ grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
                              std::move(request));
 }
 
-GCFSListenResponse* WatchStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSListenResponse>(message, out_status);
+StatusOr<NanopbProto<google_firestore_v1_ListenResponse>>
+WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return NanopbProto<google_firestore_v1_ListenResponse>::Parse(
+      google_firestore_v1_ListenResponse_fields, message);
 }
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
-    GCFSListenResponse* proto) const {
-  return [serializer_ decodedWatchChange:proto];
+    const google_firestore_v1_ListenResponse& response) const {
+  nanopb::Reader reader{nullptr, 0};  // FIXME
+  return cc_serializer_.DecodeWatchChange(&reader, response);
 }
 
 SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
-    GCFSListenResponse* proto) const {
-  return [serializer_ versionFromListenResponse:proto];
+    const google_firestore_v1_ListenResponse& response) const {
+  nanopb::Reader reader{nullptr, 0};  // FIXME
+  return cc_serializer_.DecodeVersion(&reader, response);
 }
 
 std::string WatchStreamSerializer::Describe(
@@ -260,8 +263,10 @@ std::string WatchStreamSerializer::Describe(
       google_firestore_v1_ListenRequest_fields, request);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
-  return [response description];
+std::string WatchStreamSerializer::Describe(
+    const google_firestore_v1_ListenResponse& response) {
+  return DescribeRequest<GCFSListenResponse>(
+      google_firestore_v1_ListenResponse_fields, response);
 }
 
 // WriteStreamSerializer
