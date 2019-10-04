@@ -16,18 +16,6 @@ guide](https://guides.cocoapods.org/using/getting-started.html#getting-started).
 $ sudo gem install cocoapods
 ```
 
-## Try out an SDK
-
-You can try any of the SDKs with `pod try`. Run the following command and select
-the SDK you are interested in when prompted:
-
-```
-$ pod try Firebase
-```
-
-Note that some SDKs may require credentials. More information is available in
-the SDK-specific documentation at [https://firebase.google.com/docs/](https://firebase.google.com/docs/).
-
 ## Add a Firebase SDK to your iOS app
 
 CocoaPods is used to install and manage dependencies in existing Xcode projects.
