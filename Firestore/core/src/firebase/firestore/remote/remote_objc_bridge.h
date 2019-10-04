@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
@@ -194,11 +195,10 @@ class DatastoreSerializer {
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  std::vector<model::MaybeDocument> MergeLookupResponses(
-      const std::vector<grpc::ByteBuffer>& responses,
-      util::Status* out_status) const;
+  util::StatusOr<std::vector<model::MaybeDocument>> MergeLookupResponses(
+      const std::vector<grpc::ByteBuffer>& responses) const;
   model::MaybeDocument ToMaybeDocument(
-      GCFSBatchGetDocumentsResponse* response) const;
+      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   FSTSerializerBeta* GetSerializer() {
     return serializer_;

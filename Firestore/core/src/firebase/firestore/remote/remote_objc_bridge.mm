@@ -62,22 +62,6 @@ using util::StringFormat;
 
 namespace {
 
-std::string ToHexString(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-
-  std::stringstream output;
-  // The output will look like "0x00 0x0a"
-  output << std::hex << std::setfill('0') << std::setw(2);
-  for (const auto& slice : slices) {
-    for (uint8_t c : slice) {
-      output << "0x" << static_cast<int>(c) << " ";
-    }
-  }
-
-  return output.str();
-}
-
 NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
@@ -97,11 +81,6 @@ NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
     }
     return data;
   }
-}
-
-grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
-  grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
 }
 
 template <typename T>
@@ -125,30 +104,6 @@ grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request) {
 
   grpc::Slice slice{bytes.data(), bytes.size()};
   return grpc::ByteBuffer{&slice, 1};
-}
-
-// Note: `StatusOr` cannot be used with ARC-managed objects.
-template <typename Proto>
-Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
-  NSError* error = nil;
-  NSData* data = ConvertToNsData(message, &error);
-  if (!error) {
-    Proto* proto = [Proto parseFromData:data error:&error];
-    if (!error) {
-      *out_status = Status::OK();
-      return proto;
-    }
-  }
-
-  std::string error_description =
-      StringFormat("Unable to parse response from the server.\n"
-                   "Underlying error: %s\n"
-                   "Expected class: %s\n"
-                   "Received value: %s\n",
-                   error, [Proto class], ToHexString(message));
-
-  *out_status = {Error::Internal, error_description};
-  return nil;
 }
 
 template <typename T, typename U>
@@ -188,7 +143,7 @@ StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
   }
 }
 
-}
+}  // namespace internal
 
 bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
@@ -216,9 +171,9 @@ google_firestore_v1_ListenRequest WatchStreamSerializer::CreateWatchRequest(
         request.labels_count);
 
     pb_size_t i = 0;
-    for (const auto& e : labels) {
-      request.labels[i].key = Serializer::EncodeString(e.first);
-      request.labels[i].value = Serializer::EncodeString(e.second);
+    for (const auto& kv : labels) {
+      request.labels[i].key = Serializer::EncodeString(kv.first);
+      request.labels[i].value = Serializer::EncodeString(kv.second);
       ++i;
     }
   }
@@ -423,17 +378,24 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
       google_firestore_v1_BatchGetDocumentsRequest_fields, std::move(request));
 }
 
-std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
-    const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
+StatusOr<std::vector<model::MaybeDocument>>
+DatastoreSerializer::MergeLookupResponses(
+    const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
   std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
-    auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
-    if (!out_status->ok()) {
-      return {};
+    auto maybe_proto =
+        NanopbProto<google_firestore_v1_BatchGetDocumentsResponse>::Parse(
+            google_firestore_v1_BatchGetDocumentsResponse_fields, response);
+    if (!maybe_proto.ok()) {
+      return maybe_proto.status();
     }
-    MaybeDocument doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
+
+    auto proto = std::move(maybe_proto).ValueOrDie();
+    nanopb::Reader reader{nullptr, 0};  // FIXME
+    MaybeDocument doc =
+        cc_serializer_.DecodeMaybeDocument(&reader, proto.get());
     results[doc.key()] = std::move(doc);
   }
 
@@ -442,12 +404,15 @@ std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(
   for (const auto& kv : results) {
     docs.push_back(kv.second);
   }
-  return docs;
+
+  StatusOr<std::vector<model::MaybeDocument>> result{std::move(docs)};
+  return result;
 }
 
 MaybeDocument DatastoreSerializer::ToMaybeDocument(
-    GCFSBatchGetDocumentsResponse* response) const {
-  return [serializer_ decodedMaybeDocumentFromBatch:response];
+    const google_firestore_v1_BatchGetDocumentsResponse& response) const {
+  nanopb::Reader reader{nullptr, 0};  // FIXME
+  return cc_serializer_.DecodeMaybeDocument(&reader, response);
 }
 
 }  // namespace bridge

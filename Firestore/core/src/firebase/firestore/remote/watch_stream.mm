@@ -60,8 +60,7 @@ void WatchStream::WatchQuery(const QueryData& query) {
 void WatchStream::UnwatchTargetId(TargetId target_id) {
   EnsureOnQueue();
 
-  auto request =
-      serializer_bridge_.CreateUnwatchRequest(target_id);
+  auto request = serializer_bridge_.CreateUnwatchRequest(target_id);
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(std::move(request)));
@@ -82,8 +81,7 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  auto maybe_response =
-      serializer_bridge_.ParseResponse(message);
+  auto maybe_response = serializer_bridge_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }

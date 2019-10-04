@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
@@ -52,6 +53,7 @@ using util::Executor;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::Status;
+using util::StatusOr;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -195,11 +197,12 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {},
-      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
+      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
         done = true;
-        resulting_docs = documents;
-        resulting_status = status;
+        if (maybe_documents.ok()) {
+          resulting_docs = maybe_documents.ValueOrDie();
+        }
+        resulting_status = maybe_documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -220,11 +223,12 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {},
-      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
+      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
         done = true;
-        resulting_docs = documents;
-        resulting_status = status;
+        if (maybe_documents.ok()) {
+          resulting_docs = maybe_documents.ValueOrDie();
+        }
+        resulting_status = maybe_documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -265,10 +269,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   bool done = false;
   Status resulting_status;
   datastore->LookupDocuments(
-      {},
-      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
+      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
         done = true;
-        resulting_status = status;
+        resulting_status = maybe_documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -286,10 +289,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   std::vector<MaybeDocument> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {},
-      [&](const std::vector<MaybeDocument>& documents, const Status& status) {
+      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
         done = true;
-        resulting_status = status;
+        resulting_status = maybe_documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -322,8 +324,8 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<MaybeDocument>&, const Status& status) {
-        resulting_status = status;
+      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+        resulting_status = maybe_documents.status();
       });
   worker_queue->EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());

@@ -206,7 +206,7 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
       // TODO(c++14): move into lambda.
       [this, keys, callback](const StatusOr<Token>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
-          callback({}, maybe_credentials.status());
+          callback(maybe_credentials.status());
           return;
         }
         LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), keys,
@@ -243,15 +243,12 @@ void Datastore::OnLookupDocumentsResponse(
     const StatusOr<std::vector<grpc::ByteBuffer>>& result,
     const LookupCallback& callback) {
   if (!result.ok()) {
-    callback({}, result.status());
+    callback(result.status());
     return;
   }
 
-  Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  std::vector<MaybeDocument> docs =
-      serializer_bridge_.MergeLookupResponses(responses, &parse_status);
-  callback(docs, parse_status);
+  callback(serializer_bridge_.MergeLookupResponses(responses));
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
