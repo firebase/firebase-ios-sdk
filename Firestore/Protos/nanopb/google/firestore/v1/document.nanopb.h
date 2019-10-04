@@ -56,6 +56,7 @@ typedef struct _google_firestore_v1_Document {
     pb_size_t fields_count;
     struct _google_firestore_v1_Document_FieldsEntry *fields;
     google_protobuf_Timestamp create_time;
+    bool has_update_time;
     google_protobuf_Timestamp update_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
@@ -93,13 +94,13 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1_Document_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1_Document_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, false, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_Document_FieldsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
 #define google_firestore_v1_Value_init_default   {0, {0}}
 #define google_firestore_v1_ArrayValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_FieldsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
-#define google_firestore_v1_Document_init_zero   {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1_Document_init_zero   {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, false, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_Document_FieldsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
 #define google_firestore_v1_Value_init_zero      {0, {0}}
 #define google_firestore_v1_ArrayValue_init_zero {0, NULL}

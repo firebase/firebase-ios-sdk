@@ -142,7 +142,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   }
 
   result.update_time = rpc_serializer_.EncodeVersion(doc.version());
-
+  result.has_update_time = true;
   // Ignore Document.create_time. (We don't use this in our on-disk protos.)
 
   return result;

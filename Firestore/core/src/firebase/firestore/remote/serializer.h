@@ -202,6 +202,7 @@ class Serializer {
       const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   model::MutationResult DecodeMutationResult(
+      nanopb::Reader* reader,
       const google_firestore_v1_WriteResult& write_result,
       const model::SnapshotVersion& commit_version) const;
 
