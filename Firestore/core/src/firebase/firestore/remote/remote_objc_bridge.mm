@@ -398,22 +398,29 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
                              std::move(request));
 }
 
-GCFSBatchGetDocumentsRequest* DatastoreSerializer::CreateLookupRequest(
+google_firestore_v1_BatchGetDocumentsRequest
+DatastoreSerializer::CreateLookupRequest(
     const std::vector<DocumentKey>& keys) const {
-  GCFSBatchGetDocumentsRequest* request =
-      [GCFSBatchGetDocumentsRequest message];
+  google_firestore_v1_BatchGetDocumentsRequest request{};
 
-  request.database = [serializer_ encodedDatabaseID];
-  for (const DocumentKey& key : keys) {
-    [request.documentsArray addObject:[serializer_ encodedDocumentKey:key]];
+  request.database = cc_serializer_.EncodeDatabaseId();
+  if (!keys.empty()) {
+    request.documents_count = nanopb::CheckedSize(keys.size());
+    request.documents = MakeArray<pb_bytes_array_t*>(request.documents_count);
+    pb_size_t i = 0;
+    for (const DocumentKey& key : keys) {
+      request.documents[i] = cc_serializer_.EncodeKey(key);
+      ++i;
+    }
   }
 
   return request;
 }
 
 grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
-    GCFSBatchGetDocumentsRequest* request) {
-  return ConvertToByteBuffer([request data]);
+    google_firestore_v1_BatchGetDocumentsRequest&& request) {
+  return ConvertToByteBuffer(
+      google_firestore_v1_BatchGetDocumentsRequest_fields, std::move(request));
 }
 
 std::vector<MaybeDocument> DatastoreSerializer::MergeLookupResponses(

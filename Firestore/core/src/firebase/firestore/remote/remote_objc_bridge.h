@@ -182,11 +182,13 @@ class DatastoreSerializer {
 
   google_firestore_v1_CommitRequest CreateCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
-  static grpc::ByteBuffer ToByteBuffer(google_firestore_v1_CommitRequest&& request);
+  static grpc::ByteBuffer ToByteBuffer(
+      google_firestore_v1_CommitRequest&& request);
 
-  GCFSBatchGetDocumentsRequest* CreateLookupRequest(
+  google_firestore_v1_BatchGetDocumentsRequest CreateLookupRequest(
       const std::vector<model::DocumentKey>& keys) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSBatchGetDocumentsRequest* request);
+  static grpc::ByteBuffer ToByteBuffer(
+      google_firestore_v1_BatchGetDocumentsRequest&& request);
 
   /**
    * Merges results of the streaming read together. The array is sorted by the
