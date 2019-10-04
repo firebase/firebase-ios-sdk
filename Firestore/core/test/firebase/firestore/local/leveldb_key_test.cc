@@ -55,10 +55,18 @@ std::string DocTargetKey(absl::string_view key, TargetId target_id) {
   return LevelDbDocumentTargetKey::Key(testutil::Key(key), target_id);
 }
 
-std::string RemoteDocumentReadTimeKey(absl::string_view collection_path,
-                                      int64_t version) {
-  return LevelDbRemoteDocumentReadTimeKey::Key(
+std::string RemoteDocumentReadTimeKeyPrefix(absl::string_view collection_path,
+                                            int64_t version) {
+  return LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
       testutil::Resource(collection_path), testutil::Version(version));
+}
+
+std::string RemoteDocumentReadTimeKey(absl::string_view collection_path,
+                                      int64_t version,
+                                      absl::string_view document_id) {
+  return LevelDbRemoteDocumentReadTimeKey::Key(
+      testutil::Resource(collection_path), testutil::Version(version),
+      document_id);
 }
 
 }  // namespace
@@ -364,45 +372,56 @@ TEST(RemoteDocumentKeyTest, Description) {
 }
 
 TEST(RemoteDocumentReadTimeKeyTest, Ordering) {
-  // Different paths:
-  ASSERT_LT(RemoteDocumentReadTimeKey("bar", 1),
-            RemoteDocumentReadTimeKey("baz", 1));
-  ASSERT_LT(RemoteDocumentReadTimeKey("bar", 1),
-            RemoteDocumentReadTimeKey("foo/doc/bar", 1));
-  ASSERT_LT(RemoteDocumentReadTimeKey("foo/doc/bar", 1),
-            RemoteDocumentReadTimeKey("foo/doc/baz", 1));
+  // Different collection paths:
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("bar", 1),
+            RemoteDocumentReadTimeKeyPrefix("baz", 1));
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("bar", 1),
+            RemoteDocumentReadTimeKeyPrefix("foo/doc/bar", 1));
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("foo/doc/bar", 1),
+            RemoteDocumentReadTimeKeyPrefix("foo/doc/baz", 1));
 
   // Different read times:
-  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1),
-            RemoteDocumentReadTimeKey("foo", 2));
-  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1),
-            RemoteDocumentReadTimeKey("foo", 1000000));
-  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1000000),
-            RemoteDocumentReadTimeKey("foo", 1000001));
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("foo", 1),
+            RemoteDocumentReadTimeKeyPrefix("foo", 2));
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("foo", 1),
+            RemoteDocumentReadTimeKeyPrefix("foo", 1000000));
+  ASSERT_LT(RemoteDocumentReadTimeKeyPrefix("foo", 1000000),
+            RemoteDocumentReadTimeKeyPrefix("foo", 1000001));
+
+  // Different document ids:
+  ASSERT_LT(RemoteDocumentReadTimeKey("foo", 1, "a"),
+            RemoteDocumentReadTimeKey("foo", 1, "b"));
 }
 
 TEST(RemoteDocumentReadTimeKeyTest, EncodeDecodeCycle) {
   LevelDbRemoteDocumentReadTimeKey key;
 
-  std::vector<std::string> paths{"foo", "foo/doc/bar", "foo/doc/bar/doc/baz"};
+  std::vector<std::string> collection_paths{"foo", "foo/doc/bar",
+                                            "foo/doc/bar/doc/baz"};
   std::vector<int64_t> versions{1, 1000000, 1000001};
+  std::vector<std::string> document_ids{"docA", "docB"};
 
-  for (auto&& path : paths) {
+  for (auto&& collection_path : collection_paths) {
     for (auto version : versions) {
-      auto encoded = RemoteDocumentReadTimeKey(path, version);
-      bool ok = key.Decode(encoded);
-      ASSERT_TRUE(ok);
-      ASSERT_EQ(testutil::Resource(path), key.collection_path());
-      ASSERT_EQ(testutil::Version(version), key.read_time());
+      for (auto&& document_id : document_ids) {
+        auto encoded =
+            RemoteDocumentReadTimeKey(collection_path, version, document_id);
+        bool ok = key.Decode(encoded);
+        ASSERT_TRUE(ok);
+        ASSERT_EQ(testutil::Resource(collection_path), key.collection_path());
+        ASSERT_EQ(testutil::Version(version), key.read_time());
+        ASSERT_EQ(document_id, key.document_id());
+      }
     }
   }
 }
 
 TEST(RemoteDocumentReadTimeKeyTest, Description) {
   AssertExpectedKeyDescription(
-      "[remote_document_read_time: path=foo "
-      "snapshot_version=Timestamp(seconds=1, nanoseconds=1000)]",
-      RemoteDocumentReadTimeKey("foo", 1000001));
+      "[remote_document_read_time: path=coll "
+      "snapshot_version=Timestamp(seconds=1, nanoseconds=1000) "
+      "document_id=doc]",
+      RemoteDocumentReadTimeKey("coll", 1000001, "doc"));
 }
 
 #undef AssertExpectedKeyDescription

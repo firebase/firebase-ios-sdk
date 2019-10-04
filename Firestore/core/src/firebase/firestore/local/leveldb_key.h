@@ -582,16 +582,26 @@ class LevelDbCollectionParentKey {
   model::ResourcePath parent_;
 };
 
-/** A key in the remote documents read time table. */
+/**
+ * A key in the remote documents read time table, storing the collection path,
+ * read time and document ID for each entry.
+ */
 class LevelDbRemoteDocumentReadTimeKey {
  public:
-
   /**
    * Creates a key prefix that points just before the first key for the given
    * collection_path and read_time.
    */
+  static std::string KeyPrefix(const model::ResourcePath& collection_path,
+                               model::SnapshotVersion read_time);
+
+  /**
+   * Creates a key that points to the key for the given collection_path,
+   * read_time and document_id.
+   */
   static std::string Key(const model::ResourcePath& collection_path,
-                         model::SnapshotVersion read_time);
+                         model::SnapshotVersion read_time,
+                         absl::string_view document_id);
   /**
    * Decodes the given complete key, storing the decoded values in this
    * instance.
@@ -603,17 +613,23 @@ class LevelDbRemoteDocumentReadTimeKey {
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
-  /** The collection path for all corresponding entries. */
+  /** The collection path for this entry. */
   const model::ResourcePath& collection_path() const {
     return collection_path_;
   }
 
-  /** The read time for all corresponding entries. */
+  /** The read time for for this entry. */
   model::SnapshotVersion read_time() const {
     return read_time_;
   }
 
+  /** The document ID for this entry. */
+  const std::string& document_id() const {
+    return document_id_;
+  }
+
  private:
+  std::string document_id_;
   model::ResourcePath collection_path_;
   model::SnapshotVersion read_time_;
 };

@@ -97,8 +97,14 @@ enum ComponentLabel {
    */
   CollectionId = 14,
 
+  /**
+   * A component containing a standalone document ID (as used by the
+   * remote_document_read_time table).
+   */
+  DocumentId = 15,
+
   /** A component containing a snapshot version. */
-  SnapshotVersion = 15,
+  SnapshotVersion = 16,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -174,9 +180,13 @@ class Reader {
     return ReadLabeledString(ComponentLabel::CollectionId);
   }
 
+  std::string ReadDocumentId() {
+    return ReadLabeledString(ComponentLabel::DocumentId);
+  }
+
   /**
-   * Reads a snapshot version, encoded as a component label and a pair of seconds
-   * (int64) and nanoseconds (int32).
+   * Reads a snapshot version, encoded as a component label and a pair of
+   * seconds (int64) and nanoseconds (int32).
    */
   model::SnapshotVersion ReadSnapshotVersion();
 
@@ -526,6 +536,12 @@ std::string Reader::Describe() {
         absl::StrAppend(&description, " collection_id=", collection_id);
       }
 
+    } else if (label == ComponentLabel::DocumentId) {
+      std::string document_id = ReadDocumentId();
+      if (ok_) {
+        absl::StrAppend(&description, " document_id=", document_id);
+      }
+
     } else if (label == ComponentLabel::SnapshotVersion) {
       model::SnapshotVersion snapshot_version = ReadSnapshotVersion();
       if (ok_) {
@@ -581,6 +597,10 @@ class Writer {
 
   void WriteCollectionId(absl::string_view collection_id) {
     WriteLabeledString(ComponentLabel::CollectionId, collection_id);
+  }
+
+  void WriteDocumentId(absl::string_view document_id) {
+    WriteLabeledString(ComponentLabel::DocumentId, document_id);
   }
 
   void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
@@ -970,13 +990,25 @@ bool LevelDbCollectionParentKey::Decode(absl::string_view key) {
   return reader.ok();
 }
 
-std::string LevelDbRemoteDocumentReadTimeKey::Key(
+std::string LevelDbRemoteDocumentReadTimeKey::KeyPrefix(
     const model::ResourcePath& collection_path,
     model::SnapshotVersion read_time) {
   Writer writer;
   writer.WriteTableName(kRemoteDocumentReadTimeTable);
   writer.WriteResourcePath(collection_path);
   writer.WriteSnapshotVersion(read_time);
+  return writer.result();
+}
+
+std::string LevelDbRemoteDocumentReadTimeKey::Key(
+    const model::ResourcePath& collection_path,
+    model::SnapshotVersion read_time,
+    absl::string_view document_id) {
+  Writer writer;
+  writer.WriteTableName(kRemoteDocumentReadTimeTable);
+  writer.WriteResourcePath(collection_path);
+  writer.WriteSnapshotVersion(read_time);
+  writer.WriteDocumentId(document_id);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -986,6 +1018,7 @@ bool LevelDbRemoteDocumentReadTimeKey::Decode(absl::string_view key) {
   reader.ReadTableNameMatching(kRemoteDocumentReadTimeTable);
   collection_path_ = reader.ReadResourcePath();
   read_time_ = reader.ReadSnapshotVersion();
+  document_id_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();
 }
