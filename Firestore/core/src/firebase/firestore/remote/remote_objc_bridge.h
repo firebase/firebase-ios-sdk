@@ -176,18 +176,13 @@ class WriteStreamSerializer {
   nanopb::ByteString last_stream_token_;
 };
 
-/**
- * A C++ bridge to `FSTSerializerBeta` that allows creating
- * `GCFSCommitRequest`s and `GCFSBatchGetDocumentsRequest`s and handling
- * `GCFSBatchGetDocumentsResponse`s.
- */
 class DatastoreSerializer {
  public:
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
-  GCFSCommitRequest* CreateCommitRequest(
+  google_firestore_v1_CommitRequest CreateCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
-  static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
+  static grpc::ByteBuffer ToByteBuffer(google_firestore_v1_CommitRequest&& request);
 
   GCFSBatchGetDocumentsRequest* CreateLookupRequest(
       const std::vector<model::DocumentKey>& keys) const;

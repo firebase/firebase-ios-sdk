@@ -210,12 +210,17 @@ google_firestore_v1_ListenRequest WatchStreamSerializer::CreateWatchRequest(
   request.add_target = cc_serializer_.EncodeTarget(query);
 
   auto labels = cc_serializer_.EncodeListenRequestLabels(query);
-  request.labels_count = nanopb::CheckedSize(labels.size());
-  pb_size_t i = 0;
-  for (const auto& e : labels) {
-    request.labels[i].key = Serializer::EncodeString(e.first);
-    request.labels[i].value = Serializer::EncodeString(e.second);
-    ++i;
+  if (!labels.empty()) {
+    request.labels_count = nanopb::CheckedSize(labels.size());
+    request.labels = MakeArray<google_firestore_v1_ListenRequest_LabelsEntry>(
+        request.labels_count);
+
+    pb_size_t i = 0;
+    for (const auto& e : labels) {
+      request.labels[i].key = Serializer::EncodeString(e.first);
+      request.labels[i].value = Serializer::EncodeString(e.second);
+      ++i;
+    }
   }
 
   return request;
@@ -364,25 +369,33 @@ std::string WriteStreamSerializer::Describe(
 
 DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
     : serializer_{[[FSTSerializerBeta alloc]
-          initWithDatabaseID:database_info.database_id()]} {
+          initWithDatabaseID:database_info.database_id()]},
+      cc_serializer_{database_info.database_id()} {
 }
 
-GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
+google_firestore_v1_CommitRequest DatastoreSerializer::CreateCommitRequest(
     const std::vector<Mutation>& mutations) const {
-  GCFSCommitRequest* request = [GCFSCommitRequest message];
-  request.database = [serializer_ encodedDatabaseID];
+  google_firestore_v1_CommitRequest request{};
 
-  NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (const Mutation& mutation : mutations) {
-    [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
+  request.database = cc_serializer_.EncodeDatabaseId();
+
+  if (!mutations.empty()) {
+    request.writes_count = nanopb::CheckedSize(mutations.size());
+    request.writes = MakeArray<google_firestore_v1_Write>(request.writes_count);
+    pb_size_t i = 0;
+    for (const Mutation& mutation : mutations) {
+      request.writes[i] = cc_serializer_.EncodeMutation(mutation);
+      ++i;
+    }
   }
-  request.writesArray = mutationProtos;
 
   return request;
 }
 
-grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(GCFSCommitRequest* request) {
-  return ConvertToByteBuffer([request data]);
+grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
+    google_firestore_v1_CommitRequest&& request) {
+  return ConvertToByteBuffer(google_firestore_v1_CommitRequest_fields,
+                             std::move(request));
 }
 
 GCFSBatchGetDocumentsRequest* DatastoreSerializer::CreateLookupRequest(
