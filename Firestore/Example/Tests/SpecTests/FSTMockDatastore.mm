@@ -106,7 +106,8 @@ class MockWatchStream : public WatchStream {
               query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire
-    QueryData sentQueryData = query.WithResumeToken(query.resume_token(), SnapshotVersion::None());
+    QueryData sentQueryData =
+        query.Copy(SnapshotVersion::None(), query.resume_token(), query.sequence_number());
     datastore_->IncrementWatchStreamRequests();
     active_targets_[query.target_id()] = sentQueryData;
   }

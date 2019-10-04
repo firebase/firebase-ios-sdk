@@ -1,6 +1,3 @@
-# 2019-10-08 -- v0.15.5
-- [added] Added support for UIScene based application lifecycle (#3927).
-
 # 2019-09-03 -- v0.15.4
 - [fixed] Undeprecated initializer for FIRInAppMessagingAction so it can be used going forward in custom UI display (#3545).
 

@@ -28,6 +28,7 @@ cc_test(
     async_queue_std_test.cc
     async_queue_test.cc
     async_queue_test.h
+    async_tests_util.h
     executor_std_test.cc
     executor_test.cc
     executor_test.h
@@ -43,6 +44,7 @@ if(HAVE_LIBDISPATCH)
       async_queue_libdispatch_test.mm
       async_queue_test.cc
       async_queue_test.h
+      async_tests_util.h
       executor_libdispatch_test.mm
       executor_test.cc
       executor_test.h
@@ -187,7 +189,6 @@ cc_library(
     firebase_firestore_auth
     firebase_firestore_core
     firebase_firestore_remote
-    firebase_firestore_testutil
     firebase_firestore_util
     grpc++
 )

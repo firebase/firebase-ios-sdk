@@ -65,7 +65,9 @@ void MemoryLruReferenceDelegate::AddInMemoryPins(ReferenceSet* set) {
 }
 
 void MemoryLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
-  QueryData updated = query_data.WithSequenceNumber(current_sequence_number_);
+  QueryData updated =
+      query_data.Copy(query_data.snapshot_version(), query_data.resume_token(),
+                      current_sequence_number_);
   persistence_->query_cache()->UpdateTarget(updated);
 }
 

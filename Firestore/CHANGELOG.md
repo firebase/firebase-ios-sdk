@@ -1,10 +1,5 @@
 # Unreleased
 
-# v1.6.0
-- [feature] Added an `addSnapshotsInSyncListener()` method to
-  `FIRFirestore` that notifies you when all your snapshot listeners are
-  in sync with each other.
-
 # v1.5.1
 - [fixed] Fixed a memory access error discovered using the sanitizers in Xcode
   11.

@@ -48,7 +48,6 @@
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "absl/algorithm/container.h"
 #include "absl/base/casts.h"
 #include "absl/memory/memory.h"
 
@@ -191,10 +190,6 @@ Filter InvalidFilter() {
 }
 
 }  // namespace
-
-Query InvalidQuery() {
-  return Query();
-}
 
 Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)),
@@ -884,8 +879,9 @@ google_firestore_v1_Target_DocumentsTarget Serializer::EncodeDocumentsTarget(
     const core::Query& query) const {
   google_firestore_v1_Target_DocumentsTarget result{};
 
-  result.documents_count = 1;
-  result.documents = MakeArray<pb_bytes_array_t*>(result.documents_count);
+  pb_size_t count = 1;
+  result.documents_count = count;
+  result.documents = MakeArray<pb_bytes_array_t*>(count);
   result.documents[0] = EncodeQueryPath(query.path());
 
   return result;
@@ -898,7 +894,7 @@ Query Serializer::DecodeDocumentsTarget(
     reader->Fail(
         StringFormat("DocumentsTarget contained other than 1 document %s",
                      proto.documents_count));
-    return InvalidQuery();
+    return Query::Invalid();
   }
 
   ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.documents[0]));
@@ -910,6 +906,11 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   google_firestore_v1_Target_QueryTarget result{};
   result.which_query_type =
       google_firestore_v1_Target_QueryTarget_structured_query_tag;
+
+  HARD_ASSERT(!query.path().empty(),
+              "Cannot serialize a query with an empty path");
+  HARD_ASSERT(!query.path().last_segment().empty(),
+              "Cannot serialize a query with an empty path");
 
   pb_size_t from_count = 1;
   result.structured_query.from_count = from_count;
@@ -973,7 +974,7 @@ Query Serializer::DecodeQueryTarget(
       google_firestore_v1_Target_QueryTarget_structured_query_tag) {
     reader->Fail(
         StringFormat("Unknown query_type: %s", proto.which_query_type));
-    return InvalidQuery();
+    return Query::Invalid();
   }
 
   ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.parent));
@@ -986,7 +987,7 @@ Query Serializer::DecodeQueryTarget(
       reader->Fail(
           "StructuredQuery.from with more than one collection is not "
           "supported.");
-      return InvalidQuery();
+      return Query::Invalid();
     }
 
     google_firestore_v1_StructuredQuery_CollectionSelector& from =
@@ -1034,13 +1035,16 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
   google_firestore_v1_StructuredQuery_Filter result{};
 
   auto is_field_filter = [](const Filter& f) { return f.IsAFieldFilter(); };
-  size_t filters_count = absl::c_count_if(filters, is_field_filter);
+  auto first = std::find_if(filters.begin(), filters.end(), is_field_filter);
+  size_t filters_count =
+      first == filters.end()
+          ? 0u
+          : std::count_if(first + 1, filters.end(), is_field_filter) + 1;
   if (filters_count == 1) {
-    auto first = absl::c_find_if(filters, is_field_filter);
     // Special case: no existing filters and we only need to add one filter.
     // This can be made the single root filter without a composite filter.
     FieldFilter filter{*first};
-    return EncodeSingularFilter(filter);
+    return EncodeNonCompositeFilter(filter);
   }
 
   result.which_filter_type =
@@ -1058,7 +1062,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
   for (const auto& filter : filters) {
     if (filter.IsAFieldFilter()) {
       HARD_ASSERT(i < count, "Index out of bounds");
-      composite.filters[i] = EncodeSingularFilter(FieldFilter{filter});
+      composite.filters[i] = EncodeNonCompositeFilter(FieldFilter{filter});
       ++i;
     }
   }
@@ -1088,7 +1092,7 @@ FilterList Serializer::DecodeFilters(
   }
 }
 
-google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
+google_firestore_v1_StructuredQuery_Filter Serializer::EncodeNonCompositeFilter(
     const FieldFilter& filter) const {
   google_firestore_v1_StructuredQuery_Filter result{};
 
@@ -1134,10 +1138,12 @@ Filter Serializer::DecodeFieldFilter(
 Filter Serializer::DecodeUnaryFilter(
     nanopb::Reader* reader,
     const google_firestore_v1_StructuredQuery_UnaryFilter& unary) const {
-  HARD_ASSERT(unary.which_operand_type ==
-                  google_firestore_v1_StructuredQuery_UnaryFilter_field_tag,
-              "Unexpected UnaryFilter.which_operand_type: %s",
-              unary.which_operand_type);
+  if (unary.which_operand_type !=
+      google_firestore_v1_StructuredQuery_UnaryFilter_field_tag) {
+    reader->Fail(StringFormat("Unexpected UnaryFilter.which_operand_type: %s",
+                              unary.which_operand_type));
+    return InvalidFilter();
+  }
 
   auto field =
       FieldPath::FromServerFormat(DecodeString(unary.field.field_path));

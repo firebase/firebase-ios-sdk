@@ -17,7 +17,7 @@
 import FirebaseFirestore
 
 /// A value that is populated in Codable objects with a `DocumentReference` by
-/// the Firestore.Decoder when a document is read.
+/// the FirestoreDecoder when a document is read.
 ///
 /// Note that limitations in Swift compiler-generated Codable implementations
 /// prevent using this type wrapped in an Optional. Optional SelfDocumentIDs
@@ -33,7 +33,7 @@ import FirebaseFirestore
 /// another without adjusting the value here.
 ///
 /// NOTE: Trying to encode/decode this type using encoders/decoders other than
-/// Firestore.Encoder leads to an error.
+/// FirestoreEncoder leads to an error.
 public final class SelfDocumentID: Equatable, Codable {
   // MARK: - Initializers
 
@@ -48,13 +48,11 @@ public final class SelfDocumentID: Equatable, Codable {
   // MARK: - `Codable` implemention.
 
   public init(from decoder: Decoder) throws {
-    throw FirestoreDecodingError.decodingIsNotSupported(
-      "SelfDocumentID values can only be decoded with Firestore.Decoder")
+    throw FirestoreDecodingError.decodingIsNotSupported
   }
 
   public func encode(to encoder: Encoder) throws {
-    throw FirestoreEncodingError.encodingIsNotSupported(
-      "SelfDocumentID values can only be encoded with Firestore.Encoder")
+    throw FirestoreEncodingError.encodingIsNotSupported
   }
 
   // MARK: - Properties

@@ -129,16 +129,9 @@ class QueryData {
     return resume_token_;
   }
 
-  /** Creates a new query data instance with an updated sequence number. */
-  QueryData WithSequenceNumber(
-      model::ListenSequenceNumber sequence_number) const;
-
-  /**
-   *  Creates a new query data instance with an updated resume token and
-   * snapshot version.
-   */
-  QueryData WithResumeToken(nanopb::ByteString resume_token,
-                            model::SnapshotVersion snapshot_version) const;
+  QueryData Copy(model::SnapshotVersion snapshot_version,
+                 nanopb::ByteString resume_token,
+                 model::ListenSequenceNumber sequence_number) const;
 
   friend bool operator==(const QueryData& lhs, const QueryData& rhs);
 

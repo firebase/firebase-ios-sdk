@@ -17,12 +17,10 @@
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 
 #include <string>
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/strings/str_cat.h"
-#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
@@ -38,65 +36,6 @@ std::unique_ptr<util::Executor> ExecutorForTesting(const char* name) {
 
 std::shared_ptr<util::AsyncQueue> AsyncQueueForTesting() {
   return std::make_shared<AsyncQueue>(ExecutorForTesting("worker"));
-}
-
-// MARK: - Expectation
-
-Expectation::Expectation()
-    : promise_(std::make_shared<std::promise<void>>()),
-      future_(promise_->get_future().share()) {
-}
-
-void Expectation::Fulfill() {
-  promise_->set_value();
-}
-
-std::function<void()> Expectation::AsCallback() const {
-  // Additional copy required because putting `promise_` in the capture list
-  // is not allowed. Generalized capture in C++14 would allow direct
-  // initialization.
-  auto promise = promise_;
-  return [promise] { promise->set_value(); };
-}
-
-// MARK: - AsyncTest
-
-std::future<void> AsyncTest::Async(std::function<void()> action) const {
-  std::packaged_task<void()> task(std::move(action));
-  auto future = task.get_future();
-
-  std::thread thread(std::move(task));
-  thread.detach();
-  return future;
-}
-
-void AsyncTest::Await(const std::future<void>& future,
-                      std::chrono::milliseconds timeout) const {
-  std::future_status result = future.wait_for(timeout);
-  if (result == std::future_status::ready) {
-    return;
-  }
-
-  ADD_FAILURE() << "Test timed out after " << timeout.count() << " ms";
-}
-
-void AsyncTest::Await(const std::shared_future<void>& future,
-                      std::chrono::milliseconds timeout) const {
-  std::future_status result = future.wait_for(timeout);
-  if (result == std::future_status::ready) {
-    return;
-  }
-
-  ADD_FAILURE() << "Test timed out after " << timeout.count() << " ms";
-}
-
-void AsyncTest::Await(Expectation& expectation,
-                      std::chrono::milliseconds timeout) const {
-  return Await(expectation.get_future(), timeout);
-}
-
-void AsyncTest::SleepFor(int millis) const {
-  std::this_thread::sleep_for(std::chrono::milliseconds(millis));
 }
 
 }  // namespace testutil

@@ -95,17 +95,10 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
     _strategy = strategy;
     _queue = dispatch_queue_create("com.google.firebase.inappmessaging.clearcut_upload", NULL);
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(scheduleNextSendFromForeground:)
+                                             selector:@selector(appWillEnterForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(scheduleNextSendFromForeground:)
-                                                   name:UISceneWillEnterForegroundNotification
-                                                 object:nil];
-    }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+
     _userDefaults = userDefaults ? userDefaults : [NSUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equvilent to saying that
     // you can send now
@@ -128,7 +121,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)scheduleNextSendFromForeground:(NSNotification *)notification {
+- (void)appWillEnterForeground:(UIApplication *)application {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM260010",
               @"App foregrounded, FIRIAMClearcutUploader will seed next send");
   [self scheduleNextSend];

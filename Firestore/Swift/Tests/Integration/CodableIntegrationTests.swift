@@ -144,38 +144,10 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-#if swift(>=5.1)
   func testExplicitNull() throws {
     struct Model: Encodable {
       var name: String
-      @ExplicitNull var explicitNull: String?
-      var optional: String?
-    }
-    let model = Model(
-      name: "name",
-      explicitNull: nil,
-      optional: nil
-    )
-
-    let docToWrite = documentRef()
-
-    for flavor in allFlavors {
-      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
-
-      let data = readDocument(forRef: docToWrite).data()
-
-      XCTAssertTrue(data!.keys.contains("explicitNull"), "Failed with flavor \(flavor)")
-      XCTAssertEqual(data!["explicitNull"] as! NSNull, NSNull(), "Failed with flavor \(flavor)")
-      XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
-    }
-  }
-#endif  // swift(>=5.1)
-
-  @available(swift, deprecated: 5.1)
-  func testSwift4ExplicitNull() throws {
-    struct Model: Encodable {
-      var name: String
-      var explicitNull: Swift4ExplicitNull<String>
+      var explicitNull: ExplicitNull<String>
       var optional: String?
     }
     let model = Model(

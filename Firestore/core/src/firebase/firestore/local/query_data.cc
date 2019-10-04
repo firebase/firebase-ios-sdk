@@ -25,9 +25,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
-using model::ListenSequenceNumber;
 using model::SnapshotVersion;
-using model::TargetId;
 using nanopb::ByteString;
 
 // MARK: - QueryPurpose
@@ -56,8 +54,8 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
 // MARK: - QueryData
 
 QueryData::QueryData(Query query,
-                     TargetId target_id,
-                     ListenSequenceNumber sequence_number,
+                     model::TargetId target_id,
+                     model::ListenSequenceNumber sequence_number,
                      QueryPurpose purpose,
                      SnapshotVersion snapshot_version,
                      ByteString resume_token)
@@ -71,31 +69,26 @@ QueryData::QueryData(Query query,
 
 QueryData::QueryData(Query query,
                      int target_id,
-                     ListenSequenceNumber sequence_number,
+                     model::ListenSequenceNumber sequence_number,
                      QueryPurpose purpose)
     : QueryData(std::move(query),
                 target_id,
                 sequence_number,
                 purpose,
-                SnapshotVersion::None(),
+                model::SnapshotVersion::None(),
                 ByteString()) {
 }
 
 QueryData QueryData::Invalid() {
-  return QueryData(Query(), /*target_id=*/-1, /*sequence_number=*/-1,
+  return QueryData(Query::Invalid(), /*target_id=*/-1, /*sequence_number=*/-1,
                    QueryPurpose::Listen,
                    SnapshotVersion(SnapshotVersion::None()), {});
 }
 
-QueryData QueryData::WithSequenceNumber(
-    ListenSequenceNumber sequence_number) const {
+QueryData QueryData::Copy(SnapshotVersion snapshot_version,
+                          ByteString resume_token,
+                          model::ListenSequenceNumber sequence_number) const {
   return QueryData(Query(query_), target_id_, sequence_number, purpose_,
-                   snapshot_version_, resume_token_);
-}
-
-QueryData QueryData::WithResumeToken(ByteString resume_token,
-                                     SnapshotVersion snapshot_version) const {
-  return QueryData(Query(query_), target_id_, sequence_number_, purpose_,
                    std::move(snapshot_version), std::move(resume_token));
 }
 

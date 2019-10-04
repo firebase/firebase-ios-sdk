@@ -25,9 +25,8 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace {
 
-using testutil::Expectation;
+namespace {
 
 dispatch_queue_t CreateDispatchQueue() {
   return dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
@@ -48,8 +47,8 @@ INSTANTIATE_TEST_CASE_P(AsyncQueueLibdispatch,
                         AsyncQueueTest,
                         ::testing::Values(CreateExecutorLibdispatch));
 
-class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
-                                      public testutil::AsyncTest {
+class AsyncQueueTestLibdispatchOnly : public TestWithTimeoutMixin,
+                                      public ::testing::Test {
  public:
   AsyncQueueTestLibdispatchOnly()
       : underlying_queue{CreateDispatchQueue()},
@@ -64,10 +63,10 @@ class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
 // interacts with raw usage of libdispatch.
 
 TEST_F(AsyncQueueTestLibdispatchOnly, SameQueueIsAllowedForUnownedActions) {
-  Expectation ran;
-  internal::DispatchAsync(underlying_queue,
-                          [&] { queue.Enqueue(ran.AsCallback()); });
-  Await(ran);
+  internal::DispatchAsync(underlying_queue, [this] {
+    queue.Enqueue([this] { signal_finished(); });
+  });
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,

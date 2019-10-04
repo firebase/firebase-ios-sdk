@@ -47,7 +47,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
@@ -85,7 +84,6 @@ using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::InvalidQuery;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
@@ -228,7 +226,7 @@ ByteString MakeResumeToken(NSString *specString) {
     return query;
   } else {
     XCTFail(@"Invalid query: %@", querySpec);
-    return InvalidQuery();
+    return Query::Invalid();
   }
 }
 

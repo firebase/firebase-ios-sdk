@@ -29,7 +29,6 @@ needed for other package managers.
 
 ```
 brew install cmake
-brew install golang
 brew install ninja      # optional
 gem install cocoapods   # may need sudo
 ```

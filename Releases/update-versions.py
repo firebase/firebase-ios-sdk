@@ -238,8 +238,10 @@ def PushPodspecs(version_data):
       warnings_ok = ''
 
     podspec = '{}.podspec'.format(pod)
-    LogOrRun('pod repo push --skip-tests --use-json {} {}{}'
-             .format(GetCpdcInternal(), podspec, warnings_ok))
+    json = os.path.join(tmp_dir, '{}.json'.format(podspec))
+    LogOrRun('pod ipc spec {} > {}'.format(podspec, json))
+    LogOrRun('pod repo push --skip-tests {} {}{}'.format(GetCpdcInternal(),
+                                                         json, warnings_ok))
   os.system('rm -rf {}'.format(tmp_dir))
 
 

@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
+#include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -29,13 +30,13 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using testutil::Expectation;
 using util::AsyncQueue;
 using util::Executor;
+using util::TestWithTimeoutMixin;
 using util::TimerId;
 
-class ExponentialBackoffTest : public testing::Test,
-                               public testutil::AsyncTest {
+class ExponentialBackoffTest : public TestWithTimeoutMixin,
+                               public testing::Test {
  public:
   ExponentialBackoffTest()
       : queue{testutil::AsyncQueueForTesting()},
@@ -50,13 +51,12 @@ class ExponentialBackoffTest : public testing::Test,
 TEST_F(ExponentialBackoffTest, CanScheduleOperations) {
   EXPECT_FALSE(queue->IsScheduled(timer_id));
 
-  Expectation finished;
   queue->EnqueueBlocking([&] {
-    backoff.BackoffAndRun(finished.AsCallback());
+    backoff.BackoffAndRun([&] { signal_finished(); });
     EXPECT_TRUE(queue->IsScheduled(timer_id));
   });
 
-  Await(finished);
+  EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_FALSE(queue->IsScheduled(timer_id));
 }
 
@@ -75,17 +75,16 @@ TEST_F(ExponentialBackoffTest, CanCancelOperations) {
 }
 
 TEST_F(ExponentialBackoffTest, SequentialCallsToBackoffAndRun) {
-  Expectation finished;
   queue->EnqueueBlocking([&] {
     backoff.BackoffAndRun([] {});
     backoff.BackoffAndRun([] {});
-    backoff.BackoffAndRun(finished.AsCallback());
+    backoff.BackoffAndRun([&] { signal_finished(); });
   });
 
   // The chosen value of initial_delay is large enough that it shouldn't be
   // realistically possible for backoff to finish already.
   queue->RunScheduledOperationsUntil(timer_id);
-  Await(finished);
+  EXPECT_TRUE(WaitForTestToFinish());
 }
 
 }  // namespace remote
