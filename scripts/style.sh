@@ -140,7 +140,7 @@ s%^./%%
 # pod gen output
 \%^gen/% d
 
-# FirestoreEnoder is under 'third_party' for licensing reasons but should be
+# FirestoreEncoder is under 'third_party' for licensing reasons but should be
 # formatted.
 \%Firestore/third_party/FirestoreEncoder/.*\.swift% p
 
