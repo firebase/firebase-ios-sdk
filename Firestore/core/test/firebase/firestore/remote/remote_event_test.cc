@@ -114,8 +114,8 @@ class RemoteEventTest : public testing::Test {
 };
 
 /**
- * Retuns a map of fake query data for the provided target IDs. All targets are
- * considered active and query a collection named "coll".
+ * Returns a map of fake query data for the provided target IDs. All targets
+ * are considered active and query a collection named "coll".
  */
 std::unordered_map<TargetId, QueryData> ActiveQueries(
     std::initializer_list<TargetId> target_ids) {
@@ -129,8 +129,8 @@ std::unordered_map<TargetId, QueryData> ActiveQueries(
 }
 
 /**
- * Retuns a map of fake query data for the provided target IDs. All targets are
- * marked as limbo queries for the document at "coll/limbo".
+ * Returns a map of fake query data for the provided target IDs. All targets
+ * are marked as limbo queries for the document at "coll/limbo".
  */
 std::unordered_map<TargetId, QueryData> ActiveLimboQueries(
     std::initializer_list<TargetId> target_ids) {
