@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 # In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
 # fields having default values, even for non-primitive types. Using the
