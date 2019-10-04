@@ -36,6 +36,8 @@
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+// FIXME
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
 
@@ -62,7 +64,7 @@ bool IsLoggingEnabled();
 
 namespace internal {
 
-StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer);
+util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 
 }
 
@@ -86,7 +88,7 @@ class NanopbProto {
     return proto_;
   }
 
-  static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
+  static util::StatusOr<NanopbProto> Parse(const pb_field_t* fields,
                                      const grpc::ByteBuffer& message);
 
  private:
@@ -134,7 +136,7 @@ class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(FSTSerializerBeta* serializer);
 
-  void UpdateLastStreamToken(GCFSWriteResponse* proto);
+  void UpdateLastStreamToken(const google_firestore_v1_WriteResponse& proto);
   void SetLastStreamToken(const nanopb::ByteString& token) {
     last_stream_token_ = token;
   }
@@ -152,7 +154,7 @@ class WriteStreamSerializer {
   static grpc::ByteBuffer ToByteBuffer(
       google_firestore_v1_WriteRequest&& request);
 
-  StatusOr<NanopbProto<google_firestore_v1_WriteResponse>> ParseResponse(
+  util::StatusOr<NanopbProto<google_firestore_v1_WriteResponse>> ParseResponse(
       const grpc::ByteBuffer& message) const;
   model::SnapshotVersion ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
@@ -205,7 +207,8 @@ class DatastoreSerializer {
   FSTSerializerBeta* serializer_;
 };
 
-static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
+template <typename T>
+util::StatusOr<NanopbProto<T>> NanopbProto<T>::Parse(const pb_field_t* fields,
                                    const grpc::ByteBuffer& message) {
   auto maybe_bytes = internal::ToByteString(message);
   if (!maybe_bytes.ok()) {
@@ -213,7 +216,7 @@ static StatusOr<NanopbProto> Parse(const pb_field_t* fields,
   }
 
   auto bytes = maybe_bytes.ValueOrDie();
-  Reader reader{bytes};
+  nanopb::Reader reader{bytes};
 
   NanopbProto result{fields};
   reader.ReadNanopbMessage(fields, &result.proto_);

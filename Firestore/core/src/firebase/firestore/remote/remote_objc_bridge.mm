@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -155,7 +156,7 @@ std::string DescribeRequest(const pb_field_t* fields, const U& request) {
   // FIXME inefficient implementation.
   auto bytes = ConvertToByteBuffer(fields, request);
   auto ns_data = ConvertToNsData(bytes, nil);
-  T* objc_request = [GCFSWriteRequest parseFromData:ns_data error:nil];
+  T* objc_request = [T parseFromData:ns_data error:nil];
   return util::MakeString([objc_request description]);
 }
 
@@ -169,7 +170,7 @@ StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
   if (!status.ok()) {
     Status error{Error::Internal,
                  "Trying to convert an invalid grpc::ByteBuffer"};
-    error.CausedBy(status);
+    error.CausedBy(ConvertStatus(status));
     return error;
   }
 
@@ -293,22 +294,26 @@ WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     const google_firestore_v1_WriteResponse& proto) const {
-  Reader reader;
-  auto result = cc_serializer_.DecodeVersion(&reader, proto);
+  nanopb::Reader reader{nullptr, 0};  // FIXME
+  auto result =
+      cc_serializer_.DecodeSnapshotVersion(&reader, proto.commit_time);
   // FIXME check error
   return result;
 }
 
 std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
     const google_firestore_v1_WriteResponse& proto) const {
-  const SnapshotVersion commit_version = ToCommitVersion(response);
+  const SnapshotVersion commit_version = ToCommitVersion(proto);
+
   const google_firestore_v1_WriteResult* writes = proto.write_results;
+  pb_size_t count = proto.write_results_count;
   std::vector<MutationResult> results;
-  results.reserve(proto.write_results_count);
+  results.reserve(count);
 
   // TODO: instantiate and pass `Reader`.
   for (pb_size_t i = 0; i != count; ++i) {
-    results.push_back(cc_serializer_.DecodeMutationResult(writes[i], commit_version);
+    results.push_back(
+        cc_serializer_.DecodeMutationResult(writes[i], commit_version));
   };
 
   // FIXME check error

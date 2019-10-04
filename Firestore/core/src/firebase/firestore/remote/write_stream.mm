@@ -30,6 +30,7 @@ namespace remote {
 
 using auth::CredentialsProvider;
 using auth::Token;
+using bridge::NanopbProto;
 using model::Mutation;
 using nanopb::ByteString;
 using util::AsyncQueue;
