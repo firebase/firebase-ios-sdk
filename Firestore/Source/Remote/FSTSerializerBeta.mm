@@ -144,7 +144,7 @@ absl::any Wrap(GCFSDocument *doc) {
   return self;
 }
 
-- (const DatabaseId&) databaseID {
+- (const DatabaseId &)databaseID {
   return _databaseID;
 }
 

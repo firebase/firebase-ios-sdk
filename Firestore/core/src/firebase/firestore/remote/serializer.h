@@ -254,10 +254,10 @@ class Serializer {
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& watch_change) const;
-    
-    model::SnapshotVersion DecodeVersion(
-    nanopb::Reader* reader,
-    const google_firestore_v1_ListenResponse& listen_response) const;
+
+  model::SnapshotVersion DecodeVersion(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& listen_response) const;
 
  private:
   google_firestore_v1_Value EncodeNull() const;

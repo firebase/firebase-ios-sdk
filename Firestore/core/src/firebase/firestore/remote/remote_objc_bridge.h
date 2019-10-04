@@ -89,7 +89,7 @@ class NanopbProto {
   }
 
   static util::StatusOr<NanopbProto> Parse(const pb_field_t* fields,
-                                     const grpc::ByteBuffer& message);
+                                           const grpc::ByteBuffer& message);
 
  private:
   const pb_field_t* fields_ = nullptr;
@@ -208,8 +208,8 @@ class DatastoreSerializer {
 };
 
 template <typename T>
-util::StatusOr<NanopbProto<T>> NanopbProto<T>::Parse(const pb_field_t* fields,
-                                   const grpc::ByteBuffer& message) {
+util::StatusOr<NanopbProto<T>> NanopbProto<T>::Parse(
+    const pb_field_t* fields, const grpc::ByteBuffer& message) {
   auto maybe_bytes = internal::ToByteString(message);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();

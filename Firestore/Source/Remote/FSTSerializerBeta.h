@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID NS_DESIGNATED_INITIALIZER;
 
-- (const model::DatabaseId&) databaseID;
+- (const model::DatabaseId &)databaseID;
 
 - (GCFSValue *)encodedNull;
 - (GCFSValue *)encodedBool:(bool)value;
