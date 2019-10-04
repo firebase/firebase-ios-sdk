@@ -75,14 +75,23 @@ class NanopbProto {
   }
 
   ~NanopbProto() {
-    Serializer::FreeNanopbMessage(fields_, &proto_);
+    if (fields_) {
+      Serializer::FreeNanopbMessage(fields_, &proto_);
+    }
   }
 
   NanopbProto(const NanopbProto&) = delete;
-  NanopbProto(NanopbProto&&) = default;
-
   NanopbProto& operator=(const NanopbProto&) = delete;
-  NanopbProto& operator=(NanopbProto&&) = default;
+
+  NanopbProto(NanopbProto&& other) noexcept
+      : fields_{other.fields_}, proto_{other.proto_} {
+    other.fields_ = nullptr;
+  }
+  NanopbProto& operator=(NanopbProto&& other) noexcept {
+    fields_ = other.fields_;
+    proto_ = other.proto_;
+    other.fields_ = nullptr;
+  }
 
   const T& get() const {
     return proto_;
@@ -219,7 +228,8 @@ util::StatusOr<NanopbProto<T>> NanopbProto<T>::Parse(
 
   // TODO(varconst): additional error handling? Currently, `nanopb::Reader`
   // simply fails upon any error.
-  return result;
+  util::StatusOr<NanopbProto<T>> return_value{std::move(result)};
+  return return_value;
 }
 
 }  // namespace bridge

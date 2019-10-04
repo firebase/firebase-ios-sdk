@@ -2,27 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>API_KEY</key>
-	<string>correct_api_key</string>
-	<key>TRACKING_ID</key>
-	<string>correct_tracking_id</string>
 	<key>CLIENT_ID</key>
-	<string>correct_client_id</string>
+	<string>263214701712-7b1anb6ep6el0o9id98hs9bebepl61td.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>correct_reversed_client_id</string>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:123:ios:123abc</string>
+	<string>com.googleusercontent.apps.263214701712-7b1anb6ep6el0o9id98hs9bebepl61td</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDpdKzobE0nlDMTb_TUtD31BhaH6egLBIc</string>
 	<key>GCM_SENDER_ID</key>
-	<string>correct_gcm_sender_id</string>
+	<string>263214701712</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.google.FirebaseSDKTests</string>
+	<string>com.firebase.FirestoreExample</string>
 	<key>PROJECT_ID</key>
-	<string>abc-xyz-123</string>
-	<key>DATABASE_URL</key>
-	<string>https://abc-xyz-123.firebaseio.com</string>
+	<string>varconst-11-a51fd</string>
 	<key>STORAGE_BUCKET</key>
-	<string>project-id-123.storage.firebase.com</string>
+	<string>varconst-11-a51fd.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:263214701712:ios:0459a01df1082630</string>
+	<key>DATABASE_URL</key>
+	<string>https://varconst-11-a51fd.firebaseio.com</string>
 </dict>
 </plist>

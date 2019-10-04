@@ -310,10 +310,10 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
   std::vector<MutationResult> results;
   results.reserve(count);
 
-  // TODO: instantiate and pass `Reader`.
+  nanopb::Reader reader{nullptr, 0};
   for (pb_size_t i = 0; i != count; ++i) {
     results.push_back(
-        cc_serializer_.DecodeMutationResult(writes[i], commit_version));
+        cc_serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
   };
 
   // FIXME check error
