@@ -42,7 +42,7 @@ foreach(root ${PROTO_FILE_ROOTS})
   )
   if(EXISTS ${OUTPUT_DIR}/protos/${root}.options)
     list(
-      APPEND PROTO_FILES
+      APPEND PROTO_FILES_OPTIONS
       ${OUTPUT_DIR}/protos/${root}.options
     )
   endif()
