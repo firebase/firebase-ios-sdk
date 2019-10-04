@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-IB_DESIGNABLE
+import GoogleDataTransport
 
-// A UIView subclass that allows for tweaking corner radius via a storyboard.
-@interface RoundedCornersView : UIView
-@property(nonatomic) IBInspectable CGFloat cornerRadius;
-@end
+class FirelogTestMessageHolder: NSObject, GDTCOREventDataObject {
+  public var root: FirelogTestMessage = FirelogTestMessage()
+
+  func transportBytes() -> Data {
+    do {
+      let data: Data? = try root.serializedData()
+      return data!
+    } catch {
+      print("There was an error producing proto bytes.")
+      return Data()
+    }
+  }
+}

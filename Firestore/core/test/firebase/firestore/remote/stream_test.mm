@@ -25,7 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
@@ -56,7 +56,6 @@ using util::FakeCredentialsProvider;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
-using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -144,8 +143,7 @@ class TestStream : public Stream {
 class StreamTest : public testing::Test {
  public:
   StreamTest()
-      : worker_queue{std::make_shared<AsyncQueue>(
-            absl::make_unique<ExecutorStd>())},
+      : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
         credentials{std::make_shared<FakeCredentialsProvider>()},

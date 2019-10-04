@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#import "RoundedCornersView.h"
+import Foundation
 
-@implementation RoundedCornersView
+public struct Globals {
+  public static var SharedViewController: ViewController?
 
-- (void)setCornerRadius:(CGFloat)cornerRadius {
-  self.layer.cornerRadius = cornerRadius;
-  self.layer.masksToBounds = cornerRadius > 0;
+  public static var IsMonkeyTesting: Bool = false
+
+  public static let MonkeyTestLength: TimeInterval = 60.0
+
+  public static let MonkeyTestLengthPlusBuffer: TimeInterval = MonkeyTestLength + 10.0
 }
-
-@end

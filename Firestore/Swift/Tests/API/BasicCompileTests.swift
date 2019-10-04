@@ -66,6 +66,8 @@ func main() {
 
   waitForPendingWrites(database: db)
 
+  addSnapshotsInSyncListener(database: db)
+
   terminateDb(database: db)
 }
 
@@ -460,6 +462,13 @@ func waitForPendingWrites(database db: Firestore) {
       return
     }
   }
+}
+
+func addSnapshotsInSyncListener(database db: Firestore) {
+  let listener = db.addSnapshotsInSyncListener {}
+
+  // Unsubscribe
+  listener.remove()
 }
 
 func terminateDb(database db: Firestore) {

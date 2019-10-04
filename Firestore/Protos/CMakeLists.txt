@@ -40,6 +40,12 @@ foreach(root ${PROTO_FILE_ROOTS})
     APPEND PROTO_FILES
     ${OUTPUT_DIR}/protos/${root}.proto
   )
+  if(EXISTS ${OUTPUT_DIR}/protos/${root}.options)
+    list(
+      APPEND PROTO_FILES_OPTIONS
+      ${OUTPUT_DIR}/protos/${root}.options
+    )
+  endif()
 endforeach()
 
 # Filename "roots" (i.e. without the .proto) from within the proto directory,
@@ -261,6 +267,7 @@ add_custom_command(
     ${NANOPB_PYTHON}
     ${PROTOBUF_PYTHON}
     ${PROTO_FILES}
+    ${PROTO_FILES_OPTIONS}
     ${WELL_KNOWN_PROTO_FILES}
 )
 
