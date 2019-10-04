@@ -349,9 +349,6 @@ class Serializer {
   std::unique_ptr<remote::WatchChange> DecodeDocumentChange(
       nanopb::Reader* reader,
       const google_firestore_v1_DocumentChange& change) const;
-  std::vector<model::TargetId> DecodeTargetIdArray(nanopb::Reader* reader,
-                                                   int32_t* array,
-                                                   pb_size_t size) const;
   std::unique_ptr<remote::WatchChange> DecodeDocumentDelete(
       nanopb::Reader* reader,
       const google_firestore_v1_DocumentDelete& change) const;

@@ -18,6 +18,5 @@
 # workaround suggested in
 # https://github.com/nanopb/nanopb/issues/255#issuecomment-291842903
 
-# cause is not set if everything is OK, serializer needs to be able to tell
-# that is the case.
-google.firestore.v1.TargetChange.cause proto3:false
+# Serializer needs to verify update_time is set.
+google.firestore.v1.Document.update_time proto3:false

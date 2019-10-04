@@ -120,23 +120,26 @@ QueryData CreateQueryData(absl::string_view str) {
   return CreateQueryData(Query(str));
 }
 
+template <typename T>
+bool Equals(const WatchChange& lhs, const WatchChange& rhs) {
+  return static_cast<const T&>(lhs) == static_cast<const T&>(rhs);
+}
+
+// Compares two `WatchChange`s taking into account their actual derived type.
 bool operator==(const WatchChange& lhs, const WatchChange& rhs) {
   if (lhs.type() != rhs.type()) {
     return false;
   }
+
   switch (lhs.type()) {
     case WatchChange::Type::Document:
-      return static_cast<const DocumentWatchChange&>(lhs) ==
-             static_cast<const DocumentWatchChange&>(rhs);
-    case WatchChange::Type::TargetChange:
-      return static_cast<const WatchTargetChange&>(lhs) ==
-             static_cast<const WatchTargetChange&>(rhs);
+      return Equals<DocumentWatchChange>(lhs, rhs);
     case WatchChange::Type::ExistenceFilter:
-      return static_cast<const ExistenceFilterWatchChange&>(lhs) ==
-             static_cast<const ExistenceFilterWatchChange&>(rhs);
-    default:
-      HARD_FAIL("Unknown WatchChange.type() %s", lhs.type());
+      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
+    case WatchChange::Type::TargetChange:
+      return Equals<WatchTargetChange>(lhs, rhs);
   }
+  UNREACHABLE();
 }
 
 }  // namespace
@@ -498,7 +501,7 @@ class SerializerTest : public ::testing::Test {
         google_firestore_v1_ListenResponse_fields,
         std::mem_fn(&Serializer::DecodeWatchChange), proto);
 
-    ASSERT_TRUE(model == *actual_model);
+    EXPECT_TRUE(model == *actual_model);
   }
 
   template <typename T>
@@ -1468,9 +1471,8 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
 TEST_F(SerializerTest, EncodesListenRequestLabels) {
   core::Query q = Query("docs");
 
-  std::vector<
-      std::pair<QueryPurpose, std::unordered_map<std::string, std::string>>>
-      purposeToLabel = {
+  std::map<QueryPurpose, std::unordered_map<std::string, std::string>>
+      purpose_to_label = {
           {QueryPurpose::Listen, {}},
           {QueryPurpose::LimboResolution,
            {{"goog-listen-tags", "limbo-document"}}},
@@ -1478,8 +1480,8 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
            {{"goog-listen-tags", "existence-filter-mismatch"}}},
       };
 
-  for (const auto& p : purposeToLabel) {
-    QueryData model(q, 1, 0, p.first, SnapshotVersion::None(), Bytes(1, 2, 3));
+  for (const auto& p : purpose_to_label) {
+    QueryData model(q, 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     EXPECT_EQ(result, p.second);

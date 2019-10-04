@@ -1496,6 +1496,7 @@ MutationResult Serializer::DecodeMutationResult(
       write_result.has_update_time
           ? DecodeSnapshotVersion(reader, write_result.update_time)
           : commit_version;
+
   absl::optional<std::vector<FieldValue>> transform_results;
   if (write_result.transform_results_count > 0) {
     transform_results = std::vector<FieldValue>{};
@@ -1504,17 +1505,19 @@ MutationResult Serializer::DecodeMutationResult(
           DecodeFieldValue(reader, write_result.transform_results[i]));
     }
   }
-  return MutationResult(std::move(version), std::move(transform_results));
+
+  return MutationResult(version, std::move(transform_results));
 }
 
 std::unordered_map<std::string, std::string>
 Serializer::EncodeListenRequestLabels(const QueryData& query_data) const {
   auto value = EncodeLabel(query_data.purpose());
-
-  std::unordered_map<std::string, std::string> result(1);
-  if (!value.empty()) {
-    result["goog-listen-tags"] = value;
+  if (value.empty()) {
+    return {};
   }
+
+  std::unordered_map<std::string, std::string> result;
+  result["goog-listen-tags"] = std::move(value);
   return result;
 }
 
@@ -1526,9 +1529,8 @@ std::string Serializer::EncodeLabel(QueryPurpose purpose) const {
       return "existence-filter-mismatch";
     case QueryPurpose::LimboResolution:
       return "limbo-document";
-    default:
-      HARD_FAIL("Unrecognized query purpose: %s", purpose);
   }
+  UNREACHABLE();
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
@@ -1549,11 +1551,8 @@ std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
 
     case google_firestore_v1_ListenResponse_filter_tag:
       return DecodeExistenceFilterWatchChange(reader, watch_change.filter);
-
-    default:
-      HARD_FAIL("Unknown WatchChange.changeType %s",
-                watch_change.which_response_type);
   }
+  UNREACHABLE();
 }
 
 SnapshotVersion Serializer::DecodeVersion(
@@ -1569,18 +1568,8 @@ SnapshotVersion Serializer::DecodeVersion(
   if (listen_response.target_change.target_ids_count != 0) {
     return SnapshotVersion::None();
   }
+
   return DecodeSnapshotVersion(reader, listen_response.target_change.read_time);
-}
-
-std::vector<TargetId> Serializer::DecodeTargetIdArray(nanopb::Reader* reader,
-                                                      int32_t* array,
-                                                      pb_size_t size) const {
-  std::vector<TargetId> target_ids;
-
-  for (pb_size_t i = 0; i < size; i++) {
-    target_ids.push_back(array[i]);
-  }
-  return target_ids;
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
@@ -1588,9 +1577,9 @@ std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
     const google_firestore_v1_TargetChange& change) const {
   WatchTargetChangeState state =
       DecodeTargetChangeState(reader, change.target_change_type);
-  auto target_ids =
-      DecodeTargetIdArray(reader, change.target_ids, change.target_ids_count);
-  ByteString resume_token = ByteString(change.resume_token);
+  std::vector<TargetId> target_ids(change.target_ids,
+                                   change.target_ids + change.target_ids_count);
+  ByteString resume_token(change.resume_token);
 
   util::Status cause;
   if (change.has_cause) {
@@ -1616,9 +1605,8 @@ WatchTargetChangeState Serializer::DecodeTargetChangeState(
       return WatchTargetChangeState::Current;
     case google_firestore_v1_TargetChange_TargetChangeType_RESET:
       return WatchTargetChangeState::Reset;
-    default:
-      HARD_FAIL("Unexpected TargetChange.state: %s", state);
   }
+  UNREACHABLE();
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
@@ -1627,19 +1615,23 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
   ObjectValue value = ObjectValue::FromMap(DecodeFields(
       reader, change.document.fields_count, change.document.fields));
   DocumentKey key = DecodeKey(reader, change.document.name);
+
+  HARD_ASSERT(change.document.has_update_time,
+              "Got a document change with no snapshot version");
   SnapshotVersion version =
       DecodeSnapshotVersion(reader, change.document.update_time);
-  HARD_ASSERT(version != SnapshotVersion::None(),
-              "Got a document change with no snapshot version");
-  // The document may soon be re-serialized back to protos in order to store it
-  // in local persistence. Memoize the encoded form to avoid encoding it again.
-  Document document(std::move(value), key, version, DocumentState::kSynced,
-                    change.document);
 
-  auto updated_target_ids =
-      DecodeTargetIdArray(reader, change.target_ids, change.target_ids_count);
-  auto removed_target_ids = DecodeTargetIdArray(
-      reader, change.removed_target_ids, change.removed_target_ids_count);
+  // TODO(wuandy): Originally `document` is constructed with `change.document`
+  // as last argument, such that it does not have to encode the proto again
+  // when saving it. It's dangerous because last argument is an `any` type.
+  // Revisit this when porting local serializer to see if we can do it safely.
+  Document document(std::move(value), key, version, DocumentState::kSynced);
+
+  std::vector<TargetId> updated_target_ids(
+      change.target_ids, change.target_ids + change.target_ids_count);
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
 
   return absl::make_unique<DocumentWatchChange>(
       std::move(updated_target_ids), std::move(removed_target_ids),
@@ -1651,14 +1643,15 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
     const google_firestore_v1_DocumentDelete& change) const {
   DocumentKey key = DecodeKey(reader, change.document);
   // Note that version might be unset in which case we use
-  // SnapshotVersion::None()
+  // SnapshotVersion::None().
   SnapshotVersion version =
       change.has_read_time ? DecodeSnapshotVersion(reader, change.read_time)
                            : SnapshotVersion::None();
   NoDocument document(key, version, /* has_committed_mutations= */ false);
 
-  std::vector<TargetId> removed_target_ids = DecodeTargetIdArray(
-      reader, change.removed_target_ids, change.removed_target_ids_count);
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
 
   return absl::make_unique<DocumentWatchChange>(
       std::vector<TargetId>{}, std::move(removed_target_ids), std::move(key),
@@ -1669,8 +1662,9 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentRemove& change) const {
   DocumentKey key = DecodeKey(reader, change.document);
-  std::vector<TargetId> removed_target_ids = DecodeTargetIdArray(
-      reader, change.removed_target_ids, change.removed_target_ids_count);
+  std::vector<TargetId> removed_target_ids(
+      change.removed_target_ids,
+      change.removed_target_ids + change.removed_target_ids_count);
 
   return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
                                                 std::move(removed_target_ids),
