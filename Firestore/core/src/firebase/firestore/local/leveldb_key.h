@@ -88,6 +88,7 @@ namespace local {
 //   - table_name: string = "remote_document_read_time"
 //   - collection: ResourcePath
 //   - read_time: SnapshotVersion
+//   - document_id: string
 
 /**
  * Parses the given key and returns a human readable description of its

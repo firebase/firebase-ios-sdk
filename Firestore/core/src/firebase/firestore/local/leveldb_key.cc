@@ -350,16 +350,8 @@ class Reader {
    * Otherwise, returns the number and advances the Reader to the next unread
    * byte.
    */
-  int32_t ReadInt64() {
-    if (ok_) {
-      int64_t raw_result = ReadSignedNumIncreasing();
-      if (ok_) {
-        return raw_result;
-      }
-    }
-
-    Fail();
-    return 0;
+  int64_t ReadInt64() {
+    return ReadSignedNumIncreasing();
   }
 
   /**

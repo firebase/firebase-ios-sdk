@@ -401,9 +401,9 @@ TEST(RemoteDocumentReadTimeKeyTest, EncodeDecodeCycle) {
   std::vector<int64_t> versions{1, 1000000, 1000001};
   std::vector<std::string> document_ids{"docA", "docB"};
 
-  for (auto&& collection_path : collection_paths) {
+  for (const auto& collection_path : collection_paths) {
     for (auto version : versions) {
-      for (auto&& document_id : document_ids) {
+      for (const auto& document_id : document_ids) {
         auto encoded =
             RemoteDocumentReadTimeKey(collection_path, version, document_id);
         bool ok = key.Decode(encoded);
