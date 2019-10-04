@@ -39,12 +39,12 @@ using util::Status;
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
     std::shared_ptr<CredentialsProvider> credentials_provider,
-    FSTSerializerBeta* serializer,
+    Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
-      serializer_bridge_{serializer},
+      serializer_bridge_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 

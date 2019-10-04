@@ -149,14 +149,14 @@ void Datastore::PollGrpcQueue() {
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
     WatchStreamCallback* callback) {
   return std::make_shared<WatchStream>(worker_queue_, credentials_,
-                                       serializer_bridge_.GetSerializer(),
+                                       serializer_bridge_.serializer(),
                                        &grpc_connection_, callback);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
     WriteStreamCallback* callback) {
   return std::make_shared<WriteStream>(worker_queue_, credentials_,
-                                       serializer_bridge_.GetSerializer(),
+                                       serializer_bridge_.serializer(),
                                        &grpc_connection_, callback);
 }
 

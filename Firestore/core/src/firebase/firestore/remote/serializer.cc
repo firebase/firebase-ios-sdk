@@ -197,8 +197,7 @@ Query InvalidQuery() {
 }
 
 Serializer::Serializer(DatabaseId database_id)
-    : database_id_(std::move(database_id)),
-      database_name_(EncodeDatabaseIdInternal(database_id_).CanonicalString()) {
+    : database_id_(std::move(database_id)) {
 }
 
 void Serializer::FreeNanopbMessage(const pb_field_t fields[],

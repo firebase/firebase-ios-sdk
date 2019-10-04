@@ -36,11 +36,11 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class Serializer;
 
 /**
  * An interface defining the events that can be emitted by the `WatchStream`.
@@ -82,7 +82,7 @@ class WatchStream : public Stream {
  public:
   WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
               std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-              FSTSerializerBeta* serializer,
+              Serializer serializer,
               GrpcConnection* grpc_connection,
               WatchStreamCallback* callback);
 

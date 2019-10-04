@@ -366,7 +366,6 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
-  const std::string database_name_;
 };
 
 }  // namespace remote

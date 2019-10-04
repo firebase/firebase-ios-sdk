@@ -21,8 +21,6 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <string>
 #include <utility>
@@ -41,9 +39,6 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
-
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
 namespace firestore {
@@ -108,7 +103,7 @@ class NanopbProto {
 
 class WatchStreamSerializer {
  public:
-  explicit WatchStreamSerializer(FSTSerializerBeta* serializer);
+  explicit WatchStreamSerializer(Serializer serializer);
 
   google_firestore_v1_ListenRequest CreateWatchRequest(
       const local::QueryData& query) const;
@@ -135,12 +130,12 @@ class WatchStreamSerializer {
       const google_firestore_v1_ListenResponse& response);
 
  private:
-  Serializer cc_serializer_;
+  Serializer serializer_;
 };
 
 class WriteStreamSerializer {
  public:
-  explicit WriteStreamSerializer(FSTSerializerBeta* serializer);
+  explicit WriteStreamSerializer(Serializer serializer);
 
   void UpdateLastStreamToken(const google_firestore_v1_WriteResponse& proto);
   void SetLastStreamToken(const nanopb::ByteString& token) {
@@ -153,7 +148,7 @@ class WriteStreamSerializer {
   google_firestore_v1_WriteRequest CreateHandshake() const;
   google_firestore_v1_WriteRequest CreateWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations) const;
-  google_firestore_v1_WriteRequest CreateEmptyMutationsList() {
+  google_firestore_v1_WriteRequest CreateEmptyMutationsList() const {
     return CreateWriteMutationsRequest({});
   }
 
@@ -173,7 +168,7 @@ class WriteStreamSerializer {
       const google_firestore_v1_WriteResponse& response);
 
  private:
-  Serializer cc_serializer_;
+  Serializer serializer_;
   nanopb::ByteString last_stream_token_;
 };
 
@@ -200,13 +195,12 @@ class DatastoreSerializer {
   model::MaybeDocument ToMaybeDocument(
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
-  FSTSerializerBeta* GetSerializer() {
+  const Serializer& serializer() const {
     return serializer_;
   }
 
  private:
-  FSTSerializerBeta* serializer_;
-  Serializer cc_serializer_;
+  Serializer serializer_;
 };
 
 template <typename T>

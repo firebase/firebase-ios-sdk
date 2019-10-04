@@ -35,11 +35,11 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class Serializer;
 
 class WriteStreamCallback {
  public:
@@ -97,7 +97,7 @@ class WriteStream : public Stream {
  public:
   WriteStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
               std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-              FSTSerializerBeta* serializer,
+              Serializer serializer,
               GrpcConnection* grpc_connection,
               WriteStreamCallback* callback);
 

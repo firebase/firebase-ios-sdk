@@ -40,12 +40,12 @@ using util::Status;
 WriteStream::WriteStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
     std::shared_ptr<CredentialsProvider> credentials_provider,
-    FSTSerializerBeta* serializer,
+    Serializer serializer,
     GrpcConnection* grpc_connection,
     WriteStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
-      serializer_bridge_{serializer},
+      serializer_bridge_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 
