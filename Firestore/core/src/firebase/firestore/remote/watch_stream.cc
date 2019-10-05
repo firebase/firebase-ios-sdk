@@ -22,8 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
