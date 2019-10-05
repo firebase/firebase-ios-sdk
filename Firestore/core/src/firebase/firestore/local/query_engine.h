@@ -17,32 +17,48 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_ENGINE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_ENGINE_H_
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+
+class DocumentMap;
+class SnapshotVersion;
+
+}  // namespace model
+
+namespace core {
+
+class Query;
+
+}  // namespace core
+
 namespace local {
+
+class LocalDocumentsView;
 
 /**
  * Represents a query engine capable of performing queries over the local
- * document cache. You must call setLocalDocumentsView() before using.
+ * document cache. You must call `SetLocalDocumentsView()` before using.
  */
 class QueryEngine {
  public:
-  virtual ~QueryEngine() {
-  }
+  virtual ~QueryEngine() = default;
 
-  /** Sets the document view to query against. */
+  /**
+   * Sets the document view to query against.
+   *
+   * The caller owns the LocalDocumentView and must ensure that it outlives the
+   * QueryEngine.
+   */
   virtual void SetLocalDocumentsView(LocalDocumentsView* local_documents) = 0;
 
   /** Returns all local documents matching the specified query. */
   virtual model::DocumentMap GetDocumentsMatchingQuery(
-      core::Query query,
-      model::SnapshotVersion last_limbo_free_snapshot_version,
+      const core::Query& query,
+      const model::SnapshotVersion& last_limbo_free_snapshot_version,
       model::DocumentKeySet remote_keys) const = 0;
 };
 

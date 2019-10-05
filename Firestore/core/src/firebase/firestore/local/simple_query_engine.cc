@@ -16,13 +16,18 @@
 
 #include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+
 namespace firebase {
 namespace firestore {
 namespace local {
 
 model::DocumentMap SimpleQueryEngine::GetDocumentsMatchingQuery(
-    core::Query query,
-    model::SnapshotVersion last_limbo_free_snapshot_version,
+    const core::Query& query,
+    const model::SnapshotVersion& last_limbo_free_snapshot_version,
     model::DocumentKeySet remote_keys) const {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 

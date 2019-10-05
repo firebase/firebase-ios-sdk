@@ -17,12 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SIMPLE_QUERY_ENGINE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SIMPLE_QUERY_ENGINE_H_
 
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/local/query_engine.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,13 +30,14 @@ class SimpleQueryEngine : public QueryEngine {
   }
 
   model::DocumentMap GetDocumentsMatchingQuery(
-      core::Query query,
-      model::SnapshotVersion last_limbo_free_snapshot_version,
+      const core::Query& query,
+      const model::SnapshotVersion& last_limbo_free_snapshot_version,
       model::DocumentKeySet remote_keys) const override;
 
  private:
   LocalDocumentsView* local_documents_view_;
 };
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
