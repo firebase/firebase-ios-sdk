@@ -72,8 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID NS_DESIGNATED_INITIALIZER;
 
-- (const model::DatabaseId &)databaseID;
-
 - (GCFSValue *)encodedNull;
 - (GCFSValue *)encodedBool:(bool)value;
 - (GCFSValue *)encodedDouble:(double)value;
@@ -85,9 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (GPBTimestamp *)encodedVersion:(const model::SnapshotVersion &)version;
 - (model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
-
-/** Returns the database ID, such as `projects/{project_id}/databases/{database_id}`. */
-- (NSString *)encodedDatabaseID;
 
 /**
  * Encodes the given document key as a fully qualified name. This includes the
@@ -107,12 +102,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
     (const std::vector<model::FieldTransform> &)fieldTransforms;
 
-- (model::MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
-                                 commitVersion:(const model::SnapshotVersion &)commitVersion;
-
-- (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (const local::QueryData &)queryData;
-
 - (GCFSTarget *)encodedTarget:(const local::QueryData &)queryData;
 
 - (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(const core::Query &)query;
@@ -125,9 +114,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (core::FieldFilter)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
 - (core::FieldFilter)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
 
-- (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
-- (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;
-
 - (GCFSDocument *)encodedDocumentWithFields:(const model::ObjectValue &)objectValue
                                         key:(const model::DocumentKey &)key;
 
@@ -138,8 +124,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSMutableDictionary<NSString *, GCFSValue *> *)encodedFields:(const model::ObjectValue &)value;
 
 - (model::ObjectValue)decodedFields:(NSDictionary<NSString *, GCFSValue *> *)fields;
-
-- (model::MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
 
 @end
 

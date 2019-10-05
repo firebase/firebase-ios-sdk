@@ -112,11 +112,6 @@ class WatchStreamSerializer {
   static grpc::ByteBuffer ToByteBuffer(
       google_firestore_v1_ListenRequest&& request);
 
-  /**
-   * If parsing fails, will return nil and write information on the error to
-   * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
-   * ok.
-   */
   util::StatusOr<NanopbProto<google_firestore_v1_ListenResponse>> ParseResponse(
       const grpc::ByteBuffer& message) const;
   std::unique_ptr<WatchChange> ToWatchChange(
