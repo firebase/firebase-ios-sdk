@@ -137,19 +137,13 @@ class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(Serializer serializer);
 
-  void UpdateLastStreamToken(const google_firestore_v1_WriteResponse& proto);
-  void SetLastStreamToken(const nanopb::ByteString& token) {
-    last_stream_token_ = token;
-  }
-  nanopb::ByteString GetLastStreamToken() const {
-    return last_stream_token_;
-  }
-
   google_firestore_v1_WriteRequest CreateHandshake() const;
   google_firestore_v1_WriteRequest CreateWriteMutationsRequest(
-      const std::vector<model::Mutation>& mutations) const;
-  google_firestore_v1_WriteRequest CreateEmptyMutationsList() const {
-    return CreateWriteMutationsRequest({});
+      const std::vector<model::Mutation>& mutations,
+      const nanopb::ByteString& last_stream_token) const;
+  google_firestore_v1_WriteRequest CreateEmptyMutationsList(
+      const nanopb::ByteString& last_stream_token) const {
+    return CreateWriteMutationsRequest({}, last_stream_token);
   }
 
   static grpc::ByteBuffer ToByteBuffer(
@@ -169,7 +163,6 @@ class WriteStreamSerializer {
 
  private:
   Serializer serializer_;
-  nanopb::ByteString last_stream_token_;
 };
 
 class DatastoreSerializer {

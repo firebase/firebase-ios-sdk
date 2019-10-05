@@ -49,12 +49,12 @@ WriteStream::WriteStream(
       callback_{NOT_NULL(callback)} {
 }
 
-void WriteStream::SetLastStreamToken(const ByteString& token) {
-  serializer_bridge_.SetLastStreamToken(token);
+void WriteStream::set_last_stream_token(const ByteString& token) {
+  last_stream_token_ = token;
 }
 
-ByteString WriteStream::GetLastStreamToken() const {
-  return serializer_bridge_.GetLastStreamToken();
+ByteString WriteStream::last_stream_token() const {
+  return last_stream_token_;
 }
 
 void WriteStream::WriteHandshake() {
@@ -77,7 +77,8 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
-  auto request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
+  auto request = serializer_bridge_.CreateWriteMutationsRequest(
+      mutations, last_stream_token());
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(std::move(request)));
@@ -94,7 +95,8 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // Send an empty write request to the backend to indicate imminent stream
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
-    auto request = serializer_bridge_.CreateEmptyMutationsList();
+    auto request =
+        serializer_bridge_.CreateEmptyMutationsList(last_stream_token());
     grpc_stream->WriteAndFinish(
         serializer_bridge_.ToByteBuffer(std::move(request)));
   } else {
@@ -125,7 +127,7 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
             serializer_bridge_.Describe(response.get()));
 
   // Always capture the last stream token.
-  serializer_bridge_.UpdateLastStreamToken(response.get());
+  last_stream_token_ = ByteString{response.get().stream_token};
 
   if (!handshake_complete()) {
     // The first response is the handshake response

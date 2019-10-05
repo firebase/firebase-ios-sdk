@@ -238,11 +238,6 @@ WriteStreamSerializer::WriteStreamSerializer(Serializer serializer)
     : serializer_{std::move(serializer)} {
 }
 
-void WriteStreamSerializer::UpdateLastStreamToken(
-    const google_firestore_v1_WriteResponse& proto) {
-  last_stream_token_ = ByteString{proto.stream_token};
-}
-
 google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
     const {
   // The initial request cannot contain mutations, but must contain a project
@@ -254,7 +249,7 @@ google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
 
 google_firestore_v1_WriteRequest
 WriteStreamSerializer::CreateWriteMutationsRequest(
-    const std::vector<Mutation>& mutations) const {
+    const std::vector<Mutation>& mutations, const ByteString& last_stream_token) const {
   google_firestore_v1_WriteRequest request{};
 
   if (!mutations.empty()) {
@@ -266,7 +261,7 @@ WriteStreamSerializer::CreateWriteMutationsRequest(
     }
   }
 
-  request.stream_token = nanopb::CopyBytesArray(last_stream_token_.get());
+  request.stream_token = nanopb::CopyBytesArray(last_stream_token.get());
 
   return request;
 }

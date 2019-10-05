@@ -101,7 +101,7 @@ class WriteStream : public Stream {
               GrpcConnection* grpc_connection,
               WriteStreamCallback* callback);
 
-  void SetLastStreamToken(const nanopb::ByteString& token);
+  void set_last_stream_token(const nanopb::ByteString& token);
   /**
    * The last received stream token from the server, used to acknowledge which
    * responses the client has processed. Stream tokens are opaque checkpoint
@@ -110,7 +110,7 @@ class WriteStream : public Stream {
    * `WriteStream` manages propagating this value from responses to the
    * next request.
    */
-  nanopb::ByteString GetLastStreamToken() const;
+  nanopb::ByteString last_stream_token() const;
 
   /**
    * Tracks whether or not a handshake has been successfully exchanged and
@@ -151,6 +151,7 @@ class WriteStream : public Stream {
   bridge::WriteStreamSerializer serializer_bridge_;
   WriteStreamCallback* callback_ = nullptr;
   bool handshake_complete_ = false;
+  nanopb::ByteString last_stream_token_;
 };
 
 }  // namespace remote
