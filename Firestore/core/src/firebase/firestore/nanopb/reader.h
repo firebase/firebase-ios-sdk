@@ -46,6 +46,15 @@ class Reader {
   Reader(Reader&&) = delete;
 
   /**
+   * Creates an instance that isn't associated with any bytes. It can be used
+   * to accumulate errors.
+   *
+   * TODO(varconst): move error handling into a separate class, e.g.
+   * `ReadContext`.
+   */
+  Reader();
+
+  /**
    * Creates an input stream that reads from the specified bytes. Note that
    * this reference must remain valid for the lifetime of this Reader.
    *

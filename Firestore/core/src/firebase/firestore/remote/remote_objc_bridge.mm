@@ -210,13 +210,13 @@ WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
     const google_firestore_v1_ListenResponse& response) const {
-  nanopb::Reader reader{nullptr, 0};  // FIXME
+  nanopb::Reader reader;
   return serializer_.DecodeWatchChange(&reader, response);
 }
 
 SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
     const google_firestore_v1_ListenResponse& response) const {
-  nanopb::Reader reader{nullptr, 0};  // FIXME
+  nanopb::Reader reader;
   return serializer_.DecodeVersion(&reader, response);
 }
 
@@ -281,7 +281,7 @@ WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     const google_firestore_v1_WriteResponse& proto) const {
-  nanopb::Reader reader{nullptr, 0};  // FIXME
+  nanopb::Reader reader;
   auto result = serializer_.DecodeSnapshotVersion(&reader, proto.commit_time);
   // FIXME check error
   return result;
@@ -296,7 +296,7 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
   std::vector<MutationResult> results;
   results.reserve(count);
 
-  nanopb::Reader reader{nullptr, 0};
+  nanopb::Reader reader;
   for (pb_size_t i = 0; i != count; ++i) {
     results.push_back(
         serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
@@ -389,7 +389,7 @@ DatastoreSerializer::MergeLookupResponses(
     }
 
     auto proto = std::move(maybe_proto).ValueOrDie();
-    nanopb::Reader reader{nullptr, 0};  // FIXME
+    nanopb::Reader reader;
     MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, proto.get());
     results[doc.key()] = std::move(doc);
   }
@@ -406,7 +406,7 @@ DatastoreSerializer::MergeLookupResponses(
 
 MaybeDocument DatastoreSerializer::ToMaybeDocument(
     const google_firestore_v1_BatchGetDocumentsResponse& response) const {
-  nanopb::Reader reader{nullptr, 0};  // FIXME
+  nanopb::Reader reader;
   return serializer_.DecodeMaybeDocument(&reader, response);
 }
 
