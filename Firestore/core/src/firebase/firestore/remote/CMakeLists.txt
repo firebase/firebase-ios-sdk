@@ -87,7 +87,7 @@ cc_library(
     serializer.cc
     serializer.h
     watch_change.h
-    watch_change.mm
+    watch_change.cc
 
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.
