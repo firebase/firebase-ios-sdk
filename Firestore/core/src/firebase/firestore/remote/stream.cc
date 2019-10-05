@@ -33,10 +33,10 @@ namespace remote {
 using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
+using util::TimerId;
 
 namespace {
 

@@ -32,8 +32,8 @@ using bridge::NanopbProto;
 using model::Mutation;
 using nanopb::ByteString;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
+using util::TimerId;
 
 WriteStream::WriteStream(
     const std::shared_ptr<AsyncQueue>& async_queue,

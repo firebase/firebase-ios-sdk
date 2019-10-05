@@ -39,13 +39,13 @@ using local::QueryData;
 using local::QueryPurpose;
 using model::BatchId;
 using model::DocumentKeySet;
+using model::kBatchIdUnknown;
 using model::MutationBatch;
 using model::MutationBatchResult;
 using model::MutationResult;
 using model::OnlineState;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::kBatchIdUnknown;
 using nanopb::ByteString;
 using util::AsyncQueue;
 using util::Status;
@@ -387,8 +387,9 @@ bool RemoteStore::ShouldStartWriteStream() const {
 }
 
 void RemoteStore::StartWriteStream() {
-  HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
-                                        "ShouldStartWriteStream is false.");
+  HARD_ASSERT(ShouldStartWriteStream(),
+              "StartWriteStream called when "
+              "ShouldStartWriteStream is false.");
   write_stream_->Start();
 }
 
@@ -465,10 +466,11 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
   // comments on `Datastore::IsPermanentWriteError` for details.
   if (Datastore::IsPermanentError(status)) {
     std::string token = util::ToString(write_stream_->last_stream_token());
-    LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
-              "stream token %s: "
-              "error code: '%s', details: '%s'",
-              this, token, status.code(), status.error_message());
+    LOG_DEBUG(
+        "RemoteStore %s error before completed handshake; resetting "
+        "stream token %s: "
+        "error code: '%s', details: '%s'",
+        this, token, status.code(), status.error_message());
     write_stream_->set_last_stream_token({});
     local_store_->SetLastStreamToken({});
   } else {

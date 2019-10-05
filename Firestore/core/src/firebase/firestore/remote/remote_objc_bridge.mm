@@ -249,7 +249,8 @@ google_firestore_v1_WriteRequest WriteStreamSerializer::CreateHandshake()
 
 google_firestore_v1_WriteRequest
 WriteStreamSerializer::CreateWriteMutationsRequest(
-    const std::vector<Mutation>& mutations, const ByteString& last_stream_token) const {
+    const std::vector<Mutation>& mutations,
+    const ByteString& last_stream_token) const {
   google_firestore_v1_WriteRequest request{};
 
   if (!mutations.empty()) {
@@ -281,8 +282,7 @@ WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     const google_firestore_v1_WriteResponse& proto) const {
   nanopb::Reader reader{nullptr, 0};  // FIXME
-  auto result =
-      serializer_.DecodeSnapshotVersion(&reader, proto.commit_time);
+  auto result = serializer_.DecodeSnapshotVersion(&reader, proto.commit_time);
   // FIXME check error
   return result;
 }
@@ -298,8 +298,8 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
 
   nanopb::Reader reader{nullptr, 0};
   for (pb_size_t i = 0; i != count; ++i) {
-    results.push_back(serializer_.DecodeMutationResult(&reader, writes[i],
-                                                          commit_version));
+    results.push_back(
+        serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
   };
 
   // FIXME check error
@@ -390,8 +390,7 @@ DatastoreSerializer::MergeLookupResponses(
 
     auto proto = std::move(maybe_proto).ValueOrDie();
     nanopb::Reader reader{nullptr, 0};  // FIXME
-    MaybeDocument doc =
-        serializer_.DecodeMaybeDocument(&reader, proto.get());
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, proto.get());
     results[doc.key()] = std::move(doc);
   }
 

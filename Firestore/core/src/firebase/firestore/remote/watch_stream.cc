@@ -31,8 +31,8 @@ using auth::Token;
 using local::QueryData;
 using model::TargetId;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
+using util::TimerId;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,

@@ -52,9 +52,9 @@ using model::DocumentKey;
 using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
+using util::Executor;
 using util::Status;
 using util::StatusOr;
-using util::Executor;
 
 const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
