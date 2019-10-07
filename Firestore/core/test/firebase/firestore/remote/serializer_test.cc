@@ -1487,19 +1487,18 @@ TEST_F(SerializerTest, DecodesMutationResult) {
   std::vector<FieldValue> transformations({FieldValue::FromBoolean(true),
                                            FieldValue::FromInteger(1234),
                                            FieldValue::FromString("string")});
-  MutationResult model(Version(123456789), std::move(transformations));
+  auto version = Version(123456789);
+  MutationResult model(version, std::move(transformations));
 
   v1::WriteResult proto;
 
-  proto.mutable_update_time()->set_seconds(
-      Version(123456789).timestamp().seconds());
-  proto.mutable_update_time()->set_nanos(
-      Version(123456789).timestamp().nanoseconds());
-  proto.mutable_transform_results()->Add();
-  proto.mutable_transform_results()->Add();
+  proto.mutable_update_time()->set_seconds(version.timestamp().seconds());
+  proto.mutable_update_time()->set_nanos(version.timestamp().nanoseconds());
   proto.mutable_transform_results()->Add();
   (*proto.mutable_transform_results())[0] = ValueProto(true);
+  proto.mutable_transform_results()->Add();
   (*proto.mutable_transform_results())[1] = ValueProto(1234);
+  proto.mutable_transform_results()->Add();
   (*proto.mutable_transform_results())[2] = ValueProto("string");
 
   SCOPED_TRACE("DecodesMutationResult");
@@ -1507,21 +1506,11 @@ TEST_F(SerializerTest, DecodesMutationResult) {
 }
 
 TEST_F(SerializerTest, DecodesMutationResultWithNoUpdateTime) {
-  std::vector<FieldValue> transformations({FieldValue::FromBoolean(true),
-                                           FieldValue::FromInteger(1234),
-                                           FieldValue::FromString("string")});
-  MutationResult model(Version(10000000), std::move(transformations));
+  MutationResult model(Version(10000000), {});
 
   v1::WriteResult proto;
 
-  proto.mutable_transform_results()->Add();
-  proto.mutable_transform_results()->Add();
-  proto.mutable_transform_results()->Add();
-  (*proto.mutable_transform_results())[0] = ValueProto(true);
-  (*proto.mutable_transform_results())[1] = ValueProto(1234);
-  (*proto.mutable_transform_results())[2] = ValueProto("string");
-
-  SCOPED_TRACE("DecodesMutationResult");
+  SCOPED_TRACE("DecodesMutationResultWithNoUpdateTime");
   ExpectDeserializationRoundTrip(model, proto, Version(10000000));
 }
 
@@ -1543,7 +1532,8 @@ TEST_F(SerializerTest, DecodesListenResponseWithAddedTargetChange) {
 
 TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
   WatchTargetChange model(WatchTargetChangeState::Removed, {1, 2},
-                          ByteString("resume_token"));
+                          ByteString("resume_token"),
+                          Status{Error::PermissionDenied, "Error message"});
 
   v1::ListenResponse proto;
 
@@ -1552,6 +1542,9 @@ TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
   proto.mutable_target_change()->add_target_ids(1);
   proto.mutable_target_change()->add_target_ids(2);
   proto.mutable_target_change()->set_resume_token("resume_token");
+  proto.mutable_target_change()->mutable_cause()->set_code(
+      Error::PermissionDenied);
+  proto.mutable_target_change()->mutable_cause()->set_message("Error message");
 
   SCOPED_TRACE("DecodesListenResponseWithRemovedTargetChange");
   ExpectDeserializationRoundTrip(model, proto);
@@ -1647,13 +1640,14 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
 }
 
 TEST_F(SerializerTest, DecodesVersion) {
-  SnapshotVersion model(Version(123456789).timestamp());
+  auto version = Version(123456789);
+  SnapshotVersion model(version.timestamp());
 
   v1::ListenResponse proto;
   proto.mutable_target_change()->mutable_read_time()->set_seconds(
-      Version(123456789).timestamp().seconds());
+      version.timestamp().seconds());
   proto.mutable_target_change()->mutable_read_time()->set_nanos(
-      Version(123456789).timestamp().nanoseconds());
+      version.timestamp().nanoseconds());
 
   SCOPED_TRACE("DecodesVersion");
   ExpectDeserializationRoundTrip(model, proto);
@@ -1669,10 +1663,17 @@ TEST_F(SerializerTest, DecodesVersionWithNoReadTime) {
 }
 
 TEST_F(SerializerTest, DecodesVersionWithTargets) {
+  auto version = Version(123456789);
   auto model = SnapshotVersion::None();
 
   v1::ListenResponse proto;
+  // proto is decoded to `None()` even with `read_time` set, because
+  // `target_ids` is not empty.
   proto.mutable_target_change()->mutable_target_ids()->Add(1);
+  proto.mutable_target_change()->mutable_read_time()->set_seconds(
+      version.timestamp().seconds());
+  proto.mutable_target_change()->mutable_read_time()->set_nanos(
+      version.timestamp().nanoseconds());
 
   SCOPED_TRACE("DecodesVersionWithTargets");
   ExpectDeserializationRoundTrip(model, proto);
