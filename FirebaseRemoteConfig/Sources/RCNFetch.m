@@ -486,13 +486,13 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
   NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
 
-  if (_options.projectID) {
+  if (_options.gcmSenderID) {
     serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
     serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
   } else {
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000070",
-                @"Missing `projectID` from `FirebaseOptions`, please ensure the configured "
-                @"`FirebaseApp` is configured with `FirebaseOptions` that contains a `projectID`.");
+                @"Missing Firebase Project Number`gcmSenderID` from `FirebaseOptions`, please ensure the configured "
+                @"`FirebaseApp` is configured with `FirebaseOptions` that contains a `gcmSenderID`.");
   }
 
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLNamespaces];
