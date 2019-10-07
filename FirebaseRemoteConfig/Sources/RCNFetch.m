@@ -488,10 +488,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
   if (_options.gcmSenderID) {
     serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
-    serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
+    serverURLStr = [serverURLStr stringByAppendingString:_options.gcmSenderID];
   } else {
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000070",
-                @"Missing Firebase Project Number`gcmSenderID` from `FirebaseOptions`, please ensure the configured "
+                @"Missing Firebase Project Number from `FirebaseOptions`, please ensure the configured "
                 @"`FirebaseApp` is configured with `FirebaseOptions` that contains a `gcmSenderID`.");
   }
 
