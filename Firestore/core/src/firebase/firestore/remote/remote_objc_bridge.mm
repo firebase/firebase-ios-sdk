@@ -298,7 +298,7 @@ DatastoreSerializer::CreateCommitRequest(
     }
   }
 
-  return request;
+  return result;
 }
 
 Message<google_firestore_v1_BatchGetDocumentsRequest>

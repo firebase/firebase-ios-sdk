@@ -124,14 +124,6 @@ using Operator = Filter::Operator;
 
 NS_ASSUME_NONNULL_BEGIN
 
-namespace {
-
-absl::any Wrap(GCFSDocument *doc) {
-  return absl::make_any<GCFSDocument *>(doc);
-}
-
-}  // namespace
-
 @implementation FSTSerializerBeta {
   DatabaseId _databaseID;
 }
