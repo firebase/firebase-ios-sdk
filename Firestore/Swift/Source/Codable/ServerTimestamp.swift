@@ -22,7 +22,7 @@ import FirebaseFirestore
   /// it suitable for use with the `@ServerTimestamp` property wrapper.
   ///
   /// Firestore includes extensions that make `Timestamp`, `Date`, and `NSDate`
-  /// conform to `ServerTimestampWrappable`. Other types can be extended
+  /// conform to `ServerTimestampWrappable`.
   public protocol ServerTimestampWrappable {
     /// Creates a new instance by converting from the given `Timestamp`.
     ///
