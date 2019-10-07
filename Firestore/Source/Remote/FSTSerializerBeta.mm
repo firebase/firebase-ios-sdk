@@ -238,10 +238,6 @@ absl::any Wrap(GCFSDocument *doc) {
   return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
 }
 
-- (NSString *)encodedDatabaseID {
-  return util::MakeNSString([self encodedResourcePathForDatabaseID:_databaseID].CanonicalString());
-}
-
 #pragma mark - FieldValue <=> Value proto
 
 - (GCFSValue *)encodedFieldValue:(const FieldValue &)fieldValue {
@@ -466,40 +462,6 @@ absl::any Wrap(GCFSDocument *doc) {
   proto.name = [self encodedDocumentKey:key];
   proto.fields = [self encodedFields:objectValue];
   return proto;
-}
-
-#pragma mark - MaybeDocument <= BatchGetDocumentsResponse proto
-
-- (MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response {
-  switch (response.resultOneOfCase) {
-    case GCFSBatchGetDocumentsResponse_Result_OneOfCase_Found:
-      return [self decodedFoundDocument:response];
-    case GCFSBatchGetDocumentsResponse_Result_OneOfCase_Missing:
-      return [self decodedDeletedDocument:response];
-    default:
-      HARD_FAIL("Unknown document type: %s", response);
-  }
-}
-
-- (Document)decodedFoundDocument:(GCFSBatchGetDocumentsResponse *)response {
-  HARD_ASSERT(!!response.found, "Tried to deserialize a found document from a deleted document.");
-  DocumentKey key = [self decodedDocumentKey:response.found.name];
-  ObjectValue value = [self decodedFields:response.found.fields];
-  SnapshotVersion version = [self decodedVersion:response.found.updateTime];
-  HARD_ASSERT(version != SnapshotVersion::None(),
-              "Got a document response with no snapshot version");
-
-  return Document(std::move(value), std::move(key), version, DocumentState::kSynced,
-                  Wrap(response.found));
-}
-
-- (NoDocument)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
-  HARD_ASSERT(!!response.missing, "Tried to deserialize a deleted document from a found document.");
-  DocumentKey key = [self decodedDocumentKey:response.missing];
-  SnapshotVersion version = [self decodedVersion:response.readTime];
-  HARD_ASSERT(version != SnapshotVersion::None(),
-              "Got a no document response with no snapshot version");
-  return NoDocument(std::move(key), version, /* has_commited_mutations= */ false);
 }
 
 #pragma mark - Mutation => GCFSWrite proto
@@ -731,50 +693,7 @@ absl::any Wrap(GCFSDocument *doc) {
   return elements;
 }
 
-#pragma mark - MutationResult <= GCFSWriteResult proto
-
-- (MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
-                          commitVersion:(const SnapshotVersion &)commitVersion {
-  // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
-  SnapshotVersion version =
-      mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
-  absl::optional<std::vector<FieldValue>> transformResults;
-  if (mutation.transformResultsArray.count > 0) {
-    transformResults = std::vector<FieldValue>{};
-    for (GCFSValue *result in mutation.transformResultsArray) {
-      transformResults->push_back([self decodedFieldValue:result]);
-    }
-  }
-  return MutationResult(std::move(version), std::move(transformResults));
-}
-
 #pragma mark - QueryData => GCFSTarget proto
-
-- (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (const QueryData &)queryData {
-  NSString *value = [self encodedLabelForPurpose:queryData.purpose()];
-  if (!value) {
-    return nil;
-  }
-
-  NSMutableDictionary<NSString *, NSString *> *result =
-      [NSMutableDictionary dictionaryWithCapacity:1];
-  [result setObject:value forKey:@"goog-listen-tags"];
-  return result;
-}
-
-- (nullable NSString *)encodedLabelForPurpose:(QueryPurpose)purpose {
-  switch (purpose) {
-    case QueryPurpose::Listen:
-      return nil;
-    case QueryPurpose::ExistenceFilterMismatch:
-      return @"existence-filter-mismatch";
-    case QueryPurpose::LimboResolution:
-      return @"limbo-document";
-    default:
-      HARD_FAIL("Unrecognized query purpose: %s", purpose);
-  }
-}
 
 - (GCFSTarget *)encodedTarget:(const QueryData &)queryData {
   GCFSTarget *result = [GCFSTarget message];
@@ -1124,132 +1043,6 @@ absl::any Wrap(GCFSDocument *doc) {
   }
 
   return std::make_shared<Bound>(std::move(indexComponents), proto.before);
-}
-
-#pragma mark - WatchChange <= GCFSListenResponse proto
-
-- (std::unique_ptr<WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange {
-  switch (watchChange.responseTypeOneOfCase) {
-    case GCFSListenResponse_ResponseType_OneOfCase_TargetChange:
-      return [self decodedTargetChangeFromWatchChange:watchChange.targetChange];
-
-    case GCFSListenResponse_ResponseType_OneOfCase_DocumentChange:
-      return [self decodedDocumentChange:watchChange.documentChange];
-
-    case GCFSListenResponse_ResponseType_OneOfCase_DocumentDelete:
-      return [self decodedDocumentDelete:watchChange.documentDelete];
-
-    case GCFSListenResponse_ResponseType_OneOfCase_DocumentRemove:
-      return [self decodedDocumentRemove:watchChange.documentRemove];
-
-    case GCFSListenResponse_ResponseType_OneOfCase_Filter:
-      return [self decodedExistenceFilterWatchChange:watchChange.filter];
-
-    default:
-      HARD_FAIL("Unknown WatchChange.changeType %s", watchChange.responseTypeOneOfCase);
-  }
-}
-
-- (SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange {
-  // We have only reached a consistent snapshot for the entire stream if there is a read_time set
-  // and it applies to all targets (i.e. the list of targets is empty). The backend is guaranteed to
-  // send such responses.
-  if (watchChange.responseTypeOneOfCase != GCFSListenResponse_ResponseType_OneOfCase_TargetChange) {
-    return SnapshotVersion::None();
-  }
-  if (watchChange.targetChange.targetIdsArray.count != 0) {
-    return SnapshotVersion::None();
-  }
-  return [self decodedVersion:watchChange.targetChange.readTime];
-}
-
-- (std::unique_ptr<WatchChange>)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
-  WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
-  __block std::vector<TargetId> targetIDs;
-
-  [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger, BOOL *) {
-    targetIDs.push_back(value);
-  }];
-
-  ByteString resumeToken = MakeByteString(change.resumeToken);
-
-  util::Status cause;
-  if (change.hasCause) {
-    cause =
-        util::Status{static_cast<Error>(change.cause.code), util::MakeString(change.cause.message)};
-  }
-
-  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
-                                              std::move(cause));
-}
-
-- (WatchTargetChangeState)decodedWatchTargetChangeState:(GCFSTargetChange_TargetChangeType)state {
-  switch (state) {
-    case GCFSTargetChange_TargetChangeType_NoChange:
-      return WatchTargetChangeState::NoChange;
-    case GCFSTargetChange_TargetChangeType_Add:
-      return WatchTargetChangeState::Added;
-    case GCFSTargetChange_TargetChangeType_Remove:
-      return WatchTargetChangeState::Removed;
-    case GCFSTargetChange_TargetChangeType_Current:
-      return WatchTargetChangeState::Current;
-    case GCFSTargetChange_TargetChangeType_Reset:
-      return WatchTargetChangeState::Reset;
-    default:
-      HARD_FAIL("Unexpected TargetChange.state: %s", state);
-  }
-}
-
-- (std::vector<TargetId>)decodedIntegerArray:(GPBInt32Array *)values {
-  __block std::vector<TargetId> result;
-  result.reserve(values.count);
-  [values enumerateValuesWithBlock:^(int32_t value, NSUInteger, BOOL *) {
-    result.push_back(value);
-  }];
-  return result;
-}
-
-- (std::unique_ptr<WatchChange>)decodedDocumentChange:(GCFSDocumentChange *)change {
-  ObjectValue value = [self decodedFields:change.document.fields];
-  DocumentKey key = [self decodedDocumentKey:change.document.name];
-  SnapshotVersion version = [self decodedVersion:change.document.updateTime];
-  HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
-  // The document may soon be re-serialized back to protos in order to store it in local
-  // persistence. Memoize the encoded form to avoid encoding it again.
-  Document document(std::move(value), key, version, DocumentState::kSynced, Wrap(change.document));
-
-  std::vector<TargetId> updatedTargetIDs = [self decodedIntegerArray:change.targetIdsArray];
-  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
-
-  return absl::make_unique<DocumentWatchChange>(std::move(updatedTargetIDs),
-                                                std::move(removedTargetIDs), std::move(key),
-                                                std::move(document));
-}
-
-- (std::unique_ptr<WatchChange>)decodedDocumentDelete:(GCFSDocumentDelete *)change {
-  DocumentKey key = [self decodedDocumentKey:change.document];
-  // Note that version might be unset in which case we use SnapshotVersion::None()
-  SnapshotVersion version = [self decodedVersion:change.readTime];
-  NoDocument document(key, version, /* has_committed_mutations= */ false);
-
-  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
-
-  return absl::make_unique<DocumentWatchChange>(
-      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), std::move(document));
-}
-
-- (std::unique_ptr<WatchChange>)decodedDocumentRemove:(GCFSDocumentRemove *)change {
-  DocumentKey key = [self decodedDocumentKey:change.document];
-  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
-
-  return absl::make_unique<DocumentWatchChange>(
-      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), absl::nullopt);
-}
-
-- (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
-  ExistenceFilter existenceFilter{filter.count};
-  TargetId targetID = filter.targetId;
-  return absl::make_unique<ExistenceFilterWatchChange>(existenceFilter, targetID);
 }
 
 @end
