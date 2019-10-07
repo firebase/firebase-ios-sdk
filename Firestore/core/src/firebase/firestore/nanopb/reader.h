@@ -100,7 +100,9 @@ class Reader {
    */
   void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
-  bool ok() const { return status_.ok(); }
+  bool ok() const {
+    return status_.ok();
+  }
 
   util::Status status() const {
     return status_;

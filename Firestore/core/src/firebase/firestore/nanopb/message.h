@@ -29,7 +29,13 @@
 namespace firebase {
 namespace firestore {
 
-namespace remote { namespace bridge { class DatastoreSerializer; class WatchStreamSerializer; class WriteStreamSerializer; }}
+namespace remote {
+namespace bridge {
+class DatastoreSerializer;
+class WatchStreamSerializer;
+class WriteStreamSerializer;
+}  // namespace bridge
+}  // namespace remote
 
 namespace nanopb {
 
@@ -42,8 +48,6 @@ using MaybeMessage = util::StatusOr<Message<T>>;
 template <typename T>
 class Message {
  public:
-  Message() = default;
-
   ~Message() {
     if (fields_) {
       remote::Serializer::FreeNanopbMessage(fields_, &proto_);
@@ -74,8 +78,8 @@ class Message {
   grpc::ByteBuffer CreateByteBuffer() const;
 
  private:
-  // For access to `mutable_proto`. User code shouldn't be able to modify the
-  // underlying proto.
+  // For access to `mutable_proto` and the explicit constructor. Most code
+  // shouldn't be able to modify the underlying proto.
   friend class remote::bridge::WatchStreamSerializer;
   friend class remote::bridge::WriteStreamSerializer;
   friend class remote::bridge::DatastoreSerializer;
