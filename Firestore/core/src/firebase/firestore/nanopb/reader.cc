@@ -24,9 +24,6 @@ using nanopb::ByteString;
 
 using firebase::firestore::util::Status;
 
-Reader::Reader() : Reader{nullptr, 0} {
-}
-
 Reader::Reader(const ByteString& bytes) : Reader(bytes.data(), bytes.size()) {
 }
 

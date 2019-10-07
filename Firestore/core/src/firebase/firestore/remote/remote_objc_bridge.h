@@ -28,12 +28,10 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
-// FIXME
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
@@ -43,59 +41,17 @@ namespace bridge {
 
 bool IsLoggingEnabled();
 
-/**
- * This file contains operations in remote/ folder that are still delegated to
- * Objective-C: proto parsing and delegates.
- *
- * The principle is that the C++ implementation can only take Objective-C
- * objects as parameters or return them, but never instantiate them or call any
- * methods on them -- if that is necessary, it's delegated to one of the bridge
- * classes. This allows easily identifying which parts of remote/ still rely on
- * not-yet-ported code.
- */
-
-namespace internal {
-
-util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
-
-}
-
-template <typename T>
-class NanopbProto {
- public:
-  explicit NanopbProto(const pb_field_t* fields) : fields_{fields} {
-  }
-
-  ~NanopbProto() {
-    if (fields_) {
-      Serializer::FreeNanopbMessage(fields_, &proto_);
-    }
-  }
-
-  NanopbProto(const NanopbProto&) = delete;
-  NanopbProto& operator=(const NanopbProto&) = delete;
-
-  NanopbProto(NanopbProto&& other) noexcept
-      : fields_{other.fields_}, proto_{other.proto_} {
-    other.fields_ = nullptr;
-  }
-  NanopbProto& operator=(NanopbProto&& other) noexcept {
-    fields_ = other.fields_;
-    proto_ = other.proto_;
-    other.fields_ = nullptr;
-  }
-
-  const T& get() const {
-    return proto_;
-  }
-
-  static util::StatusOr<NanopbProto> Parse(const pb_field_t* fields,
-                                           const grpc::ByteBuffer& message);
-
- private:
-  const pb_field_t* fields_ = nullptr;
-  T proto_{};
-};
+// TODO(varconst): remove this file?
+//
+// The original purpose of this file was to cleanly encapsulate the remaining
+// Objective-C dependencies of `remote/` folder. These dependencies no longer
+// exist (modulo pretty-printing), and this file makes C++ diverge from other
+// platforms.
+//
+// On the other hand, stream classes are large, and having one easily
+// separatable aspect of their implementation (serialization) refactored out is
+// arguably a good thing. If this file were to stay, other platforms would have
+// to follow suit.
 
 class WatchStreamSerializer {
  public:
@@ -105,11 +61,9 @@ class WatchStreamSerializer {
       const local::QueryData& query) const;
   google_firestore_v1_ListenRequest CreateUnwatchRequest(
       model::TargetId target_id) const;
-  static grpc::ByteBuffer ToByteBuffer(
-      google_firestore_v1_ListenRequest&& request);
 
-  util::StatusOr<NanopbProto<google_firestore_v1_ListenResponse>> ParseResponse(
-      const grpc::ByteBuffer& message) const;
+  nanopb::Message<google_firestore_v1_ListenResponse> ParseResponse(
+      const grpc::ByteBuffer& buffer) const;
   std::unique_ptr<WatchChange> ToWatchChange(
       const google_firestore_v1_ListenResponse& response) const;
   model::SnapshotVersion ToSnapshotVersion(
@@ -137,11 +91,8 @@ class WriteStreamSerializer {
     return CreateWriteMutationsRequest({}, last_stream_token);
   }
 
-  static grpc::ByteBuffer ToByteBuffer(
-      google_firestore_v1_WriteRequest&& request);
-
-  util::StatusOr<NanopbProto<google_firestore_v1_WriteResponse>> ParseResponse(
-      const grpc::ByteBuffer& message) const;
+  nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
+      const grpc::ByteBuffer& buffer) const;
   model::SnapshotVersion ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
   std::vector<model::MutationResult> ToMutationResults(
@@ -162,13 +113,9 @@ class DatastoreSerializer {
 
   google_firestore_v1_CommitRequest CreateCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
-  static grpc::ByteBuffer ToByteBuffer(
-      google_firestore_v1_CommitRequest&& request);
 
   google_firestore_v1_BatchGetDocumentsRequest CreateLookupRequest(
       const std::vector<model::DocumentKey>& keys) const;
-  static grpc::ByteBuffer ToByteBuffer(
-      google_firestore_v1_BatchGetDocumentsRequest&& request);
 
   /**
    * Merges results of the streaming read together. The array is sorted by the
@@ -186,26 +133,6 @@ class DatastoreSerializer {
  private:
   Serializer serializer_;
 };
-
-template <typename T>
-util::StatusOr<NanopbProto<T>> NanopbProto<T>::Parse(
-    const pb_field_t* fields, const grpc::ByteBuffer& message) {
-  auto maybe_bytes = internal::ToByteString(message);
-  if (!maybe_bytes.ok()) {
-    return maybe_bytes.status();
-  }
-
-  auto bytes = maybe_bytes.ValueOrDie();
-  nanopb::Reader reader{bytes};
-
-  NanopbProto result{fields};
-  reader.ReadNanopbMessage(fields, &result.proto_);
-
-  // TODO(varconst): additional error handling? Currently, `nanopb::Reader`
-  // simply fails upon any error.
-  util::StatusOr<NanopbProto<T>> return_value{std::move(result)};
-  return return_value;
-}
 
 }  // namespace bridge
 }  // namespace remote

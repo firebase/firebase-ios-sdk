@@ -30,6 +30,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
+using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
 using util::TimerId;
@@ -79,24 +80,25 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  auto maybe_response = serializer_bridge_.ParseResponse(message);
+  Message<google_firestore_v1_ListenResponse> maybe_response =
+      serializer_bridge_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  auto response = std::move(maybe_response).ValueOrDie();
+  const auto& response = maybe_response.ValueOrDie();
 
   if (bridge::IsLoggingEnabled()) {
     LOG_DEBUG("%s response: %s", GetDebugDescription(),
-              serializer_bridge_.Describe(response.get()));
+              serializer_bridge_.Describe(response));
   }
 
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
   callback_->OnWatchStreamChange(
-      *serializer_bridge_.ToWatchChange(response.get()),
-      serializer_bridge_.ToSnapshotVersion(response.get()));
+      *serializer_bridge_.ToWatchChange(response),
+      serializer_bridge_.ToSnapshotVersion(response));
   return Status::OK();
 }
 

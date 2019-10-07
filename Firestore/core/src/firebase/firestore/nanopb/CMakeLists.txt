@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     byte_string.cc
     byte_string.h
+    message.cc
+    message.h
     nanopb_util.cc
     nanopb_util.h
     reader.cc

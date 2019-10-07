@@ -52,7 +52,7 @@ class Reader {
    * TODO(varconst): move error handling into a separate class, e.g.
    * `ReadContext`.
    */
-  Reader();
+  Reader() = default;
 
   /**
    * Creates an input stream that reads from the specified bytes. Note that
@@ -131,7 +131,7 @@ class Reader {
 
   util::Status status_ = util::Status::OK();
 
-  pb_istream_t stream_;
+  pb_istream_t stream_ = nullptr;
 };
 
 }  // namespace nanopb

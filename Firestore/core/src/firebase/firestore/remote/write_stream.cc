@@ -28,9 +28,9 @@ namespace remote {
 
 using auth::CredentialsProvider;
 using auth::Token;
-using bridge::NanopbProto;
 using model::Mutation;
 using nanopb::ByteString;
+using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
 using util::TimerId;
@@ -114,18 +114,18 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  auto maybe_response = serializer_bridge_.ParseResponse(message);
+  Message<google_firestore_v1_WriteResponse> maybe_response =
+      serializer_bridge_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  NanopbProto<google_firestore_v1_WriteResponse> response =
-      std::move(maybe_response).ValueOrDie();
+  const auto& response = maybe_response.ValueOrDie();
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response.get()));
+            serializer_bridge_.Describe(response));
 
   // Always capture the last stream token.
-  last_stream_token_ = ByteString{response.get().stream_token};
+  last_stream_token_ = ByteString{response.stream_token};
 
   if (!handshake_complete()) {
     // The first response is the handshake response
@@ -138,8 +138,8 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     backoff_.Reset();
 
     callback_->OnWriteStreamMutationResult(
-        serializer_bridge_.ToCommitVersion(response.get()),
-        serializer_bridge_.ToMutationResults(response.get()));
+        serializer_bridge_.ToCommitVersion(response),
+        serializer_bridge_.ToMutationResults(response));
   }
 
   return Status::OK();

@@ -56,6 +56,7 @@ using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
+using nanopb::Message;
 using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
@@ -97,18 +98,6 @@ grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields,
   return grpc::ByteBuffer{&slice, 1};
 }
 
-template <typename T>
-grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields, T&& request) {
-  ByteStringWriter writer;
-
-  writer.WriteNanopbMessage(fields, &request);
-  Serializer::FreeNanopbMessage(fields, &request);
-  ByteString bytes = writer.Release();
-
-  grpc::Slice slice{bytes.data(), bytes.size()};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
 template <typename T, typename U>
 std::string DescribeRequest(const pb_field_t* fields, const U& request) {
   // FIXME inefficient implementation.
@@ -119,34 +108,6 @@ std::string DescribeRequest(const pb_field_t* fields, const U& request) {
 }
 
 }  // namespace
-
-namespace internal {
-
-StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  if (!status.ok()) {
-    Status error{Error::Internal,
-                 "Trying to convert an invalid grpc::ByteBuffer"};
-    error.CausedBy(ConvertStatus(status));
-    return error;
-  }
-
-  if (slices.size() == 1) {
-    return ByteString{slices.front().begin(), slices.front().size()};
-
-  } else {
-    std::vector<uint8_t> data;
-    data.reserve(buffer.Length());
-    for (const auto& slice : slices) {
-      data.insert(data.end(), slice.begin(), slice.begin() + slice.size());
-    }
-
-    return ByteString{data.data(), data.size()};
-  }
-}
-
-}  // namespace internal
 
 bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
@@ -196,15 +157,9 @@ google_firestore_v1_ListenRequest WatchStreamSerializer::CreateUnwatchRequest(
   return request;
 }
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
-    google_firestore_v1_ListenRequest&& request) {
-  return ConvertToByteBuffer(google_firestore_v1_ListenRequest_fields,
-                             std::move(request));
-}
-
-StatusOr<NanopbProto<google_firestore_v1_ListenResponse>>
+Message<google_firestore_v1_ListenResponse>
 WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return NanopbProto<google_firestore_v1_ListenResponse>::Parse(
+  return Message<google_firestore_v1_ListenResponse>(
       google_firestore_v1_ListenResponse_fields, message);
 }
 
@@ -267,15 +222,9 @@ WriteStreamSerializer::CreateWriteMutationsRequest(
   return request;
 }
 
-grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    google_firestore_v1_WriteRequest&& request) {
-  return ConvertToByteBuffer(google_firestore_v1_WriteRequest_fields,
-                             std::move(request));
-}
-
-StatusOr<NanopbProto<google_firestore_v1_WriteResponse>>
-WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return NanopbProto<google_firestore_v1_WriteResponse>::Parse(
+Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message) const {
+  return Message<google_firestore_v1_WriteResponse>(
       google_firestore_v1_WriteResponse_fields, message);
 }
 
@@ -343,12 +292,6 @@ google_firestore_v1_CommitRequest DatastoreSerializer::CreateCommitRequest(
   return request;
 }
 
-grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
-    google_firestore_v1_CommitRequest&& request) {
-  return ConvertToByteBuffer(google_firestore_v1_CommitRequest_fields,
-                             std::move(request));
-}
-
 google_firestore_v1_BatchGetDocumentsRequest
 DatastoreSerializer::CreateLookupRequest(
     const std::vector<DocumentKey>& keys) const {
@@ -368,12 +311,6 @@ DatastoreSerializer::CreateLookupRequest(
   return request;
 }
 
-grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
-    google_firestore_v1_BatchGetDocumentsRequest&& request) {
-  return ConvertToByteBuffer(
-      google_firestore_v1_BatchGetDocumentsRequest_fields, std::move(request));
-}
-
 StatusOr<std::vector<model::MaybeDocument>>
 DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses) const {
@@ -381,16 +318,15 @@ DatastoreSerializer::MergeLookupResponses(
   std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
-    auto maybe_proto =
-        NanopbProto<google_firestore_v1_BatchGetDocumentsResponse>::Parse(
-            google_firestore_v1_BatchGetDocumentsResponse_fields, response);
+    Message<google_firestore_v1_BatchGetDocumentsResponse> maybe_proto{
+            google_firestore_v1_BatchGetDocumentsResponse_fields, response};
     if (!maybe_proto.ok()) {
       return maybe_proto.status();
     }
 
-    auto proto = std::move(maybe_proto).ValueOrDie();
+    const auto& proto = maybe_proto.ValueOrDie();
     nanopb::Reader reader;
-    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, proto.get());
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, proto);
     results[doc.key()] = std::move(doc);
   }
 
