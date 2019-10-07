@@ -15,31 +15,27 @@
 import UIKit
 import Firebase
 
-class CoreExists : FirebaseApp {}
-class AnalyticsExists : Analytics {}
-class AuthExists : Auth {}
+class CoreExists: FirebaseApp {}
+class AnalyticsExists: Analytics {}
+class AuthExists: Auth {}
 // Uncomment next line if ABTesting gets added to Firebase.h.
-//class ABTestingExists : LifecycleEvents {}
-class DatabaseExists : Database {}
-class DynamicLinksExists : DynamicLinks {}
-class FirestoreExists : Firestore {}
-class FunctionsExists : Functions {}
-class InAppMessagingExists : InAppMessaging {}
-class InAppMessagingDisplayExists : InAppMessagingDisplay {  // protocol instead of interface
-  func displayMessage(_ messageForDisplay: InAppMessagingDisplayMessage, displayDelegate: InAppMessagingDisplayDelegate) {
-  }
+// class ABTestingExists : LifecycleEvents {}
+class DatabaseExists: Database {}
+class DynamicLinksExists: DynamicLinks {}
+class FirestoreExists: Firestore {}
+class FunctionsExists: Functions {}
+class InAppMessagingExists: InAppMessaging {}
+class InAppMessagingDisplayExists: InAppMessagingDisplay { // protocol instead of interface
+  func displayMessage(_ messageForDisplay: InAppMessagingDisplayMessage, displayDelegate: InAppMessagingDisplayDelegate) {}
 }
-class MessagingExists : Messaging {}
-class PerformanceExists : Performance {}
-class RemoteConfigExists : RemoteConfig {}
-class StorageExists : Storage {}
 
+class MessagingExists: Messaging {}
+class PerformanceExists: Performance {}
+class RemoteConfigExists: RemoteConfig {}
+class StorageExists: Storage {}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
-
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
     return true
@@ -58,7 +54,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
     // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
   }
-
-
 }
-
