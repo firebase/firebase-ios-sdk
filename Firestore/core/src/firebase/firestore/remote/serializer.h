@@ -250,6 +250,10 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& watch_change) const;
 
+  model::SnapshotVersion DecodeVersion(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& listen_response) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;
@@ -334,10 +338,6 @@ class Serializer {
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
       nanopb::Reader* reader, const google_firestore_v1_Cursor& cursor) const;
-
-  model::SnapshotVersion DecodeVersion(
-      nanopb::Reader* reader,
-      const google_firestore_v1_ListenResponse& listen_response) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       nanopb::Reader* reader,
