@@ -125,6 +125,12 @@ class Serializer {
   static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
 
   /**
+   * Returns the database ID, such as
+   * `projects/{project_id}/databases/{database_id}`.
+   */
+  pb_bytes_array_t* EncodeDatabaseId() const;
+
+  /**
    * Release memory allocated by the Encode* methods that return protos.
    *
    * This essentially wraps calls to nanopb's pb_release() method.
@@ -360,7 +366,6 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
-  const std::string database_name_;
 };
 
 }  // namespace remote

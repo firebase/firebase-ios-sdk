@@ -115,7 +115,7 @@ namespace {
  * Creates the prefix for a fully qualified resource path, without a local path
  * on the end.
  */
-ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+ResourcePath DatabaseName(const DatabaseId& database_id) {
   return ResourcePath{"projects", database_id.project_id(), "databases",
                       database_id.database_id()};
 }
@@ -126,7 +126,7 @@ ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
  */
 pb_bytes_array_t* EncodeResourceName(const DatabaseId& database_id,
                                      const ResourcePath& path) {
-  return Serializer::EncodeString(EncodeDatabaseId(database_id)
+  return Serializer::EncodeString(DatabaseName(database_id)
                                       .Append("documents")
                                       .Append(path)
                                       .CanonicalString());
@@ -197,13 +197,16 @@ Query InvalidQuery() {
 }
 
 Serializer::Serializer(DatabaseId database_id)
-    : database_id_(std::move(database_id)),
-      database_name_(EncodeDatabaseId(database_id_).CanonicalString()) {
+    : database_id_(std::move(database_id)) {
 }
 
 void Serializer::FreeNanopbMessage(const pb_field_t fields[],
                                    void* dest_struct) {
   pb_release(fields, dest_struct);
+}
+
+pb_bytes_array_t* Serializer::EncodeDatabaseId() const {
+  return EncodeString(DatabaseName(database_id_).CanonicalString());
 }
 
 google_firestore_v1_Value Serializer::EncodeFieldValue(
@@ -612,7 +615,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
-      result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      // Note: the fact that this field is set (even if the mask is empty) is
+      // what makes the backend treat this as a patch mutation, not a set
+      // mutation.
+      result.has_update_mask = true;
+      if (patch_mutation.mask().size() != 0) {
+        result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      }
       return result;
     }
 
@@ -633,6 +642,12 @@ google_firestore_v1_Write Serializer::EncodeMutation(
             EncodeFieldTransform(field_transform);
         i++;
       }
+
+      // NOTE: We set a precondition of exists: true as a safety-check, since we
+      // always combine TransformMutations with a SetMutation or PatchMutation
+      // which (if successful) should end up with an existing document.
+      result.current_document.exists = true;
+
       return result;
     }
 
@@ -806,6 +821,8 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       return proto;
 
     case Type::Increment: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
       proto.increment = EncodeFieldValue(increment.operand());
