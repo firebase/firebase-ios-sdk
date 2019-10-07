@@ -57,12 +57,12 @@ class WatchStreamSerializer {
  public:
   explicit WatchStreamSerializer(Serializer serializer);
 
-  google_firestore_v1_ListenRequest CreateWatchRequest(
+  nanopb::Message<google_firestore_v1_ListenRequest> CreateWatchRequest(
       const local::QueryData& query) const;
-  google_firestore_v1_ListenRequest CreateUnwatchRequest(
+  nanopb::Message<google_firestore_v1_ListenRequest> CreateUnwatchRequest(
       model::TargetId target_id) const;
 
-  nanopb::Message<google_firestore_v1_ListenResponse> ParseResponse(
+  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> ParseResponse(
       const grpc::ByteBuffer& buffer) const;
   std::unique_ptr<WatchChange> ToWatchChange(
       const google_firestore_v1_ListenResponse& response) const;
@@ -82,16 +82,16 @@ class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(Serializer serializer);
 
-  google_firestore_v1_WriteRequest CreateHandshake() const;
-  google_firestore_v1_WriteRequest CreateWriteMutationsRequest(
+  nanopb::Message<google_firestore_v1_WriteRequest> CreateHandshake() const;
+  nanopb::Message<google_firestore_v1_WriteRequest> CreateWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations,
       const nanopb::ByteString& last_stream_token) const;
-  google_firestore_v1_WriteRequest CreateEmptyMutationsList(
+  nanopb::Message<google_firestore_v1_WriteRequest> CreateEmptyMutationsList(
       const nanopb::ByteString& last_stream_token) const {
     return CreateWriteMutationsRequest({}, last_stream_token);
   }
 
-  nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
+  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> ParseResponse(
       const grpc::ByteBuffer& buffer) const;
   model::SnapshotVersion ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
@@ -111,11 +111,11 @@ class DatastoreSerializer {
  public:
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
-  google_firestore_v1_CommitRequest CreateCommitRequest(
+  nanopb::Message<google_firestore_v1_CommitRequest> CreateCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
 
-  google_firestore_v1_BatchGetDocumentsRequest CreateLookupRequest(
-      const std::vector<model::DocumentKey>& keys) const;
+  nanopb::Message<google_firestore_v1_BatchGetDocumentsRequest>
+  CreateLookupRequest(const std::vector<model::DocumentKey>& keys) const;
 
   /**
    * Merges results of the streaming read together. The array is sorted by the

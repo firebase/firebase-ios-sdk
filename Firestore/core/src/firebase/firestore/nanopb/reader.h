@@ -131,7 +131,7 @@ class Reader {
 
   util::Status status_ = util::Status::OK();
 
-  pb_istream_t stream_ = nullptr;
+  pb_istream_t stream_{};
 };
 
 }  // namespace nanopb

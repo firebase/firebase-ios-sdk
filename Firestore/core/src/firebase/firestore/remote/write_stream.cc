@@ -18,6 +18,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -30,6 +31,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
 using nanopb::ByteString;
+using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -62,8 +64,8 @@ void WriteStream::WriteHandshake() {
 
   auto request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
+            serializer_bridge_.Describe(request.proto()));
+  Write(request.CreateByteBuffer());
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -78,8 +80,8 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   auto request = serializer_bridge_.CreateWriteMutationsRequest(
       mutations, last_stream_token());
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
+            serializer_bridge_.Describe(request.proto()));
+  Write(request.CreateByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -95,8 +97,7 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // resources.
     auto request =
         serializer_bridge_.CreateEmptyMutationsList(last_stream_token());
-    grpc_stream->WriteAndFinish(
-        serializer_bridge_.ToByteBuffer(std::move(request)));
+    grpc_stream->WriteAndFinish(request.CreateByteBuffer());
   } else {
     grpc_stream->FinishImmediately();
   }
@@ -114,13 +115,13 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  Message<google_firestore_v1_WriteResponse> maybe_response =
+  MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
       serializer_bridge_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie();
+  const auto& response = maybe_response.ValueOrDie().proto();
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
             serializer_bridge_.Describe(response));
 

@@ -18,6 +18,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -30,6 +31,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
+using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -52,8 +54,8 @@ void WatchStream::WatchQuery(const QueryData& query) {
 
   auto request = serializer_bridge_.CreateWatchRequest(query);
   LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
+            serializer_bridge_.Describe(request.proto()));
+  Write(request.CreateByteBuffer());
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
@@ -61,8 +63,8 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
   auto request = serializer_bridge_.CreateUnwatchRequest(target_id);
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(std::move(request)));
+            serializer_bridge_.Describe(request.proto()));
+  Write(request.CreateByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
@@ -80,13 +82,13 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  Message<google_firestore_v1_ListenResponse> maybe_response =
+  MaybeMessage<google_firestore_v1_ListenResponse> maybe_response =
       serializer_bridge_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie();
+  const auto& response = maybe_response.ValueOrDie().proto();
 
   if (bridge::IsLoggingEnabled()) {
     LOG_DEBUG("%s response: %s", GetDebugDescription(),
