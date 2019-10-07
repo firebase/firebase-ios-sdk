@@ -21,7 +21,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
-
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
