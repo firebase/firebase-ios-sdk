@@ -75,6 +75,10 @@ fi
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 
+xcode_version=$(xcodebuild -version | head -n 1)
+xcode_version="${xcode_version/Xcode /}"
+xcode_major="${xcode_version/.*/}"
+
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
@@ -92,8 +96,7 @@ function RunXcodebuild() {
   fi
 }
 
-# Remove Firestore when it moves up to Xcode 11
-if [[ $product == 'Firestore' ]]; then # #3949
+if [[ "$xcode_major" -lt 11 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 7'
@@ -160,10 +163,6 @@ xcb_flags+=(
 cmake_options=(
   -Wdeprecated
 )
-
-xcode_version=$(xcodebuild -version | head -n 1)
-xcode_version="${xcode_version/Xcode /}"
-xcode_major="${xcode_version/.*/}"
 
 if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
