@@ -29,6 +29,10 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
 
 @implementation FIRInstallationsStoredItem
 
+- (NSInteger)storageVersion {
+  return kFIRInstallationsStoredItemStorageVersion;
+}
+
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
   [aCoder encodeObject:self.firebaseInstallationID
                 forKey:kFIRInstallationsStoredItemFirebaseInstallationIDKey];
@@ -42,7 +46,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   NSInteger storageVersion =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
-  if (storageVersion > kFIRInstallationsStoredItemStorageVersion) {
+  if (storageVersion > self.storageVersion) {
     FIRLogWarning(kFIRLoggerInstallations,
                   kFIRInstallationsMessageCodeInstallationCoderVersionMismatch,
                   @"FIRInstallationsStoredItem was encoded by a newer coder version %ld. Current "
@@ -60,7 +64,6 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                                           forKey:kFIRInstallationsStoredItemAuthTokenKey];
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  item.storageVersion = [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemStorageVersionKey];
 
   return item;
 }
