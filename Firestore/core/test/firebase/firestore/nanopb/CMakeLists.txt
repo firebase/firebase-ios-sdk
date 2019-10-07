@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_nanopb_test
   SOURCES
     byte_string_test.cc
+    message_test.cc
     nanopb_testing.h
     writer_test.cc
   DEPENDS

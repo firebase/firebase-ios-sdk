@@ -18,11 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include <iomanip>
 #include <map>
-#include <sstream>
-#include <utility>
-#include <vector>
 
 #import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

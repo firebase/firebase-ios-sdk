@@ -53,6 +53,10 @@ bool IsLoggingEnabled();
 // arguably a good thing. If this file were to stay, other platforms would have
 // to follow suit.
 
+// Note: return value optimization should make returning Nanopb messages from
+// functions cheap (even though they may be large types that are relatively
+// expensive to copy).
+
 class WatchStreamSerializer {
  public:
   explicit WatchStreamSerializer(Serializer serializer);

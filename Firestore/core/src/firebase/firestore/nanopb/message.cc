@@ -16,10 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
-
 #include <cstdint>
 #include <vector>
+
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 namespace firebase {
 namespace firestore {
