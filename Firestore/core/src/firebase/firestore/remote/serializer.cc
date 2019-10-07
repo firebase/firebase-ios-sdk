@@ -615,6 +615,9 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
       result.update = EncodeDocument(mutation.key(), patch_mutation.value());
+      // Note: the fact that this field is set (even if the mask is empty) is
+      // what makes the backend treat this as a patch mutation, not a set
+      // mutation.
       result.has_update_mask = true;
       if (patch_mutation.mask().size() != 0) {
         result.update_mask = EncodeFieldMask(patch_mutation.mask());
