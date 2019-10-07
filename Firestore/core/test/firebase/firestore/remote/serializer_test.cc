@@ -75,6 +75,7 @@ using model::FieldPath;
 using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
+using model::MutationResult;
 using model::NoDocument;
 using model::ObjectValue;
 using model::SetMutation;
@@ -120,28 +121,6 @@ QueryData CreateQueryData(absl::string_view str) {
   return CreateQueryData(Query(str));
 }
 
-template <typename T>
-bool Equals(const WatchChange& lhs, const WatchChange& rhs) {
-  return static_cast<const T&>(lhs) == static_cast<const T&>(rhs);
-}
-
-// Compares two `WatchChange`s taking into account their actual derived type.
-bool operator==(const WatchChange& lhs, const WatchChange& rhs) {
-  if (lhs.type() != rhs.type()) {
-    return false;
-  }
-
-  switch (lhs.type()) {
-    case WatchChange::Type::Document:
-      return Equals<DocumentWatchChange>(lhs, rhs);
-    case WatchChange::Type::ExistenceFilter:
-      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
-    case WatchChange::Type::TargetChange:
-      return Equals<WatchTargetChange>(lhs, rhs);
-  }
-  UNREACHABLE();
-}
-
 }  // namespace
 
 TEST(Serializer, CanLinkToNanopb) {
@@ -181,9 +160,32 @@ class SerializerTest : public ::testing::Test {
     ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
   }
 
-  void ExpectWatchChangeDeserializationRoundTrip(
-      const WatchChange& watch_change, const v1::ListenResponse& proto) {
-    ExpectDeserializationRoundTrip(watch_change, proto);
+  void ExpectDeserializationRoundTrip(const WatchChange& model,
+                                      const v1::ListenResponse& proto) {
+    auto actual_model = Decode<google_firestore_v1_ListenResponse>(
+        google_firestore_v1_ListenResponse_fields,
+        std::mem_fn(&Serializer::DecodeWatchChange), proto);
+
+    EXPECT_EQ(model, *actual_model);
+  }
+
+  void ExpectDeserializationRoundTrip(const MutationResult& model,
+                                      const v1::WriteResult& proto,
+                                      const SnapshotVersion& commit_version) {
+    auto actual_model = Decode<google_firestore_v1_WriteResult>(
+        google_firestore_v1_WriteResult_fields,
+        std::mem_fn(&Serializer::DecodeMutationResult), proto, commit_version);
+
+    EXPECT_EQ(model, actual_model);
+  }
+
+  void ExpectDeserializationRoundTrip(const SnapshotVersion& model,
+                                      const v1::ListenResponse& proto) {
+    auto actual_model = Decode<google_firestore_v1_ListenResponse>(
+        google_firestore_v1_ListenResponse_fields,
+        std::mem_fn(&Serializer::DecodeVersion), proto);
+
+    EXPECT_EQ(model, actual_model);
   }
 
   /**
@@ -495,15 +497,6 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(model.query(), actual_model);
   }
 
-  void ExpectDeserializationRoundTrip(const WatchChange& model,
-                                      const v1::ListenResponse& proto) {
-    auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        google_firestore_v1_ListenResponse_fields,
-        std::mem_fn(&Serializer::DecodeWatchChange), proto);
-
-    EXPECT_TRUE(model == *actual_model);
-  }
-
   template <typename T>
   ByteString Encode(const pb_field_t* fields, T&& nanopb_proto) {
     ByteStringWriter writer;
@@ -512,15 +505,17 @@ class SerializerTest : public ::testing::Test {
     return writer.Release();
   }
 
-  template <typename T, typename F, typename P>
-  auto Decode(const pb_field_t* fields, F decode_func, const P& proto) ->
-      typename F::result_type {
+  template <typename T, typename F, typename P, typename... Args>
+  auto Decode(const pb_field_t* fields,
+              F decode_func,
+              const P& proto,
+              const Args&... args) -> typename F::result_type {
     ByteString bytes = ProtobufSerialize(proto);
     Reader reader{bytes};
 
     T nanopb_proto{};
     reader.ReadNanopbMessage(fields, &nanopb_proto);
-    auto model = decode_func(serializer, &reader, nanopb_proto);
+    auto model = decode_func(serializer, &reader, nanopb_proto, args...);
     reader.FreeNanopbMessage(fields, &nanopb_proto);
 
     EXPECT_OK(reader.status());
@@ -1488,7 +1483,38 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
   }
 }
 
-TEST_F(SerializerTest, DecodesListenResponseWithTargetChange) {
+TEST_F(SerializerTest, DecodesMutationResult) {
+  std::vector<FieldValue> transformations({FieldValue::FromBoolean(true),
+                                           FieldValue::FromInteger(1234),
+                                           FieldValue::FromString("string")});
+  auto version = Version(123456789);
+  MutationResult model(version, std::move(transformations));
+
+  v1::WriteResult proto;
+
+  proto.mutable_update_time()->set_seconds(version.timestamp().seconds());
+  proto.mutable_update_time()->set_nanos(version.timestamp().nanoseconds());
+  proto.mutable_transform_results()->Add();
+  (*proto.mutable_transform_results())[0] = ValueProto(true);
+  proto.mutable_transform_results()->Add();
+  (*proto.mutable_transform_results())[1] = ValueProto(1234);
+  proto.mutable_transform_results()->Add();
+  (*proto.mutable_transform_results())[2] = ValueProto("string");
+
+  SCOPED_TRACE("DecodesMutationResult");
+  ExpectDeserializationRoundTrip(model, proto, Version(10000000));
+}
+
+TEST_F(SerializerTest, DecodesMutationResultWithNoUpdateTime) {
+  MutationResult model(Version(10000000), {});
+
+  v1::WriteResult proto;
+
+  SCOPED_TRACE("DecodesMutationResultWithNoUpdateTime");
+  ExpectDeserializationRoundTrip(model, proto, Version(10000000));
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithAddedTargetChange) {
   WatchTargetChange model(WatchTargetChangeState::Added, {1, 2},
                           ByteString("resume_token"));
 
@@ -1500,8 +1526,45 @@ TEST_F(SerializerTest, DecodesListenResponseWithTargetChange) {
   proto.mutable_target_change()->add_target_ids(2);
   proto.mutable_target_change()->set_resume_token("resume_token");
 
-  SCOPED_TRACE("DecodesListenResponseWithTargetChange");
-  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+  SCOPED_TRACE("DecodesListenResponseWithAddedTargetChange");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
+  WatchTargetChange model(WatchTargetChangeState::Removed, {1, 2},
+                          ByteString("resume_token"),
+                          Status{Error::PermissionDenied, "Error message"});
+
+  v1::ListenResponse proto;
+
+  proto.mutable_target_change()->set_target_change_type(
+      v1::TargetChange_TargetChangeType::TargetChange_TargetChangeType_REMOVE);
+  proto.mutable_target_change()->add_target_ids(1);
+  proto.mutable_target_change()->add_target_ids(2);
+  proto.mutable_target_change()->set_resume_token("resume_token");
+  proto.mutable_target_change()->mutable_cause()->set_code(
+      Error::PermissionDenied);
+  proto.mutable_target_change()->mutable_cause()->set_message("Error message");
+
+  SCOPED_TRACE("DecodesListenResponseWithRemovedTargetChange");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesListenResponseWithNoChangeTargetChange) {
+  WatchTargetChange model(WatchTargetChangeState::NoChange, {1, 2},
+                          ByteString("resume_token"));
+
+  v1::ListenResponse proto;
+
+  proto.mutable_target_change()->set_target_change_type(
+      v1::TargetChange_TargetChangeType::
+          TargetChange_TargetChangeType_NO_CHANGE);
+  proto.mutable_target_change()->add_target_ids(1);
+  proto.mutable_target_change()->add_target_ids(2);
+  proto.mutable_target_change()->set_resume_token("resume_token");
+
+  SCOPED_TRACE("DecodesListenResponseWithNoChangeTargetChange");
+  ExpectDeserializationRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithDocumentChange) {
@@ -1528,7 +1591,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentChange) {
   document_change->add_removed_target_ids(4);
 
   SCOPED_TRACE("DecodesListenResponseWithDocumentChange");
-  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+  ExpectDeserializationRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithDocumentDelete) {
@@ -1544,7 +1607,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentDelete) {
   document_delete->add_removed_target_ids(1);
 
   SCOPED_TRACE("DecodesListenResponseWithDocumentDelete");
-  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+  ExpectDeserializationRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
@@ -1561,7 +1624,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
   document_remove->add_removed_target_ids(2);
 
   SCOPED_TRACE("DecodesListenResponseWithDocumentRemove");
-  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+  ExpectDeserializationRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
@@ -1573,7 +1636,47 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   proto.mutable_filter()->set_target_id(100);
 
   SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
-  ExpectWatchChangeDeserializationRoundTrip(model, proto);
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesVersion) {
+  auto version = Version(123456789);
+  SnapshotVersion model(version.timestamp());
+
+  v1::ListenResponse proto;
+  proto.mutable_target_change()->mutable_read_time()->set_seconds(
+      version.timestamp().seconds());
+  proto.mutable_target_change()->mutable_read_time()->set_nanos(
+      version.timestamp().nanoseconds());
+
+  SCOPED_TRACE("DecodesVersion");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesVersionWithNoReadTime) {
+  auto model = SnapshotVersion::None();
+
+  v1::ListenResponse proto;
+
+  SCOPED_TRACE("DecodesVersionWithNoReadTime");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, DecodesVersionWithTargets) {
+  auto version = Version(123456789);
+  auto model = SnapshotVersion::None();
+
+  v1::ListenResponse proto;
+  // proto is decoded to `None()` even with `read_time` set, because
+  // `target_ids` is not empty.
+  proto.mutable_target_change()->mutable_target_ids()->Add(1);
+  proto.mutable_target_change()->mutable_read_time()->set_seconds(
+      version.timestamp().seconds());
+  proto.mutable_target_change()->mutable_read_time()->set_nanos(
+      version.timestamp().nanoseconds());
+
+  SCOPED_TRACE("DecodesVersionWithTargets");
+  ExpectDeserializationRoundTrip(model, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
