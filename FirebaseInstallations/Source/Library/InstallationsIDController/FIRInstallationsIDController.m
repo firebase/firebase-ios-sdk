@@ -31,8 +31,11 @@
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRSecureStorage.h"
+
+#import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredRegistrationError.h"
+#import "FIRInstallationsStoredRegistrationParameters.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";
@@ -135,9 +138,21 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
               __PRETTY_FUNCTION__, self.appName);
 
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
-      [self getStoredInstallation].recover(^id(NSError *error) {
-        return [self createAndSaveFID];
-      });
+      [self getStoredInstallation]
+          .recover(^id(NSError *error) {
+            return [self createAndSaveFID];
+          })
+          .then(^id(FIRInstallationsItem *installation) {
+            // Validate if a previous registration attempt failed with an error requiring Firebase
+            // configuration changes.
+            if (installation.registrationStatus == FIRInstallationStatusRegistrationFailed &&
+                [self areInstallationRegistrationParametersEqualToCurrent:
+                          installation.registrationError.registrationParameters]) {
+              return installation.registrationError.APIError;
+            }
+
+            return installation;
+          });
 
   // Initiate registration process on success if needed, but return the installation without waiting
   // for it.
@@ -156,6 +171,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         switch (installation.registrationStatus) {
           case FIRInstallationStatusUnregistered:
           case FIRInstallationStatusRegistered:
+          case FIRInstallationStatusRegistrationFailed:
             isValid = YES;
             break;
 
@@ -201,6 +217,12 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   });
 }
 
+- (BOOL)areInstallationRegistrationParametersEqualToCurrent:
+    (FIRInstallationsStoredRegistrationParameters *)parameters {
+  return [parameters.APIKey isEqualToString:self.APIService.APIKey] &&
+         [parameters.projectID isEqualToString:self.APIService.projectID];
+}
+
 #pragma mark - FID registration
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallationIfNeeded:
@@ -212,6 +234,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
     case FIRInstallationStatusUnknown:
     case FIRInstallationStatusUnregistered:
+    case FIRInstallationStatusRegistrationFailed:
       // Registration required. Proceed.
       break;
   }

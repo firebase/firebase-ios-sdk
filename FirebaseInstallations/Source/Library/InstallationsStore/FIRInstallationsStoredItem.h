@@ -19,6 +19,7 @@
 #import "FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredAuthToken;
+@class FIRInstallationsStoredRegistrationError;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic) FIRInstallationsStatus registrationStatus;
+
+@property(nonatomic, nullable) FIRInstallationsStoredRegistrationError *registrationError;
 
 /// The version of local storage.
 @property(nonatomic, readonly) NSInteger storageVersion;

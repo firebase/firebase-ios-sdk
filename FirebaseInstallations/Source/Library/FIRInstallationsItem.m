@@ -46,6 +46,7 @@
   self.refreshToken = item.refreshToken;
   self.authToken = item.authToken;
   self.registrationStatus = item.registrationStatus;
+  self.registrationError = item.registrationError;
 }
 
 - (FIRInstallationsStoredItem *)storedItem {
@@ -54,6 +55,7 @@
   storedItem.refreshToken = self.refreshToken;
   storedItem.authToken = self.authToken;
   storedItem.registrationStatus = self.registrationStatus;
+  storedItem.registrationError = self.registrationError;
   return storedItem;
 }
 

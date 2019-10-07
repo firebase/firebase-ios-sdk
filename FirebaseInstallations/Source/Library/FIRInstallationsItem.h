@@ -20,6 +20,7 @@
 
 @class FIRInstallationsStoredItem;
 @class FIRInstallationsStoredAuthToken;
+@class FIRInstallationsStoredRegistrationError;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
+
+@property(nonatomic, nullable) FIRInstallationsStoredRegistrationError *registrationError;
 
 - (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName;
 

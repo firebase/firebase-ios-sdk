@@ -56,13 +56,13 @@
   return item;
 }
 
-+ (FIRInstallationsItem *)createWithRegistrationFailure:(NSError *)error forConfig:(id)config {
++ (FIRInstallationsItem *)createWithRegistrationFailure:
+    (FIRInstallationsStoredRegistrationError *)error {
   FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:@"appID"
                                                            firebaseAppName:kFIRDefaultAppName];
   item.firebaseInstallationID = @"firebaseInstallationID";
   item.registrationStatus = FIRInstallationStatusRegistrationFailed;
-
-  // TODO: assign error and configuration.
+  item.registrationError = error;
 
   return item;
 }

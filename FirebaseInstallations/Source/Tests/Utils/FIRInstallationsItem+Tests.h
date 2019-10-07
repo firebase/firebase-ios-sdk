@@ -26,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
                                                             appName:(NSString *)appName;
 
-+ (FIRInstallationsItem *)createWithRegistrationFailure:(NSError *)error forConfig:(id)config;
++ (FIRInstallationsItem *)createWithRegistrationFailure:
+    (FIRInstallationsStoredRegistrationError *)error;
 
 @end
 

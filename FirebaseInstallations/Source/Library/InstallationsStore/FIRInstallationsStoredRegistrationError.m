@@ -16,6 +16,9 @@
 
 #import "FIRInstallationsStoredRegistrationError.h"
 
+#import "FIRInstallationsHTTPError.h"
+#import "FIRInstallationsStoredRegistrationParameters.h"
+
 #import "FIRInstallationsLogger.h"
 
 NSString *const kFIRInstallationsStoredRegistrationErrorRegistrationParametersKey =
@@ -68,9 +71,14 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
   }
 
   FIRInstallationsStoredRegistrationParameters *registrationParameters =
-      [coder decodeObjectForKey:kFIRInstallationsStoredRegistrationErrorRegistrationParametersKey];
+      [coder decodeObjectOfClass:[FIRInstallationsStoredRegistrationParameters class]
+                          forKey:kFIRInstallationsStoredRegistrationErrorRegistrationParametersKey];
+
+  NSSet<Class> *allowedErrorClasses =
+      [NSSet setWithArray:@ [[FIRInstallationsHTTPError class], [NSError class]]];
   NSError *APIError =
-      [coder decodeObjectForKey:kFIRInstallationsStoredRegistrationErrorAPIErrorKey];
+      [coder decodeObjectOfClasses:allowedErrorClasses
+                            forKey:kFIRInstallationsStoredRegistrationErrorAPIErrorKey];
 
   if (registrationParameters == nil || APIError == nil) {
     // TODO: Use a specific error code.

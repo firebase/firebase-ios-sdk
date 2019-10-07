@@ -30,7 +30,10 @@
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
+
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredRegistrationError.h"
+#import "FIRInstallationsStoredRegistrationParameters.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
@@ -47,6 +50,9 @@
 @property(nonatomic) id mockIIDStore;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
+
+@property(nonatomic) NSString *APIKey;
+@property(nonatomic) NSString *projectID;
 @end
 
 @implementation FIRInstallationsIDControllerTests
@@ -58,9 +64,14 @@
 - (void)setUpWithAppName:(NSString *)appName {
   self.appID = @"appID";
   self.appName = appName;
+  self.APIKey = @"APIKey";
+  self.projectID = @"projectID";
+
   self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
+
+  [self stubAPIServiceParameters];
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
@@ -77,6 +88,11 @@
   self.mockInstallationsStore = nil;
   self.appID = nil;
   self.appName = nil;
+}
+
+- (void)stubAPIServiceParameters {
+  OCMStub([self.mockAPIService APIKey]).andReturn(self.APIKey);
+  OCMStub([self.mockAPIService projectID]).andReturn(self.projectID);
 }
 
 #pragma mark - Get Installation
@@ -987,10 +1003,9 @@
 }
 
 - (void)testGetInstallation_WhenRegistrationErrorStoredAndConfigurationIsTheSame_ThenFails {
-  NSError *storedError = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:400];
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createWithRegistrationFailure:storedError forConfig:nil];
+      [self createFailedToRegisterInstallationWithParameters:[self currentRegistrationParameters]];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
@@ -1003,7 +1018,7 @@
 
   // 3. Check.
   XCTAssertFalse(promise.isFulfilled);
-  XCTAssertEqualObjects(promise.error, storedError);
+  XCTAssertEqualObjects(promise.error, storedInstallation.registrationError.APIError);
 
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
@@ -1011,11 +1026,10 @@
 
 - (void)
     testGetInstallation_WhenRegistrationErrorStoredAndConfigurationDifferent_ThenSendsAPIRequest {
-  NSError *storedError = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:400];
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
       // TODO: Set the config to mismatch current parameters.
-      [FIRInstallationsItem createWithRegistrationFailure:storedError forConfig:nil];
+      [self createFailedToRegisterInstallationWithParameters:[self otherRegistrationParameters]];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
@@ -1069,6 +1083,27 @@
                            return YES;
                          }];
   return notificationExpectation;
+}
+
+- (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
+    (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
+  FIRInstallationsStoredRegistrationError *error = [[FIRInstallationsStoredRegistrationError alloc]
+      initWithRegistrationParameters:registrationParameters
+                            APIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+  FIRInstallationsItem *installation = [FIRInstallationsItem createWithRegistrationFailure:error];
+  return installation;
+}
+
+- (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
+  return [[FIRInstallationsStoredRegistrationParameters alloc] initWithAPIKey:self.APIKey
+                                                                    projectID:self.projectID];
+}
+
+- (FIRInstallationsStoredRegistrationParameters *)otherRegistrationParameters {
+  NSString *APIKey = [@"another" stringByAppendingString:self.APIKey];
+  NSString *projectID = [@"another" stringByAppendingString:self.projectID];
+  return [[FIRInstallationsStoredRegistrationParameters alloc] initWithAPIKey:APIKey
+                                                                    projectID:projectID];
 }
 
 @end
