@@ -101,7 +101,7 @@ grpc::ByteBuffer ConvertToByteBuffer(const pb_field_t* fields,
 
 template <typename T, typename U>
 std::string DescribeRequest(const pb_field_t* fields, const U& request) {
-  // FIXME inefficient implementation.
+  // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
   auto bytes = ConvertToByteBuffer(fields, request);
   auto ns_data = ConvertToNsData(bytes, nil);
   T* objc_request = [T parseFromData:ns_data error:nil];
@@ -239,7 +239,6 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     const google_firestore_v1_WriteResponse& proto) const {
   nanopb::Reader reader;
   auto result = serializer_.DecodeSnapshotVersion(&reader, proto.commit_time);
-  // FIXME check error
   return result;
 }
 

@@ -106,7 +106,9 @@ MaybeMessage<T> Message<T>::Parse(const pb_field_t* fields,
   Message message{fields};
   nanopb::Reader reader{maybe_bytes.ValueOrDie()};
   reader.ReadNanopbMessage(fields, &message.mutable_proto());
-  // TODO(varconst): error handling.
+  if (!reader.ok()) {
+    return reader.status();
+  }
 
   return MaybeMessage<T>{std::move(message)};
 }
