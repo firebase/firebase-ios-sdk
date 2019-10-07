@@ -223,6 +223,14 @@ case "$product-$method-$platform" in
     fi
     ;;
 
+  FirebasePod-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'Firebase/Firebase/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
+        -scheme "FirebasePodTest" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
   Auth-xcodebuild-*)
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
           "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
