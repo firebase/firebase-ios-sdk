@@ -28,7 +28,7 @@ namespace local {
 model::DocumentMap SimpleQueryEngine::GetDocumentsMatchingQuery(
     const core::Query& query,
     const model::SnapshotVersion& last_limbo_free_snapshot_version,
-    model::DocumentKeySet remote_keys) const {
+    const model::DocumentKeySet& remote_keys) const {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
   return local_documents_view_->GetDocumentsMatchingQuery(query);
