@@ -960,15 +960,18 @@
   // 1.2. Receive HTTP 400.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
   [rejectedAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
-  OCMExpect([self.mockAPIService registerInstallation:storedInstallation]).andReturn(rejectedAPIPromise);
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
+      .andReturn(rejectedAPIPromise);
 
   // 1.3. Expect the installation to be stored with the error.
-  OCMExpect([self.mockInstallationsStore saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *installation) {
-    XCTAssertEqual(installation.registrationStatus, FIRInstallationStatusRegistrationFailed);
-    // TODO: Validate error content.
-    return YES;
-  }]])
-  .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *installation) {
+                  XCTAssertEqual(installation.registrationStatus,
+                                 FIRInstallationStatusRegistrationFailed);
+                  // TODO: Validate error content.
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 2. Request Installation.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
@@ -1001,24 +1004,26 @@
   // 3. Check.
   XCTAssertFalse(promise.isFulfilled);
   XCTAssertEqualObjects(promise.error, storedError);
-  
+
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
 }
 
-- (void)testGetInstallation_WhenRegistrationErrorStoredAndConfigurationDifferent_ThenSendsAPIRequest {
+- (void)
+    testGetInstallation_WhenRegistrationErrorStoredAndConfigurationDifferent_ThenSendsAPIRequest {
   NSError *storedError = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:400];
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
-  // TODO: Set the config to mismatch current parameters.
+      // TODO: Set the config to mismatch current parameters.
       [FIRInstallationsItem createWithRegistrationFailure:storedError forConfig:nil];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
   // 1.2. Expect registration API request to be sent.
-  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem createRegisteredInstallationItem];
+  FIRInstallationsItem *registeredInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-  .andReturn([FBLPromise resolvedWith:registeredInstallation]);
+      .andReturn([FBLPromise resolvedWith:registeredInstallation]);
 
   // 2. Request Installation.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
