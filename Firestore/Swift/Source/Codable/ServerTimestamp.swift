@@ -18,14 +18,53 @@ import FirebaseFirestore
 
 #if swift(>=5.1)
 
-  /// A marker protocol that indicates the type can be annotated with an
-  /// `@ServerTimestamp` property wrapper. Only `Timestamp`, `Date`, and `NSDate`
-  /// can be wrapped with `@ServerTimestamp`.
-  public protocol ServerTimestampWrappable {}
+  /// A type that can initialize itself from a Firestore Timestamp, which makes
+  /// it suitable for use with the `@ServerTimestamp` property wrapper.
+  ///
+  /// Firestore includes extensions that make `Timestamp`, `Date`, and `NSDate`
+  /// conform to `ServerTimestampWrappable`. Other types can be extended
+  public protocol ServerTimestampWrappable {
+    /// Creates a new instance by converting from the given `Timestamp`.
+    ///
+    /// - Parameter timestamp: The timestamp from which to convert.
+    init(from timestamp: Timestamp)
 
-  extension Date: ServerTimestampWrappable {}
-  extension NSDate: ServerTimestampWrappable {}
-  extension Timestamp: ServerTimestampWrappable {}
+    /// Converts this value into a Firestore `Timestamp`.
+    ///
+    /// - Returns: A `Timestamp` representation of this value.
+    func timestampValue() -> Timestamp
+  }
+
+  extension Date: ServerTimestampWrappable {
+    init(from timestamp: Timestamp) {
+      self = timestamp.dateValue()
+    }
+
+    func timestampValue() -> Timestamp {
+      return Timestamp(date: self)
+    }
+  }
+
+  extension NSDate: ServerTimestampWrappable {
+    init(from timestamp: Timestamp) {
+      let interval = timestamp.dateValue().timeIntervalSince1970
+      self = NSDate(timeIntervalSince1970: interval)
+    }
+
+    func timestampValue() -> Timestamp {
+      return Timestamp(date: self)
+    }
+  }
+
+  extension Timestamp: ServerTimestampWrappable {
+    init(from timestamp: Timestamp) {
+      self = timestamp
+    }
+
+    func timestampValue() -> Timestamp {
+      return self
+    }
+  }
 
   /// A property wrapper that marks an `Optional<Timestamp>` field to be
   /// populated with a server timestamp. If a `Codable` object being written
@@ -62,33 +101,16 @@ import FirebaseFirestore
       if container.decodeNil() {
         value = nil
       } else {
-        value = try decode(try container.decode(Timestamp.self))
+        value = Value(from: try container.decode(Timestamp.self))
       }
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.singleValueContainer()
       if let value = value {
-        try container.encode(value)
+        try container.encode(value.timestampValue())
       } else {
         try container.encode(FieldValue.serverTimestamp())
-      }
-    }
-
-    private func decode(_ timestamp: Timestamp) throws -> Value {
-      if Value.self == Timestamp.self {
-        return timestamp as! Value
-      } else if Value.self == Date.self {
-        return timestamp.dateValue() as! Value
-      } else if Value.self == NSDate.self {
-        let interval = timestamp.dateValue().timeIntervalSince1970
-        return NSDate(timeIntervalSince1970: interval) as! Value
-      } else {
-        let typeName = String(describing: Value.self)
-        throw FirestoreDecodingError.decodingIsNotSupported(
-          "Field is annotated with @ServerTimestamp but has type " +
-            "\(typeName) instead of Timestamp, Date, or NSDate."
-        )
       }
     }
   }
