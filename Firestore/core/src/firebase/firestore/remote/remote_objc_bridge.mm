@@ -259,7 +259,6 @@ std::vector<MutationResult> WriteStreamSerializer::ToMutationResults(
         serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
   };
 
-  // FIXME check error
   return results;
 }
 
