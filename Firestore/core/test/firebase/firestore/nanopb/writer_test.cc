@@ -69,5 +69,5 @@ TEST(BasicStringWriterTest, Releases) {
 }
 
 }  //  namespace nanopb
-}  // namespace firebase
 }  // namespace firestore
+}  // namespace firebase

@@ -65,6 +65,9 @@ class MessageTest : public testing::Test {
   }
 
  private:
+  // Note: gRPC slice will crash upon destruction if gRPC library hasn't been
+  // initialized, which is normally done by inheriting from this class (which
+  // does initialization in its constructor).
   grpc::GrpcLibraryCodegen grpc_initializer_;
   Serializer serializer_{DatabaseId{"p", "d"}};
 };
