@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
     end
 
     s.test_spec 'integration' do |int_tests|
-      int_tests.source_files = base_dir + 'Tests/Integration/**/*.{m,h,swift}',
+      int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
       int_tests.resources = base_dir + 'Tests/Resources/**/*'
       s.pod_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' =>
