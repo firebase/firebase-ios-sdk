@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+//#import <SystemConfiguration/SystemConfiguration.h>
 
 /// Reachability Status
 typedef enum {
