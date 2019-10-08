@@ -128,7 +128,7 @@ class Serializer {
    * Returns the database ID, such as
    * `projects/{project_id}/databases/{database_id}`.
    */
-  pb_bytes_array_t* EncodeDatabaseId() const;
+  pb_bytes_array_t* EncodeDatabaseName() const;
 
   /**
    * Release memory allocated by the Encode* methods that return protos.
@@ -366,6 +366,8 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
+  // TODO(varconst): Android caches `database_name_` as well, consider
+  // implementing that.
 };
 
 }  // namespace remote

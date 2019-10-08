@@ -205,7 +205,7 @@ void Serializer::FreeNanopbMessage(const pb_field_t fields[],
   pb_release(fields, dest_struct);
 }
 
-pb_bytes_array_t* Serializer::EncodeDatabaseId() const {
+pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
   return EncodeString(DatabaseName(database_id_).CanonicalString());
 }
 
@@ -646,7 +646,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       // NOTE: We set a precondition of exists: true as a safety-check, since we
       // always combine TransformMutations with a SetMutation or PatchMutation
       // which (if successful) should end up with an existing document.
-      result.current_document.exists = true;
+      result.current_document = EncodePrecondition(Precondition::Exists(true));
 
       return result;
     }
