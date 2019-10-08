@@ -156,6 +156,9 @@ s%^./%%
 # Sources within the tree that are not subject to formatting
 \%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
 
+# Keep Firebase.h indenting
+\%^Firebase/Firebase/Sources/Firebase.h% d
+
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
 \%\.pb\.% d
