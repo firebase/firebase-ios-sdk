@@ -17,7 +17,6 @@
 import FirebaseFirestore
 
 #if swift(>=5.1)
-
   /// A type that can initialize itself from a Firestore Timestamp, which makes
   /// it suitable for use with the `@ServerTimestamp` property wrapper.
   ///
@@ -114,7 +113,6 @@ import FirebaseFirestore
       }
     }
   }
-
 #endif // swift(>=5.1)
 
 /// A compatibility version of `ServerTimestamp` that does not use property

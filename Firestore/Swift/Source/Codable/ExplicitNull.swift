@@ -17,7 +17,6 @@
 import FirebaseFirestore
 
 #if swift(>=5.1)
-
   /// Wraps an `Optional` field in a `Codable` object such that when the field
   /// has a `nil` value it will encode to a null value in Firestore. Normally,
   /// optional fields are omitted from the encoded document.
@@ -61,7 +60,6 @@ import FirebaseFirestore
       }
     }
   }
-
 #endif // swift(>=5.1)
 
 /// A compatibility version of `ExplicitNull` that does not use property

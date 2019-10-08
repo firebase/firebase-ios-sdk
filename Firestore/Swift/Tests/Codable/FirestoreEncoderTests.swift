@@ -494,7 +494,6 @@ class FirestoreEncoderTests: XCTestCase {
       assertThat(Model(timestamp: "2019-10-07T21:33:51.123+0000"))
         .roundTrips(to: ["timestamp": timetamp])
     }
-
   #endif // swift(>=5.1)
 
   @available(swift, deprecated: 5.1)
@@ -705,7 +704,6 @@ private class DictionarySubject {
 }
 
 #if swift(>=5.1)
-
   // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
   // server timetamps will be stored in an ISO 8601 date format.
   //
@@ -729,5 +727,4 @@ private class DictionarySubject {
       return Timestamp(date: formatter.date(from: self))
     }
   }
-
 #endif // swift(>=5.1)
