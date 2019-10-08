@@ -106,6 +106,7 @@ cc_library(
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
 
+    firebase_firestore_core
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
