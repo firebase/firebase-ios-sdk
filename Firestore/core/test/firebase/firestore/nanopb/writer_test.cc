@@ -20,8 +20,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace firestore {
 namespace firebase {
+namespace firestore {
 namespace nanopb {
 
 using testing::ContainerEq;
