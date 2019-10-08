@@ -344,6 +344,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   switch (installation.registrationStatus) {
     case FIRInstallationStatusUnknown:
     case FIRInstallationStatusUnregistered:
+    case FIRInstallationStatusRegistrationFailed:
       // The installation is not registered, so it is safe to be deleted as is, so return early.
       return [FBLPromise resolvedWith:installation];
       break;

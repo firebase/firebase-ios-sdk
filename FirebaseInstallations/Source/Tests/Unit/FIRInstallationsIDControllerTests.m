@@ -1026,25 +1026,38 @@
 
 - (void)
     testGetInstallation_WhenRegistrationErrorStoredAndConfigurationDifferent_ThenSendsAPIRequest {
+  __block FBLPromise<FIRInstallationsItem *> *storedInstallationPromise;
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&storedInstallationPromise];
+      });
+
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
-      // TODO: Set the config to mismatch current parameters.
       [self createFailedToRegisterInstallationWithParameters:[self otherRegistrationParameters]];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+  storedInstallationPromise = [FBLPromise resolvedWith:storedInstallation];
 
   // 1.2. Expect registration API request to be sent.
   FIRInstallationsItem *registeredInstallation =
       [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
       .andReturn([FBLPromise resolvedWith:registeredInstallation]);
+
+  // 1.3. Expect registered Installation to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                           XCTAssertEqualObjects(obj, registeredInstallation);
+                                           storedInstallationPromise =
+                                               [FBLPromise resolvedWith:obj];
+                                           return YES;
+                                         }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 2. Request Installation.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 3. Check.
-  XCTAssertEqualObjects(promise.value, registeredInstallation);
+  XCTAssertEqualObjects(promise.value.identifier, registeredInstallation.identifier);
   XCTAssertNil(promise.error);
 
   OCMVerifyAll(self.mockInstallationsStore);
