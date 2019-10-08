@@ -56,12 +56,14 @@ typedef void (^FIRInstallationsTokenHandler)(
 NS_SWIFT_NAME(Installations)
 @interface FIRInstallations : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 /**
  * Returns a default instance of `Installations`.
  * @return Returns an instance of `Installations` for `FirebaseApp.defaultApp(). Throws an exception
  * if the default app is not configured yet.
  */
-+ (FIRInstallations *)installations;
++ (FIRInstallations *)installations NS_SWIFT_NAME(installations());
 
 /**
  * Returns an instance of `Installations` for an application.
