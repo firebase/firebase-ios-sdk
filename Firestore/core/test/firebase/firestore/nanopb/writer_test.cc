@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -69,5 +68,5 @@ TEST(BasicStringWriterTest, Releases) {
 }
 
 }  //  namespace nanopb
-}  // namespace firestore
-}  // namespace firebase
+}  //  namespace firestore
+}  //  namespace firebase
