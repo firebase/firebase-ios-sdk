@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 # In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
 # fields having default values, even for non-primitive types. Using the
 # workaround suggested in
 # https://github.com/nanopb/nanopb/issues/255#issuecomment-291842903
 
-# Serializer needs to verify update_time is set.
+# For a document change, its `update_time` must be set. Making this field
+# optional so we can verify and abort when it is not set from server.
 google.firestore.v1.Document.update_time proto3:false

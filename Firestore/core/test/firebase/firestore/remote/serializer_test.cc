@@ -183,7 +183,7 @@ class SerializerTest : public ::testing::Test {
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
         google_firestore_v1_ListenResponse_fields,
-        std::mem_fn(&Serializer::DecodeVersion), proto);
+        std::mem_fn(&Serializer::DecodeVersionFromListenResponse), proto);
 
     EXPECT_EQ(model, actual_model);
   }
@@ -1479,7 +1479,13 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
     QueryData model(q, 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
-    EXPECT_EQ(result, p.second);
+    std::unordered_map<std::string, std::string> result_in_map;
+    for (auto& label_entry : result) {
+      result_in_map[serializer.DecodeString(label_entry.key)] =
+          serializer.DecodeString(label_entry.value);
+    }
+
+    EXPECT_EQ(result_in_map, p.second);
   }
 }
 
@@ -1494,12 +1500,10 @@ TEST_F(SerializerTest, DecodesMutationResult) {
 
   proto.mutable_update_time()->set_seconds(version.timestamp().seconds());
   proto.mutable_update_time()->set_nanos(version.timestamp().nanoseconds());
-  proto.mutable_transform_results()->Add();
-  (*proto.mutable_transform_results())[0] = ValueProto(true);
-  proto.mutable_transform_results()->Add();
-  (*proto.mutable_transform_results())[1] = ValueProto(1234);
-  proto.mutable_transform_results()->Add();
-  (*proto.mutable_transform_results())[2] = ValueProto("string");
+  auto transform_results = proto.mutable_transform_results();
+  *transform_results->Add() = ValueProto(true);
+  *transform_results->Add() = ValueProto(1234);
+  *transform_results->Add() = ValueProto("string");
 
   SCOPED_TRACE("DecodesMutationResult");
   ExpectDeserializationRoundTrip(model, proto, Version(10000000));
@@ -1537,14 +1541,14 @@ TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
 
   v1::ListenResponse proto;
 
-  proto.mutable_target_change()->set_target_change_type(
+  auto change = proto.mutable_target_change();
+  change->set_target_change_type(
       v1::TargetChange_TargetChangeType::TargetChange_TargetChangeType_REMOVE);
-  proto.mutable_target_change()->add_target_ids(1);
-  proto.mutable_target_change()->add_target_ids(2);
-  proto.mutable_target_change()->set_resume_token("resume_token");
-  proto.mutable_target_change()->mutable_cause()->set_code(
-      Error::PermissionDenied);
-  proto.mutable_target_change()->mutable_cause()->set_message("Error message");
+  change->add_target_ids(1);
+  change->add_target_ids(2);
+  change->set_resume_token("resume_token");
+  change->mutable_cause()->set_code(Error::PermissionDenied);
+  change->mutable_cause()->set_message("Error message");
 
   SCOPED_TRACE("DecodesListenResponseWithRemovedTargetChange");
   ExpectDeserializationRoundTrip(model, proto);
