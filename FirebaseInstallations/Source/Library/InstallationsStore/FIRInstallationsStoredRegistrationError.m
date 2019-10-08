@@ -63,8 +63,8 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
   NSInteger storageVersion =
       [coder decodeIntegerForKey:kFIRInstallationsStoredRegistrationErrorStorageVersionKey];
   if (storageVersion > self.storageVersion) {
-    // TODO: Use a specific error code.
-    FIRLogWarning(kFIRLoggerInstallations, @"I-FIS000000",
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeRegistrationErrorCoderVersionMismatch,
                   @"FIRInstallationsStoredRegistrationError was encoded by a newer coder version "
                   @"%ld. Current coder version is %ld. Some installation data may be lost.",
                   (long)storageVersion, (long)self.storageVersion);
@@ -81,8 +81,8 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
                             forKey:kFIRInstallationsStoredRegistrationErrorAPIErrorKey];
 
   if (registrationParameters == nil || APIError == nil) {
-    // TODO: Use a specific error code.
-    FIRLogWarning(kFIRLoggerInstallations, @"I-FIS000000",
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeRegistrationErrorFailedToDecode,
                   @"Failed to decode FIRInstallationsStoredRegistrationError.");
     return nil;
   }

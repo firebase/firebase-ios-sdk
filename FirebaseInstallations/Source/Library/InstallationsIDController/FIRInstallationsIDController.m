@@ -267,6 +267,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                                                           installation:
                                                               (FIRInstallationsItem *)installation {
   if ([self doesRegistrationErrorRequireConfigChange:error]) {
+    FIRLogError(kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
+                @"Firebase Installation registration failed for app with name: %@, error: %@",
+                self.appName, error);
+
     FIRInstallationsItem *failedInstallation = [installation copy];
     [failedInstallation updateWithRegistrationError:error
                              registrationParameters:[self currentRegistrationParameters]];

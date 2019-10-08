@@ -56,8 +56,8 @@ NSInteger const FIRInstallationsStoredRegistrationParametersStorageVersion = 1;
   NSInteger storageVersion =
       [coder decodeIntegerForKey:FIRInstallationsStoredRegistrationParametersStorageVersionKey];
   if (storageVersion > self.storageVersion) {
-    // TODO: Use a specific error code.
-    FIRLogWarning(kFIRLoggerInstallations, @"I-FIS000000",
+    FIRLogWarning(kFIRLoggerInstallations,
+                  kFIRInstallationsMessageCodeRegistrationParametersCoderVersionMismatch,
                   @"FIRInstallationsStoredRegistrationParameters was encoded by a newer coder "
                   @"version %ld. Current coder version is %ld. Some installation data may be lost.",
                   (long)storageVersion, (long)self.storageVersion);
