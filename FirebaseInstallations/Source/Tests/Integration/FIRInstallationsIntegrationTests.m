@@ -195,25 +195,27 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   FIRApp *app = [self createAndConfigureAppWithName:appName];
 
   XCTestExpectation *getIDExpectation1 = [self expectationWithDescription:@"getIDExpectation1"];
-  [[FIRInstallations installationsWithApp:app] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    XCTAssertNotNil(identifier);
-    XCTAssertNil(error);
-    [getIDExpectation1 fulfill];
-  }];
+  [[FIRInstallations installationsWithApp:app]
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNotNil(identifier);
+        XCTAssertNil(error);
+        [getIDExpectation1 fulfill];
+      }];
 
-  [self waitForExpectations:@[getIDExpectation1] timeout:5];
+  [self waitForExpectations:@[ getIDExpectation1 ] timeout:5];
 
   // Wait for the registration request to be sent.
   FBLWaitForPromisesWithTimeout(10);
 
   XCTestExpectation *getIDExpectation2 = [self expectationWithDescription:@"getIDExpectation2"];
-  [[FIRInstallations installationsWithApp:app] installationIDWithCompletion:^(NSString * _Nullable identifier, NSError * _Nullable error) {
-    XCTAssertNil(identifier);
-    XCTAssertNotNil(error);
-    [getIDExpectation2 fulfill];
-  }];
+  [[FIRInstallations installationsWithApp:app]
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNil(identifier);
+        XCTAssertNotNil(error);
+        [getIDExpectation2 fulfill];
+      }];
 
-  [self waitForExpectations:@[getIDExpectation2] timeout:5];
+  [self waitForExpectations:@[ getIDExpectation2 ] timeout:5];
 }
 
 - (FIRInstallations *)assertInstallationsWithAppNamed:(NSString *)appName {

@@ -223,7 +223,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   NSString *APIKey = self.APIService.APIKey;
   NSString *projectID = self.APIService.projectID;
   return (parameters.APIKey == APIKey || [parameters.APIKey isEqual:APIKey]) &&
-  (parameters.projectID == projectID || [parameters.projectID isEqual:projectID]);
+         (parameters.projectID == projectID || [parameters.projectID isEqual:projectID]);
 }
 
 #pragma mark - FID registration
