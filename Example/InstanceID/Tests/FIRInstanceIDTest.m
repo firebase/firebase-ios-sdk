@@ -116,13 +116,13 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   }] hasValidCheckinInfo];
 
   self.mockTokenManager = OCMClassMock([FIRInstanceIDTokenManager class]);
+  [[[self.mockTokenManager stub] andReturn:self.mockAuthService] authService];
 
   self.mockKeyPairStore = OCMClassMock([FIRInstanceIDKeyPairStore class]);
   _instanceID.fcmSenderID = kAuthorizedEntity;
   self.mockInstanceID = OCMPartialMock(_instanceID);
   [self.mockInstanceID setTokenManager:self.mockTokenManager];
   [self.mockInstanceID setKeyPairStore:self.mockKeyPairStore];
-  [[[self.mockTokenManager stub] andReturn:self.mockAuthService] authService];
 
   id instanceIDClassMock = OCMClassMock([FIRInstanceID class]);
   OCMStub(ClassMethod([instanceIDClassMock minIntervalForDefaultTokenRetry])).andReturn(2);
