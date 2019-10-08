@@ -974,8 +974,9 @@
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
   // 1.2. Receive HTTP 400.
+  NSError *APIError = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:400];
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
-  [rejectedAPIPromise reject:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+  [rejectedAPIPromise reject:APIError];
   OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
       .andReturn(rejectedAPIPromise);
 
@@ -984,7 +985,12 @@
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *installation) {
                   XCTAssertEqual(installation.registrationStatus,
                                  FIRInstallationStatusRegistrationFailed);
-                  // TODO: Validate error content.
+                  XCTAssertEqualObjects(installation.registrationError.APIError, APIError);
+                  XCTAssertEqualObjects(
+                      installation.registrationError.registrationParameters.APIKey, self.APIKey);
+                  XCTAssertEqualObjects(
+                      installation.registrationError.registrationParameters.projectID,
+                      self.projectID);
                   return YES;
                 }]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
@@ -996,7 +1002,9 @@
   // 4. Check.
   XCTAssertNil(promise.error);
   XCTAssertNotNil(promise.value);
-  XCTAssertEqual(promise.value.registrationStatus, FIRInstallationStatusRegistrationFailed);
+
+  // The unregistered installation should be returned before the registration attempt.
+  XCTAssertEqual(promise.value.registrationStatus, FIRInstallationStatusUnregistered);
 
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);

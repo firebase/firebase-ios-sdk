@@ -33,6 +33,7 @@
 #import "FIRInstallationsStore.h"
 #import "FIRSecureStorage.h"
 
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsStoredRegistrationError.h"
 #import "FIRInstallationsStoredRegistrationParameters.h"
@@ -240,6 +241,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   }
 
   return [self.APIService registerInstallation:installation]
+      .recover(^id(NSError *error) {
+        return [self handleRegistrationRequestError:error installation:installation];
+      })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
         // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
         return [FBLPromise all:@[
@@ -255,6 +259,55 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         }
         return registeredInstallation;
       });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)handleRegistrationRequestError:(NSError *)error
+                                                          installation:
+                                                              (FIRInstallationsItem *)installation {
+  if ([self doesRegistrationErrorRequireConfigChange:error]) {
+    FIRInstallationsItem *failedInstallation = [installation copy];
+    [failedInstallation updateWithRegistrationError:error
+                             registrationParameters:[self currentRegistrationParameters]];
+
+    // Save the error and then fail with the API error.
+    return
+        [self.installationsStore saveInstallation:failedInstallation].then(^NSError *(id result) {
+          return error;
+        });
+  }
+
+  FBLPromise *errorPromise = [FBLPromise pendingPromise];
+  [errorPromise reject:error];
+  return errorPromise;
+}
+
+- (BOOL)doesRegistrationErrorRequireConfigChange:(NSError *)error {
+  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)error;
+  if (![HTTPError isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    return NO;
+  }
+
+  switch (HTTPError.HTTPResponse.statusCode) {
+    // These are the errors that require Firebase configuration change.
+    case FIRInstallationsRegistrationHTTPCodeInvalidArgument:
+    case FIRInstallationsRegistrationHTTPCodeInvalidAPIKey:
+    case FIRInstallationsRegistrationHTTPCodeAPIKeyToProjectIDMismatch:
+    case FIRInstallationsRegistrationHTTPCodeProjectNotFound:
+      return YES;
+      break;
+
+    default:
+      return NO;
+      break;
+  }
+
+  return NO;
+}
+
+- (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
+  return [[FIRInstallationsStoredRegistrationParameters alloc]
+      initWithAPIKey:self.APIService.APIKey
+           projectID:self.APIService.projectID];
 }
 
 #pragma mark - Auth Token
