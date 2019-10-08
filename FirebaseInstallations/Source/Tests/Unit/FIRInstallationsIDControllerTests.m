@@ -966,6 +966,38 @@
 
 #pragma mark - Registration Failures
 
+- (void)testRegisterInstallation_WhenServerRespondsWith429_ThenErrorIsNotStoredAndReturned {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createUnregisteredInstallationItem];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2. Receive HTTP 429.
+  NSError *APIError = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:429];
+  FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
+  [rejectedAPIPromise reject:APIError];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
+      .andReturn(rejectedAPIPromise);
+
+  // 1.3. Don't expect the installation to be stored with the error.
+  OCMReject([self.mockInstallationsStore saveInstallation:[OCMArg any]]);
+
+  // 2. Request Installation.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 4. Check.
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  // The unregistered installation should be returned before the registration attempt.
+  XCTAssertEqual(promise.value.registrationStatus, FIRInstallationStatusUnregistered);
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
 - (void)testRegisterInstallation_WhenServerRespondsWith400_ThenErrorStoredAndReturned {
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =

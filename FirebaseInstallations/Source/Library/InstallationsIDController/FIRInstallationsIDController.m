@@ -296,14 +296,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
     case FIRInstallationsRegistrationHTTPCodeAPIKeyToProjectIDMismatch:
     case FIRInstallationsRegistrationHTTPCodeProjectNotFound:
       return YES;
-      break;
 
     default:
       return NO;
-      break;
   }
-
-  return NO;
 }
 
 - (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
