@@ -370,6 +370,14 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos --use-modular-headers
         - travis_retry ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos --use-modular-headers
 
+    - stage: test
+      env:
+        - PROJECT=FirebasePod PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
       if: type = cron
@@ -543,3 +551,4 @@ jobs:
 branches:
   only:
     - master
+    - pb-firebase-pod-tests

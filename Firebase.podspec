@@ -42,7 +42,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     ss.preserve_paths = 'Firebase/Firebase/Sources/module.modulemap'
     ss.user_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/Firebase/Firebase/Sources"
-    }
+  }
   end
 
   s.subspec 'Analytics' do |ss|
