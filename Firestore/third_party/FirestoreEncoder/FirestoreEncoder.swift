@@ -42,7 +42,6 @@ extension Firestore {
         T.self != DocumentReference.self,
         T.self != FieldValue.self else {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: [], debugDescription: "Top-level \(T.self) is not allowed."))
-
       }
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
         throw EncodingError.invalidValue(value,

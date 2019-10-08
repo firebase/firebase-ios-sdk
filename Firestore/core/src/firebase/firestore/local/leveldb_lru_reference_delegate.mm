@@ -71,9 +71,7 @@ void LevelDbLruReferenceDelegate::RemoveMutationReference(
 }
 
 void LevelDbLruReferenceDelegate::RemoveTarget(const QueryData& query_data) {
-  QueryData updated =
-      query_data.Copy(query_data.snapshot_version(), query_data.resume_token(),
-                      current_sequence_number());
+  QueryData updated = query_data.WithSequenceNumber(current_sequence_number());
   db_->query_cache()->UpdateTarget(std::move(updated));
 }
 

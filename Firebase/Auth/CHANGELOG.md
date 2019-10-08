@@ -1,3 +1,6 @@
+# v6.3.0
+- [added] Added methods allowing developers to link and reauthenticate with federated providers. (#3971)
+
 # v6.2.3
 - [fixed] Make sure the first valid auth domain is retrieved. (#3493)
 - [fixed] Add assertion for Facebook generic IDP flow. (#3208)
