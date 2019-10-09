@@ -16,35 +16,28 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsStatus.h"
-
-@class FIRInstallationsStoredAuthToken;
-@class FIRInstallationsStoredRegistrationError;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The class is supposed to be used by `FIRInstallationsStore` only. It is required to
- * serialize/deserialize the installation data into/from `NSData` to be stored in Keychain.
+ * This class serializes and deserializes the installation data into/from `NSData` to be stored in
+ * Keychain. This class is primarily used by `FIRInstallationsStore`. It is also used on the logic
+ * level as a data object (see `FIRInstallationsStoredRegistrationError`).
  *
  * WARNING: Modification of the class properties can lead to incompatibility with the stored data
  * encoded by the previous class versions. Any modification must be evaluated and, if it is really
  * needed, the `storageVersion` must be bumped and proper migration code added.
  */
-@interface FIRInstallationsStoredItem : NSObject <NSSecureCoding>
 
-///  A stable identifier that uniquely identifies the app instance.
-@property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
-/// The `refreshToken` is used to authorize the auth token requests.
-@property(nonatomic, copy, nullable) NSString *refreshToken;
+@interface FIRInstallationsStoredRegistrationParameters : NSObject <NSSecureCoding>
 
-@property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
-@property(nonatomic) FIRInstallationsStatus registrationStatus;
-
-@property(nonatomic, nullable) FIRInstallationsStoredRegistrationError *registrationError;
+@property(nonatomic, readonly, nullable) NSString *APIKey;
+@property(nonatomic, readonly, nullable) NSString *projectID;
 
 /// The version of local storage.
 @property(nonatomic, readonly) NSInteger storageVersion;
+
+- (instancetype)initWithAPIKey:(nullable NSString *)APIKey projectID:(nullable NSString *)projectID;
+
 @end
 
 NS_ASSUME_NONNULL_END

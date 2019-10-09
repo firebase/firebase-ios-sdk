@@ -25,7 +25,7 @@ NS_SWIFT_NAME(InstallationsAuthTokenResult)
 /** The authorization token string. */
 @property(nonatomic, readonly) NSString *authToken;
 
-/** The auth token experation date. */
+/** The auth token expiration date. */
 @property(nonatomic, readonly) NSDate *expirationDate;
 
 @end
