@@ -66,6 +66,10 @@ else
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
+    FirebasePod-*)
+      check_changes '^(Firebase/Firebase|Firebase.podspec)'
+      ;;
+
     Core-*)
       check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
       ;;

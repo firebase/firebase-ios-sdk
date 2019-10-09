@@ -83,7 +83,7 @@ Shared library for iOS SDK data transport needs.
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransport/TestApp'
       test_spec.dependency 'GoogleDataTransport/TestApp'
-      test_spec.source_files = ['GoogleDataTransport/GDTTests/Monkey/**/*.{swift}']
+      test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Monkey/**/*.{swift}']
       test_spec.info_plist = {
         'GDT_MONKEYTEST' => '1'
       }

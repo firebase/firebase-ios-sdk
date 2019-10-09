@@ -55,8 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsAPIService ()
 @property(nonatomic, readonly) NSURLSession *URLSession;
-@property(nonatomic, readonly) NSString *APIKey;
-@property(nonatomic, readonly) NSString *projectID;
 @end
 
 NS_ASSUME_NONNULL_END

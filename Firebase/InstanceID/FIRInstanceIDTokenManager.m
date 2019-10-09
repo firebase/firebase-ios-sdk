@@ -273,7 +273,7 @@
 }
 
 #pragma mark - Invalidating Cached Tokens
-- (BOOL)checkForTokenRefreshPolicy {
+- (BOOL)checkTokenRefreshPolicyWithIID:(NSString *)IID {
   // We know at least one cached token exists.
   BOOL shouldFetchDefaultToken = NO;
   NSArray<FIRInstanceIDTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
@@ -282,8 +282,8 @@
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
   for (FIRInstanceIDTokenInfo *tokenInfo in tokenInfos) {
     BOOL isTokenFresh = [tokenInfo isFresh];
-    if (isTokenFresh) {
-      // Token is fresh, do nothing.
+    if (isTokenFresh && [tokenInfo.token hasPrefix:IID]) {
+      // Token is fresh and in right format, do nothing
       continue;
     }
     if ([tokenInfo.scope isEqualToString:kFIRInstanceIDDefaultTokenScope]) {
