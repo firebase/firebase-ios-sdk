@@ -33,7 +33,6 @@
   if (self) {
     _fileName = [fileName copy];
     _subDirectoryName = [subDirectory copy];
-    _fileInStandardDirectory = YES;
   }
   return self;
 }
