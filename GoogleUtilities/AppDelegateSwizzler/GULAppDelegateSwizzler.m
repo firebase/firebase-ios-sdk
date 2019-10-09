@@ -306,9 +306,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
                                [NSDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-      NSString* sceneDelegateClassName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"][@"UISceneConfigurations"][@"UIWindowSceneSessionRoleApplication"][0][@"UISceneDelegateClassName"];
-      Class sceneDelegateClass = NSClassFromString(sceneDelegateClassName);
-      [GULAppDelegateSwizzler proxySceneDelegateWithClass:sceneDelegateClass];
+      [[NSNotificationCenter defaultCenter] addObserver:self
+                                               selector:@selector(handleSceneWillConnectToNotification:)
+                                                   name:UISceneWillConnectNotification
+                                                 object:nil];
     } else {
       // Fallback on earlier versions
     }
@@ -450,16 +451,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                               realClass:realClass
        storeDestinationImplementationTo:realImplementationsBySelector];
 #endif  // TARGET_OS_IOS
-
-  // For application:configurationForConnectingSceneSession:options:
-  SEL configurationForConnectingSceneSessionOptionsSEL = @selector(application:configurationForConnectingSceneSession:options:);
-
-  [self proxyDestinationSelector:configurationForConnectingSceneSessionOptionsSEL
-      implementationsFromSourceSelector:configurationForConnectingSceneSessionOptionsSEL
-                              fromClass:[GULAppDelegateSwizzler class]
-                                toClass:appDelegateSubClass
-                              realClass:realClass
-       storeDestinationImplementationTo:realImplementationsBySelector];
 
   // Override the description too so the custom class name will not show up.
   [GULAppDelegateSwizzler addInstanceMethodWithDestinationSelector:@selector(description)
@@ -715,6 +706,11 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }];
 }
 
++ (void)handleSceneWillConnectToNotification:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
+  UIScene *scene = (UIScene *)notification.object;
+  [GULAppDelegateSwizzler proxySceneDelegateWithClass:[scene.delegate class]];
+}
+
 // The methods below are donor methods which are added to the dynamic subclass of the App Delegate.
 // They are called within the scope of the real App Delegate so |self| does not refer to the
 // GULAppDelegateSwizzler instance but the real App Delegate instance.
@@ -798,7 +794,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 - (void)scene:(UIScene *)scene
 openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
-  NSLog(@"~~~~~~~~~~~~~~~ swizzled openURLContexts");
   SEL methodSelector = @selector(scene:openURLContexts:);
   // Call the real implementation if the real App Delegate has any.
   id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
@@ -813,37 +808,14 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
    notifyInterceptorsWithMethodSelector:methodSelector
    callback:^(id<GULApplicationDelegate> interceptor) {
     if ([interceptor conformsToProtocol:@protocol(UISceneDelegate)]) {
-      id<UISceneDelegate> sceneInterceptor = interceptor;
+      id<UISceneDelegate> sceneInterceptor = (id<UISceneDelegate>)interceptor;
       [sceneInterceptor scene:scene openURLContexts:URLContexts];
     }
   }];
 #pragma clang diagnostic pop
 
   if (openURLContextsIMP) {
-//    [scene.delegate scene:scene openURLContexts:URLContexts];
     openURLContextsIMP(self, methodSelector, scene, URLContexts);
-  }
-}
-
-#pragma mark - [Donor Methods] UIApplicationDelegate Scene Management
-
-- (UISceneConfiguration *)application:(UIApplication *)application
-configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
-                              options:(UISceneConnectionOptions *)options API_AVAILABLE(ios(13.0)) {
-  NSLog(@"~~~~~~~~~~~~~~~ swizzled application configurationForConnectingSceneSession");
-  SEL methodSelector = @selector(application:configurationForConnectingSceneSession:options:);
-  // Call the real implementation if the real App Delegate has any.
-  NSValue *methodIMPPointer =
-  [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
-  GULConfigurationForConnectingSceneSessionOptionsIMP methodIMP = [methodIMPPointer pointerValue];
-
-  // Swizzle UISceneDelegate
-  [GULAppDelegateSwizzler proxySceneDelegateWithClass:[connectingSceneSession.scene.delegate class]];
-
-  if (methodIMP) {
-    return methodIMP(self, methodSelector, application, connectingSceneSession, options);
-  } else {
-    return nil;
   }
 }
 
@@ -1104,7 +1076,6 @@ configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
       return;
     }
 
-//    IMP orignalImplementation = [sceneDelegateClass methodForSelector:methodSelector]; // TODO: won't work?
     IMP orignalImplementation = method_getImplementation(originalMethod);
     NSValue *originalImplementationPointer = [NSValue valueWithPointer:orignalImplementation];
     NSDictionary *sceneDelegateSELIMPPair = @{NSStringFromSelector(methodSelector): originalImplementationPointer};
