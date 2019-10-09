@@ -274,6 +274,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
     FIRInstallationsItem *failedInstallation = [installation copy];
     [failedInstallation updateWithRegistrationError:error
+                                               date:[NSDate date]
                              registrationParameters:[self currentRegistrationParameters]];
 
     // Save the error and then fail with the API error.

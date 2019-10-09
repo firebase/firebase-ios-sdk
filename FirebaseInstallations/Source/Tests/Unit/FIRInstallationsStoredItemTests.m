@@ -76,6 +76,7 @@
                                    userInfo:@{NSLocalizedFailureReasonErrorKey : @"value"}];
   FIRInstallationsStoredRegistrationError *registrationError =
       [[FIRInstallationsStoredRegistrationError alloc] initWithRegistrationParameters:params
+                                                                                 date:[NSDate date]
                                                                              APIError:error];
   XCTAssertEqualObjects(registrationError.APIError, error);
   XCTAssertEqualObjects(registrationError.registrationParameters, params);
