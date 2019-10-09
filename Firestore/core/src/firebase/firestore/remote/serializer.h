@@ -366,8 +366,8 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
-  // TODO(varconst): Android caches `database_name_` as well, consider
-  // implementing that.
+  // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`
+  // as well, consider implementing that.
 };
 
 }  // namespace remote
