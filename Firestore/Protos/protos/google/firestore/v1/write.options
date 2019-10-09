@@ -20,6 +20,9 @@
 # read_time might not be set for deletes.
 google.firestore.v1.DocumentDelete.read_time proto3:false
 
+# `current_document` is an optional precondition.
+google.firestore.v1.Write.current_document proto3:false
+
 # Whether `update_mask` field is set is crucial for the backend to distinguish
 # between "set" and "patch" mutations.
 google.firestore.v1.Write.update_mask proto3:false

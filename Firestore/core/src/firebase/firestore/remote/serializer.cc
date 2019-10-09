@@ -599,6 +599,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
   google_firestore_v1_Write result{};
 
   if (!mutation.precondition().is_none()) {
+    result.has_current_document = true;
     result.current_document = EncodePrecondition(mutation.precondition());
   }
 
@@ -645,6 +646,7 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       // NOTE: We set a precondition of exists: true as a safety-check, since we
       // always combine TransformMutations with a SetMutation or PatchMutation
       // which (if successful) should end up with an existing document.
+      result.has_current_document = true;
       result.current_document = EncodePrecondition(Precondition::Exists(true));
 
       return result;
@@ -662,8 +664,10 @@ google_firestore_v1_Write Serializer::EncodeMutation(
 
 Mutation Serializer::DecodeMutation(
     nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const {
-  Precondition precondition =
-      DecodePrecondition(reader, mutation.current_document);
+  auto precondition = Precondition::None();
+  if (mutation.has_current_document) {
+    precondition = DecodePrecondition(reader, mutation.current_document);
+  }
 
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
