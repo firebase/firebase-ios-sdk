@@ -45,7 +45,7 @@ NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
 
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
-NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60; // 1 day.
+NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  // 1 day.
 
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
@@ -231,7 +231,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60; /
 
 - (BOOL)isRegistrationErrorWithDateUpToDate:(NSDate *)errorDate {
   return errorDate != nil &&
-      -[errorDate timeIntervalSinceNow] <= kFIRInstallationsRegistrationErrorTimeout;
+         -[errorDate timeIntervalSinceNow] <= kFIRInstallationsRegistrationErrorTimeout;
 }
 
 #pragma mark - FID registration

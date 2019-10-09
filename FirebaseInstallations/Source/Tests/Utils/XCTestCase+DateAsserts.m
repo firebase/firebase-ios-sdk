@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import <Security/Security.h>
+#import "XCTestCase+DateAsserts.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation XCTestCase (FIRTestsDateUtils)
 
-#if TARGET_OS_OSX
+- (void)assertDate:(NSDate *)date
+    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval {
+  NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
 
-@interface FIRTestKeychain : NSObject
-
-- (nullable instancetype)init;
-
-@property(nonatomic, readonly, nullable) SecKeychainRef testKeychainRef;
+  NSTimeInterval precision = 10;
+  XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
+            @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
+            precision, self.name);
+}
 
 @end
-
-#endif  // TARGET_OSX
-
-NS_ASSUME_NONNULL_END

@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import <Security/Security.h>
+#import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_OSX
+@interface XCTestCase (FIRTestsDateUtils)
 
-@interface FIRTestKeychain : NSObject
-
-- (nullable instancetype)init;
-
-@property(nonatomic, readonly, nullable) SecKeychainRef testKeychainRef;
+- (void)assertDate:(NSDate *)date
+    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval;
 
 @end
-
-#endif  // TARGET_OSX
 
 NS_ASSUME_NONNULL_END

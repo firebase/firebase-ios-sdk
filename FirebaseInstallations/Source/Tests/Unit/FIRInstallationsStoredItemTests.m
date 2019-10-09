@@ -59,6 +59,7 @@
   XCTAssertEqual(unarchivedItem.registrationStatus, item.registrationStatus);
 
   XCTAssertEqualObjects(unarchivedItem.registrationError.APIError, item.registrationError.APIError);
+  XCTAssertEqualObjects(unarchivedItem.registrationError.date, item.registrationError.date);
   XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.APIKey,
                         item.registrationError.registrationParameters.APIKey);
   XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.projectID,

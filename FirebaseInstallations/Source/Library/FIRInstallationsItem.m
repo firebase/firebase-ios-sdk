@@ -109,7 +109,7 @@
   self.registrationStatus = FIRInstallationStatusRegistrationFailed;
   self.registrationError = [[FIRInstallationsStoredRegistrationError alloc]
       initWithRegistrationParameters:registrationParameters
-                            date:date
+                                date:date
                             APIError:error];
   self.authToken = nil;
   self.refreshToken = nil;

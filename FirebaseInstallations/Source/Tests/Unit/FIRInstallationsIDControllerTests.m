@@ -23,6 +23,7 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
+#import "XCTestCase+DateAsserts.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
@@ -1023,6 +1024,9 @@
                   XCTAssertEqualObjects(
                       installation.registrationError.registrationParameters.projectID,
                       self.projectID);
+                  XCTAssertNotNil(installation.registrationError.date);
+                  [self assertDate:installation.registrationError.date
+                      isApproximatelyEqualCurrentPlusTimeInterval:0];
                   return YES;
                 }]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
@@ -1104,8 +1108,7 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
-- (void)
-    testGetInstallation_WhenStoredRegistrationErrorIsOutdated_ThenSendsAPIRequest {
+- (void)testGetInstallation_WhenStoredRegistrationErrorIsOutdated_ThenSendsAPIRequest {
   __block FBLPromise<FIRInstallationsItem *> *storedInstallationPromise;
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andDo(^(NSInvocation *invocation) {
@@ -1115,7 +1118,8 @@
   // 1.1. Expect installation to be requested from the store.
   NSDate *date25HoursAgo = [NSDate dateWithTimeIntervalSinceNow:-25 * 60 * 60];
   FIRInstallationsItem *storedInstallation =
-  [self createFailedToRegisterInstallationWithParameters:[self currentRegistrationParameters] date:date25HoursAgo];
+      [self createFailedToRegisterInstallationWithParameters:[self currentRegistrationParameters]
+                                                        date:date25HoursAgo];
   storedInstallationPromise = [FBLPromise resolvedWith:storedInstallation];
 
   // 1.2. Expect registration API request to be sent.
@@ -1180,10 +1184,11 @@
 }
 
 - (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
-(FIRInstallationsStoredRegistrationParameters *)registrationParameters date:(NSDate *)date {
+                              (FIRInstallationsStoredRegistrationParameters *)registrationParameters
+                                                                      date:(NSDate *)date {
   FIRInstallationsStoredRegistrationError *error = [[FIRInstallationsStoredRegistrationError alloc]
       initWithRegistrationParameters:registrationParameters
-                                                    date:date
+                                date:date
                             APIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
   FIRInstallationsItem *installation = [FIRInstallationsItem createWithRegistrationFailure:error];
   return installation;
@@ -1191,7 +1196,8 @@
 
 - (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
     (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
-  return [self createFailedToRegisterInstallationWithParameters:registrationParameters date:[NSDate date]];
+  return [self createFailedToRegisterInstallationWithParameters:registrationParameters
+                                                           date:[NSDate date]];
 }
 
 - (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
