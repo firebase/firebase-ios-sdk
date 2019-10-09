@@ -74,7 +74,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 }
 
 - (void)populateComponentsFromRegisteredClasses:(NSSet<Class> *)classes forApp:(FIRApp *)app {
-  // Ensure no esternal access to the container happens during the population of components.
+  // Ensure no external access to the container happens during the population of components.
   @synchronized(self) {
     // Keep track of any components that need to eagerly instantiate after all components are added.
     NSMutableArray<Protocol *> *protocolsToInstantiate = [[NSMutableArray alloc] init];
