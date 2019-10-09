@@ -78,6 +78,7 @@ using model::Mutation;
 using model::MutationResult;
 using model::NoDocument;
 using model::ObjectValue;
+using model::PatchMutation;
 using model::Precondition;
 using model::SetMutation;
 using model::SnapshotVersion;
@@ -1708,28 +1709,37 @@ TEST_F(SerializerTest, EncodesSetMutation) {
   SetMutation model = testutil::SetMutation("docs/1", Map("a", "b", "num", 1));
 
   v1::Write proto;
-  v1::Document doc;
+  v1::Document& doc = *proto.mutable_update();
   doc.set_name(KeyString("docs/1"));
   for (const auto& kv : model.value().GetInternalValue()) {
     (*doc.mutable_fields())[kv.first] = ValueProto(kv.second);
   }
-  *proto.mutable_update() = std::move(doc);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesPatchMutation) {
+  PatchMutation model = testutil::PatchMutation("docs/1", Map("a", "b", "num", 1, "some.de\\\\ep.th\\ing'", 2));
+
+  v1::Write proto;
+
+  v1::Document& doc = *proto.mutable_update();
+  doc.set_name(KeyString("docs/1"));
+  for (const auto& kv : model.value().GetInternalValue()) {
+    (*doc.mutable_fields())[kv.first] = ValueProto(kv.second);
+  }
+
+  v1::DocumentMask& mask = *proto.mutable_update_mask();
+  for (const auto& path : model.mask()) {
+    mask.add_field_paths(path.CanonicalString());
+  }
+
+  proto.mutable_current_document()->set_exists(true);
 
   ExpectRoundTrip(model, proto);
 }
 
 /*
-- (void)testEncodesPatchMutation {
-  PatchMutation mutation = FSTTestPatchMutation(
-      "docs/1", @{@"a" : @"b", @"num" : @1, @"some.de\\\\ep.th\\ing'" : @2},
-{}); GCFSWrite *proto = [GCFSWrite message]; proto.update = [self.serializer
-encodedDocumentWithFields:mutation.value() key:mutation.key()]; proto.updateMask
-= [self.serializer encodedFieldMask:mutation.mask()];
-  proto.currentDocument.exists = YES;
-
-  [self assertRoundTripForMutation:mutation proto:proto];
-}
-
 - (void)testEncodesDeleteMutation {
   DeleteMutation mutation = FSTTestDeleteMutation(@"docs/1");
   GCFSWrite *proto = [GCFSWrite message];
