@@ -128,8 +128,8 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   sqlite3_close(_database);
 }
 
-+ (NSString *)pathForDatabase:(NSString *)dbName {
-  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", dbName];
+- (NSString *)pathForDatabase {
+  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", _databaseName];
   NSArray *paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
@@ -167,13 +167,13 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 - (void)removeDatabase {
-  NSString *path = [[self class] pathForDatabase:self.databaseName];
+  NSString *path = [self pathForDatabase];
   [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
 - (void)openDatabase {
   NSFileManager *fileManager = [NSFileManager defaultManager];
-  NSString *path = [[self class] pathForDatabase:_databaseName];
+  NSString *path = [self pathForDatabase];
 
   BOOL didOpenDatabase = YES;
   if (![fileManager fileExistsAtPath:path]) {
