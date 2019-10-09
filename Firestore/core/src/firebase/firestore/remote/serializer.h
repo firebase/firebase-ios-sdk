@@ -196,11 +196,12 @@ class Serializer {
       const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   model::MutationResult DecodeMutationResult(
+      nanopb::Reader* reader,
       const google_firestore_v1_WriteResult& write_result,
       const model::SnapshotVersion& commit_version) const;
 
-  std::unordered_map<std::string, std::string> EncodeListenRequestLabels(
-      const local::QueryData& query_data) const;
+  std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
+  EncodeListenRequestLabels(const local::QueryData& query_data) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
   static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);
@@ -214,7 +215,7 @@ class Serializer {
   static google_protobuf_Timestamp EncodeTimestamp(
       const Timestamp& timestamp_value);
 
-  static model::SnapshotVersion DecodeSnapshotVersion(
+  static model::SnapshotVersion DecodeVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
 
   static Timestamp DecodeTimestamp(
@@ -248,6 +249,10 @@ class Serializer {
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& watch_change) const;
+
+  model::SnapshotVersion DecodeVersionFromListenResponse(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ListenResponse& listen_response) const;
 
  private:
   google_firestore_v1_Value EncodeNull() const;
@@ -333,10 +338,6 @@ class Serializer {
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
       nanopb::Reader* reader, const google_firestore_v1_Cursor& cursor) const;
-
-  model::SnapshotVersion DecodeVersion(
-      nanopb::Reader* reader,
-      const google_firestore_v1_ListenResponse& listen_response) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       nanopb::Reader* reader,

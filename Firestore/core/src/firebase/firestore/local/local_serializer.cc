@@ -141,8 +141,8 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
     i++;
   }
 
+  result.has_update_time = true;
   result.update_time = rpc_serializer_.EncodeVersion(doc.version());
-
   // Ignore Document.create_time. (We don't use this in our on-disk protos.)
 
   return result;
@@ -161,7 +161,7 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
 NoDocument LocalSerializer::DecodeNoDocument(
     Reader* reader, const firestore_client_NoDocument& proto) const {
   SnapshotVersion version =
-      rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
+      rpc_serializer_.DecodeVersion(reader, proto.read_time);
 
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
@@ -183,7 +183,7 @@ firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
 UnknownDocument LocalSerializer::DecodeUnknownDocument(
     Reader* reader, const firestore_client_UnknownDocument& proto) const {
   SnapshotVersion version =
-      rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
+      rpc_serializer_.DecodeVersion(reader, proto.version);
 
   return UnknownDocument(rpc_serializer_.DecodeKey(reader, proto.name),
                          version);
@@ -228,7 +228,7 @@ QueryData LocalSerializer::DecodeQueryData(
       static_cast<model::ListenSequenceNumber>(
           proto.last_listen_sequence_number);
   SnapshotVersion version =
-      rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
+      rpc_serializer_.DecodeVersion(reader, proto.snapshot_version);
   ByteString resume_token(proto.resume_token);
   Query query = InvalidQuery();
 
