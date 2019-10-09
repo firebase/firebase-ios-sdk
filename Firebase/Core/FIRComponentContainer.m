@@ -74,36 +74,49 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 }
 
 - (void)populateComponentsFromRegisteredClasses:(NSSet<Class> *)classes forApp:(FIRApp *)app {
-  // Loop through the verified component registrants and populate the components array.
-  for (Class<FIRLibrary> klass in classes) {
-    // Loop through all the components being registered and store them as appropriate.
-    // Classes which do not provide functionality should use a dummy FIRComponentRegistrant
-    // protocol.
-    for (FIRComponent *component in [klass componentsToRegister]) {
-      // Check if the component has been registered before, and error out if so.
-      NSString *protocolName = NSStringFromProtocol(component.protocol);
-      if (self.components[protocolName]) {
-        FIRLogError(kFIRLoggerCore, @"I-COR000029",
-                    @"Attempted to register protocol %@, but it already has an implementation.",
-                    protocolName);
-        continue;
-      }
+  // Ensure no esternal access to the container happens during the population of components.
+  @synchronized(self) {
+    // Keep track of any components that need to eagerly instantiate after all components are added.
+    NSMutableArray<Protocol *> *protocolsToInstantiate = [[NSMutableArray alloc] init];
 
-      // Store the creation block for later usage.
-      self.components[protocolName] = component.creationBlock;
+    // Loop through the verified component registrants and populate the components array.
+    for (Class<FIRLibrary> klass in classes) {
+      // Loop through all the components being registered and store them as appropriate.
+      // Classes which do not provide functionality should use a dummy FIRComponentRegistrant
+      // protocol.
+      for (FIRComponent *component in [klass componentsToRegister]) {
+        // Check if the component has been registered before, and error out if so.
+        NSString *protocolName = NSStringFromProtocol(component.protocol);
+        if (self.components[protocolName]) {
+          FIRLogError(kFIRLoggerCore, @"I-COR000029",
+                      @"Attempted to register protocol %@, but it already has an implementation.",
+                      protocolName);
+          continue;
+        }
 
-      // Instantiate the instance if it has requested to be instantiated.
-      BOOL shouldInstantiateEager =
-          (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
-      BOOL shouldInstantiateDefaultEager =
-          (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
-           [app isDefaultApp]);
-      if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
-        @synchronized(self) {
-          [self instantiateInstanceForProtocol:component.protocol
-                                     withBlock:component.creationBlock];
+        // Store the creation block for later usage.
+        self.components[protocolName] = component.creationBlock;
+
+        // Queue any protocols that should be eagerly instantiated. Don't instantiate them yet
+        // because they could depend on other components that haven't been added to the components
+        // array yet.
+        BOOL shouldInstantiateEager =
+            (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
+        BOOL shouldInstantiateDefaultEager =
+            (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
+             [app isDefaultApp]);
+        if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
+          [protocolsToInstantiate addObject:component.protocol];
         }
       }
+    }
+
+    // After all components are registered, instantiate the ones that are requesting eager
+    // instantiation.
+    for (Protocol *protocol in protocolsToInstantiate) {
+      // Get an instance for the protocol, which will instantiate it since it couldn't have been
+      // cached yet. Ignore the instance coming back since we don't need it.
+      __unused id unusedInstance = [self instanceForProtocol:protocol];
     }
   }
 }
