@@ -161,7 +161,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)testTokenShouldBeRefreshedIfCacheTokenNeedsToBeRefreshed {
   [[[self.mockInstanceID stub] andReturn:kToken] cachedTokenIfAvailable];
-  [[[self.mockTokenManager stub] andReturnValue:@(YES)] checkTokenRefreshPolicyWithIID:[OCMArg any]];
+  [[[self.mockTokenManager stub] andReturnValue:@(YES)]
+      checkTokenRefreshPolicyWithIID:[OCMArg any]];
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
   }] tokenWithAuthorizedEntity:[OCMArg any]
                          scope:[OCMArg any]

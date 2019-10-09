@@ -34,7 +34,9 @@ static NSString *const kSubDirectoryName = @"FirebaseInstanceIDTokenManagerTest"
 
 static NSString *const kAuthorizedEntity = @"test-authorized-entity";
 static NSString *const kScope = @"test-scope";
-static NSString *const kToken = @"cHu_lDPF4EXfo3cdVQhfGg:APA91bGHesgrEsM5j8afb8kKKVwr2Q82NrX_mhLT0URVLYP_MVJgvrdNfYfgoiPO4NG8SYA2SsZofP0iRXUv9vKREhLPQh0JDOiQ1MO0ivJyDeRo6_5e8VXLeGTTa0StpzfqETEhMaW7";
+static NSString *const kToken =
+    @"cHu_lDPF4EXfo3cdVQhfGg:APA91bGHesgrEsM5j8afb8kKKVwr2Q82NrX_mhLT0URVLYP_"
+    @"MVJgvrdNfYfgoiPO4NG8SYA2SsZofP0iRXUv9vKREhLPQh0JDOiQ1MO0ivJyDeRo6_5e8VXLeGTTa0StpzfqETEhMaW7";
 
 // Use a string (which is converted to NSData) as a placeholder for an actual APNs device token.
 static NSString *const kNewAPNSTokenString = @"newAPNSData";
@@ -436,48 +438,45 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
   }
 }
 
+- (void)testTokenShouldBeDeletedIfWrongFormat {
+  // Cache some token
+  NSArray<NSString *> *entities = @[ @"entity1", @"entity2" ];
+  for (NSString *entity in entities) {
+    FIRInstanceIDTokenInfo *info = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
+                                                                                      scope:kScope
+                                                                                      token:kToken
+                                                                                 appVersion:nil
+                                                                              firebaseAppID:nil];
+    [self.tokenStore saveTokenInfo:info handler:nil];
+  }
 
--(void)testTokenShouldBeDeletedIfWrongFormat {    
-    // Cache some token
-    NSArray<NSString *> *entities = @[ @"entity1", @"entity2"];
-    for (NSString *entity in entities) {
-      FIRInstanceIDTokenInfo *info =
-          [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
-                                                             scope:kScope
-                                                             token:kToken
-                                                        appVersion:nil
-                                                     firebaseAppID:nil];
-      [self.tokenStore saveTokenInfo:info handler:nil];
-    }
+  // Ensure they tokens now exist.
+  for (NSString *entity in entities) {
+    FIRInstanceIDTokenInfo *cachedTokenInfo =
+        [self.tokenManager cachedTokenInfoWithAuthorizedEntity:entity scope:kScope];
+    XCTAssertNotNil(cachedTokenInfo);
+  }
 
-    // Ensure they tokens now exist.
-    for (NSString *entity in entities) {
-      FIRInstanceIDTokenInfo *cachedTokenInfo =
-          [self.tokenManager cachedTokenInfoWithAuthorizedEntity:entity scope:kScope];
-      XCTAssertNotNil(cachedTokenInfo);
-    }
+  // Trigger a potential reset, the current IID is sth differnt than the token
+  [self.tokenManager checkTokenRefreshPolicyWithIID:@"d8xQyABOoV8"];
 
-    // Trigger a potential reset, the current IID is sth differnt than the token
-    [self.tokenManager checkTokenRefreshPolicyWithIID:@"d8xQyABOoV8"];
-
-    // Ensure that token data is now missing
-    for (NSString *entity in entities) {
-      FIRInstanceIDTokenInfo *cachedTokenInfo =
-          [self.tokenManager cachedTokenInfoWithAuthorizedEntity:entity scope:kScope];
-      XCTAssertNil(cachedTokenInfo);
-    }
+  // Ensure that token data is now missing
+  for (NSString *entity in entities) {
+    FIRInstanceIDTokenInfo *cachedTokenInfo =
+        [self.tokenManager cachedTokenInfoWithAuthorizedEntity:entity scope:kScope];
+    XCTAssertNil(cachedTokenInfo);
+  }
 }
 
 - (void)testCachedTokensInvalidatedOnAPNSAddition {
   // Write some fake tokens to cache, which have no APNs info
   NSArray<NSString *> *entities = @[ @"entity1", @"entity2" ];
   for (NSString *entity in entities) {
-    FIRInstanceIDTokenInfo *info =
-        [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
-                                                           scope:kScope
-                                                           token:kToken
-                                                      appVersion:nil
-                                                   firebaseAppID:nil];
+    FIRInstanceIDTokenInfo *info = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
+                                                                                      scope:kScope
+                                                                                      token:kToken
+                                                                                 appVersion:nil
+                                                                              firebaseAppID:nil];
     [self.tokenStore saveTokenInfo:info handler:nil];
   }
 
@@ -504,12 +503,11 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
   NSArray<NSString *> *entities = @[ @"entity1", @"entity2" ];
   NSData *oldAPNSData = [@"oldAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
   for (NSString *entity in entities) {
-    FIRInstanceIDTokenInfo *info =
-        [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
-                                                           scope:kScope
-                                                           token:kToken
-                                                      appVersion:nil
-                                                   firebaseAppID:nil];
+    FIRInstanceIDTokenInfo *info = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
+                                                                                      scope:kScope
+                                                                                      token:kToken
+                                                                                 appVersion:nil
+                                                                              firebaseAppID:nil];
     info.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:oldAPNSData isSandbox:NO];
     [self.tokenStore saveTokenInfo:info handler:nil];
   }
@@ -538,12 +536,11 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
   NSString *apnsDataString = kNewAPNSTokenString;
   NSData *currentAPNSData = [apnsDataString dataUsingEncoding:NSUTF8StringEncoding];
   for (NSString *entity in entities) {
-    FIRInstanceIDTokenInfo *info =
-        [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
-                                                           scope:kScope
-                                                           token:kToken
-                                                      appVersion:nil
-                                                   firebaseAppID:nil];
+    FIRInstanceIDTokenInfo *info = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:entity
+                                                                                      scope:kScope
+                                                                                      token:kToken
+                                                                                 appVersion:nil
+                                                                              firebaseAppID:nil];
     info.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:currentAPNSData
                                                              isSandbox:NO];
     [self.tokenStore saveTokenInfo:info handler:nil];
