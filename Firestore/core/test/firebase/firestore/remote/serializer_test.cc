@@ -71,6 +71,7 @@ using core::Bound;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryData;
 using local::QueryPurpose;
+using model::ArrayTransform;
 using model::DatabaseId;
 using model::DeleteMutation;
 using model::Document;
@@ -88,6 +89,7 @@ using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
 using model::TransformMutation;
+using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::ProtobufParse;
@@ -1784,40 +1786,37 @@ TEST_F(SerializerTest, EncodesServerTimestampTransformMutation) {
   ExpectRoundTrip(model, proto);
 }
 
-/*
-- (void)testEncodesArrayTransformMutations {
-  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
-    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
-    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"x" : @1} ]]
-  });
-  GCFSWrite *proto = [GCFSWrite message];
-  proto.transform = [GCFSDocumentTransform message];
-  proto.transform.document = [self.serializer
-encodedDocumentKey:mutation.key()];
+TEST_F(SerializerTest, EncodesArrayTransformMutations) {
+  ArrayTransform array_union{TransformOperation::Type::ArrayUnion,
+                             {Value("a"), Value(2)}};
+  ArrayTransform array_remove{TransformOperation::Type::ArrayRemove,
+                              {Value(Map("x", 1))}};
+  TransformMutation model = testutil::TransformMutation(
+      "docs/1", {{"a", array_union}, {"bar.baz", array_remove}});
 
-  GCFSDocumentTransform_FieldTransform *arrayUnion =
-[GCFSDocumentTransform_FieldTransform message]; arrayUnion.fieldPath = @"a";
-  arrayUnion.appendMissingElements = [GCFSArrayValue message];
-  NSMutableArray *unionElements = arrayUnion.appendMissingElements.valuesArray;
-  [unionElements addObject:[self.serializer
-encodedFieldValue:FSTTestFieldValue(@"a")]]; [unionElements
-addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
-  [proto.transform.fieldTransformsArray addObject:arrayUnion];
+  v1::Write proto;
+  v1::DocumentTransform& transform = *proto.mutable_transform();
+  transform.set_document(KeyString("docs/1"));
 
-  GCFSDocumentTransform_FieldTransform *arrayRemove =
-      [GCFSDocumentTransform_FieldTransform message];
-  arrayRemove.fieldPath = @"bar.baz";
-  arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
-  NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
-  [removeElements addObject:[self.serializer
-encodedFieldValue:FSTTestFieldValue(@{@"x" : @1})]];
-  [proto.transform.fieldTransformsArray addObject:arrayRemove];
+  v1::DocumentTransform::FieldTransform union_proto;
+  union_proto.set_field_path("a");
+  v1::ArrayValue& append = *union_proto.mutable_append_missing_elements();
+  *append.add_values() = ValueProto("a");
+  *append.add_values() = ValueProto(2);
+  *transform.add_field_transforms() = std::move(union_proto);
 
-  proto.currentDocument.exists = YES;
+  v1::DocumentTransform::FieldTransform remove_proto;
+  remove_proto.set_field_path("bar.baz");
+  v1::ArrayValue& remove = *remove_proto.mutable_remove_all_from_array();
+  *remove.add_values() = ValueProto(Map("x", 1));
+  *transform.add_field_transforms() = std::move(remove_proto);
 
-  [self assertRoundTripForMutation:mutation proto:proto];
+  proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(model, proto);
 }
 
+/*
 - (void)testEncodesSetMutationWithPrecondition {
   SetMutation mutation(Key("foo/bar"), WrapObject("a", "b", "num", 1),
                        Precondition::UpdateTime(Version(4)));
