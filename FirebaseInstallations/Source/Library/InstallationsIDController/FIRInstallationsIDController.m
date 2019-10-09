@@ -268,7 +268,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                                                               (FIRInstallationsItem *)installation {
   if ([self doesRegistrationErrorRequireConfigChange:error]) {
     FIRLogError(kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
-                @"Firebase Installation registration failed for app with name: %@, error: %@",
+                @"Firebase Installation registration failed for app with name: %@, error: %@\nPlease make sure you use valid GoogleService-Info.plist",
                 self.appName, error);
 
     FIRInstallationsItem *failedInstallation = [installation copy];
