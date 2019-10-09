@@ -16,59 +16,104 @@
 
 import FirebaseFirestore
 
-/// A value that is populated in Codable objects with a `DocumentReference` by
-/// the Firestore.Decoder when a document is read.
+/// A type that can convert to itself from a Firestore `DocumentReference`,
+/// which makes it suitable for use with the `@DocumentID` property wrapper.
 ///
-/// Note that limitations in Swift compiler-generated Codable implementations
-/// prevent using this type wrapped in an Optional. Optional SelfDocumentIDs
-/// are possible if you write a custom `init(from: Decoder)` method.
+/// Firestore includes exensions that make `String` and `DocumentReference`
+/// conform to `@DocumentReferenceConvertible`.
+///
+/// Note that Firestore ignores fields annotated with `@DocumentID` when writing
+/// so there is no requirement to convert from the wrapped type back to a
+/// `DocumentReference`. In particular, this means that conversions can be
+/// lossy without any problem.
+public protocol DocumentReferenceConvertible {
+  /// Creates a new instance by converting from the given `DocumentReference`.
+  static func convert(from documentReference: DocumentReference) -> Self
+}
+
+extension String: DocumentReferenceConvertible {
+  public static func convert(from documentReference: DocumentReference) -> Self {
+    return documentReference.documentID
+  }
+}
+
+extension DocumentReference: DocumentReferenceConvertible {
+  public static func convert(from documentReference: DocumentReference) -> Self {
+    // Swift complains that values of type DocumentReference cannot be returned
+    // as Self which is nonsensical. The cast forces this to work.
+    return documentReference as! Self
+  }
+}
+
+/// An internal protocol that allows FirestoreDecoder to test if a type is a
+/// DocumentID of some kind without knowing the specific generic parameter that
+/// the user actually used.
+///
+/// This is required because Swift does not define an existential type for all
+/// instances of a generic class--that is, it has no wildcard or raw type that
+/// matches a generic without any specific parameter. Swift does define an
+/// existential type for protocols though, so this protocol (to which DocumentID
+/// conforms) indirectly makes it possible to test for and act on any
+/// `DocumentID<Value>`.
+internal protocol DocumentIDProtocol {
+  /// Initializes the DocumentID from a DocumentReference.
+  init(from documentReference: DocumentReference?)
+}
+
+/// A value that is populated in Codable objects with the `DocumentReference`
+/// of the current document by the Firestore.Decoder when a document is read.
 ///
 /// If the field name used for this type conflicts with a read document field,
 /// an error is thrown. For example, if a custom object has a field `firstName`
-/// with type `SelfDocumentID`, and there is a property from the document named
-/// `firstName` as well, an error is thrown when you try to read the document.
+/// annotated with `@DocumentID`, and there is a property from the document
+/// named `firstName` as well, an error is thrown when you try to read the
+/// document.
 ///
-/// When writing a Codable object containing a `SelfDocumentID`, its value is
-/// ignored. This allows you to read a document from one path and write it into
-/// another without adjusting the value here.
+/// When writing a Codable object containing an `@DocumentID` annotated field,
+/// its value is ignored. This allows you to read a document from one path and
+/// write it into another without adjusting the value here.
 ///
 /// NOTE: Trying to encode/decode this type using encoders/decoders other than
 /// Firestore.Encoder leads to an error.
-public final class SelfDocumentID: Equatable, Codable {
-  // MARK: - Initializers
+@propertyWrapper
+public struct DocumentID<Value: DocumentReferenceConvertible & Codable & Equatable>:
+  DocumentIDProtocol, Codable, Equatable {
+  var value: Value?
 
-  public init() {
-    reference = nil
+  public init(wrappedValue value: Value?) {
+    self.value = value
   }
 
-  public init(from ref: DocumentReference?) {
-    reference = ref
+  public var wrappedValue: Value? {
+    get { value }
+    set { value = newValue }
+  }
+
+  // MARK: - `DocumentIDProtocol` conformance
+
+  public init(from documentReference: DocumentReference?) {
+    if let documentReference = documentReference {
+      value = Value.convert(from: documentReference)
+    } else {
+      value = nil
+    }
   }
 
   // MARK: - `Codable` implemention.
 
   public init(from decoder: Decoder) throws {
     throw FirestoreDecodingError.decodingIsNotSupported(
-      "SelfDocumentID values can only be decoded with Firestore.Decoder")
+      "DocumentID values can only be decoded with Firestore.Decoder"
+    )
   }
 
   public func encode(to encoder: Encoder) throws {
     throw FirestoreEncodingError.encodingIsNotSupported(
-      "SelfDocumentID values can only be encoded with Firestore.Encoder")
+      "DocumentID values can only be encoded with Firestore.Encoder"
+    )
   }
 
-  // MARK: - Properties
-
-  public var id: String? {
-    return reference?.documentID
-  }
-
-  public let reference: DocumentReference?
-
-  // MARK: - `Equatable` implementation
-
-  public static func == (lhs: SelfDocumentID,
-                         rhs: SelfDocumentID) -> Bool {
-    return lhs.reference == rhs.reference
+  public static func == (lhs: DocumentID<Value>, rhs: DocumentID<Value>) -> Bool {
+    return lhs.value == rhs.value
   }
 }

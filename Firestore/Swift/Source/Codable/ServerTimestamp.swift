@@ -47,7 +47,7 @@ import FirebaseFirestore
   extension NSDate: ServerTimestampWrappable {
     init(from timestamp: Timestamp) {
       let interval = timestamp.dateValue().timeIntervalSince1970
-      self = NSDate(timeIntervalSince1970: interval)
+      self.init(timeIntervalSince1970: interval)
     }
 
     func timestampValue() -> Timestamp {

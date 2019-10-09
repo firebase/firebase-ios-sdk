@@ -544,55 +544,61 @@ class FirestoreEncoderTests: XCTestCase {
       .roundTrips(to: ["name": "good name"])
   }
 
-  func testAutomaticallyPopulatesSelfDocumentIDField() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(["name": "abc"], in: "abc/123")
-      .decodes(to: Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-  }
-
-  func testSelfDocumentIDIgnoredInEncoding() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-      .encodes(to: ["name": "abc"])
-  }
-
-  func testEncodingSelfDocumentIDNotEmbeddedThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingAtTopLevel()
-  }
-
-  func testSelfDocumentIDWithJsonEncoderThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingWithJSONEncoder()
-  }
-
-  func testDecodingSelfDocumentIDWithConfictingFieldsThrows() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
+  #if swift(>=5.1)
+    func testAutomaticallyPopulatesDocumentIDOnDocumentReference() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference
+      }
+      assertThat(["name": "abc"], in: "abc/123")
+        .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
     }
 
-    do {
-      _ = try Firestore.Decoder().decode(
-        Model.self,
-        from: ["name": "abc", "docId": "Causing conflict"],
-        in: FSTTestDocRef("abc/123")
-      )
-      XCTFail("Failed to throw")
-    } catch let FirestoreDecodingError.fieldNameConfict(msg) {
-      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
-        + "cannot assign the document reference to this field.")
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)")
+    func testAutomaticallyPopulatesDocumentIDOnString() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: String
+      }
+      assertThat(["name": "abc"], in: "abc/123")
+        .decodes(to: Model(name: "abc", docId: "123"))
     }
-  }
+
+    func testDocumentIDIgnoredInEncoding() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference
+      }
+      assertThat(Model(name: "abc", docId: FSTTestDocRef("abc/123")))
+        .encodes(to: ["name": "abc"])
+    }
+
+    func testDocumentIDWithJsonEncoderThrows() {
+      assertThat(DocumentID(wrappedValue: FSTTestDocRef("abc/xyz")))
+        .failsEncodingWithJSONEncoder()
+    }
+
+    func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference
+      }
+
+      do {
+        _ = try Firestore.Decoder().decode(
+          Model.self,
+          from: ["name": "abc", "docId": "Causing conflict"],
+          in: FSTTestDocRef("abc/123")
+        )
+        XCTFail("Failed to throw")
+      } catch let FirestoreDecodingError.fieldNameConfict(msg) {
+        XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
+          + "cannot assign the document reference to this field.")
+        return
+      } catch {
+        XCTFail("Unrecognized error: \(error)")
+      }
+    }
+  #endif // swift(>=5.1)
 }
 
 private func assertThat(_ dictionary: [String: Any], in document: String? = nil, file: StaticString = #file, line: UInt = #line) -> DictionarySubject {
