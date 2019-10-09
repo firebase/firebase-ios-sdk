@@ -1816,26 +1816,25 @@ TEST_F(SerializerTest, EncodesArrayTransformMutations) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesSetMutationWithPrecondition) {
+  SetMutation model{Key("foo/bar"), testutil::WrapObject("a", "b", "num", 1),
+                       Precondition::UpdateTime(Version(4))};
+
+  v1::Write proto;
+  v1::Document& doc = *proto.mutable_update();
+  doc.set_name(KeyString("foo/bar"));
+  auto& fields = *doc.mutable_fields();
+  fields["a"] = ValueProto("b");
+  fields["num"] = ValueProto(1);
+
+  google::protobuf::Timestamp timestamp;
+  timestamp.set_nanos(4000);
+  *proto.mutable_current_document()->mutable_update_time() = timestamp;
+
+  ExpectRoundTrip(model, proto);
+}
+
 /*
-- (void)testEncodesSetMutationWithPrecondition {
-  SetMutation mutation(Key("foo/bar"), WrapObject("a", "b", "num", 1),
-                       Precondition::UpdateTime(Version(4)));
-  GCFSWrite *proto = [GCFSWrite message];
-  proto.update = [self.serializer encodedDocumentWithFields:mutation.value()
-key:mutation.key()]; proto.currentDocument.updateTime = [self.serializer
-encodedTimestamp:Timestamp{0, 4000}];
-
-  [self assertRoundTripForMutation:mutation proto:proto];
-}
-
-- (void)assertRoundTripForMutation:(const Mutation &)mutation proto:(GCFSWrite
-*)proto { GCFSWrite *actualProto = [self.serializer encodedMutation:mutation];
-  XCTAssertEqualObjects(actualProto, proto);
-
-  Mutation actualMutation = [self.serializer decodedMutation:proto];
-  XCTAssertEqual(actualMutation, mutation);
-}
-
 - (void)testRoundTripSpecialFieldNames {
   Mutation set = FSTTestSetMutation(@"collection/key", @{
     @"field" : [NSString stringWithFormat:@"field %d", 1],
