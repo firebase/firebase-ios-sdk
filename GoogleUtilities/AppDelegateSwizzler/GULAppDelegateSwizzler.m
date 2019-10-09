@@ -301,6 +301,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
         [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
+    #if __has_builtin(__builtin_available)
     if (@available(iOS 13.0, *)) {
       id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
       objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
@@ -310,9 +311,8 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                selector:@selector(handleSceneWillConnectToNotification:)
                                                    name:UISceneWillConnectNotification
                                                  object:nil];
-    } else {
-      // Fallback on earlier versions
     }
+    #endif  // __has_builtin(__builtin_available)
   });
 }
 
