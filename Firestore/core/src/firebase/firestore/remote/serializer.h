@@ -260,6 +260,13 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& listen_response) const;
 
+  // Public for the sake of tests.
+  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
+      const core::FilterList& filters) const;
+  core::FilterList DecodeFilters(
+      nanopb::Reader* reader,
+      const google_firestore_v1_StructuredQuery_Filter& proto) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;
@@ -304,12 +311,6 @@ class Serializer {
       nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
 
   std::string EncodeLabel(local::QueryPurpose purpose) const;
-
-  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const core::FilterList& filters) const;
-  core::FilterList DecodeFilters(
-      nanopb::Reader* reader,
-      const google_firestore_v1_StructuredQuery_Filter& proto) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeSingularFilter(
       const core::FieldFilter& filter) const;

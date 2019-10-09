@@ -68,6 +68,7 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
+using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryData;
 using local::QueryPurpose;
@@ -251,14 +252,6 @@ class SerializerTest : public ::testing::Test {
     google_firestore_v1_Document proto = serializer.EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
     serializer.FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
-    return writer.Release();
-  }
-
-  ByteString EncodeMutation(const Mutation& mutation) {
-    ByteStringWriter writer;
-    google_firestore_v1_Write proto = serializer.EncodeMutation(mutation);
-    writer.WriteNanopbMessage(google_firestore_v1_Write_fields, &proto);
-    serializer.FreeNanopbMessage(google_firestore_v1_Write_fields, &proto);
     return writer.Release();
   }
 
@@ -537,6 +530,24 @@ class SerializerTest : public ::testing::Test {
         std::mem_fn(&Serializer::DecodeMutation), proto);
 
     EXPECT_EQ(model, actual_model);
+  }
+
+  void ExpectSerializationRoundTrip(const core::Filter& model,
+                                    const v1::StructuredQuery::Filter& proto) {
+    ByteString bytes = Encode(google_firestore_v1_StructuredQuery_Filter_fields,
+                              serializer.EncodeFilters({model}));
+    auto actual_proto = ProtobufParse<v1::StructuredQuery::Filter>(bytes);
+
+    EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
+  }
+
+  void ExpectDeserializationRoundTrip(const core::Filter& model,
+                                      const v1::StructuredQuery::Filter& proto) {
+    FilterList actual_model = Decode<google_firestore_v1_StructuredQuery_Filter>(
+        google_firestore_v1_StructuredQuery_Filter_fields,
+        std::mem_fn(&Serializer::DecodeFilters), proto);
+
+    EXPECT_EQ(FilterList{model}, actual_model);
   }
 
   template <typename T>
@@ -1839,28 +1850,30 @@ TEST_F(SerializerTest, RoundTripsSpecialFieldNames) {
       "collection/key",
       Map("field", "field 1", "field.dot", 2, "field\\slash", 3));
 
-  auto encoded = serializer.EncodeMutation(model);
-  nanopb::Reader r{nullptr, 0};
-  auto decoded = serializer.DecodeMutation(&r, encoded);
-  EXPECT_EQ(model, decoded);
+  v1::Write proto;
+  v1::Document& doc = *proto.mutable_update();
+  doc.set_name(KeyString("collection/key"));
+  auto& fields = *doc.mutable_fields();
+  fields["field"] = ValueProto("field 1");
+  fields["field.dot"] = ValueProto(2);
+  fields["field\\slash"] = ValueProto(3);
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesUnaryFilter) {
+  auto model = testutil::Filter("item", "==", nullptr);
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::UnaryFilter& unary = *proto.mutable_unary_filter();
+  unary.mutable_field()->set_field_path("item");
+  unary.set_op(v1::StructuredQuery::UnaryFilter::IS_NULL);
+
+  ExpectRoundTrip(model, proto);
 }
 
 /*
-- (void)testEncodesUnaryFilter {
-  auto input = Filter("item", "==", nullptr);
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
-
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_UnaryFilter *prop = expected.unaryFilter;
-  prop.field.fieldPath = @"item";
-  prop.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
-  XCTAssertEqualObjects(actual, expected);
-
-  auto roundTripped = [self.serializer decodedUnaryFilter:prop];
-  XCTAssertEqual(input, roundTripped);
-}
-
+// 5
 - (void)testEncodesFieldFilter {
   auto input = Filter("item.part.top", "==", "food");
   GCFSStructuredQuery_Filter *actual = [self.serializer
@@ -1877,6 +1890,7 @@ encodedUnaryOrFieldFilter:input];
   XCTAssertEqual(input, roundTripped);
 }
 
+// 4
 - (void)testEncodesArrayContainsFilter {
   auto input = Filter("item.tags", "array_contains", "food");
   GCFSStructuredQuery_Filter *actual = [self.serializer
@@ -1893,6 +1907,7 @@ encodedUnaryOrFieldFilter:input];
   XCTAssertEqual(input, roundTripped);
 }
 
+// 3
 - (void)testEncodesArrayContainsAnyFilter {
   auto input = Filter("item.tags", "array-contains-any", Array("food"));
   GCFSStructuredQuery_Filter *actual = [self.serializer
@@ -1909,6 +1924,7 @@ encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
   XCTAssertEqual(input, roundTripped);
 }
 
+// 2
 - (void)testEncodesInFilter {
   auto input = Filter("item.tags", "in", Array("food"));
   GCFSStructuredQuery_Filter *actual = [self.serializer
@@ -1925,6 +1941,7 @@ encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
   XCTAssertEqual(input, roundTripped);
 }
 
+// 1
 - (void)testEncodesKeyFieldFilter {
   auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
   GCFSStructuredQuery_Filter *actual = [self.serializer
