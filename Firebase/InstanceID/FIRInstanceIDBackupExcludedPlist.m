@@ -100,9 +100,9 @@
   NSArray *directoryPaths;
   NSArray *components = @[];
   NSString *plistNameWithExtension = [NSString stringWithFormat:@"%@.plist", self.fileName];
-      directoryPaths =
-          NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
-      components = @[ directoryPaths.lastObject, _subDirectoryName, plistNameWithExtension ];
+  directoryPaths =
+      NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
+  components = @[ directoryPaths.lastObject, _subDirectoryName, plistNameWithExtension ];
 
   return [NSString pathWithComponents:components];
 }
