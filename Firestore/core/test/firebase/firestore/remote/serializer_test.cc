@@ -336,8 +336,8 @@ class SerializerTest : public ::testing::Test {
     return ProtobufParse<v1::Value>(bytes);
   }
 
-  v1::Value ValueProto(const FieldValue& value) {
-    ByteString bytes = EncodeFieldValue(value);
+  v1::Value ValueProto(const FieldValue::Map& map) {
+    ByteString bytes = EncodeFieldValue(FieldValue::FromMap(map));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -1717,29 +1717,31 @@ TEST_F(SerializerTest, EncodesSetMutation) {
   v1::Write proto;
   v1::Document& doc = *proto.mutable_update();
   doc.set_name(KeyString("docs/1"));
-  for (const auto& kv : model.value().GetInternalValue()) {
-    (*doc.mutable_fields())[kv.first] = ValueProto(kv.second);
-  }
+  auto& fields = *doc.mutable_fields();
+  fields["a"] = ValueProto("b");
+  fields["num"] = ValueProto(1);
 
   ExpectRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, EncodesPatchMutation) {
   PatchMutation model = testutil::PatchMutation(
-      "docs/1", Map("a", "b", "num", 1, "some.de\\\\ep.th\\ing'", 2));
+      "docs/1", Map("a", "b", "num", 1, R"(some.de\\ep.th\ing')", 2));
 
   v1::Write proto;
 
   v1::Document& doc = *proto.mutable_update();
   doc.set_name(KeyString("docs/1"));
-  for (const auto& kv : model.value().GetInternalValue()) {
-    (*doc.mutable_fields())[kv.first] = ValueProto(kv.second);
-  }
+  auto& fields = *doc.mutable_fields();
+  fields["a"] = ValueProto("b");
+  fields["num"] = ValueProto(1);
+  auto nested = Map("thing'", Value(2));
+  fields["some"] = ValueProto(Map("de\\ep", nested));
 
   v1::DocumentMask& mask = *proto.mutable_update_mask();
-  for (const auto& path : model.mask()) {
-    mask.add_field_paths(path.CanonicalString());
-  }
+  mask.add_field_paths("a");
+  mask.add_field_paths("num");
+  mask.add_field_paths("some.`de\\\\ep`.`thing'`");
 
   proto.mutable_current_document()->set_exists(true);
 
