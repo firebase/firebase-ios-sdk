@@ -78,6 +78,7 @@ using model::Mutation;
 using model::MutationResult;
 using model::NoDocument;
 using model::ObjectValue;
+using model::Precondition;
 using model::SetMutation;
 using model::SnapshotVersion;
 using nanopb::ByteString;
@@ -119,6 +120,15 @@ QueryData CreateQueryData(core::Query query) {
 
 QueryData CreateQueryData(absl::string_view str) {
   return CreateQueryData(Query(str));
+}
+
+// FIXME comment
+std::string KeyString(const std::string& key) {
+  std::string prefix = "projects/p/databases/d/documents";
+  if (key.empty()) {
+    return prefix;
+  }
+  return prefix + "/" + key;
 }
 
 }  // namespace
@@ -319,6 +329,11 @@ class SerializerTest : public ::testing::Test {
     return ProtobufParse<v1::Value>(bytes);
   }
 
+  v1::Value ValueProto(const FieldValue& value) {
+    ByteString bytes = EncodeFieldValue(value);
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
   /**
    * Creates entries in the proto that we don't care about.
    *
@@ -349,7 +364,7 @@ class SerializerTest : public ::testing::Test {
     QueryData model = CreateQueryData(std::move(q));
 
     v1::Target proto;
-    proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+    proto.mutable_query()->set_parent(KeyString(""));
     proto.set_target_id(1);
 
     v1::StructuredQuery::CollectionSelector from;
@@ -495,6 +510,24 @@ class SerializerTest : public ::testing::Test {
     }
 
     EXPECT_EQ(model.query(), actual_model);
+  }
+
+  void ExpectSerializationRoundTrip(const Mutation& model,
+                                    const v1::Write& proto) {
+    ByteString bytes = Encode(google_firestore_v1_Write_fields,
+                              serializer.EncodeMutation(model));
+    auto actual_proto = ProtobufParse<v1::Write>(bytes);
+
+    EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
+  }
+
+  void ExpectDeserializationRoundTrip(const Mutation& model,
+                                      const v1::Write& proto) {
+    Mutation actual_model = Decode<google_firestore_v1_Write>(
+        google_firestore_v1_Write_fields,
+        std::mem_fn(&Serializer::DecodeMutation), proto);
+
+    EXPECT_EQ(model, actual_model);
   }
 
   template <typename T>
@@ -1016,28 +1049,22 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents",
-            FromBytes(serializer.EncodeKey(Key(""))));
-  EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
+  EXPECT_EQ(KeyString(""), FromBytes(serializer.EncodeKey(Key(""))));
+  EXPECT_EQ(KeyString("one/two/three/four"),
             FromBytes(serializer.EncodeKey(Key("one/two/three/four"))));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader(nullptr, 0);
   EXPECT_EQ(Key(""),
-            serializer.DecodeKey(
-                &reader, ToBytes("projects/p/databases/d/documents").get()));
+            serializer.DecodeKey(&reader, ToBytes(KeyString("")).get()));
   EXPECT_EQ(Key("one/two/three/four"),
             serializer.DecodeKey(
-                &reader,
-                ToBytes("projects/p/databases/d/documents/one/two/three/four")
-                    .get()));
+                &reader, ToBytes(KeyString("one/two/three/four")).get()));
   // Same, but with a leading slash
   EXPECT_EQ(Key("one/two/three/four"),
             serializer.DecodeKey(
-                &reader,
-                ToBytes("/projects/p/databases/d/documents/one/two/three/four")
-                    .get()));
+                &reader, ToBytes(KeyString("one/two/three/four")).get()));
   EXPECT_OK(reader.status());
 }
 
@@ -1147,8 +1174,7 @@ TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
   QueryData model = CreateQueryData("docs/1");
 
   v1::Target proto;
-  proto.mutable_documents()->add_documents(
-      "projects/p/databases/d/documents/docs/1");
+  proto.mutable_documents()->add_documents(KeyString("docs/1"));
   proto.set_target_id(1);
 
   SCOPED_TRACE("EncodesFirstLevelKeyQueries");
@@ -1159,7 +1185,7 @@ TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
   QueryData model = CreateQueryData("messages");
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1181,8 +1207,7 @@ TEST_F(SerializerTest, EncodesNestedAncestorQueries) {
   QueryData model = CreateQueryData("rooms/1/messages/10/attachments");
 
   v1::Target proto;
-  proto.mutable_query()->set_parent(
-      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.mutable_query()->set_parent(KeyString("rooms/1/messages/10"));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1205,7 +1230,7 @@ TEST_F(SerializerTest, EncodesSingleFiltersAtFirstLevelCollections) {
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1246,8 +1271,7 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent(
-      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.mutable_query()->set_parent(KeyString("rooms/1/messages/10"));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1316,7 +1340,7 @@ TEST_F(SerializerTest, EncodesSortOrders) {
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1349,7 +1373,7 @@ TEST_F(SerializerTest, EncodesBounds) {
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1387,8 +1411,7 @@ TEST_F(SerializerTest, EncodesSortOrdersDescending) {
   QueryData model = CreateQueryData(std::move(q));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent(
-      "projects/p/databases/d/documents/rooms/1/messages/10");
+  proto.mutable_query()->set_parent(KeyString("rooms/1/messages/10"));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1416,7 +1439,7 @@ TEST_F(SerializerTest, EncodesLimits) {
   QueryData model = CreateQueryData(Query("docs").WithLimit(26));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1443,7 +1466,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
                   SnapshotVersion::None(), Bytes(1, 2, 3));
 
   v1::Target proto;
-  proto.mutable_query()->set_parent("projects/p/databases/d/documents");
+  proto.mutable_query()->set_parent(KeyString(""));
   proto.set_target_id(1);
 
   v1::StructuredQuery::CollectionSelector from;
@@ -1581,7 +1604,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentChange) {
 
   auto document_change = proto.mutable_document_change();
   document_change->mutable_document()->set_name(
-      "projects/p/databases/d/documents/one/two/three/four");
+      KeyString("one/two/three/four"));
   document_change->mutable_document()->mutable_update_time()->set_seconds(
       version.timestamp().seconds());
   document_change->mutable_document()->mutable_update_time()->set_nanos(
@@ -1605,8 +1628,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentDelete) {
   v1::ListenResponse proto;
 
   auto document_delete = proto.mutable_document_delete();
-  document_delete->set_document(
-      "projects/p/databases/d/documents/one/two/three/four");
+  document_delete->set_document(KeyString("one/two/three/four"));
 
   document_delete->add_removed_target_ids(1);
 
@@ -1621,8 +1643,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
   v1::ListenResponse proto;
 
   auto document_remove = proto.mutable_document_remove();
-  document_remove->set_document(
-      "projects/p/databases/d/documents/one/two/three/four");
+  document_remove->set_document(KeyString("one/two/three/four"));
 
   document_remove->add_removed_target_ids(1);
   document_remove->add_removed_target_ids(2);
@@ -1682,6 +1703,214 @@ TEST_F(SerializerTest, DecodesVersionWithTargets) {
   SCOPED_TRACE("DecodesVersionWithTargets");
   ExpectDeserializationRoundTrip(model, proto);
 }
+
+TEST_F(SerializerTest, EncodesSetMutation) {
+  SetMutation model = testutil::SetMutation("docs/1", Map("a", "b", "num", 1));
+
+  v1::Write proto;
+  v1::Document doc;
+  doc.set_name(KeyString("docs/1"));
+  for (const auto& kv : model.value().GetInternalValue()) {
+    (*doc.mutable_fields())[kv.first] = ValueProto(kv.second);
+  }
+  *proto.mutable_update() = std::move(doc);
+
+  ExpectRoundTrip(model, proto);
+}
+
+/*
+- (void)testEncodesPatchMutation {
+  PatchMutation mutation = FSTTestPatchMutation(
+      "docs/1", @{@"a" : @"b", @"num" : @1, @"some.de\\\\ep.th\\ing'" : @2},
+{}); GCFSWrite *proto = [GCFSWrite message]; proto.update = [self.serializer
+encodedDocumentWithFields:mutation.value() key:mutation.key()]; proto.updateMask
+= [self.serializer encodedFieldMask:mutation.mask()];
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesDeleteMutation {
+  DeleteMutation mutation = FSTTestDeleteMutation(@"docs/1");
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.delete_p = @"projects/p/databases/d/documents/docs/1";
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesServerTimestampTransformMutation {
+  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer
+encodedDocumentKey:mutation.key()]; proto.transform.fieldTransformsArray =
+      [self.serializer encodedFieldTransforms:mutation.field_transforms()];
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesArrayTransformMutations {
+  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"x" : @1} ]]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer
+encodedDocumentKey:mutation.key()];
+
+  GCFSDocumentTransform_FieldTransform *arrayUnion =
+[GCFSDocumentTransform_FieldTransform message]; arrayUnion.fieldPath = @"a";
+  arrayUnion.appendMissingElements = [GCFSArrayValue message];
+  NSMutableArray *unionElements = arrayUnion.appendMissingElements.valuesArray;
+  [unionElements addObject:[self.serializer
+encodedFieldValue:FSTTestFieldValue(@"a")]]; [unionElements
+addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
+  [proto.transform.fieldTransformsArray addObject:arrayUnion];
+
+  GCFSDocumentTransform_FieldTransform *arrayRemove =
+      [GCFSDocumentTransform_FieldTransform message];
+  arrayRemove.fieldPath = @"bar.baz";
+  arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
+  NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
+  [removeElements addObject:[self.serializer
+encodedFieldValue:FSTTestFieldValue(@{@"x" : @1})]];
+  [proto.transform.fieldTransformsArray addObject:arrayRemove];
+
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesSetMutationWithPrecondition {
+  SetMutation mutation(Key("foo/bar"), WrapObject("a", "b", "num", 1),
+                       Precondition::UpdateTime(Version(4)));
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.update = [self.serializer encodedDocumentWithFields:mutation.value()
+key:mutation.key()]; proto.currentDocument.updateTime = [self.serializer
+encodedTimestamp:Timestamp{0, 4000}];
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)assertRoundTripForMutation:(const Mutation &)mutation proto:(GCFSWrite
+*)proto { GCFSWrite *actualProto = [self.serializer encodedMutation:mutation];
+  XCTAssertEqualObjects(actualProto, proto);
+
+  Mutation actualMutation = [self.serializer decodedMutation:proto];
+  XCTAssertEqual(actualMutation, mutation);
+}
+
+- (void)testRoundTripSpecialFieldNames {
+  Mutation set = FSTTestSetMutation(@"collection/key", @{
+    @"field" : [NSString stringWithFormat:@"field %d", 1],
+    @"field.dot" : @2,
+    @"field\\slash" : @3
+  });
+  GCFSWrite *encoded = [self.serializer encodedMutation:set];
+  Mutation decoded = [self.serializer decodedMutation:encoded];
+  XCTAssertEqual(set, decoded);
+}
+
+- (void)testEncodesUnaryFilter {
+  auto input = Filter("item", "==", nullptr);
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_UnaryFilter *prop = expected.unaryFilter;
+  prop.field.fieldPath = @"item";
+  prop.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedUnaryFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+
+- (void)testEncodesFieldFilter {
+  auto input = Filter("item.part.top", "==", "food");
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.part.top";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
+  prop.value.stringValue = @"food";
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+
+- (void)testEncodesArrayContainsFilter {
+  auto input = Filter("item.tags", "array_contains", "food");
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  prop.value.stringValue = @"food";
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+
+- (void)testEncodesArrayContainsAnyFilter {
+  auto input = Filter("item.tags", "array-contains-any", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer
+encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+
+- (void)testEncodesInFilter {
+  auto input = Filter("item.tags", "in", Array("food"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_In;
+  [prop.value.arrayValue.valuesArray addObject:[self.serializer
+encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+
+- (void)testEncodesKeyFieldFilter {
+  auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
+  GCFSStructuredQuery_Filter *actual = [self.serializer
+encodedUnaryOrFieldFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"__name__";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
+  prop.value.referenceValue = @"projects/p/databases/d/documents/coll/doc";
+  XCTAssertEqualObjects(actual, expected);
+
+  auto roundTripped = [self.serializer decodedFieldFilter:prop];
+  XCTAssertEqual(input, roundTripped);
+}
+*/
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
