@@ -39,10 +39,13 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/bound.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
@@ -69,6 +72,7 @@ using google::protobuf::util::MessageDifferencer;
 using local::QueryData;
 using local::QueryPurpose;
 using model::DatabaseId;
+using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
@@ -80,8 +84,10 @@ using model::NoDocument;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
+using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
+using model::TransformMutation;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::ProtobufParse;
@@ -1719,7 +1725,8 @@ TEST_F(SerializerTest, EncodesSetMutation) {
 }
 
 TEST_F(SerializerTest, EncodesPatchMutation) {
-  PatchMutation model = testutil::PatchMutation("docs/1", Map("a", "b", "num", 1, "some.de\\\\ep.th\\ing'", 2));
+  PatchMutation model = testutil::PatchMutation(
+      "docs/1", Map("a", "b", "num", 1, "some.de\\\\ep.th\\ing'", 2));
 
   v1::Write proto;
 
@@ -1739,30 +1746,43 @@ TEST_F(SerializerTest, EncodesPatchMutation) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesDeleteMutation) {
+  DeleteMutation model = testutil::DeleteMutation("docs/1");
+
+  v1::Write proto;
+  proto.set_delete_(KeyString("docs/1"));
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesServerTimestampTransformMutation) {
+  TransformMutation model = testutil::TransformMutation(
+      "docs/1", {{"a", ServerTimestampTransform()},
+                 {"bar.baz", ServerTimestampTransform()}});
+
+  v1::Write proto;
+
+  v1::DocumentTransform& transform = *proto.mutable_transform();
+  transform.set_document(KeyString("docs/1"));
+
+  v1::DocumentTransform::FieldTransform field_transform1;
+  field_transform1.set_field_path("a");
+  field_transform1.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *transform.add_field_transforms() = std::move(field_transform1);
+
+  v1::DocumentTransform::FieldTransform field_transform2;
+  field_transform2.set_field_path("bar.baz");
+  field_transform2.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *transform.add_field_transforms() = std::move(field_transform2);
+
+  proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(model, proto);
+}
+
 /*
-- (void)testEncodesDeleteMutation {
-  DeleteMutation mutation = FSTTestDeleteMutation(@"docs/1");
-  GCFSWrite *proto = [GCFSWrite message];
-  proto.delete_p = @"projects/p/databases/d/documents/docs/1";
-
-  [self assertRoundTripForMutation:mutation proto:proto];
-}
-
-- (void)testEncodesServerTimestampTransformMutation {
-  TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
-    @"a" : [FIRFieldValue fieldValueForServerTimestamp],
-    @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
-  });
-  GCFSWrite *proto = [GCFSWrite message];
-  proto.transform = [GCFSDocumentTransform message];
-  proto.transform.document = [self.serializer
-encodedDocumentKey:mutation.key()]; proto.transform.fieldTransformsArray =
-      [self.serializer encodedFieldTransforms:mutation.field_transforms()];
-  proto.currentDocument.exists = YES;
-
-  [self assertRoundTripForMutation:mutation proto:proto];
-}
-
 - (void)testEncodesArrayTransformMutations {
   TransformMutation mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
@@ -1825,7 +1845,9 @@ encodedTimestamp:Timestamp{0, 4000}];
   Mutation decoded = [self.serializer decodedMutation:encoded];
   XCTAssertEqual(set, decoded);
 }
+*/
 
+/*
 - (void)testEncodesUnaryFilter {
   auto input = Filter("item", "==", nullptr);
   GCFSStructuredQuery_Filter *actual = [self.serializer
