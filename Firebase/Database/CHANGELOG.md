@@ -1,5 +1,4 @@
 # Unreleased
-- [fixed] Fixed an iOS 13 crash that occured in our WebSocket error handling. (#3950)
 
 # v6.1.1
 - [fixed] Fixed an iOS 13 crash that occured in our WebSocket error handling. (#3950)
