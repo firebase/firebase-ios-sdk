@@ -553,8 +553,7 @@ Document Serializer::DecodeFoundDocument(
   DocumentKey key = DecodeKey(reader, response.found.name);
   FieldValue::Map value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
-  SnapshotVersion version =
-      DecodeSnapshotVersion(reader, response.found.update_time);
+  SnapshotVersion version = DecodeVersion(reader, response.found.update_time);
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a document response with no snapshot version");
@@ -572,7 +571,7 @@ NoDocument Serializer::DecodeMissingDocument(
               "Tried to deserialize a missing document from a found document.");
 
   DocumentKey key = DecodeKey(reader, response.missing);
-  SnapshotVersion version = DecodeSnapshotVersion(reader, response.read_time);
+  SnapshotVersion version = DecodeVersion(reader, response.read_time);
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a no document response with no snapshot version");
@@ -587,7 +586,7 @@ Document Serializer::DecodeDocument(
     Reader* reader, const google_firestore_v1_Document& proto) const {
   FieldValue::Map fields_internal =
       DecodeFields(reader, proto.fields_count, proto.fields);
-  SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
+  SnapshotVersion version = DecodeVersion(reader, proto.update_time);
 
   return Document(ObjectValue::FromMap(std::move(fields_internal)),
                   DecodeKey(reader, proto.name), version,
@@ -755,7 +754,7 @@ Precondition Serializer::DecodePrecondition(
     }
     case google_firestore_v1_Precondition_update_time_tag:
       return Precondition::UpdateTime(
-          DecodeSnapshotVersion(reader, precondition.update_time));
+          DecodeVersion(reader, precondition.update_time));
   }
 
   reader->Fail(StringFormat("Unknown Precondition type: %s",
@@ -1400,7 +1399,7 @@ google_protobuf_Timestamp Serializer::EncodeTimestamp(
   return result;
 }
 
-SnapshotVersion Serializer::DecodeSnapshotVersion(
+SnapshotVersion Serializer::DecodeVersion(
     nanopb::Reader* reader, const google_protobuf_Timestamp& proto) {
   return SnapshotVersion{DecodeTimestamp(reader, proto)};
 }
@@ -1511,7 +1510,7 @@ MutationResult Serializer::DecodeMutationResult(
   // NOTE: Deletes don't have an update_time, use commit_version instead.
   SnapshotVersion version =
       write_result.has_update_time
-          ? DecodeSnapshotVersion(reader, write_result.update_time)
+          ? DecodeVersion(reader, write_result.update_time)
           : commit_version;
 
   absl::optional<std::vector<FieldValue>> transform_results;
@@ -1526,15 +1525,17 @@ MutationResult Serializer::DecodeMutationResult(
   return MutationResult(version, std::move(transform_results));
 }
 
-std::unordered_map<std::string, std::string>
+std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
 Serializer::EncodeListenRequestLabels(const QueryData& query_data) const {
+  std::vector<google_firestore_v1_ListenRequest_LabelsEntry> result;
   auto value = EncodeLabel(query_data.purpose());
   if (value.empty()) {
-    return {};
+    return result;
   }
 
-  std::unordered_map<std::string, std::string> result;
-  result["goog-listen-tags"] = std::move(value);
+  result.push_back({/* key */ EncodeString("goog-listen-tags"),
+                    /* value */ EncodeString(value)});
+
   return result;
 }
 
@@ -1572,7 +1573,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
   UNREACHABLE();
 }
 
-SnapshotVersion Serializer::DecodeVersion(
+SnapshotVersion Serializer::DecodeVersionFromListenResponse(
     nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& listen_response) const {
   // We have only reached a consistent snapshot for the entire stream if there
@@ -1586,7 +1587,7 @@ SnapshotVersion Serializer::DecodeVersion(
     return SnapshotVersion::None();
   }
 
-  return DecodeSnapshotVersion(reader, listen_response.target_change.read_time);
+  return DecodeVersion(reader, listen_response.target_change.read_time);
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
@@ -1635,8 +1636,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
 
   HARD_ASSERT(change.document.has_update_time,
               "Got a document change with no snapshot version");
-  SnapshotVersion version =
-      DecodeSnapshotVersion(reader, change.document.update_time);
+  SnapshotVersion version = DecodeVersion(reader, change.document.update_time);
 
   // TODO(wuandy): Originally `document` is constructed with `change.document`
   // as last argument, such that it does not have to encode the proto again
@@ -1661,9 +1661,9 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
   DocumentKey key = DecodeKey(reader, change.document);
   // Note that version might be unset in which case we use
   // SnapshotVersion::None().
-  SnapshotVersion version =
-      change.has_read_time ? DecodeSnapshotVersion(reader, change.read_time)
-                           : SnapshotVersion::None();
+  SnapshotVersion version = change.has_read_time
+                                ? DecodeVersion(reader, change.read_time)
+                                : SnapshotVersion::None();
   NoDocument document(key, version, /* has_committed_mutations= */ false);
 
   std::vector<TargetId> removed_target_ids(
