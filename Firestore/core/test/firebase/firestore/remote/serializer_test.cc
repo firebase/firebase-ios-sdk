@@ -1818,7 +1818,7 @@ TEST_F(SerializerTest, EncodesArrayTransformMutations) {
 
 TEST_F(SerializerTest, EncodesSetMutationWithPrecondition) {
   SetMutation model{Key("foo/bar"), testutil::WrapObject("a", "b", "num", 1),
-                       Precondition::UpdateTime(Version(4))};
+                    Precondition::UpdateTime(Version(4))};
 
   v1::Write proto;
   v1::Document& doc = *proto.mutable_update();
@@ -1834,18 +1834,16 @@ TEST_F(SerializerTest, EncodesSetMutationWithPrecondition) {
   ExpectRoundTrip(model, proto);
 }
 
-/*
-- (void)testRoundTripSpecialFieldNames {
-  Mutation set = FSTTestSetMutation(@"collection/key", @{
-    @"field" : [NSString stringWithFormat:@"field %d", 1],
-    @"field.dot" : @2,
-    @"field\\slash" : @3
-  });
-  GCFSWrite *encoded = [self.serializer encodedMutation:set];
-  Mutation decoded = [self.serializer decodedMutation:encoded];
-  XCTAssertEqual(set, decoded);
+TEST_F(SerializerTest, RoundTripsSpecialFieldNames) {
+  SetMutation model = testutil::SetMutation(
+      "collection/key",
+      Map("field", "field 1", "field.dot", 2, "field\\slash", 3));
+
+  auto encoded = serializer.EncodeMutation(model);
+  nanopb::Reader r{nullptr, 0};
+  auto decoded = serializer.DecodeMutation(&r, encoded);
+  EXPECT_EQ(model, decoded);
 }
-*/
 
 /*
 - (void)testEncodesUnaryFilter {
