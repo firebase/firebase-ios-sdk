@@ -19,10 +19,23 @@
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingRmq2PersistentStore.h"
 #import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
+
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+@property(nonatomic, readwrite, strong) FIRMessagingRmq2PersistentStore *rmq2Store;
+
+@end
+
+@interface FIRMessagingRmq2PersistentStore (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
 
 @interface FIRMessagingRmqManagerTest : XCTestCase
 
@@ -35,13 +48,13 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 - (void)setUp {
   [super setUp];
   // Make sure we start off with a clean state each time
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+
 }
 
 - (void)tearDown {
+  [self.rmqManager.rmq2Store removeDatabase];
   [super tearDown];
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
 }
 
 /**

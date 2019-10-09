@@ -248,12 +248,6 @@ static NSString *const kFCMRmqTag = @"FIRMessagingRmq:";
   return [self.rmq2Store updateSyncMessageViaMCSWithRmqID:rmqID error:error];
 }
 
-#pragma mark - Testing
-
-+ (void)removeDatabaseWithName:(NSString *)dbName {
-  [FIRMessagingRmq2PersistentStore removeDatabase:dbName];
-}
-
 #pragma mark - Private
 
 - (int64_t)nextRmqId {

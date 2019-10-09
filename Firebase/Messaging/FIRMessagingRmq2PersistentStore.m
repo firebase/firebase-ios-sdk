@@ -119,7 +119,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self = [super init];
   if (self) {
     _databaseName = [databaseName copy];
-    [self openDatabase:_databaseName];
+    [self openDatabase];
   }
   return self;
 }
@@ -171,14 +171,9 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
-+ (void)removeDatabase:(NSString *)dbName {
-  NSString *standardDirPath = [self pathForDatabase:dbName];
-  [[NSFileManager defaultManager] removeItemAtPath:standardDirPath error:nil];
-}
-
-- (void)openDatabase:(NSString *)dbName {
+- (void)openDatabase {
   NSFileManager *fileManager = [NSFileManager defaultManager];
-  NSString *path = [[self class] pathForDatabase:dbName];
+  NSString *path = [[self class] pathForDatabase:_databaseName];
 
   BOOL didOpenDatabase = YES;
   if (![fileManager fileExistsAtPath:path]) {

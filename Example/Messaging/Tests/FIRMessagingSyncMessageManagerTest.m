@@ -17,12 +17,25 @@
 #import <XCTest/XCTest.h>
 
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
+#import "Firebase/Messaging/FIRMessagingRmq2PersistentStore.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
 #import "Firebase/Messaging/FIRMessagingConstants.h"
 
 static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
+
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+@property(nonatomic, readwrite, strong) FIRMessagingRmq2PersistentStore *rmq2Store;
+
+@end
+
+@interface FIRMessagingRmq2PersistentStore (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
 
 @interface FIRMessagingSyncMessageManagerTest : XCTestCase
 
@@ -36,13 +49,12 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 - (void)setUp {
   [super setUp];
   // Make sure the db state is clean before we begin.
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqSqliteFilename];
   self.rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqSqliteFilename];
   self.syncMessageManager = [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmqManager];
 }
 
 - (void)tearDown {
-  [[self.rmqManager class] removeDatabaseWithName:kRmqSqliteFilename];
+  [self.rmqManager.rmq2Store removeDatabase];
   [super tearDown];
 }
 

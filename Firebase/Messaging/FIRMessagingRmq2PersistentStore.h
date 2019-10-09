@@ -121,13 +121,6 @@ extern NSString *const kTableS2DRmqIds;
 - (int)deleteMessagesFromTable:(NSString *)tableName
                     withRmqIds:(NSArray *)rmqIds;
 
-/**
- *  Remove database from the device.
- *
- *  @param dbName The database name to be deleted.
- */
-+ (void)removeDatabase:(NSString *)dbName;
-
 #pragma mark - Sync Messages
 
 /**
