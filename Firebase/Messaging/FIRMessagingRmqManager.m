@@ -171,6 +171,8 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self.rmqId = rmqId + 1;
 }
 
+#pragma mark - Save
+
 /**
  * Save a message to RMQ2. Will populate the rmq2 persistent ID.
  */
@@ -645,8 +647,39 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   [self dropTableWithName:kOldTableS2DRmqIds];
 }
 
-#pragma mark - Insert
+#pragma mark - Scan
 
+- (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler {
+
+  static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
+  NSString *query = [NSString stringWithFormat:queryFormat,
+                     kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
+                     kTableOutgoingRmqMessages, // from table
+                     kRmqIdColumn, // where
+                     kRmqIdColumn]; // order by
+  sqlite3_stmt *statement;
+  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
+    [self logError];
+    sqlite3_finalize(statement);
+    return;
+  }
+  // can query sqlite3 for this but this is fine
+  const int rmqIdColumnNumber = 0;
+  const int typeColumnNumber = 1;
+  const int dataColumnNumber = 2;
+  while (sqlite3_step(statement) == SQLITE_ROW) {
+    int64_t rmqId = sqlite3_column_int64(statement, rmqIdColumnNumber);
+    int8_t type = sqlite3_column_int(statement, typeColumnNumber);
+    const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
+    int length = sqlite3_column_bytes(statement, dataColumnNumber);
+
+    NSData *data = [NSData dataWithBytes:bytes length:length];
+    handler(rmqId, type, data);
+  }
+  sqlite3_finalize(statement);
+}
+
+#pragma mark - Private
 
 - (BOOL)saveMessageWithRmqId:(int64_t)rmqId
                          tag:(int8_t)tag
@@ -767,40 +800,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                           toDelete, deleteCount);
   return deleteCount;
 }
-
-#pragma mark - Scan
-
-- (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler {
-
-  static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
-  NSString *query = [NSString stringWithFormat:queryFormat,
-                     kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
-                     kTableOutgoingRmqMessages, // from table
-                     kRmqIdColumn, // where
-                     kRmqIdColumn]; // order by
-  sqlite3_stmt *statement;
-  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
-    [self logError];
-    sqlite3_finalize(statement);
-    return;
-  }
-  // can query sqlite3 for this but this is fine
-  const int rmqIdColumnNumber = 0;
-  const int typeColumnNumber = 1;
-  const int dataColumnNumber = 2;
-  while (sqlite3_step(statement) == SQLITE_ROW) {
-    int64_t rmqId = sqlite3_column_int64(statement, rmqIdColumnNumber);
-    int8_t type = sqlite3_column_int(statement, typeColumnNumber);
-    const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
-    int length = sqlite3_column_bytes(statement, dataColumnNumber);
-
-    NSData *data = [NSData dataWithBytes:bytes length:length];
-    handler(rmqId, type, data);
-  }
-  sqlite3_finalize(statement);
-}
-
-#pragma mark - Private
 
 - (int64_t)nextRmqId {
   return ++self.rmqId;
