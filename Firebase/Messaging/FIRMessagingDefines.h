@@ -45,14 +45,3 @@ _Pragma("clang diagnostic pop")
     return nil; \
   } while (0)
 #endif
-
-#if defined(DEBUG)
-#define FIRMesssaging_MUST_NOT_BE_MAIN_THREAD()                                                 \
-  do {                                                                                \
-    NSAssert(![NSThread isMainThread], @"Must not be executing on the main thread."); \
-  } while (0);
-#else
-#define RCN_MUST_NOT_BE_MAIN_THREAD() \
-  do {                                \
-  } while (0);
-#endif
