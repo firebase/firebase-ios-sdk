@@ -98,6 +98,7 @@ using nanopb::ProtobufSerialize;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::Serializer;
+using testutil::Array;
 using testutil::Bytes;
 using testutil::DeletedDoc;
 using testutil::Doc;
@@ -106,6 +107,7 @@ using testutil::Key;
 using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
+using testutil::Ref;
 using testutil::Value;
 using testutil::Version;
 using util::Status;
@@ -541,11 +543,12 @@ class SerializerTest : public ::testing::Test {
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(const core::Filter& model,
-                                      const v1::StructuredQuery::Filter& proto) {
-    FilterList actual_model = Decode<google_firestore_v1_StructuredQuery_Filter>(
-        google_firestore_v1_StructuredQuery_Filter_fields,
-        std::mem_fn(&Serializer::DecodeFilters), proto);
+  void ExpectDeserializationRoundTrip(
+      const core::Filter& model, const v1::StructuredQuery::Filter& proto) {
+    FilterList actual_model =
+        Decode<google_firestore_v1_StructuredQuery_Filter>(
+            google_firestore_v1_StructuredQuery_Filter_fields,
+            std::mem_fn(&Serializer::DecodeFilters), proto);
 
     EXPECT_EQ(FilterList{model}, actual_model);
   }
@@ -1872,92 +1875,67 @@ TEST_F(SerializerTest, EncodesUnaryFilter) {
   ExpectRoundTrip(model, proto);
 }
 
-/*
-// 5
-- (void)testEncodesFieldFilter {
-  auto input = Filter("item.part.top", "==", "food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
+TEST_F(SerializerTest, EncodesFieldFilter) {
+  auto model = testutil::Filter("item.part.top", "==", "food");
 
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
-  prop.field.fieldPath = @"item.part.top";
-  prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
-  prop.value.stringValue = @"food";
-  XCTAssertEqualObjects(actual, expected);
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.part.top");
+  field.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
+  *field.mutable_value() = ValueProto("food");
 
-  auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(input, roundTripped);
+  ExpectRoundTrip(model, proto);
 }
 
-// 4
-- (void)testEncodesArrayContainsFilter {
-  auto input = Filter("item.tags", "array_contains", "food");
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
+TEST_F(SerializerTest, EncodesArrayContainsFilter) {
+  auto model = testutil::Filter("item.tags", "array_contains", "food");
 
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
-  prop.field.fieldPath = @"item.tags";
-  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
-  prop.value.stringValue = @"food";
-  XCTAssertEqualObjects(actual, expected);
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::ARRAY_CONTAINS);
+  *field.mutable_value() = ValueProto("food");
 
-  auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(input, roundTripped);
+  ExpectRoundTrip(model, proto);
 }
 
-// 3
-- (void)testEncodesArrayContainsAnyFilter {
-  auto input = Filter("item.tags", "array-contains-any", Array("food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
+TEST_F(SerializerTest, EncodesArrayContainsAnyFilter) {
+  auto model =
+      testutil::Filter("item.tags", "array-contains-any", Array("food"));
 
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
-  prop.field.fieldPath = @"item.tags";
-  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContainsAny;
-  [prop.value.arrayValue.valuesArray addObject:[self.serializer
-encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::ARRAY_CONTAINS_ANY);
+  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
 
-  auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(input, roundTripped);
+  ExpectRoundTrip(model, proto);
 }
 
-// 2
-- (void)testEncodesInFilter {
-  auto input = Filter("item.tags", "in", Array("food"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
+TEST_F(SerializerTest, EncodesInFilter) {
+  auto model = testutil::Filter("item.tags", "in", Array("food"));
 
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
-  prop.field.fieldPath = @"item.tags";
-  prop.op = GCFSStructuredQuery_FieldFilter_Operator_In;
-  [prop.value.arrayValue.valuesArray addObject:[self.serializer
-encodedString:"food"]]; XCTAssertEqualObjects(actual, expected);
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::IN);
+  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
 
-  auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(input, roundTripped);
+  ExpectRoundTrip(model, proto);
 }
 
-// 1
-- (void)testEncodesKeyFieldFilter {
-  auto input = Filter("__name__", "==", Ref("p/d", "coll/doc"));
-  GCFSStructuredQuery_Filter *actual = [self.serializer
-encodedUnaryOrFieldFilter:input];
+TEST_F(SerializerTest, EncodesKeyFieldFilter) {
+  auto model = testutil::Filter("__name__", "==", Ref("p/d", "coll/doc"));
 
-  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
-  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
-  prop.field.fieldPath = @"__name__";
-  prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
-  prop.value.referenceValue = @"projects/p/databases/d/documents/coll/doc";
-  XCTAssertEqualObjects(actual, expected);
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("__name__");
+  field.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
+  *field.mutable_value() =
+      ValueProto(FieldValue::Reference{DatabaseId{"p", "d"}, Key("coll/doc")});
 
-  auto roundTripped = [self.serializer decodedFieldFilter:prop];
-  XCTAssertEqual(input, roundTripped);
+  ExpectRoundTrip(model, proto);
 }
-*/
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
