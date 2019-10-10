@@ -19,7 +19,7 @@ import FirebaseFirestore
 /// A type that can convert to itself from a Firestore `DocumentReference`,
 /// which makes it suitable for use with the `@DocumentID` property wrapper.
 ///
-/// Firestore includes exensions that make `String` and `DocumentReference`
+/// Firestore includes extensions that make `String` and `DocumentReference`
 /// conform to `@DocumentReferenceConvertible`.
 ///
 /// Note that Firestore ignores fields annotated with `@DocumentID` when writing

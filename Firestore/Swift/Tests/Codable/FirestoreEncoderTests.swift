@@ -490,9 +490,9 @@ class FirestoreEncoderTests: XCTestCase {
 
       // Encoding a resolved server timestamp yields a timestamp; decoding
       // yields it back.
-      let timetamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 123_000_000)
+      let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 123_000_000)
       assertThat(Model(timestamp: "2019-10-07T21:33:51.123+0000"))
-        .roundTrips(to: ["timestamp": timetamp])
+        .roundTrips(to: ["timestamp": timestamp])
     }
   #endif // swift(>=5.1)
 
@@ -711,10 +711,10 @@ private class DictionarySubject {
 
 #if swift(>=5.1)
   // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
-  // server timetamps will be stored in an ISO 8601 date format.
+  // server timestamps will be stored in an ISO 8601 date format.
   //
   // This example exists outside the main implementation to show that users can
-  // extend @ServerTimetamp with arbitrary types.
+  // extend @ServerTimestamp with arbitrary types.
   extension String: ServerTimestampWrappable {
     static let formatter = {
       let formatter = DateFormatter()
