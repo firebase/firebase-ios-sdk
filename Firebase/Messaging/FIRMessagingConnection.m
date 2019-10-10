@@ -596,14 +596,6 @@ static NSString *const kRemoteFromAddress = @"from";
   }
 }
 
-/**
- * Called when a stream ACK or a selective ACK are received - this indicates the message has
- * been received by MCS.
- */
-- (void)didReceiveAckForRmqIds:(NSArray *)rmqIds {
-  // TODO: let the user know that the following messages were received by the server
-}
-
 - (void)confirmAckedS2dIdsWithStreamId:(int)lastReceivedStreamId {
   // If the server hasn't received the streamId yet.
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeConnection019,
