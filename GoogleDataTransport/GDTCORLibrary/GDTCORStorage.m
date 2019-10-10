@@ -217,7 +217,9 @@ static NSString *GDTCORStoragePath() {
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
     NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
-    [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
+    if (data) {
+      [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
+    }
   } else {
 #if !TARGET_OS_MACCATALYST
     [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
