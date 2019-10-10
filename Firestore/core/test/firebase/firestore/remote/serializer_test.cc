@@ -134,7 +134,7 @@ QueryData CreateQueryData(absl::string_view str) {
   return CreateQueryData(Query(str));
 }
 
-// FIXME comment
+// Returns the full key path, including the database name, as a string.
 std::string KeyString(const std::string& key) {
   std::string prefix = "projects/p/databases/d/documents";
   if (key.empty()) {
