@@ -116,15 +116,17 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
         GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
       }
       NSError *decodingError;
-      gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
-      if (!decodingError && logResponse.has_next_request_wait_millis) {
-        self->_nextUploadTime =
-            [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-      } else {
-        // 15 minutes from now.
-        self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+      if (data) {
+        gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+        if (!decodingError && logResponse.has_next_request_wait_millis) {
+          self->_nextUploadTime =
+              [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+        } else {
+          // 15 minutes from now.
+          self->_nextUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+        }
+        pb_release(gdt_cct_LogResponse_fields, &logResponse);
       }
-      pb_release(gdt_cct_LogResponse_fields, &logResponse);
 #if !NDEBUG
       // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
       // for validation during tests.
