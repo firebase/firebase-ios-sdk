@@ -45,6 +45,8 @@ NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
 
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
+NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  // 1 day.
+
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *appName;
@@ -147,6 +149,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             // Validate if a previous registration attempt failed with an error requiring Firebase
             // configuration changes.
             if (installation.registrationStatus == FIRInstallationStatusRegistrationFailed &&
+                [self isRegistrationErrorWithDateUpToDate:installation.registrationError.date] &&
                 [self areInstallationRegistrationParametersEqualToCurrent:
                           installation.registrationError.registrationParameters]) {
               return installation.registrationError.APIError;
@@ -226,6 +229,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
          (parameters.projectID == projectID || [parameters.projectID isEqual:projectID]);
 }
 
+- (BOOL)isRegistrationErrorWithDateUpToDate:(NSDate *)errorDate {
+  return errorDate != nil &&
+         -[errorDate timeIntervalSinceNow] <= kFIRInstallationsRegistrationErrorTimeout;
+}
+
 #pragma mark - FID registration
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallationIfNeeded:
@@ -274,6 +282,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
     FIRInstallationsItem *failedInstallation = [installation copy];
     [failedInstallation updateWithRegistrationError:error
+                                               date:[NSDate date]
                              registrationParameters:[self currentRegistrationParameters]];
 
     // Save the error and then fail with the API error.
