@@ -301,18 +301,22 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
         [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
-    #if __has_builtin(__builtin_available)
+#if __has_builtin(__builtin_available)
     if (@available(iOS 13.0, *)) {
-      id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
-      objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
-                               [NSDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+      if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
+        return;
+      } else {
+        id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+        objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
+                                 [NSDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(handleSceneWillConnectToNotification:)
-                                                   name:UISceneWillConnectNotification
-                                                 object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleSceneWillConnectToNotification:)
+                                                     name:UISceneWillConnectNotification
+                                                   object:nil];
+      }
     }
-    #endif  // __has_builtin(__builtin_available)
+#endif  // __has_builtin(__builtin_available)
   });
 }
 
