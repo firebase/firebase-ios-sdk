@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRInstanceIDInstanceProvider
 @end
 
-@class FIRInstanceIDCheckinPreferences;
 /**
  * Private API used by other Firebase SDKs.
  */
@@ -45,13 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
  *          returns nil.
  */
 - (nullable NSString *)token;
-
-/**
- *  Verify if valid checkin preferences have been loaded in memory.
- *
- *  @return YES if valid checkin preferences exist in memory else NO.
- */
-- (BOOL)hasValidCheckinInfo;
 
 /**
  *  Try to load prefetched checkin preferences from the cache. This supports the use case where
