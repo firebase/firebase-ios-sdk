@@ -183,8 +183,4 @@ typedef void(^FIRMessagingDataMessageHandler)(int64_t rmqId, GtalkDataMessageSta
  */
 - (BOOL)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID error:(NSError **)error;
 
-#pragma mark - Testing
-
-+ (void)removeDatabaseWithName:(NSString *)dbName;
-
 @end

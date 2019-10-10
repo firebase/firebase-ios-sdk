@@ -34,12 +34,6 @@ return return_value; \
 } while(0)
 #endif
 
-typedef enum : NSUInteger {
-  FIRMessagingRmqDirectoryUnknown,
-  FIRMessagingRmqDirectoryDocuments,
-  FIRMessagingRmqDirectoryApplicationSupport,
-} FIRMessagingRmqDirectory;
-
 static NSString *const kFCMRmqStoreTag = @"FIRMessagingRmqStore:";
 
 // table names
@@ -116,7 +110,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 @property(nonatomic, readwrite, strong) NSString *databaseName;
-@property(nonatomic, readwrite, assign) FIRMessagingRmqDirectory currentDirectory;
 
 @end
 
@@ -126,18 +119,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self = [super init];
   if (self) {
     _databaseName = [databaseName copy];
-#if TARGET_OS_IOS
-    BOOL didMoveToApplicationSupport =
-        [self moveToApplicationSupportSubDirectory:kFIRMessagingSubDirectoryName];
-
-    _currentDirectory = didMoveToApplicationSupport
-                            ? FIRMessagingRmqDirectoryApplicationSupport
-                            : FIRMessagingRmqDirectoryDocuments;
-#else
-    _currentDirectory = FIRMessagingRmqDirectoryApplicationSupport;
-#endif
-
-    [self openDatabase:_databaseName];
+    [self openDatabase];
   }
   return self;
 }
@@ -146,89 +128,16 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   sqlite3_close(_database);
 }
 
-- (BOOL)moveToApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
-                                                                NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[applicationSupportDirPath, subDirectoryName];
-  NSString *subDirectoryPath = [NSString pathWithComponents:components];
-  BOOL hasSubDirectory;
-
-  if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
-                                            isDirectory:&hasSubDirectory]) {
-    // Cannot move to non-existent directory
-    return NO;
-  }
-
-  if ([self doesFileExistInDirectory:FIRMessagingRmqDirectoryDocuments]) {
-    NSString *oldPlistPath = [[self class] pathForDatabase:self.databaseName
-                                               inDirectory:FIRMessagingRmqDirectoryDocuments];
-    NSString *newPlistPath = [[self class]
-        pathForDatabase:self.databaseName
-            inDirectory:FIRMessagingRmqDirectoryApplicationSupport];
-
-    if ([self doesFileExistInDirectory:FIRMessagingRmqDirectoryApplicationSupport]) {
-      // File exists in both Documents and ApplicationSupport, delete the one in Documents
-      NSError *deleteError;
-      if (![[NSFileManager defaultManager] removeItemAtPath:oldPlistPath error:&deleteError]) {
-        FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore000,
-                                @"Failed to delete old copy of %@.sqlite in Documents %@",
-                                self.databaseName, deleteError);
-      }
-      return NO;
-    }
-    NSError *moveError;
-    if (![[NSFileManager defaultManager] moveItemAtPath:oldPlistPath
-                                                 toPath:newPlistPath
-                                                  error:&moveError]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore001,
-                              @"Failed to move file %@ from %@ to %@. Error: %@", self.databaseName,
-                              oldPlistPath, newPlistPath, moveError);
-      return NO;
-    }
-  }
-  // We moved the file if it existed, otherwise we didn't need to do anything
-  return YES;
-}
-
-- (BOOL)doesFileExistInDirectory:(FIRMessagingRmqDirectory)directory {
-  NSString *path = [[self class] pathForDatabase:self.databaseName inDirectory:directory];
-  return [[NSFileManager defaultManager] fileExistsAtPath:path];
-}
-
-+ (NSString *)pathForDatabase:(NSString *)dbName inDirectory:(FIRMessagingRmqDirectory)directory {
-  NSArray *paths;
-  NSArray *components;
-  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", dbName];
-  NSString *errorMessage;
-
-  switch (directory) {
-    case FIRMessagingRmqDirectoryDocuments:
-      paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-      components = @[paths.lastObject, dbNameWithExtension];
-      break;
-
-    case FIRMessagingRmqDirectoryApplicationSupport:
-      paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
+- (NSString *)pathForDatabase {
+  NSString *dbNameWithExtension = [NSString stringWithFormat:@"%@.sqlite", _databaseName];
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
-      components = @[
+  NSArray *components = @[
                      paths.lastObject,
                      kFIRMessagingSubDirectoryName,
                      dbNameWithExtension
                      ];
-      break;
-
-    default:
-      errorMessage = [NSString stringWithFormat:@"Invalid directory type %lu",
-                      (unsigned long)directory];
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreInvalidRmqDirectory,
-                              @"%@",
-                              errorMessage);
-      NSAssert(NO, errorMessage);
-      break;
-  }
-
   return [NSString pathWithComponents:components];
 }
 
@@ -258,23 +167,13 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 - (void)removeDatabase {
-  NSString *path = [[self class] pathForDatabase:self.databaseName
-                                     inDirectory:self.currentDirectory];
+  NSString *path = [self pathForDatabase];
   [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
-+ (void)removeDatabase:(NSString *)dbName {
-  NSString *documentsDirPath = [self pathForDatabase:dbName
-                                         inDirectory:FIRMessagingRmqDirectoryDocuments];
-  NSString *standardDirPath =
-      [self pathForDatabase:dbName inDirectory:FIRMessagingRmqDirectoryApplicationSupport];
-  [[NSFileManager defaultManager] removeItemAtPath:documentsDirPath error:nil];
-  [[NSFileManager defaultManager] removeItemAtPath:standardDirPath error:nil];
-}
-
-- (void)openDatabase:(NSString *)dbName {
+- (void)openDatabase {
   NSFileManager *fileManager = [NSFileManager defaultManager];
-  NSString *path = [[self class] pathForDatabase:dbName inDirectory:self.currentDirectory];
+  NSString *path = [self pathForDatabase];
 
   BOOL didOpenDatabase = YES;
   if (![fileManager fileExistsAtPath:path]) {

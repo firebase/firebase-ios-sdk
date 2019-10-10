@@ -1,3 +1,7 @@
+Version 4.4.2
+==================================
+- Fixed issue for outdated values for deleted config keys (#3745).
+
 Version 4.4.1
 ==================================
 - Fix docs issue. (#3846)

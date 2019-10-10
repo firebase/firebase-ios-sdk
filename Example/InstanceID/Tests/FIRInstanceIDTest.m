@@ -35,7 +35,7 @@ static NSString *const kFakeIID = @"12345678";
 static NSString *const kFakeAPNSToken = @"this is a fake apns token";
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";
-static NSString *const kToken = @"test-token";
+static NSString *const kToken = @"12345678:test-token";
 static FIRInstanceIDTokenInfo *sTokenInfo;
 // Faking checkin calls
 static NSString *const kDeviceAuthId = @"device-id";
@@ -161,7 +161,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)testTokenShouldBeRefreshedIfCacheTokenNeedsToBeRefreshed {
   [[[self.mockInstanceID stub] andReturn:kToken] cachedTokenIfAvailable];
-  [[[self.mockTokenManager stub] andReturnValue:@(YES)] checkForTokenRefreshPolicy];
+  [[[self.mockTokenManager stub] andReturnValue:@(YES)]
+      checkTokenRefreshPolicyWithIID:[OCMArg any]];
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
   }] tokenWithAuthorizedEntity:[OCMArg any]
                          scope:[OCMArg any]

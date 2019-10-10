@@ -97,12 +97,37 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testServerTimestamp() throws {
+  #if swift(>=5.1)
+    func testServerTimestamp() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @ServerTimestamp var ts: Timestamp? = nil
+      }
+      let model = Model(name: "name")
+      let docToWrite = documentRef()
+
+      for flavor in allFlavors {
+        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+        let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
+
+        XCTAssertNotNil(decoded?.ts, "Failed with flavor \(flavor)")
+        if let ts = decoded?.ts {
+          XCTAssertGreaterThan(ts.seconds, 1_500_000_000, "Failed with flavor \(flavor)")
+        } else {
+          XCTFail("Expect server timestamp is set, but getting .pending")
+        }
+      }
+    }
+  #endif // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ServerTimestamp() throws {
     struct Model: Codable, Equatable {
       var name: String
-      var ts: ServerTimestamp
+      var ts: Swift4ServerTimestamp
     }
-    let model = Model(name: "name", ts: ServerTimestamp.pending)
+    let model = Model(name: "name", ts: .pending)
     let docToWrite = documentRef()
 
     for flavor in allFlavors {
@@ -144,32 +169,32 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-#if swift(>=5.1)
-  func testExplicitNull() throws {
-    struct Model: Encodable {
-      var name: String
-      @ExplicitNull var explicitNull: String?
-      var optional: String?
+  #if swift(>=5.1)
+    func testExplicitNull() throws {
+      struct Model: Encodable {
+        var name: String
+        @ExplicitNull var explicitNull: String?
+        var optional: String?
+      }
+      let model = Model(
+        name: "name",
+        explicitNull: nil,
+        optional: nil
+      )
+
+      let docToWrite = documentRef()
+
+      for flavor in allFlavors {
+        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+        let data = readDocument(forRef: docToWrite).data()
+
+        XCTAssertTrue(data!.keys.contains("explicitNull"), "Failed with flavor \(flavor)")
+        XCTAssertEqual(data!["explicitNull"] as! NSNull, NSNull(), "Failed with flavor \(flavor)")
+        XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
+      }
     }
-    let model = Model(
-      name: "name",
-      explicitNull: nil,
-      optional: nil
-    )
-
-    let docToWrite = documentRef()
-
-    for flavor in allFlavors {
-      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
-
-      let data = readDocument(forRef: docToWrite).data()
-
-      XCTAssertTrue(data!.keys.contains("explicitNull"), "Failed with flavor \(flavor)")
-      XCTAssertEqual(data!["explicitNull"] as! NSNull, NSNull(), "Failed with flavor \(flavor)")
-      XCTAssertFalse(data!.keys.contains("optional"), "Failed with flavor \(flavor)")
-    }
-  }
-#endif  // swift(>=5.1)
+  #endif // swift(>=5.1)
 
   @available(swift, deprecated: 5.1)
   func testSwift4ExplicitNull() throws {

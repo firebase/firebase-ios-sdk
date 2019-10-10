@@ -56,7 +56,7 @@ const pb_field_t google_firestore_v1_DocumentTransform_FieldTransform_fields[8] 
 };
 
 const pb_field_t google_firestore_v1_WriteResult_fields[3] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1_WriteResult, update_time, update_time, &google_protobuf_Timestamp_fields),
+    PB_FIELD(  1, MESSAGE , OPTIONAL, STATIC  , FIRST, google_firestore_v1_WriteResult, update_time, update_time, &google_protobuf_Timestamp_fields),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_WriteResult, transform_results, update_time, &google_firestore_v1_Value_fields),
     PB_LAST_FIELD
 };
@@ -70,7 +70,7 @@ const pb_field_t google_firestore_v1_DocumentChange_fields[4] = {
 
 const pb_field_t google_firestore_v1_DocumentDelete_fields[4] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_DocumentDelete, document, document, 0),
-    PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_DocumentDelete, read_time, document, &google_protobuf_Timestamp_fields),
+    PB_FIELD(  4, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_DocumentDelete, read_time, document, &google_protobuf_Timestamp_fields),
     PB_FIELD(  6, INT32   , REPEATED, POINTER , OTHER, google_firestore_v1_DocumentDelete, removed_target_ids, read_time, 0),
     PB_LAST_FIELD
 };

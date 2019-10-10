@@ -709,7 +709,9 @@ static FIRInstanceID *gInstanceID;
   // When there is a cached token, do the token refresh.
   if (cachedToken) {
     // Clean up expired tokens by checking the token refresh policy.
-    if ([self.tokenManager checkForTokenRefreshPolicy]) {
+    NSError *error;
+    NSString *cachedIID = [self.keyPairStore appIdentityWithError:&error];
+    if ([self.tokenManager checkTokenRefreshPolicyWithIID:cachedIID]) {
       // Default token is expired, fetch default token from server.
       [self defaultTokenWithHandler:nil];
     }

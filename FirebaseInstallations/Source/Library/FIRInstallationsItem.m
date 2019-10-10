@@ -18,6 +18,7 @@
 
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsStoredItem.h"
+#import "FIRInstallationsStoredRegistrationError.h"
 
 @implementation FIRInstallationsItem
 
@@ -46,6 +47,7 @@
   self.refreshToken = item.refreshToken;
   self.authToken = item.authToken;
   self.registrationStatus = item.registrationStatus;
+  self.registrationError = item.registrationError;
 }
 
 - (FIRInstallationsStoredItem *)storedItem {
@@ -54,6 +56,7 @@
   storedItem.refreshToken = self.refreshToken;
   storedItem.authToken = self.authToken;
   storedItem.registrationStatus = self.registrationStatus;
+  storedItem.registrationError = self.registrationError;
   return storedItem;
 }
 
@@ -97,6 +100,19 @@
   string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
   string = [string stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
   return string;
+}
+
+- (void)updateWithRegistrationError:(NSError *)error
+                               date:(NSDate *)date
+             registrationParameters:
+                 (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
+  self.registrationStatus = FIRInstallationStatusRegistrationFailed;
+  self.registrationError = [[FIRInstallationsStoredRegistrationError alloc]
+      initWithRegistrationParameters:registrationParameters
+                                date:date
+                            APIError:error];
+  self.authToken = nil;
+  self.refreshToken = nil;
 }
 
 @end
