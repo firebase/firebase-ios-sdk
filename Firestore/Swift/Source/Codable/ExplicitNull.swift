@@ -17,62 +17,60 @@
 import FirebaseFirestore
 
 #if swift(>=5.1)
+  /// Wraps an `Optional` field in a `Codable` object such that when the field
+  /// has a `nil` value it will encode to a null value in Firestore. Normally,
+  /// optional fields are omitted from the encoded document.
+  ///
+  /// This is useful for ensuring a field is present in a Firestore document,
+  /// even when there is no associated value.
+  @propertyWrapper
+  public struct ExplicitNull<Value> {
+    var value: Value?
 
-/// Wraps an `Optional` field in a `Codable` object such that when the field has
-/// a `nil` value it will encode to a null value in Firestore. Normally,
-/// optional fields are omitted from the encoded document.
-///
-/// This is useful for ensuring a field is present in a Firestore document, even
-/// when there is no associated value.
-@propertyWrapper
-public struct ExplicitNull<Value> {
-  var value: Value?
+    public init(wrappedValue value: Value?) {
+      self.value = value
+    }
 
-  public init(wrappedValue value: Value?) {
-    self.value = value
-  }
-
-  public var wrappedValue: Value? {
-    get { value }
-    set { value = newValue }
-  }
-}
-
-extension ExplicitNull: Equatable where Value: Equatable {}
-
-extension ExplicitNull: Encodable where Value: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    if let value = value {
-      try container.encode(value)
-    } else {
-      try container.encodeNil()
+    public var wrappedValue: Value? {
+      get { value }
+      set { value = newValue }
     }
   }
-}
 
-extension ExplicitNull: Decodable where Value: Decodable {
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    if container.decodeNil() {
-      value = nil
-    } else {
-      value = try container.decode(Value.self)
+  extension ExplicitNull: Equatable where Value: Equatable {}
+
+  extension ExplicitNull: Encodable where Value: Encodable {
+    public func encode(to encoder: Encoder) throws {
+      var container = encoder.singleValueContainer()
+      if let value = value {
+        try container.encode(value)
+      } else {
+        try container.encodeNil()
+      }
     }
   }
-}
 
-#endif  // swift(>=5.1)
+  extension ExplicitNull: Decodable where Value: Decodable {
+    public init(from decoder: Decoder) throws {
+      let container = try decoder.singleValueContainer()
+      if container.decodeNil() {
+        value = nil
+      } else {
+        value = try container.decode(Value.self)
+      }
+    }
+  }
+#endif // swift(>=5.1)
 
 /// A compatibility version of `ExplicitNull` that does not use property
 /// wrappers, suitable for use in older versions of Swift.
 ///
-/// Wraps an `Optional` field in a `Codable` object such that when the field has
-/// a `nil` value it will encode to a null value in Firestore. Normally,
+/// Wraps an `Optional` field in a `Codable` object such that when the field
+/// has a `nil` value it will encode to a null value in Firestore. Normally,
 /// optional fields are omitted from the encoded document.
 ///
-/// This is useful for ensuring a field is present in a Firestore document, even
-/// when there is no associated value.
+/// This is useful for ensuring a field is present in a Firestore document,
+/// even when there is no associated value.
 @available(swift, deprecated: 5.1)
 public enum Swift4ExplicitNull<Wrapped> {
   case none

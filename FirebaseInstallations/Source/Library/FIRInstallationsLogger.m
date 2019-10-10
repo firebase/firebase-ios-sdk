@@ -33,9 +33,18 @@ NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed =
 NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated = @"I-FIS002000";
 NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated = @"I-FIS002001";
 NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated = @"I-FIS002002";
+NSString *const kFIRInstallationsMessageCodeInvalidFirebaseConfiguration = @"I-FIS002003";
 
 // FIRInstallationsStoredItem.m
 NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch = @"I-FIS003000";
 
 // FIRInstallationsStoredAuthToken.m
 NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch = @"I-FIS004000";
+
+// FIRInstallationsStoredRegistrationError.m
+NSString *const kFIRInstallationsMessageCodeRegistrationErrorCoderVersionMismatch = @"I-FIS005000";
+NSString *const kFIRInstallationsMessageCodeRegistrationErrorFailedToDecode = @"I-FIS005001";
+
+// FIRInstallationsStoredRegistrationParameters.m
+NSString *const kFIRInstallationsMessageCodeRegistrationParametersCoderVersionMismatch =
+    @"I-FIS006000";

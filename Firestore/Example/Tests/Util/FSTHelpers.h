@@ -153,59 +153,6 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     }                                                                \
   } while (0)
 
-/**
- * An implementation of `TargetMetadataProvider` that provides controlled access to the
- * `TargetMetadataProvider` callbacks. Any target accessed via these callbacks must be
- * registered beforehand via the factory methods or via `setSyncedKeys:forQueryData:`.
- */
-namespace firebase {
-namespace firestore {
-namespace remote {
-
-class TestTargetMetadataProvider : public TargetMetadataProvider {
- public:
-  /**
-   * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
-   * each of the given targets, where each target has previously seen query results containing just
-   * the given `document_key`.
-   *
-   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
-   * just the `document_key` and that the provided targets will be returned as active from the
-   * `GetQueryDataForTarget` target.
-   */
-  static TestTargetMetadataProvider CreateSingleResultProvider(
-      model::DocumentKey document_key, const std::vector<model::TargetId> &targets);
-  static TestTargetMetadataProvider CreateSingleResultProvider(
-      model::DocumentKey document_key,
-      const std::vector<model::TargetId> &targets,
-      const std::vector<model::TargetId> &limbo_targets);
-
-  /**
-   * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
-   * each of the given targets, where each target has not seen any previous document.
-   *
-   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
-   * an empty set of document keys and that the provided targets will be returned as active from the
-   * `GetQueryDataForTarget` target.
-   */
-  static TestTargetMetadataProvider CreateEmptyResultProvider(
-      const model::ResourcePath &path, const std::vector<model::TargetId> &targets);
-
-  /** Sets or replaces the local state for the provided query data. */
-  void SetSyncedKeys(model::DocumentKeySet keys, local::QueryData query_data);
-
-  model::DocumentKeySet GetRemoteKeysForTarget(model::TargetId target_id) const override;
-  absl::optional<local::QueryData> GetQueryDataForTarget(model::TargetId target_id) const override;
-
- private:
-  std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
-  std::unordered_map<model::TargetId, local::QueryData> query_data_;
-};
-
-}  // namespace remote
-}  // namespace firestore
-}  // namespace firebase
-
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
 

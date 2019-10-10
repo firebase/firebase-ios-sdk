@@ -93,10 +93,13 @@ cc_library(
     query_cache.h
     query_data.cc
     query_data.h
+    query_engine.h
     reference_delegate.h
     reference_set.cc
     reference_set.h
     remote_document_cache.h
+    simple_query_engine.cc
+    simple_query_engine.h
     sizer.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
