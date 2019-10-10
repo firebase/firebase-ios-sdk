@@ -22,6 +22,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FIRInstanceID_Private.h"
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDCheckinPreferences.h"
@@ -124,12 +125,6 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(atomic, strong, nullable)
     FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
 
-@end
-
-// InstanceID doesn't provide any functionality to other components,
-// so it provides a private, empty protocol that it conforms to and use it for registration.
-
-@protocol FIRInstanceIDInstanceProvider
 @end
 
 @interface FIRInstanceID () <FIRInstanceIDInstanceProvider, FIRLibrary>

@@ -18,6 +18,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Empty protocol that is used for registration. Exposing this protocol
+// for other internal components to look up an instance of FIRInstanceID.
+@protocol FIRInstanceIDInstanceProvider
+@end
+
 @class FIRInstanceIDCheckinPreferences;
 /**
  * Private API used by other Firebase SDKs.
