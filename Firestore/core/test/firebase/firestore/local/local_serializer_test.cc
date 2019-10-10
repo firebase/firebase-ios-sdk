@@ -52,6 +52,7 @@ using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
+using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldValue;
@@ -289,6 +290,13 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
   ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
+
+  // Verify has_committed_mutations
+  doc = Doc("some/path", /*version=*/42, Map("foo", "bar"),
+            DocumentState::kCommittedMutations);
+  maybe_doc_proto.set_has_committed_mutations(true);
+
+  ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
@@ -299,6 +307,13 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
       "projects/p/databases/d/documents/some/path");
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_seconds(0);
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_nanos(42000);
+
+  ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
+
+  // Verify has_committed_mutations
+  no_doc =
+      DeletedDoc("some/path", /*version=*/42, /*has_committed_mutations=*/true);
+  maybe_doc_proto.set_has_committed_mutations(true);
 
   ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
 }
@@ -312,6 +327,7 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_seconds(0);
   maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_nanos(
       42000);
+  maybe_doc_proto.set_has_committed_mutations(true);
 
   ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
 }
@@ -349,6 +365,43 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   query_proto->set_parent(query_target_proto.parent());
   *query_proto->mutable_structured_query() =
       query_target_proto.structured_query();
+
+  ExpectRoundTrip(query_data, expected);
+}
+
+TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
+  core::Query query = Query("room/1");
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
+  SnapshotVersion version = testutil::Version(1039);
+  ByteString resume_token = testutil::ResumeToken(1039);
+
+  QueryData query_data(core::Query(query), target_id, sequence_number,
+                       QueryPurpose::Listen, SnapshotVersion(version),
+                       ByteString(resume_token));
+
+  // Let the RPC serializer test various permutations of query serialization.
+  ByteStringWriter writer;
+  google_firestore_v1_Target_DocumentsTarget proto =
+      remote_serializer.EncodeDocumentsTarget(query_data.query());
+  writer.WriteNanopbMessage(google_firestore_v1_Target_DocumentsTarget_fields,
+                            &proto);
+  remote_serializer.FreeNanopbMessage(
+      google_firestore_v1_Target_DocumentsTarget_fields, &proto);
+
+  ByteString query_target_bytes = writer.Release();
+  auto documents_target_proto =
+      ProtobufParse<v1::Target::DocumentsTarget>(query_target_bytes);
+
+  ::firestore::client::Target expected;
+  expected.set_target_id(target_id);
+  expected.set_last_listen_sequence_number(sequence_number);
+  expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.set_resume_token(resume_token.data(), resume_token.size());
+  v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
+  for (auto i = 0; i < documents_target_proto.documents_size(); i++) {
+    documents_proto->add_documents(documents_target_proto.documents(i));
+  }
 
   ExpectRoundTrip(query_data, expected);
 }

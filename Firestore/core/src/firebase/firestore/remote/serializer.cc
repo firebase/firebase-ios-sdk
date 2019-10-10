@@ -579,17 +579,6 @@ NoDocument Serializer::DecodeMissingDocument(
                     /*has_committed_mutations=*/false);
 }
 
-Document Serializer::DecodeDocument(
-    Reader* reader, const google_firestore_v1_Document& proto) const {
-  FieldValue::Map fields_internal =
-      DecodeFields(reader, proto.fields_count, proto.fields);
-  SnapshotVersion version = DecodeVersion(reader, proto.update_time);
-
-  return Document(ObjectValue::FromMap(std::move(fields_internal)),
-                  DecodeKey(reader, proto.name), version,
-                  DocumentState::kSynced);
-}
-
 google_firestore_v1_Write Serializer::EncodeMutation(
     const Mutation& mutation) const {
   HARD_ASSERT(mutation.is_valid(), "Invalid mutation encountered.");
