@@ -25,6 +25,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
+    'Firestore/Source/Public/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/Protos/objc/**/*.m',
@@ -32,7 +33,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/**/*.{cc,mm}',
   ]
   s.preserve_paths = [
-    'Firestore/Source/**/*.h',
+    'Firestore/Source/API/*.h',
+    'Firestore/Source/Core/*.h',
+    'Firestore/Source/Local/*.h',
+    'Firestore/Source/Remote/*.h',
+    'Firestore/Source/Util/*.h',
     'Firestore/Protos/nanopb/**/*.h',
     'Firestore/Protos/objc/**/*.h',
     'Firestore/core/include/**/*.h',
