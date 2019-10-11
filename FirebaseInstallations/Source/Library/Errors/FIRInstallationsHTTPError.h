@@ -42,3 +42,5 @@ typedef NS_ENUM(NSInteger, FIRInstallationsRegistrationHTTPCode) {
   FIRInstallationsRegistrationHTTPCodeTooManyRequests = 429,
   FIRInstallationsRegistrationHTTPCodeServerInternalError = 500
 };
+
+extern NSInteger const kFIRInstallationsAPIInternalErrorHTTPCode;
