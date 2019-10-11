@@ -229,49 +229,49 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
  */
 - (void)saveLastOutgoingRmqId:(int64_t)rmqID {
   dispatch_async(_databaseOperationQueue, ^{
-  NSString *queryFormat = @"INSERT OR REPLACE INTO %@ (%@, %@) VALUES (?, ?)";
-  NSString *query = [NSString stringWithFormat:queryFormat,
-                     kTableLastRmqId, // table
-                     kIdColumn, kRmqIdColumn]; // columns
-  sqlite3_stmt *statement;
-  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(statement);
-  }
-  if (sqlite3_bind_int(statement, 1, 1) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(statement);
-  }
-  if (sqlite3_bind_int64(statement, 2, rmqID) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(statement);
-  }
-  if (sqlite3_step(statement) != SQLITE_DONE) {
-    FIRMessagingRmqLogAndReturn(statement);
-  }
-  sqlite3_finalize(statement);
+    NSString *queryFormat = @"INSERT OR REPLACE INTO %@ (%@, %@) VALUES (?, ?)";
+    NSString *query = [NSString stringWithFormat:queryFormat,
+                       kTableLastRmqId, // table
+                       kIdColumn, kRmqIdColumn]; // columns
+    sqlite3_stmt *statement;
+    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(statement);
+    }
+    if (sqlite3_bind_int(statement, 1, 1) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(statement);
+    }
+    if (sqlite3_bind_int64(statement, 2, rmqID) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(statement);
+    }
+    if (sqlite3_step(statement) != SQLITE_DONE) {
+      FIRMessagingRmqLogAndReturn(statement);
+    }
+    sqlite3_finalize(statement);
   });
 }
 
 - (void)saveS2dMessageWithRmqId:(NSString *)rmqId {
   dispatch_async(_databaseOperationQueue, ^{
-  NSString *insertFormat = @"INSERT INTO %@ (%@) VALUES (?)";
-  NSString *insertSQL = [NSString stringWithFormat:insertFormat,
-                         kTableS2DRmqIds,
-                         kRmqIdColumn];
-  sqlite3_stmt *insert_statement;
-  if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &insert_statement, NULL)
-      != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(insert_statement);
-  }
-  if (sqlite3_bind_text(insert_statement,
-                        1,
-                        [rmqId UTF8String],
-                        (int)[rmqId length],
-                        SQLITE_STATIC) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(insert_statement);
-  }
-  if (sqlite3_step(insert_statement) != SQLITE_DONE) {
-    FIRMessagingRmqLogAndReturn(insert_statement);
-  }
-  sqlite3_finalize(insert_statement);
+    NSString *insertFormat = @"INSERT INTO %@ (%@) VALUES (?)";
+    NSString *insertSQL = [NSString stringWithFormat:insertFormat,
+                           kTableS2DRmqIds,
+                           kRmqIdColumn];
+    sqlite3_stmt *insert_statement;
+    if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &insert_statement, NULL)
+        != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(insert_statement);
+    }
+    if (sqlite3_bind_text(insert_statement,
+                          1,
+                          [rmqId UTF8String],
+                          (int)[rmqId length],
+                          SQLITE_STATIC) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(insert_statement);
+    }
+    if (sqlite3_step(insert_statement) != SQLITE_DONE) {
+      FIRMessagingRmqLogAndReturn(insert_statement);
+    }
+    sqlite3_finalize(insert_statement);
   });
 }
 
@@ -320,22 +320,22 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (NSArray *)unackedS2dRmqIds {
   __block NSMutableArray *rmqIDArray = [NSMutableArray array];
   dispatch_sync(_databaseOperationQueue, ^{
-  NSString *queryFormat = @"SELECT %@ FROM %@ ORDER BY %@ ASC";
-  NSString *query = [NSString stringWithFormat:queryFormat,
-                     kRmqIdColumn,
-                     kTableS2DRmqIds,
-                     kRmqIdColumn];
-  sqlite3_stmt *statement;
-  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore005,
-                            @"Could not find s2d ids");
-    FIRMessagingRmqLogAndReturn(statement);
-  }
-  while (sqlite3_step(statement) == SQLITE_ROW) {
-    const char *rmqID = (char *)sqlite3_column_text(statement, 0);
-    [rmqIDArray addObject:[NSString stringWithUTF8String:rmqID]];
-  }
-  sqlite3_finalize(statement);
+    NSString *queryFormat = @"SELECT %@ FROM %@ ORDER BY %@ ASC";
+    NSString *query = [NSString stringWithFormat:queryFormat,
+                       kRmqIdColumn,
+                       kTableS2DRmqIds,
+                       kRmqIdColumn];
+    sqlite3_stmt *statement;
+    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore005,
+                              @"Could not find s2d ids");
+      FIRMessagingRmqLogAndReturn(statement);
+    }
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+      const char *rmqID = (char *)sqlite3_column_text(statement, 0);
+      [rmqIDArray addObject:[NSString stringWithUTF8String:rmqID]];
+    }
+    sqlite3_finalize(statement);
   });
   return rmqIDArray;
 }
@@ -398,43 +398,43 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   __block FIRMessagingPersistentSyncMessage *persistentMessage;
   dispatch_sync(_databaseOperationQueue, ^{
-  NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = '%@'";
-  NSString *query = [NSString stringWithFormat:queryFormat,
-                     kSyncMessagesColumns, // SELECT (rmq_id, expiration_ts, apns_recv, mcs_recv)
-                     kTableSyncMessages,   // FROM sync_rmq
-                     kRmqIdColumn,         // WHERE rmq_id
-                     rmqID];
+    NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = '%@'";
+    NSString *query = [NSString stringWithFormat:queryFormat,
+                       kSyncMessagesColumns, // SELECT (rmq_id, expiration_ts, apns_recv, mcs_recv)
+                       kTableSyncMessages,   // FROM sync_rmq
+                       kRmqIdColumn,         // WHERE rmq_id
+                       rmqID];
 
-  sqlite3_stmt *stmt;
-  if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
-    [self logError];
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+      [self logError];
+      sqlite3_finalize(stmt);
+      return;
+    }
+
+    const int rmqIDColumn = 0;
+    const int expirationTimestampColumn = 1;
+    const int apnsReceivedColumn = 2;
+    const int mcsReceivedColumn = 3;
+
+    int count = 0;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      NSString *rmqID =
+          [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmt, rmqIDColumn)];
+      int64_t expirationTimestamp = sqlite3_column_int64(stmt, expirationTimestampColumn);
+      BOOL apnsReceived = sqlite3_column_int(stmt, apnsReceivedColumn);
+      BOOL mcsReceived = sqlite3_column_int(stmt, mcsReceivedColumn);
+
+      // create a new persistent message
+      persistentMessage =
+          [[FIRMessagingPersistentSyncMessage alloc] initWithRMQID:rmqID expirationTime:expirationTimestamp];
+      persistentMessage.apnsReceived = apnsReceived;
+      persistentMessage.mcsReceived = mcsReceived;
+
+      count++;
+    }
     sqlite3_finalize(stmt);
-    return;
-  }
-
-  const int rmqIDColumn = 0;
-  const int expirationTimestampColumn = 1;
-  const int apnsReceivedColumn = 2;
-  const int mcsReceivedColumn = 3;
-
-  int count = 0;
-
-  while (sqlite3_step(stmt) == SQLITE_ROW) {
-    NSString *rmqID =
-        [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmt, rmqIDColumn)];
-    int64_t expirationTimestamp = sqlite3_column_int64(stmt, expirationTimestampColumn);
-    BOOL apnsReceived = sqlite3_column_int(stmt, apnsReceivedColumn);
-    BOOL mcsReceived = sqlite3_column_int(stmt, mcsReceivedColumn);
-
-    // create a new persistent message
-    persistentMessage =
-        [[FIRMessagingPersistentSyncMessage alloc] initWithRMQID:rmqID expirationTime:expirationTimestamp];
-    persistentMessage.apnsReceived = apnsReceived;
-    persistentMessage.mcsReceived = mcsReceived;
-
-    count++;
-  }
-  sqlite3_finalize(stmt);
   });
 
   return persistentMessage;
@@ -446,31 +446,31 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)deleteExpiredOrFinishedSyncMessages {
   dispatch_async(_databaseOperationQueue, ^{
-  int64_t now = FIRMessagingCurrentTimestampInSeconds();
-  NSString *deleteSQL = @"DELETE FROM %@ "
-                        @"WHERE %@ < %lld OR "  // expirationTime < now
-                        @"(%@ = 1 AND %@ = 1)";  // apns_received = 1 AND mcs_received = 1
-  NSString *query = [NSString stringWithFormat:deleteSQL,
-                     kTableSyncMessages,
-                     kSyncMessageExpirationTimestampColumn,
-                     now,
-                     kSyncMessageAPNSReceivedColumn,
-                     kSyncMessageMCSReceivedColumn];
-  sqlite3_stmt *stmt;
-  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    int64_t now = FIRMessagingCurrentTimestampInSeconds();
+    NSString *deleteSQL = @"DELETE FROM %@ "
+                          @"WHERE %@ < %lld OR "  // expirationTime < now
+                          @"(%@ = 1 AND %@ = 1)";  // apns_received = 1 AND mcs_received = 1
+    NSString *query = [NSString stringWithFormat:deleteSQL,
+                       kTableSyncMessages,
+                       kSyncMessageExpirationTimestampColumn,
+                       now,
+                       kSyncMessageAPNSReceivedColumn,
+                       kSyncMessageMCSReceivedColumn];
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_step(stmt) != SQLITE_DONE) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  sqlite3_finalize(stmt);
-  int deleteCount = sqlite3_changes(self->_database);
-  if (deleteCount > 0) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSyncMessageManager001,
-                            @"Successfully deleted %d sync messages from store", deleteCount);
-  }
+    sqlite3_finalize(stmt);
+    int deleteCount = sqlite3_changes(self->_database);
+    if (deleteCount > 0) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSyncMessageManager001,
+                              @"Successfully deleted %d sync messages from store", deleteCount);
+    }
   });
 }
 
@@ -479,65 +479,65 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                     apnsReceived:(BOOL)apnsReceived
                      mcsReceived:(BOOL)mcsReceived {
   dispatch_async(_databaseOperationQueue, ^{
-  NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
-  NSString *insertSQL = [NSString stringWithFormat:insertFormat,
-                         kTableSyncMessages, // Table name
-                         kRmqIdColumn, // rmq_id
-                         kSyncMessageExpirationTimestampColumn, // expiration_ts
-                         kSyncMessageAPNSReceivedColumn, // apns_recv
-                         kSyncMessageMCSReceivedColumn /* mcs_recv */];
+    NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
+    NSString *insertSQL = [NSString stringWithFormat:insertFormat,
+                           kTableSyncMessages, // Table name
+                           kRmqIdColumn, // rmq_id
+                           kSyncMessageExpirationTimestampColumn, // expiration_ts
+                           kSyncMessageAPNSReceivedColumn, // apns_recv
+                           kSyncMessageMCSReceivedColumn /* mcs_recv */];
 
-  sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt;
 
-  if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_bind_text(stmt, 1, [rmqID UTF8String], (int)[rmqID length], NULL) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_bind_text(stmt, 1, [rmqID UTF8String], (int)[rmqID length], NULL) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_bind_int64(stmt, 2, expirationTime) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_bind_int64(stmt, 2, expirationTime) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_bind_int(stmt, 3, apnsReceived ? 1 : 0) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_bind_int(stmt, 3, apnsReceived ? 1 : 0) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_bind_int(stmt, 4, mcsReceived ? 1 : 0) != SQLITE_OK) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
+    if (sqlite3_bind_int(stmt, 4, mcsReceived ? 1 : 0) != SQLITE_OK) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
 
-  if (sqlite3_step(stmt) != SQLITE_DONE) {
-    FIRMessagingRmqLogAndReturn(stmt);
-  }
-  sqlite3_finalize(stmt);
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager004,
-                           @"Added sync message to cache: %@", rmqID);
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+      FIRMessagingRmqLogAndReturn(stmt);
+    }
+    sqlite3_finalize(stmt);
+    FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager004,
+                             @"Added sync message to cache: %@", rmqID);
   });
 
 }
 
 - (void)updateSyncMessageViaAPNSWithRmqID:(NSString *)rmqID {
   dispatch_async(_databaseOperationQueue, ^{
-  if (![self updateSyncMessageWithRmqID:rmqID
-                                   column:kSyncMessageAPNSReceivedColumn
-                                    value:YES]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager005,
-                            @"Failed to update APNS state for sync message %@", rmqID);
-  }
+    if (![self updateSyncMessageWithRmqID:rmqID
+                                     column:kSyncMessageAPNSReceivedColumn
+                                      value:YES]) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager005,
+                              @"Failed to update APNS state for sync message %@", rmqID);
+    }
   });
 }
 
 - (void)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID {
   dispatch_async(_databaseOperationQueue, ^{
-  if (![self updateSyncMessageWithRmqID:rmqID
-                                   column:kSyncMessageMCSReceivedColumn
-                                    value:YES]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager006,
-                                 @"Failed to update MCS state for sync message %@", rmqID);
-  }
+    if (![self updateSyncMessageWithRmqID:rmqID
+                                     column:kSyncMessageMCSReceivedColumn
+                                      value:YES]) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager006,
+                                   @"Failed to update MCS state for sync message %@", rmqID);
+    }
   });
 }
 
@@ -678,9 +678,8 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)updateDBWithStringRmqID {
   dispatch_async(_databaseOperationQueue, ^{
-
-  [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
-  [self dropTableWithName:kOldTableS2DRmqIds];
+    [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
+    [self dropTableWithName:kOldTableS2DRmqIds];
   });
 }
 
@@ -688,32 +687,32 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler {
   dispatch_async(_databaseOperationQueue, ^{
-  static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
-  NSString *query = [NSString stringWithFormat:queryFormat,
-                     kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
-                     kTableOutgoingRmqMessages, // from table
-                     kRmqIdColumn, // where
-                     kRmqIdColumn]; // order by
-  sqlite3_stmt *statement;
-  if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
-    [self logError];
-    sqlite3_finalize(statement);
-    return;
-  }
-  // can query sqlite3 for this but this is fine
-  const int rmqIdColumnNumber = 0;
-  const int typeColumnNumber = 1;
-  const int dataColumnNumber = 2;
-  while (sqlite3_step(statement) == SQLITE_ROW) {
-    int64_t rmqId = sqlite3_column_int64(statement, rmqIdColumnNumber);
-    int8_t type = sqlite3_column_int(statement, typeColumnNumber);
-    const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
-    int length = sqlite3_column_bytes(statement, dataColumnNumber);
+    static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
+    NSString *query = [NSString stringWithFormat:queryFormat,
+                       kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
+                       kTableOutgoingRmqMessages, // from table
+                       kRmqIdColumn, // where
+                       kRmqIdColumn]; // order by
+    sqlite3_stmt *statement;
+    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
+      [self logError];
+      sqlite3_finalize(statement);
+      return;
+    }
+    // can query sqlite3 for this but this is fine
+    const int rmqIdColumnNumber = 0;
+    const int typeColumnNumber = 1;
+    const int dataColumnNumber = 2;
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+      int64_t rmqId = sqlite3_column_int64(statement, rmqIdColumnNumber);
+      int8_t type = sqlite3_column_int(statement, typeColumnNumber);
+      const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
+      int length = sqlite3_column_bytes(statement, dataColumnNumber);
 
-    NSData *data = [NSData dataWithBytes:bytes length:length];
-    handler(rmqId, type, data);
-  }
-  sqlite3_finalize(statement);
+      NSData *data = [NSData dataWithBytes:bytes length:length];
+      handler(rmqId, type, data);
+    }
+    sqlite3_finalize(statement);
   });
 }
 
@@ -753,89 +752,89 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 -(void)deleteMessagesFromTable:(NSString *)tableName
                     withRmqIds:(NSArray *)rmqIds {
   dispatch_async(_databaseOperationQueue, ^{
-  BOOL isRmqIDString = NO;
-  // RmqID is a string only for outgoing messages
-  if ([tableName isEqualToString:kTableS2DRmqIds] ||
-      [tableName isEqualToString:kTableSyncMessages]) {
-    isRmqIDString = YES;
-  }
-
-  NSMutableString *delete = [NSMutableString stringWithFormat:@"DELETE FROM %@ WHERE ", tableName];
-
-  NSString *toDeleteArgument = [NSString stringWithFormat:@"%@ = ? OR ", kRmqIdColumn];
-
-  int toDelete = (int)[rmqIds count];
-  if (toDelete == 0) {
-    return;
-  }
-  int maxBatchSize = 100;
-  int start = 0;
-  int deleteCount = 0;
-  while (start < toDelete) {
-
-    // construct the WHERE argument
-    int end = MIN(start + maxBatchSize, toDelete);
-    NSMutableString *whereArgument = [NSMutableString string];
-    for (int i = start; i < end; i++) {
-      [whereArgument appendString:toDeleteArgument];
-    }
-    // remove the last * OR * from argument
-    NSRange range = NSMakeRange([whereArgument length] -4, 4);
-    [whereArgument deleteCharactersInRange:range];
-    NSString *deleteQuery = [NSString stringWithFormat:@"%@ %@", delete, whereArgument];
-
-
-    // sqlite update
-    sqlite3_stmt *delete_statement;
-    if (sqlite3_prepare_v2(self->_database, [deleteQuery UTF8String],
-                           -1, &delete_statement, NULL) != SQLITE_OK) {
-      FIRMessagingRmqLogAndReturn(delete_statement);
+    BOOL isRmqIDString = NO;
+    // RmqID is a string only for outgoing messages
+    if ([tableName isEqualToString:kTableS2DRmqIds] ||
+        [tableName isEqualToString:kTableSyncMessages]) {
+      isRmqIDString = YES;
     }
 
-    // bind values
-    int rmqIndex = 0;
-    int placeholderIndex = 1; // placeholders in sqlite3 start with 1
-    for (NSString *rmqId in rmqIds) { // objectAtIndex: is O(n) -- would make it slow
-      if (rmqIndex < start) {
-        rmqIndex++;
-        continue;
-      } else if (rmqIndex >= end) {
-        break;
-      } else {
-        if (isRmqIDString) {
-          if (sqlite3_bind_text(delete_statement,
-                                placeholderIndex,
-                                [rmqId UTF8String],
-                                (int)[rmqId length],
-                                SQLITE_STATIC) != SQLITE_OK) {
-            FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore003,
-                                    @"Failed to bind rmqID %@", rmqId);
-            FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager007,
-              @"Failed to delete sync message %@", rmqId);
-            continue;
-          }
-        } else {
-          int64_t rmqIdValue = [rmqId longLongValue];
-          sqlite3_bind_int64(delete_statement, placeholderIndex, rmqIdValue);
-        }
-        placeholderIndex++;
+    NSMutableString *delete = [NSMutableString stringWithFormat:@"DELETE FROM %@ WHERE ", tableName];
+
+    NSString *toDeleteArgument = [NSString stringWithFormat:@"%@ = ? OR ", kRmqIdColumn];
+
+    int toDelete = (int)[rmqIds count];
+    if (toDelete == 0) {
+      return;
+    }
+    int maxBatchSize = 100;
+    int start = 0;
+    int deleteCount = 0;
+    while (start < toDelete) {
+
+      // construct the WHERE argument
+      int end = MIN(start + maxBatchSize, toDelete);
+      NSMutableString *whereArgument = [NSMutableString string];
+      for (int i = start; i < end; i++) {
+        [whereArgument appendString:toDeleteArgument];
       }
-      rmqIndex++;
-      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager008,
-                             @"Successfully deleted sync message from cache %@", rmqId);
-    }
-    if (sqlite3_step(delete_statement) != SQLITE_DONE) {
-      FIRMessagingRmqLogAndReturn(delete_statement);
-    }
-    sqlite3_finalize(delete_statement);
-    deleteCount += sqlite3_changes(_database);
-    start = end;
-  }
+      // remove the last * OR * from argument
+      NSRange range = NSMakeRange([whereArgument length] -4, 4);
+      [whereArgument deleteCharactersInRange:range];
+      NSString *deleteQuery = [NSString stringWithFormat:@"%@ %@", delete, whereArgument];
 
-  // if we are here all of our sqlite queries should have succeeded
-  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore004,
-                          @"Trying to delete %d s2D ID's, successfully deleted %d",
-                          toDelete, deleteCount);
+
+      // sqlite update
+      sqlite3_stmt *delete_statement;
+      if (sqlite3_prepare_v2(self->_database, [deleteQuery UTF8String],
+                             -1, &delete_statement, NULL) != SQLITE_OK) {
+        FIRMessagingRmqLogAndReturn(delete_statement);
+      }
+
+      // bind values
+      int rmqIndex = 0;
+      int placeholderIndex = 1; // placeholders in sqlite3 start with 1
+      for (NSString *rmqId in rmqIds) { // objectAtIndex: is O(n) -- would make it slow
+        if (rmqIndex < start) {
+          rmqIndex++;
+          continue;
+        } else if (rmqIndex >= end) {
+          break;
+        } else {
+          if (isRmqIDString) {
+            if (sqlite3_bind_text(delete_statement,
+                                  placeholderIndex,
+                                  [rmqId UTF8String],
+                                  (int)[rmqId length],
+                                  SQLITE_STATIC) != SQLITE_OK) {
+              FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore003,
+                                      @"Failed to bind rmqID %@", rmqId);
+              FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager007,
+                @"Failed to delete sync message %@", rmqId);
+              continue;
+            }
+          } else {
+            int64_t rmqIdValue = [rmqId longLongValue];
+            sqlite3_bind_int64(delete_statement, placeholderIndex, rmqIdValue);
+          }
+          placeholderIndex++;
+        }
+        rmqIndex++;
+        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeSyncMessageManager008,
+                               @"Successfully deleted sync message from cache %@", rmqId);
+      }
+      if (sqlite3_step(delete_statement) != SQLITE_DONE) {
+        FIRMessagingRmqLogAndReturn(delete_statement);
+      }
+      sqlite3_finalize(delete_statement);
+      deleteCount += sqlite3_changes(_database);
+      start = end;
+    }
+
+    // if we are here all of our sqlite queries should have succeeded
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore004,
+                            @"Trying to delete %d s2D ID's, successfully deleted %d",
+                            toDelete, deleteCount);
   });
   
 }
