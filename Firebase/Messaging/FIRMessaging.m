@@ -541,9 +541,21 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 #pragma mark - FCM
 
 - (BOOL)isAutoInitEnabled {
+  // Defer to the class method since we're just reading from regular userDefaults and we need to
+  // read this from IID without instantiating the Messaging singleton.
+  return [[self class] isAutoInitEnabledWithUserDefaults:_messagingUserDefaults];
+}
+
+/// Checks if Messaging auto-init is enabled in the user defaults instance passed in. This is
+/// exposed as a class property for IID to fetch the property without instantiating an instance of
+/// Messaging. Since Messaging can only be used with the default FIRApp, we can have one point of
+/// entry without context of which FIRApp instance is being used.
+/// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID USING REFLECTION. PLEASE DO NOT CHANGE THE
+///  SIGNATURE, AS IT WOULD BREAK AUTOINIT FUNCTIONALITY WITHIN IID. **
++ (BOOL)isAutoInitEnabledWithUserDefaults:(GULUserDefaults *)userDefaults {
   // Check storage
   id isAutoInitEnabledObject =
-      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+      [userDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (isAutoInitEnabledObject) {
     return [isAutoInitEnabledObject boolValue];
   }
