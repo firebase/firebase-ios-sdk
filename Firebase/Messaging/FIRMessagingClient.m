@@ -393,7 +393,7 @@ static NSUInteger FIRMessagingServerPort() {
   }
 }
 
-- (int)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds {
+- (void)connectionDidReceiveAckForRmqIds:(NSArray *)rmqIds {
   NSSet *rmqIDSet = [NSSet setWithArray:rmqIds];
   NSMutableArray *messagesSent = [NSMutableArray arrayWithCapacity:rmqIds.count];
   [self.rmq2Manager scanWithRmqMessageHandler:nil
@@ -406,7 +406,7 @@ static NSUInteger FIRMessagingServerPort() {
   for (GtalkDataMessageStanza *message in messagesSent) {
     [self.dataMessageManager didSendDataMessageStanza:message];
   }
-  return [self.rmq2Manager removeRmqMessagesWithRmqIds:rmqIds];
+  [self.rmq2Manager removeRmqMessagesWithRmqIds:rmqIds];
 }
 
 #pragma mark - Private

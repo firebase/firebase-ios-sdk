@@ -297,15 +297,13 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
     if (!self.client.isConnected) {
       // do nothing assuming rmq save is enabled
     }
-
-    NSError *error;
-    if (![self.rmq2Manager saveRmqMessage:stanza error:&error]) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager005, @"%@", error);
-      [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSave];
-      return;
-    }
-
-    [self willSendDataMessageSuccess:stanza withMessageId:msgId];
+    [self.rmq2Manager saveRmqMessage:stanza withCompletionHandler:^(BOOL success) {
+      if (!success) {
+        [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSave];
+        return;
+      }
+      [self willSendDataMessageSuccess:stanza withMessageId:msgId];
+    }];
   }
 
   // if delay > 0 we don't really care about sending the message right now
