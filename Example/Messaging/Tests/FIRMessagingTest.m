@@ -22,6 +22,7 @@
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
 #import "Firebase/Messaging/FIRMessaging_Private.h"
@@ -36,6 +37,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+
+// Expose autoInitEnabled static method for IID.
++ (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
 
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
@@ -126,6 +130,19 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
 
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableMatchesStaticMethod {
+//  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
+  // No explicit flag is set.
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
+
   [bundleMock stopMocking];
 }
 

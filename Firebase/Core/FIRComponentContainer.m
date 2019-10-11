@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Cached instances of components that requested to be cached.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;
 
+/// Protocols of components that have requested to be eagerly instantiated.
+@property(nonatomic, strong, nullable) NSMutableArray<Protocol *> *eagerProtocolsToInstantiate;
+
 @end
 
 @implementation FIRComponentContainer
@@ -74,54 +77,59 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 }
 
 - (void)populateComponentsFromRegisteredClasses:(NSSet<Class> *)classes forApp:(FIRApp *)app {
-  // Ensure no external access to the container happens during the population of components.
-  @synchronized(self) {
-    // Keep track of any components that need to eagerly instantiate after all components are added.
-    NSMutableArray<Protocol *> *protocolsToInstantiate = [[NSMutableArray alloc] init];
+  // Keep track of any components that need to eagerly instantiate after all components are added.
+  self.eagerProtocolsToInstantiate = [[NSMutableArray alloc] init];
 
-    // Loop through the verified component registrants and populate the components array.
-    for (Class<FIRLibrary> klass in classes) {
-      // Loop through all the components being registered and store them as appropriate.
-      // Classes which do not provide functionality should use a dummy FIRComponentRegistrant
-      // protocol.
-      for (FIRComponent *component in [klass componentsToRegister]) {
-        // Check if the component has been registered before, and error out if so.
-        NSString *protocolName = NSStringFromProtocol(component.protocol);
-        if (self.components[protocolName]) {
-          FIRLogError(kFIRLoggerCore, @"I-COR000029",
-                      @"Attempted to register protocol %@, but it already has an implementation.",
-                      protocolName);
-          continue;
-        }
-
-        // Store the creation block for later usage.
-        self.components[protocolName] = component.creationBlock;
-
-        // Queue any protocols that should be eagerly instantiated. Don't instantiate them yet
-        // because they could depend on other components that haven't been added to the components
-        // array yet.
-        BOOL shouldInstantiateEager =
-            (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
-        BOOL shouldInstantiateDefaultEager =
-            (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
-             [app isDefaultApp]);
-        if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
-          [protocolsToInstantiate addObject:component.protocol];
-        }
+  // Loop through the verified component registrants and populate the components array.
+  for (Class<FIRLibrary> klass in classes) {
+    // Loop through all the components being registered and store them as appropriate.
+    // Classes which do not provide functionality should use a dummy FIRComponentRegistrant
+    // protocol.
+    for (FIRComponent *component in [klass componentsToRegister]) {
+      // Check if the component has been registered before, and error out if so.
+      NSString *protocolName = NSStringFromProtocol(component.protocol);
+      if (self.components[protocolName]) {
+        FIRLogError(kFIRLoggerCore, @"I-COR000029",
+                    @"Attempted to register protocol %@, but it already has an implementation.",
+                    protocolName);
+        continue;
       }
-    }
 
-    // After all components are registered, instantiate the ones that are requesting eager
-    // instantiation.
-    for (Protocol *protocol in protocolsToInstantiate) {
-      // Get an instance for the protocol, which will instantiate it since it couldn't have been
-      // cached yet. Ignore the instance coming back since we don't need it.
-      __unused id unusedInstance = [self instanceForProtocol:protocol];
+      // Store the creation block for later usage.
+      self.components[protocolName] = component.creationBlock;
+
+      // Queue any protocols that should be eagerly instantiated. Don't instantiate them yet
+      // because they could depend on other components that haven't been added to the components
+      // array yet.
+      BOOL shouldInstantiateEager =
+          (component.instantiationTiming == FIRInstantiationTimingAlwaysEager);
+      BOOL shouldInstantiateDefaultEager =
+          (component.instantiationTiming == FIRInstantiationTimingEagerInDefaultApp &&
+           [app isDefaultApp]);
+      if (shouldInstantiateEager || shouldInstantiateDefaultEager) {
+        [self.eagerProtocolsToInstantiate addObject:component.protocol];
+      }
     }
   }
 }
 
 #pragma mark - Instance Creation
+
+- (void)instantiateEagerComponents {
+  // After all components are registered, instantiate the ones that are requesting eager
+  // instantiation.
+  @synchronized(self) {
+    for (Protocol *protocol in self.eagerProtocolsToInstantiate) {
+      // Get an instance for the protocol, which will instantiate it since it couldn't have been
+      // cached yet. Ignore the instance coming back since we don't need it.
+      __unused id unusedInstance = [self instanceForProtocol:protocol];
+    }
+
+    // All eager instantiation is complete, empty and clear the stored property now.
+    [self.eagerProtocolsToInstantiate removeAllObjects];
+    self.eagerProtocolsToInstantiate = nil;
+  }
+}
 
 /// Instantiate an instance of a class that conforms to the specified protocol.
 /// This will:

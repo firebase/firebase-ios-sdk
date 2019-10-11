@@ -22,6 +22,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDCheckinPreferences.h"
@@ -67,8 +68,8 @@ static NSString *const kEntitlementsKeyForMac = @"Entitlements";
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
 /// enabled flag.
-static NSString *const kFIRInstanceIDFCMSelectorAutoInitEnabled = @"isAutoInitEnabled";
-static NSString *const kFIRInstanceIDFCMSelectorInstance = @"messaging";
+static NSString *const kFIRInstanceIDFCMSelectorAutoInitEnabled =
+    @"isAutoInitEnabledWithUserDefaults:";
 
 static NSString *const kFIRInstanceIDAPNSTokenType = @"APNSTokenType";
 static NSString *const kFIRIIDAppReadyToConfigureSDKNotification =
@@ -716,29 +717,20 @@ static FIRInstanceID *gInstanceID;
     return NO;
   }
 
-  // Messaging doesn't have the singleton method, auto init should be enabled since FCM exists.
-  SEL instanceSelector = NSSelectorFromString(kFIRInstanceIDFCMSelectorInstance);
-  if (![messagingClass respondsToSelector:instanceSelector]) {
-    return YES;
-  }
-
-  // Get FIRMessaging shared instance.
-  IMP messagingInstanceIMP = [messagingClass methodForSelector:instanceSelector];
-  id (*getMessagingInstance)(id, SEL) = (void *)messagingInstanceIMP;
-  id messagingInstance = getMessagingInstance(messagingClass, instanceSelector);
-
-  // Messaging doesn't have the property, auto init should be enabled since FCM exists.
+  // Messaging doesn't have the class method, auto init should be enabled since FCM exists.
   SEL autoInitSelector = NSSelectorFromString(kFIRInstanceIDFCMSelectorAutoInitEnabled);
-  if (![messagingInstance respondsToSelector:autoInitSelector]) {
+  if (![messagingClass respondsToSelector:autoInitSelector]) {
     return YES;
   }
 
-  // Get autoInitEnabled method.
-  IMP isAutoInitEnabledIMP = [messagingInstance methodForSelector:autoInitSelector];
-  BOOL (*isAutoInitEnabled)(id, SEL) = (BOOL(*)(id, SEL))isAutoInitEnabledIMP;
+  // Get the autoInitEnabled class method.
+  IMP isAutoInitEnabledIMP = [messagingClass methodForSelector:autoInitSelector];
+  BOOL (*isAutoInitEnabled)
+  (Class, SEL, GULUserDefaults *) = (BOOL(*)(id, SEL, GULUserDefaults *))isAutoInitEnabledIMP;
 
   // Check FCM's isAutoInitEnabled property.
-  return isAutoInitEnabled(messagingInstance, autoInitSelector);
+  return isAutoInitEnabled(messagingClass, autoInitSelector,
+                           [GULUserDefaults standardUserDefaults]);
 }
 
 // Actually makes InstanceID instantiate both the IID and Token-related subsystems.
