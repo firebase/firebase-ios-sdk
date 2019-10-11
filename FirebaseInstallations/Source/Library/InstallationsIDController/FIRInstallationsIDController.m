@@ -348,7 +348,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
             [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self refreshAuthTokenForInstallation:registeredInstallation];
+          return [self.APIService refreshAuthTokenForInstallation:registeredInstallation];
         } else {
           return registeredInstallation;
         }
@@ -356,18 +356,6 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       .catch(^void(NSError *error){
           // TODO: Handle the errors.
       });
-}
-
-- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
-    (FIRInstallationsItem *)installation {
-  return [FBLPromise attempts:1
-      delay:1
-      condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
-        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
-      }
-      retry:^id _Nullable {
-        return [self.APIService refreshAuthTokenForInstallation:installation];
-      }];
 }
 
 #pragma mark - Delete FID

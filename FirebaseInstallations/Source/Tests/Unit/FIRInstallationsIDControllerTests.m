@@ -28,6 +28,7 @@
 #import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
@@ -474,82 +475,6 @@
                         responseInstallation.authToken.expirationDate);
 }
 
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndSucceeds {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  // 1.2.1. Fail 1st.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the operation to complete.
-  // 3.1. Wait for the 1st request to fail.
-  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
-
-  // 3.2. Expect another request and succeed.
-  FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
-
-  // 3.3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertNil(promise.error);
-  XCTAssertNotNil(promise.value);
-
-  XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
-                        responseInstallation.authToken.expirationDate);
-}
-
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndFails {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertEqualObjects(promise.error, error500);
-  XCTAssertNil(promise.value);
-}
-
 - (void)testGetAuthToken_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
   // 1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
@@ -716,7 +641,8 @@
 
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
+  NSError *error500 =
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode];
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
