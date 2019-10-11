@@ -251,7 +251,7 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& listen_response) const;
 
-  model::FieldValue::Map DecodeFields(
+  model::ObjectValue DecodeFields(
       nanopb::Reader* reader,
       size_t count,
       const google_firestore_v1_Document_FieldsEntry* fields) const;

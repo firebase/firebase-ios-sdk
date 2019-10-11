@@ -67,33 +67,35 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
   firestore_client_MaybeDocument result{};
 
   switch (maybe_doc.type()) {
-    case MaybeDocument::Type::Document:
+    case MaybeDocument::Type::Document: {
       result.which_document_type = firestore_client_MaybeDocument_document_tag;
-      result.document = EncodeDocument(static_cast<const Document&>(maybe_doc));
-      result.has_committed_mutations =
-          static_cast<const Document&>(maybe_doc).has_committed_mutations();
+      Document doc(maybe_doc);
+      // TODO(wuandy): Check of `doc` already has a proto and use that if yes.
+      result.document = EncodeDocument(doc);
+      result.has_committed_mutations = doc.has_committed_mutations();
       return result;
+    }
 
-    case MaybeDocument::Type::NoDocument:
+    case MaybeDocument::Type::NoDocument: {
       result.which_document_type =
           firestore_client_MaybeDocument_no_document_tag;
-      result.no_document =
-          EncodeNoDocument(static_cast<const NoDocument&>(maybe_doc));
-      result.has_committed_mutations =
-          static_cast<const NoDocument&>(maybe_doc).has_committed_mutations();
+      NoDocument no_doc(maybe_doc);
+      result.no_document = EncodeNoDocument(no_doc);
+      result.has_committed_mutations = no_doc.has_committed_mutations();
       return result;
+    }
 
-    case MaybeDocument::Type::UnknownDocument:
+    case MaybeDocument::Type::UnknownDocument: {
       result.which_document_type =
           firestore_client_MaybeDocument_unknown_document_tag;
       result.unknown_document =
-          EncodeUnknownDocument(static_cast<const UnknownDocument&>(maybe_doc));
+          EncodeUnknownDocument(UnknownDocument(maybe_doc));
       result.has_committed_mutations = true;
       return result;
+    }
 
     case MaybeDocument::Type::Invalid:
-      // TODO(wuandy): Remove Invalid from the enum.
-      abort();
+      HARD_FAIL("Unknown document type %s", maybe_doc.type());
   }
 
   UNREACHABLE();
@@ -156,7 +158,7 @@ Document LocalSerializer::DecodeDocument(
     Reader* reader,
     const google_firestore_v1_Document& proto,
     bool has_committed_mutations) const {
-  FieldValue::Map fields_internal =
+  ObjectValue fields =
       rpc_serializer_.DecodeFields(reader, proto.fields_count, proto.fields);
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader, proto.update_time);
@@ -164,7 +166,7 @@ Document LocalSerializer::DecodeDocument(
   DocumentState state = has_committed_mutations
                             ? DocumentState::kCommittedMutations
                             : DocumentState::kSynced;
-  return Document(ObjectValue::FromMap(std::move(fields_internal)),
+  return Document(std::move(fields),
                   rpc_serializer_.DecodeKey(reader, proto.name), version,
                   state);
 }
@@ -238,7 +240,6 @@ QueryData LocalSerializer::DecodeQueryData(
   if (!reader->status().ok()) return QueryData::Invalid();
 
   model::TargetId target_id = proto.target_id;
-  // TODO(rgowman): How to handle truncation of integer types?
   model::ListenSequenceNumber sequence_number =
       static_cast<model::ListenSequenceNumber>(
           proto.last_listen_sequence_number);

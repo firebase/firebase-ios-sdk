@@ -343,28 +343,24 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
                        QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
-  // Let the RPC serializer test various permutations of query serialization.
-  ByteStringWriter writer;
-  google_firestore_v1_Target_QueryTarget proto =
-      remote_serializer.EncodeQueryTarget(query_data.query());
-  writer.WriteNanopbMessage(google_firestore_v1_Target_QueryTarget_fields,
-                            &proto);
-  remote_serializer.FreeNanopbMessage(
-      google_firestore_v1_Target_QueryTarget_fields, &proto);
-
-  ByteString query_target_bytes = writer.Release();
-  auto query_target_proto =
-      ProtobufParse<v1::Target::QueryTarget>(query_target_bytes);
-
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1::Target::QueryTarget* query_proto = expected.mutable_query();
-  query_proto->set_parent(query_target_proto.parent());
-  *query_proto->mutable_structured_query() =
-      query_target_proto.structured_query();
+
+  // Add expected collection.
+  query_proto->set_parent("projects/p/databases/d/documents");
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("room");
+  *query_proto->mutable_structured_query()->add_from() = std::move(from);
+
+  // Add default order_by.
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *query_proto->mutable_structured_query()->add_order_by() = std::move(order);
 
   ExpectRoundTrip(query_data, expected);
 }
@@ -380,28 +376,13 @@ TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
                        QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
-  // Let the RPC serializer test various permutations of query serialization.
-  ByteStringWriter writer;
-  google_firestore_v1_Target_DocumentsTarget proto =
-      remote_serializer.EncodeDocumentsTarget(query_data.query());
-  writer.WriteNanopbMessage(google_firestore_v1_Target_DocumentsTarget_fields,
-                            &proto);
-  remote_serializer.FreeNanopbMessage(
-      google_firestore_v1_Target_DocumentsTarget_fields, &proto);
-
-  ByteString query_target_bytes = writer.Release();
-  auto documents_target_proto =
-      ProtobufParse<v1::Target::DocumentsTarget>(query_target_bytes);
-
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
-  for (auto i = 0; i < documents_target_proto.documents_size(); i++) {
-    documents_proto->add_documents(documents_target_proto.documents(i));
-  }
+  documents_proto->add_documents("projects/p/databases/d/documents/room/1");
 
   ExpectRoundTrip(query_data, expected);
 }
