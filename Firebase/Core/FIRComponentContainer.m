@@ -125,8 +125,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
       __unused id unusedInstance = [self instanceForProtocol:protocol];
     }
 
-    // All eager instantiation is complete, empty and clear the stored property now.
-    [self.eagerProtocolsToInstantiate removeAllObjects];
+    // All eager instantiation is complete, clear the stored property now.
     self.eagerProtocolsToInstantiate = nil;
   }
 }

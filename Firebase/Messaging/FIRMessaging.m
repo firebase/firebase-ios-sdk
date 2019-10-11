@@ -550,7 +550,8 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 /// exposed as a class property for IID to fetch the property without instantiating an instance of
 /// Messaging. Since Messaging can only be used with the default FIRApp, we can have one point of
 /// entry without context of which FIRApp instance is being used.
-/// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID. PLEASE DO NOT CHANGE THE SIGNATURE. **
+/// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID USING REFLECTION. PLEASE DO NOT CHANGE THE
+///  SIGNATURE, AS IT WOULD BREAK AUTOINIT FUNCTIONALITY WITHIN IID. **
 + (BOOL)isAutoInitEnabledWithUserDefaults:(GULUserDefaults *)userDefaults {
   // Check storage
   id isAutoInitEnabledObject =
