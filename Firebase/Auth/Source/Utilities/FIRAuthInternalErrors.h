@@ -393,6 +393,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeGameKitNotLinked =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeGameKitNotLinked,
 
+  /** Indicates that the nonce is missing or invalid.
+   */
+  FIRAuthInternalErrorCodeMissingOrInvalidNonce =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingOrInvalidNonce,
+
   /** Indicates that a non-null user was expected as an argmument to the operation but a null
         user was provided.
    */

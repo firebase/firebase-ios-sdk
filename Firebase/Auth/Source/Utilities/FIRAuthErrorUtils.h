@@ -556,6 +556,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
 
+/** @fn missingOrInvalidNonceErrorWithMessage:
+    @brief Constructs an @c NSError with the code and message provided.
+    @param message Error message from the backend, if any.
+    @return The nullable NSError instance associated with the given error message, if one is found.
+*/
++ (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message;
+
 @end
 
 NS_ASSUME_NONNULL_END
