@@ -133,17 +133,24 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [bundleMock stopMocking];
 }
 
-- (void)testAutoInitEnableMatchesStaticMethod {
-//  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  // No explicit flag is set.
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
-
+- (void)testAutoInitEnabledMatchesStaticMethod {
+  // Flag is set to YES in user defaults.
   NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@YES forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
   XCTAssertEqual(self.messaging.isAutoInitEnabled,
                  [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
+}
 
-  [bundleMock stopMocking];
+- (void)testAutoInitDisabledMatchesStaticMethod {
+  // Flag is set to NO in user defaults.
+  NSUserDefaults *defaults = self.messaging.messagingUserDefaults;
+  [defaults setObject:@NO forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  XCTAssertEqual(self.messaging.isAutoInitEnabled,
+                 [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
 }
 
 #pragma mark - Direct Channel Establishment Testing
