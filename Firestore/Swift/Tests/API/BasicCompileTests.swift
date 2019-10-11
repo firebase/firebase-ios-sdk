@@ -25,7 +25,6 @@ import XCTest
 // level.
 #if os(iOS)
   import Firebase
-  //import FirebaseFirestore
 #else
   import FirebaseFirestore
 #endif
@@ -439,14 +438,14 @@ func types() {
   let _: Firestore
   let _: FirestoreSettings
   let _: GeoPoint
-  //#if os(iOS)
-  //  let _: Firebase.GeoPoint
-  //#endif
+  #if os(iOS)
+    let _: Firebase.GeoPoint
+  #endif
   let _: FirebaseFirestore.GeoPoint
   let _: Timestamp
-  //#if os(iOS)
-  //  let _: Firebase.Timestamp
-  //#endif
+  #if os(iOS)
+    let _: Firebase.Timestamp
+  #endif
   let _: FirebaseFirestore.Timestamp
   let _: ListenerRegistration
   let _: Query
@@ -480,4 +479,3 @@ func terminateDb(database db: Firestore) {
     }
   }
 }
-
