@@ -725,7 +725,7 @@ static FIRInstanceID *gInstanceID;
 
   // Get the autoInitEnabled class method.
   IMP isAutoInitEnabledIMP = [messagingClass methodForSelector:autoInitSelector];
-  BOOL (*isAutoInitEnabled)
+  BOOL(*isAutoInitEnabled)
   (Class, SEL, GULUserDefaults *) = (BOOL(*)(id, SEL, GULUserDefaults *))isAutoInitEnabledIMP;
 
   // Check FCM's isAutoInitEnabled property.
