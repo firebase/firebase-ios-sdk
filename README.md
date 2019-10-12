@@ -1,3 +1,4 @@
+
 # Firebase iOS Open Source Development [![Build Status](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
@@ -84,7 +85,7 @@ For the pod that you want to develop:
 Note: If the CocoaPods cache is out of date, you may need to run
 `pod repo update` before the `pod gen` command.
 
-Firestore has a self contained Xcode project. See
+Firestore has a self-contained Xcode project. See
 [Firestore/README.md](Firestore/README.md).
 
 ### Adding a New Firebase Pod
@@ -128,7 +129,7 @@ at Example/ in the terminal. This will aggregate the coverage, and you can run `
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid
 `GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist
-files without real values, but can be replaced with real plist files. To get your own
+files without real values but can be replaced with real plist files. To get your own
 `GoogleService-Info.plist` files:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
@@ -164,7 +165,7 @@ To run the Storage Integration tests, follow the instructions in
 #### Push Notifications
 
 Push notifications can only be delivered to specially provisioned App IDs in the developer portal.
-In order to actually test receiving push notifications, you will need to:
+In order to test receiving push notifications, you will need to:
 
 1. Change the bundle identifier of the sample app to something you own in your Apple Developer
 account, and enable that App ID for push notifications.
@@ -181,7 +182,7 @@ physical device.
 
 ## Community Supported Efforts
 
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
+We've seen an amazing amount of interest and contributions to improving the Firebase SDKs, and we are
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
@@ -231,3 +232,4 @@ The contents of this repository is licensed under the
 
 Your use of Firebase is governed by the
 [Terms of Service for Firebase Services](https://firebase.google.com/terms/).
+
