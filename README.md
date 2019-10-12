@@ -6,7 +6,7 @@ FirebaseFirestore, FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging
 FirebaseInAppMessagingDisplay, FirebaseMessaging, FirebaseRemoteConfig, and
 FirebaseStorage.
 
-The repository also includes GoogleUtilities source. The
+The repository also includes the GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
 a set of utilities used by Firebase and other Google products.
 
@@ -84,7 +84,7 @@ For the pod that you want to develop:
 Note: If the CocoaPods cache is out of date, you may need to run
 `pod repo update` before the `pod gen` command.
 
-Firestore has a self contained Xcode project. See
+Firestore has a self-contained Xcode project. See
 [Firestore/README.md](Firestore/README.md).
 
 ### Adding a New Firebase Pod
@@ -126,21 +126,21 @@ After running the `AllUnitTests_iOS` scheme in Xcode, execute
 at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
 
 ### Running Sample Apps
-In order to run the sample apps and integration tests, you'll need valid
+To run the sample apps and integration tests, you'll need valid
 `GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist
-files without real values, but can be replaced with real plist files. To get your own
+files without real values but can be replaced with real plist files. To get your own
 `GoogleService-Info.plist` files:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
 2. Create a new Firebase project, if you don't already have one
-3. For each sample app you want to test, create a new Firebase app with the sample app's bundle
+3. For each sample app, you want to test, create a new Firebase app with the sample app's bundle
 identifier (e.g. `com.google.Database-Example`)
 4. Download the resulting `GoogleService-Info.plist` and replace the appropriate dummy plist file
 (e.g. in [Example/Database/App/](Example/Database/App/));
 
 Some sample apps like Firebase Messaging ([Example/Messaging/App](Example/Messaging/App)) require
-special Apple capabilities, and you will have to change the sample app to use a unique bundle
-identifier that you can control in your own Apple Developer account.
+special Apple capabilities  and you will have to change the sample app to use a unique bundle
+an identifier that you can control in your own Apple Developer account.
 
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
@@ -164,10 +164,10 @@ To run the Storage Integration tests, follow the instructions in
 #### Push Notifications
 
 Push notifications can only be delivered to specially provisioned App IDs in the developer portal.
-In order to actually test receiving push notifications, you will need to:
+To test receiving push notifications, you will need to:
 
 1. Change the bundle identifier of the sample app to something you own in your Apple Developer
-account, and enable that App ID for push notifications.
+Account, and enable that App ID for push notifications.
 2. You'll also need to
 [upload your APNs Provider Authentication Key or certificate to the Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs)
 at **Project Settings > Cloud Messaging > [Your Firebase App]**.
@@ -176,12 +176,12 @@ at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 #### iOS Simulator
 
 The iOS Simulator cannot register for remote notifications, and will not receive push notifications.
-In order to receive push notifications, you'll have to follow the steps above and run the app on a
+To receive push notifications, you'll have to follow the steps above and run the app on a
 physical device.
 
 ## Community Supported Efforts
 
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
+We've seen an amazing amount of interest and contributions to improving the Firebase SDKs, and we are
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
@@ -226,7 +226,7 @@ iOS SDK.
 
 ## License
 
-The contents of this repository is licensed under the
+The contents of this repository are licensed under the
 [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Your use of Firebase is governed by the
