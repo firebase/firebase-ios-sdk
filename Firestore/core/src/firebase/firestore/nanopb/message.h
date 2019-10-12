@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -31,13 +30,11 @@ namespace firebase {
 namespace firestore {
 
 namespace remote {
-namespace bridge {
 
 class DatastoreSerializer;
 class WatchStreamSerializer;
 class WriteStreamSerializer;
 
-}  // namespace bridge
 }  // namespace remote
 
 namespace nanopb {
@@ -77,14 +74,16 @@ class Message {
    * `google_firestore_v1_Foo` message, the corresponding fields descriptor will
    * be named `google_firestore_v1_Foo_fields`.
    */
-  static MaybeMessage<T> Parse(const pb_field_t* fields,
-                               const grpc::ByteBuffer& byte_buffer);
+  static MaybeMessage<T> TryDecode(const pb_field_t* fields,
+                                   const grpc::ByteBuffer& byte_buffer);
 
   ~Message() {
     if (owns_proto()) {
-      remote::Serializer::FreeNanopbMessage(fields_, &proto_);
+      Reader::FreeNanopbMessage(fields_, &proto_);
     }
   }
+
+  // operator*/get
 
   Message(const Message&) = delete;
   Message& operator=(const Message&) = delete;
@@ -111,14 +110,14 @@ class Message {
    *
    * The lifetime of the return value is entirely independent of this message.
    */
-  grpc::ByteBuffer CreateByteBuffer() const;
+  grpc::ByteBuffer ToByteBuffer() const;
 
  private:
   // For access to `mutable_proto` and the explicit constructor. Most code
   // shouldn't be able to modify the underlying proto.
-  friend class remote::bridge::WatchStreamSerializer;
-  friend class remote::bridge::WriteStreamSerializer;
-  friend class remote::bridge::DatastoreSerializer;
+  friend class remote::WatchStreamSerializer;
+  friend class remote::WriteStreamSerializer;
+  friend class remote::DatastoreSerializer;
 
   explicit Message(const pb_field_t* fields) : fields_{fields} {
   }
@@ -143,8 +142,8 @@ util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 }  // namespace internal
 
 template <typename T>
-MaybeMessage<T> Message<T>::Parse(const pb_field_t* fields,
-                                  const grpc::ByteBuffer& byte_buffer) {
+MaybeMessage<T> Message<T>::TryDecode(const pb_field_t* fields,
+                                      const grpc::ByteBuffer& byte_buffer) {
   auto maybe_bytes = internal::ToByteString(byte_buffer);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();
@@ -161,7 +160,7 @@ MaybeMessage<T> Message<T>::Parse(const pb_field_t* fields,
 }
 
 template <typename T>
-grpc::ByteBuffer Message<T>::CreateByteBuffer() const {
+grpc::ByteBuffer Message<T>::ToByteBuffer() const {
   nanopb::ByteStringWriter writer;
   writer.WriteNanopbMessage(fields_, &proto_);
   nanopb::ByteString bytes = writer.Release();

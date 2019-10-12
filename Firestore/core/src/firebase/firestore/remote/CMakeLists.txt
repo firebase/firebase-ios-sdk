@@ -86,8 +86,8 @@ cc_library(
     remote_event.h
     serializer.cc
     serializer.h
-    watch_change.h
     watch_change.cc
+    watch_change.h
 
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.

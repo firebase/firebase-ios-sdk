@@ -190,7 +190,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   GrpcConnection grpc_connection_;
 
   std::vector<std::unique_ptr<GrpcCall>> active_calls_;
-  bridge::DatastoreSerializer serializer_bridge_;
+  DatastoreSerializer datastore_serializer_;
 };
 
 }  // namespace remote

@@ -25,24 +25,25 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class DocumentKey;
+class MaybeDocument;
+class SnapshotVersion;
+}  // namespace model
+
 namespace remote {
 
-namespace bridge {
-
-bool IsLoggingEnabled();
-
-} // namespace bridge
+class WatchChange;
 
 // TODO(varconst): remove this file?
 //
@@ -64,12 +65,12 @@ class WatchStreamSerializer {
  public:
   explicit WatchStreamSerializer(Serializer serializer);
 
-  nanopb::Message<google_firestore_v1_ListenRequest> CreateWatchRequest(
+  nanopb::Message<google_firestore_v1_ListenRequest> EncodeWatchRequest(
       const local::QueryData& query) const;
-  nanopb::Message<google_firestore_v1_ListenRequest> CreateUnwatchRequest(
+  nanopb::Message<google_firestore_v1_ListenRequest> EncodeUnwatchRequest(
       model::TargetId target_id) const;
 
-  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> ParseResponse(
+  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> DecodeResponse(
       const grpc::ByteBuffer& buffer) const;
   std::unique_ptr<WatchChange> ToWatchChange(
       const google_firestore_v1_ListenResponse& response) const;
@@ -77,9 +78,10 @@ class WatchStreamSerializer {
       const google_firestore_v1_ListenResponse& response) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  static std::string Describe(const google_firestore_v1_ListenRequest& request);
   static std::string Describe(
-      const google_firestore_v1_ListenResponse& response);
+      const nanopb::Message<google_firestore_v1_ListenRequest>& request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_ListenResponse>& response);
 
  private:
   Serializer serializer_;
@@ -89,16 +91,16 @@ class WriteStreamSerializer {
  public:
   explicit WriteStreamSerializer(Serializer serializer);
 
-  nanopb::Message<google_firestore_v1_WriteRequest> CreateHandshake() const;
-  nanopb::Message<google_firestore_v1_WriteRequest> CreateWriteMutationsRequest(
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeHandshake() const;
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeWriteMutationsRequest(
       const std::vector<model::Mutation>& mutations,
       const nanopb::ByteString& last_stream_token) const;
-  nanopb::Message<google_firestore_v1_WriteRequest> CreateEmptyMutationsList(
+  nanopb::Message<google_firestore_v1_WriteRequest> EncodeEmptyMutationsList(
       const nanopb::ByteString& last_stream_token) const {
-    return CreateWriteMutationsRequest({}, last_stream_token);
+    return EncodeWriteMutationsRequest({}, last_stream_token);
   }
 
-  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> ParseResponse(
+  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> DecodeResponse(
       const grpc::ByteBuffer& buffer) const;
   model::SnapshotVersion ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
@@ -106,9 +108,10 @@ class WriteStreamSerializer {
       const google_firestore_v1_WriteResponse& proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  static std::string Describe(const google_firestore_v1_WriteRequest& request);
   static std::string Describe(
-      const google_firestore_v1_WriteResponse& response);
+      const nanopb::Message<google_firestore_v1_WriteRequest>& request);
+  static std::string Describe(
+      const nanopb::Message<google_firestore_v1_WriteResponse>& response);
 
  private:
   Serializer serializer_;
@@ -118,11 +121,11 @@ class DatastoreSerializer {
  public:
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
-  nanopb::Message<google_firestore_v1_CommitRequest> CreateCommitRequest(
+  nanopb::Message<google_firestore_v1_CommitRequest> EncodeCommitRequest(
       const std::vector<model::Mutation>& mutations) const;
 
   nanopb::Message<google_firestore_v1_BatchGetDocumentsRequest>
-  CreateLookupRequest(const std::vector<model::DocumentKey>& keys) const;
+  EncodeLookupRequest(const std::vector<model::DocumentKey>& keys) const;
 
   /**
    * Merges results of the streaming read together. The array is sorted by the

@@ -34,6 +34,7 @@ using model::TargetId;
 using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
+using util::LogIsDebugEnabled;
 using util::Status;
 using util::TimerId;
 
@@ -45,26 +46,31 @@ WatchStream::WatchStream(
     WatchStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
-      serializer_bridge_{std::move(serializer)},
+      watch_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 
 void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
-  auto request = serializer_bridge_.CreateWatchRequest(query);
-  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request.proto()));
-  Write(request.CreateByteBuffer());
+  auto request = watch_serializer_.EncodeWatchRequest(query);
+  if (LogIsDebugEnabled()) {
+    LOG_DEBUG("%s watch: %s", GetDebugDescription(),
+              watch_serializer_.Describe(request));
+  }
+  Write(request.ToByteBuffer());
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
   EnsureOnQueue();
 
-  auto request = serializer_bridge_.CreateUnwatchRequest(target_id);
-  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request.proto()));
-  Write(request.CreateByteBuffer());
+  auto request = watch_serializer_.EncodeUnwatchRequest(target_id);
+
+  if (LogIsDebugEnabled()) {
+    LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
+              watch_serializer_.Describe(request));
+  }
+  Write(request.ToByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
@@ -83,24 +89,24 @@ void WatchStream::NotifyStreamOpen() {
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   MaybeMessage<google_firestore_v1_ListenResponse> maybe_response =
-      serializer_bridge_.ParseResponse(message);
+      watch_serializer_.DecodeResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie().proto();
+  const auto& response = maybe_response.ValueOrDie();
 
-  if (bridge::IsLoggingEnabled()) {
+  if (LogIsDebugEnabled()) {
     LOG_DEBUG("%s response: %s", GetDebugDescription(),
-              serializer_bridge_.Describe(response));
+              watch_serializer_.Describe(response));
   }
 
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
   callback_->OnWatchStreamChange(
-      *serializer_bridge_.ToWatchChange(response),
-      serializer_bridge_.ToSnapshotVersion(response));
+      *watch_serializer_.ToWatchChange(response.proto()),
+      watch_serializer_.ToSnapshotVersion(response.proto()));
   return Status::OK();
 }
 

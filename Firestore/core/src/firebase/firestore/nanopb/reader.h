@@ -98,7 +98,7 @@ class Reader {
    *
    * This essentially wraps calls to nanopb's pb_release() method.
    */
-  void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
+  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
   bool ok() const {
     return status_.ok();

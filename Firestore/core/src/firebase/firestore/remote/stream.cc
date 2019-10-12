@@ -33,6 +33,7 @@ namespace remote {
 using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
+using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
@@ -199,7 +200,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
 
   HARD_ASSERT(IsStarted(), "OnStreamRead called for a stopped stream.");
 
-  if (bridge::IsLoggingEnabled()) {
+  if (LogIsDebugEnabled()) {
     LOG_DEBUG("%s headers (whitelisted): %s", GetDebugDescription(),
               Datastore::GetWhitelistedHeadersAsString(
                   grpc_stream_->GetResponseHeaders()));

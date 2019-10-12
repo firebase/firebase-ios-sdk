@@ -73,7 +73,7 @@ class MessageTest : public testing::Test {
 };
 
 TEST_F(MessageTest, Move) {
-  TestMaybeMessage maybe_message = TestMessage::Parse(kFields, GoodProto());
+  TestMaybeMessage maybe_message = TestMessage::TryDecode(kFields, GoodProto());
   ASSERT_OK(maybe_message);
   TestMessage message1 = std::move(maybe_message).ValueOrDie();
   TestMessage message2 = std::move(message1);
@@ -82,7 +82,7 @@ TEST_F(MessageTest, Move) {
 }
 
 TEST_F(MessageTest, ParseFailure) {
-  TestMaybeMessage maybe_message = TestMessage::Parse(kFields, BadProto());
+  TestMaybeMessage maybe_message = TestMessage::TryDecode(kFields, BadProto());
   EXPECT_NOT_OK(maybe_message);
 }
 

@@ -34,6 +34,7 @@ using nanopb::ByteString;
 using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
+using util::LogIsDebugEnabled;
 using util::Status;
 using util::TimerId;
 
@@ -45,15 +46,15 @@ WriteStream::WriteStream(
     WriteStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
-      serializer_bridge_{std::move(serializer)},
+      write_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 
-void WriteStream::set_last_stream_token(const ByteString& token) {
-  last_stream_token_ = token;
+void WriteStream::set_last_stream_token(ByteString token) {
+  last_stream_token_ = std::move(token);
 }
 
-ByteString WriteStream::last_stream_token() const {
+const ByteString& WriteStream::last_stream_token() const {
   return last_stream_token_;
 }
 
@@ -62,10 +63,12 @@ void WriteStream::WriteHandshake() {
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
   HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
-  auto request = serializer_bridge_.CreateHandshake();
-  LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request.proto()));
-  Write(request.CreateByteBuffer());
+  auto request = write_serializer_.EncodeHandshake();
+  if (LogIsDebugEnabled()) {
+    LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
+              write_serializer_.Describe(request));
+  }
+  Write(request.ToByteBuffer());
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -77,11 +80,13 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
-  auto request = serializer_bridge_.CreateWriteMutationsRequest(
+  auto request = write_serializer_.EncodeWriteMutationsRequest(
       mutations, last_stream_token());
-  LOG_DEBUG("%s write request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request.proto()));
-  Write(request.CreateByteBuffer());
+  if (LogIsDebugEnabled()) {
+    LOG_DEBUG("%s write request: %s", GetDebugDescription(),
+              write_serializer_.Describe(request));
+  }
+  Write(request.ToByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -96,8 +101,8 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
     auto request =
-        serializer_bridge_.CreateEmptyMutationsList(last_stream_token());
-    grpc_stream->WriteAndFinish(request.CreateByteBuffer());
+        write_serializer_.EncodeEmptyMutationsList(last_stream_token());
+    grpc_stream->WriteAndFinish(request.ToByteBuffer());
   } else {
     grpc_stream->FinishImmediately();
   }
@@ -116,17 +121,19 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
-      serializer_bridge_.ParseResponse(message);
+      write_serializer_.DecodeResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie().proto();
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+  const auto& response = maybe_response.ValueOrDie();
+  if (LogIsDebugEnabled()) {
+    LOG_DEBUG("%s response: %s", GetDebugDescription(),
+              write_serializer_.Describe(response));
+  }
 
   // Always capture the last stream token.
-  last_stream_token_ = ByteString{response.stream_token};
+  last_stream_token_ = ByteString{response.proto().stream_token};
 
   if (!handshake_complete()) {
     // The first response is the handshake response
@@ -139,8 +146,8 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     backoff_.Reset();
 
     callback_->OnWriteStreamMutationResult(
-        serializer_bridge_.ToCommitVersion(response),
-        serializer_bridge_.ToMutationResults(response));
+        write_serializer_.ToCommitVersion(response.proto()),
+        write_serializer_.ToMutationResults(response.proto()));
   }
 
   return Status::OK();

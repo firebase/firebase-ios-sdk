@@ -388,8 +388,7 @@ bool RemoteStore::ShouldStartWriteStream() const {
 
 void RemoteStore::StartWriteStream() {
   HARD_ASSERT(ShouldStartWriteStream(),
-              "StartWriteStream called when "
-              "ShouldStartWriteStream is false.");
+              "StartWriteStream called when ShouldStartWriteStream is false.");
   write_stream_->Start();
 }
 

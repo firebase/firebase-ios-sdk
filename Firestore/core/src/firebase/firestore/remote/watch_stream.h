@@ -111,7 +111,7 @@ class WatchStream : public Stream {
     return "WatchStream";
   }
 
-  WatchStreamSerializer serializer_bridge_;
+  WatchStreamSerializer watch_serializer_;
   WatchStreamCallback* callback_;
 };
 
