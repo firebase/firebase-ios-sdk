@@ -45,6 +45,8 @@ NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
 
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
+NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  // 1 day.
+
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *appName;
@@ -147,6 +149,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             // Validate if a previous registration attempt failed with an error requiring Firebase
             // configuration changes.
             if (installation.registrationStatus == FIRInstallationStatusRegistrationFailed &&
+                [self isRegistrationErrorWithDateUpToDate:installation.registrationError.date] &&
                 [self areInstallationRegistrationParametersEqualToCurrent:
                           installation.registrationError.registrationParameters]) {
               return installation.registrationError.APIError;
@@ -226,6 +229,11 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
          (parameters.projectID == projectID || [parameters.projectID isEqual:projectID]);
 }
 
+- (BOOL)isRegistrationErrorWithDateUpToDate:(NSDate *)errorDate {
+  return errorDate != nil &&
+         -[errorDate timeIntervalSinceNow] <= kFIRInstallationsRegistrationErrorTimeout;
+}
+
 #pragma mark - FID registration
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallationIfNeeded:
@@ -274,6 +282,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
     FIRInstallationsItem *failedInstallation = [installation copy];
     [failedInstallation updateWithRegistrationError:error
+                                               date:[NSDate date]
                              registrationParameters:[self currentRegistrationParameters]];
 
     // Save the error and then fail with the API error.
@@ -339,7 +348,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self refreshAuthTokenForInstallation:registeredInstallation];
+          return [self.APIService refreshAuthTokenForInstallation:registeredInstallation];
         } else {
           return registeredInstallation;
         }
@@ -347,18 +356,6 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .catch(^void(NSError *error){
           // TODO: Handle the errors.
       });
-}
-
-- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
-    (FIRInstallationsItem *)installation {
-  return [FBLPromise attempts:1
-      delay:1
-      condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
-        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
-      }
-      retry:^id _Nullable {
-        return [self.APIService refreshAuthTokenForInstallation:installation];
-      }];
 }
 
 #pragma mark - Delete FID

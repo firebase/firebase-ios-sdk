@@ -22,7 +22,6 @@
 #import "Firebase/Messaging/FIRMessagingClient.h"
 #import "Firebase/Messaging/FIRMessagingConnection.h"
 #import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingRmq2PersistentStore.h"
 #import "Firebase/Messaging/FIRMessagingReceiver.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
@@ -52,12 +51,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 @end
 
 @interface FIRMessagingRmqManager (ExposedForTest)
-
-@property(nonatomic, readwrite, strong) FIRMessagingRmq2PersistentStore *rmq2Store;
-
-@end
-
-@interface FIRMessagingRmq2PersistentStore (ExposedForTest)
 
 - (void)removeDatabase;
 
@@ -93,7 +86,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 -(void)tearDown {
     if (_dataMessageManager.rmq2Manager) {
-        [_dataMessageManager.rmq2Manager.rmq2Store removeDatabase];
+        [_dataMessageManager.rmq2Manager removeDatabase];
     }
     [super tearDown];
 }

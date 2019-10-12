@@ -19,19 +19,13 @@
 #import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
 #import "Firebase/Messaging/FIRMessagingRmqManager.h"
 #import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessagingRmq2PersistentStore.h"
 #import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 
+
 @interface FIRMessagingRmqManager (ExposedForTest)
-
-@property(nonatomic, readwrite, strong) FIRMessagingRmq2PersistentStore *rmq2Store;
-
-@end
-
-@interface FIRMessagingRmq2PersistentStore (ExposedForTest)
 
 - (void)removeDatabase;
 
@@ -53,7 +47,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 }
 
 - (void)tearDown {
-  [self.rmqManager.rmq2Store removeDatabase];
+  [self.rmqManager removeDatabase];
   [super tearDown];
 }
 
@@ -221,7 +215,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 
   // delete the acked message
   NSString *rmqIDString = [NSString stringWithFormat:@"%lld", ackedMessageRmqID];
-  XCTAssertEqual(1, [self.rmqManager removeRmqMessagesWithRmqId:rmqIDString]);
+  XCTAssertEqual(1, [self.rmqManager removeRmqMessagesWithRmqIds:@[rmqIDString]]);
 
   // should only have one message in the d2s RMQ
   [self.rmqManager scanWithRmqMessageHandler:nil

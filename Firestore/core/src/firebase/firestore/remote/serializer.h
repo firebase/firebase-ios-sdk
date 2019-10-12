@@ -125,6 +125,12 @@ class Serializer {
   static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
 
   /**
+   * Returns the database ID, such as
+   * `projects/{project_id}/databases/{database_id}`.
+   */
+  pb_bytes_array_t* EncodeDatabaseName() const;
+
+  /**
    * Release memory allocated by the Encode* methods that return protos.
    *
    * This essentially wraps calls to nanopb's pb_release() method.
@@ -256,6 +262,13 @@ class Serializer {
       size_t count,
       const google_firestore_v1_Document_FieldsEntry* fields) const;
 
+  // Public for the sake of tests.
+  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
+      const core::FilterList& filters) const;
+  core::FilterList DecodeFilters(
+      nanopb::Reader* reader,
+      const google_firestore_v1_StructuredQuery_Filter& proto) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;
@@ -296,12 +309,6 @@ class Serializer {
       nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
 
   std::string EncodeLabel(local::QueryPurpose purpose) const;
-
-  google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const core::FilterList& filters) const;
-  core::FilterList DecodeFilters(
-      nanopb::Reader* reader,
-      const google_firestore_v1_StructuredQuery_Filter& proto) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeSingularFilter(
       const core::FieldFilter& filter) const;
@@ -358,7 +365,8 @@ class Serializer {
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;
-  const std::string database_name_;
+  // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`
+  // as well, consider implementing that.
 };
 
 }  // namespace remote

@@ -23,10 +23,12 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
+#import "XCTestCase+DateAsserts.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
@@ -473,82 +475,6 @@
                         responseInstallation.authToken.expirationDate);
 }
 
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndSucceeds {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  // 1.2.1. Fail 1st.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the operation to complete.
-  // 3.1. Wait for the 1st request to fail.
-  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
-
-  // 3.2. Expect another request and succeed.
-  FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
-
-  // 3.3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertNil(promise.error);
-  XCTAssertNotNil(promise.value);
-
-  XCTAssertEqualObjects(promise.value.authToken.token, responseInstallation.authToken.token);
-  XCTAssertEqualObjects(promise.value.authToken.expirationDate,
-                        responseInstallation.authToken.expirationDate);
-}
-
-- (void)testGetAuthToken_WhenServerResponseIsInternalError_ThenRetriesOnceAndFails {
-  // 1.1. Expect installation to be requested from the store.
-  FIRInstallationsItem *storedInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andReturn([FBLPromise resolvedWith:storedInstallation]);
-
-  // 1.2. Expect API request called twice.
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:error500];
-
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn(rejectedPromise);
-
-  // 2. Request auth token.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
-
-  // 3. Wait for the promise to resolve.
-  XCTAssert(FBLWaitForPromisesWithTimeout(2));
-
-  // 4. Check.
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-
-  XCTAssertEqualObjects(promise.error, error500);
-  XCTAssertNil(promise.value);
-}
-
 - (void)testGetAuthToken_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
   // 1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
@@ -715,7 +641,8 @@
 
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
-  NSError *error500 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:500];
+  NSError *error500 =
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode];
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
@@ -1023,6 +950,9 @@
                   XCTAssertEqualObjects(
                       installation.registrationError.registrationParameters.projectID,
                       self.projectID);
+                  XCTAssertNotNil(installation.registrationError.date);
+                  [self assertDate:installation.registrationError.date
+                      isApproximatelyEqualCurrentPlusTimeInterval:0];
                   return YES;
                 }]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
@@ -1104,6 +1034,47 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
+- (void)testGetInstallation_WhenStoredRegistrationErrorIsOutdated_ThenSendsAPIRequest {
+  __block FBLPromise<FIRInstallationsItem *> *storedInstallationPromise;
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&storedInstallationPromise];
+      });
+
+  // 1.1. Expect installation to be requested from the store.
+  NSDate *date25HoursAgo = [NSDate dateWithTimeIntervalSinceNow:-25 * 60 * 60];
+  FIRInstallationsItem *storedInstallation =
+      [self createFailedToRegisterInstallationWithParameters:[self currentRegistrationParameters]
+                                                        date:date25HoursAgo];
+  storedInstallationPromise = [FBLPromise resolvedWith:storedInstallation];
+
+  // 1.2. Expect registration API request to be sent.
+  FIRInstallationsItem *registeredInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
+      .andReturn([FBLPromise resolvedWith:registeredInstallation]);
+
+  // 1.3. Expect registered Installation to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                           XCTAssertEqualObjects(obj, registeredInstallation);
+                                           storedInstallationPromise =
+                                               [FBLPromise resolvedWith:obj];
+                                           return YES;
+                                         }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 2. Request Installation.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 3. Check.
+  XCTAssertEqualObjects(promise.value.identifier, registeredInstallation.identifier);
+  XCTAssertNil(promise.error);
+
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+}
+
 #pragma mark - Helpers
 
 - (void)expectInstallationsStoreGetInstallationNotFound {
@@ -1139,12 +1110,20 @@
 }
 
 - (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
-    (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
+                              (FIRInstallationsStoredRegistrationParameters *)registrationParameters
+                                                                      date:(NSDate *)date {
   FIRInstallationsStoredRegistrationError *error = [[FIRInstallationsStoredRegistrationError alloc]
       initWithRegistrationParameters:registrationParameters
+                                date:date
                             APIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
   FIRInstallationsItem *installation = [FIRInstallationsItem createWithRegistrationFailure:error];
   return installation;
+}
+
+- (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
+    (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
+  return [self createFailedToRegisterInstallationWithParameters:registrationParameters
+                                                           date:[NSDate date]];
 }
 
 - (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {
