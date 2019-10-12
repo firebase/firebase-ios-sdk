@@ -63,15 +63,6 @@ class LocalSerializer {
   }
 
   /**
-   * Release memory allocated by the Encode* methods that return protos.
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
-   */
-  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct) {
-    remote::Serializer::FreeNanopbMessage(fields, dest_struct);
-  }
-
-  /**
    * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
    * local storage.
    */

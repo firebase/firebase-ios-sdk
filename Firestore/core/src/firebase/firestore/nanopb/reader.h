@@ -82,23 +82,17 @@ class Reader {
    * This essentially wraps calls to nanopb's pb_decode() method. This is the
    * primary way of decoding messages.
    *
-   * Note that this allocates memory. You must call FreeNanopbMessage() (which
-   * essentially wraps pb_release()) on the dest_struct in order to avoid memory
-   * leaks. (This also implies code that uses this is not exception safe.)
+   * Note that this allocates memory. You must call nanopb::FreeNanopbMessage()
+   * (which essentially wraps pb_release()) on the dest_struct in order to avoid
+   * memory leaks. (This also implies code that uses this is not exception
+   * safe.)
    */
   // TODO(rsgowman): At the moment we rely on the caller to manually free
-  // dest_struct via FreeNanopbMessage(). We might instead see if we can
+  // dest_struct via nanopb::FreeNanopbMessage(). We might instead see if we can
   // register allocated messages, track them, and free them ourselves. This may
   // be especially relevant if we start to use nanopb messages as the underlying
   // data within the model objects.
   void ReadNanopbMessage(const pb_field_t fields[], void* dest_struct);
-
-  /**
-   * Release memory allocated by ReadNanopbMessage().
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
-   */
-  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
   bool ok() const {
     return status_.ok();

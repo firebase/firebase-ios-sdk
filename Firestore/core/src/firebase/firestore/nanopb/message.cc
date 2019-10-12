@@ -60,6 +60,10 @@ StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
 
 }  // namespace internal
 
+void FreeNanopbMessage(const pb_field_t* fields, void* dest_struct) {
+  pb_release(fields, dest_struct);
+}
+
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

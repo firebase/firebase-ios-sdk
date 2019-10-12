@@ -39,6 +39,13 @@ class WriteStreamSerializer;
 
 namespace nanopb {
 
+/**
+ * Free the dynamically-allocated memory within a Nanopb-generated message.
+ *
+ * This essentially wraps calls to Nanopb's `pb_release()` function.
+ */
+void FreeNanopbMessage(const pb_field_t* fields, void* dest_struct);
+
 template <typename T>
 class Message;
 
@@ -79,7 +86,7 @@ class Message {
 
   ~Message() {
     if (owns_proto()) {
-      Reader::FreeNanopbMessage(fields_, &proto_);
+      FreeNanopbMessage(fields_, &proto_);
     }
   }
 
