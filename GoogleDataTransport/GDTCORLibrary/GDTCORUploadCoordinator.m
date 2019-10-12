@@ -180,8 +180,8 @@ static NSString *const ktargetToInFlightPackagesKey =
   dispatch_sync(_coordinationQueue, ^{
     // All packages that have been given to uploaders need to be tracked so that their expiration
     // timers can be called.
-    if (_targetToInFlightPackages.count > 0) {
-      [aCoder encodeObject:_targetToInFlightPackages forKey:ktargetToInFlightPackagesKey];
+    if (self->_targetToInFlightPackages.count > 0) {
+      [aCoder encodeObject:self->_targetToInFlightPackages forKey:ktargetToInFlightPackagesKey];
     }
   });
 }

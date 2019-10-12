@@ -25,6 +25,7 @@ NSString *const kFIRInstallationsStoredRegistrationErrorRegistrationParametersKe
     @"registrationParameters";
 NSString *const kFIRInstallationsStoredRegistrationErrorAPIErrorKey = @"APIError";
 NSString *const kFIRInstallationsStoredRegistrationErrorStorageVersionKey = @"storageVersion";
+NSString *const kFIRInstallationsStoredRegistrationErrorDateKey = @"date";
 
 NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
 
@@ -32,10 +33,12 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
 
 - (instancetype)initWithRegistrationParameters:
                     (FIRInstallationsStoredRegistrationParameters *)registrationParameters
+                                          date:(NSDate *)date
                                       APIError:(NSError *)error {
   self = [super init];
   if (self) {
     _registrationParameters = registrationParameters;
+    _date = date;
     _APIError = error;
   }
   return self;
@@ -54,6 +57,7 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
 - (void)encodeWithCoder:(nonnull NSCoder *)coder {
   [coder encodeObject:self.registrationParameters
                forKey:kFIRInstallationsStoredRegistrationErrorRegistrationParametersKey];
+  [coder encodeObject:self.date forKey:kFIRInstallationsStoredRegistrationErrorDateKey];
   [coder encodeObject:self.APIError forKey:kFIRInstallationsStoredRegistrationErrorAPIErrorKey];
   [coder encodeInteger:kFIRInstallationsStoredRegistrationErrorStorageVersion
                 forKey:kFIRInstallationsStoredRegistrationErrorStorageVersionKey];
@@ -73,6 +77,8 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
   FIRInstallationsStoredRegistrationParameters *registrationParameters =
       [coder decodeObjectOfClass:[FIRInstallationsStoredRegistrationParameters class]
                           forKey:kFIRInstallationsStoredRegistrationErrorRegistrationParametersKey];
+  NSDate *date = [coder decodeObjectOfClass:[NSDate class]
+                                     forKey:kFIRInstallationsStoredRegistrationErrorDateKey];
 
   NSSet<Class> *allowedErrorClasses =
       [NSSet setWithArray:@ [[FIRInstallationsHTTPError class], [NSError class]]];
@@ -87,7 +93,7 @@ NSInteger const kFIRInstallationsStoredRegistrationErrorStorageVersion = 1;
     return nil;
   }
 
-  return [self initWithRegistrationParameters:registrationParameters APIError:APIError];
+  return [self initWithRegistrationParameters:registrationParameters date:date APIError:APIError];
 }
 
 @end

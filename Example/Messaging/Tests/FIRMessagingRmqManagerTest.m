@@ -24,6 +24,13 @@
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 
+
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
+
 @interface FIRMessagingRmqManagerTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmqManager;
@@ -35,13 +42,13 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 - (void)setUp {
   [super setUp];
   // Make sure we start off with a clean state each time
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+
 }
 
 - (void)tearDown {
+  [self.rmqManager removeDatabase];
   [super tearDown];
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
 }
 
 /**
@@ -208,7 +215,7 @@ static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
 
   // delete the acked message
   NSString *rmqIDString = [NSString stringWithFormat:@"%lld", ackedMessageRmqID];
-  XCTAssertEqual(1, [self.rmqManager removeRmqMessagesWithRmqId:rmqIDString]);
+  XCTAssertEqual(1, [self.rmqManager removeRmqMessagesWithRmqIds:@[rmqIDString]]);
 
   // should only have one message in the d2s RMQ
   [self.rmqManager scanWithRmqMessageHandler:nil
