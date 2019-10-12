@@ -37,9 +37,12 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+
 namespace bridge {
 
 bool IsLoggingEnabled();
+
+} // namespace bridge
 
 // TODO(varconst): remove this file?
 //
@@ -50,9 +53,9 @@ bool IsLoggingEnabled();
 //
 // On the other hand, stream classes are large, and having one easily
 // separatable aspect of their implementation (serialization) refactored out is
-// arguably a good thing. If this file were to stay, other platforms would have
-// to follow suit.
-
+// arguably a good thing. If this file were to stay (in some form, certainly
+// under a different name), other platforms would have to follow suit.
+//
 // Note: return value optimization should make returning Nanopb messages from
 // functions cheap (even though they may be large types that are relatively
 // expensive to copy).
@@ -138,7 +141,6 @@ class DatastoreSerializer {
   Serializer serializer_;
 };
 
-}  // namespace bridge
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

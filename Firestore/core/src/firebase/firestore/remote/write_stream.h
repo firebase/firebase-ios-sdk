@@ -143,7 +143,7 @@ class WriteStream : public Stream {
     return "WriteStream";
   }
 
-  bridge::WriteStreamSerializer serializer_bridge_;
+  WriteStreamSerializer serializer_bridge_;
   WriteStreamCallback* callback_ = nullptr;
   bool handshake_complete_ = false;
   nanopb::ByteString last_stream_token_;

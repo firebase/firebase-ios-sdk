@@ -113,6 +113,28 @@ using testutil::WrapObject;
 
 namespace {
 
+template <typename T>
+bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
+  return static_cast<const T &>(lhs) == static_cast<const T &>(rhs);
+}
+
+// Compares two `WatchChange`s taking into account their actual derived type.
+bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
+  if (lhs.type() != rhs.type()) {
+    return false;
+  }
+
+  switch (lhs.type()) {
+    case WatchChange::Type::Document:
+      return Equals<DocumentWatchChange>(lhs, rhs);
+    case WatchChange::Type::ExistenceFilter:
+      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
+    case WatchChange::Type::TargetChange:
+      return Equals<WatchTargetChange>(lhs, rhs);
+  }
+  UNREACHABLE();
+}
+
 NSString *const kDocumentKeyPath =
     [[NSString alloc] initWithUTF8String:FieldPath::kDocumentKeyPath];
 
@@ -465,6 +487,31 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(actualMutation, mutation);
 }
 
+- (void)testDecodesMutationResult {
+  SnapshotVersion commitVersion = testutil::Version(3000);
+  SnapshotVersion updateVersion = testutil::Version(4000);
+  GCFSWriteResult *proto = [GCFSWriteResult message];
+  proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
+  [proto.transformResultsArray addObject:[self.serializer encodedString:"result"]];
+
+  MutationResult result = [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+
+  XCTAssertEqual(result.version(), updateVersion);
+  XCTAssertTrue(result.transform_results().has_value());
+
+  XCTAssertEqual(*result.transform_results(), Array("result").array_value());
+}
+
+- (void)testDecodesDeleteMutationResult {
+  GCFSWriteResult *proto = [GCFSWriteResult message];
+  SnapshotVersion commitVersion = testutil::Version(4000);
+
+  MutationResult result = [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+
+  XCTAssertEqual(result.version(), commitVersion);
+  XCTAssertFalse(result.transform_results().has_value());
+}
+
 - (void)testRoundTripSpecialFieldNames {
   Mutation set = FSTTestSetMutation(@"collection/key", @{
     @"field" : [NSString stringWithFormat:@"field %d", 1],
@@ -474,6 +521,23 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWrite *encoded = [self.serializer encodedMutation:set];
   Mutation decoded = [self.serializer decodedMutation:encoded];
   XCTAssertEqual(set, decoded);
+}
+
+- (void)testEncodesListenRequestLabels {
+  core::Query query = Query("collection/key");
+  QueryData queryData(query, 2, 3, QueryPurpose::Listen);
+
+  NSDictionary<NSString *, NSString *> *result =
+      [self.serializer encodedListenRequestLabelsForQueryData:queryData];
+  XCTAssertNil(result);
+
+  queryData = QueryData(query, 2, 3, QueryPurpose::LimboResolution);
+  result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
+  XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"limbo-document"});
+
+  queryData = QueryData(query, 2, 3, QueryPurpose::ExistenceFilterMismatch);
+  result = [self.serializer encodedListenRequestLabelsForQueryData:queryData];
+  XCTAssertEqualObjects(result, @{@"goog-listen-tags" : @"existence-filter-mismatch"});
 }
 
 - (void)testEncodesUnaryFilter {
@@ -801,6 +865,104 @@ NS_ASSUME_NONNULL_BEGIN
     actualModel = [self.serializer decodedQueryFromDocumentsTarget:proto.documents];
   }
   XCTAssertEqual(actualModel, queryData.query());
+}
+
+- (void)testConvertsTargetChangeWithAdded {
+  WatchTargetChange expected{WatchTargetChangeState::Added, {1, 4}};
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Add;
+  [listenResponse.targetChange.targetIdsArray addValue:1];
+  [listenResponse.targetChange.targetIdsArray addValue:4];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsTargetChangeWithRemoved {
+  WatchTargetChange expected{WatchTargetChangeState::Removed,
+                             {1, 4},
+                             Bytes(0, 1, 2),
+                             Status{Error::PermissionDenied, "Error message"}};
+
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;
+  listenResponse.targetChange.cause.code = FIRFirestoreErrorCodePermissionDenied;
+  listenResponse.targetChange.cause.message = @"Error message";
+  listenResponse.targetChange.resumeToken = MakeNSData(Bytes(0, 1, 2));
+  [listenResponse.targetChange.targetIdsArray addValue:1];
+  [listenResponse.targetChange.targetIdsArray addValue:4];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsTargetChangeWithNoChange {
+  WatchTargetChange expected{WatchTargetChangeState::NoChange, {1, 4}};
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_NoChange;
+  [listenResponse.targetChange.targetIdsArray addValue:1];
+  [listenResponse.targetChange.targetIdsArray addValue:4];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsDocumentChangeWithTargetIds {
+  DocumentWatchChange expected{
+      {1, 2}, {}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
+  listenResponse.documentChange.document.updateTime.nanos = 5000;
+  GCFSValue *fooValue = [GCFSValue message];
+  fooValue.stringValue = @"bar";
+  [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
+  [listenResponse.documentChange.targetIdsArray addValue:1];
+  [listenResponse.documentChange.targetIdsArray addValue:2];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsDocumentChangeWithRemovedTargetIds {
+  DocumentWatchChange expected{
+      {2}, {1}, FSTTestDocKey(@"coll/1"), Doc("coll/1", 5, Map("foo", "bar"))};
+
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
+  listenResponse.documentChange.document.updateTime.nanos = 5000;
+  GCFSValue *fooValue = [GCFSValue message];
+  fooValue.stringValue = @"bar";
+  [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
+  [listenResponse.documentChange.removedTargetIdsArray addValue:1];
+  [listenResponse.documentChange.targetIdsArray addValue:2];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsDocumentChangeWithDeletions {
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), DeletedDoc("coll/1", 5)};
+
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
+  listenResponse.documentDelete.readTime.nanos = 5000;
+  [listenResponse.documentDelete.removedTargetIdsArray addValue:1];
+  [listenResponse.documentDelete.removedTargetIdsArray addValue:2];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
+}
+
+- (void)testConvertsDocumentChangeWithRemoves {
+  DocumentWatchChange expected{{}, {1, 2}, Key("coll/1"), absl::nullopt};
+
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  listenResponse.documentRemove.document = @"projects/p/databases/d/documents/coll/1";
+  [listenResponse.documentRemove.removedTargetIdsArray addValue:1];
+  [listenResponse.documentRemove.removedTargetIdsArray addValue:2];
+
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 @end
