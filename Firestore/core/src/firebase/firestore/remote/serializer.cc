@@ -350,7 +350,7 @@ FieldValue::Map::value_type Serializer::DecodeFieldsEntry(
   return FieldValue::Map::value_type{std::move(key), std::move(value)};
 }
 
-FieldValue::Map Serializer::DecodeFields(
+ObjectValue Serializer::DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1_Document_FieldsEntry* fields) const {
@@ -360,7 +360,7 @@ FieldValue::Map Serializer::DecodeFields(
     result = result.insert(std::move(kv.first), std::move(kv.second));
   }
 
-  return result;
+  return ObjectValue::FromMap(result);
 }
 
 FieldValue::Map Serializer::DecodeMapValue(
@@ -546,7 +546,7 @@ Document Serializer::DecodeFoundDocument(
               "Tried to deserialize a found document from a missing document.");
 
   DocumentKey key = DecodeKey(reader, response.found.name);
-  FieldValue::Map value =
+  ObjectValue value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
   SnapshotVersion version = DecodeVersion(reader, response.found.update_time);
 
@@ -554,8 +554,8 @@ Document Serializer::DecodeFoundDocument(
     reader->Fail("Got a document response with no snapshot version");
   }
 
-  return Document(ObjectValue::FromMap(std::move(value)), std::move(key),
-                  version, DocumentState::kSynced);
+  return Document(std::move(value), std::move(key), version,
+                  DocumentState::kSynced);
 }
 
 NoDocument Serializer::DecodeMissingDocument(
@@ -575,17 +575,6 @@ NoDocument Serializer::DecodeMissingDocument(
 
   return NoDocument(std::move(key), version,
                     /*has_committed_mutations=*/false);
-}
-
-Document Serializer::DecodeDocument(
-    Reader* reader, const google_firestore_v1_Document& proto) const {
-  FieldValue::Map fields_internal =
-      DecodeFields(reader, proto.fields_count, proto.fields);
-  SnapshotVersion version = DecodeVersion(reader, proto.update_time);
-
-  return Document(ObjectValue::FromMap(std::move(fields_internal)),
-                  DecodeKey(reader, proto.name), version,
-                  DocumentState::kSynced);
 }
 
 google_firestore_v1_Write Serializer::EncodeMutation(
@@ -667,8 +656,8 @@ Mutation Serializer::DecodeMutation(
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
       DocumentKey key = DecodeKey(reader, mutation.update.name);
-      ObjectValue value = ObjectValue::FromMap(DecodeFields(
-          reader, mutation.update.fields_count, mutation.update.fields));
+      ObjectValue value = DecodeFields(reader, mutation.update.fields_count,
+                                       mutation.update.fields);
       FieldMask mask = DecodeFieldMask(mutation.update_mask);
       if (mask.size() > 0) {
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
@@ -1629,8 +1618,8 @@ WatchTargetChangeState Serializer::DecodeTargetChangeState(
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
     nanopb::Reader* reader,
     const google_firestore_v1_DocumentChange& change) const {
-  ObjectValue value = ObjectValue::FromMap(DecodeFields(
-      reader, change.document.fields_count, change.document.fields));
+  ObjectValue value = DecodeFields(reader, change.document.fields_count,
+                                   change.document.fields);
   DocumentKey key = DecodeKey(reader, change.document.name);
 
   HARD_ASSERT(change.document.has_update_time,
