@@ -126,14 +126,15 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return maybe_response.status();
   }
 
-  const auto& response = maybe_response.ValueOrDie();
+  auto& response = maybe_response.ValueOrDie();
   if (LogIsDebugEnabled()) {
     LOG_DEBUG("%s response: %s", GetDebugDescription(),
               write_serializer_.Describe(response));
   }
 
   // Always capture the last stream token.
-  last_stream_token_ = ByteString{response.proto().stream_token};
+  set_last_stream_token(ByteString::Take(response->stream_token));
+  response->stream_token = nullptr;
 
   if (!handshake_complete()) {
     // The first response is the handshake response
@@ -146,8 +147,8 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     backoff_.Reset();
 
     callback_->OnWriteStreamMutationResult(
-        write_serializer_.ToCommitVersion(response.proto()),
-        write_serializer_.ToMutationResults(response.proto()));
+        write_serializer_.ToCommitVersion(*response),
+        write_serializer_.ToMutationResults(*response));
   }
 
   return Status::OK();

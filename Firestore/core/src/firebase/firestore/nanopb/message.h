@@ -62,7 +62,8 @@ using MaybeMessage = util::StatusOr<Message<T>>;
  * construction (not counting friend classes). Use `proto()` member function to
  * access the underlying proto.
  *
- * Accessing a moved-from instance will result in an assertion failure.
+ * `Message` provides a pointer-like access to the underlying Nanopb-generated
+ * message type.
  *
  * Note that moving *isn't* a particularly cheap operation in the general case.
  * Even without doing deep copies, Nanopb-generated messages may contain *a lot*
@@ -90,8 +91,6 @@ class Message {
     }
   }
 
-  // operator*/get
-
   Message(const Message&) = delete;
   Message& operator=(const Message&) = delete;
 
@@ -106,10 +105,28 @@ class Message {
     other.fields_ = nullptr;
   }
 
-  const T& proto() const {
-    HARD_ASSERT(owns_proto(),
-                "Attempted to access a moved-from nanopb::Message");
-    return proto_;
+  T* get() {
+    return owns_proto() ? &proto_ : nullptr;
+  }
+
+  const T* get() const {
+    return owns_proto() ? &proto_ : nullptr;
+  }
+
+  T& operator*() {
+    return *get();
+  }
+
+  const T& operator*() const {
+    return *get();
+  }
+
+  T* operator->() {
+    return get();
+  }
+
+  const T* operator->() const {
+    return get();
   }
 
   /**
@@ -120,17 +137,13 @@ class Message {
   grpc::ByteBuffer ToByteBuffer() const;
 
  private:
-  // For access to `mutable_proto` and the explicit constructor. Most code
-  // shouldn't be able to modify the underlying proto.
+  // For access to the explicit constructor. Most code shouldn't be able to
+  // modify the underlying proto.
   friend class remote::WatchStreamSerializer;
   friend class remote::WriteStreamSerializer;
   friend class remote::DatastoreSerializer;
 
   explicit Message(const pb_field_t* fields) : fields_{fields} {
-  }
-
-  T& mutable_proto() {
-    return proto_;
   }
 
   bool owns_proto() const {
@@ -158,7 +171,7 @@ MaybeMessage<T> Message<T>::TryDecode(const pb_field_t* fields,
 
   Message message{fields};
   nanopb::Reader reader{maybe_bytes.ValueOrDie()};
-  reader.ReadNanopbMessage(fields, &message.mutable_proto());
+  reader.ReadNanopbMessage(fields, message.get());
   if (!reader.ok()) {
     return reader.status();
   }

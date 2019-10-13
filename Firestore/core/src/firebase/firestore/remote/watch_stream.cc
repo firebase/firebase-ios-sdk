@@ -105,8 +105,8 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   backoff_.Reset();
 
   callback_->OnWatchStreamChange(
-      *watch_serializer_.ToWatchChange(response.proto()),
-      watch_serializer_.ToSnapshotVersion(response.proto()));
+      *watch_serializer_.ToWatchChange(*response),
+      watch_serializer_.ToSnapshotVersion(*response));
   return Status::OK();
 }
 

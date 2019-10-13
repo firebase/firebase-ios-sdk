@@ -109,7 +109,7 @@ Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
   Message<google_firestore_v1_ListenRequest> result{
       google_firestore_v1_ListenRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
   request.which_target_change =
@@ -136,7 +136,7 @@ Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
   Message<google_firestore_v1_ListenRequest> result{
       google_firestore_v1_ListenRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
   request.which_target_change =
@@ -184,7 +184,7 @@ Message<google_firestore_v1_WriteRequest>
 WriteStreamSerializer::EncodeHandshake() const {
   Message<google_firestore_v1_WriteRequest> result{
       google_firestore_v1_WriteRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   // The initial request cannot contain mutations, but must contain a project
   // ID.
@@ -199,7 +199,7 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
     const ByteString& last_stream_token) const {
   Message<google_firestore_v1_WriteRequest> result{
       google_firestore_v1_WriteRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   if (!mutations.empty()) {
     request.writes_count = nanopb::CheckedSize(mutations.size());
@@ -267,7 +267,7 @@ DatastoreSerializer::EncodeCommitRequest(
     const std::vector<Mutation>& mutations) const {
   Message<google_firestore_v1_CommitRequest> result{
       google_firestore_v1_CommitRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
 
@@ -289,7 +289,7 @@ DatastoreSerializer::EncodeLookupRequest(
     const std::vector<DocumentKey>& keys) const {
   Message<google_firestore_v1_BatchGetDocumentsRequest> result{
       google_firestore_v1_BatchGetDocumentsRequest_fields};
-  auto& request = result.mutable_proto();
+  auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
   if (!keys.empty()) {
@@ -319,9 +319,9 @@ DatastoreSerializer::MergeLookupResponses(
       return maybe_proto.status();
     }
 
-    const auto& proto = maybe_proto.ValueOrDie().proto();
+    const auto& proto = maybe_proto.ValueOrDie();
     nanopb::Reader reader;
-    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, proto);
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *proto);
     results[doc.key()] = std::move(doc);
   }
 

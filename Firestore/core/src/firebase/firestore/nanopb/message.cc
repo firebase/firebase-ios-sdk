@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 namespace firebase {
@@ -44,18 +45,13 @@ StatusOr<ByteString> ToByteString(const grpc::ByteBuffer& buffer) {
     return error;
   }
 
-  if (slices.size() == 1) {
-    return ByteString{slices.front().begin(), slices.front().size()};
-
-  } else {
-    std::vector<uint8_t> data;
-    data.reserve(buffer.Length());
-    for (const auto& slice : slices) {
-      data.insert(data.end(), slice.begin(), slice.begin() + slice.size());
-    }
-
-    return ByteString{data.data(), data.size()};
+  ByteStringWriter writer;
+  writer.Reserve(buffer.Length());
+  for (const auto& slice : slices) {
+    writer.Append(slice.begin(), slice.size());
   }
+
+  return writer.Release();
 }
 
 }  // namespace internal

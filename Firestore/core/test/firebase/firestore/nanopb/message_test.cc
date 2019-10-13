@@ -77,6 +77,8 @@ TEST_F(MessageTest, Move) {
   ASSERT_OK(maybe_message);
   TestMessage message1 = std::move(maybe_message).ValueOrDie();
   TestMessage message2 = std::move(message1);
+  EXPECT_EQ(message1.get(), nullptr);
+  EXPECT_NE(message2.get(), nullptr);
   // This shouldn't result in a leak or double deletion; Address Sanitizer
   // should be able to verify that.
 }
