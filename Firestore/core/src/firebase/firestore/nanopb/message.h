@@ -136,12 +136,20 @@ class Message {
    */
   grpc::ByteBuffer ToByteBuffer() const;
 
+  /**
+   * Serializes this message into a `ByteString`.
+   *
+   * The lifetime of the return value is entirely independent of this message.
+   */
+  ByteString ToByteString() const;
+
  private:
   // For access to the explicit constructor. Most code shouldn't be able to
   // modify the underlying proto.
   friend class remote::WatchStreamSerializer;
   friend class remote::WriteStreamSerializer;
   friend class remote::DatastoreSerializer;
+  template <typename U> friend Message<U> make_message(const pb_field_t*, U);
 
   explicit Message(const pb_field_t* fields) : fields_{fields} {
   }
@@ -156,6 +164,13 @@ class Message {
   const pb_field_t* fields_ = nullptr;
   T proto_{};
 };
+
+template <typename T>
+inline Message<T> make_message(const pb_field_t* fields, T proto) {
+  Message<T> result{fields};
+  result.proto_ = proto;
+  return result;
+}
 
 namespace internal {
 util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
@@ -181,12 +196,16 @@ MaybeMessage<T> Message<T>::TryDecode(const pb_field_t* fields,
 
 template <typename T>
 grpc::ByteBuffer Message<T>::ToByteBuffer() const {
-  nanopb::ByteStringWriter writer;
-  writer.WriteNanopbMessage(fields_, &proto_);
-  nanopb::ByteString bytes = writer.Release();
-
+  ByteString bytes = ToByteString();
   grpc::Slice slice{bytes.data(), bytes.size()};
   return grpc::ByteBuffer{&slice, 1};
+}
+
+template <typename T>
+ByteString Message<T>::ToByteString() const {
+  nanopb::ByteStringWriter writer;
+  writer.WriteNanopbMessage(fields_, &proto_);
+  return writer.Release();
 }
 
 }  // namespace nanopb

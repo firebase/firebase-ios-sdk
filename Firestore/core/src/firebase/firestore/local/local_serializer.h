@@ -58,8 +58,8 @@ namespace local {
  */
 class LocalSerializer {
  public:
-  explicit LocalSerializer(const remote::Serializer& rpc_serializer)
-      : rpc_serializer_(rpc_serializer) {
+  explicit LocalSerializer(remote::Serializer rpc_serializer)
+      : rpc_serializer_(std::move(rpc_serializer)) {
   }
 
   /**
@@ -135,7 +135,7 @@ class LocalSerializer {
       nanopb::Reader* reader,
       const firestore_client_UnknownDocument& proto) const;
 
-  const remote::Serializer& rpc_serializer_;
+  remote::Serializer rpc_serializer_;
 };
 
 }  // namespace local

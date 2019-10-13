@@ -96,8 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
     (LruParams)lruParams {
-  FSTLocalSerializer *serializer = [self localSerializer];
-  auto sizer = absl::make_unique<ProtoSizer>(serializer);
+  auto sizer = absl::make_unique<ProtoSizer>([self.localSerializer toCc]);
   return MemoryPersistence::WithLruGarbageCollector(lruParams, std::move(sizer));
 }
 

@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
@@ -70,6 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Decodes a GPBTimestamp proto into a SnapshotVersion model. */
 - (model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
+
+- (local::LocalSerializer)toCc;
 
 @end
 

@@ -16,35 +16,46 @@
 
 #include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-
+#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
+namespace {
+
 using model::DocumentKey;
 using model::MaybeDocument;
+using nanopb::ByteString;
+using nanopb::Message;
+using nanopb::make_message;
 
-ProtoSizer::ProtoSizer(FSTLocalSerializer* serializer)
-    : serializer_(serializer) {
+}  // namespace
+
+ProtoSizer::ProtoSizer(LocalSerializer serializer)
+    : serializer_(std::move(serializer)) {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
-  return [[serializer_ encodedMaybeDocument:maybe_doc] serializedSize];
+  auto message = make_message(firestore_client_MaybeDocument_fields,
+                              serializer_.EncodeMaybeDocument(maybe_doc));
+  return message.ToByteString().size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  return [[serializer_ encodedMutationBatch:batch] serializedSize];
+  auto message = make_message(firestore_client_WriteBatch_fields,
+                              serializer_.EncodeMutationBatch(batch));
+  return message.ToByteString().size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  return [[serializer_ encodedQueryData:query_data] serializedSize];
+  auto message = make_message(firestore_client_Target_fields,
+                              serializer_.EncodeQueryData(query_data));
+  return message.ToByteString().size();
 }
 
 }  // namespace local
