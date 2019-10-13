@@ -40,7 +40,6 @@ using remote::Serializer;
 using Proto = google_firestore_v1_WriteResponse;
 using TestMessage = Message<Proto>;
 using TestMaybeMessage = MaybeMessage<Proto>;
-const auto* const kFields = google_firestore_v1_WriteResponse_fields;
 
 class MessageTest : public testing::Test {
  public:
@@ -53,7 +52,7 @@ class MessageTest : public testing::Test {
     proto.stream_token = serializer_.EncodeString("stream_token");
 
     ByteStringWriter writer;
-    writer.WriteNanopbMessage(kFields, &proto);
+    writer.WriteNanopbMessage(google_firestore_v1_WriteResponse_fields, &proto);
     ByteString bytes = writer.Release();
 
     grpc::Slice slice{bytes.data(), bytes.size()};
@@ -73,7 +72,7 @@ class MessageTest : public testing::Test {
 };
 
 TEST_F(MessageTest, Move) {
-  TestMaybeMessage maybe_message = TestMessage::TryDecode(kFields, GoodProto());
+  TestMaybeMessage maybe_message = TestMessage::TryDecode(GoodProto());
   ASSERT_OK(maybe_message);
   TestMessage message1 = std::move(maybe_message).ValueOrDie();
   TestMessage message2 = std::move(message1);
@@ -84,7 +83,7 @@ TEST_F(MessageTest, Move) {
 }
 
 TEST_F(MessageTest, ParseFailure) {
-  TestMaybeMessage maybe_message = TestMessage::TryDecode(kFields, BadProto());
+  TestMaybeMessage maybe_message = TestMessage::TryDecode(BadProto());
   EXPECT_NOT_OK(maybe_message);
 }
 

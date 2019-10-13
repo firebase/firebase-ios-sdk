@@ -148,8 +148,7 @@ WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
 
 MaybeMessage<google_firestore_v1_ListenResponse>
 WatchStreamSerializer::DecodeResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_ListenResponse>::TryDecode(
-      google_firestore_v1_ListenResponse_fields, message);
+  return Message<google_firestore_v1_ListenResponse>::TryDecode(message);
 }
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
@@ -217,8 +216,7 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
 
 MaybeMessage<google_firestore_v1_WriteResponse>
 WriteStreamSerializer::DecodeResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_WriteResponse>::TryDecode(
-      google_firestore_v1_WriteResponse_fields, message);
+  return Message<google_firestore_v1_WriteResponse>::TryDecode(message);
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
@@ -314,7 +312,7 @@ DatastoreSerializer::MergeLookupResponses(
   for (const auto& response : responses) {
     auto maybe_proto =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryDecode(
-            google_firestore_v1_BatchGetDocumentsResponse_fields, response);
+            response);
     if (!maybe_proto.ok()) {
       return maybe_proto.status();
     }

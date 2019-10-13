@@ -53,6 +53,8 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::make_message;
+using nanopb::Message;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::InvalidQuery;
@@ -62,35 +64,35 @@ using util::StringFormat;
 
 }  // namespace
 
-firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
+Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
     const MaybeDocument& maybe_doc) const {
-  firestore_client_MaybeDocument result{};
+  Message<firestore_client_MaybeDocument> result;
 
   switch (maybe_doc.type()) {
     case MaybeDocument::Type::Document: {
-      result.which_document_type = firestore_client_MaybeDocument_document_tag;
+      result->which_document_type = firestore_client_MaybeDocument_document_tag;
       Document doc(maybe_doc);
       // TODO(wuandy): Check of `doc` already has a proto and use that if yes.
-      result.document = EncodeDocument(doc);
-      result.has_committed_mutations = doc.has_committed_mutations();
+      result->document = EncodeDocument(doc);
+      result->has_committed_mutations = doc.has_committed_mutations();
       return result;
     }
 
     case MaybeDocument::Type::NoDocument: {
-      result.which_document_type =
+      result->which_document_type =
           firestore_client_MaybeDocument_no_document_tag;
       NoDocument no_doc(maybe_doc);
-      result.no_document = EncodeNoDocument(no_doc);
-      result.has_committed_mutations = no_doc.has_committed_mutations();
+      result->no_document = EncodeNoDocument(no_doc);
+      result->has_committed_mutations = no_doc.has_committed_mutations();
       return result;
     }
 
     case MaybeDocument::Type::UnknownDocument: {
-      result.which_document_type =
+      result->which_document_type =
           firestore_client_MaybeDocument_unknown_document_tag;
-      result.unknown_document =
+      result->unknown_document =
           EncodeUnknownDocument(UnknownDocument(maybe_doc));
-      result.has_committed_mutations = true;
+      result->has_committed_mutations = true;
       return result;
     }
 

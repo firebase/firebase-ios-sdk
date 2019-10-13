@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/fields_map.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -28,6 +29,12 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+
+class LocalSerializer;
+
+}  // namespace local
 
 namespace remote {
 
@@ -73,17 +80,16 @@ template <typename T>
 class Message {
  public:
   /**
-   * Attempts to parse a Nanopb message from the given `byte_buffer`.
-   *
-   * If the given bytes are ill-formed, returns a failed `Status`.
-   *
-   * `fields` is the Nanopb-generated descriptor of message `T`, which are named
-   * by adding a `_fields` suffix to the name of the message. E.g., for
-   * `google_firestore_v1_Foo` message, the corresponding fields descriptor will
-   * be named `google_firestore_v1_Foo_fields`.
+   * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
+   * given bytes are ill-formed, returns a failed `Status`.
    */
-  static MaybeMessage<T> TryDecode(const pb_field_t* fields,
-                                   const grpc::ByteBuffer& byte_buffer);
+  static MaybeMessage<T> TryDecode(const grpc::ByteBuffer& byte_buffer);
+
+  /**
+   * Attempts to parse a Nanopb message from the given `bytes`. If the
+   * given bytes are ill-formed, returns a failed `Status`.
+   */
+  static MaybeMessage<T> TryDecode(const ByteString& bytes);
 
   ~Message() {
     if (owns_proto()) {
@@ -144,13 +150,17 @@ class Message {
   ByteString ToByteString() const;
 
  private:
-  // For access to the explicit constructor. Most code shouldn't be able to
-  // modify the underlying proto.
+  // Most code shouldn't be able to modify the underlying proto.
+  friend class local::LocalSerializer;
+  friend class remote::DatastoreSerializer;
   friend class remote::WatchStreamSerializer;
   friend class remote::WriteStreamSerializer;
   friend class remote::DatastoreSerializer;
-  template <typename U> friend Message<U> make_message(const pb_field_t*, U);
+  template <typename U>
+  friend Message<U> make_message(U);
 
+  // FIXME
+  Message() = default;
   explicit Message(const pb_field_t* fields) : fields_{fields} {
   }
 
@@ -161,13 +171,13 @@ class Message {
   // Note: `fields_` doubles as the flag that indicates whether this instance
   // owns the underlying proto (and consequently should release it upon
   // destruction).
-  const pb_field_t* fields_ = nullptr;
+  const pb_field_t* fields_ = GetNanopbFields<T>();
   T proto_{};
 };
 
 template <typename T>
-inline Message<T> make_message(const pb_field_t* fields, T proto) {
-  Message<T> result{fields};
+inline Message<T> make_message(T proto) {
+  Message<T> result;
   result.proto_ = proto;
   return result;
 }
@@ -177,16 +187,20 @@ util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 }  // namespace internal
 
 template <typename T>
-MaybeMessage<T> Message<T>::TryDecode(const pb_field_t* fields,
-                                      const grpc::ByteBuffer& byte_buffer) {
+MaybeMessage<T> Message<T>::TryDecode(const grpc::ByteBuffer& byte_buffer) {
   auto maybe_bytes = internal::ToByteString(byte_buffer);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();
   }
 
-  Message message{fields};
-  nanopb::Reader reader{maybe_bytes.ValueOrDie()};
-  reader.ReadNanopbMessage(fields, message.get());
+  return TryDecode(maybe_bytes.ValueOrDie());
+}
+
+template <typename T>
+MaybeMessage<T> Message<T>::TryDecode(const ByteString& bytes) {
+  Message message;
+  nanopb::Reader reader{bytes};
+  reader.ReadNanopbMessage(message.fields_, message.get());
   if (!reader.ok()) {
     return reader.status();
   }

@@ -138,12 +138,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeMaybeDocument(local::LocalSerializer* serializer,
                                  const MaybeDocument& maybe_doc) {
-    ByteStringWriter writer;
-    firestore_client_MaybeDocument proto =
-        serializer->EncodeMaybeDocument(maybe_doc);
-    writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
-    FreeNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
-    return writer.Release();
+    return serializer->EncodeMaybeDocument(maybe_doc).ToByteString();
   }
 
   void ExpectSerializationRoundTrip(const QueryData& query_data,

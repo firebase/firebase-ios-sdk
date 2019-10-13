@@ -24,6 +24,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -163,8 +164,8 @@ class LevelDbTransaction {
    */
   void Put(absl::string_view key, GPBMessage* message) {
     NSData* data = [message data];
-    std::string key_string(key);
-    mutations_[key_string] = std::string((const char*)data.bytes, data.length);
+    std::string key_str{key};
+    mutations_[key_str] = std::string((const char*)data.bytes, data.length);
     version_++;
   }
 #endif
@@ -174,6 +175,15 @@ class LevelDbTransaction {
    * transaction commits.
    */
   void Put(std::string key, std::string value);
+
+  // FIXME
+  void Put(std::string key, nanopb::ByteString value) {
+    std::string value_str(reinterpret_cast<const char*>(value.data()),
+                          value.size());
+    std::string key_str{key};
+    mutations_[key_str] = std::move(value_str);
+    version_++;
+  }
 
   /**
    * Sets the contents of `value` to the latest known value for the given key,

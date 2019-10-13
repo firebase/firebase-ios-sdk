@@ -19,6 +19,8 @@
 #include <limits>
 #include <utility>
 
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_lru_reference_delegate.h"
@@ -110,7 +112,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
       serializer_(serializer) {
   query_cache_ = absl::make_unique<LevelDbQueryCache>(this, serializer_);
   document_cache_ =
-      absl::make_unique<LevelDbRemoteDocumentCache>(this, serializer_);
+      absl::make_unique<LevelDbRemoteDocumentCache>(this, [serializer_ toCc]);
   index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);

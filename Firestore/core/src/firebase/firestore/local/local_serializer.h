@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -66,7 +67,7 @@ class LocalSerializer {
    * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
    * local storage.
    */
-  firestore_client_MaybeDocument EncodeMaybeDocument(
+  nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
       const model::MaybeDocument& maybe_doc) const;
 
   /**

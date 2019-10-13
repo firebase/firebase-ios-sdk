@@ -31,8 +31,8 @@ namespace {
 using model::DocumentKey;
 using model::MaybeDocument;
 using nanopb::ByteString;
-using nanopb::Message;
 using nanopb::make_message;
+using nanopb::Message;
 
 }  // namespace
 
@@ -41,20 +41,16 @@ ProtoSizer::ProtoSizer(LocalSerializer serializer)
 }
 
 int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
-  auto message = make_message(firestore_client_MaybeDocument_fields,
-                              serializer_.EncodeMaybeDocument(maybe_doc));
-  return message.ToByteString().size();
+  return serializer_.EncodeMaybeDocument(maybe_doc).ToByteString().size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  auto message = make_message(firestore_client_WriteBatch_fields,
-                              serializer_.EncodeMutationBatch(batch));
+  auto message = make_message(serializer_.EncodeMutationBatch(batch));
   return message.ToByteString().size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  auto message = make_message(firestore_client_Target_fields,
-                              serializer_.EncodeQueryData(query_data));
+  auto message = make_message(serializer_.EncodeQueryData(query_data));
   return message.ToByteString().size();
 }
 
