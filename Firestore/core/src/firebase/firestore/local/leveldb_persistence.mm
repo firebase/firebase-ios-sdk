@@ -110,7 +110,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
       directory_(std::move(directory)),
       users_(std::move(users)),
       serializer_(serializer) {
-  query_cache_ = absl::make_unique<LevelDbQueryCache>(this, serializer_);
+  query_cache_ = absl::make_unique<LevelDbQueryCache>(this, serializer_.toCc);
   document_cache_ =
       absl::make_unique<LevelDbRemoteDocumentCache>(this, [serializer_ toCc]);
   index_manager_ = absl::make_unique<LevelDbIndexManager>(this);

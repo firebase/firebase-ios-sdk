@@ -213,25 +213,25 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
                          version);
 }
 
-firestore_client_Target LocalSerializer::EncodeQueryData(
+Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
     const QueryData& query_data) const {
-  firestore_client_Target result{};
+  Message<firestore_client_Target> result;
 
-  result.target_id = query_data.target_id();
-  result.last_listen_sequence_number = query_data.sequence_number();
-  result.snapshot_version = rpc_serializer_.EncodeTimestamp(
+  result->target_id = query_data.target_id();
+  result->last_listen_sequence_number = query_data.sequence_number();
+  result->snapshot_version = rpc_serializer_.EncodeTimestamp(
       query_data.snapshot_version().timestamp());
 
   // Force a copy because pb_release would otherwise double-free.
-  result.resume_token = nanopb::CopyBytesArray(query_data.resume_token().get());
+  result->resume_token = nanopb::CopyBytesArray(query_data.resume_token().get());
 
   const Query& query = query_data.query();
   if (query.IsDocumentQuery()) {
-    result.which_target_type = firestore_client_Target_documents_tag;
-    result.documents = rpc_serializer_.EncodeDocumentsTarget(query);
+    result->which_target_type = firestore_client_Target_documents_tag;
+    result->documents = rpc_serializer_.EncodeDocumentsTarget(query);
   } else {
-    result.which_target_type = firestore_client_Target_query_tag;
-    result.query = rpc_serializer_.EncodeQueryTarget(query);
+    result->which_target_type = firestore_client_Target_query_tag;
+    result->query = rpc_serializer_.EncodeQueryTarget(query);
   }
 
   return result;

@@ -79,6 +79,11 @@ using MaybeMessage = util::StatusOr<Message<T>>;
 template <typename T>
 class Message {
  public:
+  // FIXME
+  static Message Invalid() {
+    return Message{nullptr};
+  }
+
   /**
    * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
    * given bytes are ill-formed, returns a failed `Status`.
@@ -109,6 +114,7 @@ class Message {
     fields_ = other.fields_;
     proto_ = other.proto_;
     other.fields_ = nullptr;
+    return *this;
   }
 
   T* get() {

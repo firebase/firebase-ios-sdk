@@ -37,13 +37,25 @@ inline const pb_field_t* GetNanopbFields<firestore_client_MaybeDocument>() {
 }
 
 template <>
+inline const pb_field_t* GetNanopbFields<firestore_client_Target>() {
+  return firestore_client_Target_fields;
+}
+
+template <>
+inline const pb_field_t*
+GetNanopbFields<firestore_client_TargetGlobal>() {
+  return firestore_client_TargetGlobal_fields;
+}
+
+template <>
 inline const pb_field_t* GetNanopbFields<firestore_client_WriteBatch>() {
   return firestore_client_WriteBatch_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_Target>() {
-  return firestore_client_Target_fields;
+inline const pb_field_t*
+GetNanopbFields<google_firestore_v1_BatchGetDocumentsResponse>() {
+  return google_firestore_v1_BatchGetDocumentsResponse_fields;
 }
 
 template <>
@@ -54,12 +66,6 @@ inline const pb_field_t* GetNanopbFields<google_firestore_v1_ListenResponse>() {
 template <>
 inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteResponse>() {
   return google_firestore_v1_WriteResponse_fields;
-}
-
-template <>
-inline const pb_field_t*
-GetNanopbFields<google_firestore_v1_BatchGetDocumentsResponse>() {
-  return google_firestore_v1_BatchGetDocumentsResponse_fields;
 }
 
 }  // namespace nanopb

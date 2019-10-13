@@ -17,26 +17,18 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <unordered_map>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
-
-@class FSTLocalSerializer;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -52,14 +44,15 @@ class LevelDbQueryCache : public QueryCache {
    * exists.
    * TODO(gsoltis): remove this method once fully ported to transactions.
    */
-  static FSTPBTargetGlobal* ReadMetadata(leveldb::DB* db);
+  static nanopb::MaybeMessage<firestore_client_TargetGlobal> ReadMetadata(
+      leveldb::DB* db);
 
   /**
    * Creates a new query cache in the given LevelDB.
    *
    * @param db The LevelDB in which to create the cache.
    */
-  LevelDbQueryCache(LevelDbPersistence* db, FSTLocalSerializer* serializer);
+  LevelDbQueryCache(LevelDbPersistence* db, LocalSerializer serializer);
 
   // Target-related methods
   void AddTarget(const QueryData& query_data) override;
@@ -100,15 +93,15 @@ class LevelDbQueryCache : public QueryCache {
 
   // Other methods and accessors
   size_t size() const override {
-    return metadata_.targetCount;
+    return metadata_->target_count;
   }
 
   model::TargetId highest_target_id() const override {
-    return metadata_.highestTargetId;
+    return metadata_->highest_target_id;
   }
 
   model::ListenSequenceNumber highest_listen_sequence_number() const override {
-    return metadata_.highestListenSequenceNumber;
+    return metadata_->highest_listen_sequence_number;
   }
 
   const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const override;
@@ -125,23 +118,22 @@ class LevelDbQueryCache : public QueryCache {
   bool UpdateMetadata(const QueryData& query_data);
   void SaveMetadata();
   /**
-   * Parses the given bytes as an FSTPBTarget protocol buffer and then converts
-   * to the equivalent query data.
+   * Parses the given bytes as a `firestore_client_Target` protocol buffer and
+   * then converts to the equivalent query data.
    */
   QueryData DecodeTarget(absl::string_view encoded);
 
   // The LevelDbQueryCache is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
-  FSTLocalSerializer* serializer_;
+  LocalSerializer serializer_;
   /** A write-through cached copy of the metadata for the query cache. */
-  FSTPBTargetGlobal* metadata_;
+  nanopb::Message<firestore_client_TargetGlobal> metadata_ =
+      nanopb::Message<firestore_client_TargetGlobal>::Invalid();
   model::SnapshotVersion last_remote_snapshot_version_;
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_QUERY_CACHE_H_

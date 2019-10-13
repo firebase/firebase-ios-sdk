@@ -166,11 +166,7 @@ class LocalSerializerTest : public ::testing::Test {
   ByteString EncodeQueryData(local::LocalSerializer* serializer,
                              const QueryData& query_data) {
     EXPECT_EQ(query_data.purpose(), QueryPurpose::Listen);
-    ByteStringWriter writer;
-    firestore_client_Target proto = serializer->EncodeQueryData(query_data);
-    writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
-    FreeNanopbMessage(firestore_client_Target_fields, &proto);
-    return writer.Release();
+    return serializer->EncodeQueryData(query_data).ToByteString();
   }
 
   void ExpectSerializationRoundTrip(

@@ -82,7 +82,8 @@ class LocalSerializer {
    * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    */
-  firestore_client_Target EncodeQueryData(const QueryData& query_data) const;
+  nanopb::Message<firestore_client_Target> EncodeQueryData(
+      const QueryData& query_data) const;
 
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto

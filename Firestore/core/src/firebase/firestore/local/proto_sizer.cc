@@ -50,8 +50,7 @@ int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  auto message = make_message(serializer_.EncodeQueryData(query_data));
-  return message.ToByteString().size();
+  return serializer_.EncodeQueryData(query_data).ToByteString().size();
 }
 
 }  // namespace local

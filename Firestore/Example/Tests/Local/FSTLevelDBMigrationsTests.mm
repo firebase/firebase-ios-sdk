@@ -87,12 +87,12 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
+  auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+  XCTAssert(!maybe_metadata.ok(), @"Not expecting metadata yet, we should have an empty db");
   LevelDbMigrations::RunMigrations(_db.get());
 
-  metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
+  maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+  XCTAssert(maybe_metadata.ok(), @"Migrations should have added the metadata");
 }
 
 - (void)testSetsVersionNumber {
@@ -167,9 +167,9 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
       ASSERT_FOUND(transaction, key);
     }
 
-    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-    XCTAssertNotNil(metadata, @"Metadata should have been added");
-    XCTAssertEqual(metadata.targetCount, 0);
+    auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+    XCTAssert(maybe_metadata.ok(), @"Metadata should have been added");
+    XCTAssertEqual(maybe_metadata.ValueOrDie()->target_count, 0);
   }
 }
 
@@ -210,10 +210,11 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     LevelDbTransaction transaction(_db.get(), "Setup");
 
     // Set up target global
-    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+    auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+    auto metadata = std::move(maybe_metadata).ValueOrDie();
     // Expect that documents missing a row will get the new number
-    metadata.highestListenSequenceNumber = new_sequence_number;
-    transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);
+    metadata->highest_listen_sequence_number = new_sequence_number;
+    transaction.Put(LevelDbTargetGlobalKey::Key(), metadata.ToByteString());
 
     // Set up some documents (we only need the keys)
     // For the odd ones, add sentinel rows.
