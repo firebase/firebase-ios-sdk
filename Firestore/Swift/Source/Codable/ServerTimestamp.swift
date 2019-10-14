@@ -16,7 +16,7 @@
 
 import FirebaseFirestore
 
-#if swift(>=5.1)
+#if compiler(>=5.1)
   /// A type that can initialize itself from a Firestore Timestamp, which makes
   /// it suitable for use with the `@ServerTimestamp` property wrapper.
   ///
@@ -35,32 +35,32 @@ import FirebaseFirestore
   }
 
   extension Date: ServerTimestampWrappable {
-    static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) -> Self {
       return timestamp.dateValue()
     }
 
-    static func unwrap(_ value: Self) -> Timestamp {
+    public static func unwrap(_ value: Self) -> Timestamp {
       return Timestamp(date: value)
     }
   }
 
   extension NSDate: ServerTimestampWrappable {
-    static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) -> Self {
       let interval = timestamp.dateValue().timeIntervalSince1970
-      return NSDate(timeIntervalSince1970: interval)
+      return NSDate(timeIntervalSince1970: interval) as! Self
     }
 
-    static func unwrap(_ value: Self) -> Timestamp {
-      return Timestamp(date: value)
+    public static func unwrap(_ value: NSDate) -> Timestamp {
+      return Timestamp(date: value as Date)
     }
   }
 
   extension Timestamp: ServerTimestampWrappable {
-    static func wrap(_ timestamp: Timestamp) -> Self {
-      return timestamp
+    public static func wrap(_ timestamp: Timestamp) -> Self {
+      return timestamp as! Self
     }
 
-    static func unwrap(_ value: Self) -> Timestamp {
+    public static func unwrap(_ value: Timestamp) -> Timestamp {
       return value
     }
   }
@@ -113,7 +113,7 @@ import FirebaseFirestore
       }
     }
   }
-#endif // swift(>=5.1)
+#endif // compiler(>=5.1)
 
 /// A compatibility version of `ServerTimestamp` that does not use property
 /// wrappers, suitable for use in older versions of Swift.
