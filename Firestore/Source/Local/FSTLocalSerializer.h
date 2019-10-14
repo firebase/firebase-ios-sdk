@@ -72,8 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Decodes a GPBTimestamp proto into a SnapshotVersion model. */
 - (model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
 
-- (local::LocalSerializer)toCc;
-
 @end
 
 NS_ASSUME_NONNULL_END

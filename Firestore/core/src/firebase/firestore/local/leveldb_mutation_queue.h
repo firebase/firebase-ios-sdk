@@ -25,7 +25,6 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -39,6 +38,7 @@ namespace firestore {
 namespace local {
 
 class LevelDbPersistence;
+class LocalSerializer;
 
 /**
  * Returns one larger than the largest batch ID that has been stored. If there
@@ -50,7 +50,7 @@ class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const auth::User& user,
                        LevelDbPersistence* db,
-                       LocalSerializer serializer);
+                       LocalSerializer* serializer);
 
   void Start() override;
 
@@ -116,7 +116,8 @@ class LevelDbMutationQueue : public MutationQueue {
   // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
 
-  LocalSerializer serializer_;
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
 
   /**
    * The normalized user_id (i.e. after converting null to empty) as used in our

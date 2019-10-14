@@ -285,9 +285,4 @@ using firebase::firestore::remote::Serializer;
   return [self.remoteSerializer decodedVersion:version];
 }
 
-- (LocalSerializer)toCc {
-  Serializer remote{self.remoteSerializer.databaseID};
-  return LocalSerializer{std::move(remote)};
-}
-
 @end

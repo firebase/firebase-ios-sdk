@@ -18,9 +18,6 @@
 
 #include <utility>
 
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
@@ -34,9 +31,11 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::LocalSerializer;
 using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::ProtoSizer;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 
@@ -44,9 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
 
-+ (FSTLocalSerializer *)localSerializer {
-  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
-  return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
++ (LocalSerializer)localSerializer {
+  Serializer remote_serializer{DatabaseId("p", "d")};
+  return LocalSerializer{std::move(remote_serializer)};
 }
 
 + (Path)levelDBDir {
@@ -69,8 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (std::unique_ptr<LevelDbPersistence>)levelDBPersistenceWithDir:(Path)dir
                                                        lruParams:(LruParams)params {
-  FSTLocalSerializer *serializer = [self localSerializer];
-  auto created = LevelDbPersistence::Create(std::move(dir), serializer, params);
+  auto created = LevelDbPersistence::Create(std::move(dir), self.localSerializer, params);
   if (!created.ok()) {
     [NSException raise:NSInternalInconsistencyException
                 format:@"Failed to open DB: %s", created.status().ToString().c_str()];
@@ -96,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
     (LruParams)lruParams {
-  auto sizer = absl::make_unique<ProtoSizer>([self.localSerializer toCc]);
+  auto sizer = absl::make_unique<ProtoSizer>(self.localSerializer);
   return MemoryPersistence::WithLruGarbageCollector(lruParams, std::move(sizer));
 }
 

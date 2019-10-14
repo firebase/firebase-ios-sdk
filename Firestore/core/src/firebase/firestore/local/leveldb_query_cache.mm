@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -71,8 +72,8 @@ MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
-                                     LocalSerializer serializer)
-    : db_(db), serializer_(std::move(serializer)) {
+                                     LocalSerializer* serializer)
+    : db_(db), serializer_(NOT_NULL(serializer)) {
 }
 
 void LevelDbQueryCache::Start() {
@@ -84,7 +85,7 @@ void LevelDbQueryCache::Start() {
   metadata_ = std::move(maybe_metadata).ValueOrDie();
   Reader r;  // FIXME
   last_remote_snapshot_version_ =
-      serializer_.DecodeVersion(&r, metadata_->last_remote_snapshot_version);
+      serializer_->DecodeVersion(&r, metadata_->last_remote_snapshot_version);
 }
 
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
@@ -304,7 +305,7 @@ const SnapshotVersion& LevelDbQueryCache::GetLastRemoteSnapshotVersion() const {
 void LevelDbQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
   metadata_->last_remote_snapshot_version =
-      serializer_.EncodeVersion(last_remote_snapshot_version_);
+      serializer_->EncodeVersion(last_remote_snapshot_version_);
   SaveMetadata();
 }
 
@@ -348,7 +349,7 @@ void LevelDbQueryCache::Save(const QueryData& query_data) {
   TargetId target_id = query_data.target_id();
   std::string key = LevelDbTargetKey::Key(target_id);
   db_->current_transaction()->Put(
-      key, serializer_.EncodeQueryData(query_data).ToByteString());
+      key, serializer_->EncodeQueryData(query_data).ToByteString());
 }
 
 bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
@@ -381,7 +382,7 @@ QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
   }
 
   Reader r;  // FIXME
-  return serializer_.DecodeQueryData(&r, *maybe_message.ValueOrDie());
+  return serializer_->DecodeQueryData(&r, *maybe_message.ValueOrDie());
 }
 
 }  // namespace local

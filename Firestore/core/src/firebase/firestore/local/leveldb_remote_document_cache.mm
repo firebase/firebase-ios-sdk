@@ -47,14 +47,14 @@ using nanopb::Reader;
 using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
-    LevelDbPersistence* db, LocalSerializer serializer)
-    : db_(db), serializer_(std::move(serializer)) {
+    LevelDbPersistence* db, LocalSerializer* serializer)
+    : db_(db), serializer_(NOT_NULL(serializer)) {
 }
 
 void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
   db_->current_transaction()->Put(
-      ldb_key, serializer_.EncodeMaybeDocument(document).ToByteString());
+      ldb_key, serializer_->EncodeMaybeDocument(document).ToByteString());
 
   db_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
@@ -151,7 +151,7 @@ MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
 
   Reader r;  // FIXME
   MaybeDocument maybe_document =
-      serializer_.DecodeMaybeDocument(&r, *maybe_message.ValueOrDie());
+      serializer_->DecodeMaybeDocument(&r, *maybe_message.ValueOrDie());
   HARD_ASSERT(maybe_document.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
               maybe_document.key().ToString(), key.ToString());

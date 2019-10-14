@@ -19,7 +19,6 @@
 
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -39,7 +38,7 @@ class LocalSerializer;
 class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
   LevelDbRemoteDocumentCache(LevelDbPersistence* db,
-                             LocalSerializer serializer);
+                             LocalSerializer* serializer);
 
   void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
@@ -56,7 +55,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
 
   // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
-  LocalSerializer serializer_;
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
 };
 
 }  // namespace local

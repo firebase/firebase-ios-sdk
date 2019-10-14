@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -123,9 +124,9 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
-                                           LocalSerializer serializer)
+                                           LocalSerializer* serializer)
     : db_(db),
-      serializer_(std::move(serializer)),
+      serializer_(NOT_NULL(serializer)),
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
 
@@ -173,7 +174,7 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
                       std::move(mutations));
   std::string key = mutation_batch_key(batch_id);
   db_->current_transaction()->Put(
-      key, serializer_.EncodeMutationBatch(batch).ToByteString());
+      key, serializer_->EncodeMutationBatch(batch).ToByteString());
 
   // Store an empty value in the index which is equivalent to serializing a
   // GPBEmpty message. In the future if we wanted to store some other kind of
@@ -481,7 +482,7 @@ MutationBatch LevelDbMutationQueue::ParseMutationBatch(
   }
 
   Reader r;  // FIXME
-  return serializer_.DecodeMutationBatch(&r, *maybe_message.ValueOrDie());
+  return serializer_->DecodeMutationBatch(&r, *maybe_message.ValueOrDie());
 }
 
 }  // namespace local

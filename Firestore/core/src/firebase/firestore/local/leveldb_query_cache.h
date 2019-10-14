@@ -20,7 +20,6 @@
 #include <unordered_map>
 
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -35,6 +34,7 @@ namespace firestore {
 namespace local {
 
 class LevelDbPersistence;
+class LocalSerializer;
 
 /** Cached Queries backed by LevelDB. */
 class LevelDbQueryCache : public QueryCache {
@@ -52,7 +52,7 @@ class LevelDbQueryCache : public QueryCache {
    *
    * @param db The LevelDB in which to create the cache.
    */
-  LevelDbQueryCache(LevelDbPersistence* db, LocalSerializer serializer);
+  LevelDbQueryCache(LevelDbPersistence* db, LocalSerializer* serializer);
 
   // Target-related methods
   void AddTarget(const QueryData& query_data) override;
@@ -125,7 +125,8 @@ class LevelDbQueryCache : public QueryCache {
 
   // The LevelDbQueryCache is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
-  LocalSerializer serializer_;
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
   /** A write-through cached copy of the metadata for the query cache. */
   nanopb::Message<firestore_client_TargetGlobal> metadata_ =
       nanopb::Message<firestore_client_TargetGlobal>::Invalid();
