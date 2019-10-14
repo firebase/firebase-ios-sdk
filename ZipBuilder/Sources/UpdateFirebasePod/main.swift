@@ -37,6 +37,8 @@ private func getExpectedVersions() -> [String: String] {
   var releasingVersions: [String: String] = [:]
 
   // Check the existing expected versions and build a dictionary out of the expected versions.
+  // allPods is not yet implemented. Potentially it could be used to validate or fix the Firebase
+  // pod.
   if let podsPath = paths.allPodsPath {
     let allPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: podsPath)
     print("Parsed the following Pods from the public release manifest:")
@@ -114,10 +116,6 @@ private func updateFirebasePod(newVersions: [String: String]) {
     exit(1)
   }
 }
-
-//let fileManager = FileManager.default
-//let path = fileManager.currentDirectoryPath
-//print(path)
 
 do {
   let newVersions = getExpectedVersions()
