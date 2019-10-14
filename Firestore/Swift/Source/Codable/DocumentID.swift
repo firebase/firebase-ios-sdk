@@ -16,36 +16,35 @@
 
 import FirebaseFirestore
 
-/// A type that can convert to itself from a Firestore `DocumentReference`,
+/// A type that can initialize itself from a Firestore `DocumentReference`,
 /// which makes it suitable for use with the `@DocumentID` property wrapper.
 ///
 /// Firestore includes extensions that make `String` and `DocumentReference`
-/// conform to `@DocumentReferenceConvertible`.
+/// conform to `DocumentIDWrappable`.
 ///
 /// Note that Firestore ignores fields annotated with `@DocumentID` when writing
 /// so there is no requirement to convert from the wrapped type back to a
-/// `DocumentReference`. In particular, this means that conversions can be
-/// lossy without any problem.
-public protocol DocumentReferenceConvertible {
+/// `DocumentReference`.
+public protocol DocumentIDWrappable {
   /// Creates a new instance by converting from the given `DocumentReference`.
-  static func convert(from documentReference: DocumentReference) -> Self
+  static func wrap(_ documentReference: DocumentReference) -> Self
 }
 
-extension String: DocumentReferenceConvertible {
-  public static func convert(from documentReference: DocumentReference) -> Self {
+extension String: DocumentIDWrappable {
+  public static func wrap(_ documentReference: DocumentReference) -> Self {
     return documentReference.documentID
   }
 }
 
-extension DocumentReference: DocumentReferenceConvertible {
-  public static func convert(from documentReference: DocumentReference) -> Self {
+extension DocumentReference: DocumentIDWrappable {
+  public static func wrap(_ documentReference: DocumentReference) -> Self {
     // Swift complains that values of type DocumentReference cannot be returned
     // as Self which is nonsensical. The cast forces this to work.
     return documentReference as! Self
   }
 }
 
-/// An internal protocol that allows FirestoreDecoder to test if a type is a
+/// An internal protocol that allows Firestore.Decoder to test if a type is a
 /// DocumentID of some kind without knowing the specific generic parameter that
 /// the user actually used.
 ///
@@ -76,7 +75,7 @@ internal protocol DocumentIDProtocol {
 /// NOTE: Trying to encode/decode this type using encoders/decoders other than
 /// Firestore.Encoder leads to an error.
 @propertyWrapper
-public struct DocumentID<Value: DocumentReferenceConvertible & Codable & Equatable>:
+public struct DocumentID<Value: DocumentIDWrappable & Codable & Equatable>:
   DocumentIDProtocol, Codable, Equatable {
   var value: Value?
 
@@ -93,13 +92,13 @@ public struct DocumentID<Value: DocumentReferenceConvertible & Codable & Equatab
 
   public init(from documentReference: DocumentReference?) {
     if let documentReference = documentReference {
-      value = Value.convert(from: documentReference)
+      value = Value.wrap(documentReference)
     } else {
       value = nil
     }
   }
 
-  // MARK: - `Codable` implemention.
+  // MARK: - `Codable` implementation.
 
   public init(from decoder: Decoder) throws {
     throw FirestoreDecodingError.decodingIsNotSupported(
