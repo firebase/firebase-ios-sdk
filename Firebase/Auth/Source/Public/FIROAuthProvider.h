@@ -85,6 +85,35 @@ NS_SWIFT_NAME(OAuthProvider)
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                      accessToken:(NSString *)accessToken;
 
+/** @fn credentialWithProviderID:IDToken:rawNonce:accessToken:
+    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
+        token, raw nonce and access token.
+
+    @param providerID The provider ID associated with the Auth credential being created.
+    @param IDToken The IDToken associated with the Auth credential being created.
+    @param rawNonce The raw nonce associated with the Auth credential being created.
+    @param accessToken The accessstoken associated with the Auth credential be created, if
+        available.
+    @return A FIRAuthCredential for the specified provider ID, ID token and access token.
+ */
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                        rawNonce:(nullable NSString *)rawNonce
+                                     accessToken:(nullable NSString *)accessToken;
+
+/** @fn credentialWithProviderID:IDToken:rawNonce:
+    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID using
+      an ID token and raw nonce.
+
+    @param providerID The provider ID associated with the Auth credential being created.
+    @param IDToken The IDToken associated with the Auth credential being created.
+    @param rawNonce The raw nonce associated with the Auth credential being created.
+    @return A FIRAuthCredential.
+ */
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                        rawNonce:(nullable NSString *)rawNonce;
+
 /** @fn init
     @brief This class is not meant to be initialized.
  */
