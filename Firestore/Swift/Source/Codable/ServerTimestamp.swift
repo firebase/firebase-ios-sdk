@@ -26,42 +26,42 @@ import FirebaseFirestore
     /// Creates a new instance by converting from the given `Timestamp`.
     ///
     /// - Parameter timestamp: The timestamp from which to convert.
-    init(from timestamp: Timestamp)
+    static func wrap(_ timestamp: Timestamp) -> Self
 
     /// Converts this value into a Firestore `Timestamp`.
     ///
     /// - Returns: A `Timestamp` representation of this value.
-    func timestampValue() -> Timestamp
+    static func unwrap(_ value: Self) -> Timestamp
   }
 
   extension Date: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
-      self = timestamp.dateValue()
+    static func wrap(_ timestamp: Timestamp) -> Self {
+      return timestamp.dateValue()
     }
 
-    func timestampValue() -> Timestamp {
-      return Timestamp(date: self)
+    static func unwrap(_ value: Self) -> Timestamp {
+      return Timestamp(date: value)
     }
   }
 
   extension NSDate: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
+    static func wrap(_ timestamp: Timestamp) -> Self {
       let interval = timestamp.dateValue().timeIntervalSince1970
-      self.init(timeIntervalSince1970: interval)
+      return NSDate(timeIntervalSince1970: interval)
     }
 
-    func timestampValue() -> Timestamp {
-      return Timestamp(date: self)
+    static func unwrap(_ value: Self) -> Timestamp {
+      return Timestamp(date: value)
     }
   }
 
   extension Timestamp: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
-      self = timestamp
+    static func wrap(_ timestamp: Timestamp) -> Self {
+      return timestamp
     }
 
-    func timestampValue() -> Timestamp {
-      return self
+    static func unwrap(_ value: Self) -> Timestamp {
+      return value
     }
   }
 
@@ -100,14 +100,14 @@ import FirebaseFirestore
       if container.decodeNil() {
         value = nil
       } else {
-        value = Value(from: try container.decode(Timestamp.self))
+        value = Value.wrap(try container.decode(Timestamp.self))
       }
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.singleValueContainer()
       if let value = value {
-        try container.encode(value.timestampValue())
+        try container.encode(Value.unwrap(value))
       } else {
         try container.encode(FieldValue.serverTimestamp())
       }
