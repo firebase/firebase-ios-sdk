@@ -490,9 +490,12 @@ class FirestoreEncoderTests: XCTestCase {
 
       // Encoding a resolved server timestamp yields a timestamp; decoding
       // yields it back.
-      let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 123_000_000)
-      assertThat(Model(timestamp: "2019-10-07T21:33:51.123+0000"))
+      let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 122_999_906)
+      assertThat(Model(timestamp: "2019-10-07T21:33:51.123Z"))
         .roundTrips(to: ["timestamp": timestamp])
+
+      assertThat(Model(timestamp: "Invalid date"))
+        .failsToEncode()
     }
   #endif // swift(>=5.1)
 
@@ -548,7 +551,7 @@ class FirestoreEncoderTests: XCTestCase {
     func testAutomaticallyPopulatesDocumentIDOnDocumentReference() throws {
       struct Model: Codable, Equatable {
         var name: String
-        @DocumentID var docId: DocumentReference
+        @DocumentID var docId: DocumentReference?
       }
       assertThat(["name": "abc"], in: "abc/123")
         .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
@@ -557,7 +560,7 @@ class FirestoreEncoderTests: XCTestCase {
     func testAutomaticallyPopulatesDocumentIDOnString() throws {
       struct Model: Codable, Equatable {
         var name: String
-        @DocumentID var docId: String
+        @DocumentID var docId: String?
       }
       assertThat(["name": "abc"], in: "abc/123")
         .decodes(to: Model(name: "abc", docId: "123"))
@@ -566,7 +569,7 @@ class FirestoreEncoderTests: XCTestCase {
     func testDocumentIDIgnoredInEncoding() throws {
       struct Model: Codable, Equatable {
         var name: String
-        @DocumentID var docId: DocumentReference
+        @DocumentID var docId: DocumentReference?
       }
       assertThat(Model(name: "abc", docId: FSTTestDocRef("abc/123")))
         .encodes(to: ["name": "abc"])
@@ -580,7 +583,7 @@ class FirestoreEncoderTests: XCTestCase {
     func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
       struct Model: Codable, Equatable {
         var name: String
-        @DocumentID var docId: DocumentReference
+        @DocumentID var docId: DocumentReference?
       }
 
       do {
@@ -710,13 +713,17 @@ private class DictionarySubject {
 }
 
 #if swift(>=5.1)
+  enum DateError: Error {
+    case invalidDate(String)
+  }
+
   // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
   // server timestamps will be stored in an ISO 8601 date format.
   //
   // This example exists outside the main implementation to show that users can
   // extend @ServerTimestamp with arbitrary types.
   extension String: ServerTimestampWrappable {
-    static let formatter = {
+    static let formatter: DateFormatter = {
       let formatter = DateFormatter()
       formatter.calendar = Calendar(identifier: .iso8601)
       formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -725,12 +732,17 @@ private class DictionarySubject {
       return formatter
     }()
 
-    static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
       return formatter.string(from: timestamp.dateValue())
     }
 
-    static func unwrap(_ value: Self) -> Timestamp {
-      return Timestamp(date: formatter.date(from: self))
+    public static func unwrap(_ value: Self) throws -> Timestamp {
+      let date = formatter.date(from: value)
+      if let date = date {
+        return Timestamp(date: date)
+      } else {
+        throw DateError.invalidDate(value)
+      }
     }
   }
 #endif // swift(>=5.1)

@@ -348,7 +348,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
           "cannot assign the document reference to this field.")
       }
 
-      return type.init(from: docRef) as! T
+      return try type.init(from: docRef) as! T
     }
 
     let entry = try require(key: key)

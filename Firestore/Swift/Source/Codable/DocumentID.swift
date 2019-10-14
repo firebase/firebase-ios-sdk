@@ -28,17 +28,17 @@ import FirebaseFirestore
   /// `DocumentReference`.
   public protocol DocumentIDWrappable {
     /// Creates a new instance by converting from the given `DocumentReference`.
-    static func wrap(_ documentReference: DocumentReference) -> Self
+    static func wrap(_ documentReference: DocumentReference) throws -> Self
   }
 
   extension String: DocumentIDWrappable {
-    public static func wrap(_ documentReference: DocumentReference) -> Self {
+    public static func wrap(_ documentReference: DocumentReference) throws -> Self {
       return documentReference.documentID
     }
   }
 
   extension DocumentReference: DocumentIDWrappable {
-    public static func wrap(_ documentReference: DocumentReference) -> Self {
+    public static func wrap(_ documentReference: DocumentReference) throws -> Self {
       // Swift complains that values of type DocumentReference cannot be returned
       // as Self which is nonsensical. The cast forces this to work.
       return documentReference as! Self
@@ -57,7 +57,7 @@ import FirebaseFirestore
   /// `DocumentID<Value>`.
   internal protocol DocumentIDProtocol {
     /// Initializes the DocumentID from a DocumentReference.
-    init(from documentReference: DocumentReference?)
+    init(from documentReference: DocumentReference?) throws
   }
 
   /// A value that is populated in Codable objects with the `DocumentReference`
@@ -91,9 +91,9 @@ import FirebaseFirestore
 
     // MARK: - `DocumentIDProtocol` conformance
 
-    public init(from documentReference: DocumentReference?) {
+    public init(from documentReference: DocumentReference?) throws {
       if let documentReference = documentReference {
-        value = Value.wrap(documentReference)
+        value = try Value.wrap(documentReference)
       } else {
         value = nil
       }

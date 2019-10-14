@@ -26,41 +26,41 @@ import FirebaseFirestore
     /// Creates a new instance by converting from the given `Timestamp`.
     ///
     /// - Parameter timestamp: The timestamp from which to convert.
-    static func wrap(_ timestamp: Timestamp) -> Self
+    static func wrap(_ timestamp: Timestamp) throws -> Self
 
     /// Converts this value into a Firestore `Timestamp`.
     ///
     /// - Returns: A `Timestamp` representation of this value.
-    static func unwrap(_ value: Self) -> Timestamp
+    static func unwrap(_ value: Self) throws -> Timestamp
   }
 
   extension Date: ServerTimestampWrappable {
-    public static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
       return timestamp.dateValue()
     }
 
-    public static func unwrap(_ value: Self) -> Timestamp {
+    public static func unwrap(_ value: Self) throws -> Timestamp {
       return Timestamp(date: value)
     }
   }
 
   extension NSDate: ServerTimestampWrappable {
-    public static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
       let interval = timestamp.dateValue().timeIntervalSince1970
       return NSDate(timeIntervalSince1970: interval) as! Self
     }
 
-    public static func unwrap(_ value: NSDate) -> Timestamp {
+    public static func unwrap(_ value: NSDate) throws -> Timestamp {
       return Timestamp(date: value as Date)
     }
   }
 
   extension Timestamp: ServerTimestampWrappable {
-    public static func wrap(_ timestamp: Timestamp) -> Self {
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
       return timestamp as! Self
     }
 
-    public static func unwrap(_ value: Timestamp) -> Timestamp {
+    public static func unwrap(_ value: Timestamp) throws -> Timestamp {
       return value
     }
   }
@@ -100,7 +100,7 @@ import FirebaseFirestore
       if container.decodeNil() {
         value = nil
       } else {
-        value = Value.wrap(try container.decode(Timestamp.self))
+        value = try Value.wrap(try container.decode(Timestamp.self))
       }
     }
 
