@@ -22,9 +22,6 @@ protocol FileChecker {
   /// Returns a Boolean value that indicates whether a file or directory exists at a specified path.
   /// This matches the `FileManager` API.
   func fileExists(atPath: String) -> Bool
-
-  /// Returns a Boolean value that indicates whether a directory exists at a specified path.
-  func directoryExists(at url: URL) -> Bool
 }
 
 // Make FileManager a FileChecker. This is empty since FileManager already provides this
@@ -133,7 +130,6 @@ struct LaunchArgs {
           \(option.usage)
       """)
     }
-
     fatalError("Invalid arguments. See output above for specific error and usage instructions.")
   }
 }

@@ -18,23 +18,7 @@ import Foundation
 
 import ManifestReader
 
-/// Misc. constants used in the build tool.
-public struct Constants {
-  /// Constants related to the Xcode project template.
-  public struct ProjectPath {
-    // Required for building.
-
-    // Make the struct un-initializable.
-    @available(*, unavailable)
-    init() { fatalError() }
-  }
-
-  // Make the struct un-initializable.
-  @available(*, unavailable)
-  init() { fatalError() }
-}
-
-/// A zip file builder. The zip file can be built with the `buildAndAssembleReleaseDir()` function.
+/// Updates the Firebase Pod with a release's version set.
 struct FirebasePod {
 
   /// Relevant paths in the filesystem to build the release directory.
@@ -67,5 +51,4 @@ struct FirebasePod {
   init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
     self.paths = paths
   }
-
 }
