@@ -725,11 +725,11 @@ private class DictionarySubject {
       return formatter
     }()
 
-    init(from timestamp: Timestamp) {
-      self = formatter.string(from: timestamp.dateValue())
+    static func wrap(_ timestamp: Timestamp) -> Self {
+      return formatter.string(from: timestamp.dateValue())
     }
 
-    func timestampValue() -> Timestamp {
+    static func unwrap(_ value: Self) -> Timestamp {
       return Timestamp(date: formatter.date(from: self))
     }
   }
