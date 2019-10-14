@@ -18,32 +18,47 @@ import Foundation
 
 import ManifestReader
 
+
 // Get the launch arguments, parsed by user defaults.
 let args = LaunchArgs.shared
 
-// Keep timing for how long it takes to change the Firebase pod versions.
+// Keep timing for how long it takes to build the zip file for information purposes.
 let buildStart = Date()
 var cocoaPodsUpdateMessage: String = ""
 
-var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleasePath,
-                                        gitRootPath: args.gitRootPath)
+var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleasePath)
+paths.allPodsPath = args.allPodsPath
+paths.gitRootPath = args.gitRootPath
 
-/// Assembles the expected versions based on the release manifest passed in.
+/// Assembles the expected versions based on the release manifests passed in, if they were.
 /// Returns an array with the pod name as the key and version as the value,
 private func getExpectedVersions() -> [String: String] {
   // Merge the versions from the current release and the known public versions.
   var releasingVersions: [String: String] = [:]
 
+  // Check the existing expected versions and build a dictionary out of the expected versions.
+  if let podsPath = paths.allPodsPath {
+    let allPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: podsPath)
+    print("Parsed the following Pods from the public release manifest:")
+
+    for pod in allPods.sdk {
+      releasingVersions[pod.name] = pod.publicVersion
+      print("\(pod.name): \(pod.publicVersion)")
+    }
+  }
+
   // Override any of the expected versions with the current release manifest, if it exists.
-  let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: paths.currentReleasePath)
-  print("Overriding the following Pod versions, taken from the current release manifest:")
-  for pod in currentRelease.sdk {
-    releasingVersions[pod.sdkName] = pod.sdkVersion
-    print("\(pod.sdkName): \(pod.sdkVersion)")
+  if let releasePath = paths.currentReleasePath {
+    let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
+    print("Overriding the following Pod versions, taken from the current release manifest:")
+    for pod in currentRelease.sdk {
+      releasingVersions[pod.sdkName] = pod.sdkVersion
+      print("\(pod.sdkName): \(pod.sdkVersion)")
+    }
   }
 
   if !releasingVersions.isEmpty {
-    print("Updating Firebase Pod in git installation at \(paths.gitRootPath)) " +
+    print("Updating Firebase Pod in git installation at \(String(describing: paths.gitRootPath!)) " +
       "with the following versions: \(releasingVersions)")
   }
 
@@ -51,20 +66,19 @@ private func getExpectedVersions() -> [String: String] {
 }
 
 private func updateFirebasePod(newVersions: [String: String]) {
-  let podspecFile = paths.gitRootPath + "/Firebase.podspec"
+  let podspecFile = paths.gitRootPath! + "/Firebase.podspec"
   var contents = ""
   do {
     contents = try String(contentsOfFile: podspecFile, encoding: .utf8)
   } catch {
-    fatalError("Could not read Firebase podspec. \(error)")
+    print(error)
+    exit(1)
   }
   for (pod, version) in newVersions {
     if pod == "Firebase" {
       // Replace version in string like s.version = '6.9.0'
-      guard let range = contents.range(of: "s.version") else {
-        fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
-      }
-      var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
+      let range = contents.range(of: "s.version")
+      var versionStartIndex = contents.index(range!.upperBound, offsetBy: 1)
       while contents[versionStartIndex] != "'" {
         versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
       }
@@ -96,16 +110,21 @@ private func updateFirebasePod(newVersions: [String: String]) {
     try contents.write(toFile: podspecFile, atomically: false, encoding: String.Encoding.utf8)
   }
   catch {
-    fatalError("Failed to write \(podspecFile). \(error)")
+    print(error)
+    exit(1)
   }
 }
+
+//let fileManager = FileManager.default
+//let path = fileManager.currentDirectoryPath
+//print(path)
 
 do {
   let newVersions = getExpectedVersions()
   updateFirebasePod(newVersions: newVersions)
   print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
 
-  // Get the time since the tool start.
+  // Get the time since the start of the build to get the full time.
     let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
   print("""
   Time profile:

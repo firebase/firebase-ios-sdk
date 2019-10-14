@@ -18,7 +18,23 @@ import Foundation
 
 import ManifestReader
 
-/// Updates the Firebase Pod with a release's version set.
+/// Misc. constants used in the build tool.
+public struct Constants {
+  /// Constants related to the Xcode project template.
+  public struct ProjectPath {
+    // Required for building.
+
+    // Make the struct un-initializable.
+    @available(*, unavailable)
+    init() { fatalError() }
+  }
+
+  // Make the struct un-initializable.
+  @available(*, unavailable)
+  init() { fatalError() }
+}
+
+/// A zip file builder. The zip file can be built with the `buildAndAssembleReleaseDir()` function.
 struct FirebasePod {
 
   /// Relevant paths in the filesystem to build the release directory.
@@ -27,10 +43,16 @@ struct FirebasePod {
 
     /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
     /// expected version numbers.
-    let currentReleasePath: URL
+    var currentReleasePath: URL?
+
+    // MARK: - Optional Paths
+
+    /// A file URL to a textproto with the contents of a `FirebasePod_FirebasePods` object. Used to
+    /// verify expected version numbers.
+    var allPodsPath: URL?
 
     /// A file path to the path of the checked out git repo.
-    let gitRootPath: String
+    var gitRootPath: String?
   }
 
   /// Paths needed throughout the process of packaging the Zip file.
@@ -41,7 +63,9 @@ struct FirebasePod {
   ///
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
-  init(paths: FilesystemPaths) {
+  ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
+  init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
     self.paths = paths
   }
+
 }
