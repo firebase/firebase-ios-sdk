@@ -543,3 +543,4 @@ jobs:
 branches:
   only:
     - master
+    - release-6.10.0
