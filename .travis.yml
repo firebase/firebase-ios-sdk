@@ -9,6 +9,9 @@ stages:
   - checks
   - test
 
+before_script:
+  - bundle exec danger
+
 jobs:
   include:
     - stage: checks
