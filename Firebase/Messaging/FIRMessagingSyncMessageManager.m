@@ -49,7 +49,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
 
 - (void)removeExpiredSyncMessages {
   [self.rmqManager deleteExpiredOrFinishedSyncMessages];
-  
 }
 
 - (BOOL)didReceiveAPNSSyncMessage:(NSDictionary *)message {
@@ -94,7 +93,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
   } else if (viaMCS && !persistentMessage.mcsReceived) {
     persistentMessage.mcsReceived = YES;
     [self.rmqManager updateSyncMessageViaMCSWithRmqID:rmqID];
-     
   }
 
   // Received message via both ways we can safely delete it.

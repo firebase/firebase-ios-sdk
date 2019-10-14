@@ -589,19 +589,19 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)createTableWithName:(NSString *)tableName command:(NSString *)command {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
-    char *error;
-    NSString *createDatabase = [NSString stringWithFormat:command, kTablePrefix, tableName];
-    if (sqlite3_exec(self->_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
-      // remove db before failing
-      [self removeDatabase];
-      NSString *errorMessage = [NSString stringWithFormat:@"Couldn't create table: %@ %@",
-                                kCreateTableOutgoingRmqMessages,
-                                [NSString stringWithCString:error encoding:NSUTF8StringEncoding]];
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable,
-                              @"%@",
-                              errorMessage);
-      NSAssert(NO, errorMessage);
-    }
+  char *error;
+  NSString *createDatabase = [NSString stringWithFormat:command, kTablePrefix, tableName];
+  if (sqlite3_exec(self->_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
+    // remove db before failing
+    [self removeDatabase];
+    NSString *errorMessage = [NSString stringWithFormat:@"Couldn't create table: %@ %@",
+                              kCreateTableOutgoingRmqMessages,
+                              [NSString stringWithCString:error encoding:NSUTF8StringEncoding]];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable,
+                            @"%@",
+                            errorMessage);
+    NSAssert(NO, errorMessage);
+  }
 }
 
 - (void)dropTableWithName:(NSString *)tableName {
@@ -827,7 +827,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
         FIRMessagingRmqLogAndReturn(delete_statement);
       }
       sqlite3_finalize(delete_statement);
-      deleteCount += sqlite3_changes(_database);
+      deleteCount += sqlite3_changes(self->_database);
       start = end;
     }
 
@@ -836,7 +836,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                             @"Trying to delete %d s2D ID's, successfully deleted %d",
                             toDelete, deleteCount);
   });
-  
 }
 
 - (int64_t)nextRmqId {
