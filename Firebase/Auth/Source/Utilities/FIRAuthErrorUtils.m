@@ -467,7 +467,7 @@ static NSString *const kFIRAuthErrorMessageRejectedCredential =
     @brief Error message constant describing @c FIRAuthErrorCodeMissingOrInvalidNonce errors.
  */
 static NSString *const kFIRAuthErrorMessageMissingOrInvalidNonce =
-    @"The request contains malformed or mismatching credentials.";
+    @"The request contains malformed or mismatched credentials.";
 
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
