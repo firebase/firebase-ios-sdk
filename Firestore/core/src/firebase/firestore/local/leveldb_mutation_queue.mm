@@ -19,9 +19,6 @@
 #include <memory>
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
@@ -29,11 +26,10 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -52,8 +48,9 @@ using model::Mutation;
 using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
-using nanopb::MakeByteString;
-using nanopb::MakeNSData;
+using nanopb::MaybeMessage;
+using nanopb::Message;
+using nanopb::Reader;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
   // TODO(gsoltis): implement Prev() and SeekToLast() on
@@ -126,9 +123,9 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
-                                           FSTLocalSerializer* serializer)
+                                           LocalSerializer serializer)
     : db_(db),
-      serializer_(serializer),
+      serializer_(std::move(serializer)),
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
 
@@ -136,11 +133,15 @@ void LevelDbMutationQueue::Start() {
   next_batch_id_ = LoadNextBatchIdFromDb(db_->ptr());
 
   std::string key = mutation_queue_key();
-  FSTPBMutationQueue* metadata = MetadataForKey(key);
-  if (!metadata) {
-    metadata = [FSTPBMutationQueue message];
+  auto maybe_metadata = MetadataForKey(key);
+  if (maybe_metadata.ok()) {
+    metadata_ = std::move(maybe_metadata).ValueOrDie();
+  } else if (maybe_metadata.status().code() == Error::NotFound) {
+    metadata_ = Message<firestore_client_MutationQueue>::Empty();
+  } else {
+    HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
+              maybe_metadata.status().ToString());
   }
-  metadata_ = metadata;
 }
 
 bool LevelDbMutationQueue::IsEmpty() {
@@ -171,8 +172,8 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
   MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
                       std::move(mutations));
   std::string key = mutation_batch_key(batch_id);
-  db_->current_transaction()->Put(key,
-                                  [serializer_ encodedMutationBatch:batch]);
+  db_->current_transaction()->Put(
+      key, serializer_.EncodeMutationBatch(batch).ToByteString());
 
   // Store an empty value in the index which is equivalent to serializing a
   // GPBEmpty message. In the future if we wanted to store some other kind of
@@ -428,13 +429,13 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
 }
 
 ByteString LevelDbMutationQueue::GetLastStreamToken() {
-  return MakeByteString(metadata_.lastStreamToken);
+  return ByteString{metadata_->last_stream_token};
 }
 
-void LevelDbMutationQueue::SetLastStreamToken(const ByteString& stream_token) {
-  metadata_.lastStreamToken = MakeNullableNSData(stream_token);
-
-  db_->current_transaction()->Put(mutation_queue_key(), metadata_);
+void LevelDbMutationQueue::SetLastStreamToken(ByteString stream_token) {
+  metadata_->last_stream_token = stream_token.release();
+  db_->current_transaction()->Put(mutation_queue_key(),
+                                  metadata_.ToByteString());
 }
 
 std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
@@ -459,47 +460,30 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
   return result;
 }
 
-FSTPBMutationQueue* _Nullable LevelDbMutationQueue::MetadataForKey(
-    const std::string& key) {
+MaybeMessage<firestore_client_MutationQueue>
+LevelDbMutationQueue::MetadataForKey(const std::string& key) {
   std::string value;
   Status status = db_->current_transaction()->Get(key, &value);
-  if (status.ok()) {
-    NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)value.data()
-                                                length:value.size()
-                                          freeWhenDone:NO];
-
-    NSError* error;
-    FSTPBMutationQueue* proto = [FSTPBMutationQueue parseFromData:data
-                                                            error:&error];
-    if (!proto) {
-      HARD_FAIL("FSTPBMutationQueue failed to parse: %s", error);
-    }
-    return proto;
-  } else if (status.IsNotFound()) {
-    return nil;
-  } else {
-    HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
-              status.ToString());
+  if (!status.ok()) {
+    return ConvertStatus(status);
   }
+
+  return Message<firestore_client_MutationQueue>::TryDecode(ByteString{value});
 }
 
 MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:NO];
-
-  NSError* error;
-  FSTPBWriteBatch* proto = [FSTPBWriteBatch parseFromData:data error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBMutationBatch failed to parse: %s", error);
+  auto maybe_message =
+      Message<firestore_client_WriteBatch>::TryDecode(ByteString{encoded});
+  if (!maybe_message.ok()) {
+    HARD_FAIL("MutationBatch proto failed to parse: %s",
+              maybe_message.status().ToString());
   }
 
-  return [serializer_ decodedMutationBatch:proto];
+  Reader r;  // FIXME
+  return serializer_.DecodeMutationBatch(&r, *maybe_message.ValueOrDie());
 }
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

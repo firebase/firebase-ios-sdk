@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_SERIALIZER_H_
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
@@ -96,7 +97,7 @@ class LocalSerializer {
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
    * a ::firestore::client::WriteBatch, for local storage in the mutation queue.
    */
-  firestore_client_WriteBatch EncodeMutationBatch(
+  nanopb::Message<firestore_client_WriteBatch> EncodeMutationBatch(
       const model::MutationBatch& mutation_batch) const;
 
   /**

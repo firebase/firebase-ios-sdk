@@ -53,7 +53,6 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
-using nanopb::make_message;
 using nanopb::Message;
 using nanopb::Reader;
 using nanopb::Writer;
@@ -223,7 +222,8 @@ Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
       query_data.snapshot_version().timestamp());
 
   // Force a copy because pb_release would otherwise double-free.
-  result->resume_token = nanopb::CopyBytesArray(query_data.resume_token().get());
+  result->resume_token =
+      nanopb::CopyBytesArray(query_data.resume_token().get());
 
   const Query& query = query_data.query();
   if (query.IsDocumentQuery()) {
@@ -269,31 +269,31 @@ QueryData LocalSerializer::DecodeQueryData(
                    QueryPurpose::Listen, version, std::move(resume_token));
 }
 
-firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
+Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
     const MutationBatch& mutation_batch) const {
-  firestore_client_WriteBatch result{};
+  Message<firestore_client_WriteBatch> result;
 
-  result.batch_id = mutation_batch.batch_id();
+  result->batch_id = mutation_batch.batch_id();
 
   pb_size_t count = CheckedSize(mutation_batch.base_mutations().size());
-  result.base_writes_count = count;
-  result.base_writes = MakeArray<google_firestore_v1_Write>(count);
+  result->base_writes_count = count;
+  result->base_writes = MakeArray<google_firestore_v1_Write>(count);
   int i = 0;
   for (const auto& mutation : mutation_batch.base_mutations()) {
-    result.base_writes[i] = rpc_serializer_.EncodeMutation(mutation);
+    result->base_writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
 
   count = CheckedSize(mutation_batch.mutations().size());
-  result.writes_count = count;
-  result.writes = MakeArray<google_firestore_v1_Write>(count);
+  result->writes_count = count;
+  result->writes = MakeArray<google_firestore_v1_Write>(count);
   i = 0;
   for (const auto& mutation : mutation_batch.mutations()) {
-    result.writes[i] = rpc_serializer_.EncodeMutation(mutation);
+    result->writes[i] = rpc_serializer_.EncodeMutation(mutation);
     i++;
   }
 
-  result.local_write_time =
+  result->local_write_time =
       rpc_serializer_.EncodeTimestamp(mutation_batch.local_write_time());
 
   return result;

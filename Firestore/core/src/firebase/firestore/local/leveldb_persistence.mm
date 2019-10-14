@@ -237,7 +237,7 @@ LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
     const auth::User& user) {
   users_.insert(user.uid());
   current_mutation_queue_ =
-      absl::make_unique<LevelDbMutationQueue>(user, this, serializer_);
+      absl::make_unique<LevelDbMutationQueue>(user, this, serializer_.toCc);
   return current_mutation_queue_.get();
 }
 

@@ -56,7 +56,7 @@ MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
   if (status.IsNotFound()) {
     return ConvertStatus(status);
   } else if (!status.ok()) {
-    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key,
+    HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
               status.ToString());
   }
 
@@ -358,7 +358,8 @@ bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
     updated = true;
   }
 
-  if (query_data.sequence_number() > metadata_->highest_listen_sequence_number) {
+  if (query_data.sequence_number() >
+      metadata_->highest_listen_sequence_number) {
     metadata_->highest_listen_sequence_number = query_data.sequence_number();
     updated = true;
   }

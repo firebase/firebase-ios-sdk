@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
@@ -37,13 +37,17 @@ inline const pb_field_t* GetNanopbFields<firestore_client_MaybeDocument>() {
 }
 
 template <>
+inline const pb_field_t* GetNanopbFields<firestore_client_MutationQueue>() {
+  return firestore_client_MutationQueue_fields;
+}
+
+template <>
 inline const pb_field_t* GetNanopbFields<firestore_client_Target>() {
   return firestore_client_Target_fields;
 }
 
 template <>
-inline const pb_field_t*
-GetNanopbFields<firestore_client_TargetGlobal>() {
+inline const pb_field_t* GetNanopbFields<firestore_client_TargetGlobal>() {
   return firestore_client_TargetGlobal_fields;
 }
 
@@ -72,4 +76,4 @@ inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteResponse>() {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_

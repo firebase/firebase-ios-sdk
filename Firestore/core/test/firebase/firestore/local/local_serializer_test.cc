@@ -195,12 +195,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeMutationBatch(local::LocalSerializer* serializer,
                                  const MutationBatch& mutation_batch) {
-    ByteStringWriter writer;
-    firestore_client_WriteBatch proto =
-        serializer->EncodeMutationBatch(mutation_batch);
-    writer.WriteNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    return writer.Release();
+    return serializer->EncodeMutationBatch(mutation_batch).ToByteString();
   }
 
   std::string message_differences;

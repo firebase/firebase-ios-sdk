@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 
+#include <utility>
+
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -31,7 +33,6 @@ namespace {
 using model::DocumentKey;
 using model::MaybeDocument;
 using nanopb::ByteString;
-using nanopb::make_message;
 using nanopb::Message;
 
 }  // namespace
@@ -45,7 +46,7 @@ int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  auto message = make_message(serializer_.EncodeMutationBatch(batch));
+  auto message = serializer_.EncodeMutationBatch(batch);
   return message.ToByteString().size();
 }
 

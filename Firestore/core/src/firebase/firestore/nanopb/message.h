@@ -84,6 +84,10 @@ class Message {
     return Message{nullptr};
   }
 
+  static Message Empty() {
+    return Message{};
+  }
+
   /**
    * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
    * given bytes are ill-formed, returns a failed `Status`.
@@ -162,8 +166,6 @@ class Message {
   friend class remote::WatchStreamSerializer;
   friend class remote::WriteStreamSerializer;
   friend class remote::DatastoreSerializer;
-  template <typename U>
-  friend Message<U> make_message(U);
 
   // FIXME
   Message() = default;
@@ -180,13 +182,6 @@ class Message {
   const pb_field_t* fields_ = GetNanopbFields<T>();
   T proto_{};
 };
-
-template <typename T>
-inline Message<T> make_message(T proto) {
-  Message<T> result;
-  result.proto_ = proto;
-  return result;
-}
 
 namespace internal {
 util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);

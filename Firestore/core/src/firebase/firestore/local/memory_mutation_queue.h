@@ -81,7 +81,7 @@ class MemoryMutationQueue : public MutationQueue {
   int64_t CalculateByteSize(const Sizer& sizer);
 
   nanopb::ByteString GetLastStreamToken() override;
-  void SetLastStreamToken(const nanopb::ByteString& token) override;
+  void SetLastStreamToken(nanopb::ByteString token) override;
 
  private:
   using DocumentKeyReferenceSet =

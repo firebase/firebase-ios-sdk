@@ -19,7 +19,7 @@
 
 #include <unordered_map>
 
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
