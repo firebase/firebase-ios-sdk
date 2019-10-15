@@ -508,14 +508,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
         [expectation fulfill];
       }
       return YES;
-
     }
     return NO;
   };
-  [[[mockConnection stub] andDo:^(NSInvocation *invocation) {
-    // pass
-  }] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
-
+  [[mockConnection stub] sendProto:[OCMArg checkWithBlock:resendMessageBlock]];
   [self.dataMessageManager resendMessagesWithConnection:mockConnection];
 
   // should send both messages
@@ -545,7 +541,9 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
   id mockConnection = OCMClassMock([FIRMessagingConnection class]);
   [[mockConnection reject] sendProto:[OCMArg any]];
-  OCMExpect([self.mockRmqManager scanWithRmqMessageHandler:[OCMArg any]]);
+  [[self.mockRmqManager stub] scanWithRmqMessageHandler:[OCMArg checkWithBlock:^BOOL(id obj) {
+        return YES;
+    }]];
 
   [self.dataMessageManager resendMessagesWithConnection:mockConnection];
   OCMVerifyAll(self.mockRmqManager);
