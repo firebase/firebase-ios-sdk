@@ -52,5 +52,3 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenHTTPCode) {
   FIRInstallationsAuthTokenHTTPCodeInvalidAuthentication = 401,
   FIRInstallationsAuthTokenHTTPCodeFIDNotFound = 404,
 };
-
-extern NSInteger const kFIRInstallationsAPIInternalErrorHTTPCode;

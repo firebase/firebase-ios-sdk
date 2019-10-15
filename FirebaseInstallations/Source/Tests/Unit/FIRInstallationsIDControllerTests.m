@@ -725,7 +725,7 @@
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
   NSError *error500 =
-      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode];
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 

@@ -137,7 +137,7 @@
 - (void)testAuthTokenError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   [errorPromise reject:[FIRInstallationsErrorUtil
-                           APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode]];
+                           APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError]];
   OCMExpect([self.mockIDController getAuthTokenForcingRefresh:NO]).andReturn(errorPromise);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
@@ -186,7 +186,7 @@
 - (void)testAuthTokenForcingRefreshError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   [errorPromise reject:[FIRInstallationsErrorUtil
-                           APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode]];
+                           APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError]];
   OCMExpect([self.mockIDController getAuthTokenForcingRefresh:YES]).andReturn(errorPromise);
 
   XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"AuthTokenSuccess"];
@@ -221,7 +221,7 @@
 - (void)testDeleteError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   NSError *APIError =
-      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode];
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
   [errorPromise reject:APIError];
   OCMExpect([self.mockIDController deleteInstallation]).andReturn(errorPromise);
 
