@@ -677,7 +677,11 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) != SQLITE_OK) {
       [self logError];
       sqlite3_finalize(statement);
-      return;
+      if (rmqMessageHandler) {
+        dispatch_async(dispatch_get_main_queue(),^{
+          rmqMessageHandler(messages);
+        });
+      }
     }
     // can query sqlite3 for this but this is fine
     const int rmqIdColumnNumber = 0;

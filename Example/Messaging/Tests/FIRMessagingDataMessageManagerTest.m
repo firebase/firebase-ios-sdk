@@ -564,6 +564,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // wait for 3 seconds (let the amessage get properly deleted)
   [NSThread sleepForTimeInterval:3.0];
   // rmq should not have any pending messages
+
   [newRmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
     XCTAssertEqual(messages.allKeys.count, 1);
     [newRmqManager removeDatabase];
