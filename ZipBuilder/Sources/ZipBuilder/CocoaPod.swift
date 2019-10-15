@@ -28,7 +28,6 @@ public enum CocoaPod: String, CaseIterable {
   case dynamicLinks = "DynamicLinks"
   case firestore = "Firestore"
   case functions = "Functions"
-  case googleSignIn = "GoogleSignIn"
   case inAppMessaging = "InAppMessaging"
   case inAppMessagingDisplay = "InAppMessagingDisplay"
   case messaging = "Messaging"
@@ -61,7 +60,6 @@ public enum CocoaPod: String, CaseIterable {
   /// The name of the pod in the CocoaPods repo.
   public var podName: String {
     switch self {
-    case .googleSignIn: return rawValue
     default: return "Firebase/\(rawValue)"
     }
   }
@@ -79,7 +77,7 @@ public enum CocoaPod: String, CaseIterable {
   /// Describes the dependency on other frameworks for the README file.
   public func readmeHeader() -> String {
     var header = "## \(rawValue)"
-    if !(self == .analytics || self == .googleSignIn) {
+    if !(self == .analytics) {
       header += " (~> Analytics)"
     }
     header += "\n"
@@ -104,7 +102,6 @@ public enum CocoaPod: String, CaseIterable {
          .dynamicLinks,
          .firestore,
          .functions,
-         .googleSignIn,
          .inAppMessaging,
          .inAppMessagingDisplay,
          .messaging,
