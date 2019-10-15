@@ -343,6 +343,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeGameKitNotLinked = 17076,
 
+    /** Indicates that the nonce is missing or invalid.
+     */
+    FIRAuthErrorCodeMissingOrInvalidNonce = 17094,
+
     /** Indicates an error for when the client identifier is missing.
      */
     FIRAuthErrorCodeMissingClientIdentifier = 17993,
