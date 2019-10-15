@@ -73,7 +73,10 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [super setUp];
   _mockClient = OCMClassMock([FIRMessagingClient class]);
   _mockReceiver = OCMClassMock([FIRMessagingReceiver class]);
-  _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
+  FIRMessagingRmqManager *newRmqManager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+  [newRmqManager loadRmqId];
+  _mockRmqManager = OCMPartialMock(newRmqManager);
   _mockSyncMessageManager = OCMClassMock([FIRMessagingSyncMessageManager class]);
   _dataMessageManager = [[FIRMessagingDataMessageManager alloc]
         initWithDelegate:_mockReceiver
@@ -260,7 +263,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   NSString *messageID = @"1";
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:0 delay:0];
 
-
   BOOL(^isValidStanza)(id obj) = ^BOOL(id obj) {
     if ([obj isKindOfClass:[GtalkDataMessageStanza class]]) {
       GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)obj;
@@ -282,8 +284,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   OCMVerifyAll(self.mockClient);
 }
 
-// TODO: Investigate why this test is flaky
-- (void)xxx_testSendValidMessage_withTTL0AndNoNetwork {
+- (void)testSendValidMessage_withTTL0AndNoNetwork {
   // simulate a invalid connection
   [[[self.mockClient stub] andReturnValue:@NO] isConnectionActive];
 
@@ -476,12 +477,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   [[[self.mockClient stub] andReturnValue:@(isClientConnected)] isConnectionActive];
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
-
-  FIRMessagingRmqManager *newRmqManager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-  [newRmqManager loadRmqId];
-  // have a real RMQ store
-  [self.dataMessageManager setRmq2Manager:newRmqManager];
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
 
   // send a couple of message with no connection should be saved to RMQ
@@ -525,13 +520,11 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
   // should send both messages
   OCMVerifyAll(mockConnection);
-  [newRmqManager removeDatabase];
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testResendingExpiredMessagesFails {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"scan is complete"];
   // TODO: Test that expired messages should not be sent on resend
   static BOOL isClientConnected = NO;
   [[[self.mockClient stub] andDo:^(NSInvocation *invocation) {
@@ -540,12 +533,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
-
-  FIRMessagingRmqManager *newRmqManager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-  [newRmqManager loadRmqId];
-  // have a real RMQ store
-  [self.dataMessageManager setRmq2Manager:newRmqManager];
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   // send a message that expires in 1 sec
@@ -557,20 +544,11 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   isClientConnected = YES;
 
   id mockConnection = OCMClassMock([FIRMessagingConnection class]);
-
   [[mockConnection reject] sendProto:[OCMArg any]];
-  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
-  
-  // wait for 3 seconds (let the amessage get properly deleted)
-  [NSThread sleepForTimeInterval:3.0];
-  // rmq should not have any pending messages
+  OCMExpect([self.mockRmqManager scanWithRmqMessageHandler:[OCMArg any]]);
 
-  [newRmqManager scanWithRmqMessageHandler:^(NSDictionary *messages) {
-    XCTAssertEqual(messages.allKeys.count, 1);
-    [newRmqManager removeDatabase];
-    [expectation fulfill];
-  }];
-  [self waitForExpectationsWithTimeout:11.0 handler:nil];
+  [self.dataMessageManager resendMessagesWithConnection:mockConnection];
+  OCMVerifyAll(self.mockRmqManager);
 }
 
 #pragma mark - Create Packet

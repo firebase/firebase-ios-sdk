@@ -439,7 +439,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
                              rmqIdsResent);
     }
     if ([toRemoveRmqIds count]) {
-      [self.rmq2Manager removeRmqMessagesWithRmqIds:toRemoveRmqIds];
+      [self.rmq2Manager removeRmqMessagesWithRmqIds:[toRemoveRmqIds copy]];
     }
   }];
 }
