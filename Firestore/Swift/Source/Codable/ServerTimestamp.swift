@@ -16,7 +16,7 @@
 
 import FirebaseFirestore
 
-#if swift(>=5.1)
+#if compiler(>=5.1)
   /// A type that can initialize itself from a Firestore Timestamp, which makes
   /// it suitable for use with the `@ServerTimestamp` property wrapper.
   ///
@@ -26,42 +26,42 @@ import FirebaseFirestore
     /// Creates a new instance by converting from the given `Timestamp`.
     ///
     /// - Parameter timestamp: The timestamp from which to convert.
-    init(from timestamp: Timestamp)
+    static func wrap(_ timestamp: Timestamp) throws -> Self
 
     /// Converts this value into a Firestore `Timestamp`.
     ///
     /// - Returns: A `Timestamp` representation of this value.
-    func timestampValue() -> Timestamp
+    static func unwrap(_ value: Self) throws -> Timestamp
   }
 
   extension Date: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
-      self = timestamp.dateValue()
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
+      return timestamp.dateValue()
     }
 
-    func timestampValue() -> Timestamp {
-      return Timestamp(date: self)
+    public static func unwrap(_ value: Self) throws -> Timestamp {
+      return Timestamp(date: value)
     }
   }
 
   extension NSDate: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
       let interval = timestamp.dateValue().timeIntervalSince1970
-      self = NSDate(timeIntervalSince1970: interval)
+      return NSDate(timeIntervalSince1970: interval) as! Self
     }
 
-    func timestampValue() -> Timestamp {
-      return Timestamp(date: self)
+    public static func unwrap(_ value: NSDate) throws -> Timestamp {
+      return Timestamp(date: value as Date)
     }
   }
 
   extension Timestamp: ServerTimestampWrappable {
-    init(from timestamp: Timestamp) {
-      self = timestamp
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
+      return timestamp as! Self
     }
 
-    func timestampValue() -> Timestamp {
-      return self
+    public static func unwrap(_ value: Timestamp) throws -> Timestamp {
+      return value
     }
   }
 
@@ -100,20 +100,20 @@ import FirebaseFirestore
       if container.decodeNil() {
         value = nil
       } else {
-        value = Value(from: try container.decode(Timestamp.self))
+        value = try Value.wrap(try container.decode(Timestamp.self))
       }
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.singleValueContainer()
       if let value = value {
-        try container.encode(value.timestampValue())
+        try container.encode(Value.unwrap(value))
       } else {
         try container.encode(FieldValue.serverTimestamp())
       }
     }
   }
-#endif // swift(>=5.1)
+#endif // compiler(>=5.1)
 
 /// A compatibility version of `ServerTimestamp` that does not use property
 /// wrappers, suitable for use in older versions of Swift.
