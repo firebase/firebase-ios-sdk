@@ -34,7 +34,6 @@ using nanopb::ByteString;
 using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
-using util::LogIsDebugEnabled;
 using util::Status;
 using util::TimerId;
 
@@ -64,10 +63,8 @@ void WriteStream::WriteHandshake() {
   HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
   auto request = write_serializer_.EncodeHandshake();
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
-              write_serializer_.Describe(request));
-  }
+  LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
+            write_serializer_.Describe(request));
   Write(request.ToByteBuffer());
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
@@ -82,10 +79,8 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
 
   auto request = write_serializer_.EncodeWriteMutationsRequest(
       mutations, last_stream_token());
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s write request: %s", GetDebugDescription(),
-              write_serializer_.Describe(request));
-  }
+  LOG_DEBUG("%s write request: %s", GetDebugDescription(),
+            write_serializer_.Describe(request));
   Write(request.ToByteBuffer());
 }
 
@@ -127,10 +122,8 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   }
 
   auto& response = maybe_response.ValueOrDie();
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s response: %s", GetDebugDescription(),
-              write_serializer_.Describe(response));
-  }
+  LOG_DEBUG("%s response: %s", GetDebugDescription(),
+            write_serializer_.Describe(response));
 
   // Always capture the last stream token.
   set_last_stream_token(ByteString::Take(response->stream_token));

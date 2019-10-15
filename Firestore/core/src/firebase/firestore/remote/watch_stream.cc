@@ -34,7 +34,6 @@ using model::TargetId;
 using nanopb::MaybeMessage;
 using nanopb::Message;
 using util::AsyncQueue;
-using util::LogIsDebugEnabled;
 using util::Status;
 using util::TimerId;
 
@@ -54,10 +53,8 @@ void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
   auto request = watch_serializer_.EncodeWatchRequest(query);
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-              watch_serializer_.Describe(request));
-  }
+  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
+            watch_serializer_.Describe(request));
   Write(request.ToByteBuffer());
 }
 
@@ -66,10 +63,8 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
   auto request = watch_serializer_.EncodeUnwatchRequest(target_id);
 
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-              watch_serializer_.Describe(request));
-  }
+  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
+            watch_serializer_.Describe(request));
   Write(request.ToByteBuffer());
 }
 
@@ -96,10 +91,8 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
 
   const auto& response = maybe_response.ValueOrDie();
 
-  if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s response: %s", GetDebugDescription(),
-              watch_serializer_.Describe(response));
-  }
+  LOG_DEBUG("%s response: %s", GetDebugDescription(),
+            watch_serializer_.Describe(response));
 
   // A successful response means the stream is healthy.
   backoff_.Reset();

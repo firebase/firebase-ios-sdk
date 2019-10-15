@@ -49,8 +49,9 @@ class Reader {
    * Creates an instance that isn't associated with any bytes. It can be used
    * to accumulate errors.
    *
-   * TODO(varconst): move error handling into a separate class, e.g.
-   * `ReadContext`.
+   * TODO(varconst): this class should turn into a context object that holds
+   * read errors (`ReadContext`?). Its remaining reading responsibilities should
+   * probably move into `Message`.
    */
   Reader() = default;
 
