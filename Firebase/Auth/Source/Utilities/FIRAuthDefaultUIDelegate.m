@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   UIViewController *topViewController;
-  if (@available(iOS 13.0, *)) {
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     NSSet<UIScene *> * connectedScenes = application.connectedScenes;
     for (UIScene *scene in connectedScenes) {
