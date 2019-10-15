@@ -58,13 +58,41 @@ inline const pb_field_t* GetNanopbFields<firestore_client_WriteBatch>() {
 
 template <>
 inline const pb_field_t*
+GetNanopbFields<google_firestore_v1_BatchGetDocumentsRequest>() {
+  return google_firestore_v1_BatchGetDocumentsRequest_fields;
+}
+
+template <>
+inline const pb_field_t*
 GetNanopbFields<google_firestore_v1_BatchGetDocumentsResponse>() {
   return google_firestore_v1_BatchGetDocumentsResponse_fields;
 }
 
 template <>
+inline const pb_field_t*
+GetNanopbFields<google_firestore_v1_CommitRequest>() {
+  return google_firestore_v1_CommitRequest_fields;
+}
+
+template <>
+inline const pb_field_t*
+GetNanopbFields<google_firestore_v1_CommitResponse>() {
+  return google_firestore_v1_CommitResponse_fields;
+}
+
+template <>
+inline const pb_field_t* GetNanopbFields<google_firestore_v1_ListenRequest>() {
+  return google_firestore_v1_ListenRequest_fields;
+}
+
+template <>
 inline const pb_field_t* GetNanopbFields<google_firestore_v1_ListenResponse>() {
   return google_firestore_v1_ListenResponse_fields;
+}
+
+template <>
+inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteRequest>() {
+  return google_firestore_v1_WriteRequest_fields;
 }
 
 template <>

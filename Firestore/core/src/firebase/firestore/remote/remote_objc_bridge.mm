@@ -107,8 +107,7 @@ WatchStreamSerializer::WatchStreamSerializer(Serializer serializer)
 
 Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
-  Message<google_firestore_v1_ListenRequest> result{
-      google_firestore_v1_ListenRequest_fields};
+  Message<google_firestore_v1_ListenRequest> result;
   auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
@@ -134,8 +133,7 @@ WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
 
 Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
-  Message<google_firestore_v1_ListenRequest> result{
-      google_firestore_v1_ListenRequest_fields};
+  Message<google_firestore_v1_ListenRequest> result;
   auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
@@ -181,8 +179,7 @@ WriteStreamSerializer::WriteStreamSerializer(Serializer serializer)
 
 Message<google_firestore_v1_WriteRequest>
 WriteStreamSerializer::EncodeHandshake() const {
-  Message<google_firestore_v1_WriteRequest> result{
-      google_firestore_v1_WriteRequest_fields};
+  Message<google_firestore_v1_WriteRequest> result;
   auto& request = *result;
 
   // The initial request cannot contain mutations, but must contain a project
@@ -196,8 +193,7 @@ Message<google_firestore_v1_WriteRequest>
 WriteStreamSerializer::EncodeWriteMutationsRequest(
     const std::vector<Mutation>& mutations,
     const ByteString& last_stream_token) const {
-  Message<google_firestore_v1_WriteRequest> result{
-      google_firestore_v1_WriteRequest_fields};
+  Message<google_firestore_v1_WriteRequest> result;
   auto& request = *result;
 
   if (!mutations.empty()) {
@@ -263,8 +259,7 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 Message<google_firestore_v1_CommitRequest>
 DatastoreSerializer::EncodeCommitRequest(
     const std::vector<Mutation>& mutations) const {
-  Message<google_firestore_v1_CommitRequest> result{
-      google_firestore_v1_CommitRequest_fields};
+  Message<google_firestore_v1_CommitRequest> result;
   auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();
@@ -285,8 +280,7 @@ DatastoreSerializer::EncodeCommitRequest(
 Message<google_firestore_v1_BatchGetDocumentsRequest>
 DatastoreSerializer::EncodeLookupRequest(
     const std::vector<DocumentKey>& keys) const {
-  Message<google_firestore_v1_BatchGetDocumentsRequest> result{
-      google_firestore_v1_BatchGetDocumentsRequest_fields};
+  Message<google_firestore_v1_BatchGetDocumentsRequest> result;
   auto& request = *result;
 
   request.database = serializer_.EncodeDatabaseName();

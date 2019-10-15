@@ -79,13 +79,40 @@ using MaybeMessage = util::StatusOr<Message<T>>;
 template <typename T>
 class Message {
  public:
-  // FIXME
-  static Message Invalid() {
-    return Message{nullptr};
+  Message() = default;
+
+  template <typename F>
+  explicit Message(const F& f) : owns_proto_{true}, proto_{f()} {
   }
 
-  static Message Empty() {
-    return Message{};
+  template <typename F>
+  static Message InitBy(const F& f) {
+    return Message{f};
+  }
+
+  template <typename F>
+  static Message Fill(const F& f) {
+    Message result;
+    result.owns_proto_ = true;
+    f(&result);
+    return result;
+  }
+
+  // static Message Empty() {
+  //   Message result;
+  //   result.owns_proto_ = true;
+  //   return result;
+  // }
+
+  T release() {
+    owns_proto_ = false;
+    return proto_;
+  }
+
+  void reset(T&& proto) {
+    Free();
+    owns_proto_ = true;
+    proto_ = proto;
   }
 
   /**
@@ -101,23 +128,23 @@ class Message {
   static MaybeMessage<T> TryDecode(const ByteString& bytes);
 
   ~Message() {
-    if (owns_proto()) {
-      FreeNanopbMessage(fields_, &proto_);
-    }
+    Free();
   }
 
   Message(const Message&) = delete;
   Message& operator=(const Message&) = delete;
 
   Message(Message&& other) noexcept
-      : fields_{other.fields_}, proto_{other.proto_} {
-    other.fields_ = nullptr;
+      : owns_proto_{other.owns_proto_}, proto_{other.proto_} {
+    other.owns_proto_ = false;
   }
 
   Message& operator=(Message&& other) noexcept {
-    fields_ = other.fields_;
+    Free();
+
+    owns_proto_ = other.owns_proto_;
     proto_ = other.proto_;
-    other.fields_ = nullptr;
+    other.owns_proto_ = false;
     return *this;
   }
 
@@ -167,19 +194,21 @@ class Message {
   friend class remote::WriteStreamSerializer;
   friend class remote::DatastoreSerializer;
 
-  // FIXME
-  Message() = default;
-  explicit Message(const pb_field_t* fields) : fields_{fields} {
+  static const pb_field_t* fields() {
+    return GetNanopbFields<T>();
+  }
+
+  void Free() {
+    if (owns_proto()) {
+      FreeNanopbMessage(fields(), &proto_);
+    }
   }
 
   bool owns_proto() const {
-    return fields_ != nullptr;
+    return owns_proto_ != false;
   }
 
-  // Note: `fields_` doubles as the flag that indicates whether this instance
-  // owns the underlying proto (and consequently should release it upon
-  // destruction).
-  const pb_field_t* fields_ = GetNanopbFields<T>();
+  bool owns_proto_ = false;
   T proto_{};
 };
 
@@ -201,7 +230,7 @@ template <typename T>
 MaybeMessage<T> Message<T>::TryDecode(const ByteString& bytes) {
   Message message;
   nanopb::Reader reader{bytes};
-  reader.ReadNanopbMessage(message.fields_, message.get());
+  reader.ReadNanopbMessage(message.fields(), message.get());
   if (!reader.ok()) {
     return reader.status();
   }
@@ -219,7 +248,7 @@ grpc::ByteBuffer Message<T>::ToByteBuffer() const {
 template <typename T>
 ByteString Message<T>::ToByteString() const {
   nanopb::ByteStringWriter writer;
-  writer.WriteNanopbMessage(fields_, &proto_);
+  writer.WriteNanopbMessage(fields(), &proto_);
   return writer.Release();
 }
 
