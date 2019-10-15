@@ -458,9 +458,48 @@ class FirestoreEncoderTests: XCTestCase {
     assertThat(ts).failsEncodingAtTopLevel()
   }
 
-  func testServerTimestamp() throws {
+  #if swift(>=5.1)
+    func testServerTimestamp() throws {
+      struct Model: Codable, Equatable {
+        @ServerTimestamp var timestamp: Timestamp? = nil
+      }
+
+      // Encoding a pending server timestamp
+      assertThat(Model())
+        .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
+
+      // Encoding a resolved server timestamp yields a timestamp; decoding
+      // yields it back.
+      let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 4321)
+      assertThat(Model(timestamp: timestamp))
+        .roundTrips(to: ["timestamp": timestamp])
+
+      // Decoding a NSNull() leads to nil.
+      assertThat(["timestamp": NSNull()])
+        .decodes(to: Model(timestamp: nil))
+    }
+
+    func testServerTimestampUserType() throws {
+      struct Model: Codable, Equatable {
+        @ServerTimestamp var timestamp: String? = nil
+      }
+
+      // Encoding a pending server timestamp
+      assertThat(Model())
+        .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
+
+      // Encoding a resolved server timestamp yields a timestamp; decoding
+      // yields it back.
+      let timetamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 123_000_000)
+      assertThat(Model(timestamp: "2019-10-07T21:33:51.123+0000"))
+        .roundTrips(to: ["timestamp": timetamp])
+    }
+  #endif // swift(>=5.1)
+
+  @available(swift, deprecated: 5.1)
+  func testSwift4ServerTimestamp() throws {
     struct Model: Codable, Equatable {
-      var timestamp: ServerTimestamp
+      var timestamp: Swift4ServerTimestamp
     }
 
     // Encoding a pending server timestamp
@@ -478,19 +517,19 @@ class FirestoreEncoderTests: XCTestCase {
       .decodes(to: Model(timestamp: .pending))
   }
 
-#if swift(>=5.1)
-  func testExplicitNull() throws {
-    struct Model: Codable, Equatable {
-      @ExplicitNull var name: String?
+  #if swift(>=5.1)
+    func testExplicitNull() throws {
+      struct Model: Codable, Equatable {
+        @ExplicitNull var name: String?
+      }
+
+      assertThat(Model(name: nil))
+        .roundTrips(to: ["name": NSNull()])
+
+      assertThat(Model(name: "good name"))
+        .roundTrips(to: ["name": "good name"])
     }
-
-    assertThat(Model(name: nil))
-      .roundTrips(to: ["name": NSNull()])
-
-    assertThat(Model(name: "good name"))
-      .roundTrips(to: ["name": "good name"])
-  }
-#endif  // swift(>=5.1)
+  #endif // swift(>=5.1)
 
   @available(swift, deprecated: 5.1)
   func testSwift4ExplicitNull() throws {
@@ -663,3 +702,29 @@ private class DictionarySubject {
     XCTAssertThrowsError(try Firestore.Decoder().decode(X.self, from: subject), file: file, line: line)
   }
 }
+
+#if swift(>=5.1)
+  // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
+  // server timetamps will be stored in an ISO 8601 date format.
+  //
+  // This example exists outside the main implementation to show that users can
+  // extend @ServerTimetamp with arbitrary types.
+  extension String: ServerTimestampWrappable {
+    static let formatter = {
+      let formatter = DateFormatter()
+      formatter.calendar = Calendar(identifier: .iso8601)
+      formatter.locale = Locale(identifier: "en_US_POSIX")
+      formatter.timeZone = TimeZone(secondsFromGMT: 0)
+      formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+      return formatter
+    }()
+
+    init(from timestamp: Timestamp) {
+      self = formatter.string(from: timestamp.dateValue())
+    }
+
+    func timestampValue() -> Timestamp {
+      return Timestamp(date: formatter.date(from: self))
+    }
+  }
+#endif // swift(>=5.1)

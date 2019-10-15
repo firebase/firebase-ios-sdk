@@ -50,6 +50,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 @end
 
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
+
+@end
+
 @interface FIRMessagingDataMessageManagerTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) id mockClient;
@@ -78,6 +84,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 }
 
+-(void)tearDown {
+    if (_dataMessageManager.rmq2Manager) {
+        [_dataMessageManager.rmq2Manager removeDatabase];
+    }
+    [super tearDown];
+}
 
 - (void)testSendValidMessage_withNoConnection {
   // mock no connection initially
@@ -477,7 +489,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
 
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   FIRMessagingRmqManager *newRmqManager =
       [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
   [newRmqManager loadRmqId];
@@ -535,7 +546,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
 
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   FIRMessagingRmqManager *newRmqManager =
       [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
   [newRmqManager loadRmqId];

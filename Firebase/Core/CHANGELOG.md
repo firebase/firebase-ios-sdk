@@ -1,3 +1,11 @@
+# v6.3.2 -- M58
+- [fixed] Fix container instantiation timing, IID startup. (#4030)
+- [changed] Open-sourced Firebase pod. This enables `import Firebase` module
+  support for tvOS and macOS. (#4021)
+
+# v6.3.1 -- M57
+- [fixed] Fixed race condition in component container. (#3967, #3924)
+
 # v6.3.0 -- M56
 - [changed] Transitive GoogleDataTransport dependency incremented to v2.0.0. (#3729)
 - [fixed] Fixed "expiclitlySet" typo. (#3853)

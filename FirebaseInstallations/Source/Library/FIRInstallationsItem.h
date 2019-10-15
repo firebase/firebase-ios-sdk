@@ -20,6 +20,8 @@
 
 @class FIRInstallationsStoredItem;
 @class FIRInstallationsStoredAuthToken;
+@class FIRInstallationsStoredRegistrationError;
+@class FIRInstallationsStoredRegistrationParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;
 @property(nonatomic, assign) FIRInstallationsStatus registrationStatus;
+
+@property(nonatomic, nullable) FIRInstallationsStoredRegistrationError *registrationError;
 
 - (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName;
 
@@ -76,6 +80,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Returns a 22 characters long globally unique string created based on UUID.
  */
 + (NSString *)generateFID;
+
+/**
+ * Updates `registrationStatus` and `registrationError` accordingly.
+ * @param error The error for the Installation Registration API request.
+ * @param date The date when the error occurred.
+ * @param registrationParameters The parameters used for the  Installation Registration API request.
+ */
+- (void)updateWithRegistrationError:(NSError *)error
+                               date:(NSDate *)date
+             registrationParameters:
+                 (FIRInstallationsStoredRegistrationParameters *)registrationParameters;
 
 @end
 

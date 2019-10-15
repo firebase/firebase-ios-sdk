@@ -76,7 +76,6 @@
       [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
                                                     mockInstanceID:_instanceID];
   id classMock = OCMClassMock([FIRMessaging class]);
-  OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   messaging.autoInitEnabled = YES;
   XCTAssertTrue(

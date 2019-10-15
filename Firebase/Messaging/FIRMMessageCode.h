@@ -134,8 +134,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed = 12002,  // I-FCM012002
   kFIRMessagingMessageCodeRemoteNotificationsProxyMethodNotAdded = 12003,  // I-FCM012003
   // FIRMessagingRmq2PersistentStore.m
-  kFIRMessagingMessageCodeRmq2PersistentStore000 = 13000,  // I-FCM013000
-  kFIRMessagingMessageCodeRmq2PersistentStore001 = 13001,  // I-FCM013001
+  // DO NOT USE 13000, 13001, 13009
   kFIRMessagingMessageCodeRmq2PersistentStore002 = 13002,  // I-FCM013002
   kFIRMessagingMessageCodeRmq2PersistentStore003 = 13003,  // I-FCM013003
   kFIRMessagingMessageCodeRmq2PersistentStore004 = 13004,  // I-FCM013004
@@ -143,7 +142,6 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRmq2PersistentStore006 = 13006,  // I-FCM013006
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase = 13007,  // I-FCM013007
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase = 13008,  // I-FCM013008
-  kFIRMessagingMessageCodeRmq2PersistentStoreInvalidRmqDirectory = 13009,  // I-FCM013009
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable = 13010,  // I-FCM013010
   // FIRMessagingRmqManager.m
   kFIRMessagingMessageCodeRmqManager000 = 14000,  // I-FCM014000

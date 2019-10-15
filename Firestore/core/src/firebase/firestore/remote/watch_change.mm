@@ -20,6 +20,32 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
+template <typename T>
+bool Equals(const WatchChange& lhs, const WatchChange& rhs) {
+  return static_cast<const T&>(lhs) == static_cast<const T&>(rhs);
+}
+
+}  // namespace
+
+// Compares two `WatchChange`s taking into account their actual derived type.
+bool operator==(const WatchChange& lhs, const WatchChange& rhs) {
+  if (lhs.type() != rhs.type()) {
+    return false;
+  }
+
+  switch (lhs.type()) {
+    case WatchChange::Type::Document:
+      return Equals<DocumentWatchChange>(lhs, rhs);
+    case WatchChange::Type::ExistenceFilter:
+      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
+    case WatchChange::Type::TargetChange:
+      return Equals<WatchTargetChange>(lhs, rhs);
+  }
+  UNREACHABLE();
+}
+
 bool operator==(const DocumentWatchChange& lhs,
                 const DocumentWatchChange& rhs) {
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&

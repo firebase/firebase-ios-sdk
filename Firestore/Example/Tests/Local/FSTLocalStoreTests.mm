@@ -41,6 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/test/firebase/firestore/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -67,8 +68,8 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::remote::FakeTargetMetadataProvider;
 using firebase::firestore::remote::RemoteEvent;
-using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -887,7 +888,7 @@ NS_ASSUME_NONNULL_BEGIN
   ByteString resumeToken = testutil::ResumeToken(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
-  auto metadataProvider = TestTargetMetadataProvider::CreateSingleResultProvider(
+  auto metadataProvider = FakeTargetMetadataProvider::CreateSingleResultProvider(
       testutil::Key("foo/bar"), std::vector<TargetId>{targetID});
   WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleTargetChange(watchChange);
