@@ -214,6 +214,10 @@ UnknownDocument LocalSerializer::DecodeUnknownDocument(
 
 Message<firestore_client_Target> LocalSerializer::EncodeQueryData(
     const QueryData& query_data) const {
+  HARD_ASSERT(query_data.purpose() == QueryPurpose::Listen,
+              "Only queries with purpose %s may be stored, got %s",
+              QueryPurpose::Listen, query_data.purpose());
+
   Message<firestore_client_Target> result;
 
   result->target_id = query_data.target_id();

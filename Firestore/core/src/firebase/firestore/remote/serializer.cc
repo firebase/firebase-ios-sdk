@@ -658,8 +658,8 @@ Mutation Serializer::DecodeMutation(
       DocumentKey key = DecodeKey(reader, mutation.update.name);
       ObjectValue value = DecodeFields(reader, mutation.update.fields_count,
                                        mutation.update.fields);
-      FieldMask mask = DecodeFieldMask(mutation.update_mask);
-      if (mask.size() > 0) {
+      if (mutation.has_update_mask) {
+        FieldMask mask = DecodeFieldMask(mutation.update_mask);
         return PatchMutation(std::move(key), std::move(value), std::move(mask),
                              std::move(precondition));
       } else {
