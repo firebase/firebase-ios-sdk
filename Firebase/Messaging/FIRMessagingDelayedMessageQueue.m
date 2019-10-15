@@ -92,14 +92,17 @@ static const int kMaxQueuedMessageCount = 10;
   // add persistent messages
   if (self.persistedMessageCount > 0) {
     FIRMessaging_WEAKIFY(self);
-    [self.rmqScanner scanWithRmqMessageHandler:nil
-                            dataMessageHandler:^(int64_t rmqId, GtalkDataMessageStanza *stanza) {
-                              FIRMessaging_STRONGIFY(self);
-                              if ([stanza hasMaxDelay] &&
-                                  [stanza sent] >= self.lastDBScanTimestampSeconds) {
-                                [delayedMessages addObject:stanza];
-                              }
-                            }];
+    [self.rmqScanner scanWithRmqMessageHandler:^(NSDictionary *messages) {
+      FIRMessaging_STRONGIFY(self);
+      for (NSString *rmqID in messages) {
+        GPBMessage *proto = messages[rmqID];
+        GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
+        if ([stanza hasMaxDelay] &&
+            [stanza sent] >= self.lastDBScanTimestampSeconds) {
+          [delayedMessages addObject:stanza];
+        }
+      }
+    }];
     self.lastDBScanTimestampSeconds = FIRMessagingCurrentTimestampInSeconds();
     self.persistedMessageCount = 0;
   }

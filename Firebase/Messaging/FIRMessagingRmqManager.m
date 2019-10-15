@@ -107,9 +107,6 @@ static NSString *const kSyncMessageExpirationTimestampColumn = @"expiration_ts";
 static NSString *const kSyncMessageAPNSReceivedColumn = @"apns_recv";
 static NSString *const kSyncMessageMCSReceivedColumn = @"mcs_recv";
 
-// table data handlers
-typedef void(^FCMOutgoingRmqMessagesTableHandler)(int64_t rmqId, int8_t tag, NSData *data);
-
 // Utility to create an NSString from a sqlite3 result code
 NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 #pragma clang diagnostic push
@@ -341,34 +338,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 #pragma mark - FIRMessagingRMQScanner protocol
-
-/**
- * We don't have a 'getMessages' method - it would require loading in memory
- * the entire content body of all messages.
- *
- * Instead we iterate and call 'resend' for each message.
- *
- * This is called:
- *  - on connect MCS, to resend any outstanding messages
- *  - init
- */
-- (void)scanWithRmqMessageHandler:(FIRMessagingRmqMessageHandler)rmqMessageHandler
-               dataMessageHandler:(FIRMessagingDataMessageHandler)dataMessageHandler {
-  // no need to scan database with no callbacks
-  if (rmqMessageHandler || dataMessageHandler) {
-    [self scanOutgoingRmqMessagesWithHandler:^(int64_t rmqId, int8_t tag, NSData *data) {
-      if (rmqMessageHandler != nil) {
-        rmqMessageHandler(rmqId, tag, data);
-      }
-      if (dataMessageHandler != nil && kFIRMessagingProtoTagDataMessageStanza == tag) {
-        GPBMessage *proto =
-            [FIRMessagingGetClassForTag((FIRMessagingProtoTag)tag) parseFromData:data error:NULL];
-        GtalkDataMessageStanza *stanza = (GtalkDataMessageStanza *)proto;
-        dataMessageHandler(rmqId, stanza);
-      }
-    }];
-  }
-}
 
 #pragma mark - Remove
 - (void)removeRmqMessagesWithRmqIds:(NSArray *)rmqIds {
@@ -685,8 +654,19 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 #pragma mark - Scan
 
-- (void)scanOutgoingRmqMessagesWithHandler:(FCMOutgoingRmqMessagesTableHandler)handler {
+/**
+ * We don't have a 'getMessages' method - it would require loading in memory
+ * the entire content body of all messages.
+ *
+ * Instead we iterate and call 'resend' for each message.
+ *
+ * This is called:
+ *  - on connect MCS, to resend any outstanding messages
+ *  - init
+ */
+- (void)scanWithRmqMessageHandler:(FIRMessagingRmqMessageHandler)rmqMessageHandler {
   dispatch_async(_databaseOperationQueue, ^{
+    NSMutableDictionary *messages = [NSMutableDictionary dictionary];
     static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
     NSString *query = [NSString stringWithFormat:queryFormat,
                        kOutgoingRmqMessagesColumns, // select (rmq_id, type, data)
@@ -710,9 +690,15 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       int length = sqlite3_column_bytes(statement, dataColumnNumber);
 
       NSData *data = [NSData dataWithBytes:bytes length:length];
-      handler(rmqId, type, data);
+      GPBMessage *proto = [FIRMessagingGetClassForTag((FIRMessagingProtoTag)type) parseFromData:data error:NULL];
+      [messages addEntriesFromDictionary:@{@(rmqId): proto}];
     }
     sqlite3_finalize(statement);
+    if (rmqMessageHandler) {
+      dispatch_async(dispatch_get_main_queue(),^{
+        rmqMessageHandler(messages);
+      });
+    }
   });
 }
 

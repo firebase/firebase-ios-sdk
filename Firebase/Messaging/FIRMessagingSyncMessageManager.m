@@ -85,6 +85,7 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
                                     expirationTime:expirationTime
                                       apnsReceived:viaAPNS
                                        mcsReceived:viaMCS];
+    return NO;
   }
 
   if (viaAPNS && !persistentMessage.apnsReceived) {

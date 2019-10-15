@@ -24,12 +24,8 @@
 /**
  * Called on each raw message.
  */
-typedef void(^FIRMessagingRmqMessageHandler)(int64_t rmqId, int8_t tag, NSData *data);
-
-/**
- * Called on each DataMessageStanza.
- */
-typedef void(^FIRMessagingDataMessageHandler)(int64_t rmqId, GtalkDataMessageStanza *stanza);
+//typedef void(^FIRMessagingRmqMessageHandler)(int64_t rmqId, int8_t tag, NSData *data);
+typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage *> *messages);
 
 /**
  *  Used to scan through the rmq and perform actions on messages as required.
@@ -39,8 +35,7 @@ typedef void(^FIRMessagingDataMessageHandler)(int64_t rmqId, GtalkDataMessageSta
 /**
  *  Scan the RMQ for outgoing messages and process them as required.
  */
-- (void)scanWithRmqMessageHandler:(FIRMessagingRmqMessageHandler)rmqMessageHandler
-               dataMessageHandler:(FIRMessagingDataMessageHandler)dataMessageHandler;
+- (void)scanWithRmqMessageHandler:(FIRMessagingRmqMessageHandler)rmqMessageHandler;
 
 @end
 
