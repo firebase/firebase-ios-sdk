@@ -79,8 +79,6 @@ static NSString *const kFIRIIDAppNameKey = @"FIRAppNameKey";
 static NSString *const kFIRIIDErrorDomain = @"com.firebase.instanceid";
 static NSString *const kFIRIIDServiceInstanceID = @"InstanceID";
 
-static NSInteger const kFIRIIDErrorCodeInstanceIDFailed = -121;
-
 /**
  *  The APNS token type for the app. If the token type is set to `UNKNOWN`
  *  InstanceID will implicitly try to figure out what the actual token type
@@ -635,14 +633,15 @@ static FIRInstanceID *gInstanceID;
   // When there is a cached token, do the token refresh.
   if (cachedToken) {
     // Clean up expired tokens by checking the token refresh policy.
-    NSError *error;
-    NSString *cachedIID = [self.keyPairStore appIdentityWithError:&error];
-    if ([self.tokenManager checkTokenRefreshPolicyWithIID:cachedIID]) {
-      // Default token is expired, fetch default token from server.
-      [self defaultTokenWithHandler:nil];
-    }
-    // Notify FCM with the default token.
-    self.defaultFCMToken = [self token];
+    [self.installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
+            // Default token is expired, fetch default token from server.
+            [self defaultTokenWithHandler:nil];
+          }
+          // Notify FCM with the default token.
+          self.defaultFCMToken = [self token];
+        }];
   } else if ([self isFCMAutoInitEnabled]) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.

@@ -199,6 +199,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                          scope:[OCMArg any]
                        options:[OCMArg any]
                        handler:[OCMArg any]];
+  id installationIDArgs = [OCMArg invokeBlockWithArgs:kToken, [NSNull null], nil];
+  OCMStub([self.mockInstallations installationIDWithCompletion:installationIDArgs]);
 
   [self.mockInstanceID didCompleteConfigure];
   OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);

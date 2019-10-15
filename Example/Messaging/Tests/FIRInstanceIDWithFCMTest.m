@@ -69,9 +69,7 @@
 }
 
 - (void)testFCMAutoInitEnabled {
-  NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
-  GULUserDefaults *defaults =
-      [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
   FIRMessaging *messaging =
       [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults
                                                     mockInstanceID:_instanceID];
