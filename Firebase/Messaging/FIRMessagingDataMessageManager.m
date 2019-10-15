@@ -417,7 +417,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   NSMutableArray *toRemoveRmqIds = [NSMutableArray array];
   FIRMessaging_WEAKIFY(self);
   FIRMessaging_WEAKIFY(connection);
-   
+
   [self.rmq2Manager scanWithRmqMessageHandler:^(NSDictionary *messages) {
     FIRMessaging_STRONGIFY(self);
     FIRMessaging_STRONGIFY(connection);
