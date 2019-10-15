@@ -24,7 +24,6 @@
 /**
  * Called on each raw message.
  */
-//typedef void(^FIRMessagingRmqMessageHandler)(int64_t rmqId, int8_t tag, NSData *data);
 typedef void(^FIRMessagingRmqMessageHandler)(NSDictionary<NSString *, GPBMessage *> *messages);
 
 /**
