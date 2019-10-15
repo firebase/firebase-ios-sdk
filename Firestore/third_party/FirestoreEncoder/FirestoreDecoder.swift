@@ -332,8 +332,8 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
     return try require(value: value)
   }
 
-  public func decode<T: Decodable>(_: T.Type, forKey key: Key) throws -> T {
-    if T.self == SelfDocumentID.self {
+  public func decode<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+    if let type = type as? DocumentIDProtocol.Type {
       let docRef = decoder.userInfo[
         Firestore.Decoder.documentRefUserInfoKey!
       ] as! DocumentReference?
@@ -348,7 +348,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
           "cannot assign the document reference to this field.")
       }
 
-      return SelfDocumentID(from: docRef) as! T
+      return try type.init(from: docRef) as! T
     }
 
     let entry = try require(key: key)
