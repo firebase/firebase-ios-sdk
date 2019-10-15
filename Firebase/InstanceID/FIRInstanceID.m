@@ -79,8 +79,6 @@ static NSString *const kFIRIIDAppNameKey = @"FIRAppNameKey";
 static NSString *const kFIRIIDErrorDomain = @"com.firebase.instanceid";
 static NSString *const kFIRIIDServiceInstanceID = @"InstanceID";
 
-static NSInteger const kFIRIIDErrorCodeInstanceIDFailed = -121;
-
 /**
  *  The APNS token type for the app. If the token type is set to `UNKNOWN`
  *  InstanceID will implicitly try to figure out what the actual token type
