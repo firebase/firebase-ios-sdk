@@ -2,6 +2,9 @@
 - [fixed] Fix container instantiation timing, IID startup. (#4030)
 - [changed] Open-sourced Firebase pod. This enables `import Firebase` module
   support for tvOS and macOS. (#4021)
+- [changed] The GoogleSignIn binary is no longer distributed in the Firebase zip
+  or Carthage distribution. Use
+  https://developers.google.com/identity/sign-in/ios/sdk instead.
 
 # v6.3.1 -- M57
 - [fixed] Fixed race condition in component container. (#3967, #3924)
