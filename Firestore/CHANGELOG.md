@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.6.1
+- [changed] Internal improvements.
+
 # v1.6.0
 - [feature] Added an `addSnapshotsInSyncListener()` method to
   `FIRFirestore` that notifies you when all your snapshot listeners are
@@ -105,7 +108,7 @@
 - [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting
   is now enabled by default. Timestamp fields that read from a
   `FIRDocumentSnapshot` will be returned as `FIRTimestamp` objects instead of
-  `NSDate` objects. Update any code that expects to recive a `NSDate` object.
+  `NSDate` objects. Update any code that expects to receive an `NSDate` object.
   See [the reference
   documentation](https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled)
   for more details.
