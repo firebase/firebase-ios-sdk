@@ -325,7 +325,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 #pragma mark - Auth Token
 
 - (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
-  if (forceRefresh) {
+  if (forceRefresh || [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise] != nil) {
     return [self.authTokenForcingRefreshPromiseCache getExistingPendingOrCreateNewPromise];
   } else {
     return [self.authTokenPromiseCache getExistingPendingOrCreateNewPromise];
@@ -353,9 +353,35 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
           return registeredInstallation;
         }
       })
-      .catch(^void(NSError *error){
-          // TODO: Handle the errors.
+      .recover(^id(NSError *error) {
+        return [self regenerateFIDOnRefreshTokenErrorIfNeeded:error];
       });
+}
+
+- (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
+  if (![error isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    // No recovery possible. Return the same error.
+    return error;
+  }
+
+  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)error;
+  switch (HTTPError.HTTPResponse.statusCode) {
+    case FIRInstallationsAuthTokenHTTPCodeInvalidAuthentication:
+    case FIRInstallationsAuthTokenHTTPCodeFIDNotFound:
+      // The stored installation was damaged or blocked by the server.
+      // Delete the stored installation then generate and register a new one.
+      return [self getInstallationItem]
+          .then(^FBLPromise<NSNull *> *(FIRInstallationsItem *installation) {
+            return [self deleteInstallationLocally:installation];
+          })
+          .then(^FBLPromise<FIRInstallationsItem *> *(id result) {
+            return [self installationWithValidAuthTokenForcingRefresh:NO];
+          });
+
+    default:
+      // No recovery possible. Return the same error.
+      return error;
+  }
 }
 
 #pragma mark - Delete FID
@@ -380,9 +406,13 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       })
       .then(^id(FIRInstallationsItem *installation) {
         // Remove the installation from the local storage.
-        return [self.installationsStore removeInstallationForAppID:installation.appID
-                                                           appName:installation.firebaseAppName];
-      })
+        return [self deleteInstallationLocally:installation];
+      });
+}
+
+- (FBLPromise<NSNull *> *)deleteInstallationLocally:(FIRInstallationsItem *)installation {
+  return [self.installationsStore removeInstallationForAppID:installation.appID
+                                                     appName:installation.firebaseAppName]
       .then(^FBLPromise<NSNull *> *(NSNull *result) {
         return [self deleteExistingIIDIfNeeded];
       })

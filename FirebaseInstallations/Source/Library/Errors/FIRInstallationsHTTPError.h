@@ -32,6 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
+typedef NS_ENUM(NSInteger, FIRInstallationsHTTPCodes) {
+  FIRInstallationsHTTPCodesTooManyRequests = 429,
+  FIRInstallationsHTTPCodesServerInternalError = 500,
+};
+
 /** Possible response HTTP codes for `CreateInstallation` API request. */
 typedef NS_ENUM(NSInteger, FIRInstallationsRegistrationHTTPCode) {
   FIRInstallationsRegistrationHTTPCodeSuccess = 201,
@@ -43,4 +48,7 @@ typedef NS_ENUM(NSInteger, FIRInstallationsRegistrationHTTPCode) {
   FIRInstallationsRegistrationHTTPCodeServerInternalError = 500
 };
 
-extern NSInteger const kFIRInstallationsAPIInternalErrorHTTPCode;
+typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenHTTPCode) {
+  FIRInstallationsAuthTokenHTTPCodeInvalidAuthentication = 401,
+  FIRInstallationsAuthTokenHTTPCodeFIDNotFound = 404,
+};
