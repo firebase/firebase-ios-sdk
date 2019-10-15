@@ -325,7 +325,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 #pragma mark - Auth Token
 
 - (FBLPromise<FIRInstallationsItem *> *)getAuthTokenForcingRefresh:(BOOL)forceRefresh {
-  if (forceRefresh) {
+  if (forceRefresh || [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise] != nil) {
     return [self.authTokenForcingRefreshPromiseCache getExistingPendingOrCreateNewPromise];
   } else {
     return [self.authTokenPromiseCache getExistingPendingOrCreateNewPromise];
@@ -371,12 +371,12 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       // The stored installation was damaged or blocked by the server.
       // Delete the stored installation then generate and register a new one.
       return [self getInstallationItem]
-      .then(^FBLPromise<NSNull *> *(FIRInstallationsItem *installation) {
-        return [self deleteInstallationLocally:installation];
-      })
-      .then(^FBLPromise<FIRInstallationsItem *> *(id result) {
-        return [self installationWithValidAuthTokenForcingRefresh:NO];
-      });
+          .then(^FBLPromise<NSNull *> *(FIRInstallationsItem *installation) {
+            return [self deleteInstallationLocally:installation];
+          })
+          .then(^FBLPromise<FIRInstallationsItem *> *(id result) {
+            return [self installationWithValidAuthTokenForcingRefresh:NO];
+          });
 
     default:
       // No recovery possible. Return the same error.
