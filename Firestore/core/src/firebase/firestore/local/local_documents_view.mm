@@ -118,7 +118,9 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
   return results;
 }
 
-DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(const Query& query) {
+// TODO(index-free): Plumb `since_read_time`
+DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
+    const Query& query, const model::SnapshotVersion& since_read_time) {
   if (query.IsDocumentQuery()) {
     return GetDocumentsMatchingDocumentQuery(query.path());
   } else if (query.IsCollectionGroupQuery()) {
