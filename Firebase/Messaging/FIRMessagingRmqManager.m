@@ -739,7 +739,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   return YES;
 }
 
--(void)deleteMessagesFromTable:(NSString *)tableName
+- (void)deleteMessagesFromTable:(NSString *)tableName
                     withRmqIds:(NSArray *)rmqIds {
   dispatch_async(_databaseOperationQueue, ^{
     BOOL isRmqIDString = NO;
