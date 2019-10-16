@@ -97,7 +97,7 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
   bool credentials_initialized = false;
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
-  auto credential_change_listener = [credentials_initialized, weak_client,
+  auto credential_change_listener = [&credentials_initialized, weak_client,
                                      settings](User user) mutable {
     auto shared_client = weak_client.lock();
     if (!shared_client) return;
@@ -105,6 +105,10 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     if (!credentials_initialized) {
       credentials_initialized = true;
 
+      // When we register the credentials listener for the first time,
+      // it is invoked synchronously on the calling thread. This ensures that
+      // the first item enqueued on the worker queue is
+      // `FirestoreClient::Initialize()`.
       shared_client->worker_queue()->Enqueue([shared_client, user, settings] {
         shared_client->Initialize(user, settings);
       });
@@ -120,6 +124,10 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
   shared_client->credentials_provider_->SetCredentialChangeListener(
       credential_change_listener);
+
+  HARD_ASSERT(
+      credentials_initialized,
+      "CredentialChangeListener not invoked during client initialization");
 
   return shared_client;
 }
