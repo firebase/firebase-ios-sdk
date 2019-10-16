@@ -399,9 +399,9 @@ jobs:
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     - stage: test
-      osx_image: xcode8.3
+      osx_image: xcode9.4
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=9.4.1
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
