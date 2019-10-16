@@ -67,6 +67,8 @@ cc_select(
 cc_library(
   firebase_firestore_util_base_stdio
   SOURCES
+    exception.h
+    exception_std.cc
     hard_assert.cc
     hard_assert.h
     log.h
@@ -84,6 +86,8 @@ cc_library(
 cc_library(
   firebase_firestore_util_base_apple
   SOURCES
+    exception.h
+    exception_apple.mm
     hard_assert.cc
     hard_assert.h
     hard_assert_apple.h

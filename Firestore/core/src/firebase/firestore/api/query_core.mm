@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
 #include "Firestore/core/src/firebase/firestore/core/operator.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -52,6 +53,7 @@ using model::FieldValue;
 using model::ResourcePath;
 using util::Status;
 using util::StatusOr;
+using util::ThrowInvalidArgument;
 
 using Operator = Filter::Operator;
 

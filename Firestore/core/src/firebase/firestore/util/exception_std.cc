@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 
 #include <cstdlib>
 #include <stdexcept>
@@ -23,8 +23,8 @@
 
 namespace firebase {
 namespace firestore {
-namespace api {
-namespace impl {
+namespace util {
+namespace internal {
 
 namespace {
 
@@ -44,7 +44,7 @@ template <typename T>
   Throw("Invalid argument", std::invalid_argument(message));
 }
 
-}  // namespace impl
-}  // namespace api
+}  // namespace internal
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_INPUT_VALIDATION_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_INPUT_VALIDATION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_H_
 
 // Routines in this file are used to throw an exception (or crash, depending on
 // platform) in response to API usage errors. Exceptions should only be used
@@ -38,14 +38,13 @@
 
 namespace firebase {
 namespace firestore {
-namespace api {
-
-namespace impl {
+namespace util {
+namespace internal {
 
 [[noreturn]] void ThrowIllegalState(const std::string& message);
 [[noreturn]] void ThrowInvalidArgument(const std::string& message);
 
-}  // namespace impl
+}  // namespace internal
 
 /**
  * Throws an exception indicating that the user passed an invalid argument.
@@ -56,7 +55,7 @@ namespace impl {
  */
 template <typename... FA>
 [[noreturn]] void ThrowInvalidArgument(const char* format, const FA&... args) {
-  impl::ThrowInvalidArgument(util::StringFormat(format, args...));
+  internal::ThrowInvalidArgument(util::StringFormat(format, args...));
 }
 
 /**
@@ -70,11 +69,11 @@ template <typename... FA>
  */
 template <typename... FA>
 [[noreturn]] void ThrowIllegalState(const char* format, const FA&... args) {
-  impl::ThrowIllegalState(util::StringFormat(format, args...));
+  internal::ThrowIllegalState(util::StringFormat(format, args...));
 }
 
-}  // namespace api
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_INPUT_VALIDATION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_H_

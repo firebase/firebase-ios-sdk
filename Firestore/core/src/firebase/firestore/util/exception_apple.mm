@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 
 #import <Foundation/Foundation.h>
 
@@ -24,12 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
-namespace api {
-namespace impl {
+namespace util {
+namespace internal {
 
 static NSException* MakeException(NSString* name, const std::string& message) {
   return [[NSException alloc] initWithName:name
-                                    reason:util::MakeNSString(message)
+                                    reason:MakeNSString(message)
                                   userInfo:nil];
 }
 
@@ -41,8 +41,8 @@ static NSException* MakeException(NSString* name, const std::string& message) {
   @throw MakeException(@"FIRInvalidArgumentException", message);  // NOLINT
 }
 
-}  // namespace impl
-}  // namespace api
+}  // namespace internal
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
