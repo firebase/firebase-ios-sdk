@@ -19,7 +19,7 @@ Shared library for iOS SDK data transport needs.
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
-  # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
+  # To develop or run the tests, >= 1.8.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
