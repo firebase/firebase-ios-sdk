@@ -281,12 +281,12 @@
   NSMutableArray<FIRInstanceIDTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
   for (FIRInstanceIDTokenInfo *tokenInfo in tokenInfos) {
-    BOOL isTokenFresh = [tokenInfo isFresh];
-    if (isTokenFresh && [tokenInfo.token hasPrefix:IID]) {
+    BOOL isTokenFresh = [tokenInfo isFreshWithIID:IID];
+    if (isTokenFresh) {
       // Token is fresh and in right format, do nothing
       continue;
     }
-    if ([tokenInfo.scope isEqualToString:kFIRInstanceIDDefaultTokenScope]) {
+    if ([tokenInfo isDefaultToken]) {
       // Default token is expired, do not mark for deletion. Fetch directly from server to
       // replace the current one.
       shouldFetchDefaultToken = YES;

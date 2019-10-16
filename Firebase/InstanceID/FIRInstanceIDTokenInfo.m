@@ -18,6 +18,7 @@
 
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDUtilities.h"
+#import "FIRInstanceIDConstants.h"
 
 /**
  *  @enum Token Info Dictionary Key Constants
@@ -65,10 +66,15 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   return self;
 }
 
-- (BOOL)isFresh {
+- (BOOL)isFreshWithIID:(NSString *)IID {
   // Last fetch token cache time could be null if token is from legacy storage format. Then token is
   // considered not fresh and should be refreshed and overwrite with the latest storage format.
   if (!_cacheTime) {
+    return NO;
+  }
+
+  // Check if it's consistent with IID
+  if (![self.token hasPrefix:IID]) {
     return NO;
   }
 
@@ -105,6 +111,11 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   NSTimeInterval timeSinceLastFetchToken = currentTimestamp - lastFetchTokenTimestamp;
   return (timeSinceLastFetchToken < kDefaultFetchTokenInterval);
 }
+
+- (BOOL)isDefaultToken {
+    return [self.scope isEqualToString:kFIRInstanceIDDefaultTokenScope];
+}
+
 #pragma mark - NSCoding
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
