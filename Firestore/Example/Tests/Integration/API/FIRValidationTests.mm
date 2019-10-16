@@ -80,9 +80,8 @@ namespace testutil = firebase::firestore::testutil;
   FIROptions *options = testutil::OptionsForUnitTesting("ignored");
   options.projectID = nil;
   FIRApp *app = testutil::AppForUnitTesting(options);
-  FSTAssertThrows(
-      [FIRFirestore firestoreForApp:app],
-      @"FIROptions.projectID must be set to a valid project ID.");
+  FSTAssertThrows([FIRFirestore firestoreForApp:app],
+                  @"FIROptions.projectID must be set to a valid project ID.");
 }
 
 // TODO(b/62410906): Test for firestoreForApp:database: with nil DatabaseID.
