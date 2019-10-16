@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Ensure tokenWithAuthorizedEntity:scope:options:handler method is refreshing token if token is not feshed any more. (#4096)
+
 # 2019-10-22 -- 4.2.6
 - [fixed] Fixed InstanceID initialization timing issue (#4030).
 - [changed] Added check to see if token and IID are inconsistent (#4025).
