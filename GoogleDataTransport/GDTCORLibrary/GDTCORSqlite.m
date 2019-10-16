@@ -44,7 +44,7 @@ BOOL GDTCORSQLOpenDB(sqlite3 **db, NSURL *fileURL) {
 
   int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
               SQLITE_OPEN_FULLMUTEX;
-  return sqlite3_open_v2([fileURL path].UTF8String, &db, flags, NULL);
+  return sqlite3_open_v2([fileURL path].UTF8String, db, flags, NULL) == SQLITE_OK;
 }
 
 BOOL GDTCORSQLCloseDB(sqlite3 *db) {
