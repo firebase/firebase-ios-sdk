@@ -139,9 +139,17 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    callback_->OnWriteStreamMutationResult(
-        write_serializer_.ToCommitVersion(*response),
-        write_serializer_.ToMutationResults(*response));
+    auto maybe_version = write_serializer_.ToCommitVersion(*response);
+    if (!maybe_version.ok()) {
+      return maybe_version.status();
+    }
+    auto maybe_results = write_serializer_.ToMutationResults(*response);
+    if (!maybe_results.ok()) {
+      return maybe_results.status();
+    }
+
+    callback_->OnWriteStreamMutationResult(maybe_version.ValueOrDie(),
+                                           maybe_results.ValueOrDie());
   }
 
   return Status::OK();

@@ -97,9 +97,18 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  callback_->OnWatchStreamChange(
-      *watch_serializer_.ToWatchChange(*response),
-      watch_serializer_.ToSnapshotVersion(*response));
+  auto maybe_watch_change = watch_serializer_.ToWatchChange(*response);
+  if (!maybe_watch_change.ok()) {
+    return maybe_watch_change.status();
+  }
+  auto maybe_version = watch_serializer_.ToSnapshotVersion(*response);
+  if (!maybe_version.ok()) {
+    return maybe_version.status();
+  }
+
+  callback_->OnWatchStreamChange(*maybe_watch_change.ValueOrDie(),
+                                 maybe_version.ValueOrDie());
+
   return Status::OK();
 }
 

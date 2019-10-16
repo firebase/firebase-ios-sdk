@@ -21,6 +21,7 @@
 #include <pb_decode.h>
 
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -105,6 +106,14 @@ class Reader {
 
   void set_status(util::Status status) {
     status_ = status;
+  }
+
+  template <typename T>
+  util::StatusOr<T> ToStatusOr(T&& value) {
+    if (!ok()) {
+      return status();
+    }
+    return util::StatusOr<T>(std::move(value));
   }
 
   /**
