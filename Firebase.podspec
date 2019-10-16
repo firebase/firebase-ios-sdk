@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.10.0'
+  s.version          = '6.11.0'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -37,7 +37,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.3.1'
+    ss.dependency 'FirebaseCore', '6.3.2'
     ss.source_files = 'Firebase/Firebase/Sources/Firebase.h'
     ss.preserve_paths = 'Firebase/Firebase/Sources/module.modulemap'
     ss.user_target_xcconfig = {
@@ -62,7 +62,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.3.0'
+    ss.dependency 'FirebaseAuth', '~> 6.3.1'
   end
 
   s.subspec 'Database' do |ss|
@@ -79,7 +79,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.6.0'
+    ss.dependency 'FirebaseFirestore', '~> 1.6.1'
   end
 
   s.subspec 'Functions' do |ss|
@@ -101,7 +101,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.1.6'
+    ss.dependency 'FirebaseMessaging', '~> 4.1.7'
   end
 
   s.subspec 'Performance' do |ss|
@@ -112,7 +112,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.2'
+    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.3'
   end
 
   s.subspec 'Storage' do |ss|
