@@ -458,6 +458,13 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=tvos
 
     - stage: test
+      osx_image: xcode10.1
+      env:
+        - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
+
+    - stage: test
       if: type = cron
       env:
         - PROJECT=GoogleDataTransportCron METHOD=pod-lib-lint
@@ -476,6 +483,13 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=macos
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=tvos
+
+    - stage: test
+      osx_image: xcode10.1
+      env:
+        - PROJECT=GoogleDataTransportCCTSupport METHOD=pod-lib-lint
+      script:
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=ios
 
     - stage: test
       if: type = cron
