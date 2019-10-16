@@ -559,11 +559,6 @@ static NSMutableDictionary *sLibraryVersions;
   [self registerLibrary:name withVersion:version];
 }
 
-+ (NSInteger *) clientLogType:(NSString*)sdkString {
-  
-  return 1;
-}
-
 + (NSString *)firebaseUserAgent {
   @synchronized(self) {
     NSMutableArray<NSString *> *libraries =
