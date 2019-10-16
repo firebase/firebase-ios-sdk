@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isFreshWithIID:(NSString *)IID;
 
 /*
- * Check wehther the token is default token.
+ * Check whether the token is default token.
  */
 - (BOOL)isDefaultToken;
 

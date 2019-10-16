@@ -26,7 +26,9 @@
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";
-static NSString *const kToken = @"eMP633ZkDYA:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7h1BKq9Wb2A0LAANpQefrPHVUp4p";
+static NSString *const kToken = @"eMP633ZkDYA:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-"
+                                @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt"
+                                @"7h1BKq9Wb2A0LAANpQefrPHVUp4p";
 static NSString *const kFirebaseAppID = @"firebaseAppID";
 static NSString *const kIID = @"eMP633ZkDYA";
 static BOOL const kAPNSSandbox = NO;
@@ -179,15 +181,17 @@ static BOOL const kAPNSSandbox = NO;
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
--(void)testTokenInconsistentWithIID {
+- (void)testTokenInconsistentWithIID {
   XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Change token.
-  self.validTokenInfo =
-    [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                       scope:kScope token:@"cxhhwVY27AE:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7h1BKq9Wb2A0LAANpQefrPHVUp4p"
-                                                  appVersion:@"1.1"
-                                               firebaseAppID:FIRInstanceIDFirebaseAppID()];
+  self.validTokenInfo = [[FIRInstanceIDTokenInfo alloc]
+      initWithAuthorizedEntity:kAuthorizedEntity
+                         scope:kScope
+                         token:@"cxhhwVY27AE:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-"
+                               @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7"
+                               @"h1BKq9Wb2A0LAANpQefrPHVUp4p"
+                    appVersion:@"1.1"
+                 firebaseAppID:FIRInstanceIDFirebaseAppID()];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
-
 }
 @end

@@ -316,48 +316,48 @@ static FIRInstanceID *gInstanceID;
 
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDAuthService *authService = self.tokenManager.authService;
-  [authService
-      fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
-        FIRInstanceID_STRONGIFY(self);
-        if (error) {
-          newHandler(nil, error);
-          return;
-        }
+  [authService fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences,
+                                             NSError *error) {
+    FIRInstanceID_STRONGIFY(self);
+    if (error) {
+      newHandler(nil, error);
+      return;
+    }
 
-        FIRInstanceID_WEAKIFY(self);
-        [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
-          FIRInstanceID_STRONGIFY(self);
+    FIRInstanceID_WEAKIFY(self);
+    [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
+      FIRInstanceID_STRONGIFY(self);
 
-          if (error) {
-            NSError *newError =
-                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-            newHandler(nil, newError);
+      if (error) {
+        NSError *newError =
+            [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+        newHandler(nil, newError);
 
-          } else {
-            FIRInstanceIDTokenInfo *cachedTokenInfo =
-              [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-            if (cachedTokenInfo) {
-              FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-                [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-              // Check if APNS Info is changed
-              if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-                [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-                // check if token is fresh
-                NSString *appIdentity = FIRInstanceIDAppIdentity(keyPair);
-                if ([cachedTokenInfo isFreshWithIID:appIdentity]) {
-                  newHandler(cachedTokenInfo.token, nil);
-                  return;
-                }
-              }
+      } else {
+        FIRInstanceIDTokenInfo *cachedTokenInfo =
+            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+        if (cachedTokenInfo) {
+          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+          // Check if APNS Info is changed
+          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+            // check if token is fresh
+            NSString *appIdentity = FIRInstanceIDAppIdentity(keyPair);
+            if ([cachedTokenInfo isFreshWithIID:appIdentity]) {
+              newHandler(cachedTokenInfo.token, nil);
+              return;
             }
-            [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                                           scope:[scope copy]
-                                                         keyPair:keyPair
-                                                         options:tokenOptions
-                                                         handler:newHandler];
           }
-        }];
-      }];
+        }
+        [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                       scope:[scope copy]
+                                                     keyPair:keyPair
+                                                     options:tokenOptions
+                                                     handler:newHandler];
+      }
+    }];
+  }];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity

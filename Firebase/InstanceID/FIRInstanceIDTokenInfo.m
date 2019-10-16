@@ -16,9 +16,9 @@
 
 #import "FIRInstanceIDTokenInfo.h"
 
+#import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDUtilities.h"
-#import "FIRInstanceIDConstants.h"
 
 /**
  *  @enum Token Info Dictionary Key Constants
@@ -116,7 +116,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 }
 
 - (BOOL)isDefaultToken {
-    return [self.scope isEqualToString:kFIRInstanceIDDefaultTokenScope];
+  return [self.scope isEqualToString:kFIRInstanceIDDefaultTokenScope];
 }
 
 #pragma mark - NSCoding
