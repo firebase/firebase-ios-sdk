@@ -54,21 +54,11 @@ MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
-  if (status.IsNotFound()) {
+  if (!status.ok()) {
     return ConvertStatus(status);
-  } else if (!status.ok()) {
-    HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
-              status.ToString());
   }
 
-  auto maybe_message =
-      Message<firestore_client_TargetGlobal>::TryDecode(ByteString{value});
-  if (!maybe_message.ok()) {
-    HARD_FAIL("TargetGlobal proto failed to parse: %s",
-              maybe_message.status().ToString());
-  }
-
-  return maybe_message;
+  return Message<firestore_client_TargetGlobal>::TryDecode(ByteString{value});
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
@@ -79,13 +69,22 @@ LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
 void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to current_transaction()
   auto maybe_metadata = ReadMetadata(db_->ptr());
-  HARD_ASSERT(maybe_metadata.ok(),
-              "Found no metadata, expected schema to be at version 0 which "
-              "ensures metadata existence");
+  if (!maybe_metadata.ok()) {
+    if (maybe_metadata.status().code() == Error::NotFound) {
+      HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
+                "ensures metadata existence");
+    } else {
+      HARD_FAIL("ReadMetadata: failed loading key %s with status: %s",
+                LevelDbTargetGlobalKey::Key(),
+                maybe_metadata.status().ToString());
+    }
+  }
+
   metadata_ = std::move(maybe_metadata).ValueOrDie();
-  Reader r;  // FIXME
-  last_remote_snapshot_version_ =
-      serializer_->DecodeVersion(&r, metadata_->last_remote_snapshot_version);
+
+  Reader reader;
+  last_remote_snapshot_version_ = serializer_->DecodeVersion(
+      &reader, metadata_->last_remote_snapshot_version);
 }
 
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
@@ -381,8 +380,14 @@ QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
               maybe_message.status().ToString());
   }
 
-  Reader r;  // FIXME
-  return serializer_->DecodeQueryData(&r, *maybe_message.ValueOrDie());
+  Reader reader;
+  auto result =
+      serializer_->DecodeQueryData(&reader, *maybe_message.ValueOrDie());
+  if (!reader.ok()) {
+    HARD_FAIL("Target proto failed to parse: %s", reader.status().ToString());
+  }
+
+  return result;
 }
 
 }  // namespace local

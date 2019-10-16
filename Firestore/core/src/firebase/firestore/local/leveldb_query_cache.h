@@ -71,8 +71,10 @@ class LevelDbQueryCache : public QueryCache {
 
   // Key-related methods
 
-  /** Adds the given document keys to cached query results of the given target
-   * ID. */
+  /**
+   * Adds the given document keys to cached query results of the given target
+   * ID.
+   */
   void AddMatchingKeys(const model::DocumentKeySet& keys,
                        model::TargetId target_id) override;
 
@@ -117,6 +119,7 @@ class LevelDbQueryCache : public QueryCache {
   void Save(const QueryData& query_data);
   bool UpdateMetadata(const QueryData& query_data);
   void SaveMetadata();
+
   /**
    * Parses the given bytes as a `firestore_client_Target` protocol buffer and
    * then converts to the equivalent query data.
@@ -127,9 +130,10 @@ class LevelDbQueryCache : public QueryCache {
   LevelDbPersistence* db_;
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
+
   /** A write-through cached copy of the metadata for the query cache. */
-  nanopb::Message<firestore_client_TargetGlobal> metadata_ =
-      nanopb::Message<firestore_client_TargetGlobal>::Invalid();
+  nanopb::Message<firestore_client_TargetGlobal> metadata_;
+
   model::SnapshotVersion last_remote_snapshot_version_;
 };
 

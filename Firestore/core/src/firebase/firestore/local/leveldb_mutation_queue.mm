@@ -138,7 +138,7 @@ void LevelDbMutationQueue::Start() {
   if (maybe_metadata.ok()) {
     metadata_ = std::move(maybe_metadata).ValueOrDie();
   } else if (maybe_metadata.status().code() == Error::NotFound) {
-    metadata_ = Message<firestore_client_MutationQueue>::Empty();
+    // The default-constructed `metadata_` is fine.
   } else {
     HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
               maybe_metadata.status().ToString());
@@ -458,6 +458,7 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
 
     result.push_back(ParseMutationBatch(mutation_iterator->value()));
   }
+
   return result;
 }
 
@@ -481,8 +482,15 @@ MutationBatch LevelDbMutationQueue::ParseMutationBatch(
               maybe_message.status().ToString());
   }
 
-  Reader r;  // FIXME
-  return serializer_->DecodeMutationBatch(&r, *maybe_message.ValueOrDie());
+  Reader reader;
+  auto result =
+      serializer_->DecodeMutationBatch(&reader, *maybe_message.ValueOrDie());
+  if (!reader.ok()) {
+    HARD_FAIL("MutationBatch proto failed to parse: %s",
+              reader.status().ToString());
+  }
+
+  return result;
 }
 
 }  // namespace local

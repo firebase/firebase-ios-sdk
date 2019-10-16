@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 #include "leveldb/db.h"
 
 namespace firebase {
@@ -137,8 +138,7 @@ class LevelDbMutationQueue : public MutationQueue {
   /**
    * A write-through cache copy of the metadata describing the current queue.
    */
-  nanopb::Message<firestore_client_MutationQueue> metadata_ =
-      nanopb::Message<firestore_client_MutationQueue>::Invalid();
+  nanopb::Message<firestore_client_MutationQueue> metadata_;
 };
 
 }  // namespace local

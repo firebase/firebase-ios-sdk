@@ -69,14 +69,12 @@ GetNanopbFields<google_firestore_v1_BatchGetDocumentsResponse>() {
 }
 
 template <>
-inline const pb_field_t*
-GetNanopbFields<google_firestore_v1_CommitRequest>() {
+inline const pb_field_t* GetNanopbFields<google_firestore_v1_CommitRequest>() {
   return google_firestore_v1_CommitRequest_fields;
 }
 
 template <>
-inline const pb_field_t*
-GetNanopbFields<google_firestore_v1_CommitResponse>() {
+inline const pb_field_t* GetNanopbFields<google_firestore_v1_CommitResponse>() {
   return google_firestore_v1_CommitResponse_fields;
 }
 

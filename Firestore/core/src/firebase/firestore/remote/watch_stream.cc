@@ -83,8 +83,7 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  MaybeMessage<google_firestore_v1_ListenResponse> maybe_response =
-      watch_serializer_.DecodeResponse(message);
+  auto maybe_response = watch_serializer_.DecodeResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }

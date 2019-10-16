@@ -149,12 +149,17 @@ MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
               maybe_message.status().ToString());
   }
 
-  Reader r;  // FIXME
+  Reader reader;
   MaybeDocument maybe_document =
-      serializer_->DecodeMaybeDocument(&r, *maybe_message.ValueOrDie());
+      serializer_->DecodeMaybeDocument(&reader, *maybe_message.ValueOrDie());
+  if (!reader.ok()) {
+    HARD_FAIL("MaybeDocument proto failed to parse: %s",
+              reader.status().ToString());
+  }
   HARD_ASSERT(maybe_document.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
               maybe_document.key().ToString(), key.ToString());
+
   return maybe_document;
 }
 

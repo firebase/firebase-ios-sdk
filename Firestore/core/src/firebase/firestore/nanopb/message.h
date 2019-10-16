@@ -81,29 +81,7 @@ class Message {
  public:
   Message() = default;
 
-  template <typename F>
-  explicit Message(const F& f) : owns_proto_{true}, proto_{f()} {
-  }
-
-  template <typename F>
-  static Message InitBy(const F& f) {
-    return Message{f};
-  }
-
-  template <typename F>
-  static Message Fill(const F& f) {
-    Message result;
-    result.owns_proto_ = true;
-    f(&result);
-    return result;
-  }
-
-  // static Message Empty() {
-  //   Message result;
-  //   result.owns_proto_ = true;
-  //   return result;
-  // }
-
+  /*
   T release() {
     owns_proto_ = false;
     return proto_;
@@ -114,6 +92,7 @@ class Message {
     owns_proto_ = true;
     proto_ = proto;
   }
+  */
 
   /**
    * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
@@ -145,15 +124,16 @@ class Message {
     owns_proto_ = other.owns_proto_;
     proto_ = other.proto_;
     other.owns_proto_ = false;
+
     return *this;
   }
 
   T* get() {
-    return owns_proto() ? &proto_ : nullptr;
+    return owns_proto_ ? &proto_ : nullptr;
   }
 
   const T* get() const {
-    return owns_proto() ? &proto_ : nullptr;
+    return owns_proto_ ? &proto_ : nullptr;
   }
 
   T& operator*() {
@@ -187,33 +167,24 @@ class Message {
   ByteString ToByteString() const;
 
  private:
-  // Most code shouldn't be able to modify the underlying proto.
-  friend class local::LocalSerializer;
-  friend class remote::DatastoreSerializer;
-  friend class remote::WatchStreamSerializer;
-  friend class remote::WriteStreamSerializer;
-  friend class remote::DatastoreSerializer;
-
   static const pb_field_t* fields() {
     return GetNanopbFields<T>();
   }
 
   void Free() {
-    if (owns_proto()) {
+    if (owns_proto_) {
       FreeNanopbMessage(fields(), &proto_);
     }
   }
 
-  bool owns_proto() const {
-    return owns_proto_ != false;
-  }
-
-  bool owns_proto_ = false;
+  bool owns_proto_ = true;
   T proto_{};
 };
 
 namespace internal {
+
 util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
+
 }  // namespace internal
 
 template <typename T>
