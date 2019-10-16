@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*
  * Check whether the token is default token.
- */	
+ */
 - (BOOL)isDefaultToken;
 
 @end

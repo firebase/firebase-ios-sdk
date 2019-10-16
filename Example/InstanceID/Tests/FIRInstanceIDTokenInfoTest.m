@@ -26,8 +26,7 @@
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";
-static NSString *const kToken =
-@"eMP633ZkDYA:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-"
+static NSString *const kToken = @"eMP633ZkDYA:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-"
                                 @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt"
                                 @"7h1BKq9Wb2A0LAANpQefrPHVUp4p";
 static NSString *const kFirebaseAppID = @"firebaseAppID";

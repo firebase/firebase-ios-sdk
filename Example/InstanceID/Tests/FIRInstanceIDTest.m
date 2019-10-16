@@ -64,11 +64,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 + (int64_t)maxRetryCountForDefaultToken;
 + (int64_t)minIntervalForDefaultTokenRetry;
 + (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
-(void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
-                                    scope:(NSString *)scope
-                                  keyPair:(FIRInstanceIDKeyPair *)keyPair
-                                  options:(NSDictionary *)options
-                                  handler:(FIRInstanceIDTokenHandler)handler;
+(void)fetchNewTokenWithAuthorizedEntity : (NSString *)authorizedEntity scope
+    : (NSString *)scope keyPair : (FIRInstanceIDKeyPair *)keyPair options
+    : (NSDictionary *)options handler : (FIRInstanceIDTokenHandler)handler;
 
 @end
 
