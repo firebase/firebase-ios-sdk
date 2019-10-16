@@ -69,6 +69,9 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 - (BOOL)isFreshWithIID:(NSString *)IID {
   // Last fetch token cache time could be null if token is from legacy storage format. Then token is
   // considered not fresh and should be refreshed and overwrite with the latest storage format.
+  if (!IID) {
+    return NO;
+  }
   if (!_cacheTime) {
     return NO;
   }
