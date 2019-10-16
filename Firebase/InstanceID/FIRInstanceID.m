@@ -31,7 +31,6 @@
 #import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDKeyPairUtilities.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDStore.h"
 #import "FIRInstanceIDTokenInfo.h"
@@ -344,8 +343,7 @@ static FIRInstanceID *gInstanceID;
           if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
               [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
             // check if token is fresh
-            NSString *appIdentity = FIRInstanceIDAppIdentity(keyPair);
-            if ([cachedTokenInfo isFreshWithIID:appIdentity]) {
+            if ([cachedTokenInfo isFreshWithIID:identifier]) {
               newHandler(cachedTokenInfo.token, nil);
               return;
             }

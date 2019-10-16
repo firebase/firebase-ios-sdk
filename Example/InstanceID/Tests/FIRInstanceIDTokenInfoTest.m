@@ -129,14 +129,14 @@ static BOOL const kAPNSSandbox = NO;
 
 - (void)testTokenFreshnessWithLocaleChange {
   // Default should be fresh because we mock last fetch token time just now.
-  XCTAssertTrue([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
 
   // Locale change should affect token refreshness.
   // Set to a different locale than the current locale.
   [[NSUserDefaults standardUserDefaults] setObject:@"zh-Hant"
                                             forKey:kFIRInstanceIDUserDefaultsKeyLocale];
   [[NSUserDefaults standardUserDefaults] synchronize];
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
   // Reset locale
   [[NSUserDefaults standardUserDefaults] setObject:FIRInstanceIDCurrentLocale()
                                             forKey:kFIRInstanceIDUserDefaultsKeyLocale];
@@ -144,33 +144,33 @@ static BOOL const kAPNSSandbox = NO;
 }
 
 - (void)testTokenFreshnessWithTokenTimestampChange {
-  XCTAssertTrue([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Set last fetch token time 7 days ago.
   NSTimeInterval lastFetchTokenTimestamp =
       FIRInstanceIDCurrentTimestampInSeconds() - 7 * 24 * 60 * 60;
   self.validTokenInfo.cacheTime = [NSDate dateWithTimeIntervalSince1970:lastFetchTokenTimestamp];
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 
   // Set last fetch token time more than 7 days ago.
   lastFetchTokenTimestamp = FIRInstanceIDCurrentTimestampInSeconds() - 8 * 24 * 60 * 60;
   self.validTokenInfo.cacheTime = [NSDate dateWithTimeIntervalSince1970:lastFetchTokenTimestamp];
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 
   // Set last fetch token time nil to mock legacy storage format. Token should be considered not
   // fresh.
   self.validTokenInfo.cacheTime = nil;
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
 - (void)testTokenFreshnessWithFirebaseAppIDChange {
-  XCTAssertTrue([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Change Firebase App ID.
   [FIROptions defaultOptions].googleAppID = @"newFirebaseAppID:ios:abcdefg";
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
 - (void)testTokenFreshnessWithAppVersionChange {
-  XCTAssertTrue([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Change app version.
   self.validTokenInfo =
       [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
@@ -178,7 +178,7 @@ static BOOL const kAPNSSandbox = NO;
                                                          token:kToken
                                                     appVersion:@"1.1"
                                                  firebaseAppID:FIRInstanceIDFirebaseAppID()];
-  XCTAssertFalse([self.validTokenInfo isFreshWithIID:IID]);
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
 - (void)testTokenInconsistentWithIID {

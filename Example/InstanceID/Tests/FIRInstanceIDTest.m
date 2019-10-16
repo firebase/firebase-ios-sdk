@@ -64,9 +64,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 + (int64_t)maxRetryCountForDefaultToken;
 + (int64_t)minIntervalForDefaultTokenRetry;
 + (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
-(void)fetchNewTokenWithAuthorizedEntity : (NSString *)authorizedEntity scope
-    : (NSString *)scope keyPair : (FIRInstanceIDKeyPair *)keyPair options
-    : (NSDictionary *)options handler : (FIRInstanceIDTokenHandler)handler;
 
 @end
 
@@ -198,7 +195,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
   NSString *serverKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
 
-  [self stubKeyPairStoreToReturnValidKeypair];
   [self mockAuthServiceToAlwaysReturnValidCheckin];
 
   NSData *fakeAPNSDeviceToken = [kFakeAPNSToken dataUsingEncoding:NSUTF8StringEncoding];
@@ -216,17 +212,18 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[self.mockTokenManager stub]
       fetchNewTokenWithAuthorizedEntity:kGCMSenderID
                                   scope:@"*"
-                                keyPair:[OCMArg any]
-                                options:tokenOptions
+                                instanceID:[OCMArg any]
+                                options:[OCMArg any]
                                 handler:[OCMArg
-                                            invokeBlockWithArgs:@"newToken", [NSNull null], nil]];
+                                            invokeBlockWithArgs:@"differentIID:newToken", [NSNull null], nil]];
+  [[self.mockInstallations stub] installationIDWithCompletion:[OCMArg invokeBlockWithArgs:@"differentIID", [NSNull null], nil]];
 
   [self.mockInstanceID
       tokenWithAuthorizedEntity:kGCMSenderID
                           scope:@"*"
                         options:tokenOptions
                         handler:^(NSString *_Nullable token, NSError *_Nullable error) {
-                          XCTAssertEqualObjects(token, @"newToken");
+                          XCTAssertEqualObjects(token, @"diffrentID:newToken");
                           [expectation fulfill];
                         }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
