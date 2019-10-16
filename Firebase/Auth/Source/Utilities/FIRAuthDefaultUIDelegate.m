@@ -103,10 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 #else
-  if (!@available(iOS 13.0, tvOS 13.0, *)) {
-    UIApplication *application = [applicationClass sharedApplication];
-    topViewController = application.keyWindow.rootViewController;
-  }
+  UIApplication *application = [applicationClass sharedApplication];
+  topViewController = application.keyWindow.rootViewController;
 #endif
 
   while (true){
