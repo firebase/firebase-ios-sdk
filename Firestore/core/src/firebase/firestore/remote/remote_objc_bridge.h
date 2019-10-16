@@ -72,9 +72,9 @@ class WatchStreamSerializer {
 
   nanopb::MaybeMessage<google_firestore_v1_ListenResponse> DecodeResponse(
       const grpc::ByteBuffer& buffer) const;
-  std::unique_ptr<WatchChange> ToWatchChange(
+  util::StatusOr<std::unique_ptr<WatchChange>> ToWatchChange(
       const google_firestore_v1_ListenResponse& response) const;
-  model::SnapshotVersion ToSnapshotVersion(
+  util::StatusOr<model::SnapshotVersion> ToSnapshotVersion(
       const google_firestore_v1_ListenResponse& response) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -102,9 +102,9 @@ class WriteStreamSerializer {
 
   nanopb::MaybeMessage<google_firestore_v1_WriteResponse> DecodeResponse(
       const grpc::ByteBuffer& buffer) const;
-  model::SnapshotVersion ToCommitVersion(
+  util::StatusOr<model::SnapshotVersion> ToCommitVersion(
       const google_firestore_v1_WriteResponse& proto) const;
-  std::vector<model::MutationResult> ToMutationResults(
+  util::StatusOr<std::vector<model::MutationResult>> ToMutationResults(
       const google_firestore_v1_WriteResponse& proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -133,8 +133,6 @@ class DatastoreSerializer {
    */
   util::StatusOr<std::vector<model::MaybeDocument>> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses) const;
-  model::MaybeDocument ToMaybeDocument(
-      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   const Serializer& serializer() const {
     return serializer_;

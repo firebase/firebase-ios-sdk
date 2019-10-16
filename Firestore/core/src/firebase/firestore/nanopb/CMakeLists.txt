@@ -32,7 +32,6 @@ cc_library(
     firebase_firestore_model
     firebase_firestore_util
     firebase_firestore_protos_nanopb
-
     grpc++
 )
 

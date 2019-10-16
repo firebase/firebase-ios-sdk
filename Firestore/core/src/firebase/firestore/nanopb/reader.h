@@ -21,6 +21,7 @@
 #include <pb_decode.h>
 
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -49,8 +50,9 @@ class Reader {
    * Creates an instance that isn't associated with any bytes. It can be used
    * to accumulate errors.
    *
-   * TODO(varconst): move error handling into a separate class, e.g.
-   * `ReadContext`.
+   * TODO(varconst): this class should turn into a context object that holds
+   * read errors (`ReadContext`?). Its remaining reading responsibilities should
+   * probably move into `Message`.
    */
   Reader() = default;
 
@@ -104,6 +106,14 @@ class Reader {
 
   void set_status(util::Status status) {
     status_ = status;
+  }
+
+  template <typename T>
+  util::StatusOr<T> ToStatusOr(T&& value) {
+    if (!ok()) {
+      return status();
+    }
+    return util::StatusOr<T>(std::move(value));
   }
 
   /**
