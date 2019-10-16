@@ -111,6 +111,9 @@ def is_platform(symbol)
   end
 end
 
+# Point at an unreleased abseil podspec
+pod 'abseil', :podspec => 'https://raw.githubusercontent.com/veblush/abseil-cpp/podspec/abseil.podspec'
+
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
     platform :ios, '8.0'
