@@ -179,7 +179,7 @@ static BOOL const kAPNSSandbox = NO;
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
--(void)testTokenInconsistentWithToken {
+-(void)testTokenInconsistentWithIID {
   XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Change token.
   self.validTokenInfo =
