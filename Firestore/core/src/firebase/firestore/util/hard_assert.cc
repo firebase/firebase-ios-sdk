@@ -27,10 +27,11 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
-                                                   const char* func,
-                                                   const int line,
-                                                   const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void DefaultAssertionHandler(
+    const char* file,
+    const char* func,
+    const int line,
+    const std::string& message) {
   std::string failure =
       StringFormat("ASSERT: %s(%s) %s: %s", file, line, func, message);
 
@@ -44,12 +45,12 @@ ABSL_ATTRIBUTE_NORETURN void DefaultFailureHandler(const char* file,
 }
 
 namespace {
-FailureHandler failure_handler = DefaultFailureHandler;
+AssertionHandler assertion_handler = DefaultAssertionHandler;
 }  // namespace
 
-FailureHandler SetFailureHandler(FailureHandler callback) {
-  FailureHandler previous = failure_handler;
-  failure_handler = callback;
+AssertionHandler SetAssertionHandler(AssertionHandler callback) {
+  AssertionHandler previous = assertion_handler;
+  assertion_handler = callback;
   return previous;
 }
 
@@ -59,9 +60,9 @@ void Fail(const char* file,
           const char* func,
           const int line,
           const std::string& message) {
-  failure_handler(file, func, line, message);
+  assertion_handler(file, func, line, message);
 
-  // It's expected that the failure handler above does not return. But if it
+  // It's expected that the assertion handler above does not return. But if it
   // does, just terminate.
   std::terminate();
 }

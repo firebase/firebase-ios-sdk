@@ -24,10 +24,10 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandler(const char* file,
-                                                const char* func,
-                                                const int line,
-                                                const std::string& message) {
+ABSL_ATTRIBUTE_NORETURN void ObjcAssertionHandler(const char* file,
+                                                  const char* func,
+                                                  const int line,
+                                                  const std::string& message) {
   [[NSAssertionHandler currentHandler]
       handleFailureInFunction:MakeNSString(func)
                          file:MakeNSString(file)

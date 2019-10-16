@@ -30,10 +30,10 @@ namespace util {
  * Default failure handler for ObjC/Swift. Typically shouldn't be used
  * directly.
  */
-ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandler(const char* file,
-                                                const char* func,
-                                                const int line,
-                                                const std::string& message);
+ABSL_ATTRIBUTE_NORETURN void ObjcAssertionHandler(const char* file,
+                                                  const char* func,
+                                                  const int line,
+                                                  const std::string& message);
 
 }  // namespace util
 }  // namespace firestore
