@@ -1,7 +1,8 @@
 # Unreleased
 
 # v1.6.1
-- [changed] Internal improvements.
+- [fixed] Fix a race condition that could cause a segmentation fault during
+  client initialization.
 
 # v1.6.0
 - [feature] Added an `addSnapshotsInSyncListener()` method to
