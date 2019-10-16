@@ -229,9 +229,11 @@ def PushPodspecs(version_data):
     version_data: dictionary of versions to be updated.
   """
   pods = version_data.keys()
-  tmp_dir = tempfile.mkdtemp()
   for pod in pods:
     LogOrRun('pod cache clean {} --all'.format(pod))
+    if pod == 'Firebase':
+      # Do the Firebase pod last
+      continue
     if pod == 'FirebaseFirestore':
       warnings_ok = ' --allow-warnings'
     else:
@@ -240,7 +242,9 @@ def PushPodspecs(version_data):
     podspec = '{}.podspec'.format(pod)
     LogOrRun('pod repo push --skip-tests --use-json {} {}{}'
              .format(GetCpdcInternal(), podspec, warnings_ok))
-  os.system('rm -rf {}'.format(tmp_dir))
+  LogOrRun('pod repo push --skip-tests --use-json --skip-import-validation ' +
+           '--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org' +
+           ' {} {}{}'.format(GetCpdcInternal(), podspec, warnings_ok))
 
 
 def UpdateVersions():
