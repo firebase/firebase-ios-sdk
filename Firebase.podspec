@@ -47,7 +47,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Analytics' do |ss|
     ss.dependency 'Firebase/Core'
-    ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'ABTesting' do |ss|
@@ -57,7 +56,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 7.49'
+    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.50'
   end
 
   s.subspec 'Auth' do |ss|
@@ -68,13 +67,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseDatabase', '~> 6.1.1'
-    ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDynamicLinks', '~> 4.0.5'
-    ss.ios.deployment_target = '8.0'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.0.5'
   end
 
   s.subspec 'Firestore' do |ss|
@@ -89,14 +86,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInAppMessaging', '~> 0.15.5'
-    ss.ios.deployment_target = '8.0'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.15.5'
   end
 
   s.subspec 'InAppMessagingDisplay' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInAppMessagingDisplay', '~> 0.15.5'
-    ss.ios.deployment_target = '8.0'
+    ss.ios.dependency 'FirebaseInAppMessagingDisplay', '~> 0.15.5'
   end
 
   s.subspec 'Messaging' do |ss|
@@ -106,8 +101,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebasePerformance', '~> 3.1.5'
-    ss.ios.deployment_target = '8.0'
+    ss.ios.dependency 'FirebasePerformance', '~> 3.1.5'
   end
 
   s.subspec 'RemoteConfig' do |ss|
@@ -122,8 +116,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMLCommon', '~> 0.19.0'
-    ss.ios.deployment_target = '8.0'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 0.19.0'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
@@ -159,7 +152,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseMLVision', '~> 0.19.0'
-    ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionAutoML' do |ss|
