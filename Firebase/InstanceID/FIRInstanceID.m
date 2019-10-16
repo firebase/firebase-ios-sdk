@@ -339,17 +339,15 @@ static FIRInstanceID *gInstanceID;
             if (cachedTokenInfo) {
               FIRInstanceIDAPNSInfo *optionsAPNSInfo =
                 [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-              // If either the APNs info is missing in both, or if they are an exact match, then we can
-              // use this cached token.
+              // Check if APNS Info is changed
               if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
                 [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-                newHandler(cachedTokenInfo.token, nil);
-                return;
-              }
-              NSString *appIdentity = FIRInstanceIDAppIdentity(keyPair);
-              if ([cachedTokenInfo isFreshWithIID:appIdentity]) {
-                newHandler(cachedTokenInfo.token, nil);
-                return;
+                // check if token is fresh
+                NSString *appIdentity = FIRInstanceIDAppIdentity(keyPair);
+                if ([cachedTokenInfo isFreshWithIID:appIdentity]) {
+                  newHandler(cachedTokenInfo.token, nil);
+                  return;
+                }
               }
             }
             [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
