@@ -41,7 +41,10 @@ BOOL GDTCORSQLOpenDB(sqlite3 **db, NSURL *fileURL) {
     GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"A filename for the sqlite db must not be nil");
     return NO;
   }
-  return sqlite3_open([fileURL path].UTF8String, db) == SQLITE_OK;
+
+  int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
+              SQLITE_OPEN_FULLMUTEX;
+  return sqlite3_open_v2([fileURL path].UTF8String, &db, flags, NULL);
 }
 
 BOOL GDTCORSQLCloseDB(sqlite3 *db) {

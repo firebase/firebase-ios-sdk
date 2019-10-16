@@ -82,7 +82,7 @@ BOOL GDTCORSQLRunQuery(sqlite3 *db, sqlite3_stmt *stmt, GDTCORSqliteRowResultBlo
 /** Binds an ObjC object to a '?' param at the given column index of the statement.
  *
  * @param stmt The stmt to bind to.
- * @param index The index of the param. Note: indices are 1-based, not 0-based.
+ * @param index The index of the param.
  * @param object The object to be bound.
  * @return YES if the statement was successfully run, NO otherwise.
  */
