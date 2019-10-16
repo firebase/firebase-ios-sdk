@@ -41,6 +41,8 @@ using core::Direction;
 using core::EventListener;
 using core::FieldFilter;
 using core::Filter;
+using core::IsArrayOperator;
+using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
