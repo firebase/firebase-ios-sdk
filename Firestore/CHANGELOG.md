@@ -1,3 +1,5 @@
+# Unreleased
+
 # v1.6.1
 - [fixed] Fix a race condition that could cause a segmentation fault during
   client initialization.
