@@ -86,21 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
       }
     }
-  }
-#elif __TV_OS_VERSION_MAX_ALLOWED >= 130000
-  if (@available(iOS 13.0, tvOS 13.0, *)) {
+  } else {
     UIApplication *application = [applicationClass sharedApplication];
-    NSSet<UIScene *> * connectedScenes = application.connectedScenes;
-    for (UIScene *scene in connectedScenes) {
-      if ([scene isKindOfClass:[UIWindowScene class]]) {
-        UIWindowScene *windowScene = (UIWindowScene *)scene;
-        for (UIWindow *window in windowScene.windows) {
-          if (window.isKeyWindow) {
-            topViewController = window.rootViewController;
-          }
-        }
-      }
-    }
+    topViewController = application.keyWindow.rootViewController;
   }
 #else
   UIApplication *application = [applicationClass sharedApplication];
