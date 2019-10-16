@@ -365,6 +365,50 @@ static NSMutableDictionary *sLibraryVersions;
 #pragma clang diagnostic pop
 }
 
+- (BOOL) getOrUpdateHeartbeat:(NSString *) prefKey {
+  NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+  NSTimeInterval currentTimeInSeconds = [[NSDate date] timeIntervalSince1970];
+  if ([preferences objectForKey:prefKey] == nil)
+  {
+    [preferences setInteger:currentTimeInSeconds forKey:prefKey];
+    [preferences synchronize];
+    return true;
+  }
+  else
+  {
+    NSInteger lastHeartbeatTime = [preferences integerForKey: prefKey];
+    if((currentTimeInSeconds-lastHeartbeatTime) > 24*60*60) {
+      [preferences setInteger:currentTimeInSeconds forKey:prefKey];
+      [preferences synchronize];
+      return true;
+    }
+  }
+  return false;
+}
+
+- (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag {
+  NSString *globalTag = @"GLOBAL";
+  BOOL isSdkHeartbeatNeeded = [self getOrUpdateHeartbeat:heartbeatTag];
+  BOOL isGlobalHeartbeatNeeded = [self getOrUpdateHeartbeat:globalTag];
+  if(!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
+    // Both sdk and global heartbeat not needed.
+    return 0;
+  }
+  else if(isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
+    // Only sdk heartbeat needed.
+    return 1;
+  }
+  else if(!isSdkHeartbeatNeeded && isGlobalHeartbeatNeeded) {
+    // Only global heartbeat needed.
+    return 2;
+  }
+  else {
+    // Both sdk and global heartbeat are needed.
+    return 3;
+  }
+
+}
+
 - (BOOL)isDataCollectionDefaultEnabled {
   // Check if it's been manually set before in code, and use that as the higher priority value.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
@@ -513,6 +557,11 @@ static NSMutableDictionary *sLibraryVersions;
     }
   }
   [self registerLibrary:name withVersion:version];
+}
+
++ (NSInteger *) clientLogType:(NSString*)sdkString {
+  
+  return 1;
 }
 
 + (NSString *)firebaseUserAgent {
