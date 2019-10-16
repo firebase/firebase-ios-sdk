@@ -365,7 +365,7 @@ static NSMutableDictionary *sLibraryVersions;
 #pragma clang diagnostic pop
 }
 
-- (BOOL) getOrUpdateHeartbeat:(NSString *) prefKey {
++ (BOOL) getOrUpdateHeartbeat:(NSString *) prefKey {
   NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
   NSTimeInterval currentTimeInSeconds = [[NSDate date] timeIntervalSince1970];
   if ([preferences objectForKey:prefKey] == nil)
@@ -386,10 +386,10 @@ static NSMutableDictionary *sLibraryVersions;
   return false;
 }
 
-- (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag {
++ (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag {
   NSString *globalTag = @"GLOBAL";
-  BOOL isSdkHeartbeatNeeded = [self getOrUpdateHeartbeat:heartbeatTag];
-  BOOL isGlobalHeartbeatNeeded = [self getOrUpdateHeartbeat:globalTag];
+  BOOL isSdkHeartbeatNeeded = [FIRApp getOrUpdateHeartbeat:heartbeatTag];
+  BOOL isGlobalHeartbeatNeeded = [FIRApp getOrUpdateHeartbeat:globalTag];
   if(!isSdkHeartbeatNeeded && !isGlobalHeartbeatNeeded) {
     // Both sdk and global heartbeat not needed.
     return 0;
