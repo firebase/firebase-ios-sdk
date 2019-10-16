@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 
-#include <utility>
-
 #include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/sizer.h"
@@ -35,6 +33,7 @@ using model::DocumentMap;
 using model::ListenSequenceNumber;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
+using model::SnapshotVersion;
 using model::OptionalMaybeDocumentMap;
 
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
@@ -42,8 +41,11 @@ MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
   persistence_ = persistence;
 }
 
-void MemoryRemoteDocumentCache::Add(const MaybeDocument& document) {
-  docs_ = docs_.insert(document.key(), document);
+void MemoryRemoteDocumentCache::Add(const MaybeDocument& document,
+                                    const model::SnapshotVersion& read_time) {
+  docs_ = docs_.insert(
+      document.key(),
+      std::pair<MaybeDocument, SnapshotVersion>({document, read_time}));
 
   persistence_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
@@ -55,7 +57,8 @@ void MemoryRemoteDocumentCache::Remove(const DocumentKey& key) {
 
 absl::optional<MaybeDocument> MemoryRemoteDocumentCache::Get(
     const DocumentKey& key) {
-  return docs_.get(key);
+  const auto& entry = docs_.get(key);
+  return entry ? entry->first : absl::optional<MaybeDocument>();
 }
 
 OptionalMaybeDocumentMap MemoryRemoteDocumentCache::GetAll(
@@ -85,7 +88,7 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(const Query& query) {
     if (!query.path().IsPrefixOf(key.path())) {
       break;
     }
-    const MaybeDocument& maybe_doc = it->second;
+    const MaybeDocument& maybe_doc = it->second.first;
     if (!maybe_doc.is_document()) {
       continue;
     }
@@ -102,7 +105,7 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
     MemoryLruReferenceDelegate* reference_delegate,
     ListenSequenceNumber upper_bound) {
   std::vector<DocumentKey> removed;
-  MaybeDocumentMap updated_docs = docs_;
+  auto updated_docs = docs_;
   for (const auto& kv : docs_) {
     const DocumentKey& key = kv.first;
     if (!reference_delegate->IsPinnedAtSequenceNumber(upper_bound, key)) {
@@ -117,7 +120,8 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
 int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
   int64_t count = 0;
   for (const auto& kv : docs_) {
-    count += sizer.CalculateByteSize(kv.second);
+    const MaybeDocument& maybe_doc = kv.second.first;
+    count += sizer.CalculateByteSize(maybe_doc);
   }
   return count;
 }

@@ -722,7 +722,7 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {targetID},
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {targetID},
                                                   {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
@@ -730,7 +730,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(DeletedDoc("foo/baz"));
 
@@ -757,7 +757,7 @@ NS_ASSUME_NONNULL_BEGIN
   core::Query query = Query("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 0, Map("foo", "old")), {targetID},
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {targetID},
                                                   {})];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
@@ -765,7 +765,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(Doc("foo/bar", 0, Map("foo", "bar"), DocumentState::kLocalMutations));
+  FSTAssertContains(Doc("foo/bar", 1, Map("foo", "bar"), DocumentState::kLocalMutations));
   FSTAssertContains(Doc("foo/bah", 0, Map("foo", "bah"), DocumentState::kLocalMutations));
   FSTAssertContains(DeletedDoc("foo/baz"));
 
