@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   UIViewController *topViewController;
+#if __has_builtin(__builtin_available)
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     NSSet<UIScene *> * connectedScenes = application.connectedScenes;
@@ -86,9 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
   } else {
+#endif
     UIApplication *application = [applicationClass sharedApplication];
     topViewController = application.keyWindow.rootViewController;
+#if __has_builtin(__builtin_available)
   }
+#endif
 
   while (true){
     if (topViewController.presentedViewController) {
