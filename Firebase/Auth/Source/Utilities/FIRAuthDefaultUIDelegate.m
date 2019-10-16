@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   UIViewController *topViewController;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     NSSet<UIScene *> * connectedScenes = application.connectedScenes;
@@ -85,10 +86,28 @@ NS_ASSUME_NONNULL_BEGIN
         }
       }
     }
-  } else {
+  }
+#elif __TV_OS_VERSION_MAX_ALLOWED >= 130000
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
+    UIApplication *application = [applicationClass sharedApplication];
+    NSSet<UIScene *> * connectedScenes = application.connectedScenes;
+    for (UIScene *scene in connectedScenes) {
+      if ([scene isKindOfClass:[UIWindowScene class]]) {
+        UIWindowScene *windowScene = (UIWindowScene *)scene;
+        for (UIWindow *window in windowScene.windows) {
+          if (window.isKeyWindow) {
+            topViewController = window.rootViewController;
+          }
+        }
+      }
+    }
+  }
+#else
+  if (!@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     topViewController = application.keyWindow.rootViewController;
   }
+#endif
 
   while (true){
     if (topViewController.presentedViewController) {
