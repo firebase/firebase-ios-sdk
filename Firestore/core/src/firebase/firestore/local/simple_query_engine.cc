@@ -25,13 +25,16 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using model::SnapshotVersion;
+
 model::DocumentMap SimpleQueryEngine::GetDocumentsMatchingQuery(
     const core::Query& query,
-    const model::SnapshotVersion& last_limbo_free_snapshot_version,
-    const model::DocumentKeySet& remote_keys) const {
+    const SnapshotVersion& last_limbo_free_snapshot_version,
+    const model::DocumentKeySet& remote_keys) {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
-  return local_documents_view_->GetDocumentsMatchingQuery(query);
+  return local_documents_view_->GetDocumentsMatchingQuery(
+      query, SnapshotVersion::None());
 }
 
 }  // namespace local
