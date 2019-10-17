@@ -16,19 +16,19 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRInstallationsIIDCheckin;
-@class FBLPromise<ValueType>;
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInstallationsIIDCheckinStore : NSObject
+/// Helper functions to access Keychain.
+@interface FIRInstallationsKeychainUtils : NSObject
 
-/*
- * Tries to read IID checking from the Keychain (see also `FIRInstanceIDCheckinStore`).
- * @return Returns a promise that is resolved with the checkin object when all required data found
- * in the Keychain. The promise is rejected when the data is missing.
- */
-- (FBLPromise<FIRInstallationsIIDCheckin *> *)existingChecking;
++ (nullable NSData *)getItemWithQuery:(NSDictionary *)query
+                                error:(NSError *_Nullable *_Nullable)outError;
+
++ (BOOL)setItem:(NSData *)item
+      withQuery:(NSDictionary *)query
+          error:(NSError *_Nullable *_Nullable)outError;
+
++ (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
 
 @end
 
