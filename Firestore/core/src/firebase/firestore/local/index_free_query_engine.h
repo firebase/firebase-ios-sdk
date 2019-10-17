@@ -58,7 +58,7 @@ class IndexFreeQueryEngine : public QueryEngine {
   model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
-      const model::DocumentKeySet& remote_keys) const override;
+      const model::DocumentKeySet& remote_keys) override;
 
  private:
   /** Applies the query filter and sorting to the provided documents. */
@@ -81,7 +81,7 @@ class IndexFreeQueryEngine : public QueryEngine {
       const model::DocumentKeySet& remote_keys,
       const model::SnapshotVersion& limbo_free_snapshot_version) const;
 
-  model::DocumentMap ExecuteFullCollectionScan(const core::Query& query) const;
+  model::DocumentMap ExecuteFullCollectionScan(const core::Query& query);
 
   LocalDocumentsView* local_documents_view_ = nullptr;
 };

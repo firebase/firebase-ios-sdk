@@ -41,7 +41,7 @@ using model::SnapshotVersion;
 DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
     const Query& query,
     const SnapshotVersion& last_limbo_free_snapshot_version,
-    const DocumentKeySet& remote_keys) const {
+    const DocumentKeySet& remote_keys) {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
   // Queries that match all documents don't benefit from using IndexFreeQueries.
@@ -132,7 +132,7 @@ bool IndexFreeQueryEngine::NeedsRefill(
 }
 
 DocumentMap IndexFreeQueryEngine::ExecuteFullCollectionScan(
-    const Query& query) const {
+    const Query& query) {
   LOG_DEBUG("Using full collection scan to execute query: %s",
             query.ToString());
   return local_documents_view_->GetDocumentsMatchingQuery(
