@@ -43,9 +43,7 @@ MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
 
 void MemoryRemoteDocumentCache::Add(const MaybeDocument& document,
                                     const model::SnapshotVersion& read_time) {
-  docs_ = docs_.insert(
-      document.key(),
-      std::pair<MaybeDocument, SnapshotVersion>({document, read_time}));
+  docs_ = docs_.insert(document.key(), std::make_pair(document, read_time));
 
   persistence_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
