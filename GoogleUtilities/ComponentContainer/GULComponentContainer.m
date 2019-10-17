@@ -191,7 +191,7 @@ static NSMutableSet<Class> *sGULComponentRegistrants;
     // itself.
     for (id instance in self.cachedInstances.allValues) {
       if ([instance conformsToProtocol:@protocol(GULComponentLifecycleMaintainer)] &&
-          [instance respondsToSelector:@selector(container:willBeEmptied:)]) {
+          [instance respondsToSelector:@selector(containerWillBeEmptied:)]) {
         [instance containerWillBeEmptied:self];
       }
     }
