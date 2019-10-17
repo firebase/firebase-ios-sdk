@@ -100,7 +100,7 @@ inline std::vector<uint8_t> MakeVector(const ByteString& str) {
  * Note that it is necessary to pass-by-reference here to get the original
  * value of `nanopb_boolean`.
  */
-inline bool ReadBoolean(const bool& nanopb_boolean) {
+inline bool SafeReadBoolean(const bool& nanopb_boolean) {
   return absl::bit_cast<int8_t>(nanopb_boolean) != 0;
 }
 

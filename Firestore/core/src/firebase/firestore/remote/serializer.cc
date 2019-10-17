@@ -93,8 +93,8 @@ using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeStringView;
-using nanopb::ReadBoolean;
 using nanopb::Reader;
+using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::WatchChange;
 using util::Status;
@@ -391,7 +391,7 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::Null();
 
     case google_firestore_v1_Value_boolean_value_tag: {
-      return FieldValue::FromBoolean(ReadBoolean(msg.boolean_value));
+      return FieldValue::FromBoolean(SafeReadBoolean(msg.boolean_value));
     }
 
     case google_firestore_v1_Value_integer_value_tag:

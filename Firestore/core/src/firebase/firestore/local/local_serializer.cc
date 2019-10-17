@@ -53,8 +53,8 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
-using nanopb::ReadBoolean;
 using nanopb::Reader;
+using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::InvalidQuery;
 using remote::MakeArray;
@@ -108,11 +108,11 @@ MaybeDocument LocalSerializer::DecodeMaybeDocument(
   switch (proto.which_document_type) {
     case firestore_client_MaybeDocument_document_tag:
       return DecodeDocument(reader, proto.document,
-                            ReadBoolean(proto.has_committed_mutations));
+                            SafeReadBoolean(proto.has_committed_mutations));
 
     case firestore_client_MaybeDocument_no_document_tag:
       return DecodeNoDocument(reader, proto.no_document,
-                              ReadBoolean(proto.has_committed_mutations));
+                              SafeReadBoolean(proto.has_committed_mutations));
 
     case firestore_client_MaybeDocument_unknown_document_tag:
       return DecodeUnknownDocument(reader, proto.unknown_document);
