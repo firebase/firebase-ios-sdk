@@ -80,7 +80,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     cc.source_files = 'GoogleUtilities/ComponentContainer/**/*.[mh]', 'GoogleUtilities/Common/*.h'
     cc.public_header_files = 'GoogleUtilities/ComponentContainer/Private/*.h'
     cc.private_header_files = 'GoogleUtilities/ComponentContainer/Private/*.h'
-#  cc.dependency 'GoogleUtilities/Logger'
+    cc.dependency 'GoogleUtilities/Logger'
   end
 
   s.subspec 'ISASwizzler' do |iss|
