@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   UIViewController *topViewController;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     NSSet<UIScene *> * connectedScenes = application.connectedScenes;
@@ -89,6 +90,10 @@ NS_ASSUME_NONNULL_BEGIN
     UIApplication *application = [applicationClass sharedApplication];
     topViewController = application.keyWindow.rootViewController;
   }
+#else
+  UIApplication *application = [applicationClass sharedApplication];
+  topViewController = application.keyWindow.rootViewController;
+#endif
 
   while (true){
     if (topViewController.presentedViewController) {
