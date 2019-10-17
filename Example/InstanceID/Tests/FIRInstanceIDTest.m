@@ -190,6 +190,47 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                  @"When FCM is not available, FCM Auto Init Enabled should be NO.");
 }
 
+- (void)testTokenShouldBeRefreshedIfIIDAndTokenAreNotConsistent {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"token request is complete"];
+  NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
+  NSString *serverKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
+
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  NSData *fakeAPNSDeviceToken = [kFakeAPNSToken dataUsingEncoding:NSUTF8StringEncoding];
+  BOOL isSandbox = YES;
+  NSDictionary *tokenOptions = @{
+    APNSKey : fakeAPNSDeviceToken,
+    serverKey : @(isSandbox),
+  };
+  FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+      [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+  sTokenInfo.APNSInfo = optionsAPNSInfo;
+  [[[self.mockTokenManager stub] andReturn:sTokenInfo]
+      cachedTokenInfoWithAuthorizedEntity:[OCMArg any]
+                                    scope:[OCMArg any]];
+  [[self.mockTokenManager stub]
+      fetchNewTokenWithAuthorizedEntity:kGCMSenderID
+                                  scope:@"*"
+                             instanceID:@"differentIID"
+                                options:tokenOptions
+                                handler:[OCMArg invokeBlockWithArgs:@"differentIID:newToken",
+                                                                    [NSNull null], nil]];
+  [[self.mockInstallations stub]
+      installationIDWithCompletion:[OCMArg
+                                       invokeBlockWithArgs:@"differentIID", [NSNull null], nil]];
+
+  [self.mockInstanceID
+      tokenWithAuthorizedEntity:kGCMSenderID
+                          scope:@"*"
+                        options:tokenOptions
+                        handler:^(NSString *_Nullable token, NSError *_Nullable error) {
+                          XCTAssertEqualObjects(token, @"differentIID:newToken");
+                          [expectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:1.0 handler:NULL];
+}
+
 - (void)testTokenShouldBeRefreshedIfCacheTokenNeedsToBeRefreshed {
   [[[self.mockInstanceID stub] andReturn:kToken] cachedTokenIfAvailable];
   [[[self.mockTokenManager stub] andReturnValue:@(YES)]
