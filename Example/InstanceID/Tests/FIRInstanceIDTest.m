@@ -63,6 +63,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 + (int64_t)maxRetryCountForDefaultToken;
 + (int64_t)minIntervalForDefaultTokenRetry;
 + (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
+- (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                    scope:(NSString *)scope
+                                  keyPair:(FIRInstanceIDKeyPair *)keyPair
+                                  options:(NSDictionary *)options
+                                  handler:(FIRInstanceIDTokenHandler)handler;
 
 @end
 
@@ -186,6 +191,45 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self.mockInstanceID didCompleteConfigure];
 
   OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
+}
+
+- (void)testTokenShouldBeRefreshedIfIIDAndTokenAreNotConsistent {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"token request is complete"];
+  NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
+  NSString *serverKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
+
+  [self stubKeyPairStoreToReturnValidKeypair];
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  NSData *fakeAPNSDeviceToken = [kFakeAPNSToken dataUsingEncoding:NSUTF8StringEncoding];
+  BOOL isSandbox = YES;
+  NSDictionary *tokenOptions = @{
+    APNSKey : fakeAPNSDeviceToken,
+    serverKey : @(isSandbox),
+  };
+  FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+      [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+  sTokenInfo.APNSInfo = optionsAPNSInfo;
+  [[[self.mockTokenManager stub] andReturn:sTokenInfo]
+      cachedTokenInfoWithAuthorizedEntity:[OCMArg any]
+                                    scope:[OCMArg any]];
+  [[self.mockTokenManager stub]
+      fetchNewTokenWithAuthorizedEntity:kGCMSenderID
+                                  scope:@"*"
+                                keyPair:[OCMArg any]
+                                options:tokenOptions
+                                handler:[OCMArg
+                                            invokeBlockWithArgs:@"newToken", [NSNull null], nil]];
+
+  [self.mockInstanceID
+      tokenWithAuthorizedEntity:kGCMSenderID
+                          scope:@"*"
+                        options:tokenOptions
+                        handler:^(NSString *_Nullable token, NSError *_Nullable error) {
+                          XCTAssertEqualObjects(token, @"newToken");
+                          [expectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:1.0 handler:NULL];
 }
 
 - (void)testTokenIsDeletedAlongWithIdentity {
