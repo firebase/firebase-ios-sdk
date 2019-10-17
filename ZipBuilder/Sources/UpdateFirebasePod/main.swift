@@ -18,11 +18,10 @@ import Foundation
 
 import ManifestReader
 
-
 // Get the launch arguments, parsed by user defaults.
 let args = LaunchArgs.shared
 
-// Keep timing for how long it takes to build the zip file for information purposes.
+// Keep timing for how long it takes to change the Firebase pod versions.
 let buildStart = Date()
 var cocoaPodsUpdateMessage: String = ""
 
@@ -30,7 +29,7 @@ var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleaseP
 paths.allPodsPath = args.allPodsPath
 paths.gitRootPath = args.gitRootPath
 
-/// Assembles the expected versions based on the release manifests passed in, if they were.
+/// Assembles the expected versions based on the release manifest passed in.
 /// Returns an array with the pod name as the key and version as the value,
 private func getExpectedVersions() -> [String: String] {
   // Merge the versions from the current release and the known public versions.
@@ -60,7 +59,7 @@ private func getExpectedVersions() -> [String: String] {
   }
 
   if !releasingVersions.isEmpty {
-    print("Updating Firebase Pod in git installation at \(String(describing: paths.gitRootPath!)) " +
+    print("Updating Firebase Pod in git installation at \(paths.gitRootPath!)) " +
       "with the following versions: \(releasingVersions)")
   }
 
@@ -73,14 +72,15 @@ private func updateFirebasePod(newVersions: [String: String]) {
   do {
     contents = try String(contentsOfFile: podspecFile, encoding: .utf8)
   } catch {
-    print(error)
-    exit(1)
+    fatalError("Could not read Firebase podspec. \(error)")
   }
   for (pod, version) in newVersions {
     if pod == "Firebase" {
       // Replace version in string like s.version = '6.9.0'
-      let range = contents.range(of: "s.version")
-      var versionStartIndex = contents.index(range!.upperBound, offsetBy: 1)
+      guard let range = contents.range(of: "s.version") else {
+        fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
+      }
+      var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
       while contents[versionStartIndex] != "'" {
         versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
       }
@@ -112,8 +112,7 @@ private func updateFirebasePod(newVersions: [String: String]) {
     try contents.write(toFile: podspecFile, atomically: false, encoding: String.Encoding.utf8)
   }
   catch {
-    print(error)
-    exit(1)
+    fatalError("Failed to write \(podspecFile). \(error)")
   }
 }
 
@@ -122,7 +121,7 @@ do {
   updateFirebasePod(newVersions: newVersions)
   print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
 
-  // Get the time since the start of the build to get the full time.
+  // Get the time since the tool start.
     let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
   print("""
   Time profile:

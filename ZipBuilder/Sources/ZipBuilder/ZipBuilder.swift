@@ -110,10 +110,6 @@ struct ZipBuilder {
     }
   }
 
-  /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
-  /// master repo.
-  private let customSpecRepos: [URL]?
-
   /// Paths needed throughout the process of packaging the Zip file.
   private let paths: FilesystemPaths
 
@@ -123,9 +119,8 @@ struct ZipBuilder {
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
   ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
-  init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
+  init(paths: FilesystemPaths) {
     self.paths = paths
-    self.customSpecRepos = customSpecRepos
   }
 
   // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
