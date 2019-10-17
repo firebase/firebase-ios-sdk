@@ -19,14 +19,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-* This class serializes and deserializes the installation data into/from `NSData` to be stored in
-* Keychain. This class is primarily used by `FIRInstallationsStore`. It is also used on the logic
-* level as a data object (see `FIRInstallationsItem.IIDCheckin`).
-*
-* WARNING: Modification of the class properties can lead to incompatibility with the stored data
-* encoded by the previous class versions. Any modification must be evaluated and, if it is really
-* needed, the `storageVersion` must be bumped and proper migration code added.
-*/
+ * This class serializes and deserializes the installation data into/from `NSData` to be stored in
+ * Keychain. This class is primarily used by `FIRInstallationsStore`. It is also used on the logic
+ * level as a data object (see `FIRInstallationsItem.IIDCheckin`).
+ *
+ * WARNING: Modification of the class properties can lead to incompatibility with the stored data
+ * encoded by the previous class versions. Any modification must be evaluated and, if it is really
+ * needed, the `storageVersion` must be bumped and proper migration code added.
+ */
 
 @interface FIRInstallationsStoredIIDCheckin : NSObject <NSSecureCoding>
 

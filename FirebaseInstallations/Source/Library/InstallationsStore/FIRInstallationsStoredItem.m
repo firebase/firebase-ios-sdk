@@ -74,7 +74,8 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   item.registrationError =
       [aDecoder decodeObjectOfClass:[FIRInstallationsStoredRegistrationError class]
                              forKey:kFIRInstallationsStoredItemRegistrationErrorKey];
-  item.IIDCheckin = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredIIDCheckin class] forKey:kFIRInstallationsStoredItemIIDCheckinKey];
+  item.IIDCheckin = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredIIDCheckin class]
+                                           forKey:kFIRInstallationsStoredItemIIDCheckinKey];
 
   return item;
 }

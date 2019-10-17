@@ -89,7 +89,8 @@
 }
 
 - (FIRInstallationsStoredIIDCheckin *)createIIDCheckin {
-  return [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID" secretToken:@"IIDSecretToken"];
+  return [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                        secretToken:@"IIDSecretToken"];
 }
 
 @end

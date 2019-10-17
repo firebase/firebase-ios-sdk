@@ -48,7 +48,8 @@ NSInteger const kFIRInstallationsStoredIIDCheckinStorageVersion = 1;
 - (void)encodeWithCoder:(nonnull NSCoder *)coder {
   [coder encodeObject:self.deviceID forKey:kFIRInstallationsStoredIIDCheckinDeviceIDKey];
   [coder encodeObject:self.secretToken forKey:kFIRInstallationsStoredIIDCheckinSecretTokenKey];
-  [coder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredIIDCheckinStorageVersionKey];
+  [coder encodeInteger:self.storageVersion
+                forKey:kFIRInstallationsStoredIIDCheckinStorageVersionKey];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
@@ -62,12 +63,14 @@ NSInteger const kFIRInstallationsStoredIIDCheckinStorageVersion = 1;
                   (long)storageVersion, (long)kFIRInstallationsStoredIIDCheckinStorageVersion);
   }
 
-  NSString *deviceID = [coder decodeObjectOfClass:[NSString class] forKey:kFIRInstallationsStoredIIDCheckinDeviceIDKey];
-  NSString *secretToken = [coder decodeObjectOfClass:[NSString class] forKey:kFIRInstallationsStoredIIDCheckinSecretTokenKey];
+  NSString *deviceID = [coder decodeObjectOfClass:[NSString class]
+                                           forKey:kFIRInstallationsStoredIIDCheckinDeviceIDKey];
+  NSString *secretToken =
+      [coder decodeObjectOfClass:[NSString class]
+                          forKey:kFIRInstallationsStoredIIDCheckinSecretTokenKey];
 
   if (deviceID == nil || secretToken == nil) {
-    FIRLogWarning(kFIRLoggerInstallations,
-                  kFIRInstallationsMessageCodeIIDCheckinFailedToDecode,
+    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeIIDCheckinFailedToDecode,
                   @"Failed to decode FIRInstallationsStoredIIDCheckin.");
     return nil;
   }
