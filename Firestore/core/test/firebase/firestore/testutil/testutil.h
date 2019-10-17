@@ -387,6 +387,12 @@ inline core::FieldFilter Filter(absl::string_view key,
 
 inline core::FieldFilter Filter(absl::string_view key,
                                 absl::string_view op,
+                                bool value) {
+  return Filter(key, op, model::FieldValue::FromBoolean(value));
+}
+
+inline core::FieldFilter Filter(absl::string_view key,
+                                absl::string_view op,
                                 int value) {
   return Filter(key, op, model::FieldValue::FromInteger(value));
 }
