@@ -212,8 +212,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[self.mockTokenManager stub]
       fetchNewTokenWithAuthorizedEntity:kGCMSenderID
                                   scope:@"*"
-                                instanceID:[OCMArg any]
-                                options:[OCMArg any]
+                                instanceID:@"differentIID"
+                                options:tokenOptions
                                 handler:[OCMArg
                                             invokeBlockWithArgs:@"differentIID:newToken", [NSNull null], nil]];
   [[self.mockInstallations stub] installationIDWithCompletion:[OCMArg invokeBlockWithArgs:@"differentIID", [NSNull null], nil]];
@@ -223,7 +223,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                           scope:@"*"
                         options:tokenOptions
                         handler:^(NSString *_Nullable token, NSError *_Nullable error) {
-                          XCTAssertEqualObjects(token, @"diffrentID:newToken");
+                          XCTAssertEqualObjects(token, @"differentIID:newToken");
                           [expectation fulfill];
                         }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
