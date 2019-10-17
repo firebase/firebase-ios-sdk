@@ -878,7 +878,17 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     // values, including 2.47. Because we use the exact bytes for hashing on the
     // server this will lead to hash mismatches. The parser of NSNumber seems to
     // be more in line with what the server expects, so we use that here
-    if ([value isKindOfClass:[NSNumber class]]) {
+    if ([value isKindOfClass:[NSDecimalNumber class]]) {
+        NSDecimal d = [(NSDecimalNumber*)value decimalValue];
+        NSDecimal result;
+        NSDecimalRound(&result, &d, 0, NSRoundPlain);
+        if (NSDecimalCompare(&d, &result) != NSOrderedSame) {
+            NSString *doubleString = [value stringValue];
+            return [NSNumber numberWithDouble:[doubleString doubleValue]];
+        } else {
+            return [NSNumber numberWithLongLong:[value longLongValue]];
+        }
+    } else if ([value isKindOfClass:[NSNumber class]]) {
         CFNumberType type = CFNumberGetType((CFNumberRef)value);
         if (type == kCFNumberDoubleType || type == kCFNumberFloatType) {
             // The NSJSON parser returns all numbers as double values, even
@@ -889,7 +899,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                 NSString *doubleString = [value stringValue];
                 return [NSNumber numberWithDouble:[doubleString doubleValue]];
             } else {
-                return [NSNumber numberWithLongLong:(int64_t)[value doubleValue]];
+                return [NSNumber numberWithLongLong:[value longLongValue]];
             }
         }
     }
