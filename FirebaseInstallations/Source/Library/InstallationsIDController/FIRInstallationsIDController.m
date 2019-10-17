@@ -26,11 +26,13 @@
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRSecureStorage.h"
 
 #import "FIRInstallationsHTTPError.h"
@@ -53,6 +55,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 
 @property(nonatomic, readonly) FIRInstallationsStore *installationsStore;
 @property(nonatomic, readonly) FIRInstallationsIIDStore *IIDStore;
+@property(nonatomic, readonly) FIRInstallationsIIDCheckinStore *IIDCheckingStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
@@ -78,12 +81,15 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
   FIRInstallationsAPIService *apiService =
       [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
+  FIRInstallationsIIDCheckinStore *IIDCheckingStore =
+      [[FIRInstallationsIIDCheckinStore alloc] init];
 
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
                         APIService:apiService
-                          IIDStore:IIDStore];
+                          IIDStore:IIDStore
+                  IIDCheckingStore:IIDCheckingStore];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -91,7 +97,8 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
-                           IIDStore:(FIRInstallationsIIDStore *)IIDStore {
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore
+                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -99,6 +106,7 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
     _installationsStore = installationsStore;
     _APIService = APIService;
     _IIDStore = IIDStore;
+    _IIDCheckingStore = IIDCheckingStore;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 
@@ -189,9 +197,9 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)createAndSaveFID {
-  return [self migrateOrGenerateFID]
-      .then(^FBLPromise<FIRInstallationsItem *> *(NSString *FID) {
-        return [self createAndSaveInstallationWithFID:FID];
+  return [self migrateOrGenerateInstallation]
+      .then(^FBLPromise<FIRInstallationsItem *> *(FIRInstallationsItem *installation) {
+        return [self saveInstallation:installation];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsItem *installation) {
         [self postFIDDidChangeNotification];
@@ -199,26 +207,45 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
       });
 }
 
-- (FBLPromise<FIRInstallationsItem *> *)createAndSaveInstallationWithFID:(NSString *)FID {
+- (FBLPromise<FIRInstallationsItem *> *)saveInstallation:(FIRInstallationsItem *)installation {
+  return [self.installationsStore saveInstallation:installation].then(
+      ^FIRInstallationsItem *(NSNull *result) {
+        return installation;
+      });
+}
+
+/**
+ * Tries to migrate IID data stored by FirebaseInstanceID SDK or generates a new Installation ID if not found.
+ */
+- (FBLPromise<FIRInstallationsItem *> *)migrateOrGenerateInstallation {
+  if (![self isDefaultApp]) {
+    // Existing IID should be used only for default FirebaseApp.
+    FIRInstallationsItem *installation =
+        [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
+    return [FBLPromise resolvedWith:installation];
+  }
+
+  return
+      [[[FBLPromise all:@[ [self.IIDStore existingIID], [self.IIDCheckingStore existingCheckin] ]]
+          then:^id _Nullable(NSArray *_Nullable results) {
+            NSString *existingIID = results[0];
+            FIRInstallationsStoredIIDCheckin *IIDCheckin = results[1];
+
+            return [self createInstallationWithFID:existingIID IIDCheckin:IIDCheckin];
+          }] recover:^id _Nullable(NSError *_Nonnull error) {
+        return [self createInstallationWithFID:[FIRInstallationsItem generateFID] IIDCheckin:nil];
+      }];
+}
+
+- (FIRInstallationsItem *)createInstallationWithFID:(NSString *)FID
+                                         IIDCheckin:(nullable FIRInstallationsStoredIIDCheckin *)
+                                                        IIDCheckin {
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:self.appID
                                                                    firebaseAppName:self.appName];
   installation.firebaseInstallationID = FID;
+  installation.IIDCheckin = IIDCheckin;
   installation.registrationStatus = FIRInstallationStatusUnregistered;
-
-  return [self.installationsStore saveInstallation:installation].then(^id(NSNull *result) {
-    return installation;
-  });
-}
-
-- (FBLPromise<NSString *> *)migrateOrGenerateFID {
-  if (![self isDefaultApp]) {
-    // Existing IID should be used only for default FirebaseApp.
-    return [FBLPromise resolvedWith:[FIRInstallationsItem generateFID]];
-  }
-
-  return [self.IIDStore existingIID].recover(^NSString *(NSError *error) {
-    return [FIRInstallationsItem generateFID];
-  });
+  return installation;
 }
 
 - (BOOL)areInstallationRegistrationParametersEqualToCurrent:

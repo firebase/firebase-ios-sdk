@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Returns a promise that is resolved with the checkin object when all required data found
  * in the Keychain. The promise is rejected when the data is missing.
  */
-- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingChecking;
+- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingCheckin;
 
 @end
 

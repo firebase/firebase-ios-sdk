@@ -30,9 +30,9 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
+#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsStoredIIDCheckin.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
@@ -44,7 +44,8 @@
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
-                           IIDStore:(FIRInstallationsIIDStore *)IIDStore;
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore
+                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
@@ -84,7 +85,8 @@
                                                         appName:self.appName
                                              installationsStore:self.mockInstallationsStore
                                                      APIService:self.mockAPIService
-                                                       IIDStore:self.mockIIDStore];
+                                                       IIDStore:self.mockIIDStore
+                                               IIDCheckingStore:self.mockIIDCheckinStore];
 }
 
 - (void)tearDown {
@@ -154,9 +156,7 @@
       .andReturn(registerPromise);
 
   // 4. Expect IIDStore to be checked for existing IID.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 5. Call get installation and check.
   FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
@@ -278,8 +278,11 @@
   OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
 
   // 3. Expect IID checkin store to be requested for checkin data.
-  FIRInstallationsStoredIIDCheckin *existingCheckin = [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID" secretToken:@"IIDSecretToken"];
-  OCMExpect([self.mockIIDCheckinStore existingChecking]).andReturn([FBLPromise resolvedWith:existingCheckin]);
+  FIRInstallationsStoredIIDCheckin *existingCheckin =
+      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                     secretToken:@"IIDSecretToken"];
+  OCMExpect([self.mockIIDCheckinStore existingCheckin])
+      .andReturn([FBLPromise resolvedWith:existingCheckin]);
 
   // 3. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
@@ -939,9 +942,7 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 1.3. IID store.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 1.4. API Service.
   OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]])
@@ -1203,6 +1204,7 @@
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
   OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  OCMExpect([self.mockIIDCheckinStore existingCheckin]).andReturn(rejectedPromise);
 }
 
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {

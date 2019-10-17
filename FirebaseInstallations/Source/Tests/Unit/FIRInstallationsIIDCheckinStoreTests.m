@@ -22,8 +22,8 @@
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
 #import "FIRInstanceIDCheckinStore.h"
 
-#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsIIDCheckinStore.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
 static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTests";
@@ -52,7 +52,7 @@ static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTest
 - (void)testExistingCheckin_WhenNoCheckin_ThenFails {
   [self removeIIDCheckingPreferences];
 
-  FBLPromise *checkinPromise = [self.installationsIIDCheckinStore existingChecking];
+  FBLPromise *checkinPromise = [self.installationsIIDCheckinStore existingCheckin];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isRejected);
@@ -63,7 +63,7 @@ static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTest
 - (void)testExistingCheckinSuccess {
   FIRInstanceIDCheckinPreferences *savedCheckin = [self saveIIDCheckingPreferences];
 
-  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingChecking];
+  __auto_type checkinPromise = [self.installationsIIDCheckinStore existingCheckin];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
   XCTAssertTrue(checkinPromise.isFulfilled);
