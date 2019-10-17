@@ -51,7 +51,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
 
   // Queries that have never seen a snapshot without limbo free documents should
   // also be run as a full collection scan.
-  if (last_limbo_free_snapshot_version != SnapshotVersion::None()) {
+  if (last_limbo_free_snapshot_version == SnapshotVersion::None()) {
     return ExecuteFullCollectionScan(query);
   }
 
