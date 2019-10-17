@@ -17,10 +17,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.preserve_paths = [
-    "Firebase/Firebase/.cocoapods.yml",
-    "Firebase/Firebase/CHANGELOG.md",
-    "Firebase/Firebase/NOTICES",
-    "Firebase/Firebase/README.md"
+    "CoreOnly/CHANGELOG.md",
+    "CoreOnly/NOTICES",
+    "CoreOnly/README.md"
   ]
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -38,10 +37,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'CoreOnly' do |ss|
     ss.dependency 'FirebaseCore', '6.3.2'
-    ss.source_files = 'Firebase/Firebase/Sources/Firebase.h'
-    ss.preserve_paths = 'Firebase/Firebase/Sources/module.modulemap'
+    ss.source_files = 'CoreOnly/Sources/Firebase.h'
+    ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     ss.user_target_xcconfig = {
-      'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/Firebase/Firebase/Sources"
+      'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
   }
   end
 
