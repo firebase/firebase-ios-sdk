@@ -26,6 +26,7 @@
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
@@ -67,6 +68,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
                                                                    firebaseAppName:@"name"];
   installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+  installation.IIDCheckin = [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID" secretToken:@"IIDSecretToken"];
 
   // 1. Stub URL session:
 
@@ -78,6 +80,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
     XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
+
+    NSString *expectedIIDMigrationHeader = @"IIDDeviceID:IIDSecretToken";
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"], expectedIIDMigrationHeader);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
