@@ -49,8 +49,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/algorithm/container.h"
-#include "absl/base/casts.h"
-#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -95,6 +93,7 @@ using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeStringView;
+using nanopb::ReadBoolean;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::WatchChange;
@@ -392,13 +391,7 @@ FieldValue Serializer::DecodeFieldValue(
       return FieldValue::Null();
 
     case google_firestore_v1_Value_boolean_value_tag: {
-      // Due to the nanopb implementation, msg.boolean_value could be an integer
-      // other than 0 or 1, (such as 2). This leads to undefined behaviour when
-      // it's read as a boolean. eg. on at least gcc, the value is treated as
-      // both true *and* false. So we'll instead memcpy to an integer (via
-      // absl::bit_cast) and compare with 0.
-      int bool_as_int = absl::bit_cast<int8_t>(msg.boolean_value);
-      return FieldValue::FromBoolean(bool_as_int != 0);
+      return FieldValue::FromBoolean(ReadBoolean(msg.boolean_value));
     }
 
     case google_firestore_v1_Value_integer_value_tag:
