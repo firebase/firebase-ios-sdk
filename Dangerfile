@@ -93,11 +93,25 @@ has_license_changes = didModify(["LICENSE"])
 @has_googleutilities_changes = hasChangesIn("GoogleUtilities/")
 @has_zipbuilder_changes = hasChangesIn("ZipBuilder/")
 
+# A FileList containing ObjC, ObjC++ or C++ changes.
+sdk_changes = (git.modified_files + git.added_files + git.deleted_files).select do |line|
+  line.end_with?(".h") || 
+    line.end_with?(".m") || 
+    line.end_with?(".mm") ||
+    line.end_with?(".cc")
+end
+
+# Whether or not the PR has modified SDK source files.
+has_sdk_changes = sdk_changes.empty?
+
 ### Actions
 
-# Warn if a changelog is left out on a non-trivial PR
-if !has_changelog_changes && !declared_trivial
-  warn("Did you forget to add a changelog entry? (Add `#no-changelog` to the PR description to silence this warning.)")
+# Warn if a changelog is left out on a non-trivial PR that has modified
+# SDK source files (podspec, markdown, etc changes are excluded).
+if has_sdk_changes
+  if !has_changelog_changes && !declared_trivial
+    warn("Did you forget to add a changelog entry? (Add `#no-changelog` to the PR description to silence this warning.)")
+  end
 end
 
 # Error on license edits
