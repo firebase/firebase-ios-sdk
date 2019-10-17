@@ -50,6 +50,7 @@ using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 using testutil::Query;
+using testutil::Version;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -170,7 +171,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 
   self.persistence->Run("testSetAndReadDeletedDocument", [&] {
     absl::optional<MaybeDocument> deletedDoc = DeletedDoc(kDocPath, kVersion);
-    self.remoteDocumentCache->Add(*deletedDoc);
+    self.remoteDocumentCache->Add(*deletedDoc, Version(kVersion));
 
     XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
   });
@@ -182,7 +183,7 @@ void ExpectMapHasDocs(XCTestCase *self,
   self.persistence->Run("testSetDocumentToNewValue", [&] {
     [self setTestDocumentAtPath:kDocPath];
     absl::optional<MaybeDocument> newDoc = Doc(kDocPath, kVersion, Map("data", 2));
-    self.remoteDocumentCache->Add(*newDoc);
+    self.remoteDocumentCache->Add(*newDoc, Version(kVersion));
     XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
   });
 }
@@ -233,7 +234,7 @@ void ExpectMapHasDocs(XCTestCase *self,
 #pragma mark - Helpers
 - (Document)setTestDocumentAtPath:(const absl::string_view)path {
   Document doc = Doc(path, kVersion, _kDocData);
-  self.remoteDocumentCache->Add(doc);
+  self.remoteDocumentCache->Add(doc, Version(kVersion));
   return doc;
 }
 

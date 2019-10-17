@@ -47,8 +47,10 @@ class RemoteDocumentCache {
    * entry for the key, it will be replaced.
    *
    * @param document A Document or DeletedDocument to put in the cache.
+   * @param read_time The time at which the document was read or committed.
    */
-  virtual void Add(const model::MaybeDocument& document) = 0;
+  virtual void Add(const model::MaybeDocument& document,
+                   const model::SnapshotVersion& read_time) = 0;
 
   /** Removes the cached entry for the given key (no-op if no entry exists). */
   virtual void Remove(const model::DocumentKey& key) = 0;
