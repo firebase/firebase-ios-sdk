@@ -193,8 +193,7 @@ void FieldPath::ValidateSegments(const SegmentsT& segments) {
   for (size_t i = 0; i < segments.size(); i++) {
     if (segments[i].empty()) {
       ThrowInvalidArgument(
-          "Invalid field name at index %s. Field names must not be empty.",
-          i);
+          "Invalid field name at index %s. Field names must not be empty.", i);
     }
   }
 }

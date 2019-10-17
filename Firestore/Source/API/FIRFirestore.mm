@@ -48,9 +48,9 @@
 #include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
+#include "Firestore/core/src/firebase/firestore/util/exception_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -65,8 +65,8 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Empty;
-using firebase::firestore::util::ObjcAssertionHandler;
-using firebase::firestore::util::SetAssertionHandler;
+using firebase::firestore::util::ObjcThrowHandler;
+using firebase::firestore::util::SetThrowHandler;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::ThrowIllegalState;
 using firebase::firestore::util::ThrowInvalidArgument;
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)initialize {
   if (self == [FIRFirestore class]) {
-    SetAssertionHandler(ObjcAssertionHandler);
+    SetThrowHandler(ObjcThrowHandler);
   }
 }
 

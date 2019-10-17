@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
+#include "Firestore/core/src/firebase/firestore/util/exception_apple.h"
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,23 +26,46 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
+namespace {
 
-static NSException* MakeException(NSString* name, const std::string& message) {
-  return [[NSException alloc] initWithName:name
+NSString* ExceptionName(Exception exception) {
+  switch (exception) {
+    case Exception::AssertionFailure:
+      return @"FIRESTORE INTERNAL ASSERTION FAILED";
+    case Exception::IllegalState:
+      return @"FIRIllegalStateException";
+    case Exception::InvalidArgument:
+      return @"FIRInvalidArgumentException";
+  }
+  UNREACHABLE();
+}
+
+NSException* MakeException(Exception type, const std::string& message) {
+  return [[NSException alloc] initWithName:ExceptionName(type)
                                     reason:MakeNSString(message)
                                   userInfo:nil];
 }
 
-[[noreturn]] void ThrowIllegalState(const std::string& message) {
-  @throw MakeException(@"FIRIllegalStateException", message);  // NOLINT
+}  // namespace
+
+ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(Exception type,
+                                              const char* file,
+                                              const char* func,
+                                              int line,
+                                              const std::string& message) {
+  if (type == Exception::AssertionFailure) {
+    [[NSAssertionHandler currentHandler]
+        handleFailureInFunction:MakeNSString(func)
+                           file:MakeNSString(file)
+                     lineNumber:line
+                    description:@"%@: %s", ExceptionName(type),
+                                message.c_str()];
+    abort();
+  } else {
+    @throw MakeException(type, message);  // NOLINT
+  }
 }
 
-[[noreturn]] void ThrowInvalidArgument(const std::string& message) {
-  @throw MakeException(@"FIRInvalidArgumentException", message);  // NOLINT
-}
-
-}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

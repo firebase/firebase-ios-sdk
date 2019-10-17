@@ -47,25 +47,25 @@ TEST(HardAssertTest, WithMessage) {
   EXPECT_ANY_THROW(AssertWithMessage(false));
 }
 
-TEST(HardAssertTest, NonDefaultAssertionHandler) {
+TEST(HardAssertTest, NonDefaultThrowHandler) {
   // Used to ensure the original failure handler is restored.
-  class AssertionHandlerRestorer {
+  class ThrowHandlerRestorer {
    public:
-    explicit AssertionHandlerRestorer(AssertionHandler orig) : orig_(orig) {
+    explicit ThrowHandlerRestorer(ThrowHandler orig) : orig_(orig) {
     }
-    ~AssertionHandlerRestorer() {
-      SetAssertionHandler(orig_);
+    ~ThrowHandlerRestorer() {
+      SetThrowHandler(orig_);
     }
 
    private:
-    AssertionHandler orig_;
+    ThrowHandler orig_;
   };
 
-  struct FakeException {};
-  AssertionHandler prev =
-      SetAssertionHandler([](const char*, const char*, const int,
-                             const std::string&) { throw FakeException(); });
-  AssertionHandlerRestorer _(prev);
+  struct FakeException : public std::exception {};
+  ThrowHandler prev =
+      SetThrowHandler([](Exception, const char*, const char*, const int,
+                         const std::string&) { throw FakeException(); });
+  ThrowHandlerRestorer _(prev);
 
   EXPECT_THROW(Assert(false), FakeException);
 }

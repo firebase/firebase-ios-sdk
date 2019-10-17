@@ -32,19 +32,63 @@
 // For internal programming errors, including internal argument checking, use
 // HARD_ASSERT or HARD_FAIL().
 
+#include <stdexcept>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
-[[noreturn]] void ThrowIllegalState(const std::string& message);
-[[noreturn]] void ThrowInvalidArgument(const std::string& message);
+#if ABSL_HAVE_EXCEPTIONS
+/**
+ * An exception thrown if Firestore encounters an internal error.
+ */
+class FirestoreError : public std::logic_error {
+ public:
+  using std::logic_error::logic_error;
+};
+#endif  // ABSL_HAVE_EXCEPTIONS
 
-}  // namespace internal
+/**
+ * An enumeration of logical exception types mapping to common user visible
+ * exceptions we might throw in response do some invalid action in an
+ * interaction with the Firestore API.
+ */
+enum class Exception {
+  AssertionFailure,
+  IllegalState,
+  InvalidArgument,
+};
+
+using ThrowHandler = void (*)(Exception type,
+                              const char* file,
+                              const char* func,
+                              int line,
+                              const std::string& message);
+
+/**
+ * Overrides the default exception throw handler.
+ *
+ * The default essentially just calls std::terminate. While reasonable for C++
+ * with exceptions disabled, this isn't optimal for platforms that merely use
+ * the C++ core as their implementation and would otherwise be expected to throw
+ * a platform specific exception.
+ *
+ * @param callback A function that will handle the exception. This function is
+ *     expected not to return. (If it does, std::terminate() will be called
+ *     immediately after it does so.)
+ * @return A pointer to the previous failure handler.
+ */
+ThrowHandler SetThrowHandler(ThrowHandler callback);
+
+ABSL_ATTRIBUTE_NORETURN void Throw(Exception type,
+                                   const char* file,
+                                   const char* func,
+                                   int line,
+                                   const std::string& message);
 
 /**
  * Throws an exception indicating that the user passed an invalid argument.
@@ -54,8 +98,10 @@ namespace internal {
  * structure, like a query.
  */
 template <typename... FA>
-[[noreturn]] void ThrowInvalidArgument(const char* format, const FA&... args) {
-  internal::ThrowInvalidArgument(util::StringFormat(format, args...));
+ABSL_ATTRIBUTE_NORETURN void ThrowInvalidArgument(const char* format,
+                                                  const FA&... args) {
+  Throw(Exception::InvalidArgument, nullptr, nullptr, 0,
+        StringFormat(format, args...));
 }
 
 /**
@@ -68,8 +114,10 @@ template <typename... FA>
  * haven't done anything yet should likely just stick to ThrowInvalidArgument.
  */
 template <typename... FA>
-[[noreturn]] void ThrowIllegalState(const char* format, const FA&... args) {
-  internal::ThrowIllegalState(util::StringFormat(format, args...));
+ABSL_ATTRIBUTE_NORETURN void ThrowIllegalState(const char* format,
+                                               const FA&... args) {
+  Throw(Exception::IllegalState, nullptr, nullptr, 0,
+        StringFormat(format, args...));
 }
 
 }  // namespace util
