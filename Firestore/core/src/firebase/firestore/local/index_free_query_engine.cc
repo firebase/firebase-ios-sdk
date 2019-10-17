@@ -86,7 +86,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
 }
 
 DocumentSet IndexFreeQueryEngine::ApplyQuery(
-    const core::Query& query, const model::MaybeDocumentMap& documents) const {
+    const Query& query, const MaybeDocumentMap& documents) const {
   // Sort the documents and re-apply the query filter since previously matching
   // documents do not necessarily still match the query.
   DocumentSet query_results(query.Comparator());
