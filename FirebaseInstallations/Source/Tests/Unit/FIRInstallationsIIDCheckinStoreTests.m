@@ -22,7 +22,7 @@
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
 #import "FIRInstanceIDCheckinStore.h"
 
-#import "FIRInstallationsIIDCheckin.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsIIDCheckinStore.h"
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";

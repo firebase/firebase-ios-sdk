@@ -23,7 +23,7 @@
 #endif
 
 #import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsIIDCheckin.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsKeychainUtils.h"
 
 NSString *const kFIRInstallationsIIDCheckinKeychainGeneric = @"com.google.iid";
@@ -31,7 +31,7 @@ NSString *const kFIRFIRInstallationsIIDCheckinKeychainService = @"com.google.iid
 
 @implementation FIRInstallationsIIDCheckinStore
 
-- (FBLPromise<FIRInstallationsIIDCheckin *> *)existingChecking {
+- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingChecking {
   return [[FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)
                            do:^id _Nullable {
                              return [self IIDCheckinData];
@@ -41,8 +41,8 @@ NSString *const kFIRFIRInstallationsIIDCheckinKeychainService = @"com.google.iid
                                  }];
 }
 
-- (FBLPromise<FIRInstallationsIIDCheckin *> *)IIDCheckinWithData:(NSData *)data {
-  FBLPromise<FIRInstallationsIIDCheckin *> *resultPromise = [FBLPromise pendingPromise];
+- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)IIDCheckinWithData:(NSData *)data {
+  FBLPromise<FIRInstallationsStoredIIDCheckin *> *resultPromise = [FBLPromise pendingPromise];
 
   NSString *checkinKeychainContent = [[NSString alloc] initWithData:data
                                                            encoding:NSUTF8StringEncoding];
@@ -62,7 +62,7 @@ NSString *const kFIRFIRInstallationsIIDCheckinKeychainService = @"com.google.iid
     return resultPromise;
   }
 
-  __auto_type checkin = [[FIRInstallationsIIDCheckin alloc] initWithDeviceID:deviceID
+  __auto_type checkin = [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:deviceID
                                                                  secretToken:secret];
   [resultPromise fulfill:checkin];
 

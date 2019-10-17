@@ -49,3 +49,7 @@ extern NSString *const kFIRInstallationsMessageCodeRegistrationErrorFailedToDeco
 
 // FIRInstallationsStoredRegistrationParameters.m
 extern NSString *const kFIRInstallationsMessageCodeRegistrationParametersCoderVersionMismatch;
+
+// FIRInstallationsStoredIIDCheckin.m
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch;
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode;
