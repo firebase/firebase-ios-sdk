@@ -215,7 +215,8 @@ NSTimeInterval const kFIRInstallationsRegistrationErrorTimeout = 24 * 60 * 60;  
 }
 
 /**
- * Tries to migrate IID data stored by FirebaseInstanceID SDK or generates a new Installation ID if not found.
+ * Tries to migrate IID data stored by FirebaseInstanceID SDK or generates a new Installation ID if
+ * not found.
  */
 - (FBLPromise<FIRInstallationsItem *> *)migrateOrGenerateInstallation {
   if (![self isDefaultApp]) {
