@@ -71,7 +71,6 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
                                     accessToken:(nullable NSString *)accessToken {
   return [[FIROAuthCredential alloc] initWithProviderID:providerID
                                                 IDToken:IDToken
-                                               rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
                                            pendingToken:nil];
@@ -81,31 +80,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
                                      accessToken:(NSString *)accessToken {
   return [[FIROAuthCredential alloc] initWithProviderID:providerID
                                                 IDToken:nil
-                                               rawNonce:nil
                                             accessToken:accessToken
-                                                 secret:nil
-                                           pendingToken:nil];
-}
-
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                        rawNonce:(nullable NSString *)rawNonce
-                                     accessToken:(nullable NSString *)accessToken {
-  return [[FIROAuthCredential alloc] initWithProviderID:providerID
-                                                IDToken:IDToken
-                                               rawNonce:rawNonce
-                                            accessToken:accessToken
-                                                 secret:nil
-                                           pendingToken:nil];
-}
-
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                        rawNonce:(nullable NSString *)rawNonce {
-  return [[FIROAuthCredential alloc] initWithProviderID:providerID
-                                                IDToken:IDToken
-                                               rawNonce:rawNonce
-                                            accessToken:nil
                                                  secret:nil
                                            pendingToken:nil];
 }

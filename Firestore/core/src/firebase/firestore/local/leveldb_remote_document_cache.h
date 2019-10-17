@@ -47,7 +47,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   LevelDbRemoteDocumentCache(LevelDbPersistence* db,
                              FSTLocalSerializer* serializer);
 
-  void Add(const model::MaybeDocument& document) override;
+  void Add(const model::MaybeDocument& document,
+           const model::SnapshotVersion& read_time) override;
   void Remove(const model::DocumentKey& key) override;
 
   absl::optional<model::MaybeDocument> Get(

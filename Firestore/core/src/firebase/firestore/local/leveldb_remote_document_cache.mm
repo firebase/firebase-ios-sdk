@@ -40,6 +40,8 @@ using model::DocumentMap;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
+using model::ResourcePath;
+using model::SnapshotVersion;
 using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
@@ -47,10 +49,18 @@ LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     : db_(db), serializer_(serializer) {
 }
 
-void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
-  std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
-  db_->current_transaction()->Put(ldb_key,
+void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document,
+                                     const SnapshotVersion& read_time) {
+  const DocumentKey& key = document.key();
+  const ResourcePath& path = key.path();
+
+  std::string ldb_document_key = LevelDbRemoteDocumentKey::Key(key);
+  db_->current_transaction()->Put(ldb_document_key,
                                   [serializer_ encodedMaybeDocument:document]);
+
+  std::string ldb_read_time_key = LevelDbRemoteDocumentReadTimeKey::Key(
+      path.PopLast(), read_time, path.last_segment());
+  db_->current_transaction()->Put(ldb_read_time_key, "");
 
   db_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
