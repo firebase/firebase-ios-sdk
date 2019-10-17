@@ -95,8 +95,8 @@ has_license_changes = didModify(["LICENSE"])
 
 # A FileList containing ObjC, ObjC++ or C++ changes.
 sdk_changes = (git.modified_files + git.added_files + git.deleted_files).select do |line|
-  line.end_with?(".h") || 
-    line.end_with?(".m") || 
+  line.end_with?(".h") ||
+    line.end_with?(".m") ||
     line.end_with?(".mm") ||
     line.end_with?(".cc")
 end
