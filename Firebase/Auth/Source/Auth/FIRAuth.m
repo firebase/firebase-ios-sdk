@@ -1393,7 +1393,6 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 #pragma mark - UISceneDelegate
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)) {
-  NSLog(@"~~~~~~~~~~~~~~~ FIRAuth scene openURLContexts");
   for (UIOpenURLContext *urlContext in URLContexts) {
     NSURL *url = [urlContext URL];
     [self canHandleURL:url];

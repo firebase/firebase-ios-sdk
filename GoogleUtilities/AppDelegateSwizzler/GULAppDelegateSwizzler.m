@@ -35,10 +35,6 @@ API_AVAILABLE(ios(13.0))
 typedef void (*GULOpenURLContextsIMP)(
     id, SEL, UIScene *, NSSet<UIOpenURLContext *> *);
 
-API_AVAILABLE(ios(13.0))
-typedef UISceneConfiguration* (*GULConfigurationForConnectingSceneSessionOptionsIMP)(
-    id, SEL, GULApplication *, UISceneSession *, UISceneConnectionOptions *);
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 typedef void (*GULRealHandleEventsForBackgroundURLSessionIMP)(
@@ -301,7 +297,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
         [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
 
-#if __has_builtin(__builtin_available)
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       if (![GULAppDelegateSwizzler isAppDelegateProxyEnabled]) {
         return;
@@ -316,7 +312,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                    object:nil];
       }
     }
-#endif  // __has_builtin(__builtin_available)
+#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   });
 }
 
@@ -712,7 +708,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 + (void)handleSceneWillConnectToNotification:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
   UIScene *scene = (UIScene *)notification.object;
-  [GULAppDelegateSwizzler proxySceneDelegateWithClass:[scene.delegate class]];
+  [GULAppDelegateSwizzler proxySceneDelegate:scene];
 }
 
 // The methods below are donor methods which are added to the dynamic subclass of the App Delegate.
@@ -1064,45 +1060,83 @@ openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts API_AVAILABLE(ios(13.0)
   }
 }
 
-+ (void)proxySceneDelegateWithClass:(Class)sceneDelegateClass API_AVAILABLE(ios(13.0)) {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    SEL methodSelector = @selector(scene:openURLContexts:);
++ (void)proxySceneDelegate:(UIScene *)scene API_AVAILABLE(ios(13.0)) {
+  Class realClass = [scene.delegate class];
 
-    Method originalMethod = class_getInstanceMethod(sceneDelegateClass, methodSelector);
-    Method swizzledMethod = class_getInstanceMethod([self class], methodSelector);
+  NSString *classNameWithPrefix =
+  [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
+  NSString *newClassName =
+  [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
-    id<GULApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
-    NSMutableDictionary *sceneDelegateIMPDict = [objc_getAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey) mutableCopy];
+  if (NSClassFromString(newClassName)) {
+    GULLogError(kGULLoggerSwizzler, NO,
+                [NSString stringWithFormat:@"I-SWZ%06ld",
+                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling005],
+                @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
+                @"%@, subclass: %@",
+                NSStringFromClass(realClass), newClassName);
+    return;
+  }
 
-    NSString *sceneDelegateClassName = NSStringFromClass(sceneDelegateClass);
-    if (sceneDelegateIMPDict[sceneDelegateClassName]) {
-      return;
-    }
+  // Register the new class as subclass of the real one. Do not allocate more than the real class
+  // size.
+  Class sceneDelegateSubClass = objc_allocateClassPair(realClass, newClassName.UTF8String, 0);
+  if (sceneDelegateSubClass == Nil) {
+    GULLogError(kGULLoggerSwizzler, NO,
+                [NSString stringWithFormat:@"I-SWZ%06ld",
+                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling006],
+                @"Cannot create a proxy for App Delegate. Subclass already exists. Original Class: "
+                @"%@, subclass: Nil",
+                NSStringFromClass(realClass));
+    return;
+  }
 
-    IMP orignalImplementation = method_getImplementation(originalMethod);
-    NSValue *originalImplementationPointer = [NSValue valueWithPointer:orignalImplementation];
-    NSDictionary *sceneDelegateSELIMPPair = @{NSStringFromSelector(methodSelector): originalImplementationPointer};
-    sceneDelegateIMPDict[sceneDelegateClassName] = sceneDelegateSELIMPPair;
+  NSMutableDictionary<NSString *, NSValue *> *realImplementationsBySelector = [[NSMutableDictionary alloc] init];
 
-    objc_setAssociatedObject(appDelegate, &kGULSceneDelegateIMPDictKey,
-                             [sceneDelegateIMPDict copy], OBJC_ASSOCIATION_RETAIN);
+  // For application:continueUserActivity:restorationHandler:
+  SEL openURLContextsSEL = @selector(scene:openURLContexts:);
+  [self proxyDestinationSelector:openURLContextsSEL
+implementationsFromSourceSelector:openURLContextsSEL
+                       fromClass:[GULAppDelegateSwizzler class]
+                         toClass:sceneDelegateSubClass
+                       realClass:realClass
+storeDestinationImplementationTo:realImplementationsBySelector];
 
-    BOOL didAddMethod =
-    class_addMethod(sceneDelegateClass,
-                    methodSelector,
-                    method_getImplementation(swizzledMethod),
-                    method_getTypeEncoding(swizzledMethod));
+  // Store original implementations to a fake property of the original delegate.
+  objc_setAssociatedObject(scene.delegate, &kGULRealIMPBySelectorKey,
+                           [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(scene.delegate, &kGULRealClassKey, realClass,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-    if (didAddMethod) {
-      class_replaceMethod(sceneDelegateClass,
-                          methodSelector,
-                          method_getImplementation(originalMethod),
-                          method_getTypeEncoding(originalMethod));
-    } else {
-      method_exchangeImplementations(originalMethod, swizzledMethod);
-    }
-  });
+  // The subclass size has to be exactly the same size with the original class size. The subclass
+  // cannot have more ivars/properties than its superclass since it will cause an offset in memory
+  // that can lead to overwriting the isa of an object in the next frame.
+  if (class_getInstanceSize(realClass) != class_getInstanceSize(sceneDelegateSubClass)) {
+    GULLogError(kGULLoggerSwizzler, NO,
+                [NSString stringWithFormat:@"I-SWZ%06ld",
+                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling007],
+                @"Cannot create subclass of App Delegate, because the created subclass is not the "
+                @"same size. %@",
+                NSStringFromClass(realClass));
+    NSAssert(NO, @"Classes must be the same size to swizzle isa");
+    return;
+  }
+
+  // Make the newly created class to be the subclass of the real App Delegate class.
+  objc_registerClassPair(sceneDelegateSubClass);
+  if (object_setClass(scene.delegate, sceneDelegateSubClass)) {
+    GULLogDebug(kGULLoggerSwizzler, NO,
+                [NSString stringWithFormat:@"I-SWZ%06ld",
+                 (long)kGULSwizzlerMessageCodeAppDelegateSwizzling008],
+                @"Successfully created App Delegate Proxy automatically. To disable the "
+                @"proxy, set the flag %@ to NO (Boolean) in the Info.plist",
+                [GULAppDelegateSwizzler correctAppDelegateProxyKey]);
+  }
+
+  // TODO: reassign delegate as app delegate above?
+  id<UISceneDelegate> delegate = scene.delegate;
+  scene.delegate = nil;
+  scene.delegate = delegate;
 }
 
 #pragma mark - Methods to print correct debug logs
