@@ -108,14 +108,6 @@ class Reader {
     status_ = status;
   }
 
-  template <typename T>
-  util::StatusOr<T> ToStatusOr(T&& value) {
-    if (!ok()) {
-      return status();
-    }
-    return util::StatusOr<T>(std::move(value));
-  }
-
   /**
    * Ensures this Reader's status is `!ok().
    *

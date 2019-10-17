@@ -145,22 +145,21 @@ WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
 }
 
 MaybeMessage<google_firestore_v1_ListenResponse>
-WatchStreamSerializer::DecodeResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_ListenResponse>::TryDecode(
+WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return Message<google_firestore_v1_ListenResponse>::TryParse(
       google_firestore_v1_ListenResponse_fields, message);
 }
 
-StatusOr<std::unique_ptr<WatchChange>> WatchStreamSerializer::ToWatchChange(
+std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
+    nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& response) const {
-  nanopb::Reader reader;
-  return reader.ToStatusOr(serializer_.DecodeWatchChange(&reader, response));
+  return serializer_.DecodeWatchChange(reader, response);
 }
 
-StatusOr<SnapshotVersion> WatchStreamSerializer::ToSnapshotVersion(
+SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
+    nanopb::Reader* reader,
     const google_firestore_v1_ListenResponse& response) const {
-  nanopb::Reader reader;
-  return reader.ToStatusOr(
-      serializer_.DecodeVersionFromListenResponse(&reader, response));
+  return serializer_.DecodeVersionFromListenResponse(reader, response);
 }
 
 std::string WatchStreamSerializer::Describe(
@@ -213,23 +212,23 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
 }
 
 MaybeMessage<google_firestore_v1_WriteResponse>
-WriteStreamSerializer::DecodeResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_WriteResponse>::TryDecode(
+WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return Message<google_firestore_v1_WriteResponse>::TryParse(
       google_firestore_v1_WriteResponse_fields, message);
 }
 
-StatusOr<SnapshotVersion> WriteStreamSerializer::ToCommitVersion(
+SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
+    nanopb::Reader* reader,
     const google_firestore_v1_WriteResponse& proto) const {
-  nanopb::Reader reader;
-  return reader.ToStatusOr(
-      serializer_.DecodeVersion(&reader, proto.commit_time));
+  return serializer_.DecodeVersion(reader, proto.commit_time);
 }
 
-StatusOr<std::vector<MutationResult>> WriteStreamSerializer::ToMutationResults(
+std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
+    nanopb::Reader* reader,
     const google_firestore_v1_WriteResponse& proto) const {
-  auto maybe_commit_version = ToCommitVersion(proto);
-  if (!maybe_commit_version.ok()) {
-    return maybe_commit_version.status();
+  SnapshotVersion commit_version = DecodeCommitVersion(reader, proto);
+  if (!reader->ok()) {
+    return {};
   }
 
   const google_firestore_v1_WriteResult* writes = proto.write_results;
@@ -237,14 +236,12 @@ StatusOr<std::vector<MutationResult>> WriteStreamSerializer::ToMutationResults(
   std::vector<MutationResult> results;
   results.reserve(count);
 
-  nanopb::Reader reader;
-  SnapshotVersion commit_version = maybe_commit_version.ValueOrDie();
   for (pb_size_t i = 0; i != count; ++i) {
     results.push_back(
-        serializer_.DecodeMutationResult(&reader, writes[i], commit_version));
+        serializer_.DecodeMutationResult(reader, writes[i], commit_version));
   };
 
-  return reader.ToStatusOr(std::move(results));
+  return results;
 }
 
 std::string WriteStreamSerializer::Describe(
@@ -313,7 +310,7 @@ DatastoreSerializer::MergeLookupResponses(
 
   for (const auto& response : responses) {
     auto maybe_proto =
-        Message<google_firestore_v1_BatchGetDocumentsResponse>::TryDecode(
+        Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             google_firestore_v1_BatchGetDocumentsResponse_fields, response);
     if (!maybe_proto.ok()) {
       return maybe_proto.status();

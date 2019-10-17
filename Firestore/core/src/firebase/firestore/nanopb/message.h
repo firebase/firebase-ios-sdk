@@ -82,8 +82,8 @@ class Message {
    * `google_firestore_v1_Foo` message, the corresponding fields descriptor will
    * be named `google_firestore_v1_Foo_fields`.
    */
-  static MaybeMessage<T> TryDecode(const pb_field_t* fields,
-                                   const grpc::ByteBuffer& byte_buffer);
+  static MaybeMessage<T> TryParse(const pb_field_t* fields,
+                                  const grpc::ByteBuffer& byte_buffer);
 
   ~Message() {
     if (owns_proto()) {
@@ -162,8 +162,8 @@ util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 }  // namespace internal
 
 template <typename T>
-MaybeMessage<T> Message<T>::TryDecode(const pb_field_t* fields,
-                                      const grpc::ByteBuffer& byte_buffer) {
+MaybeMessage<T> Message<T>::TryParse(const pb_field_t* fields,
+                                     const grpc::ByteBuffer& byte_buffer) {
   auto maybe_bytes = internal::ToByteString(byte_buffer);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();
