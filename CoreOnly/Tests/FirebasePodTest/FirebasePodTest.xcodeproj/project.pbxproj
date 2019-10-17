@@ -306,8 +306,6 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/Firebase\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseCoreDiagnosticsInterop\"",
-					"$(inherited)",
-					"${PODS_ROOT}/Firebase/Firebase/Firebase/Sources",
 				);
 				INFOPLIST_FILE = FirebasePodTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -339,8 +337,6 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/Firebase\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseCoreDiagnosticsInterop\"",
-					"$(inherited)",
-					"${PODS_ROOT}/Firebase/Firebase/Firebase/Sources",
 				);
 				INFOPLIST_FILE = FirebasePodTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
