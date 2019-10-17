@@ -10,7 +10,7 @@ stages:
   - test
 
 before_script:
-  - bundle exec danger
+  - '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
 
 jobs:
   include:
