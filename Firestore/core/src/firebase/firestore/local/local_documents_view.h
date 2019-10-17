@@ -75,7 +75,7 @@ class LocalDocumentsView {
    * Performs a query against the local view of all documents.
    *
    * @param query The query to match documents against.
-   * @param since_read_time If not set to SnapshotVersion.MIN, return only
+   * @param since_read_time If not set to SnapshotVersion::None(), return only
    *     documents that have been read since this snapshot version (exclusive).
    */
   model::DocumentMap GetDocumentsMatchingQuery(

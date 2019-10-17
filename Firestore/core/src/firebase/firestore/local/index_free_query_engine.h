@@ -83,7 +83,7 @@ class IndexFreeQueryEngine : public QueryEngine {
 
   model::DocumentMap ExecuteFullCollectionScan(const core::Query& query) const;
 
-  LocalDocumentsView* local_documents_view_;
+  LocalDocumentsView* local_documents_view_ = nullptr;
 };
 
 }  // namespace local

@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -42,7 +44,7 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
     const DocumentKeySet& remote_keys) const {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
-  // Queries that match all document don't benefit from using IndexFreeQueries.
+  // Queries that match all documents don't benefit from using IndexFreeQueries.
   // It is more efficient to scan all documents in a collection, rather than to
   // perform individual lookups.
   if (query.MatchesAllDocuments()) {
@@ -68,15 +70,15 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
             last_limbo_free_snapshot_version.ToString(), query.ToString());
 
   // Retrieve all results for documents that were updated since the last
-  // limbo-document free remote snapshot.
+  // remote snapshot that did not contain any Limbo documents.
   DocumentMap updated_results =
       local_documents_view_->GetDocumentsMatchingQuery(
           query, last_limbo_free_snapshot_version);
 
-  // We merge `previousResults` into `updateResults`, since `updateResults` is
-  // already a DocumentMap. If a document is contained in both lists, then
+  // We merge `previous_results` into `update_results`, since `update_results`
+  // is already a DocumentMap. If a document is contained in both lists, then
   // its contents are the same.
-  for (Document result : previous_results) {
+  for (const Document& result : previous_results) {
     updated_results = updated_results.insert(result.key(), result);
   }
 
@@ -90,11 +92,11 @@ DocumentSet IndexFreeQueryEngine::ApplyQuery(
   DocumentSet query_results(query.Comparator());
 
   for (const auto& document_entry : documents) {
-    MaybeDocument maybe_doc = document_entry.second;
+    const MaybeDocument& maybe_doc = document_entry.second;
     if (maybe_doc.is_document()) {
       Document doc(maybe_doc);
       if (query.Matches(doc)) {
-        query_results = query_results.insert(doc);
+        query_results = query_results.insert(std::move(doc));
       }
     }
   }
