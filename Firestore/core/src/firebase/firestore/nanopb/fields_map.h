@@ -28,6 +28,18 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+/**
+ * Returns a pointer to the Nanopb-generated array that describes the fields
+ * of the Nanopb proto; the array is required to call most Nanopb functions.
+ *
+ * There is always a one-to-one correspondence between a Nanopb-generated
+ * message type and its fields descriptor; essentially, the fields descriptor is
+ * a property of the type.
+ */
+// The non-specialized version of this function is deleted to make sure that
+// forgetting to specialize it results in a compile-time-, not link-time error.
+// If you run into an error where compiler complains about the deleted function,
+// simply add the missing specialization.
 template <typename T>
 const pb_field_t* GetNanopbFields() = delete;
 
