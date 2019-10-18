@@ -39,13 +39,13 @@ using local::QueryData;
 using local::QueryPurpose;
 using model::BatchId;
 using model::DocumentKeySet;
+using model::kBatchIdUnknown;
 using model::MutationBatch;
 using model::MutationBatchResult;
 using model::MutationResult;
 using model::OnlineState;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::kBatchIdUnknown;
 using nanopb::ByteString;
 using util::AsyncQueue;
 using util::Status;
@@ -82,7 +82,7 @@ void RemoteStore::EnableNetwork() {
 
   if (CanUseNetwork()) {
     // Load any saved stream token from persistent storage
-    write_stream_->SetLastStreamToken(local_store_->GetLastStreamToken());
+    write_stream_->set_last_stream_token(local_store_->GetLastStreamToken());
 
     if (ShouldStartWatchStream()) {
       StartWatchStream();
@@ -387,8 +387,8 @@ bool RemoteStore::ShouldStartWriteStream() const {
 }
 
 void RemoteStore::StartWriteStream() {
-  HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
-                                        "ShouldStartWriteStream is false.");
+  HARD_ASSERT(ShouldStartWriteStream(),
+              "StartWriteStream called when ShouldStartWriteStream is false.");
   write_stream_->Start();
 }
 
@@ -398,7 +398,7 @@ void RemoteStore::OnWriteStreamOpen() {
 
 void RemoteStore::OnWriteStreamHandshakeComplete() {
   // Record the stream token.
-  local_store_->SetLastStreamToken(write_stream_->GetLastStreamToken());
+  local_store_->SetLastStreamToken(write_stream_->last_stream_token());
 
   // Send the write pipeline now that the stream is established.
   for (const MutationBatch& write : write_pipeline_) {
@@ -418,7 +418,7 @@ void RemoteStore::OnWriteStreamMutationResult(
 
   MutationBatchResult batch_result(std::move(batch), commit_version,
                                    std::move(mutation_results),
-                                   write_stream_->GetLastStreamToken());
+                                   write_stream_->last_stream_token());
   sync_engine_->HandleSuccessfulWrite(batch_result);
 
   // It's possible that with the completion of this mutation another slot has
@@ -464,12 +464,13 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
   // no longer valid. Note that the handshake does not count as a write: see
   // comments on `Datastore::IsPermanentWriteError` for details.
   if (Datastore::IsPermanentError(status)) {
-    std::string token = util::ToString(write_stream_->GetLastStreamToken());
-    LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
-              "stream token %s: "
-              "error code: '%s', details: '%s'",
-              this, token, status.code(), status.error_message());
-    write_stream_->SetLastStreamToken({});
+    std::string token = util::ToString(write_stream_->last_stream_token());
+    LOG_DEBUG(
+        "RemoteStore %s error before completed handshake; resetting "
+        "stream token %s: "
+        "error code: '%s', details: '%s'",
+        this, token, status.code(), status.error_message());
+    write_stream_->set_last_stream_token({});
     local_store_->SetLastStreamToken({});
   } else {
     // Some other error, don't reset stream token. Our stream logic will just

@@ -199,11 +199,6 @@ Serializer::Serializer(DatabaseId database_id)
     : database_id_(std::move(database_id)) {
 }
 
-void Serializer::FreeNanopbMessage(const pb_field_t fields[],
-                                   void* dest_struct) {
-  pb_release(fields, dest_struct);
-}
-
 pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
   return EncodeString(DatabaseName(database_id_).CanonicalString());
 }

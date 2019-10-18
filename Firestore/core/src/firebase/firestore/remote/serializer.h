@@ -76,8 +76,8 @@ core::Query InvalidQuery();
  * protocol buffer, and methods starting with "Decode" convert from a nanopb
  * protocol buffer to a model object.
  *
- * For encoded messages, FreeNanopbMessage() must be called on the returned
- * nanopb proto buffer or a memory leak will occur.
+ * For encoded messages, `nanopb::FreeNanopbMessage()` must be called on the
+ * returned nanopb proto buffer or a memory leak will occur.
  *
  * All errors that occur during serialization are fatal.
  *
@@ -129,13 +129,6 @@ class Serializer {
    * `projects/{project_id}/databases/{database_id}`.
    */
   pb_bytes_array_t* EncodeDatabaseName() const;
-
-  /**
-   * Release memory allocated by the Encode* methods that return protos.
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
-   */
-  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
