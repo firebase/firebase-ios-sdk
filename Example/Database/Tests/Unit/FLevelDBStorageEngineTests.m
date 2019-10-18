@@ -517,7 +517,8 @@
 
 // NOTE: This deals with part of the NSDecimalNumber issue: namely that
 // [NSDecimalNumber longLongValue] is completely bonkers for decimals with
-// high precision.
+// high precision. The decimal value below (close to 1000) is returned as -844!
+// http://www.openradar.me/radar?id=5007005597040640
 // This does not deal with the fact that this is not the same behavior as the
 // RTDB server. Given an NSDecimalNumber, the server stores decimals with the
 // full precision and returns these as NSDecimalNumbers too.
