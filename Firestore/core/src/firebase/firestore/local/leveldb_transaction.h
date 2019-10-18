@@ -25,6 +25,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -176,13 +177,12 @@ class LevelDbTransaction {
    */
   void Put(std::string key, std::string value);
 
-  // FIXME
-  void Put(std::string key, nanopb::ByteString value) {
-    std::string value_str(reinterpret_cast<const char*>(value.data()),
-                          value.size());
-    std::string key_str{key};
-    mutations_[key_str] = std::move(value_str);
-    version_++;
+  /**
+   * Schedules the row identified by `key` to be set to `value` when this
+   * transaction commits.
+   */
+  void Put(std::string key, const nanopb::ByteString& value) {
+    Put(std::move(key), nanopb::MakeString(value.get()));
   }
 
   /**

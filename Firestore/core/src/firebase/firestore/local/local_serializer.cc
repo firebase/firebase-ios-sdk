@@ -72,7 +72,9 @@ Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
     case MaybeDocument::Type::Document: {
       result->which_document_type = firestore_client_MaybeDocument_document_tag;
       Document doc(maybe_doc);
-      // TODO(wuandy): Check if `doc` already has a proto and use that if yes.
+      // TODO(b/142956770): other platforms check for whether the `Document`
+      // contains a memoized proto and use it if available instead of
+      // re-encoding.
       result->document = EncodeDocument(doc);
       result->has_committed_mutations = doc.has_committed_mutations();
       return result;
