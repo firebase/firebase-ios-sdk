@@ -27,16 +27,10 @@ struct FirebasePod {
 
     /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
     /// expected version numbers.
-    var currentReleasePath: URL?
-
-    // MARK: - Optional Paths
-
-    /// A file URL to a textproto with the contents of a `FirebasePod_FirebasePods` object. Used to
-    /// verify expected version numbers.
-    var allPodsPath: URL?
+    let currentReleasePath: URL
 
     /// A file path to the path of the checked out git repo.
-    var gitRootPath: String?
+    let gitRootPath: String
   }
 
   /// Paths needed throughout the process of packaging the Zip file.
@@ -47,7 +41,6 @@ struct FirebasePod {
   ///
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
-  ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
   init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
     self.paths = paths
   }
