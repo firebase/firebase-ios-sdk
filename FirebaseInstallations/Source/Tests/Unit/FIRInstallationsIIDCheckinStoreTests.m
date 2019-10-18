@@ -21,12 +21,13 @@
 #import "FIRInstanceIDBackupExcludedPlist.h"
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
 #import "FIRInstanceIDCheckinStore.h"
+#import "FIRInstanceIDStore.h"
 
 #import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsStoredIIDCheckin.h"
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
-static NSString *const kSubDirectoryName = @"Google/FirebaseInstanceID";
+static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTests";
 
 @interface FIRInstallationsIIDCheckinStoreTests : XCTestCase
 @property(nonatomic) FIRInstallationsIIDCheckinStore *installationsIIDCheckinStore;
@@ -40,6 +41,8 @@ static NSString *const kSubDirectoryName = @"Google/FirebaseInstanceID";
 
 - (void)setUp {
   self.installationsIIDCheckinStore = [[FIRInstallationsIIDCheckinStore alloc] init];
+
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
   self.IIDCheckinStore =
       [[FIRInstanceIDCheckinStore alloc] initWithCheckinPlistFileName:kFakeCheckinPlistName
                                                      subDirectoryName:kSubDirectoryName];
