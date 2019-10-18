@@ -16,30 +16,31 @@
 
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 
-#include <cstdlib>
+#include <exception>
 #include <stdexcept>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 namespace {
 
-const char* ExceptionName(Exception exception) {
+const char* ExceptionName(ExceptionType exception) {
   switch (exception) {
-    case Exception::AssertionFailure:
+    case ExceptionType::AssertionFailure:
       return "FIRESTORE INTERNAL ASSERTION FAILED";
-    case Exception::IllegalState:
+    case ExceptionType::IllegalState:
       return "Illegal state";
-    case Exception::InvalidArgument:
+    case ExceptionType::InvalidArgument:
       return "Invalid argument";
   }
   UNREACHABLE();
 }
 
-ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(Exception type,
+ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
                                                  const char* file,
                                                  const char* func,
                                                  int line,
@@ -52,11 +53,11 @@ ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(Exception type,
 
 #if ABSL_HAVE_EXCEPTIONS
   switch (type) {
-    case Exception::AssertionFailure:
-      throw FirestoreError(what);
-    case Exception::IllegalState:
+    case ExceptionType::AssertionFailure:
+      throw FirestoreInternalError(what);
+    case ExceptionType::IllegalState:
       throw std::logic_error(what);
-    case Exception::InvalidArgument:
+    case ExceptionType::InvalidArgument:
       throw std::invalid_argument(what);
   }
 #else
@@ -77,7 +78,7 @@ ThrowHandler SetThrowHandler(ThrowHandler handler) {
   return previous;
 }
 
-ABSL_ATTRIBUTE_NORETURN void Throw(Exception exception,
+ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType exception,
                                    const char* file,
                                    const char* func,
                                    int line,

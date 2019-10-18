@@ -183,7 +183,6 @@ std::string FieldPath::CanonicalString() const {
   return absl::StrJoin(begin(), end(), ".", JoinEscaped());
 }
 
-/* static */
 void FieldPath::ValidateSegments(const SegmentsT& segments) {
   if (segments.empty()) {
     ThrowInvalidArgument(

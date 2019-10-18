@@ -46,7 +46,7 @@ namespace util {
 /**
  * An exception thrown if Firestore encounters an internal error.
  */
-class FirestoreError : public std::logic_error {
+class FirestoreInternalError : public std::logic_error {
  public:
   using std::logic_error::logic_error;
 };
@@ -57,13 +57,13 @@ class FirestoreError : public std::logic_error {
  * exceptions we might throw in response do some invalid action in an
  * interaction with the Firestore API.
  */
-enum class Exception {
+enum class ExceptionType {
   AssertionFailure,
   IllegalState,
   InvalidArgument,
 };
 
-using ThrowHandler = void (*)(Exception type,
+using ThrowHandler = void (*)(ExceptionType type,
                               const char* file,
                               const char* func,
                               int line,
@@ -84,7 +84,7 @@ using ThrowHandler = void (*)(Exception type,
  */
 ThrowHandler SetThrowHandler(ThrowHandler callback);
 
-ABSL_ATTRIBUTE_NORETURN void Throw(Exception type,
+ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType type,
                                    const char* file,
                                    const char* func,
                                    int line,
@@ -100,7 +100,7 @@ ABSL_ATTRIBUTE_NORETURN void Throw(Exception type,
 template <typename... FA>
 ABSL_ATTRIBUTE_NORETURN void ThrowInvalidArgument(const char* format,
                                                   const FA&... args) {
-  Throw(Exception::InvalidArgument, nullptr, nullptr, 0,
+  Throw(ExceptionType::InvalidArgument, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
 
@@ -116,7 +116,7 @@ ABSL_ATTRIBUTE_NORETURN void ThrowInvalidArgument(const char* format,
 template <typename... FA>
 ABSL_ATTRIBUTE_NORETURN void ThrowIllegalState(const char* format,
                                                const FA&... args) {
-  Throw(Exception::IllegalState, nullptr, nullptr, 0,
+  Throw(ExceptionType::IllegalState, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
 

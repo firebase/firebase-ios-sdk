@@ -18,6 +18,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <exception>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -28,19 +30,19 @@ namespace firestore {
 namespace util {
 namespace {
 
-NSString* ExceptionName(Exception exception) {
+NSString* ExceptionName(ExceptionType exception) {
   switch (exception) {
-    case Exception::AssertionFailure:
+    case ExceptionType::AssertionFailure:
       return @"FIRESTORE INTERNAL ASSERTION FAILED";
-    case Exception::IllegalState:
+    case ExceptionType::IllegalState:
       return @"FIRIllegalStateException";
-    case Exception::InvalidArgument:
+    case ExceptionType::InvalidArgument:
       return @"FIRInvalidArgumentException";
   }
   UNREACHABLE();
 }
 
-NSException* MakeException(Exception type, const std::string& message) {
+NSException* MakeException(ExceptionType type, const std::string& message) {
   return [[NSException alloc] initWithName:ExceptionName(type)
                                     reason:MakeNSString(message)
                                   userInfo:nil];
@@ -48,19 +50,19 @@ NSException* MakeException(Exception type, const std::string& message) {
 
 }  // namespace
 
-ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(Exception type,
+ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
                                               const char* file,
                                               const char* func,
                                               int line,
                                               const std::string& message) {
-  if (type == Exception::AssertionFailure) {
+  if (type == ExceptionType::AssertionFailure) {
     [[NSAssertionHandler currentHandler]
         handleFailureInFunction:MakeNSString(func)
                            file:MakeNSString(file)
                      lineNumber:line
                     description:@"%@: %s", ExceptionName(type),
                                 message.c_str()];
-    abort();
+    std::terminate();
   } else {
     @throw MakeException(type, message);  // NOLINT
   }

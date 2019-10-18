@@ -32,7 +32,7 @@ void FailAssertion(const char* file,
                    const char* func,
                    const int line,
                    const std::string& message) {
-  Throw(Exception::AssertionFailure, file, func, line, message);
+  Throw(ExceptionType::AssertionFailure, file, func, line, message);
 }
 
 void FailAssertion(const char* file,

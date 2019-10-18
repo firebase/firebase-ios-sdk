@@ -63,7 +63,7 @@ TEST(HardAssertTest, NonDefaultThrowHandler) {
 
   struct FakeException : public std::exception {};
   ThrowHandler prev =
-      SetThrowHandler([](Exception, const char*, const char*, const int,
+      SetThrowHandler([](ExceptionType, const char*, const char*, const int,
                          const std::string&) { throw FakeException(); });
   ThrowHandlerRestorer _(prev);
 

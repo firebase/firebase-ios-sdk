@@ -29,7 +29,7 @@ namespace util {
 /**
  * Default throw handler for ObjC/Swift. Typically shouldn't be used directly.
  */
-ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(Exception type,
+ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
                                               const char* file,
                                               const char* func,
                                               int line,
