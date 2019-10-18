@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.10.0'
+  s.version          = '6.9.902-test'
   s.summary          = 'Firebase for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -31,7 +31,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.1.3'
+    ss.ios.dependency 'FirebaseAnalytics', '6.1.2'
     ss.dependency 'Firebase/CoreOnly'
   end
 
@@ -51,7 +51,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 3.1.2'
+    ss.dependency 'FirebaseABTesting', '~> 3.1.1'
   end
 
   s.subspec 'AdMob' do |ss|
@@ -61,12 +61,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.3.0'
+    ss.dependency 'FirebaseAuth', '~> 6.2.3'
   end
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 6.1.1'
+    ss.dependency 'FirebaseDatabase', '~> 6.1.0'
     ss.ios.deployment_target = '8.0'
   end
 
@@ -78,7 +78,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.6.0'
+    ss.dependency 'FirebaseFirestore', '~> 1.5.1'
   end
 
   s.subspec 'Functions' do |ss|
@@ -88,30 +88,30 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInAppMessaging', '~> 0.15.5'
+    ss.dependency 'FirebaseInAppMessaging', '~> 0.15.4'
     ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'InAppMessagingDisplay' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInAppMessagingDisplay', '~> 0.15.5'
+    ss.dependency 'FirebaseInAppMessagingDisplay', '~> 0.15.4'
     ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.1.6'
+    ss.dependency 'FirebaseMessaging', '~> 4.1.4'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebasePerformance', '~> 3.1.5'
+    ss.dependency 'FirebasePerformance', '~> 3.1.4'
     ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.2'
+    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.1'
   end
 
   s.subspec 'Storage' do |ss|
@@ -121,76 +121,76 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMLCommon', '~> 0.19.0'
+    ss.dependency 'FirebaseMLCommon', '~> 0.18.0'
     ss.ios.deployment_target = '8.0'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.18.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLNLLanguageID' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLLanguageID', '~> 0.17.0'
+    ss.ios.dependency 'FirebaseMLNLLanguageID', '~> 0.16.4'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLNLSmartReply' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLSmartReply', '~> 0.17.0'
+    ss.ios.dependency 'FirebaseMLNLSmartReply', '~> 0.16.4'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLNLTranslate' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLTranslate', '~> 0.17.0'
+    ss.ios.dependency 'FirebaseMLNLTranslate', '~> 0.16.4'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLNaturalLanguage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNaturalLanguage', '~> 0.17.0'
+    ss.ios.dependency 'FirebaseMLNaturalLanguage', '~> 0.16.4'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVision', '~> 0.18.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionAutoML' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionAutoML', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionAutoML', '~> 0.18.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionBarcodeModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionBarcodeModel', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionBarcodeModel', '~> 0.18.0'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVisionFaceModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionFaceModel', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionFaceModel', '~> 0.18.0'
   end
 
   s.subspec 'MLVisionLabelModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionLabelModel', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionLabelModel', '~> 0.18.0'
   end
 
   s.subspec 'MLVisionTextModel' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionTextModel', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionTextModel', '~> 0.18.0'
   end
 
   s.subspec 'MLVisionObjectDetection' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionObjectDetection', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLVisionObjectDetection', '~> 0.18.0'
     ss.ios.deployment_target = '9.0'
   end
 

@@ -25,9 +25,8 @@ let args = LaunchArgs.shared
 let buildStart = Date()
 var cocoaPodsUpdateMessage: String = ""
 
-var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleasePath)
-paths.allPodsPath = args.allPodsPath
-paths.gitRootPath = args.gitRootPath
+var paths = FirebasePod.FilesystemPaths(currentReleasePath: args.currentReleasePath,
+                                        gitRootPath: args.gitRootPath)
 
 /// Assembles the expected versions based on the release manifest passed in.
 /// Returns an array with the pod name as the key and version as the value,
@@ -35,31 +34,16 @@ private func getExpectedVersions() -> [String: String] {
   // Merge the versions from the current release and the known public versions.
   var releasingVersions: [String: String] = [:]
 
-  // Check the existing expected versions and build a dictionary out of the expected versions.
-  // allPods is not yet implemented. Potentially it could be used to validate or fix the Firebase
-  // pod.
-  if let podsPath = paths.allPodsPath {
-    let allPods = ManifestReader.loadAllReleasedSDKs(fromTextproto: podsPath)
-    print("Parsed the following Pods from the public release manifest:")
-
-    for pod in allPods.sdk {
-      releasingVersions[pod.name] = pod.publicVersion
-      print("\(pod.name): \(pod.publicVersion)")
-    }
-  }
-
   // Override any of the expected versions with the current release manifest, if it exists.
-  if let releasePath = paths.currentReleasePath {
-    let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
-    print("Overriding the following Pod versions, taken from the current release manifest:")
-    for pod in currentRelease.sdk {
-      releasingVersions[pod.sdkName] = pod.sdkVersion
-      print("\(pod.sdkName): \(pod.sdkVersion)")
-    }
+  let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: paths.currentReleasePath)
+  print("Overriding the following Pod versions, taken from the current release manifest:")
+  for pod in currentRelease.sdk {
+    releasingVersions[pod.sdkName] = pod.sdkVersion
+    print("\(pod.sdkName): \(pod.sdkVersion)")
   }
 
   if !releasingVersions.isEmpty {
-    print("Updating Firebase Pod in git installation at \(paths.gitRootPath!)) " +
+    print("Updating Firebase Pod in git installation at \(paths.gitRootPath)) " +
       "with the following versions: \(releasingVersions)")
   }
 
@@ -67,7 +51,7 @@ private func getExpectedVersions() -> [String: String] {
 }
 
 private func updateFirebasePod(newVersions: [String: String]) {
-  let podspecFile = paths.gitRootPath! + "/Firebase.podspec"
+  let podspecFile = paths.gitRootPath + "/Firebase.podspec"
   var contents = ""
   do {
     contents = try String(contentsOfFile: podspecFile, encoding: .utf8)

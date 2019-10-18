@@ -53,16 +53,12 @@ struct LaunchArgs {
     }
   }
 
-  /// A file URL to a textproto with the contents of a `FirebasePod_FirebasePods` object. Used to
-  /// verify expected version numbers.
-  let allPodsPath: URL?
-
   /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
   /// expected version numbers.
-  let currentReleasePath: URL?
+  let currentReleasePath: URL
 
   /// A file URL to the checked out gitRepo to update
-  let gitRootPath: String?
+  let gitRootPath: String
 
   /// The shared instance for processing launch args using default arguments.
   static let shared: LaunchArgs = LaunchArgs()
@@ -75,21 +71,6 @@ struct LaunchArgs {
   ///                  `FileManager.default`.
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
-
-    // Parse the existing versions key.
-    if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
-      let url = URL(fileURLWithPath: existingVersions)
-      guard fileChecker.fileExists(atPath: url.path) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.existingVersions) key: value " +
-          "passed in is not a file URL or the file does not exist. Value: \(existingVersions)." +
-          " Do you need to run prodaccess?")
-      }
-
-      allPodsPath = url.standardizedFileURL
-    } else {
-      // No argument was passed in.
-      allPodsPath = nil
-    }
 
     // Parse the current releases key.
     guard let currentRelease = defaults.string(forKey: Key.releasingPods.rawValue) else {
