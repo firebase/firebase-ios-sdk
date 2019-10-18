@@ -1,16 +1,17 @@
-# Firebase Zip File Builder
+# Firebase Release Tools
 
-This project builds the Firebase iOS Zip file for distribution.
+This project includes Firebase release tooling including a zip builder, a
+Firebase Pod release updater, and a manifest reader.
 
-## Overview
+The tools are designed to fail fast with an explanation of what went wrong, so
+you can fix issues or dig in without having to dig too deep into the code.
+
+## Zip Builder
 
 This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch
 arguments, it will use the most recent public versions of all SDKs included in the zip file.
 
-It was designed to fail fast with an explanation of what went wrong, so you can fix issues or dig in without having to dig
-too deep into the code.
-
-## Requirements
+### Requirements
 
 In order to build the Zip file, you will need:
 
@@ -18,22 +19,19 @@ In order to build the Zip file, you will need:
 - CocoaPods
 - An internet connection to fetch CocoaPods
 
-## Running the Tool
+### Running the Tool
 
 You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
 
-In the near future, releases will be built via a builder server instead of on the release engineer's machine, making these
-instructions more of a reference to understand what's going on instead of how to build it yourself.
-
-## Launch Arguments
+### Launch Arguments
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
 
 You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit
 Scheme" and adding them in the "Arguments Passed On Launch" section.
 
-### Common Arguments
+#### Common Arguments
 
 These arguments assume you're running the command from the `ZipBuilder` directory.
 
@@ -62,19 +60,41 @@ swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
 -customSpecRepos sso://cpdc-internal/firebase
 ```
 
-## Carthage
+### Carthage
 
 Carthage binaries can also be built at the same time as the zip file by passing in `-carthagePath
 <path_to_json_files>` as a command line argument. This directory should contain JSON files describing versions
 and download locations for each product. This will result in a folder called "carthage" at the root where the zip
 directory exists containing all the zip files and JSON files necessary for distribution.
 
-## Debugging
+## Firebase Pod Updater
+
+Updates the Firebase pod based on the release proto.
+
+Run with the following two required options like:
+
+- -releasingPods /path/to/M57.textproto
+- -gitRoot /path/to/firebase-ios-sdk
+
+### Running the Tool
+
+You can run the tool with `swift run UpdateFirebasePod [ARGS]` or generate an
+Xcode project with `swift package generate-xcodeproj` and run within Xcode.
+
+### Launch Arguments
+
+See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+
+You can pass in launch arguments with Xcode by clicking "UpdateFirebasePod"
+beside the Run/Stop buttons, clicking "Edit
+Scheme" and adding them in the "Arguments Passed On Launch" section.
+
+## Development and Debugging
 
 You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory.
 See the above instructions for adding Launch Arguments to the Xcode build.
 
-## Priorities
+## Development Philosophy
 
 The following section describes the priorities taken while building this tool and should be followed
 for any modifications.

@@ -48,3 +48,7 @@ NSString *const kFIRInstallationsMessageCodeRegistrationErrorFailedToDecode = @"
 // FIRInstallationsStoredRegistrationParameters.m
 NSString *const kFIRInstallationsMessageCodeRegistrationParametersCoderVersionMismatch =
     @"I-FIS006000";
+
+// FIRInstallationsStoredIIDCheckin.m
+NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch = @"I-FIS007000";
+NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode = @"I-FIS007001";

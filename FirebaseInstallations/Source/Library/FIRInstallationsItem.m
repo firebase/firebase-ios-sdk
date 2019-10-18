@@ -48,6 +48,7 @@
   self.authToken = item.authToken;
   self.registrationStatus = item.registrationStatus;
   self.registrationError = item.registrationError;
+  self.IIDCheckin = item.IIDCheckin;
 }
 
 - (FIRInstallationsStoredItem *)storedItem {
@@ -57,6 +58,7 @@
   storedItem.authToken = self.authToken;
   storedItem.registrationStatus = self.registrationStatus;
   storedItem.registrationError = self.registrationError;
+  storedItem.IIDCheckin = self.IIDCheckin;
   return storedItem;
 }
 
