@@ -547,7 +547,8 @@
   id longValue = @1542405709418655810;
   id doubleValue = @0xFFFFFFFFFFFFFFFFUL;  // This number can't be represented as a signed long.
 
-  id<FNode> expectedData = NODE((@{@"int" : intValue, @"long" : longValue, @"double" : doubleValue}));
+  id<FNode> expectedData =
+      NODE((@{@"int" : intValue, @"long" : longValue, @"double" : doubleValue}));
   FLevelDBStorageEngine *engine = [self cleanStorageEngine];
   [engine updateServerCache:expectedData atPath:PATH(@"foo") merge:NO];
   id<FNode> actualData = [engine serverCacheAtPath:PATH(@"foo")];

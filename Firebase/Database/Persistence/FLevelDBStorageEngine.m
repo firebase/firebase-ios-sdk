@@ -896,9 +896,9 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
         // the 'doubleValue' representation (1000).
         // Please note, that even without the NSDecimalNumber issue, the
         // 'correct' longLongValue of 999.9999999999999487 is 999 and not 1000,
-        // so the previous code would cause issues even without the bug referenced
-        // in the radar.
-        NSDecimal original = [(NSDecimalNumber*)value decimalValue];
+        // so the previous code would cause issues even without the bug
+        // referenced in the radar.
+        NSDecimal original = [(NSDecimalNumber *)value decimalValue];
         NSDecimal rounded;
         NSDecimalRound(&rounded, &original, 0, NSRoundPlain);
         if (NSDecimalCompare(&original, &rounded) != NSOrderedSame) {
@@ -908,11 +908,12 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
             return [NSNumber numberWithLongLong:[value longLongValue]];
         }
     } else if ([value isKindOfClass:[NSNumber class]]) {
-        // The parser for double values in JSONSerialization at the root takes some
-        // short-cuts and delivers wrong results (wrong rounding) for some double
-        // values, including 2.47. Because we use the exact bytes for hashing on the
-        // server this will lead to hash mismatches. The parser of NSNumber seems to
-        // be more in line with what the server expects, so we use that here
+        // The parser for double values in JSONSerialization at the root takes
+        // some short-cuts and delivers wrong results (wrong rounding) for some
+        // double values, including 2.47. Because we use the exact bytes for
+        // hashing on the server this will lead to hash mismatches. The parser
+        // of NSNumber seems to be more in line with what the server expects, so
+        // we use that here
         CFNumberType type = CFNumberGetType((CFNumberRef)value);
         if (type == kCFNumberDoubleType || type == kCFNumberFloatType) {
             // The NSJSON parser returns all numbers as double values, even
