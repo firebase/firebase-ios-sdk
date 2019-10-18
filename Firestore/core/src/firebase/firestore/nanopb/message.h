@@ -29,21 +29,6 @@
 
 namespace firebase {
 namespace firestore {
-
-namespace local {
-
-class LocalSerializer;
-
-}  // namespace local
-
-namespace remote {
-
-class DatastoreSerializer;
-class WatchStreamSerializer;
-class WriteStreamSerializer;
-
-}  // namespace remote
-
 namespace nanopb {
 
 /**
@@ -62,37 +47,28 @@ using MaybeMessage = util::StatusOr<Message<T>>;
 /**
  * A unique-ownership RAII wrapper for Nanopb-generated message types.
  *
- * Nanopb-generated message types are plain C structs that contain some
- * dynamically-allocated memory and should be deallocated by calling
- * `pb_release`; `Message` implements a simple RAII wrapper that does just that.
- * For simplicity, `Message` implements unique ownership and is immutable after
- * construction (not counting friend classes). Use `proto()` member function to
- * access the underlying proto.
- *
- * `Message` provides a pointer-like access to the underlying Nanopb-generated
- * message type.
+ * Nanopb-generated message types (from now on, "Nanopb protos") are plain
+ * C structs that contain some dynamically-allocated memory and should be
+ * deallocated by calling `pb_release`; `Message` implements a simple RAII
+ * wrapper that does just that. For simplicity, `Message` implements unique
+ * ownership model. It provides a pointer-like access to the underlying Nanopb
+ * proto. Also, `Message` serves to translate representation formats between
+ * Nanopb and gRPC.
  *
  * Note that moving *isn't* a particularly cheap operation in the general case.
- * Even without doing deep copies, Nanopb-generated messages may contain *a lot*
- * of member variables.
+ * Even without doing deep copies, Nanopb protos contain *a lot* of member
+ * variables (at the time of writing, the largest `sizeof` of a Nanopb proto was
+ * 248).
  */
 template <typename T>
 class Message {
  public:
+  /**
+   * Creates a valid `Message` that wraps a value-constructed ("zeroed out")
+   * Nanopb proto. The created object can then be filled by using the
+   * pointer-like access.
+   */
   Message() = default;
-
-  /*
-  T release() {
-    owns_proto_ = false;
-    return proto_;
-  }
-
-  void reset(T&& proto) {
-    Free();
-    owns_proto_ = true;
-    proto_ = proto;
-  }
-  */
 
   /**
    * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
@@ -110,9 +86,16 @@ class Message {
     Free();
   }
 
+  /** `Message` models unique ownership. */
   Message(const Message&) = delete;
   Message& operator=(const Message&) = delete;
 
+  /**
+   * A moved-from `Message` is in an invalid state that is *not* equivalent to
+   * its default-constructed state. Calling `get()` on a moved-from `Message`
+   * returns a null pointer; attempting to "dereference" a moved-from `Message`
+   * results in undefined behavior.
+   */
   Message(Message&& other) noexcept
       : owns_proto_{other.owns_proto_}, proto_{other.proto_} {
     other.owns_proto_ = false;
@@ -128,18 +111,37 @@ class Message {
     return *this;
   }
 
+  /**
+   * Returns a pointer to the underlying Nanopb proto or null if the `Message`
+   * is moved-from.
+   */
   T* get() {
     return owns_proto_ ? &proto_ : nullptr;
   }
 
+  /**
+   * Returns a pointer to the underlying Nanopb proto or null if the `Message`
+   * is moved-from.
+   */
   const T* get() const {
     return owns_proto_ ? &proto_ : nullptr;
   }
 
+  /**
+   * Returns a reference to the underlying Nanopb proto; if the `Message` is
+   * moved-from, the behavior is undefined.
+   *
+   * For performance reasons, prefer assigning to individual fields to
+   * reassigning the whole Nanopb proto.
+   */
   T& operator*() {
     return *get();
   }
 
+  /**
+   * Returns a reference to the underlying Nanopb proto; if the `Message` is
+   * moved-from, the behavior is undefined.
+   */
   const T& operator*() const {
     return *get();
   }
@@ -153,24 +155,30 @@ class Message {
   }
 
   /**
-   * Serializes this message into a byte buffer.
+   * Serializes this `Message` into a byte buffer.
    *
-   * The lifetime of the return value is entirely independent of this message.
+   * The lifetime of the return value is entirely independent of this `Message`.
    */
   grpc::ByteBuffer ToByteBuffer() const;
 
   /**
-   * Serializes this message into a `ByteString`.
+   * Serializes this `Message` into a `ByteString`.
    *
-   * The lifetime of the return value is entirely independent of this message.
+   * The lifetime of the return value is entirely independent of this `Message`.
    */
   ByteString ToByteString() const;
 
  private:
+  // Returns a pointer to the Nanopb-generated array that describes the fields
+  // of the Nanopb proto; the array is required to call most Nanopb functions.
+  //
+  // Note that this is essentially a property of the type, but cannot be made
+  // a template parameter for various technical reasons.
   static const pb_field_t* fields() {
     return GetNanopbFields<T>();
   }
 
+  // Important: this function does *not* modify `owns_proto_`.
   void Free() {
     if (owns_proto_) {
       FreeNanopbMessage(fields(), &proto_);
@@ -178,6 +186,8 @@ class Message {
   }
 
   bool owns_proto_ = true;
+  // The Nanopb-proto is value-initialized (zeroed out) to make sure that any
+  // member variables that aren't written to are in a valid state.
   T proto_{};
 };
 
