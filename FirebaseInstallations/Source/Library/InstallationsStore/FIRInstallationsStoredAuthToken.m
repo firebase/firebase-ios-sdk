@@ -27,15 +27,12 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
 
 @implementation FIRInstallationsStoredAuthToken
 
-- (NSInteger)storageVersion {
-  return kFIRInstallationsStoredAuthTokenStorageVersion;
-}
-
 - (nonnull id)copyWithZone:(nullable NSZone *)zone {
   FIRInstallationsStoredAuthToken *clone = [[FIRInstallationsStoredAuthToken alloc] init];
   clone.status = self.status;
   clone.token = [self.token copy];
   clone.expirationDate = self.expirationDate;
+  clone.storageVersion = self.storageVersion;
   return clone;
 }
 
@@ -44,7 +41,7 @@ NSInteger const kFIRInstallationsStoredAuthTokenStorageVersion = 1;
   [aCoder encodeObject:self.token forKey:kFIRInstallationsStoredAuthTokenTokenKey];
   [aCoder encodeObject:self.expirationDate
                 forKey:kFIRInstallationsStoredAuthTokenExpirationDateKey];
-  [aCoder encodeInteger:self.storageVersion
+  [aCoder encodeInteger:kFIRInstallationsStoredAuthTokenStorageVersion
                  forKey:kFIRInstallationsStoredAuthTokenStorageVersionKey];
 }
 

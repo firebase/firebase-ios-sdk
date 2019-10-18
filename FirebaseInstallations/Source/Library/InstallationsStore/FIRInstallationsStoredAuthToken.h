@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 @property(nullable, copy) NSDate *expirationDate;
 
 /// The version of local storage.
-@property(nonatomic, readonly) NSInteger storageVersion;
+@property(nonatomic) NSInteger storageVersion;
 
 @end
 
