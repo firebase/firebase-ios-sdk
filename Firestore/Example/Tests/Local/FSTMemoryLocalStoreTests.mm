@@ -16,13 +16,13 @@
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
 using firebase::firestore::local::Persistence;
 
 /**
@@ -36,7 +36,7 @@ using firebase::firestore::local::Persistence;
 @implementation FSTMemoryLocalStoreTests
 
 - (std::unique_ptr<Persistence>)persistence {
-  return [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
 - (BOOL)gcIsEager {

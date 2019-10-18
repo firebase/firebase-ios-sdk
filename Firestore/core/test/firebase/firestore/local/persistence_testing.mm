@@ -96,7 +96,7 @@ std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting() {
   return MemoryPersistenceWithLruGcForTesting(LruParams::Default());
 }
 
-std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruForTesting(
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
     LruParams lru_params) {
   FSTLocalSerializer* serializer = MakeLocalSerializer();
   auto sizer = absl::make_unique<ProtoSizer>(serializer);
