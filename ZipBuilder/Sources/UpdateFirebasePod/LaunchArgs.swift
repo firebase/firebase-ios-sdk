@@ -36,15 +36,12 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
-    case existingVersions
     case gitRoot
     case releasingPods
 
     /// Usage description for the key.
     var usage: String {
       switch self {
-      case .existingVersions:
-        return "The file path to a textproto file containing the existing released Pod versions."
       case .gitRoot:
         return "The root of the firebase-ios-sdk checked out git repo."
       case .releasingPods:
