@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -70,11 +71,13 @@ class WatchStreamSerializer {
   nanopb::Message<google_firestore_v1_ListenRequest> EncodeUnwatchRequest(
       model::TargetId target_id) const;
 
-  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> DecodeResponse(
+  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> ParseResponse(
       const grpc::ByteBuffer& buffer) const;
-  util::StatusOr<std::unique_ptr<WatchChange>> ToWatchChange(
+  std::unique_ptr<WatchChange> DecodeWatchChange(
+      nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& response) const;
-  util::StatusOr<model::SnapshotVersion> ToSnapshotVersion(
+  model::SnapshotVersion DecodeSnapshotVersion(
+      nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& response) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -100,11 +103,13 @@ class WriteStreamSerializer {
     return EncodeWriteMutationsRequest({}, last_stream_token);
   }
 
-  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> DecodeResponse(
+  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> ParseResponse(
       const grpc::ByteBuffer& buffer) const;
-  util::StatusOr<model::SnapshotVersion> ToCommitVersion(
+  model::SnapshotVersion DecodeCommitVersion(
+      nanopb::Reader* reader,
       const google_firestore_v1_WriteResponse& proto) const;
-  util::StatusOr<std::vector<model::MutationResult>> ToMutationResults(
+  std::vector<model::MutationResult> DecodeMutationResults(
+      nanopb::Reader* reader,
       const google_firestore_v1_WriteResponse& proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */

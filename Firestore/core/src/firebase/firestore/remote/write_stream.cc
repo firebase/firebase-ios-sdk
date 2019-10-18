@@ -19,6 +19,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -116,7 +117,7 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
-      write_serializer_.DecodeResponse(message);
+      write_serializer_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
@@ -139,17 +140,14 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    auto maybe_version = write_serializer_.ToCommitVersion(*response);
-    if (!maybe_version.ok()) {
-      return maybe_version.status();
-    }
-    auto maybe_results = write_serializer_.ToMutationResults(*response);
-    if (!maybe_results.ok()) {
-      return maybe_results.status();
+    nanopb::Reader reader;
+    auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
+    auto results = write_serializer_.DecodeMutationResults(&reader, *response);
+    if (!reader.ok()) {
+      return reader.status();
     }
 
-    callback_->OnWriteStreamMutationResult(maybe_version.ValueOrDie(),
-                                           maybe_results.ValueOrDie());
+    callback_->OnWriteStreamMutationResult(version, results);
   }
 
   return Status::OK();

@@ -55,6 +55,7 @@ using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::Message;
 using nanopb::Reader;
+using nanopb::SafeReadBoolean;
 using nanopb::Writer;
 using remote::InvalidQuery;
 using remote::MakeArray;
@@ -71,7 +72,7 @@ Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
     case MaybeDocument::Type::Document: {
       result->which_document_type = firestore_client_MaybeDocument_document_tag;
       Document doc(maybe_doc);
-      // TODO(wuandy): Check of `doc` already has a proto and use that if yes.
+      // TODO(wuandy): Check if `doc` already has a proto and use that if yes.
       result->document = EncodeDocument(doc);
       result->has_committed_mutations = doc.has_committed_mutations();
       return result;
@@ -109,11 +110,11 @@ MaybeDocument LocalSerializer::DecodeMaybeDocument(
   switch (proto.which_document_type) {
     case firestore_client_MaybeDocument_document_tag:
       return DecodeDocument(reader, proto.document,
-                            proto.has_committed_mutations);
+                            SafeReadBoolean(proto.has_committed_mutations));
 
     case firestore_client_MaybeDocument_no_document_tag:
       return DecodeNoDocument(reader, proto.no_document,
-                              proto.has_committed_mutations);
+                              SafeReadBoolean(proto.has_committed_mutations));
 
     case firestore_client_MaybeDocument_unknown_document_tag:
       return DecodeUnknownDocument(reader, proto.unknown_document);

@@ -178,7 +178,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   NSData *successResponseData =
       [self loadFixtureNamed:@"APIRegisterInstallationResponseSuccess.json"];
   taskCompletion(successResponseData,
-                 [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
 
   // 6.1. Expect network request to send again.
   id mockDataTask2 = OCMClassMock([NSURLSessionDataTask class]);
@@ -192,7 +192,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 6.3. Send network response again.
   taskCompletion(successResponseData,
-                 [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
 
   // 7. Check result.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -202,7 +202,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   XCTAssertTrue([promise.error isKindOfClass:[FIRInstallationsHTTPError class]]);
   FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)promise.error;
-  XCTAssertEqual(HTTPError.HTTPResponse.statusCode, kFIRInstallationsAPIInternalErrorHTTPCode);
+  XCTAssertEqual(HTTPError.HTTPResponse.statusCode, FIRInstallationsHTTPCodesServerInternalError);
 }
 
 - (void)testRefreshAuthTokenSuccess {
@@ -353,7 +353,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 5. Call the data task completion.
   taskCompletion(errorResponseData,
-                 [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
 
   // 6. Retry:
 
@@ -368,13 +368,14 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 6.2. Send the API response again.
   taskCompletion(errorResponseData,
-                 [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
 
   // 6. Check result.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
-  XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error
-                                         withHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode]);
+  XCTAssertTrue([FIRInstallationsErrorUtil
+        isAPIError:promise.error
+      withHTTPCode:FIRInstallationsHTTPCodesServerInternalError]);
   XCTAssertNil(promise.value);
 }
 
@@ -549,7 +550,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
   // 5. Call the data task completion.
   // HTTP 200 but no data (a potential server failure).
-  taskCompletion(nil, [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+  taskCompletion(nil, [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError],
+                 nil);
 
   // 6. Retry:
   // 6.1. Wait for the API request to be sent again.
@@ -562,13 +564,15 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   OCMVerifyAllWithDelay(mockDataTask1, 1.5);
 
   // 6.1. Send another response.
-  taskCompletion(nil, [self responseWithStatusCode:kFIRInstallationsAPIInternalErrorHTTPCode], nil);
+  taskCompletion(nil, [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError],
+                 nil);
 
   // 7. Check result.
   FBLWaitForPromisesWithTimeout(0.5);
 
-  XCTAssertTrue([FIRInstallationsErrorUtil isAPIError:promise.error
-                                         withHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode]);
+  XCTAssertTrue([FIRInstallationsErrorUtil
+        isAPIError:promise.error
+      withHTTPCode:FIRInstallationsHTTPCodesServerInternalError]);
   XCTAssertNil(promise.value);
 }
 

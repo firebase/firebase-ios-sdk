@@ -470,13 +470,13 @@ LevelDbMutationQueue::MetadataForKey(const std::string& key) {
     return ConvertStatus(status);
   }
 
-  return Message<firestore_client_MutationQueue>::TryDecode(ByteString{value});
+  return Message<firestore_client_MutationQueue>::TryParse(ByteString{value});
 }
 
 MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
   auto maybe_message =
-      Message<firestore_client_WriteBatch>::TryDecode(ByteString{encoded});
+      Message<firestore_client_WriteBatch>::TryParse(ByteString{encoded});
   if (!maybe_message.ok()) {
     HARD_FAIL("MutationBatch proto failed to parse: %s",
               maybe_message.status().ToString());

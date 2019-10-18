@@ -332,24 +332,26 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
     return try require(value: value)
   }
 
-  public func decode<T: Decodable>(_: T.Type, forKey key: Key) throws -> T {
-    if T.self == SelfDocumentID.self {
-      let docRef = decoder.userInfo[
-        Firestore.Decoder.documentRefUserInfoKey!
-      ] as! DocumentReference?
+  public func decode<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+    #if compiler(>=5.1)
+      if let type = type as? DocumentIDProtocol.Type {
+        let docRef = decoder.userInfo[
+          Firestore.Decoder.documentRefUserInfoKey!
+        ] as! DocumentReference?
 
-      if contains(key) {
-        let docPath = (docRef != nil) ? docRef!.path : "nil"
-        var codingPathCopy = codingPath.map { key in key.stringValue }
-        codingPathCopy.append(key.stringValue)
+        if contains(key) {
+          let docPath = (docRef != nil) ? docRef!.path : "nil"
+          var codingPathCopy = codingPath.map { key in key.stringValue }
+          codingPathCopy.append(key.stringValue)
 
-        throw FirestoreDecodingError.fieldNameConfict("Field name " +
-          "\(codingPathCopy) was found from document \"\(docPath)\", " +
-          "cannot assign the document reference to this field.")
+          throw FirestoreDecodingError.fieldNameConfict("Field name " +
+            "\(codingPathCopy) was found from document \"\(docPath)\", " +
+            "cannot assign the document reference to this field.")
+        }
+
+        return try type.init(from: docRef) as! T
       }
-
-      return SelfDocumentID(from: docRef) as! T
-    }
+    #endif // compiler(>=5.1)
 
     let entry = try require(key: key)
 

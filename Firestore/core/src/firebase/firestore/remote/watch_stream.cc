@@ -19,6 +19,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -83,7 +84,7 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  auto maybe_response = watch_serializer_.DecodeResponse(message);
+  auto maybe_response = watch_serializer_.ParseResponse(message);
   if (!maybe_response.ok()) {
     return maybe_response.status();
   }
@@ -96,17 +97,14 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  auto maybe_watch_change = watch_serializer_.ToWatchChange(*response);
-  if (!maybe_watch_change.ok()) {
-    return maybe_watch_change.status();
-  }
-  auto maybe_version = watch_serializer_.ToSnapshotVersion(*response);
-  if (!maybe_version.ok()) {
-    return maybe_version.status();
+  nanopb::Reader reader;
+  auto watch_change = watch_serializer_.DecodeWatchChange(&reader, *response);
+  auto version = watch_serializer_.DecodeSnapshotVersion(&reader, *response);
+  if (!reader.ok()) {
+    return reader.status();
   }
 
-  callback_->OnWatchStreamChange(*maybe_watch_change.ValueOrDie(),
-                                 maybe_version.ValueOrDie());
+  callback_->OnWatchStreamChange(*watch_change, version);
 
   return Status::OK();
 }

@@ -553,6 +553,89 @@
   }
 }
 
+- (void)testGetAuthToken_WhenAPIResponse401_ThenFISResetAndReregistered {
+  NSTimeInterval timeout = 0.5;
+
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  [self expectInstallationStoreToBeRequestedAndReturnInstallation:storedInstallation];
+
+  // 1.2. Expect API request.
+  FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
+      .andReturn(rejectedAPIPromise);
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
+
+  // 3. Wait for refresh token request.
+  OCMVerifyAllWithDelay(self.mockAPIService, timeout);
+
+  // 4.1. Expect Installation to be requested before deletion.
+  [self expectInstallationStoreToBeRequestedAndReturnInstallation:storedInstallation];
+  // 4. Expect for FIS to be deleted locally.
+  NSArray<XCTestExpectation *> *deleteExpectations =
+      [self expectInstallationToBeDeletedLocally:storedInstallation];
+
+  // 6. Expect a new installation to be created and registered.
+  // 6.1. Expect to request FIS from storage.
+  [self expectInstallationsStoreGetInstallationNotFound];
+  // 6.2. Expect stored IID not found.
+  [self expectStoredIIDNotFound];
+  // 6.3. Expect new Installation to be stored.
+  __block FIRInstallationsItem *createdInstallation;
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
+
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 6.4. Expect registration API request to be sent.
+  FBLPromise<FIRInstallationsItem *> *registerPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]]).andReturn(registerPromise);
+
+  // 6.5. Reject API request promise with 401.
+  NSError *error401 = [FIRInstallationsErrorUtil APIErrorWithHTTPCode:404];
+  [rejectedAPIPromise reject:error401];
+  // 6.6. Wait local FIS to be deleted.
+  [self waitForExpectations:deleteExpectations timeout:timeout];
+
+  // 6.7 Wait for the new Installation to be stored.
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, timeout);
+  // 6.8. Wait for registration API request to be sent.
+  OCMVerifyAllWithDelay(self.mockAPIService, timeout);
+  // 6.9.  Expect for the registered installation to be saved.
+  FIRInstallationsItem *registeredInstallation = [FIRInstallationsItem
+      createRegisteredInstallationItemWithAppID:createdInstallation.appID
+                                        appName:createdInstallation.firebaseAppName];
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  XCTAssertEqual(registeredInstallation, obj);
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  // 6.9. Fulfill the registration API request promise.
+  [registerPromise fulfill:registeredInstallation];
+
+  // 7. Wait for promises.
+  XCTAssert(FBLWaitForPromisesWithTimeout(timeout));
+
+  // 8. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertNotEqualObjects(promise.value.firebaseInstallationID,
+                           storedInstallation.firebaseInstallationID);
+  XCTAssertEqualObjects(promise.value, registeredInstallation);
+}
+
 #pragma mark - FID Deletion
 
 - (void)testDeleteRegisteredInstallation {
@@ -642,7 +725,7 @@
   // 2. Expect API request to delete installation.
   FBLPromise *rejectedAPIPromise = [FBLPromise pendingPromise];
   NSError *error500 =
-      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:kFIRInstallationsAPIInternalErrorHTTPCode];
+      [FIRInstallationsErrorUtil APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
   [rejectedAPIPromise reject:error500];
   OCMExpect([self.mockAPIService deleteInstallation:installation]).andReturn(rejectedAPIPromise);
 
@@ -812,6 +895,24 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
   OCMVerifyAll(self.mockIIDStore);
+}
+
+- (NSArray<XCTestExpectation *> *)expectInstallationToBeDeletedLocally:
+    (FIRInstallationsItem *)installation {
+  // 3.1. Expect the installation to be removed from the storage.
+  OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
+                                                            appName:installation.firebaseAppName])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3.2. Expect IID to be deleted, because it is default app.
+  OCMExpect([self.mockIIDStore deleteExistingIID])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Expect FIRInstallationIDDidChangeNotification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self installationIDDidChangeNotificationExpectation];
+
+  return @[ notificationExpectation ];
 }
 
 // TODO: Test a single delete installation request at a time.
@@ -1087,6 +1188,12 @@
       .andReturn(installationNotFoundPromise);
 }
 
+- (void)expectStoredIIDNotFound {
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
+  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+}
+
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {
   XCTAssertEqualObjects([installation class], [FIRInstallationsItem class]);
   XCTAssertEqualObjects(installation.appID, self.appID);
@@ -1136,6 +1243,12 @@
   NSString *projectID = [@"another" stringByAppendingString:self.projectID];
   return [[FIRInstallationsStoredRegistrationParameters alloc] initWithAPIKey:APIKey
                                                                     projectID:projectID];
+}
+
+- (void)expectInstallationStoreToBeRequestedAndReturnInstallation:
+    (FIRInstallationsItem *)storedInstallation {
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
 }
 
 @end

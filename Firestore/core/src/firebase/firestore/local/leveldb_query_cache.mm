@@ -58,7 +58,7 @@ MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
     return ConvertStatus(status);
   }
 
-  return Message<firestore_client_TargetGlobal>::TryDecode(ByteString{value});
+  return Message<firestore_client_TargetGlobal>::TryParse(ByteString{value});
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
@@ -374,7 +374,7 @@ void LevelDbQueryCache::SaveMetadata() {
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
   auto maybe_message =
-      Message<firestore_client_Target>::TryDecode(ByteString{encoded});
+      Message<firestore_client_Target>::TryParse(ByteString{encoded});
   if (!maybe_message.ok()) {
     HARD_FAIL("Target proto failed to parse: %s",
               maybe_message.status().ToString());

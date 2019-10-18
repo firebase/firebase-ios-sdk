@@ -98,13 +98,13 @@ class Message {
    * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
    * given bytes are ill-formed, returns a failed `Status`.
    */
-  static MaybeMessage<T> TryDecode(const grpc::ByteBuffer& byte_buffer);
+  static MaybeMessage<T> TryParse(const grpc::ByteBuffer& byte_buffer);
 
   /**
    * Attempts to parse a Nanopb message from the given `bytes`. If the
    * given bytes are ill-formed, returns a failed `Status`.
    */
-  static MaybeMessage<T> TryDecode(const ByteString& bytes);
+  static MaybeMessage<T> TryParse(const ByteString& bytes);
 
   ~Message() {
     Free();
@@ -188,17 +188,17 @@ util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 }  // namespace internal
 
 template <typename T>
-MaybeMessage<T> Message<T>::TryDecode(const grpc::ByteBuffer& byte_buffer) {
+MaybeMessage<T> Message<T>::TryParse(const grpc::ByteBuffer& byte_buffer) {
   auto maybe_bytes = internal::ToByteString(byte_buffer);
   if (!maybe_bytes.ok()) {
     return maybe_bytes.status();
   }
 
-  return TryDecode(maybe_bytes.ValueOrDie());
+  return TryParse(maybe_bytes.ValueOrDie());
 }
 
 template <typename T>
-MaybeMessage<T> Message<T>::TryDecode(const ByteString& bytes) {
+MaybeMessage<T> Message<T>::TryParse(const ByteString& bytes) {
   Message message;
   nanopb::Reader reader{bytes};
   reader.ReadNanopbMessage(message.fields(), message.get());

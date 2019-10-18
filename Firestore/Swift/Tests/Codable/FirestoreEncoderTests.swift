@@ -490,9 +490,12 @@ class FirestoreEncoderTests: XCTestCase {
 
       // Encoding a resolved server timestamp yields a timestamp; decoding
       // yields it back.
-      let timetamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 123_000_000)
-      assertThat(Model(timestamp: "2019-10-07T21:33:51.123+0000"))
-        .roundTrips(to: ["timestamp": timetamp])
+      let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 122_999_906)
+      assertThat(Model(timestamp: "2019-10-07T21:33:51.123Z"))
+        .roundTrips(to: ["timestamp": timestamp])
+
+      assertThat(Model(timestamp: "Invalid date"))
+        .failsToEncode()
     }
   #endif // swift(>=5.1)
 
@@ -544,55 +547,61 @@ class FirestoreEncoderTests: XCTestCase {
       .roundTrips(to: ["name": "good name"])
   }
 
-  func testAutomaticallyPopulatesSelfDocumentIDField() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(["name": "abc"], in: "abc/123")
-      .decodes(to: Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-  }
-
-  func testSelfDocumentIDIgnoredInEncoding() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
-    }
-    assertThat(Model(name: "abc", docId: SelfDocumentID(from: FSTTestDocRef("abc/123"))))
-      .encodes(to: ["name": "abc"])
-  }
-
-  func testEncodingSelfDocumentIDNotEmbeddedThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingAtTopLevel()
-  }
-
-  func testSelfDocumentIDWithJsonEncoderThrows() {
-    assertThat(SelfDocumentID(from: FSTTestDocRef("abc/xyz")))
-      .failsEncodingWithJSONEncoder()
-  }
-
-  func testDecodingSelfDocumentIDWithConfictingFieldsThrows() throws {
-    struct Model: Codable, Equatable {
-      var name: String
-      var docId: SelfDocumentID
+  #if swift(>=5.1)
+    func testAutomaticallyPopulatesDocumentIDOnDocumentReference() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference?
+      }
+      assertThat(["name": "abc"], in: "abc/123")
+        .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
     }
 
-    do {
-      _ = try Firestore.Decoder().decode(
-        Model.self,
-        from: ["name": "abc", "docId": "Causing conflict"],
-        in: FSTTestDocRef("abc/123")
-      )
-      XCTFail("Failed to throw")
-    } catch let FirestoreDecodingError.fieldNameConfict(msg) {
-      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
-        + "cannot assign the document reference to this field.")
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)")
+    func testAutomaticallyPopulatesDocumentIDOnString() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: String?
+      }
+      assertThat(["name": "abc"], in: "abc/123")
+        .decodes(to: Model(name: "abc", docId: "123"))
     }
-  }
+
+    func testDocumentIDIgnoredInEncoding() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference?
+      }
+      assertThat(Model(name: "abc", docId: FSTTestDocRef("abc/123")))
+        .encodes(to: ["name": "abc"])
+    }
+
+    func testDocumentIDWithJsonEncoderThrows() {
+      assertThat(DocumentID(wrappedValue: FSTTestDocRef("abc/xyz")))
+        .failsEncodingWithJSONEncoder()
+    }
+
+    func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: DocumentReference?
+      }
+
+      do {
+        _ = try Firestore.Decoder().decode(
+          Model.self,
+          from: ["name": "abc", "docId": "Causing conflict"],
+          in: FSTTestDocRef("abc/123")
+        )
+        XCTFail("Failed to throw")
+      } catch let FirestoreDecodingError.fieldNameConfict(msg) {
+        XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
+          + "cannot assign the document reference to this field.")
+        return
+      } catch {
+        XCTFail("Unrecognized error: \(error)")
+      }
+    }
+  #endif // swift(>=5.1)
 }
 
 private func assertThat(_ dictionary: [String: Any], in document: String? = nil, file: StaticString = #file, line: UInt = #line) -> DictionarySubject {
@@ -704,13 +713,17 @@ private class DictionarySubject {
 }
 
 #if swift(>=5.1)
+  enum DateError: Error {
+    case invalidDate(String)
+  }
+
   // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
-  // server timetamps will be stored in an ISO 8601 date format.
+  // server timestamps will be stored in an ISO 8601 date format.
   //
   // This example exists outside the main implementation to show that users can
-  // extend @ServerTimetamp with arbitrary types.
+  // extend @ServerTimestamp with arbitrary types.
   extension String: ServerTimestampWrappable {
-    static let formatter = {
+    static let formatter: DateFormatter = {
       let formatter = DateFormatter()
       formatter.calendar = Calendar(identifier: .iso8601)
       formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -719,12 +732,17 @@ private class DictionarySubject {
       return formatter
     }()
 
-    init(from timestamp: Timestamp) {
-      self = formatter.string(from: timestamp.dateValue())
+    public static func wrap(_ timestamp: Timestamp) throws -> Self {
+      return formatter.string(from: timestamp.dateValue())
     }
 
-    func timestampValue() -> Timestamp {
-      return Timestamp(date: formatter.date(from: self))
+    public static func unwrap(_ value: Self) throws -> Timestamp {
+      let date = formatter.date(from: value)
+      if let date = date {
+        return Timestamp(date: date)
+      } else {
+        throw DateError.invalidDate(value)
+      }
     }
   }
 #endif // swift(>=5.1)
