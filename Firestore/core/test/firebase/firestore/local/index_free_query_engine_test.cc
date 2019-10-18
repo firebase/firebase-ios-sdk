@@ -38,26 +38,25 @@ namespace local {
 
 namespace {
 
-using firebase::firestore::auth::User;
-using firebase::firestore::core::View;
-using firebase::firestore::core::ViewDocumentChanges;
-using firebase::firestore::local::IndexFreeQueryEngine;
-using firebase::firestore::local::LocalDocumentsView;
-using firebase::firestore::local::MemoryIndexManager;
-using firebase::firestore::local::Persistence;
-using firebase::firestore::local::QueryCache;
-using firebase::firestore::local::QueryEngine;
-using firebase::firestore::local::RemoteDocumentCache;
-using firebase::firestore::model::BatchId;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
-
+using auth::User;
+using core::View;
+using core::ViewDocumentChanges;
+using local::IndexFreeQueryEngine;
+using local::LocalDocumentsView;
+using local::MemoryIndexManager;
+using local::Persistence;
+using local::QueryCache;
+using local::QueryEngine;
+using local::RemoteDocumentCache;
+using model::BatchId;
+using model::Document;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::DocumentMap;
+using model::DocumentSet;
+using model::DocumentState;
+using model::SnapshotVersion;
+using model::TargetId;
 using testutil::Doc;
 using testutil::DocSet;
 using testutil::Filter;
@@ -97,7 +96,7 @@ class TestLocalDocumentsView : public LocalDocumentsView {
  public:
   using LocalDocumentsView::LocalDocumentsView;
 
-  model::DocumentMap GetDocumentsMatchingQuery(
+  DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const SnapshotVersion& since_read_time) override {
     bool is_index_free = since_read_time != SnapshotVersion::None();
@@ -123,8 +122,7 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
         remote_document_cache_(persistence_->remote_document_cache()),
         query_cache_(persistence_->query_cache()),
-        index_manager_(
-            absl::make_unique<MemoryIndexManager>(MemoryIndexManager())),
+        index_manager_(absl::make_unique<MemoryIndexManager>()),
         local_documents_view_(
             remote_document_cache_,
             persistence_->GetMutationQueueForUser(User::Unauthenticated()),
