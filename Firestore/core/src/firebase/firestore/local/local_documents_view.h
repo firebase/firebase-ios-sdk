@@ -80,6 +80,7 @@ class LocalDocumentsView {
    * @param since_read_time If not set to SnapshotVersion::None(), return only
    *     documents that have been read since this snapshot version (exclusive).
    */
+  // Virtual for testing.
   virtual model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query, const model::SnapshotVersion& since_read_time);
 

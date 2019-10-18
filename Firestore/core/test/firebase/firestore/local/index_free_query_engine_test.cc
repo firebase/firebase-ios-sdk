@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
 
+#include <functional>
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/view.h"
 #include "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
@@ -28,6 +31,12 @@
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
+
+namespace firebase {
+namespace firestore {
+namespace local {
+
+namespace {
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::View;
@@ -49,61 +58,53 @@ using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
-namespace firebase {
-namespace firestore {
-namespace local {
-
-using core::Query;
-
 using testutil::Doc;
 using testutil::DocSet;
 using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
 using testutil::OrderBy;
-using testutil::Resource;
+using testutil::Query;
 using testutil::Version;
 
-namespace {
+const int kTestTargetId = 1;
 
-int TEST_TARGET_ID = 1;
-
-Document MATCHING_DOC_A = Doc("coll/a", 1, Map("matches", true, "order", 1));
-Document NON_MATCHING_DOC_A =
+const Document kMatchingDocA =
+    Doc("coll/a", 1, Map("matches", true, "order", 1));
+const Document kNonMatchingDocA =
     Doc("coll/a", 1, Map("matches", false, "order", 1));
-Document PENDING_MATCHING_DOC_A = Doc("coll/a",
-                                      1,
-                                      Map("matches", true, "order", 1),
-                                      DocumentState::kLocalMutations);
-Document PENDING_NON_MATCHING_DOC_A = Doc("coll/a",
+const Document pPendingMatchingDocA = Doc("coll/a",
                                           1,
-                                          Map("matches", false, "order", 1),
+                                          Map("matches", true, "order", 1),
                                           DocumentState::kLocalMutations);
-Document UPDATED_DOC_A = Doc("coll/a", 11, Map("matches", true, "order", 1));
-Document MATCHING_DOC_B = Doc("coll/b", 1, Map("matches", true, "order", 2));
-Document UPDATED_MATCHING_DOC_B =
+const Document kPendingNonMatchingDocA = Doc("coll/a",
+                                             1,
+                                             Map("matches", false, "order", 1),
+                                             DocumentState::kLocalMutations);
+const Document kUpdatedDocA =
+    Doc("coll/a", 11, Map("matches", true, "order", 1));
+const Document kMatchingDocB =
+    Doc("coll/b", 1, Map("matches", true, "order", 2));
+const Document kUpdatedMatchingDocB =
     Doc("coll/b", 11, Map("matches", true, "order", 2));
 
-SnapshotVersion LAST_LIMBO_FREE_SNAPSHOT = Version(10);
-SnapshotVersion MISSING_LAST_LIMBO_FREE_SNAPSHOT = SnapshotVersion::None();
+const SnapshotVersion kLastLimboFreeSnapshot = Version(10);
+const SnapshotVersion kMissingLastLimboFreeSnapshot = SnapshotVersion::None();
 
 }  // namespace
 
 class TestLocalDocumentsView : public LocalDocumentsView {
  public:
-  TestLocalDocumentsView(RemoteDocumentCache* remote_document_cache,
-                         MutationQueue* mutation_queue,
-                         IndexManager* index_manager)
-      : LocalDocumentsView(
-            remote_document_cache, mutation_queue, index_manager) {
-  }
+  using LocalDocumentsView::LocalDocumentsView;
 
   model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
-      const model::SnapshotVersion& since_read_time) override {
+      const SnapshotVersion& since_read_time) override {
+    bool is_index_free = since_read_time != SnapshotVersion::None();
+
     EXPECT_TRUE(expect_index_free_execution.has_value());
-    EXPECT_EQ(*expect_index_free_execution,
-              since_read_time != SnapshotVersion::None());
+    EXPECT_EQ(expect_index_free_execution.value(), is_index_free);
+
     return LocalDocumentsView::GetDocumentsMatchingQuery(query,
                                                          since_read_time);
   }
@@ -122,7 +123,8 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
         remote_document_cache_(persistence_->remote_document_cache()),
         query_cache_(persistence_->query_cache()),
-        index_manager_(new MemoryIndexManager()),
+        index_manager_(
+            absl::make_unique<MemoryIndexManager>(MemoryIndexManager())),
         local_documents_view_(
             remote_document_cache_,
             persistence_->GetMutationQueueForUser(User::Unauthenticated()),
@@ -132,18 +134,18 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
 
   /** Adds the provided documents to the query target mapping. */
   void PersistQueryMapping(const std::vector<DocumentKey>& keys) {
-    persistence_->Run("PersistQueryMapping", [this, &keys]() {
+    persistence_->Run("PersistQueryMapping", [&] {
       DocumentKeySet remote_keys;
       for (const DocumentKey& key : keys) {
         remote_keys = remote_keys.insert(key);
       }
-      query_cache_->AddMatchingKeys(remote_keys, TEST_TARGET_ID);
+      query_cache_->AddMatchingKeys(remote_keys, kTestTargetId);
     });
   }
 
   /** Adds the provided documents to the remote document cache. */
   void AddDocuments(const std::vector<Document>& docs) {
-    persistence_->Run("AddDocuments", [this, &docs]() {
+    persistence_->Run("AddDocuments", [&] {
       for (const Document& doc : docs) {
         remote_document_cache_->Add(doc, doc.version());
       }
@@ -162,155 +164,148 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
   }
 
   DocumentSet RunQuery(
-      const Query& query,
+      const core::Query& query,
       const SnapshotVersion& last_limbo_free_snapshot_version) {
-    const DocumentKeySet& remote_keys =
-        query_cache_->GetMatchingKeys(TEST_TARGET_ID);
+    DocumentKeySet remote_keys = query_cache_->GetMatchingKeys(kTestTargetId);
     DocumentMap docs = query_engine_.GetDocumentsMatchingQuery(
         query, last_limbo_free_snapshot_version, remote_keys);
     View view(query, DocumentKeySet());
-    ViewDocumentChanges viewDocChanges =
+    ViewDocumentChanges view_doc_changes =
         view.ComputeDocumentChanges(docs.underlying_map(), {});
-    return view.ApplyChanges(viewDocChanges).snapshot()->documents();
+    return view.ApplyChanges(view_doc_changes).snapshot()->documents();
   }
 
  private:
   std::unique_ptr<Persistence> persistence_;
-  RemoteDocumentCache* remote_document_cache_;
-  QueryCache* query_cache_;
+  RemoteDocumentCache* remote_document_cache_ = nullptr;
+  QueryCache* query_cache_ = nullptr;
   std::unique_ptr<MemoryIndexManager> index_manager_;
   IndexFreeQueryEngine query_engine_;
   TestLocalDocumentsView local_documents_view_;
 };
 
 TEST_F(IndexFreeQueryEngineTest, UsesTargetMappingForInitialView) {
-  Query query =
-      Query(Resource("coll")).AddingFilter(Filter("matches", "==", true));
+  core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  AddDocuments({MATCHING_DOC_A, MATCHING_DOC_B});
-  PersistQueryMapping({MATCHING_DOC_A.key(), MATCHING_DOC_B.key()});
+  AddDocuments({kMatchingDocA, kMatchingDocB});
+  PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
-  const DocumentSet& docs = ExpectIndexFreeQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_A, MATCHING_DOC_B}));
+  DocumentSet docs = ExpectIndexFreeQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocA, kMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest, FiltersNonMatchingInitialResults) {
-  Query query =
-      Query(Resource("coll")).AddingFilter(Filter("matches", "==", true));
+  core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  AddDocuments({MATCHING_DOC_A, MATCHING_DOC_B});
-  PersistQueryMapping({MATCHING_DOC_A.key(), MATCHING_DOC_B.key()});
+  AddDocuments({kMatchingDocA, kMatchingDocB});
+  PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
   // Add a mutated document that is not yet part of query's set of remote keys.
-  AddDocuments({PENDING_NON_MATCHING_DOC_A});
+  AddDocuments({kPendingNonMatchingDocA});
 
-  const DocumentSet& docs = ExpectIndexFreeQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_B}));
+  DocumentSet docs = ExpectIndexFreeQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest, IncludesChangesSinceInitialResults) {
-  Query query =
-      Query(Resource("coll")).AddingFilter(Filter("matches", "==", true));
+  core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  AddDocuments({MATCHING_DOC_A, MATCHING_DOC_B});
-  PersistQueryMapping({MATCHING_DOC_A.key(), MATCHING_DOC_B.key()});
+  AddDocuments({kMatchingDocA, kMatchingDocB});
+  PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
   DocumentSet docs = ExpectIndexFreeQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_A, MATCHING_DOC_B}));
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocA, kMatchingDocB}));
 
-  AddDocuments({UPDATED_MATCHING_DOC_B});
+  AddDocuments({kUpdatedMatchingDocB});
 
   docs = ExpectIndexFreeQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(),
-                         {MATCHING_DOC_A, UPDATED_MATCHING_DOC_B}));
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs,
+            DocSet(query.Comparator(), {kMatchingDocA, kUpdatedMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsWithoutLimboFreeSnapshotVersion) {
-  Query query =
-      Query(Resource("coll")).AddingFilter(Filter("matches", "==", true));
+  core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  const DocumentSet& docs = ExpectFullCollectionQuery([&query, this]() {
-    return RunQuery(query, MISSING_LAST_LIMBO_FREE_SNAPSHOT);
-  });
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kMissingLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForUnfilteredCollectionQuery) {
-  Query query = Query(Resource("coll"));
+  core::Query query = Query("coll");
 
-  const DocumentSet& docs = ExpectFullCollectionQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
+  DocumentSet docs = ExpectFullCollectionQuery(
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval) {
-  Query query = Query(Resource("coll"))
-                    .AddingFilter(Filter("matches", "==", true))
-                    .WithLimit(1);
+  core::Query query =
+      Query("coll").AddingFilter(Filter("matches", "==", true)).WithLimit(1);
 
   // While the backend would never add DocA to the set of remote keys, this
   // allows us to easily simulate what would happen when a document no longer
   // matches due to an out-of-band update.
-  AddDocuments({NON_MATCHING_DOC_A});
-  PersistQueryMapping({MATCHING_DOC_A.key()});
+  AddDocuments({kNonMatchingDocA});
+  PersistQueryMapping({kMatchingDocA.key()});
 
-  AddDocuments({MATCHING_DOC_B});
+  AddDocuments({kMatchingDocB});
 
   DocumentSet docs = ExpectFullCollectionQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_B}));
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentHasPendingWrite) {
-  Query query = Query(Resource("coll"))
-                    .AddingFilter(Filter("matches", "==", true))
-                    .AddingOrderBy(OrderBy("order", "desc"))
-                    .WithLimit(1);
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "desc"))
+                          .WithLimit(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
-  AddDocuments({PENDING_MATCHING_DOC_A});
-  PersistQueryMapping({PENDING_MATCHING_DOC_A.key()});
+  AddDocuments({pPendingMatchingDocA});
+  PersistQueryMapping({pPendingMatchingDocA.key()});
 
-  AddDocuments({MATCHING_DOC_B});
+  AddDocuments({kMatchingDocB});
 
   DocumentSet docs = ExpectFullCollectionQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_B}));
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentUpdatedOutOfBand) {
-  Query query = Query(Resource("coll"))
-                    .AddingFilter(Filter("matches", "==", true))
-                    .AddingOrderBy(OrderBy("order", "desc"))
-                    .WithLimit(1);
+  core::Query query = Query("coll")
+                          .AddingFilter(Filter("matches", "==", true))
+                          .AddingOrderBy(OrderBy("order", "desc"))
+                          .WithLimit(1);
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document based due to an update that the SDK received after the
   // query's snapshot was persisted.
-  AddDocuments({UPDATED_DOC_A});
-  PersistQueryMapping({UPDATED_DOC_A.key()});
+  AddDocuments({kUpdatedDocA});
+  PersistQueryMapping({kUpdatedDocA.key()});
 
-  AddDocuments({MATCHING_DOC_B});
+  AddDocuments({kMatchingDocB});
 
   DocumentSet docs = ExpectFullCollectionQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
-  EXPECT_EQ(docs, DocSet(query.Comparator(), {MATCHING_DOC_B}));
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+  EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
 TEST_F(IndexFreeQueryEngineTest,
        LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged) {
-  Query query =
-      Query(Resource("coll")).AddingOrderBy(OrderBy("order")).WithLimit(2);
+  core::Query query =
+      Query("coll").AddingOrderBy(OrderBy("order")).WithLimit(2);
 
   AddDocuments(
       {Doc("coll/a", 1, Map("order", 1)), Doc("coll/b", 1, Map("order", 3))});
@@ -324,7 +319,7 @@ TEST_F(IndexFreeQueryEngineTest,
   // all documents written prior to query execution still sort after "coll/b"),
   // we should use an Index-Free query.
   DocumentSet docs = ExpectIndexFreeQuery(
-      [&query, this]() { return RunQuery(query, LAST_LIMBO_FREE_SNAPSHOT); });
+      [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs,
             DocSet(query.Comparator(), {Doc("coll/a", 1, Map("order", 2),
                                             DocumentState::kLocalMutations),
