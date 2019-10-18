@@ -14,70 +14,70 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_TESTING_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_TESTING_H_
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-
 namespace firebase {
 namespace firestore {
+namespace util {
+
+class Path;
+
+}  // namespace util
+
 namespace local {
 
 class LevelDbPersistence;
-class LruParams;
+struct LruParams;
 class MemoryPersistence;
+
+/**
+ * Returns the directory where a LevelDB instance can store data files during
+ * testing. Any files that existed there will be deleted first.
+ */
+util::Path LevelDbDir();
+
+/**
+ * Creates and starts a new LevelDbPersistence instance for testing, destroying
+ * any previous contents if they existed.
+ *
+ * Note that in order to avoid generating a bunch of garbage on the filesystem,
+ * the path of the database is reused. This prevents concurrent running of tests
+ * using this database. We may need to revisit this if we want to parallelize
+ * the tests.
+ */
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting();
+
+/**
+ * Creates and starts a new LevelDbPersistence instance for testing. Does not
+ * delete any data present in the given directory. As a consequence, the
+ * resulting database is not guaranteed to be empty.
+ */
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
+    util::Path dir);
+
+/**
+ * Creates and starts a new LevelDbPersistence instance for testing, destroying
+ * any previous contents if they existed.
+ *
+ * Sets up the LRU garbage collection to use the provided params.
+ */
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
+    LruParams lru_params);
+
+/** Creates and starts a new MemoryPersistence instance for testing. */
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithEagerGcForTesting();
+
+std::unique_ptr<local::MemoryPersistence>
+MemoryPersistenceWithLruGcForTesting();
+
+std::unique_ptr<local::MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
+    LruParams lru_params);
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-namespace local = firebase::firestore::local;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTPersistenceTestHelpers : NSObject
-
-/**
- * @return The directory where a leveldb instance can store data files. Any files that existed
- * there will be deleted first.
- */
-+ (firebase::firestore::util::Path)levelDBDir;
-
-/**
- * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
- * if they existed.
- *
- * Note that in order to avoid generating a bunch of garbage on the filesystem, the path of the
- * database is reused. This prevents concurrent running of tests using this database. We may
- * need to revisit this if we want to parallelize the tests.
- */
-+ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistence;
-
-/**
- * Creates and starts a new FSTLevelDB instance for testing. Does not delete any data
- * present in the given directory. As a consequence, the resulting databse is not guaranteed
- * to be empty.
- */
-+ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistenceWithDir:
-    (firebase::firestore::util::Path)dir;
-
-/**
- * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
- * if they existed.
- *
- * Sets up the LRU garbage collection to use the provided params.
- */
-+ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistenceWithLruParams:
-    (firebase::firestore::local::LruParams)lruParams;
-
-/** Creates and starts a new MemoryPersistence instance for testing. */
-+ (std::unique_ptr<local::MemoryPersistence>)eagerGCMemoryPersistence;
-
-+ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistence;
-
-+ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
-    (firebase::firestore::local::LruParams)lruParams;
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_PERSISTENCE_TESTING_H_

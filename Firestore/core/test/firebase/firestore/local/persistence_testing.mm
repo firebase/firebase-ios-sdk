@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 #include <utility>
 
@@ -26,81 +26,84 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
-namespace util = firebase::firestore::util;
-using firebase::firestore::local::LevelDbPersistence;
-using firebase::firestore::local::LruParams;
-using firebase::firestore::local::MemoryPersistence;
-using firebase::firestore::local::ProtoSizer;
-using firebase::firestore::model::DatabaseId;
-using firebase::firestore::util::Path;
-using firebase::firestore::util::Status;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-NS_ASSUME_NONNULL_BEGIN
+using model::DatabaseId;
+using util::Path;
+using util::Status;
 
-@implementation FSTPersistenceTestHelpers
-
-+ (FSTLocalSerializer *)localSerializer {
-  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
+FSTLocalSerializer* MakeLocalSerializer() {
+  auto remoteSerializer =
+      [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
   return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 }
 
-+ (Path)levelDBDir {
-  Path dir = util::TempDir().AppendUtf8("FSTPersistenceTestHelpers");
+}  // namespace
+
+Path LevelDbDir() {
+  Path dir = util::TempDir().AppendUtf8("PersistenceTesting");
 
   // Delete the directory first to ensure isolation between runs.
-  util::Status status = util::RecursivelyDelete(dir);
+  Status status = util::RecursivelyDelete(dir);
   if (!status.ok()) {
-    [NSException
-         raise:NSInternalInconsistencyException
-        format:@"Failed to clean up leveldb path %s: %s", dir.c_str(), status.ToString().c_str()];
+    util::ThrowIllegalState("Failed to clean up leveldb in dir %s: %s",
+                            dir.ToUtf8String(), status.ToString());
   }
 
   return dir;
 }
 
-+ (std::unique_ptr<LevelDbPersistence>)levelDBPersistenceWithDir:(Path)dir {
-  return [self levelDBPersistenceWithDir:dir lruParams:LruParams::Default()];
-}
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
+    Path dir, LruParams lru_params) {
+  FSTLocalSerializer* serializer = MakeLocalSerializer();
 
-+ (std::unique_ptr<LevelDbPersistence>)levelDBPersistenceWithDir:(Path)dir
-                                                       lruParams:(LruParams)params {
-  FSTLocalSerializer *serializer = [self localSerializer];
-  auto created = LevelDbPersistence::Create(std::move(dir), serializer, params);
+  auto created =
+      LevelDbPersistence::Create(std::move(dir), serializer, lru_params);
   if (!created.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to open DB: %s", created.status().ToString().c_str()];
+    util::ThrowIllegalState("Failed to open leveldb in dir %s: %s",
+                            dir.ToUtf8String(), created.status().ToString());
   }
   return std::move(created).ValueOrDie();
 }
 
-+ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistenceWithLruParams:(LruParams)lruParams {
-  return [self levelDBPersistenceWithDir:[self levelDBDir] lruParams:lruParams];
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(Path dir) {
+  return LevelDbPersistenceForTesting(std::move(dir), LruParams::Default());
 }
 
-+ (std::unique_ptr<local::LevelDbPersistence>)levelDBPersistence {
-  return [self levelDBPersistenceWithDir:[self levelDBDir]];
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
+    LruParams lru_params) {
+  return LevelDbPersistenceForTesting(LevelDbDir(), lru_params);
 }
 
-+ (std::unique_ptr<local::MemoryPersistence>)eagerGCMemoryPersistence {
+std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting() {
+  return LevelDbPersistenceForTesting(LevelDbDir());
+}
+
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithEagerGcForTesting() {
   return MemoryPersistence::WithEagerGarbageCollector();
 }
 
-+ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistence {
-  return [self lruMemoryPersistenceWithLruParams:LruParams::Default()];
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting() {
+  return MemoryPersistenceWithLruGcForTesting(LruParams::Default());
 }
 
-+ (std::unique_ptr<local::MemoryPersistence>)lruMemoryPersistenceWithLruParams:
-    (LruParams)lruParams {
-  FSTLocalSerializer *serializer = [self localSerializer];
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruForTesting(
+    LruParams lru_params) {
+  FSTLocalSerializer* serializer = MakeLocalSerializer();
   auto sizer = absl::make_unique<ProtoSizer>(serializer);
-  return MemoryPersistence::WithLruGarbageCollector(lruParams, std::move(sizer));
+  return MemoryPersistence::WithLruGarbageCollector(lru_params,
+                                                    std::move(sizer));
 }
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
