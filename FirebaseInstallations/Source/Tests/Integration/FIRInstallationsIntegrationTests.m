@@ -37,6 +37,11 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
 @implementation FIRInstallationsIntegrationTests
 
+// macOS requests a user password when accessing the Keychain for the first time,
+// so the tests may fail. Disable integration tests on macOS so far.
+// TODO: Configure the tests to run on macOS without requesting the keychain password.
+#if !TARGET_OS_OSX
+
 - (void)setUp {
   [self configureFirebaseDefaultAppIfCan];
 
@@ -59,9 +64,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   [FIRApp resetApps];
 }
 
-// TODO: Enable the test once Travis configured.
-// Need to configure the GoogleService-Info.plist copying from the encrypted archive.
-// So far, let's run the tests locally.
 - (void)testGetFID {
   if (![self isDefaultAppConfigured]) {
     return;
@@ -118,8 +120,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   XCTAssertNotEqualObjects(authTokenBefore.expirationDate, authTokenAfter.expirationDate);
 }
 
-// TODO: Configure the tests to run on macOS without requesting the keychain password.
-#if !TARGET_OS_OSX
 - (void)testInstallationsWithApp {
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp1"];
   [self assertInstallationsWithAppNamed:@"testInstallationsWithApp2"];
