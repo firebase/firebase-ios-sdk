@@ -4,7 +4,8 @@
 # Taken from samdmarshall/danger
 def didModify(files_array)
   files_array.each do |file_name|
-    if git.modified_files.include?(file_name) || git.deleted_files.include?(file_name)
+    if git.modified_files.include?(file_name) ||
+       git.deleted_files.include?(file_name)
       return true
     end
   end
@@ -94,11 +95,14 @@ has_license_changes = didModify(["LICENSE"])
 @has_zipbuilder_changes = hasChangesIn("ZipBuilder/")
 
 # A FileList containing ObjC, ObjC++ or C++ changes.
-sdk_changes = (git.modified_files + git.added_files + git.deleted_files).select do |line|
+sdk_changes = (git.modified_files + 
+               git.added_files + 
+               git.deleted_files).select do |line|
   line.end_with?(".h") ||
     line.end_with?(".m") ||
     line.end_with?(".mm") ||
-    line.end_with?(".cc")
+    line.end_with?(".cc") ||
+    line.end_with?(".swift")
 end
 
 # Whether or not the PR has modified SDK source files.
@@ -110,7 +114,9 @@ has_sdk_changes = sdk_changes.empty?
 # SDK source files (podspec, markdown, etc changes are excluded).
 if has_sdk_changes
   if !has_changelog_changes && !declared_trivial
-    warn("Did you forget to add a changelog entry? (Add `#no-changelog` to the PR description to silence this warning.)")
+    warning = "Did you forget to add a changelog entry? (Add #no-changelog"\
+      " to the PR description to silence this warning.)"
+    warn(warning)
   end
 end
 
