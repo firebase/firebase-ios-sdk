@@ -60,7 +60,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   FirebasePod-iOS-xcodebuild)
     gem install xcpretty
-    bundle exec pod install --project-directory=Firebase/Firebase/Tests/FirebasePodTest --repo-update
+    bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)

@@ -157,7 +157,7 @@ s%^./%%
 \%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
 
 # Keep Firebase.h indenting
-\%^Firebase/Firebase/Sources/Firebase.h% d
+\%^CoreOnly/Sources/Firebase.h% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d

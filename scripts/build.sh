@@ -224,7 +224,7 @@ case "$product-$method-$platform" in
 
   FirebasePod-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'Firebase/Firebase/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
+        -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
         "${xcb_flags[@]}" \
         build

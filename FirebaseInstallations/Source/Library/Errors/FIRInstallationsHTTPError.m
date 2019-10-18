@@ -76,5 +76,3 @@
 }
 
 @end
-
-NSInteger const kFIRInstallationsAPIInternalErrorHTTPCode = 500;
