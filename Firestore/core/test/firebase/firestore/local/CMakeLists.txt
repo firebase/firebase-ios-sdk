@@ -20,8 +20,10 @@ cc_test(
     leveldb_key_test.cc
     leveldb_util_test.cc
     local_serializer_test.cc
+    index_free_query_engine_test.cc
     #memory_index_manager_test.mm
   DEPENDS
+    firebase_firestore_auth
     firebase_firestore_core
     firebase_firestore_local
     firebase_firestore_local_persistence_leveldb
