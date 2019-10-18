@@ -26,7 +26,7 @@
 #import "FIRInstallationsStoredIIDCheckin.h"
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
-static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTests";
+static NSString *const kSubDirectoryName = @"Google/FirebaseInstanceID";
 
 @interface FIRInstallationsIIDCheckinStoreTests : XCTestCase
 @property(nonatomic) FIRInstallationsIIDCheckinStore *installationsIIDCheckinStore;
