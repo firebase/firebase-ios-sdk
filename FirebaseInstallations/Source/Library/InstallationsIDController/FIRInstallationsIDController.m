@@ -32,8 +32,11 @@
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRSecureStorage.h"
+
+#import "FIRInstallationsHTTPError.h"
+#import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";
@@ -244,6 +247,15 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
   }
 
   return [self.APIService registerInstallation:installation]
+      .catch(^(NSError *_Nonnull error) {
+        if ([self doesRegistrationErrorRequireConfigChange:error]) {
+          FIRLogError(kFIRLoggerInstallations,
+                      kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
+                      @"Firebase Installation registration failed for app with name: %@, error: "
+                      @"%@\nPlease make sure you use valid GoogleService-Info.plist",
+                      self.appName, error);
+        }
+      })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
         // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
         return [FBLPromise all:@[
@@ -259,6 +271,25 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         }
         return registeredInstallation;
       });
+}
+
+- (BOOL)doesRegistrationErrorRequireConfigChange:(NSError *)error {
+  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)error;
+  if (![HTTPError isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    return NO;
+  }
+
+  switch (HTTPError.HTTPResponse.statusCode) {
+    // These are the errors that require Firebase configuration change.
+    case FIRInstallationsRegistrationHTTPCodeInvalidArgument:
+    case FIRInstallationsRegistrationHTTPCodeInvalidAPIKey:
+    case FIRInstallationsRegistrationHTTPCodeAPIKeyToProjectIDMismatch:
+    case FIRInstallationsRegistrationHTTPCodeProjectNotFound:
+      return YES;
+
+    default:
+      return NO;
+  }
 }
 
 #pragma mark - Auth Token

@@ -34,6 +34,8 @@
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredIIDCheckin.h"
 
+#import "FIRInstallationsStoredAuthToken.h"
+
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID
                             appName:(NSString *)appName

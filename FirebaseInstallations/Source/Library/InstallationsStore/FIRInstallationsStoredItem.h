@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) FIRInstallationsStoredIIDCheckin *IIDCheckin;
 
 /// The version of local storage.
-@property(nonatomic) NSInteger storageVersion;
+@property(nonatomic, readonly) NSInteger storageVersion;
 @end
 
 NS_ASSUME_NONNULL_END

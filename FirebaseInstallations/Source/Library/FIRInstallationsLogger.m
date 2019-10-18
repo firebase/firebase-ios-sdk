@@ -33,6 +33,7 @@ NSString *const kFIRInstallationsMessageCodeAPIResponseParsingAuthTokenSucceed =
 NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated = @"I-FIS002000";
 NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated = @"I-FIS002001";
 NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated = @"I-FIS002002";
+NSString *const kFIRInstallationsMessageCodeInvalidFirebaseConfiguration = @"I-FIS002003";
 
 // FIRInstallationsStoredItem.m
 NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch = @"I-FIS003000";
