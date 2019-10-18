@@ -18,6 +18,7 @@
 
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsStoredRegistrationError.h"
 
 NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebaseInstallationID";
@@ -25,6 +26,7 @@ NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";
 NSString *const kFIRInstallationsStoredItemAuthTokenKey = @"authToken";
 NSString *const kFIRInstallationsStoredItemRegistrationStatusKey = @"registrationStatus";
 NSString *const kFIRInstallationsStoredItemRegistrationErrorKey = @"registrationError";
+NSString *const kFIRInstallationsStoredItemIIDCheckinKey = @"IIDCheckin";
 NSString *const kFIRInstallationsStoredItemStorageVersionKey = @"storageVersion";
 
 NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
@@ -44,6 +46,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                  forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
   [aCoder encodeObject:self.registrationError
                 forKey:kFIRInstallationsStoredItemRegistrationErrorKey];
+  [aCoder encodeObject:self.IIDCheckin forKey:kFIRInstallationsStoredItemIIDCheckinKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
@@ -71,6 +74,8 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   item.registrationError =
       [aDecoder decodeObjectOfClass:[FIRInstallationsStoredRegistrationError class]
                              forKey:kFIRInstallationsStoredItemRegistrationErrorKey];
+  item.IIDCheckin = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredIIDCheckin class]
+                                           forKey:kFIRInstallationsStoredItemIIDCheckinKey];
 
   return item;
 }

@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -55,7 +56,6 @@ using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::Settings;
 using api::SnapshotMetadata;
-using api::ThrowIllegalState;
 using auth::CredentialsProvider;
 using auth::User;
 using local::LevelDbPersistence;
@@ -81,6 +81,7 @@ using util::Status;
 using util::StatusCallback;
 using util::StatusOr;
 using util::StatusOrCallback;
+using util::ThrowIllegalState;
 using util::TimerId;
 
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(

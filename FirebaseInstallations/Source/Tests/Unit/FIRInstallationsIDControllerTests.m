@@ -30,8 +30,10 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
+#import "FIRInstallationsIIDCheckinStore.h"
 #import "FIRInstallationsIIDStore.h"
 #import "FIRInstallationsStore.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsStoredRegistrationError.h"
@@ -42,7 +44,8 @@
                             appName:(NSString *)appName
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
-                           IIDStore:(FIRInstallationsIIDStore *)IIDStore;
+                           IIDStore:(FIRInstallationsIIDStore *)IIDStore
+                   IIDCheckingStore:(FIRInstallationsIIDCheckinStore *)IIDCheckingStore;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
@@ -50,6 +53,7 @@
 @property(nonatomic) id mockInstallationsStore;
 @property(nonatomic) id mockAPIService;
 @property(nonatomic) id mockIIDStore;
+@property(nonatomic) id mockIIDCheckinStore;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 
@@ -72,6 +76,7 @@
   self.mockInstallationsStore = OCMStrictClassMock([FIRInstallationsStore class]);
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
+  self.mockIIDCheckinStore = OCMStrictClassMock([FIRInstallationsIIDCheckinStore class]);
 
   [self stubAPIServiceParameters];
 
@@ -80,7 +85,8 @@
                                                         appName:self.appName
                                              installationsStore:self.mockInstallationsStore
                                                      APIService:self.mockAPIService
-                                                       IIDStore:self.mockIIDStore];
+                                                       IIDStore:self.mockIIDStore
+                                               IIDCheckingStore:self.mockIIDCheckinStore];
 }
 
 - (void)tearDown {
@@ -150,9 +156,7 @@
       .andReturn(registerPromise);
 
   // 4. Expect IIDStore to be checked for existing IID.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 5. Call get installation and check.
   FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
@@ -192,7 +196,7 @@
   OCMVerifyAll(self.mockIIDStore);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenFIDIsCreatedAndRegistered {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
   // 0. Configure controller with not default app.
   NSString *appName = @"appName";
   [self setUpWithAppName:appName];
@@ -265,13 +269,20 @@
   OCMVerifyAll(self.mockIIDStore);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenFIDIsCreatedAndRegistered {
   // 1. Stub store get installation.
   [self expectInstallationsStoreGetInstallationNotFound];
 
   // 2. Expect IIDStore to be checked for existing IID.
   NSString *existingIID = @"existing-iid";
   OCMExpect([self.mockIIDStore existingIID]).andReturn([FBLPromise resolvedWith:existingIID]);
+
+  // 3. Expect IID checkin store to be requested for checkin data.
+  FIRInstallationsStoredIIDCheckin *existingCheckin =
+      [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                     secretToken:@"IIDSecretToken"];
+  OCMExpect([self.mockIIDCheckinStore existingCheckin])
+      .andReturn([FBLPromise resolvedWith:existingCheckin]);
 
   // 3. Stub store save installation.
   __block FIRInstallationsItem *createdInstallation;
@@ -280,6 +291,8 @@
                 saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
                   [self assertValidCreatedInstallation:obj];
                   XCTAssertEqualObjects(existingIID, obj.firebaseInstallationID);
+                  XCTAssertEqualObjects(obj.IIDCheckin.deviceID, existingCheckin.deviceID);
+                  XCTAssertEqualObjects(obj.IIDCheckin.secretToken, existingCheckin.secretToken);
                   createdInstallation = obj;
                   return YES;
                 }]])
@@ -334,6 +347,7 @@
   // 5.5. Verify registered installation was saved.
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockIIDCheckinStore);
 }
 
 - (void)testGetInstallationItem_WhenCalledSeveralTimes_OnlyOneOperationIsPerformed {
@@ -928,9 +942,7 @@
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 1.3. IID store.
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
-  OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  [self expectStoredIIDNotFound];
 
   // 1.4. API Service.
   OCMExpect([self.mockAPIService registerInstallation:[OCMArg any]])
@@ -1192,6 +1204,7 @@
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:[FIRInstallationsErrorUtil keychainErrorWithFunction:@"" status:-1]];
   OCMExpect([self.mockIIDStore existingIID]).andReturn(rejectedPromise);
+  OCMExpect([self.mockIIDCheckinStore existingCheckin]).andReturn(rejectedPromise);
 }
 
 - (void)assertValidCreatedInstallation:(FIRInstallationsItem *)installation {
