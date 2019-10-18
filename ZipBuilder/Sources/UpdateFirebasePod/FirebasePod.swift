@@ -41,7 +41,7 @@ struct FirebasePod {
   ///
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
-  init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
+  init(paths: FilesystemPaths) {
     self.paths = paths
   }
 }
