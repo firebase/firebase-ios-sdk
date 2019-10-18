@@ -23,7 +23,6 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
-#import "XCTestCase+DateAsserts.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
@@ -1063,9 +1062,6 @@
                   XCTAssertEqualObjects(
                       installation.registrationError.registrationParameters.projectID,
                       self.projectID);
-                  XCTAssertNotNil(installation.registrationError.date);
-                  [self assertDate:installation.registrationError.date
-                      isApproximatelyEqualCurrentPlusTimeInterval:0];
                   return YES;
                 }]])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
@@ -1147,47 +1143,6 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
-- (void)testGetInstallation_WhenStoredRegistrationErrorIsOutdated_ThenSendsAPIRequest {
-  __block FBLPromise<FIRInstallationsItem *> *storedInstallationPromise;
-  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
-      .andDo(^(NSInvocation *invocation) {
-        [invocation setReturnValue:&storedInstallationPromise];
-      });
-
-  // 1.1. Expect installation to be requested from the store.
-  NSDate *date25HoursAgo = [NSDate dateWithTimeIntervalSinceNow:-25 * 60 * 60];
-  FIRInstallationsItem *storedInstallation =
-      [self createFailedToRegisterInstallationWithParameters:[self currentRegistrationParameters]
-                                                        date:date25HoursAgo];
-  storedInstallationPromise = [FBLPromise resolvedWith:storedInstallation];
-
-  // 1.2. Expect registration API request to be sent.
-  FIRInstallationsItem *registeredInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  OCMExpect([self.mockAPIService registerInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:registeredInstallation]);
-
-  // 1.3. Expect registered Installation to be stored.
-  OCMExpect([self.mockInstallationsStore saveInstallation:[OCMArg checkWithBlock:^BOOL(id obj) {
-                                           XCTAssertEqualObjects(obj, registeredInstallation);
-                                           storedInstallationPromise =
-                                               [FBLPromise resolvedWith:obj];
-                                           return YES;
-                                         }]])
-      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
-
-  // 2. Request Installation.
-  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getInstallationItem];
-  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-
-  // 3. Check.
-  XCTAssertEqualObjects(promise.value.identifier, registeredInstallation.identifier);
-  XCTAssertNil(promise.error);
-
-  OCMVerifyAll(self.mockInstallationsStore);
-  OCMVerifyAll(self.mockAPIService);
-}
-
 #pragma mark - Helpers
 
 - (void)expectInstallationsStoreGetInstallationNotFound {
@@ -1230,20 +1185,12 @@
 }
 
 - (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
-                              (FIRInstallationsStoredRegistrationParameters *)registrationParameters
-                                                                      date:(NSDate *)date {
+    (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
   FIRInstallationsStoredRegistrationError *error = [[FIRInstallationsStoredRegistrationError alloc]
       initWithRegistrationParameters:registrationParameters
-                                date:date
                             APIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
   FIRInstallationsItem *installation = [FIRInstallationsItem createWithRegistrationFailure:error];
   return installation;
-}
-
-- (FIRInstallationsItem *)createFailedToRegisterInstallationWithParameters:
-    (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
-  return [self createFailedToRegisterInstallationWithParameters:registrationParameters
-                                                           date:[NSDate date]];
 }
 
 - (FIRInstallationsStoredRegistrationParameters *)currentRegistrationParameters {

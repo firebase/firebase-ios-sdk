@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
-#import "XCTestCase+DateAsserts.h"
 
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
@@ -604,6 +603,16 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                            HTTPVersion:nil
                                                           headerFields:nil];
   return response;
+}
+
+- (void)assertDate:(NSDate *)date
+    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval {
+  NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
+
+  NSTimeInterval precision = 10;
+  XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
+            @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
+            precision, self.name);
 }
 
 - (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation {

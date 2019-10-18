@@ -61,7 +61,6 @@
   XCTAssertEqual(unarchivedItem.registrationStatus, item.registrationStatus);
 
   XCTAssertEqualObjects(unarchivedItem.registrationError.APIError, item.registrationError.APIError);
-  XCTAssertEqualObjects(unarchivedItem.registrationError.date, item.registrationError.date);
   XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.APIKey,
                         item.registrationError.registrationParameters.APIKey);
   XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.projectID,
@@ -81,7 +80,6 @@
                                    userInfo:@{NSLocalizedFailureReasonErrorKey : @"value"}];
   FIRInstallationsStoredRegistrationError *registrationError =
       [[FIRInstallationsStoredRegistrationError alloc] initWithRegistrationParameters:params
-                                                                                 date:[NSDate date]
                                                                              APIError:error];
   XCTAssertEqualObjects(registrationError.APIError, error);
   XCTAssertEqualObjects(registrationError.registrationParameters, params);

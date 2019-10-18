@@ -105,13 +105,11 @@
 }
 
 - (void)updateWithRegistrationError:(NSError *)error
-                               date:(NSDate *)date
              registrationParameters:
                  (FIRInstallationsStoredRegistrationParameters *)registrationParameters {
   self.registrationStatus = FIRInstallationStatusRegistrationFailed;
   self.registrationError = [[FIRInstallationsStoredRegistrationError alloc]
       initWithRegistrationParameters:registrationParameters
-                                date:date
                             APIError:error];
   self.authToken = nil;
   self.refreshToken = nil;

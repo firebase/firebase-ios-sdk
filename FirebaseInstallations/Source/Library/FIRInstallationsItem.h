@@ -88,11 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Updates `registrationStatus` and `registrationError` accordingly.
  * @param error The error for the Installation Registration API request.
- * @param date The date when the error occurred.
  * @param registrationParameters The parameters used for the  Installation Registration API request.
  */
 - (void)updateWithRegistrationError:(NSError *)error
-                               date:(NSDate *)date
              registrationParameters:
                  (FIRInstallationsStoredRegistrationParameters *)registrationParameters;
 

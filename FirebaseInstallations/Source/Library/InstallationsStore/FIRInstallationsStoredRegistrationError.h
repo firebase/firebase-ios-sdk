@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRInstallationsStoredRegistrationError : NSObject <NSSecureCoding>
 
 @property(nonatomic, readonly) FIRInstallationsStoredRegistrationParameters *registrationParameters;
-@property(nonatomic, readonly) NSDate *date;
 @property(nonatomic, readonly) NSError *APIError;
 
 /// The version of local storage.
@@ -41,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRegistrationParameters:
                     (FIRInstallationsStoredRegistrationParameters *)registrationParameters
-                                          date:(NSDate *)date
                                       APIError:(NSError *)error;
 
 @end
