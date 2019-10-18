@@ -6,9 +6,6 @@ Firebase Pod release updater, and a manifest reader.
 The tools are designed to fail fast with an explanation of what went wrong, so
 you can fix issues or dig in without having to dig too deep into the code.
 
-In the future, releases will be built via a builder server instead of on the release engineer's machine, making these
-instructions more of a reference to understand what's going on instead of how to build it yourself.
-
 ## Zip Builder
 
 This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch
@@ -88,7 +85,8 @@ Xcode project with `swift package generate-xcodeproj` and run within Xcode.
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
 
-You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit
+You can pass in launch arguments with Xcode by clicking "UpdateFirebasePod"
+beside the Run/Stop buttons, clicking "Edit
 Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 ## Development and Debugging
