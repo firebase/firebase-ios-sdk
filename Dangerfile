@@ -16,7 +16,7 @@ end
 def hasChangesIn(paths)
   path_array = Array(paths)
   path_array.each do |dir|
-    if !git.modified_files.grep(dir).empty?
+    if !git.modified_files.grep(/#{dir}/).empty?
       return true
     end
   end
@@ -34,22 +34,22 @@ end
 # multiple directories may have multiple labels.
 def labelsForModifiedFiles()
   labels = []
-  labels.append("api: abtesting") if @has_abtesting_changes
-  labels.append("api: auth") if @has_auth_changes
-  labels.append("api: core") if @has_core_changes
-  labels.append("api: database") if @has_database_changes
-  labels.append("api: dynamiclinks") if @has_dynamiclinks_changes
-  labels.append("api: firestore") if @has_firestore_changes
-  labels.append("api: functions") if @has_functions_changes
-  labels.append("api: inappmessaging") if @has_inappmessaging_changes
-  labels.append("api: installations") if @has_installations_changes
-  labels.append("api: instanceid") if @has_instanceid_changes
-  labels.append("api: messaging") if @has_messaging_changes
-  labels.append("api: remoteconfig") if @has_remoteconfig_changes
-  labels.append("api: storage") if @has_storage_changes
-  labels.append("GoogleDataTransport") if @has_gdt_changes
-  labels.append("GoogleUtilities") if @has_googleutilities_changes
-  labels.append("zip-builder") if @has_zipbuilder_changes
+  labels.push("api: abtesting") if @has_abtesting_changes
+  labels.push("api: auth") if @has_auth_changes
+  labels.push("api: core") if @has_core_changes
+  labels.push("api: database") if @has_database_changes
+  labels.push("api: dynamiclinks") if @has_dynamiclinks_changes
+  labels.push("api: firestore") if @has_firestore_changes
+  labels.push("api: functions") if @has_functions_changes
+  labels.push("api: inappmessaging") if @has_inappmessaging_changes
+  labels.push("api: installations") if @has_installations_changes
+  labels.push("api: instanceid") if @has_instanceid_changes
+  labels.push("api: messaging") if @has_messaging_changes
+  labels.push("api: remoteconfig") if @has_remoteconfig_changes
+  labels.push("api: storage") if @has_storage_changes
+  labels.push("GoogleDataTransport") if @has_gdt_changes
+  labels.push("GoogleUtilities") if @has_googleutilities_changes
+  labels.push("zip-builder") if @has_zipbuilder_changes
   return labels
 end
 
@@ -72,7 +72,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_core_changes = hasChangesIn([
   "Firebase/Core/",
   "Firebase/CoreDiagnostics/",
-  "Firebase/Firebase/"])
+  "CoreOnly/"])
 @has_database_changes = hasChangesIn("Firebase/Database/")
 @has_dynamiclinks_changes = hasChangesIn("Firebase/DynamicLinks/")
 @has_firestore_changes = hasChangesIn("Firestore/")

@@ -113,6 +113,12 @@ class LocalSerializer {
   model::MutationBatch DecodeMutationBatch(
       nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
 
+  google_protobuf_Timestamp EncodeVersion(
+      const model::SnapshotVersion& version) const;
+
+  model::SnapshotVersion DecodeVersion(
+      nanopb::Reader* reader, const google_protobuf_Timestamp& proto) const;
+
  private:
   /**
    * Encodes a Document for local storage. This differs from the v1 RPC
@@ -121,11 +127,16 @@ class LocalSerializer {
    */
   google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;
 
+  model::Document DecodeDocument(nanopb::Reader* reader,
+                                 const google_firestore_v1_Document& proto,
+                                 bool has_committed_mutations) const;
+
   firestore_client_NoDocument EncodeNoDocument(
       const model::NoDocument& no_doc) const;
 
-  model::NoDocument DecodeNoDocument(
-      nanopb::Reader* reader, const firestore_client_NoDocument& proto) const;
+  model::NoDocument DecodeNoDocument(nanopb::Reader* reader,
+                                     const firestore_client_NoDocument& proto,
+                                     bool has_committed_mutations) const;
 
   firestore_client_UnknownDocument EncodeUnknownDocument(
       const model::UnknownDocument& unknown_doc) const;
