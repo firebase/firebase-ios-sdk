@@ -95,8 +95,8 @@ has_license_changes = didModify(["LICENSE"])
 @has_zipbuilder_changes = hasChangesIn("ZipBuilder/")
 
 # A FileList containing ObjC, ObjC++ or C++ changes.
-sdk_changes = (git.modified_files + 
-               git.added_files + 
+sdk_changes = (git.modified_files +
+               git.added_files +
                git.deleted_files).select do |line|
   line.end_with?(".h") ||
     line.end_with?(".m") ||
