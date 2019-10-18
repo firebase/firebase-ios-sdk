@@ -85,6 +85,7 @@ void LevelDbQueryCache::Start() {
   Reader reader;
   last_remote_snapshot_version_ = serializer_->DecodeVersion(
       &reader, metadata_->last_remote_snapshot_version);
+  // FIXME
 }
 
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {

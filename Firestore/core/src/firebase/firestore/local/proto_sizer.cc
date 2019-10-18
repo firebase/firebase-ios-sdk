@@ -28,14 +28,10 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-namespace {
-
 using model::DocumentKey;
 using model::MaybeDocument;
 using nanopb::ByteString;
 using nanopb::Message;
-
-}  // namespace
 
 ProtoSizer::ProtoSizer(LocalSerializer serializer)
     : serializer_(std::move(serializer)) {
@@ -46,8 +42,7 @@ int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  auto message = serializer_.EncodeMutationBatch(batch);
-  return message.ToByteString().size();
+  return serializer_.EncodeMutationBatch(batch).ToByteString().size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {

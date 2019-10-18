@@ -37,12 +37,10 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::core::Query;
-using firebase::firestore::local::LocalSerializer;
 using firebase::firestore::local::QueryData;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::Document;
@@ -60,7 +58,6 @@ using firebase::firestore::model::UnknownDocument;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::MakeNSData;
-using firebase::firestore::remote::Serializer;
 
 @interface FSTLocalSerializer ()
 

@@ -87,14 +87,13 @@ Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
       return result;
     }
 
-    case MaybeDocument::Type::UnknownDocument: {
+    case MaybeDocument::Type::UnknownDocument:
       result->which_document_type =
           firestore_client_MaybeDocument_unknown_document_tag;
       result->unknown_document =
           EncodeUnknownDocument(UnknownDocument(maybe_doc));
       result->has_committed_mutations = true;
       return result;
-    }
 
     case MaybeDocument::Type::Invalid:
       HARD_FAIL("Unknown document type %s", maybe_doc.type());

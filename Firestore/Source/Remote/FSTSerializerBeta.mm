@@ -1252,10 +1252,6 @@ absl::any Wrap(GCFSDocument *doc) {
   return absl::make_unique<ExistenceFilterWatchChange>(existenceFilter, targetID);
 }
 
-- (DatabaseId)databaseID {
-  return _databaseID;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

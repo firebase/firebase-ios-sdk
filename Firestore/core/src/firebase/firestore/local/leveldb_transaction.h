@@ -164,8 +164,8 @@ class LevelDbTransaction {
    */
   void Put(absl::string_view key, GPBMessage* message) {
     NSData* data = [message data];
-    std::string key_str{key};
-    mutations_[key_str] = std::string((const char*)data.bytes, data.length);
+    std::string key_string(key);
+    mutations_[key_string] = std::string((const char*)data.bytes, data.length);
     version_++;
   }
 #endif

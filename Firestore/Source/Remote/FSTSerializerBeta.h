@@ -139,8 +139,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (model::MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
 
-- (model::DatabaseId)databaseID;
-
 @end
 
 NS_ASSUME_NONNULL_END
