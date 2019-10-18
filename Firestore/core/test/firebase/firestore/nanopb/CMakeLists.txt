@@ -22,4 +22,5 @@ cc_test(
   DEPENDS
     GMock::GMock
     firebase_firestore_nanopb
+    firebase_firestore_remote
 )
