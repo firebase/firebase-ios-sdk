@@ -142,8 +142,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   FBLWaitForPromisesWithTimeout(10);
 }
 
-#endif  // !TARGET_OS_OSX
-
 #pragma mark - Helpers
 
 - (NSString *)getFID {
@@ -267,3 +265,5 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 }
 
 @end
+
+#endif  // !TARGET_OS_OSX
