@@ -154,8 +154,8 @@ class BasePath {
     return util::CompareContainer(segments_, rhs.segments_);
   }
 
-  bool IsEqualTo(const T& rhs) const {
-    return segments_ == rhs.segments_;
+  friend bool operator==(const BasePath& lhs, const BasePath& rhs) {
+    return lhs.segments_ == rhs.segments_;
   }
 
   size_t Hash() const {

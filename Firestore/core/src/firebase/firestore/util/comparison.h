@@ -354,17 +354,15 @@ class Comparable {
 };
 
 /**
- * Same as `Comparable`, but `operator==` is delegated to a function called
- * `IsEqualTo`. This is an optimization that avoids doing an extra comparison
- * when comparing for equality (`Comparable` would have to check for both
- * "less-than" and "greater-than" to determine whether two values are equal).
+ * Same as `Comparable`, but deliberately not defining `operator==`, which
+ * instead is left for the class inheriting from this mixin to implement. This
+ * is an optimization that avoids doing an extra comparison when comparing for
+ * equality (`Comparable` would have to check for both "less-than" and
+ * "greater-than" to determine whether two values are equal).
  */
 template <typename T>
-class ComparableWithEqual {
+class InequalityComparable {
  public:
-  friend bool operator==(const T& lhs, const T& rhs) {
-    return lhs.IsEqualTo(rhs);
-  }
   friend bool operator!=(const T& lhs, const T& rhs) {
     return !(lhs == rhs);
   }
