@@ -353,6 +353,35 @@ class Comparable {
   }
 };
 
+/**
+ * Same as `Comparable`, but `operator==` is delegated to a function called
+ * `IsEqual`. This is an optimization that avoids doing an extra comparison when
+ * comparing for equality (`Comparable` would have to check for both "less-than"
+ * and "greater-than" to determine whether two values are equal).
+ */
+template <typename T>
+class ComparableWithEqual {
+ public:
+  friend bool operator==(const T& lhs, const T& rhs) {
+    return lhs.IsEqual(rhs);
+  }
+  friend bool operator!=(const T& lhs, const T& rhs) {
+    return !(lhs == rhs);
+  }
+  friend bool operator<(const T& lhs, const T& rhs) {
+    return Ascending(lhs.CompareTo(rhs));
+  }
+  friend bool operator>(const T& lhs, const T& rhs) {
+    return Descending(lhs.CompareTo(rhs));
+  }
+  friend bool operator<=(const T& lhs, const T& rhs) {
+    return !(rhs < lhs);
+  }
+  friend bool operator>=(const T& lhs, const T& rhs) {
+    return !(lhs < rhs);
+  }
+};
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

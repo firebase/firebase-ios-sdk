@@ -53,6 +53,10 @@ util::ComparisonResult DocumentKey::CompareTo(const DocumentKey& other) const {
   return path().CompareTo(other.path());
 }
 
+bool DocumentKey::IsEqual(const DocumentKey& other) const {
+  return path().IsEqual(other.path());
+}
+
 std::string DocumentKey::ToString() const {
   return path().CanonicalString();
 }
