@@ -184,9 +184,7 @@ class LevelDbTransaction {
    */
   template <typename T>
   void Put(std::string key, const nanopb::Message<T>& message) {
-    nanopb::StringWriter writer;
-    writer.WriteNanopbMessage(message.fields(), message.get());
-    Put(std::move(key), writer.Release());
+    Put(std::move(key), ToStdString(message));
   }
 
   /**

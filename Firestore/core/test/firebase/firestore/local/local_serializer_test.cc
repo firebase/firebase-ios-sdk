@@ -138,7 +138,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeMaybeDocument(local::LocalSerializer* serializer,
                                  const MaybeDocument& maybe_doc) {
-    return serializer->EncodeMaybeDocument(maybe_doc).ToByteString();
+    return ToByteString(serializer->EncodeMaybeDocument(maybe_doc));
   }
 
   void ExpectSerializationRoundTrip(const QueryData& query_data,
@@ -166,7 +166,7 @@ class LocalSerializerTest : public ::testing::Test {
   ByteString EncodeQueryData(local::LocalSerializer* serializer,
                              const QueryData& query_data) {
     EXPECT_EQ(query_data.purpose(), QueryPurpose::Listen);
-    return serializer->EncodeQueryData(query_data).ToByteString();
+    return ToByteString(serializer->EncodeQueryData(query_data));
   }
 
   void ExpectSerializationRoundTrip(
@@ -195,7 +195,7 @@ class LocalSerializerTest : public ::testing::Test {
 
   ByteString EncodeMutationBatch(local::LocalSerializer* serializer,
                                  const MutationBatch& mutation_batch) {
-    return serializer->EncodeMutationBatch(mutation_batch).ToByteString();
+    return ToByteString(serializer->EncodeMutationBatch(mutation_batch));
   }
 
   std::string message_differences;

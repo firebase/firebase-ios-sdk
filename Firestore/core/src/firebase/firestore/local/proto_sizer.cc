@@ -42,15 +42,15 @@ int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
   // calculates sizes without actually doing the encoding (to the extent
   // possible). This isn't high priority as long as `ProtoSizer` is only used in
   // tests.
-  return serializer_.EncodeMaybeDocument(maybe_doc).ToByteString().size();
+  return ToByteString(serializer_.EncodeMaybeDocument(maybe_doc)).size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  return serializer_.EncodeMutationBatch(batch).ToByteString().size();
+  return ToByteString(serializer_.EncodeMutationBatch(batch)).size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  return serializer_.EncodeQueryData(query_data).ToByteString().size();
+  return ToByteString(serializer_.EncodeQueryData(query_data)).size();
 }
 
 }  // namespace local

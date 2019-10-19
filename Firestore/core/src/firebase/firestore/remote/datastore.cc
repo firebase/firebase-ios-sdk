@@ -181,7 +181,7 @@ void Datastore::CommitMutationsWithCredentials(
     const std::vector<Mutation>& mutations,
     CommitCallback&& callback) {
   grpc::ByteBuffer message =
-      datastore_serializer_.EncodeCommitRequest(mutations).ToByteBuffer();
+      ToByteBuffer(datastore_serializer_.EncodeCommitRequest(mutations));
 
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
       kRpcNameCommit, token, std::move(message));
@@ -220,7 +220,7 @@ void Datastore::LookupDocumentsWithCredentials(
     const std::vector<DocumentKey>& keys,
     LookupCallback&& callback) {
   grpc::ByteBuffer message =
-      datastore_serializer_.EncodeLookupRequest(keys).ToByteBuffer();
+      ToByteBuffer(datastore_serializer_.EncodeLookupRequest(keys));
 
   std::unique_ptr<GrpcStreamingReader> call_owning =
       grpc_connection_.CreateStreamingReader(kRpcNameLookup, token,

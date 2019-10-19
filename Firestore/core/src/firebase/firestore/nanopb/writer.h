@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -142,6 +143,17 @@ class StringWriter : public Writer {
 
  private:
   std::string buffer_;
+};
+
+/** Creates an Writer that writes into a `grpc::ByteBuffer`. */
+class GrpcByteBufferWriter : public Writer {
+ public:
+  GrpcByteBufferWriter();
+
+  grpc::ByteBuffer Release();
+
+ private:
+  std::vector<grpc::Slice> buffer_;
 };
 
 }  // namespace nanopb

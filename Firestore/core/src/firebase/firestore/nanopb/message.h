@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_MESSAGE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_MESSAGE_H_
 
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
@@ -155,20 +156,6 @@ class Message {
   }
 
   /**
-   * Serializes this `Message` into a byte buffer.
-   *
-   * The lifetime of the return value is entirely independent of this `Message`.
-   */
-  grpc::ByteBuffer ToByteBuffer() const;
-
-  /**
-   * Serializes this `Message` into a `ByteString`.
-   *
-   * The lifetime of the return value is entirely independent of this `Message`.
-   */
-  ByteString ToByteString() const;
-
-  /**
    * Returns a pointer to the Nanopb-generated array that describes the fields
    * of the Nanopb proto; the array is required to call most Nanopb functions.
    *
@@ -221,17 +208,39 @@ MaybeMessage<T> Message<T>::TryParse(const ByteString& bytes) {
   return MaybeMessage<T>{std::move(message)};
 }
 
+/**
+ * Serializes the given `message` into a `grpc::ByteBuffer`.
+ *
+ * The lifetime of the return value is entirely independent of the `message`.
+ */
 template <typename T>
-grpc::ByteBuffer Message<T>::ToByteBuffer() const {
-  ByteString bytes = ToByteString();
-  grpc::Slice slice{bytes.data(), bytes.size()};
-  return grpc::ByteBuffer{&slice, 1};
+grpc::ByteBuffer ToByteBuffer(const Message<T>& message) {
+  GrpcByteBufferWriter writer;
+  writer.WriteNanopbMessage(message.fields(), message.get());
+  return writer.Release();
 }
 
+/**
+ * Serializes the given `message` into a `ByteString`.
+ *
+ * The lifetime of the return value is entirely independent of the `message`.
+ */
 template <typename T>
-ByteString Message<T>::ToByteString() const {
-  nanopb::ByteStringWriter writer;
-  writer.WriteNanopbMessage(fields(), &proto_);
+ByteString ToByteString(const Message<T>& message) {
+  ByteStringWriter writer;
+  writer.WriteNanopbMessage(message.fields(), message.get());
+  return writer.Release();
+}
+
+/**
+ * Serializes the given `message` into a `std::string`.
+ *
+ * The lifetime of the return value is entirely independent of the `message`.
+ */
+template <typename T>
+std::string ToStdString(const Message<T>& message) {
+  StringWriter writer;
+  writer.WriteNanopbMessage(message.fields(), message.get());
   return writer.Release();
 }
 

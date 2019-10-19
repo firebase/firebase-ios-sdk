@@ -91,7 +91,7 @@ std::string DescribeMessage(const Message<U>& message) {
   // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
   // Converting to an Objective-C proto just to be able to call `description` is
   // a hack.
-  auto bytes = message.ToByteBuffer();
+  auto bytes = ToByteBuffer(message);
   auto ns_data = ConvertToNsData(bytes, nil);
   T* objc_request = [T parseFromData:ns_data error:nil];
   return util::MakeString([objc_request description]);

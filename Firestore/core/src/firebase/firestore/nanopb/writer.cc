@@ -26,8 +26,6 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-using nanopb::ByteString;
-
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
   if (!pb_encode(&stream_, fields, src_struct)) {
@@ -123,6 +121,30 @@ StringWriter::StringWriter() {
 
 std::string StringWriter::Release() {
   return std::move(buffer_);
+}
+
+// GrpcByteBufferWriter
+
+namespace {
+
+bool AppendToGrpcBuffer(pb_ostream_t* stream,
+                        const pb_byte_t* buf,
+                        size_t count) {
+  auto buffer = static_cast<std::vector<grpc::Slice>*>(stream->state);
+  buffer->emplace_back(buf, count);
+  return true;
+}
+
+}  // namespace
+
+GrpcByteBufferWriter::GrpcByteBufferWriter() {
+  stream_.callback = AppendToGrpcBuffer;
+  stream_.state = &buffer_;
+  stream_.max_size = SIZE_MAX;
+}
+
+grpc::ByteBuffer GrpcByteBufferWriter::Release() {
+  return grpc::ByteBuffer{buffer_.data(), buffer_.size()};
 }
 
 }  // namespace nanopb
