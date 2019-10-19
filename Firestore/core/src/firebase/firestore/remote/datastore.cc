@@ -19,8 +19,6 @@
 #include <unordered_set>
 #include <utility>
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
@@ -54,9 +52,10 @@ using model::DocumentKey;
 using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
+using util::Executor;
+using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;
-using util::Executor;
 
 const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
@@ -78,7 +77,7 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
                          const Status& status) {
   LOG_DEBUG("RPC %s completed. Error: %s: %s", rpc_name, status.code(),
             status.error_message());
-  if (bridge::IsLoggingEnabled()) {
+  if (LogIsDebugEnabled()) {
     auto headers =
         Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
     LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
@@ -104,7 +103,7 @@ Datastore::Datastore(const DatabaseInfo& database_info,
       connectivity_monitor_{std::move(connectivity_monitor)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
-      serializer_bridge_{database_info} {
+      datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
   }
@@ -151,14 +150,14 @@ void Datastore::PollGrpcQueue() {
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
     WatchStreamCallback* callback) {
   return std::make_shared<WatchStream>(worker_queue_, credentials_,
-                                       serializer_bridge_.GetSerializer(),
+                                       datastore_serializer_.serializer(),
                                        &grpc_connection_, callback);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
     WriteStreamCallback* callback) {
   return std::make_shared<WriteStream>(worker_queue_, credentials_,
-                                       serializer_bridge_.GetSerializer(),
+                                       datastore_serializer_.serializer(),
                                        &grpc_connection_, callback);
 }
 
@@ -181,8 +180,8 @@ void Datastore::CommitMutationsWithCredentials(
     const Token& token,
     const std::vector<Mutation>& mutations,
     CommitCallback&& callback) {
-  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
-      serializer_bridge_.CreateCommitRequest(mutations));
+  grpc::ByteBuffer message =
+      datastore_serializer_.EncodeCommitRequest(mutations).ToByteBuffer();
 
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
       kRpcNameCommit, token, std::move(message));
@@ -208,7 +207,7 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
       // TODO(c++14): move into lambda.
       [this, keys, callback](const StatusOr<Token>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
-          callback({}, maybe_credentials.status());
+          callback(maybe_credentials.status());
           return;
         }
         LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), keys,
@@ -220,8 +219,8 @@ void Datastore::LookupDocumentsWithCredentials(
     const Token& token,
     const std::vector<DocumentKey>& keys,
     LookupCallback&& callback) {
-  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
-      serializer_bridge_.CreateLookupRequest(keys));
+  grpc::ByteBuffer message =
+      datastore_serializer_.EncodeLookupRequest(keys).ToByteBuffer();
 
   std::unique_ptr<GrpcStreamingReader> call_owning =
       grpc_connection_.CreateStreamingReader(kRpcNameLookup, token,
@@ -245,15 +244,12 @@ void Datastore::OnLookupDocumentsResponse(
     const StatusOr<std::vector<grpc::ByteBuffer>>& result,
     const LookupCallback& callback) {
   if (!result.ok()) {
-    callback({}, result.status());
+    callback(result.status());
     return;
   }
 
-  Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  std::vector<MaybeDocument> docs =
-      serializer_bridge_.MergeLookupResponses(responses, &parse_status);
-  callback(docs, parse_status);
+  callback(datastore_serializer_.MergeLookupResponses(responses));
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

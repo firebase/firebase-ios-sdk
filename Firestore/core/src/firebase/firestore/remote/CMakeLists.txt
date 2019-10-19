@@ -86,8 +86,8 @@ cc_library(
     remote_event.h
     serializer.cc
     serializer.h
+    watch_change.cc
     watch_change.h
-    watch_change.mm
 
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.
@@ -106,6 +106,7 @@ cc_library(
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
 
+    firebase_firestore_core
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb

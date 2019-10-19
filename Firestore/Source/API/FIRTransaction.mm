@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
@@ -39,6 +40,7 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -119,13 +121,14 @@ NS_ASSUME_NONNULL_BEGIN
                               NSError *_Nullable error))completion {
   [self validateReference:document];
   _internalTransaction->Lookup(
-      {document.key}, [self, document, completion](const std::vector<MaybeDocument> &documents,
-                                                   const Status &status) {
-        if (!status.ok()) {
-          completion(nil, MakeNSError(status));
+      {document.key},
+      [self, document, completion](const StatusOr<std::vector<MaybeDocument>> &maybe_documents) {
+        if (!maybe_documents.ok()) {
+          completion(nil, MakeNSError(maybe_documents.status()));
           return;
         }
 
+        const auto &documents = maybe_documents.ValueOrDie();
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
         const MaybeDocument &internalDoc = documents.front();
         if (internalDoc.is_no_document()) {

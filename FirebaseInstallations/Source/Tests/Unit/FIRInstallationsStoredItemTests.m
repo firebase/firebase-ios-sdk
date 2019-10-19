@@ -19,6 +19,7 @@
 #import "FIRKeyedArchivingUtils.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsStoredItem.h"
 #import "FIRInstallationsStoredRegistrationError.h"
 #import "FIRInstallationsStoredRegistrationParameters.h"
@@ -41,6 +42,7 @@
   item.authToken = authToken;
   item.registrationStatus = FIRInstallationStatusRegistered;
   item.registrationError = [self createRegistrationError];
+  item.IIDCheckin = [self createIIDCheckin];
 
   NSError *error;
   NSData *archivedItem = [FIRKeyedArchivingUtils archivedDataWithRootObject:item error:&error];
@@ -64,6 +66,8 @@
                         item.registrationError.registrationParameters.APIKey);
   XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.projectID,
                         item.registrationError.registrationParameters.projectID);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.deviceID, item.IIDCheckin.deviceID);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.secretToken, item.IIDCheckin.secretToken);
 }
 
 - (FIRInstallationsStoredRegistrationError *)createRegistrationError {
@@ -82,6 +86,11 @@
   XCTAssertEqualObjects(registrationError.APIError, error);
   XCTAssertEqualObjects(registrationError.registrationParameters, params);
   return registrationError;
+}
+
+- (FIRInstallationsStoredIIDCheckin *)createIIDCheckin {
+  return [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                        secretToken:@"IIDSecretToken"];
 }
 
 @end
