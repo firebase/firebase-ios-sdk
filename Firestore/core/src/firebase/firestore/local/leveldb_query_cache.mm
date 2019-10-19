@@ -43,22 +43,33 @@ using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
-using nanopb::MaybeMessage;
+using nanopb::GrpcByteBufferReader;
 using nanopb::Message;
 using nanopb::Reader;
 using util::MakeString;
 using leveldb::Status;
 
-MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
+Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
     leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
-  if (!status.ok()) {
-    return ConvertStatus(status);
+
+  Reader reader{value};
+  reader.set_status(ConvertStatus(status));
+
+  auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
+  if (!reader.ok()) {
+    if (reader.status().code() == Error::NotFound) {
+      HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
+                "ensures metadata existence");
+    } else {
+      HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
+                reader.status().ToString());
+    }
   }
 
-  return Message<firestore_client_TargetGlobal>::TryParse(ByteString{value});
+  return result;
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
@@ -68,19 +79,7 @@ LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
 
 void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to current_transaction()
-  auto maybe_metadata = ReadMetadata(db_->ptr());
-  if (!maybe_metadata.ok()) {
-    if (maybe_metadata.status().code() == Error::NotFound) {
-      HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
-                "ensures metadata existence");
-    } else {
-      HARD_FAIL("ReadMetadata: failed loading key %s with status: %s",
-                LevelDbTargetGlobalKey::Key(),
-                maybe_metadata.status().ToString());
-    }
-  }
-
-  metadata_ = std::move(maybe_metadata).ValueOrDie();
+  metadata_ = ReadMetadata(db_->ptr());
 
   Reader reader;
   last_remote_snapshot_version_ = serializer_->DecodeVersion(
@@ -373,16 +372,9 @@ void LevelDbQueryCache::SaveMetadata() {
 }
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
-  auto maybe_message =
-      Message<firestore_client_Target>::TryParse(ByteString{encoded});
-  if (!maybe_message.ok()) {
-    HARD_FAIL("Target proto failed to parse: %s",
-              maybe_message.status().ToString());
-  }
-
-  Reader reader;
-  auto result =
-      serializer_->DecodeQueryData(&reader, *maybe_message.ValueOrDie());
+  Reader reader{encoded};
+  auto message = Message<firestore_client_Target>::TryParse(&reader);
+  auto result = serializer_->DecodeQueryData(&reader, *message);
   if (!reader.ok()) {
     HARD_FAIL("Target proto failed to parse: %s", reader.status().ToString());
   }

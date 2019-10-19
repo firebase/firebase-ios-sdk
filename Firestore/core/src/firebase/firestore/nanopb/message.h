@@ -25,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
@@ -42,9 +41,6 @@ void FreeNanopbMessage(const pb_field_t* fields, void* dest_struct);
 template <typename T>
 class Message;
 
-template <typename T>
-using MaybeMessage = util::StatusOr<Message<T>>;
-
 /**
  * A unique-ownership RAII wrapper for Nanopb-generated message types.
  *
@@ -53,8 +49,7 @@ using MaybeMessage = util::StatusOr<Message<T>>;
  * deallocated by calling `pb_release`; `Message` implements a simple RAII
  * wrapper that does just that. For simplicity, `Message` implements unique
  * ownership model. It provides a pointer-like access to the underlying Nanopb
- * proto. Also, `Message` serves to translate representation formats between
- * Nanopb and gRPC.
+ * proto.
  *
  * Note that moving *isn't* a particularly cheap operation in the general case.
  * Even without doing deep copies, Nanopb protos contain *a lot* of member
@@ -72,16 +67,12 @@ class Message {
   Message() = default;
 
   /**
-   * Attempts to parse a Nanopb message from the given `byte_buffer`. If the
-   * given bytes are ill-formed, returns a failed `Status`.
+   * Attempts to parse a Nanopb message from the given `reader`. If the reader
+   * contains ill-formed bytes, returns a default-constructed `Message`; check
+   * the status on `reader` to see whether parsing was successful.
    */
-  static MaybeMessage<T> TryParse(const grpc::ByteBuffer& byte_buffer);
-
-  /**
-   * Attempts to parse a Nanopb message from the given `bytes`. If the
-   * given bytes are ill-formed, returns a failed `Status`.
-   */
-  static MaybeMessage<T> TryParse(const ByteString& bytes);
+  template <typename U>
+  static Message TryParse(U* reader);
 
   ~Message() {
     Free();
@@ -187,25 +178,15 @@ util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
 }  // namespace internal
 
 template <typename T>
-MaybeMessage<T> Message<T>::TryParse(const grpc::ByteBuffer& byte_buffer) {
-  auto maybe_bytes = internal::ToByteString(byte_buffer);
-  if (!maybe_bytes.ok()) {
-    return maybe_bytes.status();
+template <typename U>
+Message<T> Message<T>::TryParse(U* reader) {
+  Message<T> result;
+  reader->ReadNanopbMessage(result.fields(), result.get());
+  if (!reader->ok()) {
+    // Guarantee that a partially-filled message is never returned.
+    return Message<T>{};
   }
-
-  return TryParse(maybe_bytes.ValueOrDie());
-}
-
-template <typename T>
-MaybeMessage<T> Message<T>::TryParse(const ByteString& bytes) {
-  Message message;
-  nanopb::Reader reader{bytes};
-  reader.ReadNanopbMessage(message.fields(), message.get());
-  if (!reader.ok()) {
-    return reader.status();
-  }
-
-  return MaybeMessage<T>{std::move(message)};
+  return result;
 }
 
 /**

@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,9 +44,6 @@ namespace nanopb {
  */
 class Reader {
  public:
-  Reader(const Reader&) = delete;
-  Reader(Reader&&) = delete;
-
   /**
    * Creates an instance that isn't associated with any bytes. It can be used
    * to accumulate errors.
@@ -100,7 +98,7 @@ class Reader {
     return status_.ok();
   }
 
-  util::Status status() const {
+  const util::Status& status() const {
     return status_;
   }
 
@@ -121,6 +119,13 @@ class Reader {
   }
 
  private:
+  friend class GrpcByteBufferReader;
+
+  Reader(const Reader&) = default;
+  Reader(Reader&&) = default;
+  Reader& operator=(const Reader&) = default;
+  Reader& operator=(Reader&&) = default;
+
   /**
    * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
    * a shallow copy will be taken. (Non-null pointers within this struct must
@@ -132,6 +137,31 @@ class Reader {
   util::Status status_ = util::Status::OK();
 
   pb_istream_t stream_{};
+};
+
+class GrpcByteBufferReader {
+ public:
+  explicit GrpcByteBufferReader(const grpc::ByteBuffer& buffer);
+
+  void ReadNanopbMessage(const pb_field_t* fields, void* dest_struct) {
+    reader_.ReadNanopbMessage(fields, dest_struct);
+  }
+
+  bool ok() const {
+    return reader_.ok();
+  }
+
+  const util::Status& status() const {
+    return reader_.status();
+  }
+
+  void set_status(util::Status status) {
+    reader_.set_status(std::move(status));
+  }
+
+ private:
+  ByteString bytes_;
+  Reader reader_;
 };
 
 }  // namespace nanopb

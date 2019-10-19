@@ -49,7 +49,6 @@ using model::Mutation;
 using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
-using nanopb::MaybeMessage;
 using nanopb::Message;
 using nanopb::Reader;
 
@@ -132,17 +131,7 @@ LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
 
 void LevelDbMutationQueue::Start() {
   next_batch_id_ = LoadNextBatchIdFromDb(db_->ptr());
-
-  std::string key = mutation_queue_key();
-  auto maybe_metadata = MetadataForKey(key);
-  if (maybe_metadata.ok()) {
-    metadata_ = std::move(maybe_metadata).ValueOrDie();
-  } else if (maybe_metadata.status().code() == Error::NotFound) {
-    // The default-constructed `metadata_` is fine.
-  } else {
-    HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
-              maybe_metadata.status().ToString());
-  }
+  metadata_ = MetadataForKey(mutation_queue_key());
 }
 
 bool LevelDbMutationQueue::IsEmpty() {
@@ -460,29 +449,32 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
   return result;
 }
 
-MaybeMessage<firestore_client_MutationQueue>
-LevelDbMutationQueue::MetadataForKey(const std::string& key) {
+Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
+    const std::string& key) {
   std::string value;
   Status status = db_->current_transaction()->Get(key, &value);
-  if (!status.ok()) {
-    return ConvertStatus(status);
-  }
 
-  return Message<firestore_client_MutationQueue>::TryParse(ByteString{value});
+  Reader reader{value};
+  reader.set_status(ConvertStatus(status));
+  auto result = Message<firestore_client_MutationQueue>::TryParse(&reader);
+
+  if (reader.ok()) {
+    return result;
+  } else if (reader.status().code() == Error::NotFound) {
+    // Return a default-constructed message (`TryParse` is guaranteed to return
+    // a default-constructed message on failure).
+    return result;
+  } else {
+    HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
+              reader.status().ToString());
+  }
 }
 
 MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
-  auto maybe_message =
-      Message<firestore_client_WriteBatch>::TryParse(ByteString{encoded});
-  if (!maybe_message.ok()) {
-    HARD_FAIL("MutationBatch proto failed to parse: %s",
-              maybe_message.status().ToString());
-  }
-
-  Reader reader;
-  auto result =
-      serializer_->DecodeMutationBatch(&reader, *maybe_message.ValueOrDie());
+  Reader reader{encoded};
+  auto maybe_message = Message<firestore_client_WriteBatch>::TryParse(&reader);
+  auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
   if (!reader.ok()) {
     HARD_FAIL("MutationBatch proto failed to parse: %s",
               reader.status().ToString());

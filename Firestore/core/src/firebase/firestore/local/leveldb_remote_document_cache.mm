@@ -142,16 +142,12 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
 
 MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     absl::string_view encoded, const DocumentKey& key) {
-  auto maybe_message =
-      Message<firestore_client_MaybeDocument>::TryParse(ByteString{encoded});
-  if (!maybe_message.ok()) {
-    HARD_FAIL("MaybeDocument proto failed to parse: %s",
-              maybe_message.status().ToString());
-  }
+  Reader reader{encoded};
 
-  Reader reader;
+  auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
   MaybeDocument maybe_document =
-      serializer_->DecodeMaybeDocument(&reader, *maybe_message.ValueOrDie());
+      serializer_->DecodeMaybeDocument(&reader, *message);
+
   if (!reader.ok()) {
     HARD_FAIL("MaybeDocument proto failed to parse: %s",
               reader.status().ToString());

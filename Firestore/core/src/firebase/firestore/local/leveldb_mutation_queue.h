@@ -109,7 +109,7 @@ class LevelDbMutationQueue : public MutationQueue {
   }
 
   /** Parses the MutationQueue metadata from the given LevelDB row contents. */
-  nanopb::MaybeMessage<firestore_client_MutationQueue> MetadataForKey(
+  nanopb::Message<firestore_client_MutationQueue> MetadataForKey(
       const std::string& key);
 
   model::MutationBatch ParseMutationBatch(absl::string_view encoded);

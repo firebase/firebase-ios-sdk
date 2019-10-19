@@ -37,6 +37,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::Error;
+using firebase::firestore::firestore_client_TargetGlobal;
 using firebase::firestore::local::LevelDbCollectionParentKey;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
@@ -54,6 +55,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::util::Path;
@@ -62,6 +64,13 @@ using leveldb::Options;
 using leveldb::Status;
 
 using SchemaVersion = LevelDbMigrations::SchemaVersion;
+
+bool ValidMetadata(const Message<firestore_client_TargetGlobal> &metadata) {
+  // Checks to see whether any field is set.
+  return metadata->highest_target_id != 0 || metadata->highest_listen_sequence_number != 0 ||
+         metadata->last_remote_snapshot_version.seconds != 0 ||
+         metadata->last_remote_snapshot_version.nanos != 0 || metadata->target_count != 0;
+}
 
 @interface FSTLevelDBMigrationsTests : XCTestCase
 @end
@@ -87,12 +96,12 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testAddsTargetGlobal {
-  auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssert(!maybe_metadata.ok(), @"Not expecting metadata yet, we should have an empty db");
+  auto metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+  XCTAssert(!ValidMetadata(metadata), @"Not expecting metadata yet, we should have an empty db");
   LevelDbMigrations::RunMigrations(_db.get());
 
-  maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssert(maybe_metadata.ok(), @"Migrations should have added the metadata");
+  metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+  XCTAssert(ValidMetadata(metadata), @"Migrations should have added the metadata");
 }
 
 - (void)testSetsVersionNumber {
@@ -167,9 +176,9 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
       ASSERT_FOUND(transaction, key);
     }
 
-    auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-    XCTAssert(maybe_metadata.ok(), @"Metadata should have been added");
-    XCTAssertEqual(maybe_metadata.ValueOrDie()->target_count, 0);
+    auto metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+    XCTAssert(ValidMetadata(metadata), @"Metadata should have been added");
+    XCTAssertEqual(metadata->target_count, 0);
   }
 }
 
@@ -210,8 +219,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     LevelDbTransaction transaction(_db.get(), "Setup");
 
     // Set up target global
-    auto maybe_metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-    auto metadata = std::move(maybe_metadata).ValueOrDie();
+    auto metadata = LevelDbQueryCache::ReadMetadata(_db.get());
     // Expect that documents missing a row will get the new number
     metadata->highest_listen_sequence_number = new_sequence_number;
     transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);

@@ -39,24 +39,20 @@ using remote::Serializer;
 // dynamically-allocated members.
 using Proto = google_firestore_v1_WriteResponse;
 using TestMessage = Message<Proto>;
-using TestMaybeMessage = MaybeMessage<Proto>;
 
 class MessageTest : public testing::Test {
  public:
   grpc::ByteBuffer GoodProto() const {
-    Proto proto{};
+    TestMessage message;
 
     // A couple of fields should be enough -- these tests are primarily
     // concerned with ownership, not parsing.
-    proto.stream_id = serializer_.EncodeString("stream_id");
-    proto.stream_token = serializer_.EncodeString("stream_token");
+    message->stream_id = serializer_.EncodeString("stream_id");
+    message->stream_token = serializer_.EncodeString("stream_token");
 
-    ByteStringWriter writer;
-    writer.WriteNanopbMessage(google_firestore_v1_WriteResponse_fields, &proto);
-    ByteString bytes = writer.Release();
-
-    grpc::Slice slice{bytes.data(), bytes.size()};
-    return grpc::ByteBuffer{&slice, 1};
+    GrpcByteBufferWriter writer;
+    writer.WriteNanopbMessage(message.fields(), message.get());
+    return writer.Release();
   }
 
   grpc::ByteBuffer BadProto() const {
@@ -72,9 +68,9 @@ class MessageTest : public testing::Test {
 };
 
 TEST_F(MessageTest, Move) {
-  TestMaybeMessage maybe_message = TestMessage::TryParse(GoodProto());
-  ASSERT_OK(maybe_message);
-  TestMessage message1 = std::move(maybe_message).ValueOrDie();
+  GrpcByteBufferReader reader{GoodProto()};
+  auto message1 = TestMessage::TryParse(&reader);
+  ASSERT_OK(reader.status());
   TestMessage message2 = std::move(message1);
   EXPECT_EQ(message1.get(), nullptr);
   EXPECT_NE(message2.get(), nullptr);
@@ -83,8 +79,9 @@ TEST_F(MessageTest, Move) {
 }
 
 TEST_F(MessageTest, ParseFailure) {
-  TestMaybeMessage maybe_message = TestMessage::TryParse(BadProto());
-  EXPECT_NOT_OK(maybe_message);
+  GrpcByteBufferReader reader{BadProto()};
+  auto message = TestMessage::TryParse(&reader);
+  EXPECT_NOT_OK(reader.status());
 }
 
 }  //  namespace

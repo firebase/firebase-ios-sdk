@@ -52,9 +52,9 @@ using model::TargetId;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
+using nanopb::GrpcByteBufferReader;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
-using nanopb::MaybeMessage;
 using nanopb::Message;
 using remote::Serializer;
 using util::MakeString;
@@ -142,9 +142,9 @@ WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
   return result;
 }
 
-MaybeMessage<google_firestore_v1_ListenResponse>
-WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_ListenResponse>::TryParse(message);
+Message<google_firestore_v1_ListenResponse>
+WatchStreamSerializer::ParseResponse(GrpcByteBufferReader* reader) const {
+  return Message<google_firestore_v1_ListenResponse>::TryParse(reader);
 }
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
@@ -206,9 +206,9 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
   return result;
 }
 
-MaybeMessage<google_firestore_v1_WriteResponse>
-WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_WriteResponse>::TryParse(message);
+Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
+    GrpcByteBufferReader* reader) const {
+  return Message<google_firestore_v1_WriteResponse>::TryParse(reader);
 }
 
 SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
@@ -298,22 +298,21 @@ DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
   std::map<DocumentKey, MaybeDocument> results;
-  nanopb::Reader reader;
 
   for (const auto& response : responses) {
-    auto maybe_proto =
+    GrpcByteBufferReader grpc_reader{response};
+    auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
-            response);
-    if (!maybe_proto.ok()) {
-      return maybe_proto.status();
-    }
+            &grpc_reader);
 
-    const auto& proto = maybe_proto.ValueOrDie();
-    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *proto);
+    nanopb::Reader reader;
+    reader.set_status(grpc_reader.status());
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *message);
     results[doc.key()] = std::move(doc);
-  }
-  if (!reader.ok()) {
-    return reader.status();
+
+    if (!reader.ok()) {
+      return reader.status();
+    }
   }
 
   std::vector<MaybeDocument> docs;

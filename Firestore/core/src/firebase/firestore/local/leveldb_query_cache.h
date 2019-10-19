@@ -44,7 +44,7 @@ class LevelDbQueryCache : public QueryCache {
    * exists.
    * TODO(gsoltis): remove this method once fully ported to transactions.
    */
-  static nanopb::MaybeMessage<firestore_client_TargetGlobal> ReadMetadata(
+  static nanopb::Message<firestore_client_TargetGlobal> ReadMetadata(
       leveldb::DB* db);
 
   /**

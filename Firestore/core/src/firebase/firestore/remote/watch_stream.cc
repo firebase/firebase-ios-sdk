@@ -32,7 +32,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
-using nanopb::MaybeMessage;
+using nanopb::GrpcByteBufferReader;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -84,12 +84,11 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  auto maybe_response = watch_serializer_.ParseResponse(message);
-  if (!maybe_response.ok()) {
-    return maybe_response.status();
+  GrpcByteBufferReader grpc_reader{message};
+  auto response = watch_serializer_.ParseResponse(&grpc_reader);
+  if (!grpc_reader.ok()) {
+    return grpc_reader.status();
   }
-
-  const auto& response = maybe_response.ValueOrDie();
 
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
             watch_serializer_.Describe(response));

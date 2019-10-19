@@ -32,7 +32,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
 using nanopb::ByteString;
-using nanopb::MaybeMessage;
+using nanopb::GrpcByteBufferReader;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -116,13 +116,13 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
-      write_serializer_.ParseResponse(message);
-  if (!maybe_response.ok()) {
-    return maybe_response.status();
+  GrpcByteBufferReader grpc_reader{message};
+  Message<google_firestore_v1_WriteResponse> response =
+      write_serializer_.ParseResponse(&grpc_reader);
+  if (!grpc_reader.ok()) {
+    return grpc_reader.status();
   }
 
-  auto& response = maybe_response.ValueOrDie();
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
             write_serializer_.Describe(response));
 
