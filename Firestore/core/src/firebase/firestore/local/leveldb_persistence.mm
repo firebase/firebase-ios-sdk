@@ -101,7 +101,7 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                                        util::Path directory,
                                        std::set<std::string> users,
-                                       LocalSerializer&& serializer,
+                                       LocalSerializer serializer,
                                        const LruParams& lru_params)
     : db_(std::move(db)),
       directory_(std::move(directory)),

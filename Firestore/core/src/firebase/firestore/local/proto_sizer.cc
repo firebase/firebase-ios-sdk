@@ -38,6 +38,10 @@ ProtoSizer::ProtoSizer(LocalSerializer serializer)
 }
 
 int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
+  // TODO(varconst): implement a version of `nanopb::Writer` that only
+  // calculates sizes without actually doing the encoding (to the extent
+  // possible). This isn't high priority as long as `ProtoSizer` is only used in
+  // tests.
   return serializer_.EncodeMaybeDocument(maybe_doc).ToByteString().size();
 }
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_ARRAY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_ARRAY_H_
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
@@ -41,72 +41,72 @@ namespace nanopb {
 // If you run into an error where compiler complains about the deleted function,
 // simply add the missing specialization.
 template <typename T>
-const pb_field_t* GetNanopbFields() = delete;
+const pb_field_t* FieldsArray() = delete;
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_MaybeDocument>() {
+inline const pb_field_t* FieldsArray<firestore_client_MaybeDocument>() {
   return firestore_client_MaybeDocument_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_MutationQueue>() {
+inline const pb_field_t* FieldsArray<firestore_client_MutationQueue>() {
   return firestore_client_MutationQueue_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_Target>() {
+inline const pb_field_t* FieldsArray<firestore_client_Target>() {
   return firestore_client_Target_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_TargetGlobal>() {
+inline const pb_field_t* FieldsArray<firestore_client_TargetGlobal>() {
   return firestore_client_TargetGlobal_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<firestore_client_WriteBatch>() {
+inline const pb_field_t* FieldsArray<firestore_client_WriteBatch>() {
   return firestore_client_WriteBatch_fields;
 }
 
 template <>
 inline const pb_field_t*
-GetNanopbFields<google_firestore_v1_BatchGetDocumentsRequest>() {
+FieldsArray<google_firestore_v1_BatchGetDocumentsRequest>() {
   return google_firestore_v1_BatchGetDocumentsRequest_fields;
 }
 
 template <>
 inline const pb_field_t*
-GetNanopbFields<google_firestore_v1_BatchGetDocumentsResponse>() {
+FieldsArray<google_firestore_v1_BatchGetDocumentsResponse>() {
   return google_firestore_v1_BatchGetDocumentsResponse_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_CommitRequest>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_CommitRequest>() {
   return google_firestore_v1_CommitRequest_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_CommitResponse>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_CommitResponse>() {
   return google_firestore_v1_CommitResponse_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_ListenRequest>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_ListenRequest>() {
   return google_firestore_v1_ListenRequest_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_ListenResponse>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
   return google_firestore_v1_ListenResponse_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteRequest>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_WriteRequest>() {
   return google_firestore_v1_WriteRequest_fields;
 }
 
 template <>
-inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteResponse>() {
+inline const pb_field_t* FieldsArray<google_firestore_v1_WriteResponse>() {
   return google_firestore_v1_WriteResponse_fields;
 }
 
@@ -114,4 +114,4 @@ inline const pb_field_t* GetNanopbFields<google_firestore_v1_WriteResponse>() {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_MAP_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_FIELDS_ARRAY_H_

@@ -60,9 +60,8 @@ std::string UpdatedDocumentData(int64_t documentSize) {
 
 FSTLevelDB *LevelDBPersistence() {
   DatabaseId db_id("p", "d");
-  Serializer remote_serializer{db_id};
-  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:db_id];
-  LocalSerializer serializer{std::move(remote_serializer)};
+  Serializer remoteSerializer{db_id};
+  LocalSerializer serializer{std::move(remoteSerializer)};
 
   FSTLevelDB *db;
   Path path = util::TempDir().AppendUtf8("FSTLevelDBBenchmarkTests");

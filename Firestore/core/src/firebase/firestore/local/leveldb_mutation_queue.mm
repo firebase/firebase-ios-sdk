@@ -173,8 +173,7 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
   MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
                       std::move(mutations));
   std::string key = mutation_batch_key(batch_id);
-  db_->current_transaction()->Put(
-      key, serializer_->EncodeMutationBatch(batch).ToByteString());
+  db_->current_transaction()->Put(key, serializer_->EncodeMutationBatch(batch));
 
   // Store an empty value in the index which is equivalent to serializing a
   // GPBEmpty message. In the future if we wanted to store some other kind of
@@ -435,8 +434,7 @@ ByteString LevelDbMutationQueue::GetLastStreamToken() {
 
 void LevelDbMutationQueue::SetLastStreamToken(ByteString stream_token) {
   metadata_->last_stream_token = stream_token.release();
-  db_->current_transaction()->Put(mutation_queue_key(),
-                                  metadata_.ToByteString());
+  db_->current_transaction()->Put(mutation_queue_key(), metadata_);
 }
 
 std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(

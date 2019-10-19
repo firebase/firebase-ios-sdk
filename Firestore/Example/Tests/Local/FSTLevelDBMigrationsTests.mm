@@ -214,7 +214,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     auto metadata = std::move(maybe_metadata).ValueOrDie();
     // Expect that documents missing a row will get the new number
     metadata->highest_listen_sequence_number = new_sequence_number;
-    transaction.Put(LevelDbTargetGlobalKey::Key(), metadata.ToByteString());
+    transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);
 
     // Set up some documents (we only need the keys)
     // For the odd ones, add sentinel rows.

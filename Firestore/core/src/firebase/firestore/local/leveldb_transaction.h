@@ -25,7 +25,8 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -178,11 +179,14 @@ class LevelDbTransaction {
   void Put(std::string key, std::string value);
 
   /**
-   * Schedules the row identified by `key` to be set to `value` when this
-   * transaction commits.
+   * Schedules the row identified by `key` to be set to the given protocol
+   * buffer message when this transaction commits.
    */
-  void Put(std::string key, const nanopb::ByteString& value) {
-    Put(std::move(key), nanopb::MakeString(value.get()));
+  template <typename T>
+  void Put(std::string key, const nanopb::Message<T>& message) {
+    nanopb::StringWriter writer;
+    writer.WriteNanopbMessage(message.fields(), message.get());
+    Put(std::move(key), writer.Release());
   }
 
   /**

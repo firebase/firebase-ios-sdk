@@ -63,7 +63,7 @@ MaybeMessage<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
                                      LocalSerializer* serializer)
-    : db_(db), serializer_(NOT_NULL(serializer)) {
+    : db_(NOT_NULL(db)), serializer_(NOT_NULL(serializer)) {
 }
 
 void LevelDbQueryCache::Start() {
@@ -348,8 +348,8 @@ void LevelDbQueryCache::EnumerateOrphanedDocuments(
 void LevelDbQueryCache::Save(const QueryData& query_data) {
   TargetId target_id = query_data.target_id();
   std::string key = LevelDbTargetKey::Key(target_id);
-  db_->current_transaction()->Put(
-      key, serializer_->EncodeQueryData(query_data).ToByteString());
+  db_->current_transaction()->Put(key,
+                                  serializer_->EncodeQueryData(query_data));
 }
 
 bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
@@ -369,8 +369,7 @@ bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
 }
 
 void LevelDbQueryCache::SaveMetadata() {
-  db_->current_transaction()->Put(LevelDbTargetGlobalKey::Key(),
-                                  metadata_.ToByteString());
+  db_->current_transaction()->Put(LevelDbTargetGlobalKey::Key(), metadata_);
 }
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {

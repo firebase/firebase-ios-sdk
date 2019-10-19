@@ -116,7 +116,7 @@ class LevelDbPersistence : public Persistence {
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
-                     LocalSerializer&& serializer,
+                     LocalSerializer serializer,
                      const LruParams& lru_params);
 
   /**

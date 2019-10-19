@@ -20,7 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/fields_map.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/fields_array.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -168,16 +168,18 @@ class Message {
    */
   ByteString ToByteString() const;
 
- private:
-  // Returns a pointer to the Nanopb-generated array that describes the fields
-  // of the Nanopb proto; the array is required to call most Nanopb functions.
-  //
-  // Note that this is essentially a property of the type, but cannot be made
-  // a template parameter for various technical reasons.
+  /**
+   * Returns a pointer to the Nanopb-generated array that describes the fields
+   * of the Nanopb proto; the array is required to call most Nanopb functions.
+   *
+   * Note that this is essentially a property of the type, but cannot be made
+   * a template parameter for various technical reasons.
+   */
   static const pb_field_t* fields() {
-    return GetNanopbFields<T>();
+    return FieldsArray<T>();
   }
 
+ private:
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {
     if (owns_proto_) {

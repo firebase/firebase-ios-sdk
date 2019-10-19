@@ -53,8 +53,8 @@ LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
 
 void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key());
-  db_->current_transaction()->Put(
-      ldb_key, serializer_->EncodeMaybeDocument(document).ToByteString());
+  db_->current_transaction()->Put(ldb_key,
+                                  serializer_->EncodeMaybeDocument(document));
 
   db_->index_manager()->AddToCollectionParentIndex(
       document.key().path().PopLast());
