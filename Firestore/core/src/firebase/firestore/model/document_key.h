@@ -70,7 +70,7 @@ class DocumentKey : public util::ComparableWithEqual<DocumentKey> {
 
   util::ComparisonResult CompareTo(const DocumentKey& other) const;
 
-  bool IsEqual(const DocumentKey& other) const;
+  bool IsEqualTo(const DocumentKey& other) const;
 
   size_t Hash() const {
     return util::Hash(ToString());

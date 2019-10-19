@@ -154,7 +154,7 @@ class BasePath {
     return util::CompareContainer(segments_, rhs.segments_);
   }
 
-  bool IsEqual(const T& rhs) const {
+  bool IsEqualTo(const T& rhs) const {
     return segments_ == rhs.segments_;
   }
 
