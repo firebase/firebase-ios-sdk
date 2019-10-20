@@ -41,13 +41,18 @@ class LocalSerializer;
 class LevelDbQueryCache : public QueryCache {
  public:
   /**
-   * Retrieves the global singleton metadata row from the given database, if it
-   * exists.
+   * Retrieves the global singleton metadata row from the given database. If the
+   * metadata row doesn't exist, this will result in an assertion failure.
+   *
    * TODO(gsoltis): remove this method once fully ported to transactions.
    */
   static nanopb::Message<firestore_client_TargetGlobal> ReadMetadata(
       leveldb::DB* db);
 
+  /**
+   * Test-only -- same as `ReadMetadata`, but returns an empty optional if the
+   * metadata row doesn't exist.
+   */
   static absl::optional<nanopb::Message<firestore_client_TargetGlobal>>
   TryReadMetadata(leveldb::DB* db);
 

@@ -44,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTPersistenceTestHelpers
 
 + (LocalSerializer)localSerializer {
-  Serializer remote_serializer{DatabaseId("p", "d")};
-  return LocalSerializer{std::move(remote_serializer)};
+  Serializer remoteSerializer{DatabaseId("p", "d")};
+  return LocalSerializer{std::move(remoteSerializer)};
 }
 
 + (Path)levelDBDir {

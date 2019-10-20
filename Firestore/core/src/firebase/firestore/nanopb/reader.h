@@ -119,6 +119,7 @@ class Reader {
   }
 
  private:
+  // For access to copy/move operations.
   friend class GrpcByteBufferReader;
 
   Reader(const Reader&) = default;

@@ -145,7 +145,7 @@ class StringWriter : public Writer {
   std::string buffer_;
 };
 
-/** Creates an Writer that writes into a `grpc::ByteBuffer`. */
+/** Creates a `Writer` that writes into a `grpc::ByteBuffer`. */
 class GrpcByteBufferWriter : public Writer {
  public:
   GrpcByteBufferWriter();

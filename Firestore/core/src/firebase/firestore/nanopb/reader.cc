@@ -23,12 +23,10 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-namespace {
-
 using remote::ConvertStatus;
 using util::Status;
 
-}  // namespace
+// Reader
 
 Reader::Reader(const ByteString& bytes) : Reader(bytes.data(), bytes.size()) {
 }

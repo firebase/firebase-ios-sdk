@@ -16,11 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 
-#include <cstdint>
-#include <vector>
-
-#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-
 namespace firebase {
 namespace firestore {
 namespace nanopb {
