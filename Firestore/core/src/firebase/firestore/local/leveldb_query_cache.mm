@@ -49,8 +49,8 @@ using nanopb::Reader;
 using util::MakeString;
 using leveldb::Status;
 
-Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
-    leveldb::DB* db) {
+absl::optional<Message<firestore_client_TargetGlobal>>
+LevelDbQueryCache::TryReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
@@ -61,8 +61,7 @@ Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
   auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
   if (!reader.ok()) {
     if (reader.status().code() == Error::NotFound) {
-      HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
-                "ensures metadata existence");
+      return absl::nullopt;
     } else {
       HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
                 reader.status().ToString());
@@ -70,6 +69,16 @@ Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
   }
 
   return result;
+}
+
+Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
+    leveldb::DB* db) {
+  auto maybe_metadata = TryReadMetadata(db);
+  if (!maybe_metadata) {
+    HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
+              "ensures metadata existence");
+  }
+  return std::move(maybe_metadata).value();
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,

@@ -210,12 +210,12 @@ class LevelDbTransaction {
   std::string ToString();
 
  private:
-  leveldb::DB* db_;
+  leveldb::DB* db_ = nullptr;
   Mutations mutations_;
   Deletions deletions_;
   leveldb::ReadOptions read_options_;
   leveldb::WriteOptions write_options_;
-  int32_t version_;
+  int32_t version_ = 0;
   std::string label_;
 };
 

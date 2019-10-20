@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 #include "leveldb/db.h"
 
 namespace firebase {
@@ -46,6 +47,9 @@ class LevelDbQueryCache : public QueryCache {
    */
   static nanopb::Message<firestore_client_TargetGlobal> ReadMetadata(
       leveldb::DB* db);
+
+  static absl::optional<nanopb::Message<firestore_client_TargetGlobal>>
+  TryReadMetadata(leveldb::DB* db);
 
   /**
    * Creates a new query cache in the given LevelDB.
