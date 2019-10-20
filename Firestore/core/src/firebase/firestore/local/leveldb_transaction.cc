@@ -164,7 +164,7 @@ const WriteOptions& LevelDbTransaction::DefaultWriteOptions() {
 
 void LevelDbTransaction::Put(std::string key, std::string value) {
   deletions_.erase(key);
-  mutations_.emplace(std::make_pair(std::move(key), std::move(value)));
+  mutations_[std::move(key)] = std::move(value);
   version_++;
 }
 
