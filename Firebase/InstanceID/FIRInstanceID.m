@@ -275,7 +275,6 @@ static FIRInstanceID *gInstanceID;
 
   NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
   NSString *serverTypeKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
-
   if (tokenOptions[APNSKey] != nil && tokenOptions[serverTypeKey] == nil) {
     // APNS key was given, but server type is missing. Supply the server type with automatic
     // checking. This can happen when the token is requested from FCM, which does not include a

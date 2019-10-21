@@ -214,10 +214,12 @@ private struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingCont
   public mutating func encode(_ value: Double, forKey key: Key) throws { container[key.stringValue] = encoder.box(value) }
 
   public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-    // `DocumentID`-annotated fields are ignored during encoding.
-    if T.self is DocumentIDProtocol.Type {
-      return
-    }
+    #if compiler(>=5.1)
+      // `DocumentID`-annotated fields are ignored during encoding.
+      if T.self is DocumentIDProtocol.Type {
+        return
+      }
+    #endif // compiler(>=5.1)
 
     encoder.codingPath.append(key)
     defer {

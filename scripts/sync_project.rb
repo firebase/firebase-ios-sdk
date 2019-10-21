@@ -546,7 +546,7 @@ class Syncer
         next
       end
 
-      path = PODFILE_DIR.join(config.base_configuration_reference.path)
+      path = PODFILE_DIR.join(config.base_configuration_reference.real_path)
       if !File.file?(path)
         puts "Skipping #{target.name} (#{config.name}); missing xcconfig"
         next

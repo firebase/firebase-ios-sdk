@@ -207,6 +207,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::chrono::milliseconds initial_gc_delay_ = std::chrono::minutes(1);
   std::chrono::milliseconds regular_gc_delay_ = std::chrono::minutes(5);
   bool gc_has_run_ = false;
+  bool credentials_initialized_ = false;
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
 };

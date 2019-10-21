@@ -27,9 +27,11 @@
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+RegisterInstallationAPI.h"
 #import "FIRInstallationsLogger.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
+NSString *const kFIRInstallationsIIDMigrationAuthHeader = @"x-goog-fis-ios-iid-migration-auth";
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstallationsAPIService ()
 @property(nonatomic, readonly) NSURLSession *URLSession;
+@property(nonatomic, readonly) NSString *APIKey;
+@property(nonatomic, readonly) NSString *projectID;
 @end
 
 NS_ASSUME_NONNULL_END
@@ -128,7 +132,20 @@ NS_ASSUME_NONNULL_END
     @"sdkVersion" : [self SDKVersion]
   };
 
-  return [self requestWithURL:URL HTTPMethod:@"POST" bodyDict:bodyDict refreshToken:nil];
+  NSDictionary *headers;
+  if (installation.IIDCheckin && installation.IIDCheckin.deviceID &&
+      installation.IIDCheckin.secretToken) {
+    NSString *IIDAuthHeaderValue =
+        [NSString stringWithFormat:@"%@:%@", installation.IIDCheckin.deviceID,
+                                   installation.IIDCheckin.secretToken];
+    headers = @{kFIRInstallationsIIDMigrationAuthHeader : IIDAuthHeaderValue};
+  }
+
+  return [self requestWithURL:URL
+                   HTTPMethod:@"POST"
+                     bodyDict:bodyDict
+                 refreshToken:nil
+            additionalHeaders:headers];
 }
 
 - (FBLPromise<FIRInstallationsItem *> *)
@@ -215,7 +232,20 @@ NS_ASSUME_NONNULL_END
                       HTTPMethod:(NSString *)HTTPMethod
                         bodyDict:(NSDictionary *)bodyDict
                     refreshToken:(nullable NSString *)refreshToken {
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
+  return [self requestWithURL:requestURL
+                   HTTPMethod:HTTPMethod
+                     bodyDict:bodyDict
+                 refreshToken:refreshToken
+            additionalHeaders:nil];
+}
+
+- (NSURLRequest *)requestWithURL:(NSURL *)requestURL
+                      HTTPMethod:(NSString *)HTTPMethod
+                        bodyDict:(NSDictionary *)bodyDict
+                    refreshToken:(nullable NSString *)refreshToken
+               additionalHeaders:
+                   (nullable NSDictionary<NSString *, NSString *> *)additionalHeaders {
+  __block NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
   request.HTTPMethod = HTTPMethod;
   [request addValue:self.APIKey forHTTPHeaderField:kFIRInstallationsAPIKey];
   [self setJSONHTTPBody:bodyDict forRequest:request];
@@ -223,6 +253,12 @@ NS_ASSUME_NONNULL_END
     NSString *authHeader = [NSString stringWithFormat:@"FIS_v2 %@", refreshToken];
     [request setValue:authHeader forHTTPHeaderField:@"Authorization"];
   }
+
+  [additionalHeaders enumerateKeysAndObjectsUsingBlock:^(
+                         NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+    [request setValue:obj forHTTPHeaderField:key];
+  }];
+
   return [request copy];
 }
 

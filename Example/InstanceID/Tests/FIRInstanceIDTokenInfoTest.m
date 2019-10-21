@@ -195,4 +195,18 @@ static BOOL const kAPNSSandbox = NO;
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
+- (void)testTokenInconsistentWithIID {
+  XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
+  // Change token.
+  self.validTokenInfo = [[FIRInstanceIDTokenInfo alloc]
+      initWithAuthorizedEntity:kAuthorizedEntity
+                         scope:kScope
+                         token:@"cxhhwVY27AE:APA91bGfnlnbinRVE7nUwJSr_k6cuSTKectOlt66dKv1r_-"
+                               @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7"
+                               @"h1BKq9Wb2A0LAANpQefrPHVUp4p"
+                    appVersion:@"1.1"
+                 firebaseAppID:FIRInstanceIDFirebaseAppID()];
+  XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
+}
+
 @end
