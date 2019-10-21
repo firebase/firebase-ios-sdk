@@ -685,7 +685,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
 }
 
 - (BOOL)shouldBeConnectedAutomatically {
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX || TARGET_OS_WATCH
     return NO;
 #else
   // We require a token from Instance ID

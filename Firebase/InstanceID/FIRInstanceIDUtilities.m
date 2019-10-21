@@ -111,7 +111,7 @@ NSString *FIRInstanceIDDeviceModel() {
 NSString *FIRInstanceIDOperatingSystemVersion() {
 #if TARGET_OS_IOS || TARGET_OS_TV
   return [UIDevice currentDevice].systemVersion;
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   return [NSProcessInfo processInfo].operatingSystemVersionString;
 #endif
 }

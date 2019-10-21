@@ -1077,7 +1077,7 @@ static FIRInstanceID *gInstanceID;
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
 #endif
@@ -1159,7 +1159,7 @@ static FIRInstanceID *gInstanceID;
 
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
   NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKey];
 #endif

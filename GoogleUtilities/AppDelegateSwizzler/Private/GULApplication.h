@@ -36,4 +36,14 @@ static NSString *const kGULApplicationClassName = @"UIApplication";
 
 static NSString *const kGULApplicationClassName = @"NSApplication";
 
+#elif TARGET_OS_WATCH
+
+#import <WatchKit/WatchKit.h>
+
+#define GULApplication WKExtension
+#define GULApplicationDelegate WKExtensionDelegate
+#define GULUserActivityRestoring NSUserActivityRestoring
+
+static NSString *const kGULApplicationClassName = @"WKExtension";
+
 #endif

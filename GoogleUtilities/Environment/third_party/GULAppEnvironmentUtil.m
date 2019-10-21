@@ -139,7 +139,7 @@ static BOOL HasSCInfoFolder() {
 }
 
 static BOOL HasEmbeddedMobileProvision() {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
 #elif TARGET_OS_OSX
   return NO;

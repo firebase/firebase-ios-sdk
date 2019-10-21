@@ -125,7 +125,7 @@ static NSString *GDTCORStoragePath() {
                                                              error:&error];
         [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
       } else {
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
         [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
       }
@@ -219,7 +219,7 @@ static NSString *GDTCORStoragePath() {
     NSData *data = [NSData dataWithContentsOfFile:[GDTCORStorage archivePath]];
     [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORStorage class] fromData:data error:&error];
   } else {
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
     [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTCORStorage archivePath]];
 #endif
   }
@@ -243,7 +243,7 @@ static NSString *GDTCORStoragePath() {
                                                            error:&error];
       [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
     } else {
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
     }
@@ -262,7 +262,7 @@ static NSString *GDTCORStoragePath() {
                                                          error:&error];
     [data writeToFile:[GDTCORStorage archivePath] atomically:YES];
   } else {
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_WATCH
     [NSKeyedArchiver archiveRootObject:self toFile:[GDTCORStorage archivePath]];
 #endif
   }
