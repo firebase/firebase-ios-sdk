@@ -66,7 +66,7 @@ void WriteStream::WriteHandshake() {
   auto request = write_serializer_.EncodeHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
             write_serializer_.Describe(request));
-  Write(ToByteBuffer(request));
+  Write(MakeByteBuffer(request));
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -82,7 +82,7 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
       mutations, last_stream_token());
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
             write_serializer_.Describe(request));
-  Write(ToByteBuffer(request));
+  Write(MakeByteBuffer(request));
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -98,7 +98,7 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // resources.
     auto request =
         write_serializer_.EncodeEmptyMutationsList(last_stream_token());
-    grpc_stream->WriteAndFinish(ToByteBuffer(request));
+    grpc_stream->WriteAndFinish(MakeByteBuffer(request));
   } else {
     grpc_stream->FinishImmediately();
   }

@@ -93,7 +93,10 @@ void LevelDbQueryCache::Start() {
   Reader reader;
   last_remote_snapshot_version_ = serializer_->DecodeVersion(
       &reader, metadata_->last_remote_snapshot_version);
-  // FIXME
+  if (!reader.ok()) {
+    HARD_FAIL("Failed to decode last remote snapshot version, reason: '%s'",
+              reader.status().ToString());
+  }
 }
 
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {

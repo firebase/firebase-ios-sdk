@@ -56,7 +56,7 @@ void WatchStream::WatchQuery(const QueryData& query) {
   auto request = watch_serializer_.EncodeWatchRequest(query);
   LOG_DEBUG("%s watch: %s", GetDebugDescription(),
             watch_serializer_.Describe(request));
-  Write(ToByteBuffer(request));
+  Write(MakeByteBuffer(request));
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
@@ -66,7 +66,7 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
             watch_serializer_.Describe(request));
-  Write(ToByteBuffer(request));
+  Write(MakeByteBuffer(request));
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(

@@ -103,6 +103,12 @@ class Message {
     return *this;
   }
 
+  T* release() {
+    auto result = get();
+    owns_proto_ = false;
+    return result;
+  }
+
   /**
    * Returns a pointer to the underlying Nanopb proto or null if the `Message`
    * is moved-from.
@@ -171,21 +177,21 @@ class Message {
   T proto_{};
 };
 
-namespace internal {
-
-util::StatusOr<nanopb::ByteString> ToByteString(const grpc::ByteBuffer& buffer);
-
-}  // namespace internal
-
 template <typename T>
 template <typename U>
 Message<T> Message<T>::TryParse(U* reader) {
   Message<T> result;
   reader->ReadNanopbMessage(result.fields(), result.get());
+
   if (!reader->ok()) {
+    // In the event reading a Nanopb proto fails, Nanopb calls `pb_release` on
+    // the partially-filled message; let go of ownership to make sure double
+    // deletion doesn't occur.
+    result.release();
     // Guarantee that a partially-filled message is never returned.
     return Message<T>{};
   }
+
   return result;
 }
 
@@ -195,7 +201,7 @@ Message<T> Message<T>::TryParse(U* reader) {
  * The lifetime of the return value is entirely independent of the `message`.
  */
 template <typename T>
-grpc::ByteBuffer ToByteBuffer(const Message<T>& message) {
+grpc::ByteBuffer MakeByteBuffer(const Message<T>& message) {
   GrpcByteBufferWriter writer;
   writer.WriteNanopbMessage(message.fields(), message.get());
   return writer.Release();
@@ -207,7 +213,7 @@ grpc::ByteBuffer ToByteBuffer(const Message<T>& message) {
  * The lifetime of the return value is entirely independent of the `message`.
  */
 template <typename T>
-ByteString ToByteString(const Message<T>& message) {
+ByteString MakeByteString(const Message<T>& message) {
   ByteStringWriter writer;
   writer.WriteNanopbMessage(message.fields(), message.get());
   return writer.Release();
@@ -219,7 +225,7 @@ ByteString ToByteString(const Message<T>& message) {
  * The lifetime of the return value is entirely independent of the `message`.
  */
 template <typename T>
-std::string ToStdString(const Message<T>& message) {
+std::string MakeStdString(const Message<T>& message) {
   StringWriter writer;
   writer.WriteNanopbMessage(message.fields(), message.get());
   return writer.Release();

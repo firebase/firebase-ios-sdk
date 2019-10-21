@@ -144,7 +144,9 @@ GrpcByteBufferWriter::GrpcByteBufferWriter() {
 }
 
 grpc::ByteBuffer GrpcByteBufferWriter::Release() {
-  return grpc::ByteBuffer{buffer_.data(), buffer_.size()};
+  grpc::ByteBuffer result{buffer_.data(), buffer_.size()};
+  buffer_.clear();
+  return result;
 }
 
 }  // namespace nanopb

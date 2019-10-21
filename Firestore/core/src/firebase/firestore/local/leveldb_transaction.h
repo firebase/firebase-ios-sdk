@@ -184,7 +184,7 @@ class LevelDbTransaction {
    */
   template <typename T>
   void Put(std::string key, const nanopb::Message<T>& message) {
-    Put(std::move(key), ToStdString(message));
+    Put(std::move(key), MakeStdString(message));
   }
 
   /**
