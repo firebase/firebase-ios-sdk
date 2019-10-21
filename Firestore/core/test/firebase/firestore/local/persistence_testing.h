@@ -70,8 +70,7 @@ std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
 /** Creates and starts a new MemoryPersistence instance for testing. */
 std::unique_ptr<MemoryPersistence> MemoryPersistenceWithEagerGcForTesting();
 
-std::unique_ptr<MemoryPersistence>
-MemoryPersistenceWithLruGcForTesting();
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting();
 
 std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
     LruParams lru_params);
