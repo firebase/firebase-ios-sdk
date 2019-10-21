@@ -12,6 +12,20 @@ def didModify(files_array)
   return false
 end
 
+# Determine if the diff contains any additions with DO NOT SUBMIT phrases.
+def diffContainsForbiddenPhrases(forbidden_phrases)
+  git.diff.each do |chunk|
+    chunk.patch.lines.grep(/^+/).each do |added_line|
+      forbidden_phrases.each do |forbidden_phrase|
+        if added_line.include?(forbidden_phrase)
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
 # Determine if there are changes in files matching any of the
 # path patterns provided.
 def hasChangesIn(paths)
@@ -66,6 +80,18 @@ has_changelog_changes = hasChangesIn(["CHANGELOG"])
 
 # Whether or not the LICENSE file has been modified or deleted.
 has_license_changes = didModify(["LICENSE"])
+
+# Common permutations of DO NOT SUBMIT.
+do_not_submit_variations = [
+  "DO NOT SUBMIT", "DO NOT MERGE", "DO_NOT_SUBMIT", "DO_NOT_MERGE"
+]
+
+# Whether or not any of the changes or PR description contains common
+# permutations of DO NOT SUBMIT.
+do_not_submit = do_not_submit_variations.any? do |word|
+  return (github.pr_body + github.pr_title).include?(word)
+end
+do_not_submit ||= diffContainsForbiddenPhrases(do_not_submit_variations)
 
 ## Product directories
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
@@ -128,3 +154,7 @@ suggested_labels = labelsForModifiedFiles()
 if !suggested_labels.empty?
   addLabels(suggested_labels)
 end
+
+# Warn if the PR contains DO NOT SUBMIT. Don't fail here, since it's still nice
+# to run travis on WIP pull requests.
+warn("PR contents contain 'do not submit'.") if do_not_submit
