@@ -17,8 +17,8 @@ jobs:
     - stage: checks
       # This only needs to be run once, so restrict it to an arbitrary combination
       before_install:
-        - brew install clang-format
-        - brew install swiftformat
+        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
+        - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
         - pip install flake8
       script:
         - ./scripts/check.sh --test-only
