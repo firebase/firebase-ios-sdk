@@ -43,7 +43,7 @@ Reader::Reader(absl::string_view str)
     : Reader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
 }
 
-void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
+void Reader::Read(const pb_field_t fields[], void* dest_struct) {
   if (!status_.ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {

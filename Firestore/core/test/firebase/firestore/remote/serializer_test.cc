@@ -222,7 +222,7 @@ class SerializerTest : public ::testing::Test {
     Reader reader(bytes);
 
     google_firestore_v1_Value nanopb_proto{};
-    reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+    reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
     serializer.DecodeFieldValue(&reader, nanopb_proto);
     FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
 
@@ -234,8 +234,8 @@ class SerializerTest : public ::testing::Test {
                                                    const ByteString& bytes) {
     Reader reader(bytes);
     google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
-    reader.ReadNanopbMessage(
-        google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
+    reader.Read(google_firestore_v1_BatchGetDocumentsResponse_fields,
+                &nanopb_proto);
     serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     FreeNanopbMessage(google_firestore_v1_BatchGetDocumentsResponse_fields,
                       &nanopb_proto);
@@ -246,7 +246,7 @@ class SerializerTest : public ::testing::Test {
   ByteString EncodeFieldValue(const FieldValue& fv) {
     ByteStringWriter writer;
     google_firestore_v1_Value proto = serializer.EncodeFieldValue(fv);
-    writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
+    writer.Write(google_firestore_v1_Value_fields, &proto);
     FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
     return writer.Release();
   }
@@ -254,7 +254,7 @@ class SerializerTest : public ::testing::Test {
   ByteString EncodeDocument(const DocumentKey& key, const ObjectValue& value) {
     ByteStringWriter writer;
     google_firestore_v1_Document proto = serializer.EncodeDocument(key, value);
-    writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
+    writer.Write(google_firestore_v1_Document_fields, &proto);
     FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
     return writer.Release();
   }
@@ -412,7 +412,7 @@ class SerializerTest : public ::testing::Test {
     Reader reader(bytes);
 
     google_firestore_v1_Value nanopb_proto{};
-    reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+    reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
     FieldValue actual_model =
         serializer.DecodeFieldValue(&reader, nanopb_proto);
     FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
@@ -460,8 +460,8 @@ class SerializerTest : public ::testing::Test {
     ByteString bytes = ProtobufSerialize(proto);
     Reader reader(bytes);
     google_firestore_v1_BatchGetDocumentsResponse nanopb_proto{};
-    reader.ReadNanopbMessage(
-        google_firestore_v1_BatchGetDocumentsResponse_fields, &nanopb_proto);
+    reader.Read(google_firestore_v1_BatchGetDocumentsResponse_fields,
+                &nanopb_proto);
     StatusOr<MaybeDocument> actual_model_status =
         serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     FreeNanopbMessage(google_firestore_v1_BatchGetDocumentsResponse_fields,
@@ -558,7 +558,7 @@ class SerializerTest : public ::testing::Test {
   template <typename T>
   ByteString Encode(const pb_field_t* fields, T&& nanopb_proto) {
     ByteStringWriter writer;
-    writer.WriteNanopbMessage(fields, &nanopb_proto);
+    writer.Write(fields, &nanopb_proto);
     FreeNanopbMessage(fields, &nanopb_proto);
     return writer.Release();
   }
@@ -572,7 +572,7 @@ class SerializerTest : public ::testing::Test {
     Reader reader{bytes};
 
     T nanopb_proto{};
-    reader.ReadNanopbMessage(fields, &nanopb_proto);
+    reader.Read(fields, &nanopb_proto);
     auto model = decode_func(serializer, &reader, nanopb_proto, args...);
     FreeNanopbMessage(fields, &nanopb_proto);
 
@@ -718,7 +718,7 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
   // Encoding a Value message containing a blob_value of null bytes results
   // in a non-empty message.
   ByteStringWriter writer;
-  writer.WriteNanopbMessage(google_firestore_v1_Value_fields, &proto);
+  writer.Write(google_firestore_v1_Value_fields, &proto);
   FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
   ByteString bytes = writer.Release();
   ASSERT_GT(bytes.size(), 0);
@@ -889,7 +889,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   // Decode the bytes into the model
   Reader reader(bytes);
   google_firestore_v1_Value nanopb_proto{};
-  reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+  reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
   EXPECT_OK(reader.status());
@@ -919,7 +919,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
 
   Reader reader(bytes);
   google_firestore_v1_Value nanopb_proto{};
-  reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+  reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
 
@@ -1035,7 +1035,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // Decode the bytes into the model
   Reader reader(bytes);
   google_firestore_v1_Value nanopb_proto{};
-  reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+  reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
   FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
   EXPECT_OK(reader.status());

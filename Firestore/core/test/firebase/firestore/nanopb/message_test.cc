@@ -51,7 +51,7 @@ class MessageTest : public testing::Test {
     message->stream_token = serializer_.EncodeString("stream_token");
 
     GrpcByteBufferWriter writer;
-    writer.WriteNanopbMessage(message.fields(), message.get());
+    writer.Write(message.fields(), message.get());
     return writer.Release();
   }
 

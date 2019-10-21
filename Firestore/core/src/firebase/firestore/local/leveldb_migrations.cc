@@ -113,8 +113,7 @@ void ClearQueryCache(leveldb::DB* db) {
   firestore_client_TargetGlobal target_global{};
 
   nanopb::StringWriter writer;
-  writer.WriteNanopbMessage(firestore_client_TargetGlobal_fields,
-                            &target_global);
+  writer.Write(firestore_client_TargetGlobal_fields, &target_global);
   transaction.Put(LevelDbTargetGlobalKey::Key(), writer.Release());
 
   SaveVersion(3, &transaction);
@@ -174,8 +173,7 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
     HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
     firestore_client_MutationQueue mutation_queue{};
     Reader reader(it->value());
-    reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
-                             &mutation_queue);
+    reader.Read(firestore_client_MutationQueue_fields, &mutation_queue);
     HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
     RemoveMutationBatches(&transaction, key.user_id(),
                           mutation_queue.last_acknowledged_batch_id);
@@ -197,8 +195,7 @@ model::ListenSequenceNumber GetHighestSequenceNumber(
 
   firestore_client_TargetGlobal target_global{};
   Reader reader(bytes);
-  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields,
-                           &target_global);
+  reader.Read(firestore_client_TargetGlobal_fields, &target_global);
   return target_global.highest_listen_sequence_number;
 }
 

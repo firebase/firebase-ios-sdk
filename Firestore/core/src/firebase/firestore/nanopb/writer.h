@@ -44,7 +44,7 @@ class Writer {
    * use `oneof`s in our protos, this would be the primary way of encoding
    * messages.
    */
-  void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
+  void Write(const pb_field_t fields[], const void* src_struct);
 
  protected:
   /**

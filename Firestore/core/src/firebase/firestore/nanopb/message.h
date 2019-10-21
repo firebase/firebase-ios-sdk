@@ -181,7 +181,7 @@ template <typename T>
 template <typename U>
 Message<T> Message<T>::TryParse(U* reader) {
   Message<T> result;
-  reader->ReadNanopbMessage(result.fields(), result.get());
+  reader->Read(result.fields(), result.get());
 
   if (!reader->ok()) {
     // In the event reading a Nanopb proto fails, Nanopb calls `pb_release` on
@@ -203,7 +203,7 @@ Message<T> Message<T>::TryParse(U* reader) {
 template <typename T>
 grpc::ByteBuffer MakeByteBuffer(const Message<T>& message) {
   GrpcByteBufferWriter writer;
-  writer.WriteNanopbMessage(message.fields(), message.get());
+  writer.Write(message.fields(), message.get());
   return writer.Release();
 }
 
@@ -215,7 +215,7 @@ grpc::ByteBuffer MakeByteBuffer(const Message<T>& message) {
 template <typename T>
 ByteString MakeByteString(const Message<T>& message) {
   ByteStringWriter writer;
-  writer.WriteNanopbMessage(message.fields(), message.get());
+  writer.Write(message.fields(), message.get());
   return writer.Release();
 }
 
@@ -227,7 +227,7 @@ ByteString MakeByteString(const Message<T>& message) {
 template <typename T>
 std::string MakeStdString(const Message<T>& message) {
   StringWriter writer;
-  writer.WriteNanopbMessage(message.fields(), message.get());
+  writer.Write(message.fields(), message.get());
   return writer.Release();
 }
 

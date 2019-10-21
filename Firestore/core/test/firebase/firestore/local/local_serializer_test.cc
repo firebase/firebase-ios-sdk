@@ -127,8 +127,7 @@ class LocalSerializerTest : public ::testing::Test {
     ByteString bytes = ProtobufSerialize(proto);
     Reader reader(bytes);
     firestore_client_MaybeDocument nanopb_proto{};
-    reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
-                             &nanopb_proto);
+    reader.Read(firestore_client_MaybeDocument_fields, &nanopb_proto);
     auto actual_model = serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     FreeNanopbMessage(firestore_client_MaybeDocument_fields, &nanopb_proto);
     EXPECT_OK(reader.status());
@@ -154,7 +153,7 @@ class LocalSerializerTest : public ::testing::Test {
     Reader reader(bytes);
 
     firestore_client_Target nanopb_proto{};
-    reader.ReadNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
+    reader.Read(firestore_client_Target_fields, &nanopb_proto);
     QueryData actual_query_data =
         serializer.DecodeQueryData(&reader, nanopb_proto);
     FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
@@ -184,7 +183,7 @@ class LocalSerializerTest : public ::testing::Test {
     Reader reader(bytes);
 
     firestore_client_WriteBatch nanopb_proto{};
-    reader.ReadNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
+    reader.Read(firestore_client_WriteBatch_fields, &nanopb_proto);
     MutationBatch actual_mutation_batch =
         serializer.DecodeMutationBatch(&reader, nanopb_proto);
     FreeNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);

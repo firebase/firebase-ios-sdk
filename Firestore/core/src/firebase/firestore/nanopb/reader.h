@@ -37,10 +37,6 @@ namespace nanopb {
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
  * pb_istream_t.
- *
- * All 'ReadX' methods verify the wiretype (by examining the last_tag_ field, as
- * set by ReadTag()) to ensure the correct type. If that fails, the status of
- * the Reader instance is set to non-ok.
  */
 class Reader {
  public:
@@ -48,9 +44,9 @@ class Reader {
    * Creates an instance that isn't associated with any bytes. It can be used
    * to accumulate errors.
    *
-   * TODO(varconst): this class should turn into a context object that holds
-   * read errors (`ReadContext`?). Its remaining reading responsibilities should
-   * probably move into `Message`.
+   * TODO(varconst): this class has two responsibilities: reading, and error
+   * propagation. For the latter, it's better to refactor out a context object
+   * that holds read errors (`ReadContext`?).
    */
   Reader() = default;
 
@@ -92,7 +88,7 @@ class Reader {
   // register allocated messages, track them, and free them ourselves. This may
   // be especially relevant if we start to use nanopb messages as the underlying
   // data within the model objects.
-  void ReadNanopbMessage(const pb_field_t fields[], void* dest_struct);
+  void Read(const pb_field_t fields[], void* dest_struct);
 
   bool ok() const {
     return status_.ok();
@@ -144,8 +140,8 @@ class GrpcByteBufferReader {
  public:
   explicit GrpcByteBufferReader(const grpc::ByteBuffer& buffer);
 
-  void ReadNanopbMessage(const pb_field_t* fields, void* dest_struct) {
-    reader_.ReadNanopbMessage(fields, dest_struct);
+  void Read(const pb_field_t* fields, void* dest_struct) {
+    reader_.Read(fields, dest_struct);
   }
 
   bool ok() const {

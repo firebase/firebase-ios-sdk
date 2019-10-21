@@ -39,7 +39,7 @@ int FuzzTestDeserialization(const uint8_t *data, size_t size) {
     @try {
       Reader reader(data, size);
       google_firestore_v1_Value nanopb_proto{};
-      reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+      reader.Read(google_firestore_v1_Value_fields, &nanopb_proto);
       serializer.DecodeFieldValue(&reader, nanopb_proto);
     } @catch (...) {
       // Caught exceptions are ignored because the input might be malformed and
