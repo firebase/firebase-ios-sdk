@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,10 +70,10 @@ std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
 /** Creates and starts a new MemoryPersistence instance for testing. */
 std::unique_ptr<MemoryPersistence> MemoryPersistenceWithEagerGcForTesting();
 
-std::unique_ptr<local::MemoryPersistence>
+std::unique_ptr<MemoryPersistence>
 MemoryPersistenceWithLruGcForTesting();
 
-std::unique_ptr<local::MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
+std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
     LruParams lru_params);
 
 }  // namespace local
