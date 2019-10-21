@@ -71,8 +71,7 @@ class Message {
    * contains ill-formed bytes, returns a default-constructed `Message`; check
    * the status on `reader` to see whether parsing was successful.
    */
-  template <typename U>
-  static Message TryParse(U* reader);
+  static Message TryParse(Reader* reader);
 
   ~Message() {
     Free();
@@ -178,8 +177,7 @@ class Message {
 };
 
 template <typename T>
-template <typename U>
-Message<T> Message<T>::TryParse(U* reader) {
+Message<T> Message<T>::TryParse(Reader* reader) {
   Message<T> result;
   reader->Read(result.fields(), result.get());
 

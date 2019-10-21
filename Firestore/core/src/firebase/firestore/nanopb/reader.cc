@@ -26,34 +26,35 @@ namespace nanopb {
 using remote::ConvertStatus;
 using util::Status;
 
-// Reader
+// StringReader
 
-Reader::Reader(const ByteString& bytes) : Reader(bytes.data(), bytes.size()) {
+StringReader::StringReader(const ByteString& bytes)
+    : StringReader(bytes.data(), bytes.size()) {
 }
 
-Reader::Reader(const std::vector<uint8_t>& bytes)
-    : Reader(bytes.data(), bytes.size()) {
+StringReader::StringReader(const std::vector<uint8_t>& bytes)
+    : StringReader(bytes.data(), bytes.size()) {
 }
 
-Reader::Reader(const uint8_t* bytes, size_t size)
+StringReader::StringReader(const uint8_t* bytes, size_t size)
     : stream_(pb_istream_from_buffer(bytes, size)) {
 }
 
-Reader::Reader(absl::string_view str)
-    : Reader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
+StringReader::StringReader(absl::string_view str)
+    : StringReader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
 }
 
-void Reader::Read(const pb_field_t fields[], void* dest_struct) {
-  if (!status_.ok()) return;
+void StringReader::Read(const pb_field_t fields[], void* dest_struct) {
+  if (!ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {
     Fail(PB_GET_ERROR(&stream_));
   }
 }
 
-// GrpcByteBufferReader
+// ByteBufferReader
 
-GrpcByteBufferReader::GrpcByteBufferReader(const grpc::ByteBuffer& buffer) {
+ByteBufferReader::ByteBufferReader(const grpc::ByteBuffer& buffer) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
   // Conversion may fail if compression is used and gRPC tries to decompress an
@@ -62,7 +63,7 @@ GrpcByteBufferReader::GrpcByteBufferReader(const grpc::ByteBuffer& buffer) {
     Status error{Error::Internal,
                  "Trying to convert an invalid grpc::ByteBuffer"};
     error.CausedBy(ConvertStatus(status));
-    reader_.set_status(error);
+    set_status(error);
     return;
   }
 
@@ -73,7 +74,15 @@ GrpcByteBufferReader::GrpcByteBufferReader(const grpc::ByteBuffer& buffer) {
   }
 
   bytes_ = writer.Release();
-  reader_ = Reader{bytes_};
+  stream_ = pb_istream_from_buffer(bytes_.data(), bytes_.size());
+}
+
+void ByteBufferReader::Read(const pb_field_t fields[], void* dest_struct) {
+  if (!ok()) return;
+
+  if (!pb_decode(&stream_, fields, dest_struct)) {
+    Fail(PB_GET_ERROR(&stream_));
+  }
 }
 
 }  // namespace nanopb

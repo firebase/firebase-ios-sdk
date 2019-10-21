@@ -31,8 +31,8 @@ namespace remote {
 using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
+using nanopb::ByteBufferReader;
 using nanopb::ByteString;
-using nanopb::GrpcByteBufferReader;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -116,11 +116,11 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  GrpcByteBufferReader grpc_reader{message};
+  ByteBufferReader reader{message};
   Message<google_firestore_v1_WriteResponse> response =
-      write_serializer_.ParseResponse(&grpc_reader);
-  if (!grpc_reader.ok()) {
-    return grpc_reader.status();
+      write_serializer_.ParseResponse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
   }
 
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
@@ -140,7 +140,6 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    nanopb::Reader reader;
     auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
     auto results = write_serializer_.DecodeMutationResults(&reader, *response);
     if (!reader.ok()) {

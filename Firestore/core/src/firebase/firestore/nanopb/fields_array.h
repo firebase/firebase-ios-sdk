@@ -101,6 +101,33 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_ListenResponse>() {
 }
 
 template <>
+inline const pb_field_t*
+FieldsArray<google_firestore_v1_StructuredQuery_Filter>() {
+  return google_firestore_v1_StructuredQuery_Filter_fields;
+}
+
+template <>
+inline const pb_field_t*
+FieldsArray<google_firestore_v1_Target_DocumentsTarget>() {
+  return google_firestore_v1_Target_DocumentsTarget_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_Target_QueryTarget>() {
+  return google_firestore_v1_Target_QueryTarget_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_Value>() {
+  return google_firestore_v1_Value_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_Write>() {
+  return google_firestore_v1_Write_fields;
+}
+
+template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_WriteRequest>() {
   return google_firestore_v1_WriteRequest_fields;
 }
@@ -108,6 +135,11 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_WriteRequest>() {
 template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_WriteResponse>() {
   return google_firestore_v1_WriteResponse_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_WriteResult>() {
+  return google_firestore_v1_WriteResult_fields;
 }
 
 }  // namespace nanopb

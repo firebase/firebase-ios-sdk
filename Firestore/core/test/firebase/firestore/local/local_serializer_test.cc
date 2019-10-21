@@ -72,9 +72,10 @@ using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
+using nanopb::Message;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;
-using nanopb::Reader;
+using nanopb::StringReader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
@@ -125,11 +126,9 @@ class LocalSerializerTest : public ::testing::Test {
       const ::firestore::client::MaybeDocument& proto,
       MaybeDocument::Type type) {
     ByteString bytes = ProtobufSerialize(proto);
-    Reader reader(bytes);
-    firestore_client_MaybeDocument nanopb_proto{};
-    reader.Read(firestore_client_MaybeDocument_fields, &nanopb_proto);
-    auto actual_model = serializer.DecodeMaybeDocument(&reader, nanopb_proto);
-    FreeNanopbMessage(firestore_client_MaybeDocument_fields, &nanopb_proto);
+    StringReader reader(bytes);
+    auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
+    auto actual_model = serializer.DecodeMaybeDocument(&reader, *message);
     EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
@@ -150,13 +149,10 @@ class LocalSerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(
       const QueryData& query_data, const ::firestore::client::Target& proto) {
     ByteString bytes = ProtobufSerialize(proto);
-    Reader reader(bytes);
+    StringReader reader(bytes);
 
-    firestore_client_Target nanopb_proto{};
-    reader.Read(firestore_client_Target_fields, &nanopb_proto);
-    QueryData actual_query_data =
-        serializer.DecodeQueryData(&reader, nanopb_proto);
-    FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
+    auto message = Message<firestore_client_Target>::TryParse(&reader);
+    QueryData actual_query_data = serializer.DecodeQueryData(&reader, *message);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(query_data, actual_query_data);
@@ -180,13 +176,11 @@ class LocalSerializerTest : public ::testing::Test {
       const MutationBatch& model,
       const ::firestore::client::WriteBatch& proto) {
     ByteString bytes = ProtobufSerialize(proto);
-    Reader reader(bytes);
+    StringReader reader(bytes);
 
-    firestore_client_WriteBatch nanopb_proto{};
-    reader.Read(firestore_client_WriteBatch_fields, &nanopb_proto);
+    auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
     MutationBatch actual_mutation_batch =
-        serializer.DecodeMutationBatch(&reader, nanopb_proto);
-    FreeNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
+        serializer.DecodeMutationBatch(&reader, *message);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(model, actual_mutation_batch);

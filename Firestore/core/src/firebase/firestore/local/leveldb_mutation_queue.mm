@@ -50,7 +50,7 @@ using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
 using nanopb::Message;
-using nanopb::Reader;
+using nanopb::StringReader;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
   // TODO(gsoltis): implement Prev() and SeekToLast() on
@@ -454,7 +454,7 @@ Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
   std::string value;
   Status status = db_->current_transaction()->Get(key, &value);
 
-  Reader reader{value};
+  StringReader reader{value};
   reader.set_status(ConvertStatus(status));
   auto result = Message<firestore_client_MutationQueue>::TryParse(&reader);
 
@@ -472,7 +472,7 @@ Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
 
 MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
-  Reader reader{encoded};
+  StringReader reader{encoded};
   auto maybe_message = Message<firestore_client_WriteBatch>::TryParse(&reader);
   auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
   if (!reader.ok()) {

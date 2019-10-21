@@ -43,7 +43,7 @@ using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 using nanopb::ByteString;
 using nanopb::Message;
-using nanopb::Reader;
+using nanopb::StringReader;
 using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
@@ -142,7 +142,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(const Query& query) {
 
 MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     absl::string_view encoded, const DocumentKey& key) {
-  Reader reader{encoded};
+  StringReader reader{encoded};
 
   auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
   MaybeDocument maybe_document =

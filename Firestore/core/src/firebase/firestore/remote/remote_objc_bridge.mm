@@ -50,12 +50,13 @@ using model::Mutation;
 using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
+using nanopb::ByteBufferReader;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
-using nanopb::GrpcByteBufferReader;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
 using nanopb::Message;
+using nanopb::Reader;
 using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
@@ -143,7 +144,7 @@ WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
 }
 
 Message<google_firestore_v1_ListenResponse>
-WatchStreamSerializer::ParseResponse(GrpcByteBufferReader* reader) const {
+WatchStreamSerializer::ParseResponse(Reader* reader) const {
   return Message<google_firestore_v1_ListenResponse>::TryParse(reader);
 }
 
@@ -207,7 +208,7 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
 }
 
 Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
-    GrpcByteBufferReader* reader) const {
+    Reader* reader) const {
   return Message<google_firestore_v1_WriteResponse>::TryParse(reader);
 }
 
@@ -300,13 +301,11 @@ DatastoreSerializer::MergeLookupResponses(
   std::map<DocumentKey, MaybeDocument> results;
 
   for (const auto& response : responses) {
-    GrpcByteBufferReader grpc_reader{response};
+    ByteBufferReader reader{response};
     auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
-            &grpc_reader);
+            &reader);
 
-    nanopb::Reader reader;
-    reader.set_status(grpc_reader.status());
     MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *message);
     results[doc.key()] = std::move(doc);
 

@@ -43,9 +43,8 @@ using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
-using nanopb::GrpcByteBufferReader;
 using nanopb::Message;
-using nanopb::Reader;
+using nanopb::StringReader;
 using util::MakeString;
 using leveldb::Status;
 
@@ -55,7 +54,7 @@ LevelDbQueryCache::TryReadMetadata(leveldb::DB* db) {
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
 
-  Reader reader{value};
+  StringReader reader{value};
   reader.set_status(ConvertStatus(status));
 
   auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
@@ -90,7 +89,7 @@ void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to current_transaction()
   metadata_ = ReadMetadata(db_->ptr());
 
-  Reader reader;
+  StringReader reader;
   last_remote_snapshot_version_ = serializer_->DecodeVersion(
       &reader, metadata_->last_remote_snapshot_version);
   if (!reader.ok()) {
@@ -384,7 +383,7 @@ void LevelDbQueryCache::SaveMetadata() {
 }
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
-  Reader reader{encoded};
+  StringReader reader{encoded};
   auto message = Message<firestore_client_Target>::TryParse(&reader);
   auto result = serializer_->DecodeQueryData(&reader, *message);
   if (!reader.ok()) {

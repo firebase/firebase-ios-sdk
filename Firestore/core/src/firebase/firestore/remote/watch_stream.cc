@@ -32,7 +32,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
-using nanopb::GrpcByteBufferReader;
+using nanopb::ByteBufferReader;
 using nanopb::Message;
 using util::AsyncQueue;
 using util::Status;
@@ -84,10 +84,10 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  GrpcByteBufferReader grpc_reader{message};
-  auto response = watch_serializer_.ParseResponse(&grpc_reader);
-  if (!grpc_reader.ok()) {
-    return grpc_reader.status();
+  ByteBufferReader reader{message};
+  auto response = watch_serializer_.ParseResponse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
   }
 
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
@@ -96,7 +96,6 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  nanopb::Reader reader;
   auto watch_change = watch_serializer_.DecodeWatchChange(&reader, *response);
   auto version = watch_serializer_.DecodeSnapshotVersion(&reader, *response);
   if (!reader.ok()) {

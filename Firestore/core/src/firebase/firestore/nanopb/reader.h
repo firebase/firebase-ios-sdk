@@ -34,62 +34,8 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-/**
- * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_istream_t.
- */
-class Reader {
+class ReadContext {
  public:
-  /**
-   * Creates an instance that isn't associated with any bytes. It can be used
-   * to accumulate errors.
-   *
-   * TODO(varconst): this class has two responsibilities: reading, and error
-   * propagation. For the latter, it's better to refactor out a context object
-   * that holds read errors (`ReadContext`?).
-   */
-  Reader() = default;
-
-  /**
-   * Creates an input stream that reads from the specified bytes. Note that
-   * this reference must remain valid for the lifetime of this Reader.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_istream_from_buffer())
-   *
-   * @param bytes where the input should be deserialized from.
-   */
-  explicit Reader(const nanopb::ByteString& bytes);
-  explicit Reader(const std::vector<uint8_t>& bytes);
-  Reader(const uint8_t* bytes, size_t length);
-
-  /**
-   * Creates an input stream from bytes backing the string_view. Note that
-   * the backing buffer must remain valid for the lifetime of this Reader.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_istream_from_buffer())
-   */
-  explicit Reader(absl::string_view);
-
-  /**
-   * Reads a nanopb message from the input stream.
-   *
-   * This essentially wraps calls to nanopb's pb_decode() method. This is the
-   * primary way of decoding messages.
-   *
-   * Note that this allocates memory. You must call nanopb::FreeNanopbMessage()
-   * (which essentially wraps pb_release()) on the dest_struct in order to avoid
-   * memory leaks. (This also implies code that uses this is not exception
-   * safe.)
-   */
-  // TODO(rsgowman): At the moment we rely on the caller to manually free
-  // dest_struct via nanopb::FreeNanopbMessage(). We might instead see if we can
-  // register allocated messages, track them, and free them ourselves. This may
-  // be especially relevant if we start to use nanopb messages as the underlying
-  // data within the model objects.
-  void Read(const pb_field_t fields[], void* dest_struct);
-
   bool ok() const {
     return status_.ok();
   }
@@ -99,7 +45,7 @@ class Reader {
   }
 
   void set_status(util::Status status) {
-    status_ = status;
+    status_ = std::move(status);
   }
 
   /**
@@ -115,50 +61,125 @@ class Reader {
   }
 
  private:
-  // For access to copy/move operations.
-  friend class GrpcByteBufferReader;
+  util::Status status_ = util::Status::OK();
+};
 
-  Reader(const Reader&) = default;
-  Reader(Reader&&) = default;
-  Reader& operator=(const Reader&) = default;
-  Reader& operator=(Reader&&) = default;
+/**
+ * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
+ * pb_istream_t.
+ */
+class Reader {
+ public:
+  virtual ~Reader() = default;
 
   /**
-   * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
-   * a shallow copy will be taken. (Non-null pointers within this struct must
-   * remain valid for the lifetime of this Reader.)
+   * Reads a Nanopb proto from the input stream.
+   *
+   * This essentially wraps calls to nanopb's pb_decode() method. This is the
+   * primary way of decoding messages.
+   *
+   * Note that this allocates memory. You must call nanopb::FreeNanopbMessage()
+   * (which essentially wraps pb_release()) on the dest_struct in order to avoid
+   * memory leaks. (This also implies code that uses this is not exception
+   * safe.)
    */
-  explicit Reader(pb_istream_t stream) : stream_(stream) {
+  // TODO(rsgowman): At the moment we rely on the caller to manually free
+  // dest_struct via nanopb::FreeNanopbMessage(). We might instead see if we can
+  // register allocated messages, track them, and free them ourselves. This may
+  // be especially relevant if we start to use nanopb messages as the underlying
+  // data within the model objects.
+  virtual void Read(const pb_field_t fields[], void* dest_struct) = 0;
+
+  bool ok() const {
+    return context_.ok();
   }
 
-  util::Status status_ = util::Status::OK();
+  const util::Status& status() const {
+    return context_.status();
+  }
+
+  void set_status(util::Status status) {
+    context_.set_status(std::move(status));
+  }
+
+  ReadContext* context() {
+    return &context_;
+  }
+
+  const ReadContext* context() const {
+    return &context_;
+  }
+
+  /**
+   * Ensures this Reader's status is `!ok().
+   *
+   * If this Reader's status is already !ok(), then this may augment the
+   * description, but will otherwise leave it alone. Otherwise, this Reader's
+   * status will be set to Error::DataLoss with the specified
+   * description.
+   */
+  void Fail(absl::string_view description) {
+    context_.Fail(description);
+  }
+
+ private:
+  ReadContext context_;
+};
+
+class StringReader : public Reader {
+ public:
+  /**
+   * Creates an instance that isn't associated with any bytes. It can be used
+   * for error propagation.
+   * TODO(varconst): only use `ReadContext` for error propagation.
+   */
+  StringReader() = default;
+
+  /**
+   * Creates an input stream that reads from the specified bytes. Note that
+   * this reference must remain valid for the lifetime of this `StringReader`.
+   *
+   * (This is roughly equivalent to the Nanopb function
+   * `pb_istream_from_buffer()`)
+   *
+   * @param bytes where the input should be deserialized from.
+   */
+  explicit StringReader(const nanopb::ByteString& bytes);
+  explicit StringReader(const std::vector<uint8_t>& bytes);
+  StringReader(const uint8_t* bytes, size_t length);
+
+  /**
+   * Creates an input stream from bytes backing the string_view. Note that
+   * the backing buffer must remain valid for the lifetime of this
+   * `StringReader`.
+   *
+   * (This is roughly equivalent to the Nanopb function
+   * `pb_istream_from_buffer()`)
+   */
+  explicit StringReader(absl::string_view);
+
+  void Read(const pb_field_t fields[], void* dest_struct) override;
+
+ private:
+  /**
+   * Takes that a shallow copy of the given `stream`. (Non-null pointers within
+   * this struct must remain valid for the lifetime of this `StringReader`.)
+   */
+  explicit StringReader(pb_istream_t stream) : stream_(stream) {
+  }
 
   pb_istream_t stream_{};
 };
 
-class GrpcByteBufferReader {
+class ByteBufferReader : public Reader {
  public:
-  explicit GrpcByteBufferReader(const grpc::ByteBuffer& buffer);
+  explicit ByteBufferReader(const grpc::ByteBuffer& buffer);
 
-  void Read(const pb_field_t* fields, void* dest_struct) {
-    reader_.Read(fields, dest_struct);
-  }
-
-  bool ok() const {
-    return reader_.ok();
-  }
-
-  const util::Status& status() const {
-    return reader_.status();
-  }
-
-  void set_status(util::Status status) {
-    reader_.set_status(std::move(status));
-  }
+  void Read(const pb_field_t* fields, void* dest_struct) override;
 
  private:
   ByteString bytes_;
-  Reader reader_;
+  pb_istream_t stream_{};
 };
 
 }  // namespace nanopb

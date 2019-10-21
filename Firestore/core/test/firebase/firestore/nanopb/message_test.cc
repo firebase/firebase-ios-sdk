@@ -68,7 +68,7 @@ class MessageTest : public testing::Test {
 };
 
 TEST_F(MessageTest, Move) {
-  GrpcByteBufferReader reader{GoodProto()};
+  ByteBufferReader reader{GoodProto()};
   auto message1 = TestMessage::TryParse(&reader);
   ASSERT_OK(reader.status());
   TestMessage message2 = std::move(message1);
@@ -79,7 +79,7 @@ TEST_F(MessageTest, Move) {
 }
 
 TEST_F(MessageTest, ParseFailure) {
-  GrpcByteBufferReader reader{BadProto()};
+  ByteBufferReader reader{BadProto()};
   auto message = TestMessage::TryParse(&reader);
   EXPECT_NOT_OK(reader.status());
 }
