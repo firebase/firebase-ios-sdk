@@ -111,12 +111,6 @@ def is_platform(symbol)
   end
 end
 
-# Point at an unreleased abseil podspec
-abseil_podspec = 'https://raw.githubusercontent.com/veblush/abseil-cpp/podspec/abseil.podspec'
-# abseil_podspec = '/Users/mcg/src/firebase/abseil-cpp/abseil.podspec'
-
-pod 'abseil', :podspec => abseil_podspec
-
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
     platform :ios, '8.0'
@@ -135,7 +129,7 @@ if is_platform(:ios)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
 
@@ -153,7 +147,7 @@ if is_platform(:ios)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
 
@@ -184,7 +178,7 @@ if is_platform(:osx)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
 
@@ -196,7 +190,7 @@ if is_platform(:osx)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
   end
@@ -215,7 +209,7 @@ if is_platform(:tvos)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
 
@@ -227,7 +221,7 @@ if is_platform(:tvos)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time', :podspec => abseil_podspec
+      pod 'abseil/time'
       pod 'leveldb-library'
     end
   end
