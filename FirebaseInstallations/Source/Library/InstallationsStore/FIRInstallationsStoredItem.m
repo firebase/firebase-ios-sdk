@@ -18,13 +18,13 @@
 
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredRegistrationError.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 
 NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebaseInstallationID";
 NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";
 NSString *const kFIRInstallationsStoredItemAuthTokenKey = @"authToken";
 NSString *const kFIRInstallationsStoredItemRegistrationStatusKey = @"registrationStatus";
-NSString *const kFIRInstallationsStoredItemRegistrationErrorKey = @"registrationError";
+NSString *const kFIRInstallationsStoredItemIIDCheckinKey = @"IIDCheckin";
 NSString *const kFIRInstallationsStoredItemStorageVersionKey = @"storageVersion";
 
 NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
@@ -42,8 +42,7 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
   [aCoder encodeObject:self.authToken forKey:kFIRInstallationsStoredItemAuthTokenKey];
   [aCoder encodeInteger:self.registrationStatus
                  forKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  [aCoder encodeObject:self.registrationError
-                forKey:kFIRInstallationsStoredItemRegistrationErrorKey];
+  [aCoder encodeObject:self.IIDCheckin forKey:kFIRInstallationsStoredItemIIDCheckinKey];
   [aCoder encodeInteger:self.storageVersion forKey:kFIRInstallationsStoredItemStorageVersionKey];
 }
 
@@ -68,9 +67,8 @@ NSInteger const kFIRInstallationsStoredItemStorageVersion = 1;
                                           forKey:kFIRInstallationsStoredItemAuthTokenKey];
   item.registrationStatus =
       [aDecoder decodeIntegerForKey:kFIRInstallationsStoredItemRegistrationStatusKey];
-  item.registrationError =
-      [aDecoder decodeObjectOfClass:[FIRInstallationsStoredRegistrationError class]
-                             forKey:kFIRInstallationsStoredItemRegistrationErrorKey];
+  item.IIDCheckin = [aDecoder decodeObjectOfClass:[FIRInstallationsStoredIIDCheckin class]
+                                           forKey:kFIRInstallationsStoredItemIIDCheckinKey];
 
   return item;
 }

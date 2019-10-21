@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface XCTestCase (FIRTestsDateUtils)
+/// Helper functions to access Keychain.
+@interface FIRInstallationsKeychainUtils : NSObject
 
-- (void)assertDate:(NSDate *)date
-    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval;
++ (nullable NSData *)getItemWithQuery:(NSDictionary *)query
+                                error:(NSError *_Nullable *_Nullable)outError;
+
++ (BOOL)setItem:(NSData *)item
+      withQuery:(NSDictionary *)query
+          error:(NSError *_Nullable *_Nullable)outError;
+
++ (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
 
 @end
 

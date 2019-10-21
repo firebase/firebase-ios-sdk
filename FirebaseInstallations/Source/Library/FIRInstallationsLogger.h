@@ -43,9 +43,6 @@ extern NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMisma
 // FIRInstallationsStoredAuthToken.m
 extern NSString *const kFIRInstallationsMessageCodeAuthTokenCoderVersionMismatch;
 
-// FIRInstallationsStoredRegistrationError.m
-extern NSString *const kFIRInstallationsMessageCodeRegistrationErrorCoderVersionMismatch;
-extern NSString *const kFIRInstallationsMessageCodeRegistrationErrorFailedToDecode;
-
-// FIRInstallationsStoredRegistrationParameters.m
-extern NSString *const kFIRInstallationsMessageCodeRegistrationParametersCoderVersionMismatch;
+// FIRInstallationsStoredIIDCheckin.m
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinCoderVersionMismatch;
+extern NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode;

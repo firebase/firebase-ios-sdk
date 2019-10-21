@@ -76,8 +76,8 @@ core::Query InvalidQuery();
  * protocol buffer, and methods starting with "Decode" convert from a nanopb
  * protocol buffer to a model object.
  *
- * For encoded messages, FreeNanopbMessage() must be called on the returned
- * nanopb proto buffer or a memory leak will occur.
+ * For encoded messages, `nanopb::FreeNanopbMessage()` must be called on the
+ * returned nanopb proto buffer or a memory leak will occur.
  *
  * All errors that occur during serialization are fatal.
  *
@@ -129,13 +129,6 @@ class Serializer {
    * `projects/{project_id}/databases/{database_id}`.
    */
   pb_bytes_array_t* EncodeDatabaseName() const;
-
-  /**
-   * Release memory allocated by the Encode* methods that return protos.
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
-   */
-  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
@@ -212,9 +205,6 @@ class Serializer {
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
   static model::FieldPath DecodeFieldPath(const pb_bytes_array_t* field_path);
 
-  model::Document DecodeDocument(
-      nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
-
   static google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version);
 
@@ -260,6 +250,11 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& listen_response) const;
 
+  model::ObjectValue DecodeFields(
+      nanopb::Reader* reader,
+      size_t count,
+      const google_firestore_v1_Document_FieldsEntry* fields) const;
+
   // Public for the sake of tests.
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
       const core::FilterList& filters) const;
@@ -296,10 +291,6 @@ class Serializer {
   model::FieldValue::Map::value_type DecodeFieldsEntry(
       nanopb::Reader* reader,
       const google_firestore_v1_Document_FieldsEntry& fields) const;
-  model::FieldValue::Map DecodeFields(
-      nanopb::Reader* reader,
-      size_t count,
-      const google_firestore_v1_Document_FieldsEntry* fields) const;
 
   model::FieldValue::Map DecodeMapValue(
       nanopb::Reader* reader,

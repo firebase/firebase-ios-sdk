@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -55,7 +56,6 @@ using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::Settings;
 using api::SnapshotMetadata;
-using api::ThrowIllegalState;
 using auth::CredentialsProvider;
 using auth::User;
 using local::LevelDbPersistence;
@@ -81,6 +81,7 @@ using util::Status;
 using util::StatusCallback;
 using util::StatusOr;
 using util::StatusOrCallback;
+using util::ThrowIllegalState;
 using util::TimerId;
 
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
@@ -94,18 +95,21 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
       new FirestoreClient(database_info, std::move(credentials_provider),
                           std::move(user_executor), std::move(worker_queue)));
 
-  auto user_promise = std::make_shared<std::promise<User>>();
-  bool credentials_initialized = false;
-
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
-  auto credential_change_listener = [credentials_initialized, user_promise,
-                                     weak_client](User user) mutable {
+  auto credential_change_listener = [weak_client, settings](User user) mutable {
     auto shared_client = weak_client.lock();
     if (!shared_client) return;
 
-    if (!credentials_initialized) {
-      credentials_initialized = true;
-      user_promise->set_value(user);
+    if (!shared_client->credentials_initialized_) {
+      shared_client->credentials_initialized_ = true;
+
+      // When we register the credentials listener for the first time,
+      // it is invoked synchronously on the calling thread. This ensures that
+      // the first item enqueued on the worker queue is
+      // `FirestoreClient::Initialize()`.
+      shared_client->worker_queue()->Enqueue([shared_client, user, settings] {
+        shared_client->Initialize(user, settings);
+      });
     } else {
       shared_client->worker_queue()->Enqueue([shared_client, user] {
         shared_client->worker_queue()->VerifyIsCurrentQueue();
@@ -119,15 +123,9 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
   shared_client->credentials_provider_->SetCredentialChangeListener(
       credential_change_listener);
 
-  // Defer initialization until we get the current user from the
-  // credential_change_listener. This is guaranteed to be synchronously
-  // dispatched onto our worker queue, so we will be initialized before any
-  // subsequently queued work runs.
-  shared_client->worker_queue()->Enqueue(
-      [shared_client, user_promise, settings] {
-        User user = user_promise->get_future().get();
-        shared_client->Initialize(user, settings);
-      });
+  HARD_ASSERT(
+      shared_client->credentials_initialized_,
+      "CredentialChangeListener not invoked during client initialization");
 
   return shared_client;
 }

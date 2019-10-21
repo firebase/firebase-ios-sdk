@@ -18,11 +18,11 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,28 +32,30 @@ using auth::CredentialsProvider;
 using auth::Token;
 using model::Mutation;
 using nanopb::ByteString;
+using nanopb::MaybeMessage;
+using nanopb::Message;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
+using util::TimerId;
 
 WriteStream::WriteStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
     std::shared_ptr<CredentialsProvider> credentials_provider,
-    FSTSerializerBeta* serializer,
+    Serializer serializer,
     GrpcConnection* grpc_connection,
     WriteStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
-      serializer_bridge_{serializer},
+      write_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 
-void WriteStream::SetLastStreamToken(const ByteString& token) {
-  serializer_bridge_.SetLastStreamToken(token);
+void WriteStream::set_last_stream_token(ByteString token) {
+  last_stream_token_ = std::move(token);
 }
 
-ByteString WriteStream::GetLastStreamToken() const {
-  return serializer_bridge_.GetLastStreamToken();
+const ByteString& WriteStream::last_stream_token() const {
+  return last_stream_token_;
 }
 
 void WriteStream::WriteHandshake() {
@@ -61,10 +63,10 @@ void WriteStream::WriteHandshake() {
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
   HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
-  GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
+  auto request = write_serializer_.EncodeHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+            write_serializer_.Describe(request));
+  Write(request.ToByteBuffer());
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -76,11 +78,11 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
   HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
-  GCFSWriteRequest* request =
-      serializer_bridge_.CreateWriteMutationsRequest(mutations);
+  auto request = write_serializer_.EncodeWriteMutationsRequest(
+      mutations, last_stream_token());
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+            write_serializer_.Describe(request));
+  Write(request.ToByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
@@ -94,8 +96,9 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // Send an empty write request to the backend to indicate imminent stream
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
-    GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
-    grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
+    auto request =
+        write_serializer_.EncodeEmptyMutationsList(last_stream_token());
+    grpc_stream->WriteAndFinish(request.ToByteBuffer());
   } else {
     grpc_stream->FinishImmediately();
   }
@@ -113,18 +116,19 @@ void WriteStream::NotifyStreamClose(const Status& status) {
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  Status status;
-  GCFSWriteResponse* response =
-      serializer_bridge_.ParseResponse(message, &status);
-  if (!status.ok()) {
-    return status;
+  MaybeMessage<google_firestore_v1_WriteResponse> maybe_response =
+      write_serializer_.ParseResponse(message);
+  if (!maybe_response.ok()) {
+    return maybe_response.status();
   }
 
+  auto& response = maybe_response.ValueOrDie();
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+            write_serializer_.Describe(response));
 
   // Always capture the last stream token.
-  serializer_bridge_.UpdateLastStreamToken(response);
+  set_last_stream_token(ByteString::Take(response->stream_token));
+  response->stream_token = nullptr;
 
   if (!handshake_complete()) {
     // The first response is the handshake response
@@ -136,9 +140,14 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    callback_->OnWriteStreamMutationResult(
-        serializer_bridge_.ToCommitVersion(response),
-        serializer_bridge_.ToMutationResults(response));
+    nanopb::Reader reader;
+    auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
+    auto results = write_serializer_.DecodeMutationResults(&reader, *response);
+    if (!reader.ok()) {
+      return reader.status();
+    }
+
+    callback_->OnWriteStreamMutationResult(version, results);
   }
 
   return Status::OK();

@@ -19,9 +19,8 @@
 #import "FIRKeyedArchivingUtils.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsStoredItem.h"
-#import "FIRInstallationsStoredRegistrationError.h"
-#import "FIRInstallationsStoredRegistrationParameters.h"
 
 @interface FIRInstallationsStoredItemTests : XCTestCase
 
@@ -40,7 +39,7 @@
   item.refreshToken = @"refresh-token";
   item.authToken = authToken;
   item.registrationStatus = FIRInstallationStatusRegistered;
-  item.registrationError = [self createRegistrationError];
+  item.IIDCheckin = [self createIIDCheckin];
 
   NSError *error;
   NSData *archivedItem = [FIRKeyedArchivingUtils archivedDataWithRootObject:item error:&error];
@@ -57,31 +56,13 @@
   XCTAssertEqualObjects(unarchivedItem.authToken.token, item.authToken.token);
   XCTAssertEqualObjects(unarchivedItem.authToken.expirationDate, item.authToken.expirationDate);
   XCTAssertEqual(unarchivedItem.registrationStatus, item.registrationStatus);
-
-  XCTAssertEqualObjects(unarchivedItem.registrationError.APIError, item.registrationError.APIError);
-  XCTAssertEqualObjects(unarchivedItem.registrationError.date, item.registrationError.date);
-  XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.APIKey,
-                        item.registrationError.registrationParameters.APIKey);
-  XCTAssertEqualObjects(unarchivedItem.registrationError.registrationParameters.projectID,
-                        item.registrationError.registrationParameters.projectID);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.deviceID, item.IIDCheckin.deviceID);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.secretToken, item.IIDCheckin.secretToken);
 }
 
-- (FIRInstallationsStoredRegistrationError *)createRegistrationError {
-  FIRInstallationsStoredRegistrationParameters *params =
-      [[FIRInstallationsStoredRegistrationParameters alloc] initWithAPIKey:@"key" projectID:@"id"];
-  XCTAssertEqualObjects(params.APIKey, @"key");
-  XCTAssertEqualObjects(params.projectID, @"id");
-
-  NSError *error = [NSError errorWithDomain:@"FIRInstallationsStoredItemTests"
-                                       code:-1
-                                   userInfo:@{NSLocalizedFailureReasonErrorKey : @"value"}];
-  FIRInstallationsStoredRegistrationError *registrationError =
-      [[FIRInstallationsStoredRegistrationError alloc] initWithRegistrationParameters:params
-                                                                                 date:[NSDate date]
-                                                                             APIError:error];
-  XCTAssertEqualObjects(registrationError.APIError, error);
-  XCTAssertEqualObjects(registrationError.registrationParameters, params);
-  return registrationError;
+- (FIRInstallationsStoredIIDCheckin *)createIIDCheckin {
+  return [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                        secretToken:@"IIDSecretToken"];
 }
 
 @end

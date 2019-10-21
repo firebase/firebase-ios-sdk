@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -52,6 +53,7 @@ using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
+using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldValue;
@@ -69,6 +71,7 @@ using model::TargetId;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
+using nanopb::FreeNanopbMessage;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;
 using nanopb::Reader;
@@ -127,8 +130,7 @@ class LocalSerializerTest : public ::testing::Test {
     reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
     auto actual_model = serializer.DecodeMaybeDocument(&reader, nanopb_proto);
-    reader.FreeNanopbMessage(firestore_client_MaybeDocument_fields,
-                             &nanopb_proto);
+    FreeNanopbMessage(firestore_client_MaybeDocument_fields, &nanopb_proto);
     EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
@@ -140,8 +142,7 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_MaybeDocument proto =
         serializer->EncodeMaybeDocument(maybe_doc);
     writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
-    serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
-                                  &proto);
+    FreeNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
     return writer.Release();
   }
 
@@ -161,7 +162,7 @@ class LocalSerializerTest : public ::testing::Test {
     reader.ReadNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
     QueryData actual_query_data =
         serializer.DecodeQueryData(&reader, nanopb_proto);
-    reader.FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
+    FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(query_data, actual_query_data);
@@ -173,7 +174,7 @@ class LocalSerializerTest : public ::testing::Test {
     ByteStringWriter writer;
     firestore_client_Target proto = serializer->EncodeQueryData(query_data);
     writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
-    serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
+    FreeNanopbMessage(firestore_client_Target_fields, &proto);
     return writer.Release();
   }
 
@@ -195,7 +196,7 @@ class LocalSerializerTest : public ::testing::Test {
     reader.ReadNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
     MutationBatch actual_mutation_batch =
         serializer.DecodeMutationBatch(&reader, nanopb_proto);
-    reader.FreeNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
+    FreeNanopbMessage(firestore_client_WriteBatch_fields, &nanopb_proto);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(model, actual_mutation_batch);
@@ -207,7 +208,7 @@ class LocalSerializerTest : public ::testing::Test {
     firestore_client_WriteBatch proto =
         serializer->EncodeMutationBatch(mutation_batch);
     writer.WriteNanopbMessage(firestore_client_WriteBatch_fields, &proto);
-    serializer->FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
+    FreeNanopbMessage(firestore_client_WriteBatch_fields, &proto);
     return writer.Release();
   }
 
@@ -289,6 +290,13 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
   ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
+
+  // Verify has_committed_mutations
+  doc = Doc("some/path", /*version=*/42, Map("foo", "bar"),
+            DocumentState::kCommittedMutations);
+  maybe_doc_proto.set_has_committed_mutations(true);
+
+  ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
@@ -299,6 +307,13 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
       "projects/p/databases/d/documents/some/path");
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_seconds(0);
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_nanos(42000);
+
+  ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
+
+  // Verify has_committed_mutations
+  no_doc =
+      DeletedDoc("some/path", /*version=*/42, /*has_committed_mutations=*/true);
+  maybe_doc_proto.set_has_committed_mutations(true);
 
   ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
 }
@@ -312,6 +327,7 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_seconds(0);
   maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_nanos(
       42000);
+  maybe_doc_proto.set_has_committed_mutations(true);
 
   ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
 }
@@ -327,28 +343,46 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
                        QueryPurpose::Listen, SnapshotVersion(version),
                        ByteString(resume_token));
 
-  // Let the RPC serializer test various permutations of query serialization.
-  ByteStringWriter writer;
-  google_firestore_v1_Target_QueryTarget proto =
-      remote_serializer.EncodeQueryTarget(query_data.query());
-  writer.WriteNanopbMessage(google_firestore_v1_Target_QueryTarget_fields,
-                            &proto);
-  remote_serializer.FreeNanopbMessage(
-      google_firestore_v1_Target_QueryTarget_fields, &proto);
-
-  ByteString query_target_bytes = writer.Release();
-  auto query_target_proto =
-      ProtobufParse<v1::Target::QueryTarget>(query_target_bytes);
-
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1::Target::QueryTarget* query_proto = expected.mutable_query();
-  query_proto->set_parent(query_target_proto.parent());
-  *query_proto->mutable_structured_query() =
-      query_target_proto.structured_query();
+
+  // Add expected collection.
+  query_proto->set_parent("projects/p/databases/d/documents");
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("room");
+  *query_proto->mutable_structured_query()->add_from() = std::move(from);
+
+  // Add default order_by.
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *query_proto->mutable_structured_query()->add_order_by() = std::move(order);
+
+  ExpectRoundTrip(query_data, expected);
+}
+
+TEST_F(LocalSerializerTest, EncodesQueryDataWithDocumentQuery) {
+  core::Query query = Query("room/1");
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
+  SnapshotVersion version = testutil::Version(1039);
+  ByteString resume_token = testutil::ResumeToken(1039);
+
+  QueryData query_data(core::Query(query), target_id, sequence_number,
+                       QueryPurpose::Listen, SnapshotVersion(version),
+                       ByteString(resume_token));
+
+  ::firestore::client::Target expected;
+  expected.set_target_id(target_id);
+  expected.set_last_listen_sequence_number(sequence_number);
+  expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.set_resume_token(resume_token.data(), resume_token.size());
+  v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
+  documents_proto->add_documents("projects/p/databases/d/documents/room/1");
 
   ExpectRoundTrip(query_data, expected);
 }

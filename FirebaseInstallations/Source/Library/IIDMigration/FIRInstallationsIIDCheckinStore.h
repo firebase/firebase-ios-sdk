@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-#import "XCTestCase+DateAsserts.h"
+#import <Foundation/Foundation.h>
 
-@implementation XCTestCase (FIRTestsDateUtils)
+@class FIRInstallationsStoredIIDCheckin;
+@class FBLPromise<ValueType>;
 
-- (void)assertDate:(NSDate *)date
-    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval {
-  NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
+NS_ASSUME_NONNULL_BEGIN
 
-  NSTimeInterval precision = 10;
-  XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
-            @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
-            precision, self.name);
-}
+@interface FIRInstallationsIIDCheckinStore : NSObject
+
+/*
+ * Tries to read IID checking from the Keychain (see also `FIRInstanceIDCheckinStore`).
+ * @return Returns a promise that is resolved with the checkin object when all required data found
+ * in the Keychain. The promise is rejected when the data is missing.
+ */
+- (FBLPromise<FIRInstallationsStoredIIDCheckin *> *)existingCheckin;
 
 @end
+
+NS_ASSUME_NONNULL_END
