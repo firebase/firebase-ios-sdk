@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,78 +14,68 @@
  * limitations under the License.
  */
 
+#include <initializer_list>
 #include <memory>
 #include <string>
-
-#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "Firestore/core/test/firebase/firestore/local/remote_document_cache_test.h"
 #include "absl/memory/memory.h"
 #include "leveldb/db.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
 using leveldb::WriteOptions;
-using firebase::firestore::local::LevelDbPersistence;
-using firebase::firestore::local::LevelDbPersistenceForTesting;
-using firebase::firestore::local::LevelDbRemoteDocumentCache;
-using firebase::firestore::local::RemoteDocumentCache;
-using firebase::firestore::util::OrderedCode;
+using util::OrderedCode;
 
-// A dummy document value, useful for testing code that's known to examine only document keys.
-static const char *kDummy = "1";
+// A dummy document value, useful for testing code that's known to examine only
+// document keys.
+const char* kDummy = "1";
 
 /**
- * The tests for FSTLevelDBRemoteDocumentCache are performed on the FSTRemoteDocumentCache
- * protocol in FSTRemoteDocumentCacheTests. This class is merely responsible for setting up and
- * tearing down the @a remoteDocumentCache.
+ * Writes a dummy row that looks like a remote document key but is different
+ * enough that it shouldn't be picked up in scans of the table.
  */
-@interface FSTLevelDBRemoteDocumentCacheTests : FSTRemoteDocumentCacheTests
-@end
-
-@implementation FSTLevelDBRemoteDocumentCacheTests {
-  std::unique_ptr<LevelDbPersistence> _db;
-  LevelDbRemoteDocumentCache *_cache;
-}
-
-- (void)setUp {
-  [super setUp];
-  _db = LevelDbPersistenceForTesting();
-  self.persistence = _db.get();
-  HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = _db->remote_document_cache();
-
-  // Write a couple dummy rows that should appear before/after the remote_documents table to make
-  // sure the tests are unaffected.
-  [self writeDummyRowWithSegments:@[ @"remote_documentr", @"foo", @"bar" ]];
-  [self writeDummyRowWithSegments:@[ @"remote_documentsa", @"foo", @"bar" ]];
-}
-
-- (RemoteDocumentCache *_Nullable)remoteDocumentCache {
-  return _cache;
-}
-
-- (void)tearDown {
-  [super tearDown];
-  self.remoteDocumentCache = nil;
-  self.persistence = nil;
-  _cache = nullptr;
-  _db.reset();
-}
-
-- (void)writeDummyRowWithSegments:(NSArray<NSString *> *)segments {
+void WriteDummyRow(LevelDbPersistence* db,
+                   std::initializer_list<std::string> segments) {
+  // TODO(wilhuff): Find some way to share local::(anonymous)::Writer
+  // These constants correspond to ComponentLabel in leveldb_key.mm.
+  int64_t label = 5;  // TableName
   std::string key;
-  for (NSString *segment in segments) {
-    OrderedCode::WriteString(&key, segment.UTF8String);
+  for (const auto& segment : segments) {
+    OrderedCode::WriteSignedNumIncreasing(&key, label);
+    OrderedCode::WriteString(&key, segment);
+
+    label = 62;  // PathSegment
   }
 
-  _db->ptr()->Put(WriteOptions(), key, kDummy);
+  OrderedCode::WriteSignedNumIncreasing(&key, 0);  // Terminator
+
+  db->ptr()->Put(WriteOptions(), key, kDummy);
 }
 
-@end
+std::unique_ptr<Persistence> PersistenceFactory() {
+  auto persistence = LevelDbPersistenceForTesting();
 
-NS_ASSUME_NONNULL_END
+  WriteDummyRow(persistence.get(), {"remote_documentr", "foo", "bar"});
+  WriteDummyRow(persistence.get(), {"remote_documentsa", "foo", "bar"});
+
+  return std::move(persistence);
+}
+
+}  // namespace
+
+INSTANTIATE_TEST_CASE_P(LevelDbRemoteDocumentCacheTest,
+                        RemoteDocumentCacheTest,
+                        testing::Values(PersistenceFactory));
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

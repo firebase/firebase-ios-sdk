@@ -22,8 +22,6 @@
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -39,8 +37,6 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 INSTANTIATE_TEST_CASE_P(LevelDbIndexManagerTest,
                         IndexManagerTest,
                         ::testing::Values(PersistenceFactory));
-
-NS_ASSUME_NONNULL_END
 
 }  // namespace local
 }  // namespace firestore

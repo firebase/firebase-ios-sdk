@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
+#include "Firestore/core/test/firebase/firestore/local/remote_document_cache_test.h"
 
 #include <memory>
 #include <vector>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
@@ -30,213 +28,195 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/string_view.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
-namespace testutil = firebase::firestore::testutil;
-namespace core = firebase::firestore::core;
-namespace util = firebase::firestore::util;
-using firebase::firestore::local::RemoteDocumentCache;
-using firebase::firestore::model::Document;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentMap;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::MaybeDocument;
-using firebase::firestore::model::MaybeDocumentMap;
-using firebase::firestore::model::NoDocument;
-using firebase::firestore::model::OptionalMaybeDocumentMap;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
+using model::Document;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::DocumentMap;
+using model::DocumentState;
+using model::FieldValue;
+using model::MaybeDocument;
+using model::MaybeDocumentMap;
+using model::NoDocument;
+using model::OptionalMaybeDocumentMap;
+
+using testing::Matches;
+using testing::IsSupersetOf;
+using testing::UnorderedElementsAreArray;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Map;
 using testutil::Query;
 
-NS_ASSUME_NONNULL_BEGIN
+const char* kDocPath = "a/b";
+const char* kLongDocPath = "a/b/c/d/e/f";
+const int kVersion = 42;
+FieldValue::Map kDocData;
 
-static const char *kDocPath = "a/b";
-static const char *kLongDocPath = "a/b/c/d/e/f";
-static const int kVersion = 42;
-
-void ExpectMapHasDocs(XCTestCase *self,
-                      const MaybeDocumentMap &map,
-                      const std::vector<Document> &expected,
-                      bool exactly) {
-  if (exactly) {
-    XCTAssertEqual(map.size(), expected.size());
+template <typename MapType>
+std::vector<MaybeDocument> ActualDocuments(const MapType& docs) {
+  std::vector<MaybeDocument> result;
+  for (const auto& kv : docs) {
+    const absl::optional<MaybeDocument>& doc = kv.second;
+    if (doc) {
+      result.push_back(*doc);
+    }
   }
-  for (const Document &doc : expected) {
-    absl::optional<MaybeDocument> actual = map.get(doc.key());
-    XCTAssertTrue(actual.has_value());
-    XCTAssertEqual(*actual, doc);
-  }
+  return result;
 }
 
-void ExpectMapHasDocs(XCTestCase *self,
-                      const OptionalMaybeDocumentMap &map,
-                      const std::vector<Document> &expected,
-                      bool exactly) {
-  if (exactly) {
-    XCTAssertEqual(map.size(), expected.size());
-  }
-  for (const Document &doc : expected) {
-    absl::optional<absl::optional<MaybeDocument>> actual = map.get(doc.key());
-    XCTAssertTrue(actual.has_value());
-    XCTAssertEqual(**actual, doc);
-  }
+MATCHER_P(HasExactlyDocs,
+          expected,
+          negation ? "missing docs" : "has exactly docs") {
+  std::vector<MaybeDocument> arg_docs = ActualDocuments(arg);
+  return testing::Value(arg_docs, UnorderedElementsAreArray(expected));
 }
 
-@implementation FSTRemoteDocumentCacheTests {
-  FieldValue::Map _kDocData;
+MATCHER_P(HasAtLeastDocs,
+          expected,
+          negation ? "missing docs" : "has at least docs") {
+  std::vector<MaybeDocument> arg_docs = ActualDocuments(arg);
+  return testing::Value(arg_docs, IsSupersetOf(expected));
 }
 
-- (void)setUp {
-  [super setUp];
+}  // namespace
 
+RemoteDocumentCacheTest::RemoteDocumentCacheTest()
+    : persistence_{GetParam()()},
+      cache_{persistence_->remote_document_cache()} {
   // essentially a constant, but can't be a compile-time one.
-  _kDocData = Map("a", 1, "b", 2);
+  kDocData = Map("a", 1, "b", 2);
 }
 
-- (void)tearDown {
-  if (self.persistence) {
-    self.persistence->Shutdown();
-  }
-}
-
-- (void)testReadDocumentNotInCache {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testReadDocumentNotInCache", [&] {
-    XCTAssertEqual(absl::nullopt, self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
+TEST_P(RemoteDocumentCacheTest, ReadDocumentNotInCache) {
+  persistence_->Run("test_read_document_not_in_cache", [&] {
+    ASSERT_EQ(absl::nullopt, cache_->Get(testutil::Key(kDocPath)));
   });
 }
 
-// Helper for next two tests.
-- (void)setAndReadADocumentAtPath:(const absl::string_view)path {
-  self.persistence->Run("setAndReadADocumentAtPath", [&] {
-    Document written = [self setTestDocumentAtPath:path];
-    absl::optional<MaybeDocument> read = self.remoteDocumentCache->Get(testutil::Key(path));
-    XCTAssertEqual(*read, written);
-  });
+TEST_P(RemoteDocumentCacheTest, SetAndReadADocument) {
+  SetAndReadTestDocument(kDocPath);
 }
 
-- (void)testSetAndReadADocument {
-  if (!self.remoteDocumentCache) return;
-
-  [self setAndReadADocumentAtPath:kDocPath];
-}
-
-- (void)testSetAndReadSeveralDocuments {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testSetAndReadSeveralDocuments", [=] {
+TEST_P(RemoteDocumentCacheTest, SetAndReadSeveralDocuments) {
+  persistence_->Run("test_set_and_read_several_documents", [=] {
     std::vector<Document> written = {
-        [self setTestDocumentAtPath:kDocPath],
-        [self setTestDocumentAtPath:kLongDocPath],
+        SetTestDocument(kDocPath),
+        SetTestDocument(kLongDocPath),
     };
-    OptionalMaybeDocumentMap read = self.remoteDocumentCache->GetAll(
+    OptionalMaybeDocumentMap read = cache_->GetAll(
         DocumentKeySet{testutil::Key(kDocPath), testutil::Key(kLongDocPath)});
-    ExpectMapHasDocs(self, read, written, /* exactly= */ true);
+    EXPECT_THAT(read, HasExactlyDocs(written));
   });
 }
 
-- (void)testSetAndReadSeveralDocumentsIncludingMissingDocument {
-  if (!self.remoteDocumentCache) return;
+TEST_P(RemoteDocumentCacheTest,
+       SetAndReadSeveralDocumentsIncludingMissingDocument) {
+  persistence_->Run(
+      "test_set_and_read_several_documents_including_missing_document", [=] {
+        std::vector<Document> written = {
+            SetTestDocument(kDocPath),
+            SetTestDocument(kLongDocPath),
+        };
+        OptionalMaybeDocumentMap read = cache_->GetAll(DocumentKeySet{
+            testutil::Key(kDocPath),
+            testutil::Key(kLongDocPath),
+            testutil::Key("foo/nonexistent"),
+        });
+        EXPECT_THAT(read, HasAtLeastDocs(written));
+        auto found = read.find(DocumentKey::FromPathString("foo/nonexistent"));
+        ASSERT_TRUE(found != read.end());
+        ASSERT_EQ(absl::nullopt, found->second);
+      });
+}
 
-  self.persistence->Run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=] {
-    std::vector<Document> written = {
-        [self setTestDocumentAtPath:kDocPath],
-        [self setTestDocumentAtPath:kLongDocPath],
-    };
-    OptionalMaybeDocumentMap read = self.remoteDocumentCache->GetAll(DocumentKeySet{
-        testutil::Key(kDocPath),
-        testutil::Key(kLongDocPath),
-        testutil::Key("foo/nonexistent"),
-    });
-    ExpectMapHasDocs(self, read, written, /* exactly= */ false);
-    auto found = read.find(DocumentKey::FromPathString("foo/nonexistent"));
-    XCTAssertTrue(found != read.end());
-    XCTAssertEqual(absl::nullopt, found->second);
+TEST_P(RemoteDocumentCacheTest, SetAndReadADocumentAtDeepPath) {
+  SetAndReadTestDocument(kLongDocPath);
+}
+
+TEST_P(RemoteDocumentCacheTest, SetAndReadDeletedDocument) {
+  persistence_->Run("test_set_and_read_deleted_document", [&] {
+    absl::optional<MaybeDocument> deleted_doc = DeletedDoc(kDocPath, kVersion);
+    cache_->Add(*deleted_doc);
+
+    ASSERT_EQ(cache_->Get(testutil::Key(kDocPath)), deleted_doc);
   });
 }
 
-- (void)testSetAndReadADocumentAtDeepPath {
-  if (!self.remoteDocumentCache) return;
-
-  [self setAndReadADocumentAtPath:kLongDocPath];
-}
-
-- (void)testSetAndReadDeletedDocument {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testSetAndReadDeletedDocument", [&] {
-    absl::optional<MaybeDocument> deletedDoc = DeletedDoc(kDocPath, kVersion);
-    self.remoteDocumentCache->Add(*deletedDoc);
-
-    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
+TEST_P(RemoteDocumentCacheTest, SetDocumentToNewValue) {
+  persistence_->Run("test_set_document_to_new_value", [&] {
+    SetTestDocument(kDocPath);
+    absl::optional<MaybeDocument> new_doc =
+        Doc(kDocPath, kVersion, Map("data", 2));
+    cache_->Add(*new_doc);
+    ASSERT_EQ(cache_->Get(testutil::Key(kDocPath)), new_doc);
   });
 }
 
-- (void)testSetDocumentToNewValue {
-  if (!self.remoteDocumentCache) return;
+TEST_P(RemoteDocumentCacheTest, RemoveDocument) {
+  persistence_->Run("test_remove_document", [&] {
+    SetTestDocument(kDocPath);
+    cache_->Remove(testutil::Key(kDocPath));
 
-  self.persistence->Run("testSetDocumentToNewValue", [&] {
-    [self setTestDocumentAtPath:kDocPath];
-    absl::optional<MaybeDocument> newDoc = Doc(kDocPath, kVersion, Map("data", 2));
-    self.remoteDocumentCache->Add(*newDoc);
-    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
+    ASSERT_EQ(cache_->Get(testutil::Key(kDocPath)), absl::nullopt);
   });
 }
 
-- (void)testRemoveDocument {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testRemoveDocument", [&] {
-    [self setTestDocumentAtPath:kDocPath];
-    self.remoteDocumentCache->Remove(testutil::Key(kDocPath));
-
-    XCTAssertEqual(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), absl::nullopt);
-  });
-}
-
-- (void)testRemoveNonExistentDocument {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testRemoveNonExistentDocument", [&] {
+TEST_P(RemoteDocumentCacheTest, RemoveNonExistentDocument) {
+  persistence_->Run("test_remove_non_existent_document", [&] {
     // no-op, but make sure it doesn't throw.
-    XCTAssertNoThrow(self.remoteDocumentCache->Remove(testutil::Key(kDocPath)));
+    EXPECT_NO_THROW(cache_->Remove(testutil::Key(kDocPath)));
   });
 }
 
-// TODO(mikelehen): Write more elaborate tests once we have more elaborate implementations.
-- (void)testDocumentsMatchingQuery {
-  if (!self.remoteDocumentCache) return;
-
-  self.persistence->Run("testDocumentsMatchingQuery", [&] {
+// TODO(mikelehen): Write more elaborate tests once we have more elaborate
+// implementations.
+TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
+  persistence_->Run("test_documents_matching_query", [&] {
     // TODO(rsgowman): This just verifies that we do a prefix scan against the
     // query path. We'll need more tests once we add index support.
-    [self setTestDocumentAtPath:"a/1"];
-    [self setTestDocumentAtPath:"b/1"];
-    [self setTestDocumentAtPath:"b/1/z/1"];
-    [self setTestDocumentAtPath:"b/2"];
-    [self setTestDocumentAtPath:"c/1"];
+    SetTestDocument("a/1");
+    SetTestDocument("b/1");
+    SetTestDocument("b/1/z/1");
+    SetTestDocument("b/2");
+    SetTestDocument("c/1");
 
     core::Query query = Query("b");
-    DocumentMap results = self.remoteDocumentCache->GetMatching(query);
+    DocumentMap results = cache_->GetMatching(query);
     std::vector<Document> docs = {
-        Doc("b/1", kVersion, _kDocData),
-        Doc("b/2", kVersion, _kDocData),
+        Doc("b/1", kVersion, kDocData),
+        Doc("b/2", kVersion, kDocData),
     };
-    ExpectMapHasDocs(self, results.underlying_map(), docs, /* exactly= */ true);
+    EXPECT_THAT(results.underlying_map(), HasExactlyDocs(docs));
+    //    ExpectMapHasDocs(results.underlying_map(), docs, /* exactly= */ true);
   });
 }
 
-#pragma mark - Helpers
-- (Document)setTestDocumentAtPath:(const absl::string_view)path {
-  Document doc = Doc(path, kVersion, _kDocData);
-  self.remoteDocumentCache->Add(doc);
+// MARK: - Helpers
+
+Document RemoteDocumentCacheTest::SetTestDocument(
+    const absl::string_view path) {
+  Document doc = Doc(path, kVersion, kDocData);
+  cache_->Add(doc);
   return doc;
 }
 
-@end
+void RemoteDocumentCacheTest::SetAndReadTestDocument(
+    const absl::string_view path) {
+  persistence_->Run("SetAndReadTestDocument", [&] {
+    Document written = SetTestDocument(path);
+    absl::optional<MaybeDocument> read = cache_->Get(testutil::Key(path));
+    ASSERT_EQ(*read, written);
+  });
+}
 
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
