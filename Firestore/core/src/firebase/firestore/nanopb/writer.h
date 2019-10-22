@@ -145,17 +145,6 @@ class StringWriter : public Writer {
   std::string buffer_;
 };
 
-/** Creates a `Writer` that writes into a `grpc::ByteBuffer`. */
-class ByteBufferWriter : public Writer {
- public:
-  ByteBufferWriter();
-
-  grpc::ByteBuffer Release();
-
- private:
-  std::vector<grpc::Slice> buffer_;
-};
-
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

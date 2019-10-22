@@ -194,18 +194,6 @@ Message<T> Message<T>::TryParse(Reader* reader) {
 }
 
 /**
- * Serializes the given `message` into a `grpc::ByteBuffer`.
- *
- * The lifetime of the return value is entirely independent of the `message`.
- */
-template <typename T>
-grpc::ByteBuffer MakeByteBuffer(const Message<T>& message) {
-  ByteBufferWriter writer;
-  writer.Write(message.fields(), message.get());
-  return writer.Release();
-}
-
-/**
  * Serializes the given `message` into a `ByteString`.
  *
  * The lifetime of the return value is entirely independent of the `message`.

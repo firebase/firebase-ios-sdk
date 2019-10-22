@@ -67,34 +67,13 @@ using util::StringFormat;
 
 namespace {
 
-NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  if (!status.ok()) {
-    *out_error = MakeNSError(Status{
-        Error::Internal, "Trying to convert an invalid grpc::ByteBuffer"});
-    return nil;
-  }
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
 template <typename T, typename U>
 std::string DescribeMessage(const Message<U>& message) {
   // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
   // Converting to an Objective-C proto just to be able to call `description` is
   // a hack.
-  auto bytes = MakeByteBuffer(message);
-  auto ns_data = ConvertToNsData(bytes, nil);
+  auto bytes = MakeByteString(message);
+  auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
   T* objc_request = [T parseFromData:ns_data error:nil];
   return util::MakeString([objc_request description]);
 }

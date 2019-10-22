@@ -166,7 +166,7 @@ class StringReader : public Reader {
   explicit StringReader(pb_istream_t stream) : stream_(stream) {
   }
 
-    pb_istream_t stream_{};
+  pb_istream_t stream_{};
 };
 
 }  // namespace nanopb

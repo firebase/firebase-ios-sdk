@@ -35,6 +35,7 @@ namespace {
 
 using model::DatabaseId;
 using remote::ByteBufferReader;
+using remote::ByteBufferWriter;
 using remote::Serializer;
 
 // This proto is chosen mostly because it's relatively small but still has some

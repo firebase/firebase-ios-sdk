@@ -20,8 +20,12 @@
 #include <pb.h>
 #include <pb_decode.h>
 
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
@@ -36,8 +40,31 @@ class ByteBufferReader : public nanopb::Reader {
 
  private:
   nanopb::ByteString bytes_;
-    pb_istream_t stream_{};
+  pb_istream_t stream_{};
 };
+
+/** A `Writer` that writes into a `grpc::ByteBuffer`. */
+class ByteBufferWriter : public nanopb::Writer {
+ public:
+  ByteBufferWriter();
+
+  grpc::ByteBuffer Release();
+
+ private:
+  std::vector<grpc::Slice> buffer_;
+};
+
+/**
+ * Serializes the given `message` into a `grpc::ByteBuffer`.
+ *
+ * The lifetime of the return value is entirely independent of the `message`.
+ */
+template <typename T>
+grpc::ByteBuffer MakeByteBuffer(const nanopb::Message<T>& message) {
+  ByteBufferWriter writer;
+  writer.Write(message.fields(), message.get());
+  return writer.Release();
+}
 
 }  // namespace remote
 }  // namespace firestore
