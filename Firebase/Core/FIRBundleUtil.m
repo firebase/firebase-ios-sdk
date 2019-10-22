@@ -54,7 +54,12 @@
         [GULAppEnvironmentUtil isAppExtension]
             ? [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier]
             : bundle.bundleIdentifier;
-
+#if TARGET_OS_WATCH
+    applicationBundleIdentifier =
+      [GULAppEnvironmentUtil isAppExtension]
+          ? [self bundleIdentifierByRemovingLastPartFrom:applicationBundleIdentifier]
+          : applicationBundleIdentifier;
+#endif
     if ([applicationBundleIdentifier isEqualToString:bundleIdentifier]) {
       return YES;
     }

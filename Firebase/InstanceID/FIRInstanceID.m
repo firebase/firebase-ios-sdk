@@ -58,12 +58,11 @@ int64_t const kMinRetryIntervalForDefaultTokenInSeconds = 10;       // 10 second
 // change.
 NSInteger const kMaxRetryCountForDefaultToken = 5;
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
 #else
-static NSString *const kEntitlementsAPSEnvironmentKey = @"com.apple.developer.aps-environment";
+static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.com.apple.developer.aps-environment";
 #endif
-static NSString *const kEntitlementsKeyForMac = @"Entitlements";
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
 /// enabled flag.
@@ -1074,10 +1073,10 @@ static FIRInstanceID *gInstanceID;
     // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
     return defaultAppTypeProd;
   }
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
-#elif TARGET_OS_OSX || TARGET_OS_WATCH
+#elif TARGET_OS_OSX
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
 #endif
@@ -1157,13 +1156,7 @@ static FIRInstanceID *gInstanceID;
                              @"most likely a Dev profile.");
   }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
-#elif TARGET_OS_OSX || TARGET_OS_WATCH
-  NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
-  NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKey];
-#endif
-
   NSString *debugString __unused =
       [NSString stringWithFormat:@"APNS Environment in profile: %@", apsEnvironment];
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID013, @"%@", debugString);
