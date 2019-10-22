@@ -32,8 +32,14 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/** A `Reader` that reads from the given `grpc::ByteBuffer`. */
 class ByteBufferReader : public nanopb::Reader {
  public:
+  /**
+   * Copies the given `buffer` and associates the resulting stream with this
+   * `ByteBufferReader`.
+   */
+  // TODO(varconst): avoid copying the buffer.
   explicit ByteBufferReader(const grpc::ByteBuffer& buffer);
 
   void Read(const pb_field_t* fields, void* dest_struct) override;

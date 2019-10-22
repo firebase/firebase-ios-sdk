@@ -32,6 +32,12 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+/**
+ * Maintains whether any errors occurred between single reads within a larger
+ * read chain. The pattern is to pass the `ReadContext` as the first argument to
+ * any `Read` function that might fail, and for the function to exit early if
+ * the given context is failed already.
+ */
 class ReadContext {
  public:
   bool ok() const {
@@ -47,11 +53,11 @@ class ReadContext {
   }
 
   /**
-   * Ensures this Reader's status is `!ok().
+   * Ensures this `ReadContext`'s status is `!ok()`.
    *
-   * If this Reader's status is already !ok(), then this may augment the
-   * description, but will otherwise leave it alone. Otherwise, this Reader's
-   * status will be set to Error::DataLoss with the specified
+   * If this `ReadContext`'s status is already `!ok()`, then this may augment
+   * the description, but will otherwise leave it alone. Otherwise, this
+   * `ReadContext`'s status will be set to `Error::DataLoss` with the specified
    * description.
    */
   void Fail(absl::string_view description) {
@@ -63,23 +69,28 @@ class ReadContext {
 };
 
 /**
- * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_istream_t.
+ * An interface that:
+ * - maintains a `ReadContext` across the reads;
+ * - can read byte representations from the associated stream into a given
+ *   Nanopb proto.
+ *
+ * Derived classes define what kinds of streams can be associated with the
+ * `Reader`.
  */
 class Reader {
  public:
   virtual ~Reader() = default;
 
   /**
-   * Reads a Nanopb proto from the input stream.
+   * Reads a Nanopb proto from the stream associated with this `Reader`.
    *
-   * This essentially wraps calls to nanopb's pb_decode() method. This is the
+   * This essentially wraps calls to Nanopb's `pb_decode()` method. This is the
    * primary way of decoding messages.
    *
-   * Note that this allocates memory. You must call nanopb::FreeNanopbMessage()
-   * (which essentially wraps pb_release()) on the dest_struct in order to avoid
-   * memory leaks. (This also implies code that uses this is not exception
-   * safe.)
+   * Note that this allocates memory. You must call
+   * `nanopb::FreeNanopbMessage()` (which essentially wraps `pb_release()`) on
+   * the `dest_struct` in order to avoid memory leaks. (This also implies code
+   * that uses this is not exception safe.)
    */
   // TODO(rsgowman): At the moment we rely on the caller to manually free
   // dest_struct via nanopb::FreeNanopbMessage(). We might instead see if we can
@@ -108,14 +119,6 @@ class Reader {
     return &context_;
   }
 
-  /**
-   * Ensures this Reader's status is `!ok().
-   *
-   * If this Reader's status is already !ok(), then this may augment the
-   * description, but will otherwise leave it alone. Otherwise, this Reader's
-   * status will be set to Error::DataLoss with the specified
-   * description.
-   */
   void Fail(absl::string_view description) {
     context_.Fail(description);
   }
@@ -124,6 +127,10 @@ class Reader {
   ReadContext context_;
 };
 
+/**
+ * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
+ * pb_istream_t.
+ */
 class StringReader : public Reader {
  public:
   /**
