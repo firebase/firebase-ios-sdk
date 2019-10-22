@@ -1,3 +1,6 @@
+# v6.3.1
+- [fixed] Removed usage of a deprecated property on iOS 13. (#4066)
+
 # v6.3.0
 - [added] Added methods allowing developers to link and reauthenticate with federated providers. (#3971)
 

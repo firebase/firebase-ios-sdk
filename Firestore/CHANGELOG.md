@@ -2,7 +2,7 @@
 
 # v1.6.1
 - [fixed] Fix a race condition that could cause a segmentation fault during
-  client initialization.
+  client initialization. (#4091)
 
 # v1.6.0
 - [feature] Added an `addSnapshotsInSyncListener()` method to
