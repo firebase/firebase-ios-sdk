@@ -161,15 +161,12 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     auto created = LevelDbPersistence::Create(
         std::move(dir), serializer,
         LruParams::WithCacheSize(settings.cache_size_bytes()));
-    if (!created.ok()) {
-      // If leveldb fails to start then just throw up our hands: the error is
-      // unrecoverable. There's nothing an end-user can do and nearly all
-      // failures indicate the developer is doing something grossly wrong so we
-      // should stop them cold in their tracks with a failure they can't ignore.
-      [NSException
-           raise:NSInternalInconsistencyException
-          format:@"Failed to open DB: %s", created.status().ToString().c_str()];
-    }
+    // If leveldb fails to start then just throw up our hands: the error is
+    // unrecoverable. There's nothing an end-user can do and nearly all
+    // failures indicate the developer is doing something grossly wrong so we
+    // should stop them cold in their tracks with a failure they can't ignore.
+    HARD_ASSERT(created.ok(), "Failed to open DB: %s",
+                created.status().ToString());
 
     auto ldb = std::move(created).ValueOrDie();
     lru_delegate_ = ldb->reference_delegate();
