@@ -106,10 +106,7 @@ add_external_subdirectory(benchmark)
 # Force disable Abseil's tests, which don't compile under VS2017.
 set(old_build_testing ${BUILD_TESTING})
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
-add_subdirectory(
-  Firestore/third_party/abseil-cpp
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(abseil-cpp)
 
 
 # gRPC
