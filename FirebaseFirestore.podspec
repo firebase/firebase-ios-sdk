@@ -112,5 +112,5 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
         Firestore/core/src/firebase/firestore/util/config.h
   CMD
 
-  s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder'
+  s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'
 end

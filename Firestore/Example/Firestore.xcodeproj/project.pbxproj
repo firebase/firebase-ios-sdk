@@ -1513,7 +1513,7 @@
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
 		CC572A9168BBEF7B83E4BBC5 /* view_snapshot_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = view_snapshot_test.cc; sourceTree = "<group>"; };
 		CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = equals_tester.h; sourceTree = "<group>"; };
-		CE37875365497FFA8687B745 /* message_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = message_test.cc; path = nanopb/message_test.cc; sourceTree = "<group>"; };
+		CE37875365497FFA8687B745 /* message_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = message_test.cc; path = nanopb/message_test.cc; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
@@ -4910,7 +4910,6 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -4966,7 +4965,6 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
