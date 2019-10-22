@@ -129,7 +129,6 @@ if is_platform(:ios)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
 
@@ -147,7 +146,6 @@ if is_platform(:ios)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
 
@@ -178,7 +176,6 @@ if is_platform(:osx)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
 
@@ -190,7 +187,6 @@ if is_platform(:osx)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
   end
@@ -209,7 +205,6 @@ if is_platform(:tvos)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
 
@@ -221,7 +216,6 @@ if is_platform(:tvos)
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'abseil/time/time'
       pod 'leveldb-library'
     end
   end
