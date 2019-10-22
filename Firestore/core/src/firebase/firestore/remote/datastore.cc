@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"

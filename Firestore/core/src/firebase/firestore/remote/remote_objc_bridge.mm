@@ -29,7 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"

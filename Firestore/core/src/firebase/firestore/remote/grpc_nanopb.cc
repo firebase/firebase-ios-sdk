@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 
 #include <vector>
 

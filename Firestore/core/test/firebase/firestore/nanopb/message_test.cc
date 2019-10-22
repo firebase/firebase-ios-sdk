@@ -21,7 +21,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "grpcpp/impl/codegen/grpc_library.h"

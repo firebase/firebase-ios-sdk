@@ -20,7 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
