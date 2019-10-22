@@ -14,35 +14,31 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
+#include <memory>
 
-#include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "Firestore/core/test/firebase/firestore/local/remote_document_cache_test.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
-
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
 
 std::unique_ptr<Persistence> PersistenceFactory() {
-  return [FSTPersistenceTestHelpers lruMemoryPersistence];
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(MemoryIndexManagerTest,
-                        IndexManagerTest,
-                        ::testing::Values(PersistenceFactory));
-
-NS_ASSUME_NONNULL_END
+INSTANTIATE_TEST_CASE_P(MemoryRemoteDocumentCacheTest,
+                        RemoteDocumentCacheTest,
+                        testing::Values(PersistenceFactory));
 
 }  // namespace local
 }  // namespace firestore

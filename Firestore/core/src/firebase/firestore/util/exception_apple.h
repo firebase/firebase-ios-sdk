@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_APPLE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_APPLE_H_
 
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "absl/base/attributes.h"
 
 namespace firebase {
@@ -27,16 +27,16 @@ namespace firestore {
 namespace util {
 
 /**
- * Default failure handler for ObjC/Swift. Typically shouldn't be used
- * directly.
+ * Default throw handler for ObjC/Swift. Typically shouldn't be used directly.
  */
-ABSL_ATTRIBUTE_NORETURN void ObjcFailureHandler(const char* file,
-                                                const char* func,
-                                                const int line,
-                                                const std::string& message);
+ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
+                                              const char* file,
+                                              const char* func,
+                                              int line,
+                                              const std::string& message);
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXCEPTION_APPLE_H_

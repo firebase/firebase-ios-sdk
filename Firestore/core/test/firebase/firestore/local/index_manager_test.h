@@ -17,18 +17,12 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "gtest/gtest.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -56,7 +50,5 @@ class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_

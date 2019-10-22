@@ -15,15 +15,16 @@
  */
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
 using firebase::firestore::local::ReferenceSet;
 
 @interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
@@ -41,7 +42,7 @@ using firebase::firestore::local::ReferenceSet;
 - (void)setUp {
   [super setUp];
 
-  _db = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  _db = MemoryPersistenceWithEagerGcForTesting();
   self.persistence = _db.get();
   self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
   self.mutationQueue = self.persistence->GetMutationQueueForUser(User("user"));

@@ -26,9 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsAPIService : NSObject
 
-@property(nonatomic, readonly) NSString *APIKey;
-@property(nonatomic, readonly) NSString *projectID;
-
 /**
  * The default initializer.
  * @param APIKey The Firebase project API key (see `FIROptions.APIKey`).

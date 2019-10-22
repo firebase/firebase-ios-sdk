@@ -21,6 +21,7 @@
 #include <pb_decode.h>
 
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -44,6 +45,16 @@ class Reader {
  public:
   Reader(const Reader&) = delete;
   Reader(Reader&&) = delete;
+
+  /**
+   * Creates an instance that isn't associated with any bytes. It can be used
+   * to accumulate errors.
+   *
+   * TODO(varconst): this class should turn into a context object that holds
+   * read errors (`ReadContext`?). Its remaining reading responsibilities should
+   * probably move into `Message`.
+   */
+  Reader() = default;
 
   /**
    * Creates an input stream that reads from the specified bytes. Note that
@@ -73,23 +84,21 @@ class Reader {
    * This essentially wraps calls to nanopb's pb_decode() method. This is the
    * primary way of decoding messages.
    *
-   * Note that this allocates memory. You must call FreeNanopbMessage() (which
-   * essentially wraps pb_release()) on the dest_struct in order to avoid memory
-   * leaks. (This also implies code that uses this is not exception safe.)
+   * Note that this allocates memory. You must call nanopb::FreeNanopbMessage()
+   * (which essentially wraps pb_release()) on the dest_struct in order to avoid
+   * memory leaks. (This also implies code that uses this is not exception
+   * safe.)
    */
   // TODO(rsgowman): At the moment we rely on the caller to manually free
-  // dest_struct via FreeNanopbMessage(). We might instead see if we can
+  // dest_struct via nanopb::FreeNanopbMessage(). We might instead see if we can
   // register allocated messages, track them, and free them ourselves. This may
   // be especially relevant if we start to use nanopb messages as the underlying
   // data within the model objects.
   void ReadNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
-  /**
-   * Release memory allocated by ReadNanopbMessage().
-   *
-   * This essentially wraps calls to nanopb's pb_release() method.
-   */
-  void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
+  bool ok() const {
+    return status_.ok();
+  }
 
   util::Status status() const {
     return status_;
@@ -122,7 +131,7 @@ class Reader {
 
   util::Status status_ = util::Status::OK();
 
-  pb_istream_t stream_;
+  pb_istream_t stream_{};
 };
 
 }  // namespace nanopb

@@ -515,12 +515,40 @@
   XCTAssertEqualObjects([[engine serverCacheAtPath:PATH(@"foo")] dataHash], hashFor247);
 }
 
+// NOTE: This deals with part of the NSDecimalNumber issue: namely that
+// [NSDecimalNumber longLongValue] is completely bonkers for decimals with
+// high precision. The decimal value below (close to 1000) is returned as -844!
+// http://www.openradar.me/radar?id=5007005597040640
+// This does not deal with the fact that this is not the same behavior as the
+// RTDB server. Given an NSDecimalNumber, the server stores decimals with the
+// full precision and returns these as NSDecimalNumbers too.
+// This means that the RTDB server can store the double value 2.47 as 2.47.
+// But if the double is wrapped in an NSDecimalNumber, the server apparently
+// stores the value 2.470000000000000512.
+// This means that the persistence layer will have a hard time determining whether
+// rounding is appropriate or not.
+// Similarly, as an NSDecimalNumber, the RTDB gladly stores and returns
+// 999.9999999999999487 without any rounding, although considered as a double,
+// the value will be 1000.
+- (void)testNSDecimalsAreRoundedProperly {
+  FLevelDBStorageEngine *engine = [self cleanStorageEngine];
+  id decimalValue = [NSDecimalNumber decimalNumberWithString:@"999.9999999999999487"];
+  id expectedDecimalValue = [NSDecimalNumber decimalNumberWithString:@"1000"];
+  [engine updateServerCache:NODE(decimalValue) atPath:PATH(@"foo") merge:NO];
+
+  id<FNode> actualData = [engine serverCacheAtPath:PATH(@"foo")];
+  NSNumber *actualDecimal = [actualData val];
+  XCTAssertEqualObjects([actualDecimal stringValue], [expectedDecimalValue stringValue]);
+  XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDecimal), kCFNumberFloat64Type);
+}
+
 - (void)testIntegersAreReturnedsAsIntegers {
   id intValue = @247;
   id longValue = @1542405709418655810;
   id doubleValue = @0xFFFFFFFFFFFFFFFFUL;  // This number can't be represented as a signed long.
 
-  id<FNode> expectedData = NODE((@{@"int" : @247, @"long" : longValue, @"double" : doubleValue}));
+  id<FNode> expectedData =
+      NODE((@{@"int" : intValue, @"long" : longValue, @"double" : doubleValue}));
   FLevelDBStorageEngine *engine = [self cleanStorageEngine];
   [engine updateServerCache:expectedData atPath:PATH(@"foo") merge:NO];
   id<FNode> actualData = [engine serverCacheAtPath:PATH(@"foo")];
@@ -532,18 +560,7 @@
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualInt), kCFNumberSInt64Type);
   XCTAssertEqualObjects([actualLong stringValue], [longValue stringValue]);
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualLong), kCFNumberSInt64Type);
-#ifdef TARGET_OS_IOS
-  // Catalyst and iOS 13 use int128_t but CFNumber still calls it 64 bits.
-  if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 13) {
-    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
-  } else {
-    XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
-  }
-#elif TARGET_OS_MACCATALYST
   XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberSInt64Type);
-#else
-  XCTAssertEqual(CFNumberGetType((CFNumberRef)actualDouble), kCFNumberFloat64Type);
-#endif
 }
 
 // TODO[offline]: Somehow test estimated server size?

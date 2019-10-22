@@ -151,7 +151,11 @@ class BasePath {
   }
 
   util::ComparisonResult CompareTo(const T& rhs) const {
-    return util::Compare(segments_, rhs.segments_);
+    return util::CompareContainer(segments_, rhs.segments_);
+  }
+
+  friend bool operator==(const BasePath& lhs, const BasePath& rhs) {
+    return lhs.segments_ == rhs.segments_;
   }
 
   size_t Hash() const {

@@ -18,11 +18,11 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,39 +32,41 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::QueryData;
 using model::TargetId;
+using nanopb::MaybeMessage;
+using nanopb::Message;
 using util::AsyncQueue;
-using util::TimerId;
 using util::Status;
+using util::TimerId;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
     std::shared_ptr<CredentialsProvider> credentials_provider,
-    FSTSerializerBeta* serializer,
+    Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)
     : Stream{async_queue, std::move(credentials_provider), grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
-      serializer_bridge_{serializer},
+      watch_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
 
 void WatchStream::WatchQuery(const QueryData& query) {
   EnsureOnQueue();
 
-  GCFSListenRequest* request = serializer_bridge_.CreateWatchRequest(query);
+  auto request = watch_serializer_.EncodeWatchRequest(query);
   LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+            watch_serializer_.Describe(request));
+  Write(request.ToByteBuffer());
 }
 
 void WatchStream::UnwatchTargetId(TargetId target_id) {
   EnsureOnQueue();
 
-  GCFSListenRequest* request =
-      serializer_bridge_.CreateUnwatchRequest(target_id);
+  auto request = watch_serializer_.EncodeUnwatchRequest(target_id);
+
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
-  Write(serializer_bridge_.ToByteBuffer(request));
+            watch_serializer_.Describe(request));
+  Write(request.ToByteBuffer());
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
@@ -82,24 +84,29 @@ void WatchStream::NotifyStreamOpen() {
 }
 
 Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
-  Status status;
-  GCFSListenResponse* response =
-      serializer_bridge_.ParseResponse(message, &status);
-  if (!status.ok()) {
-    return status;
+  MaybeMessage<google_firestore_v1_ListenResponse> maybe_response =
+      watch_serializer_.ParseResponse(message);
+  if (!maybe_response.ok()) {
+    return maybe_response.status();
   }
 
-  if (bridge::IsLoggingEnabled()) {
-    LOG_DEBUG("%s response: %s", GetDebugDescription(),
-              serializer_bridge_.Describe(response));
-  }
+  const auto& response = maybe_response.ValueOrDie();
+
+  LOG_DEBUG("%s response: %s", GetDebugDescription(),
+            watch_serializer_.Describe(response));
 
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  callback_->OnWatchStreamChange(
-      *serializer_bridge_.ToWatchChange(response),
-      serializer_bridge_.ToSnapshotVersion(response));
+  nanopb::Reader reader;
+  auto watch_change = watch_serializer_.DecodeWatchChange(&reader, *response);
+  auto version = watch_serializer_.DecodeSnapshotVersion(&reader, *response);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  callback_->OnWatchStreamChange(*watch_change, version);
+
   return Status::OK();
 }
 

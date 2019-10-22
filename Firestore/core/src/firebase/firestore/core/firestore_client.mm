@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -55,7 +56,6 @@ using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::Settings;
 using api::SnapshotMetadata;
-using api::ThrowIllegalState;
 using auth::CredentialsProvider;
 using auth::User;
 using local::LevelDbPersistence;
@@ -81,6 +81,7 @@ using util::Status;
 using util::StatusCallback;
 using util::StatusOr;
 using util::StatusOrCallback;
+using util::ThrowIllegalState;
 using util::TimerId;
 
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
@@ -160,15 +161,12 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     auto created = LevelDbPersistence::Create(
         std::move(dir), serializer,
         LruParams::WithCacheSize(settings.cache_size_bytes()));
-    if (!created.ok()) {
-      // If leveldb fails to start then just throw up our hands: the error is
-      // unrecoverable. There's nothing an end-user can do and nearly all
-      // failures indicate the developer is doing something grossly wrong so we
-      // should stop them cold in their tracks with a failure they can't ignore.
-      [NSException
-           raise:NSInternalInconsistencyException
-          format:@"Failed to open DB: %s", created.status().ToString().c_str()];
-    }
+    // If leveldb fails to start then just throw up our hands: the error is
+    // unrecoverable. There's nothing an end-user can do and nearly all
+    // failures indicate the developer is doing something grossly wrong so we
+    // should stop them cold in their tracks with a failure they can't ignore.
+    HARD_ASSERT(created.ok(), "Failed to open DB: %s",
+                created.status().ToString());
 
     auto ldb = std::move(created).ValueOrDie();
     lru_delegate_ = ldb->reference_delegate();

@@ -83,27 +83,30 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
     Status lookup_error = Status{Error::InvalidArgument,
                                  "Firestore transactions require all reads to "
                                  "be executed before all writes"};
-    callback({}, lookup_error);
+    callback(lookup_error);
     return;
   }
 
   datastore_->LookupDocuments(
-      keys, [this, callback](const std::vector<MaybeDocument>& documents,
-                             const Status& status) {
-        if (!status.ok()) {
-          callback({}, status);
+      keys, [this, callback](
+                const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+        if (!maybe_documents.ok()) {
+          callback(maybe_documents.status());
           return;
         }
 
+        const auto& documents = maybe_documents.ValueOrDie();
         for (const MaybeDocument& doc : documents) {
           Status record_error = RecordVersion(doc);
           if (!record_error.ok()) {
-            callback({}, record_error);
+            callback(record_error);
             return;
           }
         }
 
-        callback(documents, Status::OK());
+        // TODO(varconst): see if `maybe_documents` can be moved into the
+        // callback.
+        callback(maybe_documents);
       });
 }
 
