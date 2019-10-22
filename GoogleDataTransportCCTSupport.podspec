@@ -33,7 +33,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.libraries = ['z']
 
   s.dependency 'GoogleDataTransport', '~> 3.0'
-  s.dependency 'nanopb', '~> 0.3.901'
+  s.dependency 'nanopb', '~> 0.3.904'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
