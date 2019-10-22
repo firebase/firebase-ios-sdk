@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
+
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"

@@ -24,16 +24,18 @@
 // TODO(wilhuff): move this to the top once the test filename matches
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::Path;
@@ -55,7 +57,7 @@ using leveldb::WriteOptions;
   options.error_if_exists = true;
   options.create_if_missing = true;
 
-  Path dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = LevelDbDir();
   DB *db;
   Status status = DB::Open(options, dir.ToUtf8String(), &db);
   XCTAssert(status.ok(), @"Failed to create db: %s", status.ToString().c_str());

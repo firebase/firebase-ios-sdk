@@ -20,7 +20,6 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -38,6 +38,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueue;
 using firebase::firestore::local::LevelDbPersistence;
+using firebase::firestore::local::LevelDbPersistenceForTesting;
 using firebase::firestore::local::LoadNextBatchIdFromDb;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
@@ -77,7 +78,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
 - (void)setUp {
   [super setUp];
-  _db = [FSTPersistenceTestHelpers levelDBPersistence];
+  _db = LevelDbPersistenceForTesting();
   _db->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 
   self.mutationQueue = _db->GetMutationQueueForUser(User("user"));
