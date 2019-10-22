@@ -38,14 +38,14 @@ class RemoteDocumentCache;
 using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
 /**
- * These are tests for any implementation of the FSTRemoteDocumentCache
- * protocol.
+ * These are tests for any implementation of the RemoteDocumentCache interface.
  *
- * To test a specific implementation of FSTRemoteDocumentCache:
+ * To test a specific implementation of RemoteDocumentCache:
  *
- * + Subclass RemoteDocumentCacheTest
- * + override -set_up, assigning to remote_document_cache and persistence
- * + override -tear_down, cleaning up remote_document_cache and persistence
+ * + Write a persistence factory function
+ * + Call INSTANTIATE_TEST_CASE_P(MyNewRemoteDocumentCacheTest,
+ *                                RemoteDocumentCacheTest,
+ *                                testing::Values(PersistenceFactory));
  */
 class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
  public:

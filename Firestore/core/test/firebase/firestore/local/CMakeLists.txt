@@ -23,8 +23,8 @@ cc_test(
     local_serializer_test.cc
     #memory_index_manager_test.cc
     #memory_remote_document_cache_test.mm
-    persistence_testing.h
-    persistence_testing.mm
+    #persistence_testing.h
+    #persistence_testing.mm
     #remote_document_cache_test.h
     #remote_document_cache_test.mm
   DEPENDS

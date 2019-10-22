@@ -44,16 +44,18 @@ const char* kDummy = "1";
  * enough that it shouldn't be picked up in scans of the table.
  */
 void WriteDummyRow(LevelDbPersistence* db,
-                   std::initializer_list<std::string> segments) {
+                   const std::string& table_name,
+                   std::initializer_list<std::string> path_segments) {
   // TODO(wilhuff): Find some way to share local::(anonymous)::Writer
   // These constants correspond to ComponentLabel in leveldb_key.mm.
-  int64_t label = 5;  // TableName
+  // The structure matches LevelDbRemoteDocumentKey::Key().
   std::string key;
-  for (const auto& segment : segments) {
-    OrderedCode::WriteSignedNumIncreasing(&key, label);
-    OrderedCode::WriteString(&key, segment);
+  OrderedCode::WriteSignedNumIncreasing(&key, 5);  // TableName
+  OrderedCode::WriteString(&key, table_name);
 
-    label = 62;  // PathSegment
+  for (const auto& segment : path_segments) {
+    OrderedCode::WriteSignedNumIncreasing(&key, 62);  // PathSegment
+    OrderedCode::WriteString(&key, segment);
   }
 
   OrderedCode::WriteSignedNumIncreasing(&key, 0);  // Terminator
@@ -64,8 +66,15 @@ void WriteDummyRow(LevelDbPersistence* db,
 std::unique_ptr<Persistence> PersistenceFactory() {
   auto persistence = LevelDbPersistenceForTesting();
 
-  WriteDummyRow(persistence.get(), {"remote_documentr", "foo", "bar"});
-  WriteDummyRow(persistence.get(), {"remote_documentsa", "foo", "bar"});
+  // Write rows that go before and after remote document cache keys to ensure
+  // that LevelDbRemoteDocumentCache doesn't accidentally read rows outside the
+  // logical boundary of the "remote_documents" table.
+
+  // This row is just before any possible remote document key
+  WriteDummyRow(persistence.get(), "remote_document", {"row", "before"});
+
+  // This row is just after any possible remote document key
+  WriteDummyRow(persistence.get(), "remote_documents_a", {"row", "after"});
 
   return std::move(persistence);
 }

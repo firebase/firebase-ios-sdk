@@ -60,8 +60,11 @@ const char* kLongDocPath = "a/b/c/d/e/f";
 const int kVersion = 42;
 FieldValue::Map kDocData;
 
-template <typename MapType>
-std::vector<MaybeDocument> ActualDocuments(const MapType& docs) {
+/**
+ * Extracts all the actual MaybeDocument instances from the given document map
+ */
+std::vector<MaybeDocument> ExtractDocuments(
+    const OptionalMaybeDocumentMap& docs) {
   std::vector<MaybeDocument> result;
   for (const auto& kv : docs) {
     const absl::optional<MaybeDocument>& doc = kv.second;
@@ -75,14 +78,14 @@ std::vector<MaybeDocument> ActualDocuments(const MapType& docs) {
 MATCHER_P(HasExactlyDocs,
           expected,
           negation ? "missing docs" : "has exactly docs") {
-  std::vector<MaybeDocument> arg_docs = ActualDocuments(arg);
+  std::vector<MaybeDocument> arg_docs = ExtractDocuments(arg);
   return testing::Value(arg_docs, UnorderedElementsAreArray(expected));
 }
 
 MATCHER_P(HasAtLeastDocs,
           expected,
           negation ? "missing docs" : "has at least docs") {
-  std::vector<MaybeDocument> arg_docs = ActualDocuments(arg);
+  std::vector<MaybeDocument> arg_docs = ExtractDocuments(arg);
   return testing::Value(arg_docs, IsSupersetOf(expected));
 }
 
@@ -195,7 +198,6 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
         Doc("b/2", kVersion, kDocData),
     };
     EXPECT_THAT(results.underlying_map(), HasExactlyDocs(docs));
-    //    ExpectMapHasDocs(results.underlying_map(), docs, /* exactly= */ true);
   });
 }
 
