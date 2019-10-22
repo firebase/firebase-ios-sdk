@@ -28,16 +28,17 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/match.h"
 #include "leveldb/db.h"
-
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::Error;
 using firebase::firestore::local::LevelDbCollectionParentKey;
+using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
@@ -75,7 +76,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
   options.error_if_exists = true;
   options.create_if_missing = true;
 
-  Path dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = LevelDbDir();
   DB *db;
   Status status = DB::Open(options, dir.ToUtf8String(), &db);
   XCTAssert(status.ok(), @"Failed to create db: %s", status.ToString().c_str());

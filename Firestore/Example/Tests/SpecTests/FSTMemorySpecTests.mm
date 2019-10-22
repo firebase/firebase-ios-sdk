@@ -16,14 +16,16 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::MemoryPersistenceWithLruGcForTesting;
+using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
 using firebase::firestore::local::Persistence;
 
 /**
@@ -39,9 +41,9 @@ using firebase::firestore::local::Persistence;
 /** Overrides -[FSTSpecTests persistence] */
 - (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   if (GCEnabled) {
-    return [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+    return MemoryPersistenceWithEagerGcForTesting();
   } else {
-    return [FSTPersistenceTestHelpers lruMemoryPersistence];
+    return MemoryPersistenceWithLruGcForTesting();
   }
 }
 

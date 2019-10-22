@@ -17,14 +17,13 @@
 #include <memory>
 #include <string>
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
-
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/memory/memory.h"
 #include "leveldb/db.h"
 
@@ -32,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using leveldb::WriteOptions;
 using firebase::firestore::local::LevelDbPersistence;
+using firebase::firestore::local::LevelDbPersistenceForTesting;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::util::OrderedCode;
@@ -54,7 +54,7 @@ static const char *kDummy = "1";
 
 - (void)setUp {
   [super setUp];
-  _db = [FSTPersistenceTestHelpers levelDBPersistence];
+  _db = LevelDbPersistenceForTesting();
   self.persistence = _db.get();
   HARD_ASSERT(!_cache, "Previous cache not torn down");
   _cache = _db->remote_document_cache();
