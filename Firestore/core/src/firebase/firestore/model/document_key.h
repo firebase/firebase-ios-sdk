@@ -35,7 +35,7 @@ namespace model {
 /**
  * DocumentKey represents the location of a document in the Firestore database.
  */
-class DocumentKey : public util::Comparable<DocumentKey> {
+class DocumentKey : public util::InequalityComparable<DocumentKey> {
  public:
   /** Creates a "blank" document key not associated with any document. */
   DocumentKey() : path_{std::make_shared<ResourcePath>()} {
@@ -69,6 +69,10 @@ class DocumentKey : public util::Comparable<DocumentKey> {
   }
 
   util::ComparisonResult CompareTo(const DocumentKey& other) const;
+
+  friend bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
+    return lhs.path() == rhs.path();
+  }
 
   size_t Hash() const {
     return util::Hash(ToString());
