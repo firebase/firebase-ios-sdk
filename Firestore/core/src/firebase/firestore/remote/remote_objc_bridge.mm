@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb_conversions.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -50,13 +51,13 @@ using model::Mutation;
 using model::MutationResult;
 using model::TargetId;
 using model::SnapshotVersion;
-using nanopb::ByteBufferReader;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
 using nanopb::Message;
 using nanopb::Reader;
+using remote::ByteBufferReader;
 using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;

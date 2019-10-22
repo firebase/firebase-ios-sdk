@@ -16,17 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 
-#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
-
 namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-using remote::ConvertStatus;
 using util::Status;
-
-// StringReader
 
 StringReader::StringReader(const ByteString& bytes)
     : StringReader(bytes.data(), bytes.size()) {
@@ -45,39 +39,6 @@ StringReader::StringReader(absl::string_view str)
 }
 
 void StringReader::Read(const pb_field_t fields[], void* dest_struct) {
-  if (!ok()) return;
-
-  if (!pb_decode(&stream_, fields, dest_struct)) {
-    Fail(PB_GET_ERROR(&stream_));
-  }
-}
-
-// ByteBufferReader
-
-ByteBufferReader::ByteBufferReader(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  // Conversion may fail if compression is used and gRPC tries to decompress an
-  // ill-formed buffer.
-  if (!status.ok()) {
-    Status error{Error::Internal,
-                 "Trying to convert an invalid grpc::ByteBuffer"};
-    error.CausedBy(ConvertStatus(status));
-    set_status(error);
-    return;
-  }
-
-  ByteStringWriter writer;
-  writer.Reserve(buffer.Length());
-  for (const auto& slice : slices) {
-    writer.Append(slice.begin(), slice.size());
-  }
-
-  bytes_ = writer.Release();
-  stream_ = pb_istream_from_buffer(bytes_.data(), bytes_.size());
-}
-
-void ByteBufferReader::Read(const pb_field_t fields[], void* dest_struct) {
   if (!ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {

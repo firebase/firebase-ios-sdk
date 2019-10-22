@@ -20,7 +20,6 @@
 #include <pb.h>
 #include <pb_decode.h>
 
-#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -28,7 +27,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -168,18 +166,7 @@ class StringReader : public Reader {
   explicit StringReader(pb_istream_t stream) : stream_(stream) {
   }
 
-  pb_istream_t stream_{};
-};
-
-class ByteBufferReader : public Reader {
- public:
-  explicit ByteBufferReader(const grpc::ByteBuffer& buffer);
-
-  void Read(const pb_field_t* fields, void* dest_struct) override;
-
- private:
-  ByteString bytes_;
-  pb_istream_t stream_{};
+    pb_istream_t stream_{};
 };
 
 }  // namespace nanopb

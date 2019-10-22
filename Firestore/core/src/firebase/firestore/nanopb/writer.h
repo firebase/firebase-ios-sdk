@@ -146,9 +146,9 @@ class StringWriter : public Writer {
 };
 
 /** Creates a `Writer` that writes into a `grpc::ByteBuffer`. */
-class GrpcByteBufferWriter : public Writer {
+class ByteBufferWriter : public Writer {
  public:
-  GrpcByteBufferWriter();
+  ByteBufferWriter();
 
   grpc::ByteBuffer Release();
 

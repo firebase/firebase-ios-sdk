@@ -122,7 +122,7 @@ std::string StringWriter::Release() {
   return std::move(buffer_);
 }
 
-// GrpcByteBufferWriter
+// ByteBufferWriter
 
 namespace {
 
@@ -136,13 +136,13 @@ bool AppendToGrpcBuffer(pb_ostream_t* stream,
 
 }  // namespace
 
-GrpcByteBufferWriter::GrpcByteBufferWriter() {
+ByteBufferWriter::ByteBufferWriter() {
   stream_.callback = AppendToGrpcBuffer;
   stream_.state = &buffer_;
   stream_.max_size = SIZE_MAX;
 }
 
-grpc::ByteBuffer GrpcByteBufferWriter::Release() {
+grpc::ByteBuffer ByteBufferWriter::Release() {
   grpc::ByteBuffer result{buffer_.data(), buffer_.size()};
   buffer_.clear();
   return result;

@@ -200,7 +200,7 @@ Message<T> Message<T>::TryParse(Reader* reader) {
  */
 template <typename T>
 grpc::ByteBuffer MakeByteBuffer(const Message<T>& message) {
-  GrpcByteBufferWriter writer;
+  ByteBufferWriter writer;
   writer.Write(message.fields(), message.get());
   return writer.Release();
 }
