@@ -438,9 +438,10 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
     mutation_iterator->Seek(mutation_key);
     if (!mutation_iterator->Valid() ||
         mutation_iterator->key() != mutation_key) {
-      HARD_FAIL("Dangling document-mutation reference found: "
-                "Missing batch %s; seeking there found %s",
-                DescribeKey(mutation_key), DescribeKey(mutation_iterator));
+      HARD_FAIL(
+          "Dangling document-mutation reference found: "
+          "Missing batch %s; seeking there found %s",
+          DescribeKey(mutation_key), DescribeKey(mutation_iterator));
     }
 
     result.push_back(ParseMutationBatch(mutation_iterator->value()));

@@ -34,6 +34,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using leveldb::Status;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -44,7 +45,6 @@ using model::OptionalMaybeDocumentMap;
 using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
-using leveldb::Status;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     LevelDbPersistence* db, LocalSerializer* serializer)
