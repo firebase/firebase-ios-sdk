@@ -84,9 +84,13 @@ class RemoteDocumentCache {
    * Cached DeletedDocument entries have no bearing on query results.
    *
    * @param query The query to match documents against.
+   * @param since_read_time If not set to SnapshotVersion::NONE(), return only
+   * documents that have been read since this snapshot version (exclusive).
    * @return The set of matching documents.
    */
-  virtual model::DocumentMap GetMatching(const core::Query& query) = 0;
+  virtual model::DocumentMap GetMatching(
+      const core::Query& query,
+      const model::SnapshotVersion& since_read_time) = 0;
 };
 
 }  // namespace local
