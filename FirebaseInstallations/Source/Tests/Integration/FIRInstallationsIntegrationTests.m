@@ -54,12 +54,12 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
 - (void)tearDown {
   // Delete the installation.
-  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error){
+//      XCTAssertNil(error);
   }];
 
   // Wait for any pending background job to be completed.
-  FBLWaitForPromisesWithTimeout(10);
+  XCTAssert(FBLWaitForPromisesWithTimeout(10));
 
   [FIRApp resetApps];
 }
@@ -142,6 +142,45 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   FBLWaitForPromisesWithTimeout(10);
 }
 
+- (void)testThreadSafety {
+  // This is kind of a monkey test as an attempt to caught concurrency issues earlier.
+  // Please pay attention to its flakes because most likely a flake indicates a concurrency issue if
+  // not related to the API failure.
+
+  if (![self isDefaultAppConfigured]) {
+    return;
+  }
+
+  // The concurrent requests of the same type are grouped waiting for the first request result, so
+  // we have limited amount of parallel requests that makes sense to test. To mitigate this
+  // limitation we have to run several rounds to increase probability of revealing an error.
+
+  NSInteger testRoundsCount = 10;
+  NSInteger testsPerRound = 500;
+
+  NSMutableArray<XCTestExpectation *> *roundExpectations =
+      [NSMutableArray arrayWithCapacity:testRoundsCount];
+
+  for (NSInteger i = 0; i < testRoundsCount; i++) {
+    XCTestExpectation *testExpectation = [self
+        expectationWithDescription:[NSString
+                                       stringWithFormat:@"Test expectation for round: %@", @(i)]];
+    testExpectation.expectedFulfillmentCount = testsPerRound;
+
+    XCTestExpectation *roundExpectation = [self
+        expectationWithDescription:[NSString
+                                       stringWithFormat:@"Round expectation for round: %@", @(i)]];
+    [roundExpectations addObject:roundExpectation];
+
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+      [self assertThreadSafetyWithTestsCount:testsPerRound expectation:testExpectation];
+      [roundExpectation fulfill];
+    });
+  }
+
+  [self waitForExpectations:roundExpectations timeout:testRoundsCount];
+}
+
 #pragma mark - Helpers
 
 - (NSString *)getFID {
@@ -199,8 +238,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   return installations;
 }
 
-#pragma mark - Helpers
-
 - (FIRApp *)createAndConfigureAppWithName:(NSString *)name {
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
@@ -234,6 +271,85 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   }
 
   return sFIRInstallationsFirebaseDefaultAppConfigured;
+}
+
+#pragma mark - Thread Safety Tests helpers
+
+- (void)assertThreadSafetyWithTestsCount:(NSInteger)totalTestsCount
+                             expectation:(XCTestExpectation *)expectation {
+  NSArray<dispatch_block_t> *tests = @[
+    ^{
+      [self threadSafetyTestGetFIDWithExpectation:expectation];
+    },
+    ^{
+      [self threadSafetyTestGetAuthTokenWithExpectation:expectation];
+    },
+    ^{
+      [self threadSafetyTestDeleteInstallationWithExpectation:expectation];
+    }
+  ];
+
+  NSArray<dispatch_block_t> *allTests = [self shuffledThreadSafetyTestsWithTests:tests
+                                                                 totalTestsCount:totalTestsCount];
+
+  for (dispatch_block_t test in allTests) {
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+      test();
+    });
+  }
+
+  [self waitForExpectations:@[ expectation ] timeout:totalTestsCount * 1];
+}
+
+- (void)threadSafetyTestGetFIDWithExpectation:(XCTestExpectation *)expectation {
+  NSLog(@"Perform test: %s", __PRETTY_FUNCTION__);
+
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        XCTAssertNotNil(identifier);
+        XCTAssertNil(error);
+        XCTAssertEqual(identifier.length, 22);
+
+        [expectation fulfill];
+      }];
+}
+
+- (void)threadSafetyTestGetAuthTokenWithExpectation:(XCTestExpectation *)expectation {
+  NSLog(@"Perform test: %s", __PRETTY_FUNCTION__);
+
+  [self.installations
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(tokenResult);
+        XCTAssertGreaterThanOrEqual(tokenResult.authToken.length, 10);
+        XCTAssertGreaterThanOrEqual([tokenResult.expirationDate timeIntervalSinceNow], 50 * 60);
+
+        [expectation fulfill];
+      }];
+}
+
+- (void)threadSafetyTestDeleteInstallationWithExpectation:(XCTestExpectation *)expectation {
+  NSLog(@"Perform test: %s", __PRETTY_FUNCTION__);
+
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+}
+
+// 1. Creates an array with `totalTestsCount` consisting of repeating `tests`
+// 2. Shuffles the array
+- (NSArray *)shuffledThreadSafetyTestsWithTests:(NSArray<dispatch_block_t> *)tests
+                                totalTestsCount:(NSInteger)count {
+  NSMutableArray *allTests = [NSMutableArray arrayWithCapacity:count];
+
+  for (NSInteger i = 0; i < count; i++) {
+    NSInteger testIndex = arc4random_uniform((uint32_t)tests.count);
+    [allTests addObject:tests[testIndex]];
+  }
+
+  return allTests;
 }
 
 @end
