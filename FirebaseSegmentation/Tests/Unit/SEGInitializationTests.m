@@ -31,10 +31,11 @@
 @implementation SEGInitializationTests
 
 - (void)setUp {
-  FIROptions* options = [[FIROptions alloc] init];
+  FIROptions *options = [[FIROptions alloc] init];
   options.APIKey = @"test-api-key";
   options.projectID = @"test-firebase-project-id";
-  _segmentation = [[FIRSegmentation alloc] initWithAppName:@"test-firebase-app-name" FIROptions:options];
+  _segmentation = [[FIRSegmentation alloc] initWithAppName:@"test-firebase-app-name"
+                                                FIROptions:options];
 }
 
 - (void)tearDown {
@@ -43,9 +44,10 @@
 }
 
 - (void)testExample {
-  [_segmentation setCustomInstallationID:@"test-custom-id" completion:^(NSError * error) {
-    XCTAssertNil(error);
-  }];
+  [_segmentation setCustomInstallationID:@"test-custom-id"
+                              completion:^(NSError *error) {
+                                XCTAssertNil(error);
+                              }];
 }
 
 @end
