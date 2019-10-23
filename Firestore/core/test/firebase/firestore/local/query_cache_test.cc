@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,346 +14,302 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
+#include "Firestore/core/test/firebase/firestore/local/query_cache_test.h"
 
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/Util/FSTClasses.h"
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "gtest/gtest.h"
 
-namespace core = firebase::firestore::core;
-namespace testutil = firebase::firestore::testutil;
+namespace firebase {
+namespace firestore {
+namespace local {
 
-using firebase::firestore::local::QueryData;
-using firebase::firestore::local::QueryPurpose;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
-using firebase::firestore::nanopb::ByteString;
+using core::Query;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::ListenSequenceNumber;
+using model::SnapshotVersion;
+using model::TargetId;
+using nanopb::ByteString;
 
 using testutil::Filter;
-using testutil::Query;
+using testutil::Key;
+using testutil::ResumeToken;
+using testutil::Version;
 
-NS_ASSUME_NONNULL_BEGIN
-
-@implementation FSTQueryCacheTests {
-  core::Query _queryRooms;
-  ListenSequenceNumber _previousSequenceNumber;
-  TargetId _previousTargetID;
-  FSTTestSnapshotVersion _previousSnapshotVersion;
+QueryCacheTestBase::QueryCacheTestBase(std::unique_ptr<Persistence> persistence)
+  : persistence_(std::move(persistence)),
+    cache_(persistence_->query_cache()),
+    query_rooms_(testutil::Query("rooms")),
+    previous_sequence_number_(1000),
+    previous_target_id_(500),
+    previous_snapshot_version_(100) {
 }
 
-- (void)setUp {
-  [super setUp];
-
-  _queryRooms = Query("rooms");
-  _previousSequenceNumber = 1000;
-  _previousTargetID = 500;
-  _previousSnapshotVersion = 100;
-}
-
-- (void)tearDown {
-  if (self.persistence) {
-    self.persistence->Shutdown();
-  }
-}
+QueryCacheTestBase::~QueryCacheTestBase() = default;
 
 /**
- * Xcode will run tests from any class that extends XCTestCase, but this doesn't work for
- * FSTSpecTests since it is incomplete without the implementations supplied by its subclasses.
+ * Creates a new QueryData object from the given parameters, synthesizing a
+ * resume token from the snapshot version.
  */
-- (BOOL)isTestBaseClass {
-  return [self class] == [FSTQueryCacheTests class];
+QueryData QueryCacheTestBase::MakeQueryData(Query query) {
+  return MakeQueryData(std::move(query), ++previous_target_id_,
+                       ++previous_sequence_number_,
+                       ++previous_snapshot_version_);
 }
 
-- (void)testReadQueryNotInCache {
-  if ([self isTestBaseClass]) return;
+QueryData QueryCacheTestBase::MakeQueryData(Query query,
+                                            TargetId target_id,
+                                            ListenSequenceNumber sequence_number,
+                                            int64_t version) {
+  ByteString resume_token = ResumeToken(version);
+  return QueryData(std::move(query), target_id, sequence_number,
+                   QueryPurpose::Listen, Version(version), resume_token);
+}
 
-  self.persistence->Run("testReadQueryNotInCache", [&]() {
-    XCTAssertEqual(self.queryCache->GetTarget(_queryRooms), absl::nullopt);
+void QueryCacheTestBase::AddMatchingKey(const DocumentKey& key,
+                                        TargetId target_id) {
+  DocumentKeySet keys{key};
+  cache_->AddMatchingKeys(keys, target_id);
+}
+
+void QueryCacheTestBase::RemoveMatchingKey(const DocumentKey& key,
+                                           TargetId target_id) {
+  DocumentKeySet keys{key};
+  cache_->RemoveMatchingKeys(keys, target_id);
+}
+
+
+QueryCacheTest::QueryCacheTest()
+    : QueryCacheTestBase(GetParam()()) {
+}
+
+// Out of line definition supports unique_ptr to forward declaration.
+QueryCacheTest::~QueryCacheTest() = default;
+
+TEST_P(QueryCacheTest, ReadQueryNotInCache) {
+  persistence_->Run("test_read_query_not_in_cache", [&]() {
+    ASSERT_EQ(cache_->GetTarget(query_rooms_), absl::nullopt);
   });
 }
 
-- (void)testSetAndReadAQuery {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, SetAndReadAQuery) {
+  persistence_->Run("test_set_and_read_a_query", [&]() {
+    QueryData query_data = MakeQueryData(query_rooms_);
+    cache_->AddTarget(query_data);
 
-  self.persistence->Run("testSetAndReadAQuery", [&]() {
-    QueryData queryData = [self queryDataWithQuery:_queryRooms];
-    self.queryCache->AddTarget(queryData);
-
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertNotEqual(result, absl::nullopt);
-    XCTAssertEqual(result->query(), queryData.query());
-    XCTAssertEqual(result->target_id(), queryData.target_id());
-    XCTAssertEqual(result->resume_token(), queryData.resume_token());
+    auto result = cache_->GetTarget(query_rooms_);
+    ASSERT_NE(result, absl::nullopt);
+    ASSERT_EQ(result->query(), query_data.query());
+    ASSERT_EQ(result->target_id(), query_data.target_id());
+    ASSERT_EQ(result->resume_token(), query_data.resume_token());
   });
 }
 
-- (void)testCanonicalIDCollision {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, CanonicalIDCollision) {
+  persistence_->Run("test_canonical_id_collision", [&]() {
+    // Type information is currently lost in our canonical_id implementations so
+    // this currently an easy way to force colliding canonical_i_ds
+    Query q1 = testutil::Query("a").AddingFilter(Filter("foo", "==", 1));
+    Query q2 = testutil::Query("a").AddingFilter(Filter("foo", "==", "1"));
+    ASSERT_EQ(q1.CanonicalId(), q2.CanonicalId());
 
-  self.persistence->Run("testCanonicalIDCollision", [&]() {
-    // Type information is currently lost in our canonicalID implementations so this currently an
-    // easy way to force colliding canonicalIDs
-    core::Query q1 = Query("a").AddingFilter(Filter("foo", "==", 1));
-    core::Query q2 = Query("a").AddingFilter(Filter("foo", "==", "1"));
-    XCTAssertEqual(q1.CanonicalId(), q2.CanonicalId());
+    QueryData data1 = MakeQueryData(q1);
+    cache_->AddTarget(data1);
 
-    QueryData data1 = [self queryDataWithQuery:q1];
-    self.queryCache->AddTarget(data1);
+    // Using the other query should not return the query cache entry despite
+    // equal canonical_i_ds.
+    ASSERT_EQ(cache_->GetTarget(q2), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q1), data1);
 
-    // Using the other query should not return the query cache entry despite equal canonicalIDs.
-    XCTAssertEqual(self.queryCache->GetTarget(q2), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), data1);
+    QueryData data2 = MakeQueryData(q2);
+    cache_->AddTarget(data2);
+    ASSERT_EQ(cache_->size(), 2);
 
-    QueryData data2 = [self queryDataWithQuery:q2];
-    self.queryCache->AddTarget(data2);
-    XCTAssertEqual(self.queryCache->size(), 2);
+    ASSERT_EQ(cache_->GetTarget(q1), data1);
+    ASSERT_EQ(cache_->GetTarget(q2), data2);
 
-    XCTAssertEqual(self.queryCache->GetTarget(q1), data1);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), data2);
+    cache_->RemoveTarget(data1);
+    ASSERT_EQ(cache_->GetTarget(q1), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q2), data2);
+    ASSERT_EQ(cache_->size(), 1);
 
-    self.queryCache->RemoveTarget(data1);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), data2);
-    XCTAssertEqual(self.queryCache->size(), 1);
-
-    self.queryCache->RemoveTarget(data2);
-    XCTAssertEqual(self.queryCache->GetTarget(q1), absl::nullopt);
-    XCTAssertEqual(self.queryCache->GetTarget(q2), absl::nullopt);
-    XCTAssertEqual(self.queryCache->size(), 0);
+    cache_->RemoveTarget(data2);
+    ASSERT_EQ(cache_->GetTarget(q1), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(q2), absl::nullopt);
+    ASSERT_EQ(cache_->size(), 0);
   });
 }
 
-- (void)testSetQueryToNewValue {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, SetQueryToNewValue) {
+  persistence_->Run("test_set_query_to_new_value", [&]() {
+    QueryData query_data1 = MakeQueryData(query_rooms_, 1, 10, 1);
+    cache_->AddTarget(query_data1);
 
-  self.persistence->Run("testSetQueryToNewValue", [&]() {
-    QueryData queryData1 = [self queryDataWithQuery:_queryRooms
-                                           targetID:1
-                               listenSequenceNumber:10
-                                            version:1];
-    self.queryCache->AddTarget(queryData1);
+    QueryData query_data2 = MakeQueryData(query_rooms_, 1, 10, 2);
+    cache_->AddTarget(query_data2);
 
-    QueryData queryData2 = [self queryDataWithQuery:_queryRooms
-                                           targetID:1
-                               listenSequenceNumber:10
-                                            version:2];
-    self.queryCache->AddTarget(queryData2);
-
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertNotEqual(queryData2.resume_token(), queryData1.resume_token());
-    XCTAssertNotEqual(queryData2.snapshot_version(), queryData1.snapshot_version());
-    XCTAssertEqual(result->resume_token(), queryData2.resume_token());
-    XCTAssertEqual(result->snapshot_version(), queryData2.snapshot_version());
+    auto result = cache_->GetTarget(query_rooms_);
+    ASSERT_NE(query_data2.resume_token(), query_data1.resume_token());
+    ASSERT_NE(query_data2.snapshot_version(), query_data1.snapshot_version());
+    ASSERT_EQ(result->resume_token(), query_data2.resume_token());
+    ASSERT_EQ(result->snapshot_version(), query_data2.snapshot_version());
   });
 }
 
-- (void)testRemoveQuery {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, RemoveQuery) {
+  persistence_->Run("test_remove_query", [&]() {
+    QueryData query_data1 = MakeQueryData(query_rooms_);
+    cache_->AddTarget(query_data1);
 
-  self.persistence->Run("testRemoveQuery", [&]() {
-    QueryData queryData1 = [self queryDataWithQuery:_queryRooms];
-    self.queryCache->AddTarget(queryData1);
+    cache_->RemoveTarget(query_data1);
 
-    self.queryCache->RemoveTarget(queryData1);
-
-    auto result = self.queryCache->GetTarget(_queryRooms);
-    XCTAssertEqual(result, absl::nullopt);
+    auto result = cache_->GetTarget(query_rooms_);
+    ASSERT_EQ(result, absl::nullopt);
   });
 }
 
-- (void)testRemoveNonExistentQuery {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testRemoveNonExistentQuery", [&]() {
-    QueryData queryData = [self queryDataWithQuery:_queryRooms];
+TEST_P(QueryCacheTest, RemoveNonExistentQuery) {
+  persistence_->Run("test_remove_non_existent_query", [&]() {
+    QueryData query_data = MakeQueryData(query_rooms_);
 
     // no-op, but make sure it doesn't throw.
-    XCTAssertNoThrow(self.queryCache->RemoveTarget(queryData));
+    EXPECT_NO_THROW(cache_->RemoveTarget(query_data));
   });
 }
 
-- (void)testRemoveQueryRemovesMatchingKeysToo {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, RemoveQueryRemovesMatchingKeysToo) {
+  persistence_->Run("test_remove_query_removes_matching_keys_too", [&]() {
+    QueryData rooms = MakeQueryData(query_rooms_);
+    cache_->AddTarget(rooms);
 
-  self.persistence->Run("testRemoveQueryRemovesMatchingKeysToo", [&]() {
-    QueryData rooms = [self queryDataWithQuery:_queryRooms];
-    self.queryCache->AddTarget(rooms);
+    DocumentKey key1 = Key("rooms/foo");
+    DocumentKey key2 = Key("rooms/bar");
+    AddMatchingKey(key1, rooms.target_id());
+    AddMatchingKey(key2, rooms.target_id());
 
-    DocumentKey key1 = testutil::Key("rooms/foo");
-    DocumentKey key2 = testutil::Key("rooms/bar");
-    [self addMatchingKey:key1 forTargetID:rooms.target_id()];
-    [self addMatchingKey:key2 forTargetID:rooms.target_id()];
+    ASSERT_TRUE(cache_->Contains(key1));
+    ASSERT_TRUE(cache_->Contains(key2));
 
-    XCTAssertTrue(self.queryCache->Contains(key1));
-    XCTAssertTrue(self.queryCache->Contains(key2));
-
-    self.queryCache->RemoveTarget(rooms);
-    XCTAssertFalse(self.queryCache->Contains(key1));
-    XCTAssertFalse(self.queryCache->Contains(key2));
+    cache_->RemoveTarget(rooms);
+    ASSERT_FALSE(cache_->Contains(key1));
+    ASSERT_FALSE(cache_->Contains(key2));
   });
 }
 
-- (void)testAddOrRemoveMatchingKeys {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, AddOrRemoveMatchingKeys) {
+  persistence_->Run("test_add_or_remove_matching_keys", [&]() {
+    DocumentKey key = Key("foo/bar");
 
-  self.persistence->Run("testAddOrRemoveMatchingKeys", [&]() {
-    DocumentKey key = testutil::Key("foo/bar");
+    ASSERT_FALSE(cache_->Contains(key));
 
-    XCTAssertFalse(self.queryCache->Contains(key));
+    AddMatchingKey(key, 1);
+    ASSERT_TRUE(cache_->Contains(key));
 
-    [self addMatchingKey:key forTargetID:1];
-    XCTAssertTrue(self.queryCache->Contains(key));
+    AddMatchingKey(key, 2);
+    ASSERT_TRUE(cache_->Contains(key));
 
-    [self addMatchingKey:key forTargetID:2];
-    XCTAssertTrue(self.queryCache->Contains(key));
+    RemoveMatchingKey(key, 1);
+    ASSERT_TRUE(cache_->Contains(key));
 
-    [self removeMatchingKey:key forTargetID:1];
-    XCTAssertTrue(self.queryCache->Contains(key));
-
-    [self removeMatchingKey:key forTargetID:2];
-    XCTAssertFalse(self.queryCache->Contains(key));
+    RemoveMatchingKey(key, 2);
+    ASSERT_FALSE(cache_->Contains(key));
   });
 }
 
-- (void)testMatchingKeysForTargetID {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, MatchingKeysForTargetID) {
+  persistence_->Run("test_matching_keys_for_target_id", [&]() {
+    DocumentKey key1 = Key("foo/bar");
+    DocumentKey key2 = Key("foo/baz");
+    DocumentKey key3 = Key("foo/blah");
 
-  self.persistence->Run("testMatchingKeysForTargetID", [&]() {
-    DocumentKey key1 = testutil::Key("foo/bar");
-    DocumentKey key2 = testutil::Key("foo/baz");
-    DocumentKey key3 = testutil::Key("foo/blah");
+    AddMatchingKey(key1, 1);
+    AddMatchingKey(key2, 1);
+    AddMatchingKey(key3, 2);
 
-    [self addMatchingKey:key1 forTargetID:1];
-    [self addMatchingKey:key2 forTargetID:1];
-    [self addMatchingKey:key3 forTargetID:2];
+    ASSERT_EQ(cache_->GetMatchingKeys(1), (DocumentKeySet{key1, key2}));
+    ASSERT_EQ(cache_->GetMatchingKeys(2), (DocumentKeySet{key3}));
 
-    XCTAssertEqual(self.queryCache->GetMatchingKeys(1), (DocumentKeySet{key1, key2}));
-    XCTAssertEqual(self.queryCache->GetMatchingKeys(2), (DocumentKeySet{key3}));
-
-    [self addMatchingKey:key1 forTargetID:2];
-    XCTAssertEqual(self.queryCache->GetMatchingKeys(1), (DocumentKeySet{key1, key2}));
-    XCTAssertEqual(self.queryCache->GetMatchingKeys(2), (DocumentKeySet{key1, key3}));
+    AddMatchingKey(key1, 2);
+    ASSERT_EQ(cache_->GetMatchingKeys(1), (DocumentKeySet{key1, key2}));
+    ASSERT_EQ(cache_->GetMatchingKeys(2), (DocumentKeySet{key1, key3}));
   });
 }
 
-- (void)testHighestListenSequenceNumber {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testHighestListenSequenceNumber", [&]() {
-    QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
-    self.queryCache->AddTarget(query1);
-    QueryData query2(Query("halls"), 2, 20, QueryPurpose::Listen);
-    self.queryCache->AddTarget(query2);
-    XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 20);
+TEST_P(QueryCacheTest, HighestListenSequenceNumber) {
+  persistence_->Run("test_highest_listen_sequence_number", [&]() {
+    QueryData query1(testutil::Query("rooms"), 1, 10, QueryPurpose::Listen);
+    cache_->AddTarget(query1);
+    QueryData query2(testutil::Query("halls"), 2, 20, QueryPurpose::Listen);
+    cache_->AddTarget(query2);
+    ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
     // Sequence numbers never come down.
-    self.queryCache->RemoveTarget(query2);
-    XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 20);
+    cache_->RemoveTarget(query2);
+    ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
-    QueryData query3(Query("garages"), 42, 100, QueryPurpose::Listen);
-    self.queryCache->AddTarget(query3);
-    XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 100);
+    QueryData query3(testutil::Query("garages"), 42, 100, QueryPurpose::Listen);
+    cache_->AddTarget(query3);
+    ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
 
-    self.queryCache->AddTarget(query1);
-    XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 100);
+    cache_->AddTarget(query1);
+    ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
 
-    self.queryCache->RemoveTarget(query3);
-    XCTAssertEqual(self.queryCache->highest_listen_sequence_number(), 100);
+    cache_->RemoveTarget(query3);
+    ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
   });
 }
 
-- (void)testHighestTargetID {
-  if ([self isTestBaseClass]) return;
+TEST_P(QueryCacheTest, HighestTargetID) {
+  persistence_->Run("test_highest_target_id", [&]() {
+    ASSERT_EQ(cache_->highest_target_id(), 0);
 
-  self.persistence->Run("testHighestTargetID", [&]() {
-    XCTAssertEqual(self.queryCache->highest_target_id(), 0);
+    QueryData query1(testutil::Query("rooms"), 1, 10, QueryPurpose::Listen);
+    DocumentKey key1 = Key("rooms/bar");
+    DocumentKey key2 = Key("rooms/foo");
+    cache_->AddTarget(query1);
+    AddMatchingKey(key1, 1);
+    AddMatchingKey(key2, 1);
 
-    QueryData query1(Query("rooms"), 1, 10, QueryPurpose::Listen);
-    DocumentKey key1 = testutil::Key("rooms/bar");
-    DocumentKey key2 = testutil::Key("rooms/foo");
-    self.queryCache->AddTarget(query1);
-    [self addMatchingKey:key1 forTargetID:1];
-    [self addMatchingKey:key2 forTargetID:1];
-
-    QueryData query2(Query("halls"), 2, 20, QueryPurpose::Listen);
-    DocumentKey key3 = testutil::Key("halls/foo");
-    self.queryCache->AddTarget(query2);
-    [self addMatchingKey:key3 forTargetID:2];
-    XCTAssertEqual(self.queryCache->highest_target_id(), 2);
+    QueryData query2(testutil::Query("halls"), 2, 20, QueryPurpose::Listen);
+    DocumentKey key3 = Key("halls/foo");
+    cache_->AddTarget(query2);
+    AddMatchingKey(key3, 2);
+    ASSERT_EQ(cache_->highest_target_id(), 2);
 
     // TargetIDs never come down.
-    self.queryCache->RemoveTarget(query2);
-    XCTAssertEqual(self.queryCache->highest_target_id(), 2);
+    cache_->RemoveTarget(query2);
+    ASSERT_EQ(cache_->highest_target_id(), 2);
 
     // A query with an empty result set still counts.
-    QueryData query3(Query("garages"), 42, 100, QueryPurpose::Listen);
-    self.queryCache->AddTarget(query3);
-    XCTAssertEqual(self.queryCache->highest_target_id(), 42);
+    QueryData query3(testutil::Query("garages"), 42, 100, QueryPurpose::Listen);
+    cache_->AddTarget(query3);
+    ASSERT_EQ(cache_->highest_target_id(), 42);
 
-    self.queryCache->RemoveTarget(query1);
-    XCTAssertEqual(self.queryCache->highest_target_id(), 42);
+    cache_->RemoveTarget(query1);
+    ASSERT_EQ(cache_->highest_target_id(), 42);
 
-    self.queryCache->RemoveTarget(query3);
-    XCTAssertEqual(self.queryCache->highest_target_id(), 42);
+    cache_->RemoveTarget(query3);
+    ASSERT_EQ(cache_->highest_target_id(), 42);
   });
 }
 
-- (void)testLastRemoteSnapshotVersion {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence->Run("testLastRemoteSnapshotVersion", [&]() {
-    XCTAssertEqual(self.queryCache->GetLastRemoteSnapshotVersion(), SnapshotVersion::None());
+TEST_P(QueryCacheTest, LastRemoteSnapshotVersion) {
+  persistence_->Run("test_last_remote_snapshot_version", [&]() {
+    ASSERT_EQ(cache_->GetLastRemoteSnapshotVersion(), SnapshotVersion::None());
 
     // Can set the snapshot version.
-    self.queryCache->SetLastRemoteSnapshotVersion(testutil::Version(42));
-    XCTAssertEqual(self.queryCache->GetLastRemoteSnapshotVersion(), testutil::Version(42));
+    cache_->SetLastRemoteSnapshotVersion(Version(42));
+    ASSERT_EQ(cache_->GetLastRemoteSnapshotVersion(), Version(42));
   });
 }
 
-#pragma mark - Helpers
-
-/**
- * Creates a new QueryData object from the given parameters, synthesizing a resume token from the
- * snapshot version.
- */
-- (QueryData)queryDataWithQuery:(core::Query)query {
-  return [self queryDataWithQuery:std::move(query)
-                         targetID:++_previousTargetID
-             listenSequenceNumber:++_previousSequenceNumber
-                          version:++_previousSnapshotVersion];
-}
-
-- (QueryData)queryDataWithQuery:(core::Query)query
-                       targetID:(TargetId)targetID
-           listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                        version:(FSTTestSnapshotVersion)version {
-  ByteString resumeToken = testutil::ResumeToken(version);
-  return QueryData(std::move(query), targetID, sequenceNumber, QueryPurpose::Listen,
-                   testutil::Version(version), resumeToken);
-}
-
-- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(TargetId)targetID {
-  DocumentKeySet keys{key};
-  self.queryCache->AddMatchingKeys(keys, targetID);
-}
-
-- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(TargetId)targetID {
-  DocumentKeySet keys{key};
-  self.queryCache->RemoveMatchingKeys(keys, targetID);
-}
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

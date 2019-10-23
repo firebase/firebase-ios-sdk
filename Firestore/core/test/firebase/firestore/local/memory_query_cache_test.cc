@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,49 +14,25 @@
  * limitations under the License.
  */
 
-#import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
-
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "Firestore/core/test/firebase/firestore/local/query_cache_test.h"
 
-using firebase::firestore::local::MemoryPersistence;
-using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
-using firebase::firestore::local::ReferenceSet;
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTMemoryQueryCacheTests : FSTQueryCacheTests
-@end
-
-/**
- * The tests for FSTMemoryQueryCache are performed on the FSTQueryCache protocol in
- * FSTQueryCacheTests. This class is merely responsible for setting up and tearing down the
- * @a queryCache.
- */
-@implementation FSTMemoryQueryCacheTests {
-  std::unique_ptr<MemoryPersistence> _db;
-  ReferenceSet _additionalReferences;
+std::unique_ptr<Persistence> PersistenceFactory() {
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
-- (void)setUp {
-  [super setUp];
+}  // namespace
 
-  _db = MemoryPersistenceWithEagerGcForTesting();
-  self.persistence = _db.get();
-  self.queryCache = self.persistence->query_cache();
-  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
-}
+INSTANTIATE_TEST_CASE_P(MemoryQueryCacheTest,
+                        QueryCacheTest,
+                        testing::Values(PersistenceFactory));
 
-- (void)tearDown {
-  self.persistence = nil;
-  self.queryCache = nil;
-
-  [super tearDown];
-}
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

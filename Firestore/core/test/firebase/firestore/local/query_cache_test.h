@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,50 +14,89 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
 
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
+namespace core {
+
+class Query;
+
+}  // namespace core
+
+namespace model {
+
+class DocumentKey;
+
+}  // namespace model
+
 namespace local {
 
 class Persistence;
+class QueryCache;
+class QueryData;
 
-}  // namespace local
-}  // namespace firestore
-}  // namespace firebase
+using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
-namespace local = firebase::firestore::local;
-namespace model = firebase::firestore::model;
+/**
+ * A test fixture for implementing tests of QueryCache interface.
+ *
+ * This is separate from QueryCacheTest below in order to make additional
+ * implementation-specific tests
+ */
+class QueryCacheTestBase : public testing::Test {
+ protected:
+  explicit QueryCacheTestBase(std::unique_ptr<Persistence> persistence);
 
-NS_ASSUME_NONNULL_BEGIN
+  ~QueryCacheTestBase();
+
+  QueryData MakeQueryData(core::Query query);
+
+  QueryData MakeQueryData(core::Query query,
+                          model::TargetId target_id,
+                          model::ListenSequenceNumber sequence_number,
+                          int64_t version);
+
+  void AddMatchingKey(const model::DocumentKey& key, model::TargetId target_id);
+
+  void RemoveMatchingKey(const model::DocumentKey& key,
+                         model::TargetId target_id);
+
+  std::unique_ptr<Persistence> persistence_;
+  QueryCache* cache_ = nullptr;
+
+  core::Query query_rooms_;
+  model::ListenSequenceNumber previous_sequence_number_ = 0;
+  model::TargetId previous_target_id_ = 0;
+  int64_t previous_snapshot_version_ = 0;
+};
 
 /**
  * These are tests for any implementation of the QueryCache interface.
  *
  * To test a specific implementation of QueryCache:
  *
- * + Subclass FSTQueryCacheTests
- * + override -setUp, assigning to queryCache and persistence
- * + override -tearDown, cleaning up queryCache and persistence
+ * + Write a persistence factory function
+ * + Call INSTANTIATE_TEST_CASE_P(MyNewQueryCacheTest,
+ *                                QueryCacheTest,
+ *                                testing::Values(PersistenceFactory));
  */
-@interface FSTQueryCacheTests : XCTestCase
+class QueryCacheTest : public QueryCacheTestBase,
+    public testing::WithParamInterface<FactoryFunc> {
+ public:
+  QueryCacheTest();
+  ~QueryCacheTest();
+};
 
-/** Helper method to add a single document key to target association */
-- (void)addMatchingKey:(const model::DocumentKey&)key forTargetID:(model::TargetId)targetID;
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
-/** The implementation of the query cache to test. */
-@property(nonatomic, nullable) local::QueryCache* queryCache;
-
-/**
- * The persistence implementation to use while testing the queryCache (e.g. for committing write
- * groups).
- */
-@property(nonatomic, nullable) local::Persistence* persistence;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_TEST_H_
