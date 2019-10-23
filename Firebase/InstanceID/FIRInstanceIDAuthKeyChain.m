@@ -120,7 +120,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
       [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
   }
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
   [results addObject:passwordInfos];
 #endif
   // We query the keychain because it didn't exist in cache, now query is done, update the result in

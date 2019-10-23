@@ -676,9 +676,13 @@ static FIRInstanceID *gInstanceID;
 
   // FCM generates a FCM token during app start for sending push notification to device.
   // This is not needed for app extension.
+#if TARGET_OS_WATCH
+    [self didCompleteConfigure];
+#else
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];
   }
+#endif
 }
 
 + (NSError *)configureErrorWithReason:(nonnull NSString *)reason {
