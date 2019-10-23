@@ -381,8 +381,8 @@ inline core::FieldFilter Filter(absl::string_view key,
 
 inline core::FieldFilter Filter(absl::string_view key,
                                 absl::string_view op,
-                                const std::string& value) {
-  return Filter(key, op, model::FieldValue::FromString(value));
+                                const char* value) {
+  return Filter(key, op, model::FieldValue::FromString(std::string(value)));
 }
 
 inline core::FieldFilter Filter(absl::string_view key,
