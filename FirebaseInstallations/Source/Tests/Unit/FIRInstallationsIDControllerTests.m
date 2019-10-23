@@ -392,7 +392,7 @@
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -422,7 +422,7 @@
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -451,7 +451,7 @@
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
 
   // 3. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -486,7 +486,7 @@
   [storagePendingPromise fulfill:storedInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -532,7 +532,7 @@
   [pendingAPIPromise fulfill:responseInstallation];
 
   // 4. Wait for the promise to resolve.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 5. Check.
   OCMVerifyAll(self.mockInstallationsStore);
@@ -660,7 +660,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -698,7 +698,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -738,7 +738,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertEqualObjects(promise.error, error500);
   XCTAssertTrue(promise.isRejected);
@@ -777,7 +777,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -842,7 +842,7 @@
   [pendingAuthTokenAPIPromise fulfill:responseInstallation];
 
   // 5. Wait for operations to complete and check the result.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(deletePromise.error);
   XCTAssertTrue(deletePromise.isFulfilled);
@@ -884,7 +884,7 @@
   FBLPromise<NSNull *> *promise = [self.controller deleteInstallation];
 
   // 6. Wait for operations to complete and check.
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   XCTAssertNil(promise.error);
   XCTAssertTrue(promise.isFulfilled);
@@ -938,7 +938,7 @@
 
   // 3. Request FID.
   FBLPromise *promise = [self.controller getInstallationItem];
-  FBLWaitForPromisesWithTimeout(0.5);
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
   // 4. Check.
   XCTAssertNil(promise.error);
