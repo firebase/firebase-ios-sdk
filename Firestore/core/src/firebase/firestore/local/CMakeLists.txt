@@ -88,8 +88,8 @@ cc_library(
     memory_remote_document_cache.mm
     mutation_queue.h
     persistence.h
+    proto_sizer.cc
     proto_sizer.h
-    proto_sizer.mm
     query_cache.h
     query_data.cc
     query_data.h

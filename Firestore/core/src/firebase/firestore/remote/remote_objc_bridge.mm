@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_nanopb.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -54,8 +55,9 @@ using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
 using nanopb::MakeNSData;
-using nanopb::MaybeMessage;
 using nanopb::Message;
+using nanopb::Reader;
+using remote::ByteBufferReader;
 using remote::Serializer;
 using util::MakeString;
 using util::MakeNSError;
@@ -65,34 +67,13 @@ using util::StringFormat;
 
 namespace {
 
-NSData* ConvertToNsData(const grpc::ByteBuffer& buffer, NSError** out_error) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  if (!status.ok()) {
-    *out_error = MakeNSError(Status{
-        Error::Internal, "Trying to convert an invalid grpc::ByteBuffer"});
-    return nil;
-  }
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
 template <typename T, typename U>
 std::string DescribeMessage(const Message<U>& message) {
   // TODO(b/142276128): implement proper pretty-printing using just Nanopb.
   // Converting to an Objective-C proto just to be able to call `description` is
   // a hack.
-  auto bytes = message.ToByteBuffer();
-  auto ns_data = ConvertToNsData(bytes, nil);
+  auto bytes = MakeByteString(message);
+  auto ns_data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
   T* objc_request = [T parseFromData:ns_data error:nil];
   return util::MakeString([objc_request description]);
 }
@@ -107,8 +88,7 @@ WatchStreamSerializer::WatchStreamSerializer(Serializer serializer)
 
 Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
-  Message<google_firestore_v1_ListenRequest> result{
-      google_firestore_v1_ListenRequest_fields};
+  Message<google_firestore_v1_ListenRequest> result;
 
   result->database = serializer_.EncodeDatabaseName();
   result->which_target_change =
@@ -133,8 +113,7 @@ WatchStreamSerializer::EncodeWatchRequest(const QueryData& query) const {
 
 Message<google_firestore_v1_ListenRequest>
 WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
-  Message<google_firestore_v1_ListenRequest> result{
-      google_firestore_v1_ListenRequest_fields};
+  Message<google_firestore_v1_ListenRequest> result;
 
   result->database = serializer_.EncodeDatabaseName();
   result->which_target_change =
@@ -144,10 +123,9 @@ WatchStreamSerializer::EncodeUnwatchRequest(TargetId target_id) const {
   return result;
 }
 
-MaybeMessage<google_firestore_v1_ListenResponse>
-WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_ListenResponse>::TryParse(
-      google_firestore_v1_ListenResponse_fields, message);
+Message<google_firestore_v1_ListenResponse>
+WatchStreamSerializer::ParseResponse(Reader* reader) const {
+  return Message<google_firestore_v1_ListenResponse>::TryParse(reader);
 }
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
@@ -180,8 +158,7 @@ WriteStreamSerializer::WriteStreamSerializer(Serializer serializer)
 
 Message<google_firestore_v1_WriteRequest>
 WriteStreamSerializer::EncodeHandshake() const {
-  Message<google_firestore_v1_WriteRequest> result{
-      google_firestore_v1_WriteRequest_fields};
+  Message<google_firestore_v1_WriteRequest> result;
 
   // The initial request cannot contain mutations, but must contain a project
   // ID.
@@ -194,8 +171,7 @@ Message<google_firestore_v1_WriteRequest>
 WriteStreamSerializer::EncodeWriteMutationsRequest(
     const std::vector<Mutation>& mutations,
     const ByteString& last_stream_token) const {
-  Message<google_firestore_v1_WriteRequest> result{
-      google_firestore_v1_WriteRequest_fields};
+  Message<google_firestore_v1_WriteRequest> result;
 
   if (!mutations.empty()) {
     result->writes_count = nanopb::CheckedSize(mutations.size());
@@ -211,10 +187,9 @@ WriteStreamSerializer::EncodeWriteMutationsRequest(
   return result;
 }
 
-MaybeMessage<google_firestore_v1_WriteResponse>
-WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
-  return Message<google_firestore_v1_WriteResponse>::TryParse(
-      google_firestore_v1_WriteResponse_fields, message);
+Message<google_firestore_v1_WriteResponse> WriteStreamSerializer::ParseResponse(
+    Reader* reader) const {
+  return Message<google_firestore_v1_WriteResponse>::TryParse(reader);
 }
 
 SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
@@ -263,8 +238,7 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 Message<google_firestore_v1_CommitRequest>
 DatastoreSerializer::EncodeCommitRequest(
     const std::vector<Mutation>& mutations) const {
-  Message<google_firestore_v1_CommitRequest> result{
-      google_firestore_v1_CommitRequest_fields};
+  Message<google_firestore_v1_CommitRequest> result;
 
   result->database = serializer_.EncodeDatabaseName();
 
@@ -284,8 +258,7 @@ DatastoreSerializer::EncodeCommitRequest(
 Message<google_firestore_v1_BatchGetDocumentsRequest>
 DatastoreSerializer::EncodeLookupRequest(
     const std::vector<DocumentKey>& keys) const {
-  Message<google_firestore_v1_BatchGetDocumentsRequest> result{
-      google_firestore_v1_BatchGetDocumentsRequest_fields};
+  Message<google_firestore_v1_BatchGetDocumentsRequest> result;
 
   result->database = serializer_.EncodeDatabaseName();
   if (!keys.empty()) {
@@ -306,22 +279,19 @@ DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
   std::map<DocumentKey, MaybeDocument> results;
-  nanopb::Reader reader;
 
   for (const auto& response : responses) {
-    auto maybe_proto =
+    ByteBufferReader reader{response};
+    auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
-            google_firestore_v1_BatchGetDocumentsResponse_fields, response);
-    if (!maybe_proto.ok()) {
-      return maybe_proto.status();
-    }
+            &reader);
 
-    const auto& proto = maybe_proto.ValueOrDie();
-    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *proto);
+    MaybeDocument doc = serializer_.DecodeMaybeDocument(&reader, *message);
     results[doc.key()] = std::move(doc);
-  }
-  if (!reader.ok()) {
-    return reader.status();
+
+    if (!reader.ok()) {
+      return reader.status();
+    }
   }
 
   std::vector<MaybeDocument> docs;

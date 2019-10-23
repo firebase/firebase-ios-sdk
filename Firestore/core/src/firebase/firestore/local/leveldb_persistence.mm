@@ -74,9 +74,7 @@ std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
 }  // namespace
 
 util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
-    util::Path dir,
-    FSTLocalSerializer* serializer,
-    const LruParams& lru_params) {
+    util::Path dir, LocalSerializer serializer, const LruParams& lru_params) {
   Status status = EnsureDirectory(dir);
   if (!status.ok()) return status;
 
@@ -94,23 +92,24 @@ util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   transaction.Commit();
 
   // Explicit conversion is required to allow the StatusOr to be created.
-  std::unique_ptr<LevelDbPersistence> result(new LevelDbPersistence(
-      std::move(db), std::move(dir), std::move(users), serializer, lru_params));
+  std::unique_ptr<LevelDbPersistence> result(
+      new LevelDbPersistence(std::move(db), std::move(dir), std::move(users),
+                             std::move(serializer), lru_params));
   return std::move(result);
 }
 
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                                        util::Path directory,
                                        std::set<std::string> users,
-                                       FSTLocalSerializer* serializer,
+                                       LocalSerializer serializer,
                                        const LruParams& lru_params)
     : db_(std::move(db)),
       directory_(std::move(directory)),
       users_(std::move(users)),
-      serializer_(serializer) {
-  query_cache_ = absl::make_unique<LevelDbQueryCache>(this, serializer_);
+      serializer_(std::move(serializer)) {
+  query_cache_ = absl::make_unique<LevelDbQueryCache>(this, &serializer_);
   document_cache_ =
-      absl::make_unique<LevelDbRemoteDocumentCache>(this, serializer_);
+      absl::make_unique<LevelDbRemoteDocumentCache>(this, &serializer_);
   index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
@@ -235,7 +234,7 @@ LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
     const auth::User& user) {
   users_.insert(user.uid());
   current_mutation_queue_ =
-      absl::make_unique<LevelDbMutationQueue>(user, this, serializer_);
+      absl::make_unique<LevelDbMutationQueue>(user, this, &serializer_);
   return current_mutation_queue_.get();
 }
 

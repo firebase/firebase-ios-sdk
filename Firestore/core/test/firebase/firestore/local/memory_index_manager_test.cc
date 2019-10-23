@@ -16,8 +16,9 @@
 
 #include "Firestore/core/test/firebase/firestore/local/index_manager_test.h"
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
@@ -29,12 +30,12 @@ namespace local {
 namespace {
 
 std::unique_ptr<Persistence> PersistenceFactory() {
-  return LevelDbPersistenceForTesting();
+  return MemoryPersistenceWithEagerGcForTesting();
 }
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(LevelDbIndexManagerTest,
+INSTANTIATE_TEST_CASE_P(MemoryIndexManagerTest,
                         IndexManagerTest,
                         ::testing::Values(PersistenceFactory));
 

@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_PERSISTENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_PERSISTENCE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <set>
 #include <string>
@@ -32,11 +28,10 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/persistence.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-
-@class FSTLocalSerializer;
 
 namespace firebase {
 namespace firestore {
@@ -59,9 +54,7 @@ class LevelDbPersistence : public Persistence {
    * containing details of the failure.
    */
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
-      util::Path dir,
-      FSTLocalSerializer* serializer,
-      const LruParams& lru_params);
+      util::Path dir, LocalSerializer serializer, const LruParams& lru_params);
 
   /**
    * Finds a suitable directory to serve as the root of all Firestore local
@@ -123,7 +116,7 @@ class LevelDbPersistence : public Persistence {
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
-                     FSTLocalSerializer* serializer,
+                     LocalSerializer serializer,
                      const LruParams& lru_params);
 
   /**
@@ -147,7 +140,7 @@ class LevelDbPersistence : public Persistence {
 
   util::Path directory_;
   std::set<std::string> users_;
-  FSTLocalSerializer* serializer_;
+  LocalSerializer serializer_;
   bool started_ = false;
 
   std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
