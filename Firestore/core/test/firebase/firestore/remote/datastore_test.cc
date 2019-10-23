@@ -111,8 +111,8 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : worker_queue{testutil::AsyncQueueForTesting()},
-        database_info{DatabaseId{"p", "d"}, "", "localhost", false},
+      : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
+        worker_queue{testutil::AsyncQueueForTesting()},
         datastore{CreateDatastore(database_info, worker_queue, credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
