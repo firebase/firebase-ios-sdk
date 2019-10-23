@@ -36,6 +36,7 @@
 #import "FIREmailAuthProvider.h"
 #import "FIREmailPasswordAuthCredential.h"
 #import "FIREmailLinkSignInRequest.h"
+#import "FIRFederatedAuthProvider.h"
 #import "FIRGameCenterAuthCredential.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
@@ -791,6 +792,21 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+- (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
+                        UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                        completion:(nullable FIRAuthDataResultCallback)completion {
+#if TARGET_OS_IOS
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    [provider getCredentialWithUIDelegate:UIDelegate
+                               completion:^(FIRAuthCredential *_Nullable credential,
+                                            NSError *_Nullable error) {
+                                 [self reauthenticateWithCredential:credential
+                                                         completion:completion];
+                               }];
+  });
+#endif  // TARGET_OS_IOS
+}
+
 - (nullable NSString *)refreshToken {
   __block NSString *result;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -938,7 +954,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 expirationDate:expDate
                                       authDate:authDate
                                   issuedAtDate:issuedDate
-                                signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
+                                signInProvider:tokenPayloadDictionary[@"firebase"][@"sign_in_provider"]
                                         claims:tokenPayloadDictionary];
   return result;
 }
@@ -1234,6 +1250,21 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+- (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
+              UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+              completion:(nullable FIRAuthDataResultCallback)completion {
+#if TARGET_OS_IOS
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    [provider getCredentialWithUIDelegate:UIDelegate
+                               completion:^(FIRAuthCredential *_Nullable credential,
+                                            NSError *_Nullable error) {
+                                 [self linkWithCredential:credential
+                                               completion:completion];
+                               }];
+  });
+#endif  // TARGET_OS_IOS
+}
+
 - (void)unlinkFromProvider:(NSString *)provider
                 completion:(nullable FIRAuthResultCallback)completion {
   [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
@@ -1252,19 +1283,11 @@ static void callInMainThreadWithAuthDataResultAndError(
           [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
 
-      if ([provider isEqualToString:FIREmailAuthProviderID]) {
-        if (!self->_hasEmailPasswordCredential) {
-          completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
-          return;
-        }
-        setAccountInfoRequest.deleteAttributes = @[ FIRSetAccountInfoUserAttributePassword ];
-      } else {
-        if (!self->_providerData[provider]) {
-          completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
-          return;
-        }
-        setAccountInfoRequest.deleteProviders = @[ provider ];
+      if (!self->_providerData[provider]) {
+        completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
+        return;
       }
+      setAccountInfoRequest.deleteProviders = @[ provider ];
 
       [FIRAuthBackend setAccountInfo:setAccountInfoRequest
                             callback:^(FIRSetAccountInfoResponse *_Nullable response,

@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FIRDatabaseReference.h"
-#import "FNode.h"
 #import "FIndexedNode.h"
+#import "FNode.h"
+#import <Foundation/Foundation.h>
 
 @interface FChange : NSObject
 
-@property (nonatomic, readonly) FIRDataEventType type;
-@property (nonatomic, strong, readonly) FIndexedNode *indexedNode;
-@property (nonatomic, strong, readonly) NSString *childKey;
-@property (nonatomic, strong, readonly) NSString *prevKey;
-@property (nonatomic, strong, readonly) FIndexedNode *oldIndexedNode;
+@property(nonatomic, readonly) FIRDataEventType type;
+@property(nonatomic, strong, readonly) FIndexedNode *indexedNode;
+@property(nonatomic, strong, readonly) NSString *childKey;
+@property(nonatomic, strong, readonly) NSString *prevKey;
+@property(nonatomic, strong, readonly) FIndexedNode *oldIndexedNode;
 
-- (id)initWithType:(FIRDataEventType)type indexedNode:(FIndexedNode *)indexedNode;
-- (id)initWithType:(FIRDataEventType)type indexedNode:(FIndexedNode *)indexedNode childKey:(NSString *)childKey;
+- (id)initWithType:(FIRDataEventType)type
+       indexedNode:(FIndexedNode *)indexedNode;
+- (id)initWithType:(FIRDataEventType)type
+       indexedNode:(FIndexedNode *)indexedNode
+          childKey:(NSString *)childKey;
 - (id)initWithType:(FIRDataEventType)type
        indexedNode:(FIndexedNode *)indexedNode
           childKey:(NSString *)childKey
     oldIndexedNode:(FIndexedNode *)oldIndexedNode;
 
-- (FChange *) changeWithPrevKey:(NSString *)prevKey;
+- (FChange *)changeWithPrevKey:(NSString *)prevKey;
 @end

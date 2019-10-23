@@ -1,0 +1,31 @@
+# Copyright 2019 Google
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
+# fields having default values, even for non-primitive types. Using the
+# workaround suggested in
+# https://github.com/nanopb/nanopb/issues/255#issuecomment-291842903
+
+# read_time might not be set for deletes.
+google.firestore.v1.DocumentDelete.read_time proto3:false
+
+# `current_document` is an optional precondition.
+google.firestore.v1.Write.current_document proto3:false
+
+# Whether `update_mask` field is set is crucial for the backend to distinguish
+# between "set" and "patch" mutations.
+google.firestore.v1.Write.update_mask proto3:false
+
+# update_time should not be set for deletes.
+google.firestore.v1.WriteResult.update_time proto3:false

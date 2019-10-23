@@ -20,6 +20,7 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
@@ -140,9 +141,8 @@ class LevelDbMutationKey {
   }
 
  private:
-  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
-  model::BatchId batch_id_;
+  model::BatchId batch_id_ = model::kBatchIdUnknown;
 };
 
 /**
@@ -209,10 +209,9 @@ class LevelDbDocumentMutationKey {
   }
 
  private:
-  // Deliberately uninitialized: will be assigned in Decode
   std::string user_id_;
   model::DocumentKey document_key_;
-  model::BatchId batch_id_;
+  model::BatchId batch_id_ = model::kBatchIdUnknown;
 };
 
 /**
@@ -348,7 +347,7 @@ class LevelDbQueryTargetKey {
  private:
   // Deliberately uninitialized: will be assigned in Decode
   std::string canonical_id_;
-  model::TargetId target_id_;
+  model::TargetId target_id_ = 0;
 };
 
 /**
@@ -396,7 +395,7 @@ class LevelDbTargetDocumentKey {
 
  private:
   // Deliberately uninitialized: will be assigned in Decode
-  model::TargetId target_id_;
+  model::TargetId target_id_ = 0;
   model::DocumentKey document_key_;
 };
 

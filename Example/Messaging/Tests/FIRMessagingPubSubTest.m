@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingPubSub.h"
+#import "Firebase/Messaging/FIRMessagingPubSub.h"
 
 @interface FIRMessagingPubSubTest : XCTestCase
 @end

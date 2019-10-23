@@ -31,9 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/converters.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -42,9 +40,10 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -55,11 +54,10 @@ namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
 using firebase::firestore::GeoPoint;
-using firebase::firestore::api::ThrowInvalidArgument;
-using firebase::firestore::core::ParsedSetData;
-using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ParseAccumulator;
 using firebase::firestore::core::ParseContext;
+using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::UserDataSource;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -74,6 +72,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::MakeByteString;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -351,28 +350,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
   } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-    context.AddToFieldTransforms(*context.path(), absl::make_unique<ServerTimestampTransform>(
-                                                      ServerTimestampTransform::Get()));
+    context.AddToFieldTransforms(*context.path(), ServerTimestampTransform());
 
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
     std::vector<FieldValue> parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    auto array_union = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
-                                                         std::move(parsedElements));
+    ArrayTransform array_union(TransformOperation::Type::ArrayUnion, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(array_union));
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
     std::vector<FieldValue> parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    auto array_remove = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
-                                                          std::move(parsedElements));
+    ArrayTransform array_remove(TransformOperation::Type::ArrayRemove, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(array_remove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     FSTNumericIncrementFieldValue *numericIncrementFieldValue =
         (FSTNumericIncrementFieldValue *)fieldValue;
     FieldValue operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
-    auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
+    NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
 

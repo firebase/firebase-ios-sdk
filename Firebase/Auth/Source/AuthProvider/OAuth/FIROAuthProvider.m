@@ -26,6 +26,7 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthWebUtils.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIROAuthCredential.h"
 
@@ -165,6 +166,12 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
     @return An Instance of @c FIROAuthProvider.
   */
 - (nullable instancetype)initWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {
+  NSAssert(![providerID isEqual:FIRFacebookAuthProviderID],
+           @"Sign in with Facebook is not supported via generic IDP; the Facebook TOS "
+           "dictate that you must use the Facebook iOS SDK for Facebook login.");
+  NSAssert(![providerID isEqual:@"apple.com"],
+           @"Sign in with Apple is not supported via generic IDP; You must use the Apple iOS SDK"
+           " for Sign in with Apple.");
   self = [super init];
   if (self) {
     _auth = auth;

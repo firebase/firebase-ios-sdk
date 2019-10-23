@@ -20,7 +20,9 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
@@ -36,8 +38,7 @@ using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
-using util::ExecutorStd;
-using util::GetFirestoreErrorCodeName;
+using util::GetFirestoreErrorName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
@@ -49,8 +50,7 @@ using Type = GrpcCompletion::Type;
 class GrpcStreamingReaderTest : public testing::Test {
  public:
   GrpcStreamingReaderTest()
-      : worker_queue{std::make_shared<AsyncQueue>(
-            absl::make_unique<ExecutorStd>())},
+      : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
         reader{tester.CreateStreamingReader()} {
@@ -232,7 +232,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   worker_queue->EnqueueBlocking([] {});
 
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::ResourceExhausted);
+  EXPECT_EQ(status.value().code(), Error::ResourceExhausted);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -247,7 +247,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
   ForceFinish(
       {{Type::Finish, grpc::Status{grpc::StatusCode::UNAVAILABLE, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::Unavailable);
+  EXPECT_EQ(status.value().code(), Error::Unavailable);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -262,7 +262,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 
   ForceFinish({{Type::Finish, grpc::Status{grpc::StatusCode::DATA_LOSS, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), FirestoreErrorCode::DataLoss);
+  EXPECT_EQ(status.value().code(), Error::DataLoss);
   EXPECT_TRUE(responses.empty());
 }
 

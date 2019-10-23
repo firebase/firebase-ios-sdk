@@ -17,9 +17,10 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import <GoogleDataTransport/GDTEvent.h>
-#import <GoogleDataTransport/GDTTargets.h>
-#import <GoogleDataTransport/GDTTransport.h>
+#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
+#import <GoogleDataTransport/GDTCORTransport.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
@@ -91,7 +92,8 @@ static NSString *const kFIRAppDiagnosticsSDKVersionKey = @"FIRAppDiagnosticsSDKV
 NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTICS_HEARTBEAT_DATE";
 
 /**
- * @note This should implement the GDTEventDataObject protocol, but can't because of weak-linking.
+ * @note This should implement the GDTCOREventDataObject protocol, but can't because of
+ * weak-linking.
  */
 @interface FIRCoreDiagnosticsLog : NSObject
 
@@ -110,13 +112,14 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   return self;
 }
 
-// Provided and required by the GDTEventDataObject protocol.
+// Provided and required by the GDTCOREventDataObject protocol.
 - (NSData *)transportBytes {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTCORLogError(GDTCORMCETransportBytesError, @"Error in nanopb encoding for size: %s",
+                   PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -124,7 +127,8 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, logs_proto_mobilesdk_ios_ICoreConfiguration_fields, &_config)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTCORLogError(GDTCORMCETransportBytesError, @"Error in nanopb encoding for bytes: %s",
+                   PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -146,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 
 /** The transport object used to send data. */
-@property(nonatomic, readonly) GDTTransport *transport;
+@property(nonatomic, readonly) GDTCORTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
 @property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
@@ -167,9 +171,9 @@ NS_ASSUME_NONNULL_END
 }
 
 - (instancetype)init {
-  GDTTransport *transport = [[GDTTransport alloc] initWithMappingID:@"137"
-                                                       transformers:nil
-                                                             target:kGDTTargetCCT];
+  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"137"
+                                                             transformers:nil
+                                                                   target:kGDTCORTargetCCT];
 
   FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
       initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
@@ -179,11 +183,11 @@ NS_ASSUME_NONNULL_END
 
 /** Initializer for unit tests.
  *
- * @param transport A `GDTTransport` instance which that be used to send event.
+ * @param transport A `GDTCORTransport` instance which that be used to send event.
  * @param heartbeatDateStorage An instanse of date storage to track heartbeat sending.
  * @return Returns the initialized `FIRCoreDiagnostics` instance.
  */
-- (instancetype)initWithTransport:(GDTTransport *)transport
+- (instancetype)initWithTransport:(GDTCORTransport *)transport
              heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
   self = [super init];
   if (self) {
@@ -370,8 +374,10 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
   config->pod_name = logs_proto_mobilesdk_ios_ICoreConfiguration_PodName_FIREBASE;
   config->has_pod_name = 1;
 
-  NSCAssert(diagnosticObjects[kFIRCDllAppsCountKey],
-            @"App count is a required value in the data dict.");
+  if (!diagnosticObjects[kFIRCDllAppsCountKey]) {
+    GDTCORLogError(GDTCORMCEGeneralError, @"%@",
+                   @"App count is a required value in the data dict.");
+  }
   config->app_count = (int32_t)[diagnosticObjects[kFIRCDllAppsCountKey] integerValue];
   config->has_app_count = 1;
 
@@ -631,8 +637,8 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRCoreDiagnosticsLog *log = [[FIRCoreDiagnosticsLog alloc] initWithConfig:icore_config];
 
     // Send the log as a telemetry event.
-    GDTEvent *event = [self.transport eventForTransport];
-    event.dataObject = (id<GDTEventDataObject>)log;
+    GDTCOREvent *event = [self.transport eventForTransport];
+    event.dataObject = (id<GDTCOREventDataObject>)log;
     [self.transport sendTelemetryEvent:event];
   });
 }

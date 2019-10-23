@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-
-#import "Protos/GtalkCore.pbobjc.h"
-
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingFakeSocket.h"
-#import "FIRMessagingSecureSocket.h"
-#import "FIRMessagingUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingFakeSocket.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 @interface FIRMessagingConnection ()
 

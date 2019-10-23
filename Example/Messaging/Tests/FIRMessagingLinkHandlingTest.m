@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingTestNotificationUtilities.h"
-#import "FIRMessagingTestUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingTestNotificationUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 

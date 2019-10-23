@@ -17,7 +17,6 @@
 #import "FIRSecureTokenService.h"
 
 #import "FIRAuth.h"
-#import "FIRAuthKeychain.h"
 #import "FIRAuthSerialTaskQueue.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"

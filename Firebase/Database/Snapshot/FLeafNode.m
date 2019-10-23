@@ -15,17 +15,17 @@
  */
 
 #import "FLeafNode.h"
-#import "FEmptyNode.h"
 #import "FChildrenNode.h"
 #import "FConstants.h"
+#import "FEmptyNode.h"
 #import "FImmutableSortedDictionary.h"
-#import "FUtilities.h"
-#import "FStringUtilities.h"
 #import "FSnapshotUtilities.h"
+#import "FStringUtilities.h"
+#import "FUtilities.h"
 
 @interface FLeafNode ()
-@property (nonatomic, strong) id<FNode> priorityNode;
-@property (nonatomic, strong) NSString *lazyHash;
+@property(nonatomic, strong) id<FNode> priorityNode;
+@property(nonatomic, strong) NSString *lazyHash;
 
 @end
 
@@ -56,19 +56,19 @@
 #pragma mark -
 #pragma mark FNode methods
 
-- (BOOL) isLeafNode {
+- (BOOL)isLeafNode {
     return YES;
 }
 
-- (id<FNode>) getPriority {
+- (id<FNode>)getPriority {
     return self.priorityNode;
 }
 
-- (id<FNode>) updatePriority:(id<FNode>)aPriority {
+- (id<FNode>)updatePriority:(id<FNode>)aPriority {
     return [[FLeafNode alloc] initWithValue:self.value withPriority:aPriority];
 }
 
-- (id<FNode>) getImmediateChild:(NSString *) childName {
+- (id<FNode>)getImmediateChild:(NSString *)childName {
     if ([childName isEqualToString:@".priority"]) {
         return self.priorityNode;
     } else {
@@ -76,7 +76,7 @@
     }
 }
 
-- (id<FNode>) getChild:(FPath *)path {
+- (id<FNode>)getChild:(FPath *)path {
     if (path.getFront == nil) {
         return self;
     } else if ([[path getFront] isEqualToString:@".priority"]) {
@@ -87,64 +87,71 @@
 }
 
 - (BOOL)hasChild:(NSString *)childName {
-    return [childName isEqualToString:@".priority"] && ![self getPriority].isEmpty;
+    return
+        [childName isEqualToString:@".priority"] && ![self getPriority].isEmpty;
 }
 
-
-- (NSString *)predecessorChildKey:(NSString *)childKey
-{
+- (NSString *)predecessorChildKey:(NSString *)childKey {
     return nil;
 }
 
-- (id<FNode>) updateImmediateChild:(NSString *)childName withNewChild:(id<FNode>)newChildNode {
+- (id<FNode>)updateImmediateChild:(NSString *)childName
+                     withNewChild:(id<FNode>)newChildNode {
     if ([childName isEqualToString:@".priority"]) {
         return [self updatePriority:newChildNode];
     } else if (newChildNode.isEmpty) {
         return self;
     } else {
-        FChildrenNode* childrenNode = [[FChildrenNode alloc] init];
-        childrenNode = [childrenNode updateImmediateChild:childName withNewChild:newChildNode];
+        FChildrenNode *childrenNode = [[FChildrenNode alloc] init];
+        childrenNode = [childrenNode updateImmediateChild:childName
+                                             withNewChild:newChildNode];
         childrenNode = [childrenNode updatePriority:self.priorityNode];
         return childrenNode;
     }
 }
 
-- (id<FNode>) updateChild:(FPath *)path withNewChild:(id<FNode>)newChildNode {
-    NSString* front = [path getFront];
-    if(front == nil) {
+- (id<FNode>)updateChild:(FPath *)path withNewChild:(id<FNode>)newChildNode {
+    NSString *front = [path getFront];
+    if (front == nil) {
         return newChildNode;
     } else if (newChildNode.isEmpty && ![front isEqualToString:@".priority"]) {
         return self;
     } else {
-        NSAssert(![front isEqualToString:@".priority"] || path.length == 1, @".priority must be the last token in a path.");
-        return [self updateImmediateChild:front withNewChild:
-                [[FEmptyNode emptyNode] updateChild:[path popFront] withNewChild:newChildNode]];
+        NSAssert(![front isEqualToString:@".priority"] || path.length == 1,
+                 @".priority must be the last token in a path.");
+        return [self updateImmediateChild:front
+                             withNewChild:[[FEmptyNode emptyNode]
+                                               updateChild:[path popFront]
+                                              withNewChild:newChildNode]];
     }
 }
 
-- (id) val {
+- (id)val {
     return [self valForExport:NO];
 }
 
-- (id) valForExport:(BOOL)exp {
-    if(exp && !self.getPriority.isEmpty) {
-        return @{kPayloadValue : self.value,
-                kPayloadPriority : [[self getPriority] val]};
-    }
-    else {
+- (id)valForExport:(BOOL)exp {
+    if (exp && !self.getPriority.isEmpty) {
+        return @{
+            kPayloadValue : self.value,
+            kPayloadPriority : [[self getPriority] val]
+        };
+    } else {
         return self.value;
     }
 }
 
-- (BOOL)isEqual:(id <FNode>)other {
-    if(other == self) {
+- (BOOL)isEqual:(id<FNode>)other {
+    if (other == self) {
         return YES;
     } else if (other.isLeafNode) {
         FLeafNode *otherLeaf = other;
-        if ([FUtilities getJavascriptType:self.value] != [FUtilities getJavascriptType:otherLeaf.value]) {
+        if ([FUtilities getJavascriptType:self.value] !=
+            [FUtilities getJavascriptType:otherLeaf.value]) {
             return NO;
         }
-        return [otherLeaf.value isEqual:self.value] && [otherLeaf.priorityNode isEqual:self.priorityNode];
+        return [otherLeaf.value isEqual:self.value] &&
+               [otherLeaf.priorityNode isEqual:self.priorityNode];
     } else {
         return NO;
     }
@@ -154,78 +161,87 @@
     return [self.value hash] * 17 + self.priorityNode.hash;
 }
 
-- (id <FNode>)withIndex:(id <FIndex>)index {
+- (id<FNode>)withIndex:(id<FIndex>)index {
     return self;
 }
 
-- (BOOL)isIndexed:(id <FIndex>)index {
+- (BOOL)isIndexed:(id<FIndex>)index {
     return YES;
 }
 
-- (BOOL) isEmpty {
+- (BOOL)isEmpty {
     return NO;
 }
 
-- (int) numChildren {
+- (int)numChildren {
     return 0;
 }
 
-- (void) enumerateChildrenUsingBlock:(void (^)(NSString *, id<FNode>, BOOL *))block
-{
+- (void)enumerateChildrenUsingBlock:(void (^)(NSString *, id<FNode>,
+                                              BOOL *))block {
     // Nothing to iterate over
 }
 
-- (void) enumerateChildrenReverse:(BOOL)reverse usingBlock:(void (^)(NSString *, id<FNode>, BOOL *))block
-{
+- (void)enumerateChildrenReverse:(BOOL)reverse
+                      usingBlock:
+                          (void (^)(NSString *, id<FNode>, BOOL *))block {
     // Nothing to iterate over
 }
 
-- (NSEnumerator *)childEnumerator
-{
+- (NSEnumerator *)childEnumerator {
     // Nothing to iterate over
     return [@[] objectEnumerator];
 }
 
-- (NSString *) dataHash {
+- (NSString *)dataHash {
     if (self.lazyHash == nil) {
         NSMutableString *toHash = [[NSMutableString alloc] init];
-        [FSnapshotUtilities appendHashRepresentationForLeafNode:self toString:toHash hashVersion:FDataHashVersionV1];
+        [FSnapshotUtilities
+            appendHashRepresentationForLeafNode:self
+                                       toString:toHash
+                                    hashVersion:FDataHashVersionV1];
 
         self.lazyHash = [FStringUtilities base64EncodedSha1:toHash];
     }
     return self.lazyHash;
 }
 
-- (NSComparisonResult)compare:(id <FNode>)other {
+- (NSComparisonResult)compare:(id<FNode>)other {
     if (other == [FEmptyNode emptyNode]) {
         return NSOrderedDescending;
     } else if ([other isKindOfClass:[FChildrenNode class]]) {
         return NSOrderedAscending;
     } else {
         NSAssert(other.isLeafNode, @"Compared against unknown type of node.");
-        return [self compareToLeafNode:(FLeafNode*)other];
+        return [self compareToLeafNode:(FLeafNode *)other];
     }
 }
 
-+ (NSArray*) valueTypeOrder {
-    static NSArray* valueOrder = nil;
++ (NSArray *)valueTypeOrder {
+    static NSArray *valueOrder = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        valueOrder = @[kJavaScriptObject, kJavaScriptBoolean, kJavaScriptNumber, kJavaScriptString];
+      valueOrder = @[
+          kJavaScriptObject, kJavaScriptBoolean, kJavaScriptNumber,
+          kJavaScriptString
+      ];
     });
     return valueOrder;
 }
 
-- (NSComparisonResult) compareToLeafNode:(FLeafNode*)other {
-    NSString* thisLeafType = [FUtilities getJavascriptType:self.value];
-    NSString* otherLeafType = [FUtilities getJavascriptType:other.value];
-    NSUInteger thisIndex = [[FLeafNode valueTypeOrder] indexOfObject:thisLeafType];
-    NSUInteger otherIndex = [[FLeafNode valueTypeOrder] indexOfObject:otherLeafType];
+- (NSComparisonResult)compareToLeafNode:(FLeafNode *)other {
+    NSString *thisLeafType = [FUtilities getJavascriptType:self.value];
+    NSString *otherLeafType = [FUtilities getJavascriptType:other.value];
+    NSUInteger thisIndex =
+        [[FLeafNode valueTypeOrder] indexOfObject:thisLeafType];
+    NSUInteger otherIndex =
+        [[FLeafNode valueTypeOrder] indexOfObject:otherLeafType];
     assert(thisIndex >= 0 && otherIndex >= 0);
     if (otherIndex == thisIndex) {
         // Same type.  Compare values.
         if (thisLeafType == kJavaScriptObject) {
-            // Deferred value nodes are all equal, but we should also never get to this point...
+            // Deferred value nodes are all equal, but we should also never get
+            // to this point...
             return NSOrderedSame;
         } else if (thisLeafType == kJavaScriptString) {
             return [self.value compare:other.value options:NSLiteralSearch];
@@ -233,18 +249,18 @@
             return [self.value compare:other.value];
         }
     } else {
-        return thisIndex > otherIndex ? NSOrderedDescending : NSOrderedAscending;
+        return thisIndex > otherIndex ? NSOrderedDescending
+                                      : NSOrderedAscending;
     }
 }
 
-- (NSString *) description {
+- (NSString *)description {
     return [[self valForExport:YES] description];
 }
 
-- (void) forEachChildDo:(fbt_bool_nsstring_node)action {
+- (void)forEachChildDo:(fbt_bool_nsstring_node)action {
     // There are no children, so there is nothing to do.
     return;
 }
-
 
 @end

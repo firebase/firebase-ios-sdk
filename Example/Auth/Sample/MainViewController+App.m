@@ -70,11 +70,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
      return;
     }
     [self logSuccess:@"refresh token succeeded."];
-    NSMutableString *message = [[NSMutableString alloc] initWithString:
-                                [NSString stringWithFormat:@"Token : %@\n", tokenResult.token]];
-    [message appendString:[NSString stringWithFormat:@"Auth Date : %@\n", tokenResult.authDate]];
-    [message appendString:[NSString stringWithFormat:@"EXP Date : %@\n", tokenResult.expirationDate]];
-    [message appendString:[NSString stringWithFormat:@"Issued Date : %@\n", tokenResult.issuedAtDate]];
+    NSString *message = [tokenResult.claims description];
     [self showMessagePromptWithTitle:kTokenRefreshedAlertTitle
                             message:message
                    showCancelButton:NO

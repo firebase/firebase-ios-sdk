@@ -140,13 +140,12 @@ s%^./%%
 # pod gen output
 \%^gen/% d
 
-# Firestore/Swift contains code that is under 'third_party' but should be
+# FirestoreEncoder is under 'third_party' for licensing reasons but should be
 # formatted.
-\%Firestore/Swift/% p
+\%Firestore/third_party/FirestoreEncoder/.*\.swift% p
 
 # Sources controlled outside this tree
 \%/third_party/% d
-\%/Firestore/Port/% d
 
 # Generated source
 \%/Firestore/core/src/firebase/firestore/util/config.h% d
@@ -155,7 +154,10 @@ s%^./%%
 \%/vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
-\%^(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
+\%^(Example|Firebase)/(Auth|AuthSamples|Messaging)/% d
+
+# Keep Firebase.h indenting
+\%^CoreOnly/Sources/Firebase.h% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d

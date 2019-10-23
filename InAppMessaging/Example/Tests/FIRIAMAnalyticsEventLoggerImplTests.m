@@ -103,17 +103,8 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
                 clearEventParameters:(nonnull NSDictionary *)clearEventParameters {
 }
 
-- (nonnull NSArray<FIRAConditionalUserProperty *> *)
-    conditionalUserProperties:(nonnull NSString *)origin
-           propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
-  return @[];
-}
-
 - (NSInteger)maxUserProperties:(nonnull NSString *)origin {
   return -1;
-}
-
-- (void)setConditionalUserProperty:(nonnull FIRAConditionalUserProperty *)conditionalUserProperty {
 }
 
 - (void)registerAnalyticsListener:(nonnull id<FIRAnalyticsInteropListener>)listener
@@ -121,6 +112,25 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
 }
 
 - (void)unregisterAnalyticsListenerWithOrigin:(nonnull NSString *)origin {
+}
+
+- (void)clearConditionalUserProperty:(nonnull NSString *)userPropertyName
+                           forOrigin:(nonnull NSString *)origin
+                      clearEventName:(nonnull NSString *)clearEventName
+                clearEventParameters:
+                    (nonnull NSDictionary<NSString *, NSString *> *)clearEventParameters {
+}
+
+- (nonnull NSArray<NSDictionary<NSString *, NSString *> *> *)
+    conditionalUserProperties:(nonnull NSString *)origin
+           propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
+  return nil;
+}
+
+- (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *, id> *)conditionalUserProperty {
+}
+
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
 }
 @end
 

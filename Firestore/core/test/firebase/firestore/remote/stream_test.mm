@@ -25,7 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
@@ -46,7 +46,7 @@ using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CreateNoOpConnectivityMonitor;
-using util::GetFirestoreErrorCodeName;
+using util::GetFirestoreErrorName;
 using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
@@ -56,7 +56,6 @@ using util::FakeCredentialsProvider;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
-using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -68,7 +67,7 @@ class TestStream : public Stream {
  public:
   TestStream(const std::shared_ptr<AsyncQueue>& worker_queue,
              GrpcStreamTester* tester,
-             CredentialsProvider* credentials_provider)
+             std::shared_ptr<CredentialsProvider> credentials_provider)
       : Stream{worker_queue, credentials_provider,
                /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
         tester_{tester} {
@@ -118,14 +117,14 @@ class TestStream : public Stream {
       // The parent stream will issue a finish operation and block until it's
       // completed, so asynchronously polling gRPC queue is necessary.
       tester_->KeepPollingGrpcQueue();
-      return util::Status{FirestoreErrorCode::Internal, ""};
+      return util::Status{Error::Internal, ""};
     }
     return util::Status::OK();
   }
 
   void NotifyStreamClose(const util::Status& status) override {
     observed_states_.push_back(std::string{"NotifyStreamClose("} +
-                               GetFirestoreErrorCodeName(status.code()) + ")");
+                               GetFirestoreErrorName(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {
@@ -144,12 +143,12 @@ class TestStream : public Stream {
 class StreamTest : public testing::Test {
  public:
   StreamTest()
-      : worker_queue{std::make_shared<AsyncQueue>(
-            absl::make_unique<ExecutorStd>())},
+      : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
+        credentials{std::make_shared<FakeCredentialsProvider>()},
         firestore_stream{
-            std::make_shared<TestStream>(worker_queue, &tester, &credentials)} {
+            std::make_shared<TestStream>(worker_queue, &tester, credentials)} {
   }
 
   ~StreamTest() {
@@ -193,7 +192,7 @@ class StreamTest : public testing::Test {
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
 
-  FakeCredentialsProvider credentials;
+  std::shared_ptr<FakeCredentialsProvider> credentials;
   std::shared_ptr<TestStream> firestore_stream;
 };
 
@@ -354,7 +353,7 @@ TEST_F(StreamTest, SeveralWrites) {
 // Auth edge cases
 
 TEST_F(StreamTest, AuthFailureOnStart) {
-  credentials.FailGetToken();
+  credentials->FailGetToken();
   worker_queue->EnqueueBlocking([&] { firestore_stream->Start(); });
 
   worker_queue->EnqueueBlocking([&] {
@@ -365,18 +364,18 @@ TEST_F(StreamTest, AuthFailureOnStart) {
 }
 
 TEST_F(StreamTest, AuthWhenStreamHasBeenStopped) {
-  credentials.DelayGetToken();
+  credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     firestore_stream->Start();
     firestore_stream->Stop();
   });
 
-  EXPECT_NO_THROW(credentials.InvokeGetToken());
+  EXPECT_NO_THROW(credentials->InvokeGetToken());
 }
 
 TEST_F(StreamTest, AuthOutlivesStream) {
-  credentials.DelayGetToken();
+  credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     firestore_stream->Start();
@@ -384,7 +383,7 @@ TEST_F(StreamTest, AuthOutlivesStream) {
     firestore_stream.reset();
   });
 
-  EXPECT_NO_THROW(credentials.InvokeGetToken());
+  EXPECT_NO_THROW(credentials->InvokeGetToken());
 }
 
 // Idleness
@@ -514,7 +513,7 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" should invalidate the token.
-  EXPECT_EQ(credentials.observed_states(),
+  EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
 
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
@@ -522,7 +521,7 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
-  EXPECT_EQ(credentials.observed_states(),
+  EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
 }
 

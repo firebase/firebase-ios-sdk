@@ -20,19 +20,20 @@
 #include <unordered_set>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
+#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::Datastore;
@@ -47,30 +48,29 @@ Transaction::Transaction(Datastore* datastore)
     : datastore_{NOT_NULL(datastore)} {
 }
 
-Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
+Status Transaction::RecordVersion(const MaybeDocument& doc) {
   SnapshotVersion doc_version;
 
-  if ([doc isKindOfClass:[FSTDocument class]]) {
-    doc_version = doc.version;
-  } else if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
+  if (doc.is_document()) {
+    doc_version = doc.version();
+  } else if (doc.is_no_document()) {
     // For deleted docs, we must record an explicit no version to build the
     // right precondition when writing.
     doc_version = SnapshotVersion::None();
   } else {
-    HARD_FAIL("Unexpected document type in transaction: %s",
-              NSStringFromClass([doc class]));
+    HARD_FAIL("Unexpected document type in transaction: %s", doc.type());
   }
 
-  absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key);
+  absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key());
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
-      return Status{FirestoreErrorCode::Aborted,
+      return Status{Error::Aborted,
                     "Document version changed between two reads."};
     }
     return Status::OK();
   } else {
-    read_versions_[doc.key] = doc_version;
+    read_versions_[doc.key()] = doc_version;
     return Status::OK();
   }
 }
@@ -80,36 +80,39 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   EnsureCommitNotCalled();
 
   if (!mutations_.empty()) {
-    Status lookup_error = Status{FirestoreErrorCode::InvalidArgument,
+    Status lookup_error = Status{Error::InvalidArgument,
                                  "Firestore transactions require all reads to "
                                  "be executed before all writes"};
-    callback({}, lookup_error);
+    callback(lookup_error);
     return;
   }
 
   datastore_->LookupDocuments(
-      keys, [this, callback](const std::vector<FSTMaybeDocument*>& documents,
-                             const Status& status) {
-        if (!status.ok()) {
-          callback({}, status);
+      keys, [this, callback](
+                const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+        if (!maybe_documents.ok()) {
+          callback(maybe_documents.status());
           return;
         }
 
-        for (FSTMaybeDocument* doc : documents) {
+        const auto& documents = maybe_documents.ValueOrDie();
+        for (const MaybeDocument& doc : documents) {
           Status record_error = RecordVersion(doc);
           if (!record_error.ok()) {
-            callback({}, record_error);
+            callback(record_error);
             return;
           }
         }
 
-        callback(documents, Status::OK());
+        // TODO(varconst): see if `maybe_documents` can be moved into the
+        // callback.
+        callback(maybe_documents);
       });
 }
 
-void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
+void Transaction::WriteMutations(std::vector<Mutation>&& mutations) {
   EnsureCommitNotCalled();
-  // `move` will become appropriate once `FSTMutation` is replaced by the C++
+  // `move` will become appropriate once `Mutation` is replaced by the C++
   // equivalent.
   std::move(mutations.begin(), mutations.end(), std::back_inserter(mutations_));
 }
@@ -141,7 +144,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
       //
       // Note: this can change once we can send separate verify writes in the
       // transaction.
-      return Status{FirestoreErrorCode::InvalidArgument,
+      return Status{Error::InvalidArgument,
                     "Can't update a document that doesn't exist."};
     }
     // Document exists, just base precondition on document update time.
@@ -170,9 +173,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
 }
 
 void Transaction::Delete(const DocumentKey& key) {
-  FSTMutation* mutation =
-      [[FSTDeleteMutation alloc] initWithKey:key
-                                precondition:CreatePrecondition(key)];
+  Mutation mutation = DeleteMutation(key, CreatePrecondition(key));
   WriteMutations({mutation});
   written_docs_.insert(key);
 }
@@ -192,21 +193,29 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
-  for (FSTMutation* mutation : mutations_) {
-    unwritten.erase(mutation.key);
+  for (const Mutation& mutation : mutations_) {
+    unwritten.erase(mutation.key());
   }
 
   if (!unwritten.empty()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
     callback(
-        Status{FirestoreErrorCode::InvalidArgument,
+        Status{Error::InvalidArgument,
                "Every document read in a transaction must also be written in "
                "that transaction."});
   } else {
     committed_ = true;
     datastore_->CommitMutations(mutations_, std::move(callback));
   }
+}
+
+void Transaction::MarkPermanentlyFailed() {
+  permanentError_ = true;
+}
+
+bool Transaction::IsPermanentlyFailed() const {
+  return permanentError_;
 }
 
 void Transaction::EnsureCommitNotCalled() {

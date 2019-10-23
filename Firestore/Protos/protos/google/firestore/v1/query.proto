@@ -103,6 +103,14 @@ message StructuredQuery {
 
       // Contains. Requires that the field is an array.
       ARRAY_CONTAINS = 7;
+
+      // In. Requires that `value` is a non-empty ArrayValue with at most 10
+      // values.
+      IN = 8;
+
+      // Contains any. Requires that the field is an array and
+      // `value` is a non-empty ArrayValue with at most 10 values.
+      ARRAY_CONTAINS_ANY = 9;
     }
 
     // The field to filter by.

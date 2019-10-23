@@ -15,24 +15,23 @@
  */
 
 #import "FNamedNode.h"
-#import "FUtilities.h"
 #import "FEmptyNode.h"
-#import "FMaxNode.h"
 #import "FIndex.h"
+#import "FMaxNode.h"
+#import "FUtilities.h"
 
 @interface FNamedNode ()
-@property (nonatomic, strong, readwrite) NSString* name;
-@property (nonatomic, strong, readwrite) id<FNode> node;
+@property(nonatomic, strong, readwrite) NSString *name;
+@property(nonatomic, strong, readwrite) id<FNode> node;
 @end
 
 @implementation FNamedNode
 
-+ (FNamedNode *)nodeWithName:(NSString *)name node:(id<FNode>)node
-{
++ (FNamedNode *)nodeWithName:(NSString *)name node:(id<FNode>)node {
     return [[FNamedNode alloc] initWithName:name andNode:node];
 }
 
-- (id)initWithName:(NSString *)name andNode:(id <FNode>)node {
+- (id)initWithName:(NSString *)name andNode:(id<FNode>)node {
     self = [super init];
     if (self) {
         self.name = name;
@@ -41,13 +40,11 @@
     return self;
 }
 
-- (id)copy
-{
+- (id)copy {
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
-{
+- (id)copyWithZone:(NSZone *)zone {
     return self;
 }
 
@@ -55,7 +52,8 @@
     static FNamedNode *min = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-       min = [[FNamedNode alloc] initWithName:[FUtilities minName] andNode:[FEmptyNode emptyNode]];
+      min = [[FNamedNode alloc] initWithName:[FUtilities minName]
+                                     andNode:[FEmptyNode emptyNode]];
     });
     return min;
 }
@@ -64,27 +62,37 @@
     static FNamedNode *max = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        max = [[FNamedNode alloc] initWithName:[FUtilities maxName] andNode:[FMaxNode maxNode]];
+      max = [[FNamedNode alloc] initWithName:[FUtilities maxName]
+                                     andNode:[FMaxNode maxNode]];
     });
     return max;
 }
 
-- (NSString *) description {
-    return [NSString stringWithFormat:@"NamedNode[%@] %@", self.name, self.node];
+- (NSString *)description {
+    return
+        [NSString stringWithFormat:@"NamedNode[%@] %@", self.name, self.node];
 }
 
-- (BOOL) isEqual:(id)object {
-    if (self == object) { return YES; }
-    if (object == nil || ![object isKindOfClass:[FNamedNode class]]) { return NO; }
+- (BOOL)isEqual:(id)object {
+    if (self == object) {
+        return YES;
+    }
+    if (object == nil || ![object isKindOfClass:[FNamedNode class]]) {
+        return NO;
+    }
 
     FNamedNode *namedNode = object;
-    if (![self.name isEqualToString:namedNode.name]) { return NO; }
-    if (![self.node isEqual:namedNode.node]) { return NO; }
+    if (![self.name isEqualToString:namedNode.name]) {
+        return NO;
+    }
+    if (![self.node isEqual:namedNode.node]) {
+        return NO;
+    }
 
     return YES;
 }
 
-- (NSUInteger) hash {
+- (NSUInteger)hash {
     NSUInteger nameHash = [self.name hash];
     NSUInteger nodeHash = [self.node hash];
     NSUInteger result = 31 * nameHash + nodeHash;

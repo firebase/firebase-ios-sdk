@@ -29,18 +29,22 @@ NS_ASSUME_NONNULL_BEGIN
   return [StaticContentTableViewSection sectionWithTitle:@"OAuth" cells:@[
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
                                        action:^{ [weakSelf signInGoogleHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Twitter (headful-lite)"
+    [StaticContentTableViewCell cellWithTitle:@"Link with Google"
+                                       action:^{ [weakSelf linkWithGoogleHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Google"
+                                       action:^{ [weakSelf reauthenticateWithGoogleHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Twitter"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Linkedin"
-                                       action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (access token)"
-                                       action:^{ [weakSelf signInWithGitHub]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub (headful-lite)"
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub"
                                        action:^{ [weakSelf signInGitHubHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub (Access token)"
+                                       action:^{ [weakSelf signInWithGitHub]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
                                        action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign In with Yahoo"
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Yahoo"
                                        action:^{ [weakSelf signInYahooHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Linkedin"
+                                       action:^{ [weakSelf signInLinkedinHeadfulLite]; }],
     ]];
 }
 
@@ -72,6 +76,68 @@ NS_ASSUME_NONNULL_BEGIN
          [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
        }];
      }];
+  }];
+}
+
+- (void)linkWithGoogleHeadfulLite {
+  FIROAuthProvider *provider = self.googleOAuthProvider;
+  provider.customParameters = @{
+                                @"prompt" : @"consent",
+                                };
+  provider.scopes = @[ @"profile", @"email", @"https://www.googleapis.com/auth/plus.me" ];
+  [self showSpinner:^{
+    [[AppManager auth].currentUser linkWithProvider:provider
+                                         UIDelegate:nil
+                                         completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error) {
+     [self hideSpinner:^{
+       if (error) {
+         [self logFailure:@"Reauthenticate with provider (Google) failed" error:error];
+       } else if (authResult.additionalUserInfo) {
+         [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
+         if (self.isNewUserToggleOn) {
+           NSString *newUserString = authResult.additionalUserInfo.newUser ?
+           @"New user" : @"Existing user";
+           [self showMessagePromptWithTitle:@"New or Existing"
+                                    message:newUserString
+                           showCancelButton:NO
+                                 completion:nil];
+         }
+       }
+       [self showTypicalUIForUserUpdateResultsWithTitle:@"Link Error" error:error];
+     }];
+   }];
+  }];
+}
+
+- (void)reauthenticateWithGoogleHeadfulLite {
+  FIROAuthProvider *provider = self.googleOAuthProvider;
+  provider.customParameters = @{
+                                @"prompt" : @"consent",
+                                };
+  provider.scopes = @[ @"profile", @"email", @"https://www.googleapis.com/auth/plus.me" ];
+  [self showSpinner:^{
+    [[AppManager auth].currentUser reauthenticateWithProvider:provider
+                                                   UIDelegate:nil
+                                                   completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                                NSError *_Nullable error) {
+     [self hideSpinner:^{
+       if (error) {
+         [self logFailure:@"Link with provider (Google) failed" error:error];
+       } else if (authResult.additionalUserInfo) {
+         [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
+         if (self.isNewUserToggleOn) {
+           NSString *newUserString = authResult.additionalUserInfo.newUser ?
+           @"New user" : @"Existing user";
+           [self showMessagePromptWithTitle:@"New or Existing"
+                                    message:newUserString
+                           showCancelButton:NO
+                                 completion:nil];
+         }
+       }
+       [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate Error" error:error];
+     }];
+   }];
   }];
 }
 

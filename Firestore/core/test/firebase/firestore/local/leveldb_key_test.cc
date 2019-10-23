@@ -61,7 +61,7 @@ std::string DocTargetKey(absl::string_view key, TargetId target_id) {
  * description.
  *
  * @param key A StringView of a textual key
- * @param key An string that `Describe(key)` is expected to produce.
+ * @param key A string that `Describe(key)` is expected to produce.
  */
 #define AssertExpectedKeyDescription(expected_description, key) \
   ASSERT_EQ((expected_description), DescribeKey(key))

@@ -21,22 +21,18 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/core/field_filter.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-
-@class FSTMaybeDocument;
-@class FSTMutation;
-@class FSTMutationBatch;
-@class FSTMutationResult;
-@class FSTObjectValue;
-@class FSTQuery;
-@class FSTQueryData;
 
 @class GCFSBatchGetDocumentsResponse;
 @class GCFSDocument;
@@ -56,6 +52,7 @@
 @class GPBTimestamp;
 
 namespace core = firebase::firestore::core;
+namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
 
@@ -100,31 +97,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSValue *)encodedFieldValue:(const model::FieldValue &)fieldValue;
 - (model::FieldValue)decodedFieldValue:(GCFSValue *)valueProto;
 
-- (GCFSWrite *)encodedMutation:(FSTMutation *)mutation;
-- (FSTMutation *)decodedMutation:(GCFSWrite *)mutation;
+- (GCFSWrite *)encodedMutation:(const model::Mutation &)mutation;
+- (model::Mutation)decodedMutation:(GCFSWrite *)mutation;
 
 - (GCFSDocumentMask *)encodedFieldMask:(const model::FieldMask &)fieldMask;
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
     (const std::vector<model::FieldTransform> &)fieldTransforms;
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const model::SnapshotVersion &)commitVersion;
+- (model::MutationResult)decodedMutationResult:(GCFSWriteResult *)mutation
+                                 commitVersion:(const model::SnapshotVersion &)commitVersion;
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
-    (FSTQueryData *)queryData;
+    (const local::QueryData &)queryData;
 
-- (GCFSTarget *)encodedTarget:(FSTQueryData *)queryData;
+- (GCFSTarget *)encodedTarget:(const local::QueryData &)queryData;
 
-- (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(FSTQuery *)query;
-- (FSTQuery *)decodedQueryFromDocumentsTarget:(GCFSTarget_DocumentsTarget *)target;
+- (GCFSTarget_DocumentsTarget *)encodedDocumentsTarget:(const core::Query &)query;
+- (core::Query)decodedQueryFromDocumentsTarget:(GCFSTarget_DocumentsTarget *)target;
 
-- (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query;
-- (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
+- (GCFSTarget_QueryTarget *)encodedQueryTarget:(const core::Query &)query;
+- (core::Query)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
 - (GCFSStructuredQuery_Filter *)encodedUnaryOrFieldFilter:(const core::FieldFilter &)filter;
-- (std::shared_ptr<core::FieldFilter>)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
-- (std::shared_ptr<core::FieldFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
+- (core::FieldFilter)decodedFieldFilter:(GCFSStructuredQuery_FieldFilter *)proto;
+- (core::FieldFilter)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto;
 
 - (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
 - (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;
@@ -133,14 +130,14 @@ NS_ASSUME_NONNULL_BEGIN
                                         key:(const model::DocumentKey &)key;
 
 /**
- * Encodes an FSTObjectValue into a dictionary.
+ * Encodes an ObjectValue into a dictionary.
  * @return a new dictionary that can be assigned to a field in another proto.
  */
 - (NSMutableDictionary<NSString *, GCFSValue *> *)encodedFields:(const model::ObjectValue &)value;
 
 - (model::ObjectValue)decodedFields:(NSDictionary<NSString *, GCFSValue *> *)fields;
 
-- (FSTMaybeDocument *)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
+- (model::MaybeDocument)decodedMaybeDocumentFromBatch:(GCFSBatchGetDocumentsResponse *)response;
 
 @end
 

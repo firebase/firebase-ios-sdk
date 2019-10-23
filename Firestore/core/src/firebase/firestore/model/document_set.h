@@ -24,24 +24,25 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-
-OBJC_CLASS(FSTDocument);
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class DocumentComparator : public util::FunctionComparator<FSTDocument*> {
+class DocumentComparator : public util::FunctionComparator<Document> {
  public:
-  using FunctionComparator<FSTDocument*>::FunctionComparator;
+  using FunctionComparator<Document>::FunctionComparator;
 
   static DocumentComparator ByKey();
+
+  // TODO(wilhuff): Remove this using statement
+  // This exists to put these two overloads on equal footing. Once the overload
+  // below is gone, this using statement can be removed as well.
+  using FunctionComparator<Document>::Compare;
 };
 
 /**
@@ -56,10 +57,10 @@ class DocumentSet : public immutable::SortedContainer {
    * The type of the main collection of documents in an DocumentSet.
    * @see sorted_set_.
    */
-  using SetType = immutable::SortedSet<FSTDocument*, DocumentComparator>;
+  using SetType = immutable::SortedSet<Document, DocumentComparator>;
 
   // STL container types
-  using value_type = FSTDocument*;
+  using value_type = Document;
   using const_iterator = SetType::const_iterator;
 
   /**
@@ -80,6 +81,10 @@ class DocumentSet : public immutable::SortedContainer {
   /** Returns true if this set contains a document with the given key. */
   bool ContainsKey(const DocumentKey& key) const;
 
+  const DocumentComparator& comparator() const {
+    return sorted_set_.comparator();
+  }
+
   SetType::const_iterator begin() const {
     return sorted_set_.begin();
   }
@@ -91,19 +96,19 @@ class DocumentSet : public immutable::SortedContainer {
    * Returns the document from this set with the given key if it exists or nil
    * if it doesn't.
    */
-  FSTDocument* _Nullable GetDocument(const DocumentKey& key) const;
+  absl::optional<Document> GetDocument(const DocumentKey& key) const;
 
   /**
    * Returns the first document in the set according to its built in ordering,
    * or nil if the set is empty.
    */
-  FSTDocument* _Nullable GetFirstDocument() const;
+  absl::optional<Document> GetFirstDocument() const;
 
   /**
    * Returns the last document in the set according to its built in ordering, or
    * nil if the set is empty.
    */
-  FSTDocument* _Nullable GetLastDocument() const;
+  absl::optional<Document> GetLastDocument() const;
 
   /**
    * Returns the index of the document with the provided key in the document
@@ -112,7 +117,7 @@ class DocumentSet : public immutable::SortedContainer {
   size_t IndexOf(const DocumentKey& key) const;
 
   /** Returns a new DocumentSet that contains the given document. */
-  DocumentSet insert(FSTDocument* _Nullable document) const;
+  DocumentSet insert(const absl::optional<Document>& document) const;
 
   /**
    * Returns a new DocumentSet that excludes any document associated with
@@ -155,7 +160,5 @@ inline bool operator!=(const DocumentSet& lhs, const DocumentSet& rhs) {
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_SET_H_

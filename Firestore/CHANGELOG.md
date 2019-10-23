@@ -1,4 +1,38 @@
 # Unreleased
+
+# v1.6.1
+- [fixed] Fix a race condition that could cause a segmentation fault during
+  client initialization.
+
+# v1.6.0
+- [feature] Added an `addSnapshotsInSyncListener()` method to
+  `FIRFirestore` that notifies you when all your snapshot listeners are
+  in sync with each other.
+
+# v1.5.1
+- [fixed] Fixed a memory access error discovered using the sanitizers in Xcode
+  11.
+
+# v1.5.0
+- [changed] Transactions now perform exponential backoff before retrying.
+  This means transactions on highly contended documents are more likely to
+  succeed.
+- [feature] Added a `waitForPendingWrites()` method to `FIRFirestore` class
+  which allows users to wait on a promise that resolves when all pending
+  writes are acknowledged by the Firestore backend.
+- [feature] Added a `terminate()` method to `FIRFirestore` which terminates
+  the instance, releasing any held resources. Once it completes, you can
+  optionally call `clearPersistence()` to wipe persisted Firestore data
+  from disk.
+
+# v1.4.5
+- [fixed] Fixed a crash that would happen when changing networks or going from
+  online to offline. (#3661).
+
+# v1.4.4
+- [changed] Internal improvements.
+
+# v1.4.3
 - [changed] Transactions are now more flexible. Some sequences of operations
   that were previously incorrectly disallowed are now allowed. For example,
   after reading a document that doesn't exist, you can now set it multiple
@@ -75,7 +109,7 @@
 - [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting
   is now enabled by default. Timestamp fields that read from a
   `FIRDocumentSnapshot` will be returned as `FIRTimestamp` objects instead of
-  `NSDate` objects. Update any code that expects to recive a `NSDate` object.
+  `NSDate` objects. Update any code that expects to receive an `NSDate` object.
   See [the reference
   documentation](https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled)
   for more details.

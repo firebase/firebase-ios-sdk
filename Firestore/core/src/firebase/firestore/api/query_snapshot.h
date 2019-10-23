@@ -25,13 +25,9 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-OBJC_CLASS(FSTQuery);
 
 namespace firebase {
 namespace firestore {
@@ -47,7 +43,7 @@ class QuerySnapshot {
   using Listener = std::unique_ptr<core::EventListener<QuerySnapshot>>;
 
   QuerySnapshot(std::shared_ptr<Firestore> firestore,
-                FSTQuery* query,
+                core::Query query,
                 core::ViewSnapshot&& snapshot,
                 SnapshotMetadata metadata);
 
@@ -71,7 +67,7 @@ class QuerySnapshot {
 
   Query query() const;
 
-  FSTQuery* internal_query() const;
+  const core::Query& internal_query() const;
 
   /**
    * Metadata about this snapshot, concerning its source and if it has local
@@ -96,7 +92,7 @@ class QuerySnapshot {
 
  private:
   std::shared_ptr<Firestore> firestore_;
-  objc::Handle<FSTQuery> internal_query_;
+  core::Query internal_query_;
   core::ViewSnapshot snapshot_;
   SnapshotMetadata metadata_;
 };
@@ -104,7 +100,5 @@ class QuerySnapshot {
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_QUERY_SNAPSHOT_H_

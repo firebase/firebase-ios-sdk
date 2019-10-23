@@ -48,7 +48,7 @@ class UnderlyingNSError : public PlatformError {
     return absl::make_unique<UnderlyingNSError>(error_);
   }
 
-  std::unique_ptr<PlatformError> WrapWith(FirestoreErrorCode code,
+  std::unique_ptr<PlatformError> WrapWith(Error code,
                                           std::string message) override {
     NSError* chain = MakeNSError(code, message, error_);
     return Create(chain);
@@ -69,13 +69,13 @@ namespace {
  */
 Status FromFirestoreNSError(NSError* error) {
   auto error_code = static_cast<int>(error.code);
-  HARD_ASSERT(error_code >= FirestoreErrorCode::Cancelled &&
-                  error_code <= FirestoreErrorCode::Unauthenticated,
-              "Unknown error code");
+  HARD_ASSERT(
+      error_code >= Error::Cancelled && error_code <= Error::Unauthenticated,
+      "Unknown error code");
 
   auto original = UnderlyingNSError::Create(error);
 
-  return Status(static_cast<FirestoreErrorCode>(error_code),
+  return Status(static_cast<Error>(error_code),
                 MakeString(error.localizedDescription))
       .WithPlatformError(std::move(original));
 }
@@ -103,13 +103,15 @@ Status Status::FromNSError(NSError* error) {
     error = error.userInfo[NSUnderlyingErrorKey];
   }
 
-  return Status{FirestoreErrorCode::Unknown,
+  return Status{Error::Unknown,
                 StringFormat("Unknown error: %s", original->error())}
       .WithPlatformError(std::move(original));
 }
 
 NSError* Status::ToNSError() const {
   if (ok()) return nil;
+  // Early exit because `state_` is moved.
+  if (IsMovedFrom()) return MakeNSError(code(), error_message());
 
   NSError* error = UnderlyingNSError::Recover(state_->platform_error);
   if (error) return error;

@@ -92,7 +92,7 @@ Each Firebase framework should register with Core in the `+load` method of the c
 `FIRLibrary`. This needs to happen at `+load` time because Core needs to resolve any
 dependencies before a class has a chance to be called by a developer (if called at all).
 
-```
+```obj-c
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
@@ -106,8 +106,8 @@ dependencies before a class has a chance to be called by a developer (if called 
   // Register with Core as a library. The version should be fetched from a constant defined
   // elsewhere, but that's not covered or relevant for this example.
   [FIRApp registerInternalLibrary:self
-                         withName:"fire-foo"
-                      withVersion:"1.0.0"];
+                         withName:@"fire-foo"
+                      withVersion:@"1.0.0"];
 }
 
 // TODO: Conform to `FIRLibrary`. See later sections for more information.
@@ -136,7 +136,7 @@ In this case, the framework is a "leaf node" since no other frameworks depend on
 it. It has a private, empty protocol that it uses to register with the container. Using Functions as
 an example:
 
-```
+```obj-c
 // FIRFunctions.m
 
 /// Empty protocol to register Functions as a component with Core.
@@ -150,8 +150,8 @@ an example:
 @implementation FIRFunctions
 
 + (void)load {
-  NSString *version = <# Fetch the version here #>;
-  [FIRApp registerInternalLibrary:self withName:"fire-fun" withVersion:version];
+  NSString *version = @"<# Fetch the version here #>";
+  [FIRApp registerInternalLibrary:self withName:@"fire-fun" withVersion:version];
 }
 
 /// The array of components to register with Core. Since Functions is a leaf node and
@@ -201,7 +201,7 @@ an example:
 This example will be very similar to the one above, but let's define a simple protocol that Auth
 could conform to and provide to other frameworks:
 
-```
+```obj-c
 // FIRAuthInterop.h in the FirebaseAuthInterop framework.
 
 @protocol FIRAuthInterop
@@ -210,7 +210,7 @@ could conform to and provide to other frameworks:
 @end
 ```
 
-```
+```obj-c
 // FIRAuth.m in the FirebaseAuth framework.
 
 /// Privately conform to the protocol for interop and component registration.
@@ -219,8 +219,8 @@ could conform to and provide to other frameworks:
 
 + (void)load {
   // Remember to register in +load!
-  NSString *version = <# Fetch the version here #>;
-  [FIRApp registerInternalLibrary:self withName:"fire-auth" withVersion:version];
+  NSString *version = @"<# Fetch the version here #>";
+  [FIRApp registerInternalLibrary:self withName:@"fire-auth" withVersion:version];
 }
 
 /// The components to register with Core.
@@ -251,7 +251,7 @@ Instead of directly providing an instance from the container, Firestore and simi
 create a "provider" that stores and creates instances with the required parameters. This means a
 single provider per `FIRApp`, but multiple instances are possible per provider.
 
-```
+```obj-c
 /// Provider protocol to register with Core.
 @protocol FSTFirestoreMultiDBProvider
 
@@ -269,7 +269,7 @@ single provider per `FIRApp`, but multiple instances are possible per provider.
 Instead of the Firestore class conforming to `FSTInstanceProvider`, the work can be done in a
 separate class to keep `Firestore.m` cleaner.
 
-```
+```obj-c
 /// A concrete implementation for FSTFirestoreMultiDBProvider to create Firestore instances.
 @interface FSTFirestoreComponent : NSObject <FSTFirestoreMultiDBProvider, FIRLibrary>
 
@@ -294,8 +294,8 @@ separate class to keep `Firestore.m` cleaner.
 
 + (void)load {
   // Remember to register in +load!
-  NSString *version = <# Fetch the version here #>;
-  [FIRApp registerInternalLibrary:self withName:"fire-fst" withVersion:version];
+  NSString *version = @"<# Fetch the version here #>";
+  [FIRApp registerInternalLibrary:self withName:@"fire-fst" withVersion:version];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
@@ -334,7 +334,7 @@ separate class to keep `Firestore.m` cleaner.
 
 All `Firestore.m` needs to do now is call the component container from the singleton calls:
 
-```
+```obj-c
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   id<FSTFirestoreMultiDBProvider> provider =
       FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
@@ -355,7 +355,7 @@ Functions above and add a dependency to `FIRAuthInterop` defined above.
 
 Before adding the dependency on `FIRAuthInterop`.
 
-```
+```obj-c
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
     ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
@@ -373,7 +373,7 @@ Before adding the dependency on `FIRAuthInterop`.
 
 After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
 
-```
+```obj-c
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
     ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
@@ -413,7 +413,7 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
 Based on the new constructor, Functions can now use the `auth` instance as defined by the
 protocol:
 
-```
+```obj-c
 NSString *userID = [auth getUserID];
 if (userID) {
   // Auth is available and a user is signed in!
@@ -434,7 +434,7 @@ In order to alleviate this, Auth could create a third private protocol
 becomes a dependency for each of those two components and returned in the component creation block.
 An abbreviated code sample:
 
-```
+```obj-c
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
   // Standard creation block to get an instance of Auth.

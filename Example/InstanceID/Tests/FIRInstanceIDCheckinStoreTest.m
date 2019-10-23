@@ -18,11 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import "FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
-#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"

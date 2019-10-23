@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDataMessageManager.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingTopicsCommon.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
-#import "FIRMessagingPubSubRegistrar.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingPubSubRegistrar.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60; // 2 minutes
@@ -131,7 +131,9 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (void)teardown {
-  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient000, @"");
+  if (![NSThread isMainThread]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient000, @"FIRMessagingClient should be called from main thread only.");
+  }
   self.stayConnected = NO;
 
   // Clear all the handlers
@@ -140,9 +142,8 @@ static NSUInteger FIRMessagingServerPort() {
   [self.connection teardown];
 
   // Stop all subscription requests
-    [self.registrar stopAllSubscriptionRequests];
+  [self.registrar stopAllSubscriptionRequests];
 
-  _FIRMessagingDevAssert(self.connection.state == kFIRMessagingConnectionNotConnected, @"Did not disconnect");
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -166,10 +167,7 @@ static NSUInteger FIRMessagingServerPort() {
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
-
-  _FIRMessagingDevAssert(handler != nil, @"Invalid handler to FIRMessaging subscribe");
-
-  FIRMessagingTopicOperationCompletion completion = ^void(NSError *error) {
+    FIRMessagingTopicOperationCompletion completion = ^void(NSError *error) {
     if (error) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001, @"Failed to subscribe to topic %@",
                               error);
@@ -182,7 +180,9 @@ static NSUInteger FIRMessagingServerPort() {
                                @"Successfully subscribed to topic %@", topic);
       }
     }
-    handler(error);
+    if (handler) {
+      handler(error);
+    }
   };
 
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
@@ -316,8 +316,6 @@ static NSUInteger FIRMessagingServerPort() {
 
   self.stayConnected = tryToConnectLater;
   [self.connection signOut];
-  _FIRMessagingDevAssert(self.connection.state == kFIRMessagingConnectionNotConnected,
-                @"FIRMessaging connection did not disconnect");
 
   // since we can disconnect while still trying to establish the connection it's required to
   // cancel all performSelectors else the object might be retained
@@ -421,8 +419,6 @@ static NSUInteger FIRMessagingServerPort() {
 - (void)setupConnection {
   NSString *host = FIRMessagingServerHost();
   NSUInteger port = FIRMessagingServerPort();
-  _FIRMessagingDevAssert([host length] > 0 && port != 0, @"Invalid port or host");
-
   if (self.connection != nil) {
     // if there is an old connection, explicitly sign it off.
     [self.connection signOut];
@@ -447,16 +443,19 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
-
+  NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
+  NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+  if (deviceAuthID.length == 0 || secretToken.length == 0 ||
+     !self.connection) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeClientInvalidState,
+              @"Invalid state to connect, deviceAuthID: %@, secretToken: %@, connection state: %ld",
+              deviceAuthID, secretToken, (long)self.connection.state);
+    return;
+  }
   // Do not re-sign in if there is already a connection in progress.
   if (self.connection.state != kFIRMessagingConnectionNotConnected) {
     return;
   }
-
-  _FIRMessagingDevAssert([FIRInstanceID instanceID].deviceAuthID.length > 0 &&
-                 [FIRInstanceID instanceID].secretToken.length > 0 &&
-                 self.connection != nil,
-                 @"Invalid state cannot connect");
 
   self.connectRetryCount = MIN(kMaxRetryExponent, self.connectRetryCount + 1);
   [self performSelector:@selector(didConnectTimeout)
@@ -466,9 +465,9 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (void)didConnectTimeout {
-  _FIRMessagingDevAssert(self.connection.state != kFIRMessagingConnectionSignedIn,
-                @"Invalid state for MCS connection");
-
+  if (self.connection.state == kFIRMessagingConnectionSignedIn) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeClientInvalidStateTimeout, @"Invalid state for connection timeout.");
+  }
   if (self.stayConnected) {
     [self.connection signOut];
     [self scheduleConnectRetry];

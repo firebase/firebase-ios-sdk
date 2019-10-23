@@ -16,35 +16,28 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
 
-#include <utility>
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
+
+SUPPRESS_COMMA_WARNINGS_BEGIN()
+#include "absl/time/clock.h"
+#include "absl/time/time.h"
+SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {
 namespace testutil {
 
-#if defined(_WIN32)
-#define timegm _mkgmtime
-
-#elif defined(__ANDROID__)
-// time.h doesn't necessarily define this properly, even though it's present
-// from API 12 and up.
-extern time_t timegm(struct tm*);
-#endif
+std::chrono::time_point<std::chrono::steady_clock, std::chrono::milliseconds>
+Now() {
+  return std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now());
+}
 
 time_point MakeTimePoint(
     int year, int month, int day, int hour, int minute, int second) {
-  struct std::tm tm {};
-  tm.tm_year = year - 1900;  // counts from 1900
-  tm.tm_mon = month - 1;     // counts from 0
-  tm.tm_mday = day;          // counts from 1
-  tm.tm_hour = hour;
-  tm.tm_min = minute;
-  tm.tm_sec = second;
-
-  // std::mktime produces a time value in local time, and conversion to GMT is
-  // not defined. timegm is nonstandard but widespread enough for our purposes.
-  time_t t = timegm(&tm);
-  return time_point::clock::from_time_t(t);
+  absl::CivilSecond ct(year, month, day, hour, minute, second);
+  absl::Time time = absl::FromCivil(ct, absl::UTCTimeZone());
+  return absl::ToChronoTime(time);
 }
 
 Timestamp MakeTimestamp(

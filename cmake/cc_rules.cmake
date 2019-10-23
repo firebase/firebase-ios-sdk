@@ -29,23 +29,7 @@ function(cc_library name)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
   if(ccl_HEADER_ONLY)
-    set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.cc")
-
-    if(NOT EXISTS ${__empty_header_only_file})
-      file(WRITE ${__empty_header_only_file}
-        "// Generated file that keeps header-only CMake libraries happy.
-
-        namespace firebase {
-
-        // single meaningless symbol
-        void ${name}_header_only_fakesym() {}
-
-        }  // namespace firebase
-        "
-      )
-    endif()
-
-    list(APPEND ccl_SOURCES ${__empty_header_only_file})
+    generate_dummy_source(${name} ccl_SOURCES)
   endif()
 
   maybe_remove_objc_sources(sources ${ccl_SOURCES})
@@ -60,7 +44,6 @@ function(cc_library name)
     ${FIREBASE_SOURCE_DIR}
   )
 
-  target_compile_options(${name} PRIVATE ${FIREBASE_CXX_FLAGS})
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
@@ -273,3 +256,97 @@ function(add_alias ALIAS_TARGET ACTUAL_TARGET)
     add_library(${ALIAS_TARGET} ALIAS ${ACTUAL_TARGET})
   endif()
 endfunction()
+
+# objc_framework(
+#   target
+#   HEADERS headers...
+#   SOURCES sources...
+#   INCLUDES inlude_directories...
+#   DEFINES macros...
+#   DEPENDS libraries...
+#   [EXCLUDE_FROM_ALL]
+# )
+#
+# Defines a new framework target with the given target name and parameters.
+#
+# If SOURCES is not included, a dummy file will be generated.
+function(objc_framework target)
+  if(APPLE)
+    set(flag EXCLUDE_FROM_ALL)
+    set(single VERSION)
+    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
+    cmake_parse_arguments(of "${flag}" "${single}" "${multi}" ${ARGN})
+
+    podspec_prep_headers(${target} ${of_HEADERS})
+
+    if (NOT cf_SOURCES)
+      generate_dummy_source(${target} of_SOURCES)
+    endif()
+
+    add_library(
+      ${target}
+      STATIC
+      ${of_SOURCES}
+    )
+
+    set_property(TARGET ${target} PROPERTY PUBLIC_HEADER ${of_HEADERS})
+    set_property(TARGET ${target} PROPERTY FRAMEWORK ON)
+    set_property(TARGET ${target} PROPERTY VERSION ${of_VERSION})
+
+    if(of_EXCLUDE_FROM_ALL)
+      set_property(
+        TARGET ${name}
+        PROPERTY EXCLUDE_FROM_ALL ON
+      )
+    endif()
+
+    target_compile_definitions(
+      ${target}
+      PUBLIC
+        ${of_DEFINES}
+    )
+
+    target_compile_options(
+      ${target}
+      INTERFACE
+        -F${CMAKE_CURRENT_BINARY_DIR}
+      PRIVATE
+        ${OBJC_FLAGS}
+        -fno-autolink
+        -Wno-unused-parameter
+    )
+
+    target_include_directories(
+      ${target}
+      PUBLIC ${PROJECT_BINARY_DIR}/Headers
+      PRIVATE ${of_INCLUDES}
+    )
+
+    target_link_libraries(
+      ${target} PUBLIC
+      ${of_DEPENDS}
+    )
+  endif()
+endfunction()
+
+# generate_dummy_source(name, sources_list)
+#
+# Generates a dummy source file containing a single symbol, suitable for use as
+# a source file in when defining a header-only library.
+#
+# Appends the generated source file name to the list named by sources_list.
+macro(generate_dummy_source name sources_list)
+  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.c")
+
+  if(NOT EXISTS ${__empty_header_only_file})
+    file(WRITE ${__empty_header_only_file}
+      "// Generated file that keeps header-only CMake libraries happy.
+
+      // single meaningless symbol
+      void ${name}_header_only_fakesym(void) {}
+      "
+    )
+  endif()
+
+  list(APPEND ${sources_list} ${__empty_header_only_file})
+endmacro()

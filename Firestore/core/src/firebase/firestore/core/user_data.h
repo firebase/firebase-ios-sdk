@@ -23,18 +23,25 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
-
-@class FSTMutation;
-@class FSTObjectValue;
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 namespace firebase {
 namespace firestore {
+namespace model {
+
+class Precondition;
+class Mutation;
+
+}  // namespace model
+
 namespace core {
+
+class ParseContext;
+class ParsedSetData;
+class ParsedUpdateData;
 
 /**
  * Represents what type of API method provided the data being parsed; useful for
@@ -55,10 +62,6 @@ enum class UserDataSource {
    */
   Argument,
 };
-
-class ParseContext;
-class ParsedSetData;
-class ParsedUpdateData;
 
 /**
  * Accumulates the side-effect results of parsing user input. These include:
@@ -112,9 +115,8 @@ class ParseAccumulator {
   /**
    * Adds a transformation for the given field path.
    */
-  void AddToFieldTransforms(
-      model::FieldPath field_path,
-      std::unique_ptr<model::TransformOperation> transform_operation);
+  void AddToFieldTransforms(model::FieldPath field_path,
+                            model::TransformOperation transform_operation);
 
   /**
    * Wraps the given `data` along with any accumulated field mask and transforms
@@ -180,7 +182,7 @@ class ParseAccumulator {
 class ParseContext {
  public:
   /**
-   * Initializes a FSTParseContext with the given source and path.
+   * Initializes a ParseContext with the given source and path.
    *
    * @param path A path within the object being parsed. This could be an empty
    * path (in which case the context represents the root of the data being
@@ -225,16 +227,15 @@ class ParseContext {
 
   std::string FieldDescription() const;
 
-  // Helpers to get a FSTParseContext for a child field.
+  // Helpers to get a ParseContext for a child field.
   ParseContext ChildContext(const std::string& field_name);
   ParseContext ChildContext(const model::FieldPath& field_path);
   ParseContext ChildContext(size_t array_index);
 
   void AddToFieldMask(model::FieldPath field_path);
 
-  void AddToFieldTransforms(
-      model::FieldPath field_path,
-      std::unique_ptr<model::TransformOperation> transform_operation);
+  void AddToFieldTransforms(model::FieldPath field_path,
+                            model::TransformOperation transform_operation);
 
  private:
   void ValidatePath() const;
@@ -266,7 +267,7 @@ class ParsedSetData {
    *
    * This method consumes the values stored in the ParsedSetData
    */
-  std::vector<FSTMutation*> ToMutations(
+  std::vector<model::Mutation> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 
@@ -299,7 +300,7 @@ class ParsedUpdateData {
    *
    * This method consumes the values stored in the ParsedUpdateData
    */
-  std::vector<FSTMutation*> ToMutations(
+  std::vector<model::Mutation> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 

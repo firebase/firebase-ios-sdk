@@ -18,6 +18,6 @@
 
 @interface FAtomicNumber : NSObject
 
-- (NSNumber *) getAndIncrement;
+- (NSNumber *)getAndIncrement;
 
 @end

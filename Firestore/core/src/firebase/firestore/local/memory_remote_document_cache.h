@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -29,47 +25,43 @@
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTLocalSerializer;
-@class FSTMaybeDocument;
-@class FSTMemoryLRUReferenceDelegate;
-@class FSTMemoryPersistence;
-@class FSTQuery;
-
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
+class MemoryLruReferenceDelegate;
+class MemoryPersistence;
+class Sizer;
+
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  explicit MemoryRemoteDocumentCache(FSTMemoryPersistence* persistence);
+  explicit MemoryRemoteDocumentCache(MemoryPersistence* persistence);
 
-  void Add(FSTMaybeDocument* document) override;
+  void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
 
-  FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) override;
-  model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::DocumentMap GetMatching(FSTQuery* query) override;
+  absl::optional<model::MaybeDocument> Get(
+      const model::DocumentKey& key) override;
+  model::OptionalMaybeDocumentMap GetAll(
+      const model::DocumentKeySet& keys) override;
+  model::DocumentMap GetMatching(const core::Query& query) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
-      FSTMemoryLRUReferenceDelegate* reference_delegate,
+      MemoryLruReferenceDelegate* reference_delegate,
       model::ListenSequenceNumber upper_bound);
 
-  size_t CalculateByteSize(FSTLocalSerializer* serializer);
+  int64_t CalculateByteSize(const Sizer& sizer);
 
  private:
   /** Underlying cache of documents. */
   model::MaybeDocumentMap docs_;
 
-  // This instance is owned by FSTMemoryPersistence; avoid a retain cycle.
-  __weak FSTMemoryPersistence* persistence_;
+  // This instance is owned by MemoryPersistence; avoid a retain cycle.
+  MemoryPersistence* persistence_;
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_

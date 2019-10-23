@@ -17,10 +17,13 @@
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
-#include <libkern/OSAtomic.h>
+#include <atomic>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Util/FSTClasses.h"
+
+using firebase::firestore::util::TimerId;
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
 @end
@@ -412,11 +415,15 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testIncrementTransactionally {
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
-  __block volatile int32_t started = 0;
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
 
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"count" : @(5.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -426,9 +433,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
           FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
           XCTAssertNil(*error);
-          int32_t nowStarted = OSAtomicIncrement32(&started);
+          (*counter)++;
           // Once all of the transactions have read, allow the first write.
-          if (nowStarted == total) {
+          if (*counter == total) {
             dispatch_semaphore_signal(writeBarrier);
           }
 
@@ -454,11 +461,15 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testUpdateTransactionally {
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
-  __block volatile int32_t started = 0;
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
 
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"count" : @(5.0), @"other" : @"yes"}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -466,11 +477,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
     XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
     [firestore
         runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+          int32_t nowStarted = ++(*counter);
           FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
           XCTAssertNil(*error);
-          int32_t nowStarted = OSAtomicIncrement32(&started);
-          // Once all of the transactions have read, allow the first write.
+          // Once all of the transactions have read, allow the first write. There should be 3
+          // initial transaction runs.
           if (nowStarted == total) {
+            XCTAssertEqual(3, (int)(*counter));
             dispatch_semaphore_signal(writeBarrier);
           }
 
@@ -488,6 +501,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   }
 
   [self awaitExpectations];
+  // There should be a maximum of 3 retries: once for the 2nd update, and twice for the 3rd update.
+  XCTAssertLessThanOrEqual((int)(*counter), 6);
   // Now all transaction should be completed, so check the result.
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(@(5.0 + total), snapshot[@"count"]);
@@ -500,6 +515,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
 
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -546,18 +564,26 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testReadingADocTwiceWithDifferentVersions {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
+
   [self writeDocumentRef:doc data:@{@"count" : @(15.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*counter);
         // Get the doc once.
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
         XCTAssertNil(*error);
-        XCTAssertEqualObjects(@(15), snapshot[@"count"]);
-        // Do a write outside of the transaction.
+        // Do a write outside of the transaction. Because the transaction will retry, set the
+        // document to a different value each time.
         dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
         [doc setData:@{
-          @"count" : @(1234)
+          @"count" : @(1234 + (int)(*counter))
         }
             completion:^(NSError *_Nullable error) {
               dispatch_semaphore_signal(writeSemaphore);
@@ -579,9 +605,6 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
       }];
   [self awaitExpectations];
-
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(@(1234.0), snapshot[@"count"]);
 }
 
 - (void)testReadAndUpdateNonExistentDocumentWithExternalWrite {
@@ -640,6 +663,31 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
+- (void)testDoesNotRetryOnPermanentError {
+  FIRFirestore *firestore = [self firestore];
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
+  // Make a transaction that should fail with a permanent error
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*counter);
+        // Get and update a document that doesn't exist so that the transaction fails.
+        FIRDocumentReference *doc =
+            [[firestore collectionWithPath:@"nonexistent"] documentWithAutoID];
+        [transaction getDocument:doc error:error];
+        [transaction updateData:@{@"count" : @(16)} forDocument:doc];
+        return nil;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+        XCTAssertEqual(1, (int)(*counter));
+      }];
+  [self awaitExpectations];
+}
+
 - (void)testSuccessWithNoTransactionOperations {
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
@@ -658,11 +706,12 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)testCancellationOnError {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
-  __block volatile int32_t count = 0;
+  auto counter_unique = absl::make_unique<std::atomic_int32_t>(0);
+  auto counter = counter_unique.get();
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        OSAtomicIncrement32(&count);
+        ++(*counter);
         [transaction setData:@{@"foo" : @"bar"} forDocument:doc];
         if (error) {
           *error = [NSError errorWithDomain:NSCocoaErrorDomain code:35 userInfo:@{}];
@@ -676,7 +725,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [expectation fulfill];
       }];
   [self awaitExpectations];
-  XCTAssertEqual(1, (int)count);
+  XCTAssertEqual(1, (int)(*counter));
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertFalse(snapshot.exists);
 }

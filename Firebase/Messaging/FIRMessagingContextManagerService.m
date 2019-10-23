@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingContextManagerService.h"
+#import "Firebase/Messaging/FIRMessagingContextManagerService.h"
 
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
@@ -44,6 +44,7 @@ NSString *const kFIRMessagingContextManagerCategoryKey =
 NSString *const kFIRMessagingContextManagerSoundKey = kFIRMessagingContextManagerNotificationKeyPrefix @"sound";
 NSString *const kFIRMessagingContextManagerContentAvailableKey =
     kFIRMessagingContextManagerNotificationKeyPrefix @"content-available";
+static NSString *const kFIRMessagingAPNSPayloadKey = @"aps";
 
 typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   FIRMessagingContextManagerMessageTypeNone,
@@ -77,19 +78,16 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 
 + (BOOL)handleContextManagerLocalTimeMessage:(NSDictionary *)message {
   NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
+  if (!startTimeString) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
+                              @"Invalid local start date format %@. Message dropped",
+                              startTimeString);
+    return NO;
+  }
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
   dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
   [dateFormatter setDateFormat:kLocalTimeFormatString];
   NSDate *startDate = [dateFormatter dateFromString:startTimeString];
-
-  _FIRMessagingDevAssert(startDate, @"Invalid local start date format %@", startTimeString);
-  if (!startTimeString) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
-                            @"Invalid local start date format %@. Message dropped",
-                            startTimeString);
-    return NO;
-  }
-
   NSDate *currentDate = [NSDate date];
 
   if ([currentDate compare:startDate] == NSOrderedAscending) {
@@ -106,8 +104,6 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     }
 
     NSDate *endDate = [dateFormatter dateFromString:endTimeString];
-
-    _FIRMessagingDevAssert(endDate, @"Invalid local end date format %@", endTimeString);
     if (!endTimeString) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService004,
                               @"Invalid local end date format %@. Message dropped", endTimeString);
@@ -153,7 +149,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
-#pragma pop
+#pragma clang diagnostic pop
     }
   }
 
@@ -179,7 +175,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (!application) {
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [application scheduleLocalNotification:notification];
+#pragma clang diagnostic pop
 #endif
 }
 
@@ -191,6 +190,11 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
       if ([keyString isEqualToString:kFIRMessagingContextManagerContentAvailableKey]) {
         continue;
       } else if ([keyString hasPrefix:kContextManagerPrefixKey]) {
+        continue;
+      } else if ([keyString isEqualToString:kFIRMessagingAPNSPayloadKey]) {
+        // Local timezone message is scheduled with FCM payload. APNS payload with
+        // content_available should be ignored and not passed to the scheduled
+        // messages.
         continue;
       }
     }

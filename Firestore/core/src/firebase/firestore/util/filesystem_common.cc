@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 using firebase::firestore::util::Path;
@@ -38,7 +39,7 @@ Status RecursivelyDeleteDir(const Path& parent) {
     }
   }
   if (!iter->status().ok()) {
-    if (iter->status().code() == FirestoreErrorCode::NotFound) {
+    if (iter->status().code() == Error::NotFound) {
       return Status::OK();
     }
     return iter->status();
@@ -50,7 +51,7 @@ Status RecursivelyDeleteDir(const Path& parent) {
 
 Status RecursivelyCreateDir(const Path& path) {
   Status result = detail::CreateDir(path);
-  if (result.ok() || result.code() != FirestoreErrorCode::NotFound) {
+  if (result.ok() || result.code() != Error::NotFound) {
     // Successfully created the directory, it already existed, or some other
     // unrecoverable error.
     return result;
@@ -70,15 +71,15 @@ Status RecursivelyCreateDir(const Path& path) {
 Status RecursivelyDelete(const Path& path) {
   Status status = IsDirectory(path);
   switch (status.code()) {
-    case FirestoreErrorCode::Ok:
+    case Error::Ok:
       return detail::RecursivelyDeleteDir(path);
 
-    case FirestoreErrorCode::FailedPrecondition:
+    case Error::FailedPrecondition:
       // Could be a file or something else. Attempt to delete it as a file
       // but otherwise allow that to fail if it's not a file.
       return detail::DeleteFile(path);
 
-    case FirestoreErrorCode::NotFound:
+    case Error::NotFound:
       return Status::OK();
 
     default:
@@ -91,7 +92,7 @@ StatusOr<std::string> ReadFile(const Path& path) {
   if (!file) {
     // TODO(varconst): more error details. This will require platform-specific
     // code, because `<iostream>` may not update `errno`.
-    return Status{FirestoreErrorCode::Unknown,
+    return Status{Error::Unknown,
                   StringFormat("File at path '%s' cannot be opened",
                                path.ToUtf8String())};
   }

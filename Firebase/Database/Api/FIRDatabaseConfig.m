@@ -22,23 +22,26 @@
 
 @interface FIRDatabaseConfig (Private)
 
-@property (nonatomic, strong, readwrite) NSString *sessionIdentifier;
+@property(nonatomic, strong, readwrite) NSString *sessionIdentifier;
 
 @end
 
 @implementation FIRDatabaseConfig
 
 - (id)init {
-    [NSException raise:NSInvalidArgumentException format:@"Can't create config objects!"];
+    [NSException raise:NSInvalidArgumentException
+                format:@"Can't create config objects!"];
     return nil;
 }
 
-- (id)initWithSessionIdentifier:(NSString *)identifier authTokenProvider:(id<FAuthTokenProvider>)authTokenProvider {
+- (id)initWithSessionIdentifier:(NSString *)identifier
+              authTokenProvider:(id<FAuthTokenProvider>)authTokenProvider {
     self = [super init];
     if (self != nil) {
         self->_sessionIdentifier = identifier;
         self->_callbackQueue = dispatch_get_main_queue();
-        self->_persistenceCacheSizeBytes = 10*1024*1024; // Default cache size is 10MB
+        self->_persistenceCacheSizeBytes =
+            10 * 1024 * 1024; // Default cache size is 10MB
         self->_authTokenProvider = authTokenProvider;
     }
     return self;
@@ -46,7 +49,9 @@
 
 - (void)assertUnfrozen {
     if (self.isFrozen) {
-        [NSException raise:NSGenericException format:@"Can't modify config objects after they are in use for FIRDatabaseReferences."];
+        [NSException raise:NSGenericException
+                    format:@"Can't modify config objects after they are in use "
+                           @"for FIRDatabaseReferences."];
     }
 }
 
@@ -63,11 +68,14 @@
 - (void)setPersistenceCacheSizeBytes:(NSUInteger)persistenceCacheSizeBytes {
     [self assertUnfrozen];
     // Can't be less than 1MB
-    if (persistenceCacheSizeBytes < 1024*1024) {
-        [NSException raise:NSInvalidArgumentException format:@"The minimum cache size must be at least 1MB"];
+    if (persistenceCacheSizeBytes < 1024 * 1024) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"The minimum cache size must be at least 1MB"];
     }
-    if (persistenceCacheSizeBytes > 100*1024*1024) {
-        [NSException raise:NSInvalidArgumentException format:@"Firebase Database currently doesn't support a cache size larger than 100MB"];
+    if (persistenceCacheSizeBytes > 100 * 1024 * 1024) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Firebase Database currently doesn't support a "
+                           @"cache size larger than 100MB"];
     }
     self->_persistenceCacheSizeBytes = persistenceCacheSizeBytes;
 }

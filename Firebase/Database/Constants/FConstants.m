@@ -22,7 +22,7 @@
 NSString *const kFWPRequestType = @"t";
 NSString *const kFWPRequestTypeData = @"d";
 NSString *const kFWPRequestDataPayload = @"d";
-NSString *const kFWPRequestNumber  = @"r";
+NSString *const kFWPRequestNumber = @"r";
 NSString *const kFWPRequestPayloadBody = @"b";
 NSString *const kFWPRequestError = @"error";
 NSString *const kFWPRequestAction = @"a";
@@ -40,7 +40,8 @@ NSString *const kFWPAsyncServerDataRangeMerge = @"rm";
 NSString *const kFWPAsyncServerAuthRevoked = @"ac";
 NSString *const kFWPASyncServerListenCancelled = @"c";
 NSString *const kFWPAsyncServerSecurityDebug = @"sd";
-NSString *const kFWPAsyncServerDataUpdateBodyPath = @"p"; // {“a”: “d”, “b”: {“p”: “/”, “d”: “<data>”}}
+NSString *const kFWPAsyncServerDataUpdateBodyPath =
+    @"p"; // {“a”: “d”, “b”: {“p”: “/”, “d”: “<data>”}}
 NSString *const kFWPAsyncServerDataUpdateBodyData = @"d";
 NSString *const kFWPAsyncServerDataUpdateStartPath = @"s";
 NSString *const kFWPAsyncServerDataUpdateEndPath = @"e";
@@ -69,7 +70,8 @@ NSString *const kFWPAsyncServerControlMessageReset = @"r";
 
 NSString *const kFWPRequestActionPut = @"p";
 NSString *const kFWPRequestActionMerge = @"m";
-NSString *const kFWPRequestActionListen = @"l"; // {"t": "d", "d": {"r": 1, "a": "l", "b": { "p": "/" } } }
+NSString *const kFWPRequestActionListen =
+    @"l"; // {"t": "d", "d": {"r": 1, "a": "l", "b": { "p": "/" } } }
 NSString *const kFWPRequestActionUnlisten = @"u";
 NSString *const kFWPRequestActionStats = @"s";
 NSString *const kFWPRequestActionTaggedListen = @"q";
@@ -143,7 +145,7 @@ NSString *const kServerValueSubKey = @".sv";
 NSString *const kServerValuePriority = @"timestamp";
 
 #pragma mark -
-#pragma mark .info/ constants
+#pragma mark.info/ constants
 
 NSString *const kDotInfoPrefix = @".info";
 NSString *const kDotInfoConnected = @"connected";

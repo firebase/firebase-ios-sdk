@@ -28,8 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
@@ -120,7 +119,7 @@ class Stream : public GrpcStreamObserver,
   };
 
   Stream(const std::shared_ptr<util::AsyncQueue>& worker_queue,
-         auth::CredentialsProvider* credentials_provider,
+         std::shared_ptr<auth::CredentialsProvider> credentials_provider,
          GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,
          util::TimerId idle_timer_id);
@@ -227,7 +226,7 @@ class Stream : public GrpcStreamObserver,
 
   std::unique_ptr<GrpcStream> grpc_stream_;
 
-  auth::CredentialsProvider* credentials_provider_ = nullptr;
+  std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   GrpcConnection* grpc_connection_ = nullptr;
 

@@ -24,21 +24,20 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Core/FSTQuery.h"
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::QuerySnapshot;
 using firebase::firestore::api::SnapshotMetadata;
-using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::util::DelayedConstructor;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,10 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
-                    originalQuery:(FSTQuery *)query
+                    originalQuery:(core::Query)query
                          snapshot:(ViewSnapshot &&)snapshot
                          metadata:(SnapshotMetadata)metadata {
-  QuerySnapshot wrapped(firestore, query, std::move(snapshot), std::move(metadata));
+  QuerySnapshot wrapped(firestore, std::move(query), std::move(snapshot), std::move(metadata));
   return [self initWithSnapshot:std::move(wrapped)];
 }
 

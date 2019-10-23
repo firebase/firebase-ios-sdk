@@ -18,8 +18,8 @@
 
 @interface FTreeNode : NSObject
 
-@property (nonatomic, strong) NSMutableDictionary* children;
-@property (nonatomic, readwrite, assign) int childCount;
-@property (nonatomic, strong) id value;
+@property(nonatomic, strong) NSMutableDictionary *children;
+@property(nonatomic, readwrite, assign) int childCount;
+@property(nonatomic, strong) id value;
 
 @end

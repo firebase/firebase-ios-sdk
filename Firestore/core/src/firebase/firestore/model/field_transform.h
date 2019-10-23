@@ -17,12 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_TRANSFORM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_TRANSFORM_H_
 
-#include <memory>
-#include <utility>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
 
 namespace firebase {
 namespace firestore {
@@ -31,35 +29,25 @@ namespace model {
 /** A field path and the TransformOperation to perform upon it. */
 class FieldTransform {
  public:
-  FieldTransform(FieldPath path,
-                 std::unique_ptr<TransformOperation> transformation) noexcept
-      : path_{std::move(path)}, transformation_{std::move(transformation)} {
-  }
+  FieldTransform(FieldPath path, TransformOperation transformation) noexcept;
 
   const FieldPath& path() const {
     return path_;
   }
 
   const TransformOperation& transformation() const {
-    return *transformation_.get();
+    return transformation_;
   }
 
-  bool operator==(const FieldTransform& other) const {
-    return path_ == other.path_ && *transformation_ == *other.transformation_;
-  }
+  bool operator==(const FieldTransform& other) const;
 
-#if defined(__OBJC__)
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
-  NSUInteger Hash() const {
-    return util::Hash(path_, transformation_->Hash());
-  }
-#endif  // defined(__OBJC__)
+  size_t Hash() const;
+
+  std::string ToString() const;
 
  private:
   FieldPath path_;
-  // Shared by copies of the same FieldTransform.
-  std::shared_ptr<const TransformOperation> transformation_;
+  TransformOperation transformation_;
 };
 
 }  // namespace model

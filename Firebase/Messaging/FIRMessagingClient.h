@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
 @class GULReachabilityChecker;
 @class GPBMessage;

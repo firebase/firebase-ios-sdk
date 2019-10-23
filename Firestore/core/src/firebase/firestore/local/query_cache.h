@@ -17,24 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <functional>
 #include <unordered_map>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-
-@class FSTQuery;
-@class FSTQueryData;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -43,15 +34,14 @@ namespace local {
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
 
-using TargetCallback = std::function<void(FSTQueryData*)>;
+using TargetCallback = std::function<void(const QueryData&)>;
 
 /**
  * Represents cached targets received from the remote backend. This contains
  * both a mapping between targets and the documents that matched them according
  * to the server, but also metadata about the targets.
  *
- * The cache is keyed by FSTQuery and entries in the cache are FSTQueryData
- * instances.
+ * The cache is keyed by Query and entries in the cache are QueryData instances.
  */
 class QueryCache {
  public:
@@ -66,39 +56,39 @@ class QueryCache {
    * The cache key is extracted from `queryData.query`. The key must not already
    * exist in the cache.
    *
-   * @param query_data A new FSTQueryData instance to put in the cache.
+   * @param query_data A new QueryData instance to put in the cache.
    */
-  virtual void AddTarget(FSTQueryData* query_data) = 0;
+  virtual void AddTarget(const QueryData& query_data) = 0;
 
   /**
    * Updates an entry in the cache.
    *
    * The cache key is extracted from `queryData.query`. The entry must already
    * exist in the cache, and it will be replaced.
-   * @param query_data An FSTQueryData instance to replace an existing entry in
-   * the cache
+   *
+   * @param query_data A QueryData instance to replace an existing entry in
+   *     the cache
    */
-  virtual void UpdateTarget(FSTQueryData* query_data) = 0;
+  virtual void UpdateTarget(const QueryData& query_data) = 0;
 
   /** Removes the cached entry for the given query data. The entry must already
    * exist in the cache. */
-  virtual void RemoveTarget(FSTQueryData* query_data) = 0;
+  virtual void RemoveTarget(const QueryData& query_data) = 0;
 
   /**
-   * Looks up an FSTQueryData entry in the cache.
+   * Looks up a QueryData entry in the cache.
    *
    * @param query The query corresponding to the entry to look up.
-   * @return The cached FSTQueryData entry, or nil if the cache has no entry for
-   * the query.
+   * @return The cached QueryData entry, or nullopt if the cache has no entry
+   * for the query.
    */
-  virtual FSTQueryData* _Nullable GetTarget(FSTQuery* query) = 0;
+  virtual absl::optional<QueryData> GetTarget(const core::Query& query) = 0;
 
   virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 
   virtual int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      const std::unordered_map<model::TargetId, FSTQueryData*>&
-          live_targets) = 0;
+      const std::unordered_map<model::TargetId, QueryData>& live_targets) = 0;
 
   // Key-related methods
   virtual void AddMatchingKeys(const model::DocumentKeySet& keys,
@@ -155,7 +145,5 @@ class QueryCache {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_CACHE_H_

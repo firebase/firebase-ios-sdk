@@ -16,14 +16,16 @@
 
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_lru_reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 using firebase::firestore::model::DocumentKey;
-
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::MemoryLruReferenceDelegate;
+using firebase::firestore::local::MemoryPersistenceWithLruGcForTesting;
+using firebase::firestore::local::Persistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,14 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryLRUGarbageCollectionTests
 
-- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
-  return [FSTPersistenceTestHelpers lruMemoryPersistenceWithLruParams:lruParams];
+- (std::unique_ptr<Persistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+  return MemoryPersistenceWithLruGcForTesting(lruParams);
 }
 
 - (BOOL)sentinelExists:(const DocumentKey &)key {
-  FSTMemoryLRUReferenceDelegate *delegate =
-      (FSTMemoryLRUReferenceDelegate *)self.persistence.referenceDelegate;
-  return [delegate isPinnedAtSequenceNumber:0 document:key];
+  auto delegate = static_cast<MemoryLruReferenceDelegate *>(self.persistence->reference_delegate());
+  return delegate->IsPinnedAtSequenceNumber(0, key);
 }
 
 @end

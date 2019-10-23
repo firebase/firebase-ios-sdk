@@ -29,24 +29,33 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
+namespace testutil = firebase::firestore::testutil;
+
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
+
+using testutil::Doc;
+using testutil::DocSet;
+using testutil::Map;
+using testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,21 +89,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIncludeMetadataChanges {
-  FSTDocument *doc1Old = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, DocumentState::kLocalMutations);
-  FSTDocument *doc1New = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, DocumentState::kSynced);
+  Document doc1Old = Doc("foo/bar", 1, Map("a", "b"), DocumentState::kLocalMutations);
+  Document doc1New = Doc("foo/bar", 1, Map("a", "b"), DocumentState::kSynced);
 
-  FSTDocument *doc2Old = FSTTestDoc("foo/baz", 1, @{@"a" : @"b"}, DocumentState::kSynced);
-  FSTDocument *doc2New = FSTTestDoc("foo/baz", 1, @{@"a" : @"c"}, DocumentState::kSynced);
+  Document doc2Old = Doc("foo/baz", 1, Map("a", "b"));
+  Document doc2New = Doc("foo/baz", 1, Map("a", "c"));
 
-  DocumentSet oldDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[ doc1Old, doc2Old ]);
-  DocumentSet newDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[ doc2New, doc2New ]);
+  DocumentSet oldDocuments = DocSet(DocumentComparator::ByKey(), {doc1Old, doc2Old});
+  DocumentSet newDocuments = DocSet(DocumentComparator::ByKey(), {doc2New, doc2New});
   std::vector<DocumentViewChange> documentChanges{
-      DocumentViewChange(doc1New, DocumentViewChange::Type::kMetadata),
-      DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),
+      DocumentViewChange(doc1New, DocumentViewChange::Type::Metadata),
+      DocumentViewChange(doc2New, DocumentViewChange::Type::Modified),
   };
 
   std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
-  FSTQuery *query = FSTTestQuery("foo");
+  core::Query query = Query("foo");
   ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,
@@ -106,8 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                   snapshot:std::move(viewSnapshot)
                                                                   metadata:std::move(metadata)];
 
-  DocumentSnapshot doc1Snap(firestore, doc1New.key, doc1New, SnapshotMetadata());
-  DocumentSnapshot doc2Snap(firestore, doc2New.key, doc2New, SnapshotMetadata());
+  DocumentSnapshot doc1Snap(firestore, doc1New.key(), doc1New, SnapshotMetadata());
+  DocumentSnapshot doc2Snap(firestore, doc2New.key(), doc2New, SnapshotMetadata());
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
     [[FIRDocumentChange alloc]

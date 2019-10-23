@@ -14,9 +14,15 @@
 
 #include <sys/utsname.h>
 
-#import "FIRApp.h"
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+#if __has_include(<AppKit/AppKit.h>)
+#import <AppKit/AppKit.h>
+#endif
+
+#import "FIRApp.h"
 
 #import "Private/FIRAnalyticsConfiguration.h"
 #import "Private/FIRAppInternal.h"
@@ -185,6 +191,10 @@ static NSMutableDictionary *sLibraryVersions;
     }
 
     [FIRApp addAppToAppDictionary:app];
+
+    // The FIRApp instance is ready to go, `sDefaultApp` is assigned, other SDKs are now ready to be
+    // instantiated.
+    [app.container instantiateEagerComponents];
     [FIRApp sendNotificationsToSDKs:app];
   }
 }
@@ -283,15 +293,17 @@ static NSMutableDictionary *sLibraryVersions;
   return self;
 }
 
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
     return NO;
   }
 
-  if ([self isDataCollectionDefaultEnabled]) {
-    [FIRCoreDiagnosticsConnector logConfigureCoreWithOptions:_options];
-  }
+  [self logCoreTelemetryIfEnabled];
 
 #if TARGET_OS_IOS
   // Initialize the Analytics once there is a valid options under default app. Analytics should
@@ -315,6 +327,8 @@ static NSMutableDictionary *sLibraryVersions;
     }
   }
 #endif
+
+  [self subscribeForAppDidBecomeActiveNotifications];
 
   return YES;
 }
@@ -342,7 +356,7 @@ static NSMutableDictionary *sLibraryVersions;
   }
 
   // Check if the Analytics flag is explicitly set. If so, no further actions are necessary.
-  if ([self.options isAnalyticsCollectionExpicitlySet]) {
+  if ([self.options isAnalyticsCollectionExplicitlySet]) {
     return;
   }
 
@@ -795,5 +809,32 @@ static NSMutableDictionary *sLibraryVersions;
   // Do nothing. Please remove calls to this method.
 }
 #pragma clang diagnostic pop
+
+#pragma mark - App Life Cycle
+
+- (void)subscribeForAppDidBecomeActiveNotifications {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
+#endif
+
+#if TARGET_OS_OSX
+  NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
+#endif
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appDidBecomeActive:)
+                                               name:notificationName
+                                             object:nil];
+}
+
+- (void)appDidBecomeActive:(NSNotification *)notification {
+  [self logCoreTelemetryIfEnabled];
+}
+
+- (void)logCoreTelemetryIfEnabled {
+  if ([self isDataCollectionDefaultEnabled]) {
+    [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:_options];
+  }
+}
 
 @end

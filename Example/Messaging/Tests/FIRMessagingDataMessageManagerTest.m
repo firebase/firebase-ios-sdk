@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Protos/GtalkCore.pbobjc.h"
-
-#import "FIRMessaging.h"
-#import "FIRMessagingClient.h"
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingDataMessageManager.h"
-#import "FIRMessagingReceiver.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingSyncMessageManager.h"
-#import "FIRMessagingUtilities.h"
-#import "FIRMessaging_Private.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingReceiver.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kMessagePersistentID = @"abcdef123";
 static NSString *const kMessageFrom = @"com.example.gcm";
@@ -48,6 +47,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 
 - (NSString *)categoryForUpstreamMessages;
+
+@end
+
+@interface FIRMessagingRmqManager (ExposedForTest)
+
+- (void)removeDatabase;
 
 @end
 
@@ -79,6 +84,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 }
 
+-(void)tearDown {
+    if (_dataMessageManager.rmq2Manager) {
+        [_dataMessageManager.rmq2Manager removeDatabase];
+    }
+    [super tearDown];
+}
 
 - (void)testSendValidMessage_withNoConnection {
   // mock no connection initially
@@ -478,7 +489,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
 
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   FIRMessagingRmqManager *newRmqManager =
       [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
   [newRmqManager loadRmqId];
@@ -536,7 +546,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // Set a fake, valid bundle identifier
   [[[self.mockDataMessageManager stub] andReturn:@"gcm-dmm-test"] categoryForUpstreamMessages];
 
-  [FIRMessagingRmqManager removeDatabaseWithName:kRmqDatabaseName];
   FIRMessagingRmqManager *newRmqManager =
       [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
   [newRmqManager loadRmqId];

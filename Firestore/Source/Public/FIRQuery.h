@@ -26,6 +26,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * A block type used to handle failable snapshot method callbacks.
+ */
 typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
                                       NSError *_Nullable error);
 

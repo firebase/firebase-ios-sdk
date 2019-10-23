@@ -20,35 +20,30 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-using nanopb::ByteString;
+using util::Status;
 
-using firebase::firestore::util::Status;
-
-Reader::Reader(const ByteString& bytes) : Reader(bytes.data(), bytes.size()) {
+StringReader::StringReader(const ByteString& bytes)
+    : StringReader(bytes.data(), bytes.size()) {
 }
 
-Reader::Reader(const std::vector<uint8_t>& bytes)
-    : Reader(bytes.data(), bytes.size()) {
+StringReader::StringReader(const std::vector<uint8_t>& bytes)
+    : StringReader(bytes.data(), bytes.size()) {
 }
 
-Reader::Reader(const uint8_t* bytes, size_t size)
+StringReader::StringReader(const uint8_t* bytes, size_t size)
     : stream_(pb_istream_from_buffer(bytes, size)) {
 }
 
-Reader::Reader(absl::string_view str)
-    : Reader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
+StringReader::StringReader(absl::string_view str)
+    : StringReader(reinterpret_cast<const uint8_t*>(str.data()), str.size()) {
 }
 
-void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
-  if (!status_.ok()) return;
+void StringReader::Read(const pb_field_t fields[], void* dest_struct) {
+  if (!ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {
     Fail(PB_GET_ERROR(&stream_));
   }
-}
-
-void Reader::FreeNanopbMessage(const pb_field_t fields[], void* dest_struct) {
-  pb_release(fields, dest_struct);
 }
 
 }  // namespace nanopb

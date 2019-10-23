@@ -39,33 +39,34 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
-    case cacheEnabled
+    case buildRoot
+    case carthageDir
     case customSpecRepos
-    case coreDiagnosticsDir
-    case deleteCache
     case existingVersions
     case outputDir
     case releasingSDKs
+    case rc
     case templateDir
     case updatePodRepo
 
     /// Usage description for the key.
     var usage: String {
       switch self {
-      case .cacheEnabled:
-        return "A flag to control using the cache for frameworks."
-      case .coreDiagnosticsDir:
-        return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
+      case .buildRoot:
+        return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
+          "used."
+      case .carthageDir:
+        return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
+          "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
-      case .deleteCache:
-        return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
-          "set, it will fail since that's probably unintended."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
       case .outputDir:
         return "The directory to copy the built Zip file to."
+      case .rc:
+        return "The release candidate number, zero indexed."
       case .releasingSDKs:
         return "The file path to a textproto file containing all the releasing SDKs, of type " +
           "`ZipBuilder_Release`."
@@ -82,8 +83,12 @@ struct LaunchArgs {
   /// verify expected version numbers.
   let allSDKsPath: URL?
 
-  /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
-  let coreDiagnosticsDir: URL
+  /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
+  let buildRoot: URL?
+
+  /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
+  /// build.
+  let carthageDir: URL?
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
@@ -101,14 +106,14 @@ struct LaunchArgs {
   /// based frameworks.
   let templateDir: URL
 
-  /// A flag to control using the cache for frameworks.
-  let cacheEnabled: Bool
-
-  /// A flag to delete the cache from the cache directory.
-  let deleteCache: Bool
+  /// The release candidate number, zero indexed.
+  let rcNumber: Int?
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The shared instance for processing launch args using default arguments.
+  static let shared: LaunchArgs = LaunchArgs()
 
   /// Initializes with values pulled from the instance of UserDefaults passed in.
   ///
@@ -129,14 +134,6 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
-
-    // Parse the path to CoreDiagnostics.framework.
-    guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsDir.rawValue) else {
-      LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.coreDiagnosticsDir)` for the " +
-        "path to the CoreDiagnostics framework.")
-    }
-
-    coreDiagnosticsDir = URL(fileURLWithPath: diagnosticsPath)
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
@@ -180,6 +177,18 @@ struct LaunchArgs {
       outputDir = nil
     }
 
+    // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore
+    // it and don't fail since we can append something else to the filenames.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue),
+      !rcFlag.isEmpty,
+      let parsedFlag = Int(rcFlag) {
+      print("Parsed release candidate version number \(parsedFlag).")
+      rcNumber = parsedFlag
+    } else {
+      print("Did not parse a release candidate version number.")
+      rcNumber = nil
+    }
+
     // Parse the custom specs key.
     if let customSpecs = defaults.string(forKey: Key.customSpecRepos.rawValue) {
       // Custom specs are passed in as a comma separated list of URLs. Split the String by each
@@ -198,17 +207,35 @@ struct LaunchArgs {
       customSpecRepos = nil
     }
 
-    updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+    // Parse the Carthage directory key.
+    if let carthagePath = defaults.string(forKey: Key.carthageDir.rawValue) {
+      let url = URL(fileURLWithPath: carthagePath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.carthageDir) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(carthagePath)")
+      }
 
-    // Parse the cache keys. If no value is provided for each, it defaults to `false`.
-    cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
-    deleteCache = defaults.bool(forKey: Key.deleteCache.rawValue)
-
-    if deleteCache, cacheEnabled {
-      LaunchArgs.exitWithUsageAndLog("Invalid pair - attempted to delete the cache and enable " +
-        "it at the same time. Please remove on of the keys and try " +
-        "again.")
+      carthageDir = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      carthageDir = nil
     }
+
+    // Parse the Build Root key.
+    if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
+      let url = URL(fileURLWithPath: buildRoot)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.buildRoot) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(buildRoot)")
+      }
+
+      self.buildRoot = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      buildRoot = nil
+    }
+
+    updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
   }
 
   /// Prints an error that occurred, the proper usage String, and quits the application.

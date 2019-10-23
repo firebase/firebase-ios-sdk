@@ -31,32 +31,51 @@
 #import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
+using firebase::firestore::local::QueryData;
+using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationBatch;
+using firebase::firestore::model::NoDocument;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::UnknownDocument;
+using firebase::firestore::nanopb::ByteString;
+using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::testutil::Field;
+using firebase::firestore::testutil::Query;
 using firebase::firestore::testutil::Version;
+
+using testutil::DeletedDoc;
+using testutil::Doc;
+using testutil::Key;
+using testutil::Map;
+using testutil::UnknownDoc;
+using testutil::WrapObject;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,22 +94,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMutationBatch {
-  FSTMutation *base = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                                  fieldMask:FieldMask{Field("a")}
-                                                      value:FSTTestObjectValue(@{@"a" : @"b"})
-                                               precondition:Precondition::Exists(true)];
-  FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
-  FSTMutation *patch =
-      [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                  fieldMask:FieldMask{Field("a")}
-                                      value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
-                               precondition:Precondition::Exists(true)];
-  FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
+  Mutation base = PatchMutation(Key("bar/baz"), WrapObject("a", "b"), FieldMask{Field("a")},
+                                Precondition::Exists(true));
+
+  Mutation set = testutil::SetMutation("foo/bar", Map("a", "b", "num", 1));
+  Mutation patch = PatchMutation(Key("bar/baz"), WrapObject("a", "b", "num", 1),
+                                 FieldMask{Field("a")}, Precondition::Exists(true));
+  Mutation del = testutil::DeleteMutation("baz/quux");
+
   Timestamp writeTime = Timestamp::Now();
-  FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
-                                                       localWriteTime:writeTime
-                                                        baseMutations:{base}
-                                                            mutations:{set, patch, del}];
+  MutationBatch model = MutationBatch(42, writeTime, {base}, {set, patch, del});
 
   GCFSWrite *baseProto = [GCFSWrite message];
   baseProto.update.name = @"projects/p/databases/d/documents/bar/baz";
@@ -130,16 +143,16 @@ NS_ASSUME_NONNULL_BEGIN
   batchProto.localWriteTime = writeTimeProto;
 
   XCTAssertEqualObjects([self.serializer encodedMutationBatch:model], batchProto);
-  FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
-  XCTAssertEqual(decoded.batchID, model.batchID);
-  XCTAssertEqual(decoded.localWriteTime, model.localWriteTime);
-  FSTAssertEqualVectors(decoded.baseMutations, model.baseMutations);
-  FSTAssertEqualVectors(decoded.mutations, model.mutations);
-  XCTAssertEqual([decoded keys], [model keys]);
+  MutationBatch decoded = [self.serializer decodedMutationBatch:batchProto];
+  XCTAssertEqual(decoded.batch_id(), model.batch_id());
+  XCTAssertEqual(decoded.local_write_time(), model.local_write_time());
+  XCTAssertEqual(decoded.base_mutations(), model.base_mutations());
+  XCTAssertEqual(decoded.mutations(), model.mutations());
+  XCTAssertEqual(decoded.keys(), model.keys());
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, DocumentState::kSynced);
+  Document doc = Doc("some/path", 42, Map("foo", "bar"));
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
@@ -151,12 +164,12 @@ NS_ASSUME_NONNULL_BEGIN
   maybeDocProto.document.updateTime.nanos = 42000;
 
   XCTAssertEqualObjects([self.serializer encodedMaybeDocument:doc], maybeDocProto);
-  FSTMaybeDocument *decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
-  XCTAssertEqualObjects(decoded, doc);
+  MaybeDocument decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
+  XCTAssertEqual(decoded, doc);
 }
 
 - (void)testEncodesUnknownDocumentAsMaybeDocument {
-  FSTUnknownDocument *doc = FSTTestUnknownDoc("some/path", 42);
+  UnknownDocument doc = UnknownDoc("some/path", 42);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.unknownDocument = [FSTPBUnknownDocument message];
@@ -166,12 +179,12 @@ NS_ASSUME_NONNULL_BEGIN
   maybeDocProto.hasCommittedMutations = true;
 
   XCTAssertEqualObjects([self.serializer encodedMaybeDocument:doc], maybeDocProto);
-  FSTMaybeDocument *decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
-  XCTAssertEqualObjects(decoded, doc);
+  MaybeDocument decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
+  XCTAssertEqual(decoded, doc);
 }
 
 - (void)testEncodesDeletedDocumentAsMaybeDocument {
-  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42, false);
+  NoDocument deletedDoc = DeletedDoc("some/path", 42);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.noDocument = [FSTPBNoDocument message];
@@ -180,22 +193,17 @@ NS_ASSUME_NONNULL_BEGIN
   maybeDocProto.noDocument.readTime.nanos = 42000;
 
   XCTAssertEqualObjects([self.serializer encodedMaybeDocument:deletedDoc], maybeDocProto);
-  FSTMaybeDocument *decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
-  XCTAssertEqualObjects(decoded, deletedDoc);
+  MaybeDocument decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
+  XCTAssertEqual(decoded, deletedDoc);
 }
 
 - (void)testEncodesQueryData {
-  FSTQuery *query = FSTTestQuery("room");
+  core::Query query = Query("room");
   TargetId targetID = 42;
   SnapshotVersion version = Version(1039);
-  NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);
+  ByteString resumeToken = testutil::ResumeToken(1039);
 
-  FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                       targetID:targetID
-                                           listenSequenceNumber:10
-                                                        purpose:FSTQueryPurposeListen
-                                                snapshotVersion:version
-                                                    resumeToken:resumeToken];
+  QueryData queryData(query, targetID, 10, QueryPurpose::Listen, version, resumeToken);
 
   // Let the RPC serializer test various permutations of query serialization.
   GCFSTarget_QueryTarget *queryTarget = [self.remoteSerializer encodedQueryTarget:query];
@@ -204,13 +212,13 @@ NS_ASSUME_NONNULL_BEGIN
   expected.targetId = targetID;
   expected.lastListenSequenceNumber = 10;
   expected.snapshotVersion.nanos = 1039000;
-  expected.resumeToken = [resumeToken copy];
+  expected.resumeToken = MakeNullableNSData(resumeToken);
   expected.query.parent = queryTarget.parent;
   expected.query.structuredQuery = queryTarget.structuredQuery;
 
   XCTAssertEqualObjects([self.serializer encodedQueryData:queryData], expected);
-  FSTQueryData *decoded = [self.serializer decodedQueryData:expected];
-  XCTAssertEqualObjects(decoded, queryData);
+  QueryData decoded = [self.serializer decodedQueryData:expected];
+  XCTAssertEqual(decoded, queryData);
 }
 
 @end

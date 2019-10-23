@@ -18,10 +18,10 @@
 
 #import "FUtilities.h"
 
-@interface FPath()
+@interface FPath ()
 
-@property (nonatomic, readwrite, assign) NSInteger pieceNum;
-@property (nonatomic, strong) NSArray * pieces;
+@property(nonatomic, readwrite, assign) NSInteger pieceNum;
+@property(nonatomic, strong) NSArray *pieces;
 
 @end
 
@@ -30,25 +30,29 @@
 #pragma mark -
 #pragma mark Initializers
 
-+ (FPath *) relativePathFrom:(FPath *)outer to:(FPath *)inner {
-    NSString* outerFront = [outer getFront];
-    NSString* innerFront = [inner getFront];
++ (FPath *)relativePathFrom:(FPath *)outer to:(FPath *)inner {
+    NSString *outerFront = [outer getFront];
+    NSString *innerFront = [inner getFront];
     if (outerFront == nil) {
         return inner;
     } else if ([outerFront isEqualToString:innerFront]) {
         return [self relativePathFrom:[outer popFront] to:[inner popFront]];
     } else {
-        @throw [[NSException alloc] initWithName:@"FirebaseDatabaseInternalError" reason:[NSString stringWithFormat:@"innerPath (%@) is not within outerPath (%@)", inner, outer] userInfo:nil];
+        @throw [[NSException alloc]
+            initWithName:@"FirebaseDatabaseInternalError"
+                  reason:[NSString
+                             stringWithFormat:
+                                 @"innerPath (%@) is not within outerPath (%@)",
+                                 inner, outer]
+                userInfo:nil];
     }
 }
 
-+ (FPath *)pathWithString:(NSString *)string
-{
++ (FPath *)pathWithString:(NSString *)string {
     return [[FPath alloc] initWith:string];
 }
 
-- (id)initWith:(NSString *)path
-{
+- (id)initWith:(NSString *)path {
     self = [super init];
     if (self) {
         NSArray *pathPieces = [path componentsSeparatedByString:@"/"];
@@ -75,8 +79,7 @@
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
-{
+- (id)copyWithZone:(NSZone *)zone {
     // Immutable, so it's safe to return self
     return self;
 }
@@ -88,21 +91,21 @@
 #pragma mark -
 #pragma mark Public methods
 
-- (NSString *) getFront {
-    if(self.pieceNum >= self.pieces.count) {
+- (NSString *)getFront {
+    if (self.pieceNum >= self.pieces.count) {
         return nil;
     }
     return [self.pieces objectAtIndex:self.pieceNum];
 }
 
 /**
-* @return The number of segments in this path
-*/
-- (NSUInteger) length {
+ * @return The number of segments in this path
+ */
+- (NSUInteger)length {
     return self.pieces.count - self.pieceNum;
 }
 
-- (FPath *) popFront {
+- (FPath *)popFront {
     NSInteger newPieceNum = self.pieceNum;
     if (newPieceNum < self.pieces.count) {
         newPieceNum++;
@@ -110,26 +113,25 @@
     return [[FPath alloc] initWithPieces:self.pieces andPieceNum:newPieceNum];
 }
 
-- (NSString *) getBack {
-    if(self.pieceNum < self.pieces.count) {
+- (NSString *)getBack {
+    if (self.pieceNum < self.pieces.count) {
         return [self.pieces lastObject];
-    }
-    else {
+    } else {
         return nil;
     }
 }
 
-- (NSString *) toString {
+- (NSString *)toString {
     return [self toStringWithTrailingSlash:NO];
 }
 
-- (NSString *) toStringWithTrailingSlash {
+- (NSString *)toStringWithTrailingSlash {
     return [self toStringWithTrailingSlash:YES];
 }
 
-- (NSString *) toStringWithTrailingSlash:(BOOL)trailingSlash {
-    NSMutableString* pathString = [[NSMutableString alloc] init];
-    for(NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
+- (NSString *)toStringWithTrailingSlash:(BOOL)trailingSlash {
+    NSMutableString *pathString = [[NSMutableString alloc] init];
+    for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
         [pathString appendString:@"/"];
         [pathString appendString:[self.pieces objectAtIndex:i]];
     }
@@ -147,7 +149,7 @@
     if ([self isEmpty]) {
         return @"/";
     } else {
-        NSMutableString* pathString = [[NSMutableString alloc] init];
+        NSMutableString *pathString = [[NSMutableString alloc] init];
         for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
             if (i > self.pieceNum) {
                 [pathString appendString:@"/"];
@@ -158,11 +160,11 @@
     }
 }
 
-- (FPath *) parent {
-    if(self.pieceNum >= self.pieces.count) {
+- (FPath *)parent {
+    if (self.pieceNum >= self.pieces.count) {
         return nil;
     } else {
-        NSMutableArray* newPieces = [[NSMutableArray alloc] init];
+        NSMutableArray *newPieces = [[NSMutableArray alloc] init];
         for (NSInteger i = self.pieceNum; i < self.pieces.count - 1; i++) {
             [newPieces addObject:[self.pieces objectAtIndex:i]];
         }
@@ -170,13 +172,14 @@
     }
 }
 
-- (FPath *) child:(FPath *)childPathObj {
-    NSMutableArray* newPieces = [[NSMutableArray alloc] init];
+- (FPath *)child:(FPath *)childPathObj {
+    NSMutableArray *newPieces = [[NSMutableArray alloc] init];
     for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
         [newPieces addObject:[self.pieces objectAtIndex:i]];
     }
 
-    for (NSInteger i = childPathObj.pieceNum; i < childPathObj.pieces.count; i++) {
+    for (NSInteger i = childPathObj.pieceNum; i < childPathObj.pieces.count;
+         i++) {
         [newPieces addObject:[childPathObj.pieces objectAtIndex:i]];
     }
 
@@ -184,7 +187,7 @@
 }
 
 - (FPath *)childFromString:(NSString *)childPath {
-    NSMutableArray* newPieces = [[NSMutableArray alloc] init];
+    NSMutableArray *newPieces = [[NSMutableArray alloc] init];
     for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
         [newPieces addObject:[self.pieces objectAtIndex:i]];
     }
@@ -201,25 +204,25 @@
 }
 
 /**
-* @return True if there are no segments in this path
-*/
-- (BOOL) isEmpty {
+ * @return True if there are no segments in this path
+ */
+- (BOOL)isEmpty {
     return self.pieceNum >= self.pieces.count;
 }
 
 /**
-* @return Singleton to represent an empty path
-*/
-+ (FPath *) empty {
+ * @return Singleton to represent an empty path
+ */
++ (FPath *)empty {
     static dispatch_once_t oneEmptyPath;
     static FPath *emptyPath;
     dispatch_once(&oneEmptyPath, ^{
-        emptyPath = [[FPath alloc] initWith:@""];
+      emptyPath = [[FPath alloc] initWith:@""];
     });
     return emptyPath;
 }
 
-- (BOOL) contains:(FPath *)other {
+- (BOOL)contains:(FPath *)other {
     if (self.length > other.length) {
         return NO;
     }
@@ -227,8 +230,8 @@
     NSInteger i = self.pieceNum;
     NSInteger j = other.pieceNum;
     while (i < self.pieces.count) {
-        NSString* thisSeg = [self.pieces objectAtIndex:i];
-        NSString* otherSeg = [other.pieces objectAtIndex:j];
+        NSString *thisSeg = [self.pieces objectAtIndex:i];
+        NSString *otherSeg = [other.pieces objectAtIndex:j];
         if (![thisSeg isEqualToString:otherSeg]) {
             return NO;
         }
@@ -238,18 +241,20 @@
     return YES;
 }
 
-- (void) enumerateComponentsUsingBlock:(void (^)(NSString *, BOOL *))block {
+- (void)enumerateComponentsUsingBlock:(void (^)(NSString *, BOOL *))block {
     BOOL stop = NO;
     for (NSInteger i = self.pieceNum; !stop && i < self.pieces.count; i++) {
         block(self.pieces[i], &stop);
     }
 }
 
-- (NSComparisonResult) compare:(FPath *)other {
+- (NSComparisonResult)compare:(FPath *)other {
     NSInteger myCount = self.pieces.count;
     NSInteger otherCount = other.pieces.count;
-    for (NSInteger i = self.pieceNum, j = other.pieceNum; i < myCount && j < otherCount; i++, j++) {
-        NSComparisonResult comparison = [FUtilities compareKey:self.pieces[i] toKey:other.pieces[j]];
+    for (NSInteger i = self.pieceNum, j = other.pieceNum;
+         i < myCount && j < otherCount; i++, j++) {
+        NSComparisonResult comparison = [FUtilities compareKey:self.pieces[i]
+                                                         toKey:other.pieces[j]];
         if (comparison != NSOrderedSame) {
             return comparison;
         }
@@ -259,16 +264,16 @@
     } else if (other.length < self.length) {
         return NSOrderedDescending;
     } else {
-        NSAssert(self.length == other.length, @"Paths must be the same lengths");
+        NSAssert(self.length == other.length,
+                 @"Paths must be the same lengths");
         return NSOrderedSame;
     }
 }
 
 /**
-* @return YES if paths are the same
-*/
-- (BOOL)isEqual:(id)other
-{
+ * @return YES if paths are the same
+ */
+- (BOOL)isEqual:(id)other {
     if (other == self) {
         return YES;
     }
@@ -279,7 +284,8 @@
     if (self.length != otherPath.length) {
         return NO;
     }
-    for (NSUInteger i = self.pieceNum, j = otherPath.pieceNum; i < self.pieces.count; i++, j++) {
+    for (NSUInteger i = self.pieceNum, j = otherPath.pieceNum;
+         i < self.pieces.count; i++, j++) {
         if (![self.pieces[i] isEqualToString:otherPath.pieces[j]]) {
             return NO;
         }
@@ -287,7 +293,7 @@
     return YES;
 }
 
-- (NSUInteger) hash {
+- (NSUInteger)hash {
     NSUInteger hashCode = 0;
     for (NSInteger i = self.pieceNum; i < self.pieces.count; i++) {
         hashCode = hashCode * 37 + [self.pieces[i] hash];

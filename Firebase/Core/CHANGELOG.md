@@ -1,4 +1,22 @@
-# v6.1.0 -- M52
+# v6.3.2 -- M58
+- [fixed] Fix container instantiation timing, IID startup. (#4030)
+- [changed] Open-sourced Firebase pod. This enables `import Firebase` module
+  support for tvOS and macOS. (#4021)
+
+# v6.3.1 -- M57
+- [fixed] Fixed race condition in component container. (#3967, #3924)
+
+# v6.3.0 -- M56
+- [changed] Transitive GoogleDataTransport dependency incremented to v2.0.0. (#3729)
+- [fixed] Fixed "expiclitlySet" typo. (#3853)
+
+# v6.2.0 -- M53
+- [added] Added AppKit dependency on macOS and UIKit dependency on iOS and tvOS. (#3459)
+- [added] Added support for Firebase Segmentation. (#3430)
+- [changed] Moved core diagnostics log to app launch when core data collection is enabled. (#3437)
+- [changed] Open-sourced the Firebase Core Diagnostics SDK. (#3129)
+
+# 2019-07-18 -- v6.1.0 -- M52
 - [added] `FIROptions.appGroupID` property added to configure the App Group identifier required to share
   data between the application and the application extensions. (#3293)
 
