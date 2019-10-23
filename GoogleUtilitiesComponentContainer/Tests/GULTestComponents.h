@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULComponent.h>
-#import <GoogleUtilities/GULComponentContainer.h>
-#import <GoogleUtilities/GULLibrary.h>
+#import <GoogleUtilitiesComponentContainer/GULComponent.h>
+#import <GoogleUtilitiesComponentContainer/GULComponentContainer.h>
+#import <GoogleUtilitiesComponentContainer/GULLibrary.h>
 
 @protocol GULComponentRegistrant;
 

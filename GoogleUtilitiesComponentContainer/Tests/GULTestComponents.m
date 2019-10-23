@@ -14,8 +14,8 @@
 
 #import "GULTestComponents.h"
 
-#import <GoogleUtilities/GULComponent.h>
-#import <GoogleUtilities/GULDependency.h>
+#import <GoogleUtilitiesComponentContainer/GULComponent.h>
+#import <GoogleUtilitiesComponentContainer/GULDependency.h>
 
 #pragma mark - Standard Component
 

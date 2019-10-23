@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTestCase.h>
 
-#import <GoogleUtilities/GULComponent.h>
-#import <GoogleUtilities/GULComponentContainerInternal.h>
+#import <GoogleUtilitiesComponentContainer/GULComponent.h>
+#import <GoogleUtilitiesComponentContainer/GULComponentContainerInternal.h>
 #import <OCMock/OCMock.h>
 
 #import "GULTestComponents.h"
