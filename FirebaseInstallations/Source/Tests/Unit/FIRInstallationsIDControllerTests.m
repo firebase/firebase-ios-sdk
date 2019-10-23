@@ -414,17 +414,9 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
-
-  // 1.3. Expect new token to be stored.
-  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
-      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
@@ -451,17 +443,9 @@
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
 
-  // 1.2. Expect API request.
+  // 1.2. Auth Token refresh.
   FIRInstallationsItem *responseInstallation =
-      [FIRInstallationsItem createRegisteredInstallationItem];
-  responseInstallation.authToken.token =
-      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
-  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
-      .andReturn([FBLPromise resolvedWith:responseInstallation]);
-
-  // 1.3. Expect new token to be stored.
-  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
-      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+      [self expectAuthTokenRefreshForInstallation:storedInstallation];
 
   // 2. Request auth token.
   FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:YES];
@@ -532,6 +516,10 @@
   FBLPromise *pendingAPIPromise = [FBLPromise pendingPromise];
   OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:storedInstallation])
       .andReturn(pendingAPIPromise);
+
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
   // 2. Request auth token n times.
   NSInteger requestCount = 10;
@@ -847,6 +835,10 @@
   FBLPromise<NSNull *> *deletePromise = [self.controller deleteInstallation];
 
   // 4. Fulfill auth token promise to proceed.
+  // 4.1. Expect new token to be stored on API response.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
   [pendingAuthTokenAPIPromise fulfill:responseInstallation];
 
   // 5. Wait for operations to complete and check the result.
@@ -1041,6 +1033,22 @@
     (FIRInstallationsItem *)storedInstallation {
   OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
       .andReturn([FBLPromise resolvedWith:storedInstallation]);
+}
+
+- (FIRInstallationsItem *)expectAuthTokenRefreshForInstallation:
+    (FIRInstallationsItem *)installation {
+  FIRInstallationsItem *responseInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  responseInstallation.authToken.token =
+      [responseInstallation.authToken.token stringByAppendingString:@"_new"];
+  OCMExpect([self.mockAPIService refreshAuthTokenForInstallation:installation])
+      .andReturn([FBLPromise resolvedWith:responseInstallation]);
+
+  // 1.3. Expect new token to be stored.
+  OCMExpect([self.mockInstallationsStore saveInstallation:responseInstallation])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  return responseInstallation;
 }
 
 @end
