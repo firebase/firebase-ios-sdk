@@ -29,10 +29,10 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "Firebase/Core/FIRDiagnosticsData.h"
 #import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnostics.h"
 #import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 #import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/Core/FIRDiagnosticsData.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;

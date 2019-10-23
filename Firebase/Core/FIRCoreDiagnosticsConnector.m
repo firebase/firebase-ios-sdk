@@ -21,9 +21,8 @@
 #import "Private/FIRAppInternal.h"
 #import "Private/FIROptionsInternal.h"
 
-#import "Firebase/Core/FIRDiagnosticsData.h"
 #import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnostics.h"
-
+#import "Firebase/Core/FIRDiagnosticsData.h"
 
 @implementation FIRCoreDiagnosticsConnector
 

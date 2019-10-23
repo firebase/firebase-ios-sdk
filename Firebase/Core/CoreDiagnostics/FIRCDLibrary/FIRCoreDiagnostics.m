@@ -29,10 +29,9 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "Protogen/nanopb/firebasecore.nanopb.h"
 #import "FIRCoreDiagnosticsDateFileStorage.h"
 #import "Firebase/Core/FIRDiagnosticsData.h"
-
+#import "Protogen/nanopb/firebasecore.nanopb.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";

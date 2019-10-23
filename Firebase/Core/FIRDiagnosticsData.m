@@ -22,8 +22,7 @@
 #import "Private/FIROptionsInternal.h"
 
 /** If present, is a BOOL wrapped in an NSNumber. */
-NSString *const kFIRCDIsDataCollectionDefaultEnabledKey =
-    @"FIRCDIsDataCollectionDefaultEnabledKey";
+NSString *const kFIRCDIsDataCollectionDefaultEnabledKey = @"FIRCDIsDataCollectionDefaultEnabledKey";
 
 /** If present, is an int32_t wrapped in an NSNumber. */
 NSString *const kFIRCDConfigurationTypeKey = @"FIRCDConfigurationTypeKey";
@@ -44,15 +43,13 @@ NSString *const kFIRCDGoogleAppIDKey = @"FIRCDGoogleAppIDKey";
 NSString *const kFIRCDBundleIDKey = @"FIRCDBundleID";
 
 /** If present, is a BOOL wrapped in an NSNumber. */
-NSString *const kFIRCDUsingOptionsFromDefaultPlistKey =
-    @"FIRCDUsingOptionsFromDefaultPlistKey";
+NSString *const kFIRCDUsingOptionsFromDefaultPlistKey = @"FIRCDUsingOptionsFromDefaultPlistKey";
 
 /** If present, is an NSString. */
 NSString *const kFIRCDLibraryVersionIDKey = @"FIRCDLibraryVersionIDKey";
 
 /** If present, is an NSString. */
 NSString *const kFIRCDFirebaseUserAgentKey = @"FIRCDFirebaseUserAgentKey";
-
 
 @implementation FIRDiagnosticsData {
   /** Backing ivar for the diagnosticObjects property. */
