@@ -229,7 +229,7 @@ const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
       // Only start for the default FIRApp.
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
                               @"Firebase Messaging only works with the default app.");
-      return;
+      return nil;
     }
 
     // Ensure it's cached so it returns the same instance every time messaging is called.
