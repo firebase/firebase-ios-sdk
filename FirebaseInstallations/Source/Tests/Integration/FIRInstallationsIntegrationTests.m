@@ -55,7 +55,6 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 - (void)tearDown {
   // Delete the installation.
   [self.installations deleteWithCompletion:^(NSError *_Nullable error){
-      //      XCTAssertNil(error);
   }];
 
   // Wait for any pending background job to be completed.
