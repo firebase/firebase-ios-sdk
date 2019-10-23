@@ -37,13 +37,13 @@ typedef struct _google_type_LatLng {
     double longitude;
 
     std::string ToString() const {
-      std::string result{"google_type_LatLng("};
+        std::string result{"google_type_LatLng("};
 
-      result += std::string{"latitude0: "} + ToStringImpl(latitude) + '\n';
-      result += std::string{"longitude0: "} + ToStringImpl(longitude) + '\n';
+        result += std::string{"latitude: "} + ToStringImpl(latitude) + '\n';
+        result += std::string{"longitude: "} + ToStringImpl(longitude) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_type_LatLng) */
 } google_type_LatLng;

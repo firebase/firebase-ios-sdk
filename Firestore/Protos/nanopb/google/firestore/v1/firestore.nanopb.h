@@ -64,12 +64,12 @@ typedef struct _google_firestore_v1_BeginTransactionResponse {
     pb_bytes_array_t *transaction;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_BeginTransactionResponse("};
+        std::string result{"google_firestore_v1_BeginTransactionResponse("};
 
-      result += std::string{"transaction0: "} + ToStringImpl(transaction) + '\n';
+        result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionResponse) */
 } google_firestore_v1_BeginTransactionResponse;
@@ -81,14 +81,14 @@ typedef struct _google_firestore_v1_CommitRequest {
     pb_bytes_array_t *transaction;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_CommitRequest("};
+        std::string result{"google_firestore_v1_CommitRequest("};
 
-      result += std::string{"database: "} + ToStringImpl(database) + '\n';
-      result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
-      result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
+        result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
 } google_firestore_v1_CommitRequest;
@@ -99,13 +99,13 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     pb_bytes_array_t *next_page_token;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListCollectionIdsResponse("};
+        std::string result{"google_firestore_v1_ListCollectionIdsResponse("};
 
-      result += std::string{"collection_ids: "} + ToStringImpl(collection_ids, collection_ids_count) + '\n';
-      result += std::string{"next_page_token0: "} + ToStringImpl(next_page_token) + '\n';
+        result += std::string{"collection_ids: "} + ToStringImpl(collection_ids, collection_ids_count) + '\n';
+        result += std::string{"next_page_token: "} + ToStringImpl(next_page_token) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsResponse) */
 } google_firestore_v1_ListCollectionIdsResponse;
@@ -116,13 +116,13 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     pb_bytes_array_t *next_page_token;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListDocumentsResponse("};
+        std::string result{"google_firestore_v1_ListDocumentsResponse("};
 
-      result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
-      result += std::string{"next_page_token0: "} + ToStringImpl(next_page_token) + '\n';
+        result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
+        result += std::string{"next_page_token: "} + ToStringImpl(next_page_token) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
 } google_firestore_v1_ListDocumentsResponse;
@@ -132,13 +132,13 @@ typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListenRequest_LabelsEntry("};
+        std::string result{"google_firestore_v1_ListenRequest_LabelsEntry("};
 
-      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"key: "} + ToStringImpl(key) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest_LabelsEntry) */
 } google_firestore_v1_ListenRequest_LabelsEntry;
@@ -148,13 +148,13 @@ typedef struct _google_firestore_v1_RollbackRequest {
     pb_bytes_array_t *transaction;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_RollbackRequest("};
+        std::string result{"google_firestore_v1_RollbackRequest("};
 
-      result += std::string{"database0: "} + ToStringImpl(database) + '\n';
-      result += std::string{"transaction0: "} + ToStringImpl(transaction) + '\n';
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RollbackRequest) */
 } google_firestore_v1_RollbackRequest;
@@ -164,12 +164,12 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_bytes_array_t **documents;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Target_DocumentsTarget("};
+        std::string result{"google_firestore_v1_Target_DocumentsTarget("};
 
-      result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
+        result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_DocumentsTarget) */
 } google_firestore_v1_Target_DocumentsTarget;
@@ -184,16 +184,16 @@ typedef struct _google_firestore_v1_WriteRequest {
     struct _google_firestore_v1_WriteRequest_LabelsEntry *labels;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_WriteRequest("};
+        std::string result{"google_firestore_v1_WriteRequest("};
 
-      result += std::string{"database0: "} + ToStringImpl(database) + '\n';
-      result += std::string{"stream_id0: "} + ToStringImpl(stream_id) + '\n';
-      result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
-      result += std::string{"stream_token0: "} + ToStringImpl(stream_token) + '\n';
-      result += std::string{"labels: "} + ToStringImpl(labels, labels_count) + '\n';
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        result += std::string{"stream_id: "} + ToStringImpl(stream_id) + '\n';
+        result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
+        result += std::string{"stream_token: "} + ToStringImpl(stream_token) + '\n';
+        result += std::string{"labels: "} + ToStringImpl(labels, labels_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
 } google_firestore_v1_WriteRequest;
@@ -203,13 +203,13 @@ typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_WriteRequest_LabelsEntry("};
+        std::string result{"google_firestore_v1_WriteRequest_LabelsEntry("};
 
-      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"key: "} + ToStringImpl(key) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest_LabelsEntry) */
 } google_firestore_v1_WriteRequest_LabelsEntry;
@@ -227,17 +227,17 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_BatchGetDocumentsRequest("};
+        std::string result{"google_firestore_v1_BatchGetDocumentsRequest("};
 
-      result += std::string{"database0: "} + ToStringImpl(database) + '\n';
-      result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
-      result += std::string{"mask0: "} + ToStringImpl(mask) + '\n';
-      /*skipping transaction*/
-      /*skipping new_transaction*/
-      /*skipping read_time*/
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        result += std::string{"documents: "} + ToStringImpl(documents, documents_count) + '\n';
+        result += std::string{"mask: "} + ToStringImpl(mask) + '\n';
+        /*skipping transaction*/
+        /*skipping new_transaction*/
+        /*skipping read_time*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsRequest) */
 } google_firestore_v1_BatchGetDocumentsRequest;
@@ -252,15 +252,15 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     google_protobuf_Timestamp read_time;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_BatchGetDocumentsResponse("};
+        std::string result{"google_firestore_v1_BatchGetDocumentsResponse("};
 
-      /*skipping found*/
-      /*skipping missing*/
-      result += std::string{"transaction0: "} + ToStringImpl(transaction) + '\n';
-      result += std::string{"read_time0: "} + ToStringImpl(read_time) + '\n';
+        /*skipping found*/
+        /*skipping missing*/
+        result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
+        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsResponse) */
 } google_firestore_v1_BatchGetDocumentsResponse;
@@ -270,13 +270,13 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
     google_firestore_v1_TransactionOptions options;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_BeginTransactionRequest("};
+        std::string result{"google_firestore_v1_BeginTransactionRequest("};
 
-      result += std::string{"database0: "} + ToStringImpl(database) + '\n';
-      result += std::string{"options0: "} + ToStringImpl(options) + '\n';
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        result += std::string{"options: "} + ToStringImpl(options) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionRequest) */
 } google_firestore_v1_BeginTransactionRequest;
@@ -287,13 +287,13 @@ typedef struct _google_firestore_v1_CommitResponse {
     google_protobuf_Timestamp commit_time;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_CommitResponse("};
+        std::string result{"google_firestore_v1_CommitResponse("};
 
-      result += std::string{"write_results: "} + ToStringImpl(write_results, write_results_count) + '\n';
-      result += std::string{"commit_time0: "} + ToStringImpl(commit_time) + '\n';
+        result += std::string{"write_results: "} + ToStringImpl(write_results, write_results_count) + '\n';
+        result += std::string{"commit_time: "} + ToStringImpl(commit_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitResponse) */
 } google_firestore_v1_CommitResponse;
@@ -306,16 +306,16 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     google_firestore_v1_DocumentMask mask;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_CreateDocumentRequest("};
+        std::string result{"google_firestore_v1_CreateDocumentRequest("};
 
-      result += std::string{"parent0: "} + ToStringImpl(parent) + '\n';
-      result += std::string{"collection_id0: "} + ToStringImpl(collection_id) + '\n';
-      result += std::string{"document_id0: "} + ToStringImpl(document_id) + '\n';
-      result += std::string{"document0: "} + ToStringImpl(document) + '\n';
-      result += std::string{"mask0: "} + ToStringImpl(mask) + '\n';
+        result += std::string{"parent: "} + ToStringImpl(parent) + '\n';
+        result += std::string{"collection_id: "} + ToStringImpl(collection_id) + '\n';
+        result += std::string{"document_id: "} + ToStringImpl(document_id) + '\n';
+        result += std::string{"document: "} + ToStringImpl(document) + '\n';
+        result += std::string{"mask: "} + ToStringImpl(mask) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CreateDocumentRequest) */
 } google_firestore_v1_CreateDocumentRequest;
@@ -325,13 +325,13 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_DeleteDocumentRequest("};
+        std::string result{"google_firestore_v1_DeleteDocumentRequest("};
 
-      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
-      result += std::string{"current_document0: "} + ToStringImpl(current_document) + '\n';
+        result += std::string{"name: "} + ToStringImpl(name) + '\n';
+        result += std::string{"current_document: "} + ToStringImpl(current_document) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
 } google_firestore_v1_DeleteDocumentRequest;
@@ -346,15 +346,15 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_GetDocumentRequest("};
+        std::string result{"google_firestore_v1_GetDocumentRequest("};
 
-      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
-      result += std::string{"mask0: "} + ToStringImpl(mask) + '\n';
-      /*skipping transaction*/
-      /*skipping read_time*/
+        result += std::string{"name: "} + ToStringImpl(name) + '\n';
+        result += std::string{"mask: "} + ToStringImpl(mask) + '\n';
+        /*skipping transaction*/
+        /*skipping read_time*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_GetDocumentRequest) */
 } google_firestore_v1_GetDocumentRequest;
@@ -365,14 +365,14 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     pb_bytes_array_t *page_token;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListCollectionIdsRequest("};
+        std::string result{"google_firestore_v1_ListCollectionIdsRequest("};
 
-      result += std::string{"parent0: "} + ToStringImpl(parent) + '\n';
-      result += std::string{"page_size0: "} + ToStringImpl(page_size) + '\n';
-      result += std::string{"page_token0: "} + ToStringImpl(page_token) + '\n';
+        result += std::string{"parent: "} + ToStringImpl(parent) + '\n';
+        result += std::string{"page_size: "} + ToStringImpl(page_size) + '\n';
+        result += std::string{"page_token: "} + ToStringImpl(page_token) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsRequest) */
 } google_firestore_v1_ListCollectionIdsRequest;
@@ -392,20 +392,20 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
     bool show_missing;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListDocumentsRequest("};
+        std::string result{"google_firestore_v1_ListDocumentsRequest("};
 
-      result += std::string{"parent0: "} + ToStringImpl(parent) + '\n';
-      result += std::string{"collection_id0: "} + ToStringImpl(collection_id) + '\n';
-      result += std::string{"page_size0: "} + ToStringImpl(page_size) + '\n';
-      result += std::string{"page_token0: "} + ToStringImpl(page_token) + '\n';
-      result += std::string{"order_by0: "} + ToStringImpl(order_by) + '\n';
-      result += std::string{"mask0: "} + ToStringImpl(mask) + '\n';
-      /*skipping transaction*/
-      /*skipping read_time*/
-      result += std::string{"show_missing0: "} + ToStringImpl(show_missing) + '\n';
+        result += std::string{"parent: "} + ToStringImpl(parent) + '\n';
+        result += std::string{"collection_id: "} + ToStringImpl(collection_id) + '\n';
+        result += std::string{"page_size: "} + ToStringImpl(page_size) + '\n';
+        result += std::string{"page_token: "} + ToStringImpl(page_token) + '\n';
+        result += std::string{"order_by: "} + ToStringImpl(order_by) + '\n';
+        result += std::string{"mask: "} + ToStringImpl(mask) + '\n';
+        /*skipping transaction*/
+        /*skipping read_time*/
+        result += std::string{"show_missing: "} + ToStringImpl(show_missing) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
 } google_firestore_v1_ListDocumentsRequest;
@@ -424,16 +424,16 @@ typedef struct _google_firestore_v1_RunQueryRequest {
     } consistency_selector;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_RunQueryRequest("};
+        std::string result{"google_firestore_v1_RunQueryRequest("};
 
-      result += std::string{"parent0: "} + ToStringImpl(parent) + '\n';
-      /*skipping structured_query*/
-      /*skipping transaction*/
-      /*skipping new_transaction*/
-      /*skipping read_time*/
+        result += std::string{"parent: "} + ToStringImpl(parent) + '\n';
+        /*skipping structured_query*/
+        /*skipping transaction*/
+        /*skipping new_transaction*/
+        /*skipping read_time*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryRequest) */
 } google_firestore_v1_RunQueryRequest;
@@ -445,15 +445,15 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     int32_t skipped_results;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_RunQueryResponse("};
+        std::string result{"google_firestore_v1_RunQueryResponse("};
 
-      result += std::string{"transaction0: "} + ToStringImpl(transaction) + '\n';
-      result += std::string{"document0: "} + ToStringImpl(document) + '\n';
-      result += std::string{"read_time0: "} + ToStringImpl(read_time) + '\n';
-      result += std::string{"skipped_results0: "} + ToStringImpl(skipped_results) + '\n';
+        result += std::string{"transaction: "} + ToStringImpl(transaction) + '\n';
+        result += std::string{"document: "} + ToStringImpl(document) + '\n';
+        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
+        result += std::string{"skipped_results: "} + ToStringImpl(skipped_results) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryResponse) */
 } google_firestore_v1_RunQueryResponse;
@@ -468,16 +468,16 @@ typedef struct _google_firestore_v1_TargetChange {
     google_protobuf_Timestamp read_time;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_TargetChange("};
+        std::string result{"google_firestore_v1_TargetChange("};
 
-      result += std::string{"target_change_type0: "} + ToStringImpl(target_change_type) + '\n';
-      result += std::string{"target_ids: "} + ToStringImpl(target_ids, target_ids_count) + '\n';
-      result += std::string{"cause0: "} + ToStringImpl(cause) + '\n';
-      result += std::string{"resume_token0: "} + ToStringImpl(resume_token) + '\n';
-      result += std::string{"read_time0: "} + ToStringImpl(read_time) + '\n';
+        result += std::string{"target_change_type: "} + ToStringImpl(target_change_type) + '\n';
+        result += std::string{"target_ids: "} + ToStringImpl(target_ids, target_ids_count) + '\n';
+        result += std::string{"cause: "} + ToStringImpl(cause) + '\n';
+        result += std::string{"resume_token: "} + ToStringImpl(resume_token) + '\n';
+        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
 } google_firestore_v1_TargetChange;
@@ -490,13 +490,13 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Target_QueryTarget("};
+        std::string result{"google_firestore_v1_Target_QueryTarget("};
 
-      result += std::string{"parent0: "} + ToStringImpl(parent) + '\n';
-      /*skipping structured_query*/
+        result += std::string{"parent: "} + ToStringImpl(parent) + '\n';
+        /*skipping structured_query*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_QueryTarget) */
 } google_firestore_v1_Target_QueryTarget;
@@ -508,15 +508,15 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_UpdateDocumentRequest("};
+        std::string result{"google_firestore_v1_UpdateDocumentRequest("};
 
-      result += std::string{"document0: "} + ToStringImpl(document) + '\n';
-      result += std::string{"update_mask0: "} + ToStringImpl(update_mask) + '\n';
-      result += std::string{"mask0: "} + ToStringImpl(mask) + '\n';
-      result += std::string{"current_document0: "} + ToStringImpl(current_document) + '\n';
+        result += std::string{"document: "} + ToStringImpl(document) + '\n';
+        result += std::string{"update_mask: "} + ToStringImpl(update_mask) + '\n';
+        result += std::string{"mask: "} + ToStringImpl(mask) + '\n';
+        result += std::string{"current_document: "} + ToStringImpl(current_document) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_UpdateDocumentRequest) */
 } google_firestore_v1_UpdateDocumentRequest;
@@ -529,15 +529,15 @@ typedef struct _google_firestore_v1_WriteResponse {
     google_protobuf_Timestamp commit_time;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_WriteResponse("};
+        std::string result{"google_firestore_v1_WriteResponse("};
 
-      result += std::string{"stream_id0: "} + ToStringImpl(stream_id) + '\n';
-      result += std::string{"stream_token0: "} + ToStringImpl(stream_token) + '\n';
-      result += std::string{"write_results: "} + ToStringImpl(write_results, write_results_count) + '\n';
-      result += std::string{"commit_time0: "} + ToStringImpl(commit_time) + '\n';
+        result += std::string{"stream_id: "} + ToStringImpl(stream_id) + '\n';
+        result += std::string{"stream_token: "} + ToStringImpl(stream_token) + '\n';
+        result += std::string{"write_results: "} + ToStringImpl(write_results, write_results_count) + '\n';
+        result += std::string{"commit_time: "} + ToStringImpl(commit_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResponse) */
 } google_firestore_v1_WriteResponse;
@@ -553,16 +553,16 @@ typedef struct _google_firestore_v1_ListenResponse {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListenResponse("};
+        std::string result{"google_firestore_v1_ListenResponse("};
 
-      /*skipping target_change*/
-      /*skipping document_change*/
-      /*skipping document_delete*/
-      /*skipping document_remove*/
-      /*skipping filter*/
+        /*skipping target_change*/
+        /*skipping document_change*/
+        /*skipping document_delete*/
+        /*skipping document_remove*/
+        /*skipping filter*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenResponse) */
 } google_firestore_v1_ListenResponse;
@@ -582,17 +582,17 @@ typedef struct _google_firestore_v1_Target {
     bool once;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Target("};
+        std::string result{"google_firestore_v1_Target("};
 
-      /*skipping query*/
-      /*skipping documents*/
-      /*skipping resume_token*/
-      /*skipping read_time*/
-      result += std::string{"target_id0: "} + ToStringImpl(target_id) + '\n';
-      result += std::string{"once0: "} + ToStringImpl(once) + '\n';
+        /*skipping query*/
+        /*skipping documents*/
+        /*skipping resume_token*/
+        /*skipping read_time*/
+        result += std::string{"target_id: "} + ToStringImpl(target_id) + '\n';
+        result += std::string{"once: "} + ToStringImpl(once) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
 } google_firestore_v1_Target;
@@ -608,15 +608,15 @@ typedef struct _google_firestore_v1_ListenRequest {
     struct _google_firestore_v1_ListenRequest_LabelsEntry *labels;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ListenRequest("};
+        std::string result{"google_firestore_v1_ListenRequest("};
 
-      result += std::string{"database0: "} + ToStringImpl(database) + '\n';
-      /*skipping add_target*/
-      /*skipping remove_target*/
-      result += std::string{"labels: "} + ToStringImpl(labels, labels_count) + '\n';
+        result += std::string{"database: "} + ToStringImpl(database) + '\n';
+        /*skipping add_target*/
+        /*skipping remove_target*/
+        result += std::string{"labels: "} + ToStringImpl(labels, labels_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */
 } google_firestore_v1_ListenRequest;

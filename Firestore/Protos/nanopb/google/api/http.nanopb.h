@@ -37,13 +37,13 @@ typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *path;
 
     std::string ToString() const {
-      std::string result{"google_api_CustomHttpPattern("};
+        std::string result{"google_api_CustomHttpPattern("};
 
-      result += std::string{"kind0: "} + ToStringImpl(kind) + '\n';
-      result += std::string{"path0: "} + ToStringImpl(path) + '\n';
+        result += std::string{"kind: "} + ToStringImpl(kind) + '\n';
+        result += std::string{"path: "} + ToStringImpl(path) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
@@ -54,13 +54,13 @@ typedef struct _google_api_Http {
     bool fully_decode_reserved_expansion;
 
     std::string ToString() const {
-      std::string result{"google_api_Http("};
+        std::string result{"google_api_Http("};
 
-      result += std::string{"rules: "} + ToStringImpl(rules, rules_count) + '\n';
-      result += std::string{"fully_decode_reserved_expansion0: "} + ToStringImpl(fully_decode_reserved_expansion) + '\n';
+        result += std::string{"rules: "} + ToStringImpl(rules, rules_count) + '\n';
+        result += std::string{"fully_decode_reserved_expansion: "} + ToStringImpl(fully_decode_reserved_expansion) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
@@ -81,20 +81,20 @@ typedef struct _google_api_HttpRule {
     struct _google_api_HttpRule *additional_bindings;
 
     std::string ToString() const {
-      std::string result{"google_api_HttpRule("};
+        std::string result{"google_api_HttpRule("};
 
-      result += std::string{"selector0: "} + ToStringImpl(selector) + '\n';
-      /*skipping get*/
-      /*skipping put*/
-      /*skipping post*/
-      /*skipping delete_*/
-      /*skipping patch*/
-      /*skipping custom*/
-      result += std::string{"body0: "} + ToStringImpl(body) + '\n';
-      result += std::string{"additional_bindings: "} + ToStringImpl(additional_bindings, additional_bindings_count) + '\n';
+        result += std::string{"selector: "} + ToStringImpl(selector) + '\n';
+        /*skipping get*/
+        /*skipping put*/
+        /*skipping post*/
+        /*skipping delete_*/
+        /*skipping patch*/
+        /*skipping custom*/
+        result += std::string{"body: "} + ToStringImpl(body) + '\n';
+        result += std::string{"additional_bindings: "} + ToStringImpl(additional_bindings, additional_bindings_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;

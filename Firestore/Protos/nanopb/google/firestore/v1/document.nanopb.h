@@ -45,12 +45,12 @@ typedef struct _google_firestore_v1_ArrayValue {
     struct _google_firestore_v1_Value *values;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_ArrayValue("};
+        std::string result{"google_firestore_v1_ArrayValue("};
 
-      result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
@@ -60,12 +60,12 @@ typedef struct _google_firestore_v1_MapValue {
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_MapValue("};
+        std::string result{"google_firestore_v1_MapValue("};
 
-      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
@@ -79,15 +79,15 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp update_time;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Document("};
+        std::string result{"google_firestore_v1_Document("};
 
-      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
-      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
-      result += std::string{"create_time0: "} + ToStringImpl(create_time) + '\n';
-      result += std::string{"update_time0: "} + ToStringImpl(update_time) + '\n';
+        result += std::string{"name: "} + ToStringImpl(name) + '\n';
+        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += std::string{"create_time: "} + ToStringImpl(create_time) + '\n';
+        result += std::string{"update_time: "} + ToStringImpl(update_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
@@ -109,22 +109,22 @@ typedef struct _google_firestore_v1_Value {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Value("};
+        std::string result{"google_firestore_v1_Value("};
 
-      /*skipping null_value*/
-      /*skipping boolean_value*/
-      /*skipping integer_value*/
-      /*skipping double_value*/
-      /*skipping timestamp_value*/
-      /*skipping string_value*/
-      /*skipping bytes_value*/
-      /*skipping reference_value*/
-      /*skipping geo_point_value*/
-      /*skipping array_value*/
-      /*skipping map_value*/
+        /*skipping null_value*/
+        /*skipping boolean_value*/
+        /*skipping integer_value*/
+        /*skipping double_value*/
+        /*skipping timestamp_value*/
+        /*skipping string_value*/
+        /*skipping bytes_value*/
+        /*skipping reference_value*/
+        /*skipping geo_point_value*/
+        /*skipping array_value*/
+        /*skipping map_value*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
 } google_firestore_v1_Value;
@@ -134,13 +134,13 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Document_FieldsEntry("};
+        std::string result{"google_firestore_v1_Document_FieldsEntry("};
 
-      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"key: "} + ToStringImpl(key) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
@@ -150,13 +150,13 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_MapValue_FieldsEntry("};
+        std::string result{"google_firestore_v1_MapValue_FieldsEntry("};
 
-      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"key: "} + ToStringImpl(key) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;

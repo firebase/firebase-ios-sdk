@@ -41,13 +41,13 @@ typedef struct _firestore_client_NoDocument {
     google_protobuf_Timestamp read_time;
 
     std::string ToString() const {
-      std::string result{"firestore_client_NoDocument("};
+        std::string result{"firestore_client_NoDocument("};
 
-      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
-      result += std::string{"read_time0: "} + ToStringImpl(read_time) + '\n';
+        result += std::string{"name: "} + ToStringImpl(name) + '\n';
+        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
 } firestore_client_NoDocument;
@@ -57,13 +57,13 @@ typedef struct _firestore_client_UnknownDocument {
     google_protobuf_Timestamp version;
 
     std::string ToString() const {
-      std::string result{"firestore_client_UnknownDocument("};
+        std::string result{"firestore_client_UnknownDocument("};
 
-      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
-      result += std::string{"version0: "} + ToStringImpl(version) + '\n';
+        result += std::string{"name: "} + ToStringImpl(name) + '\n';
+        result += std::string{"version: "} + ToStringImpl(version) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
 } firestore_client_UnknownDocument;
@@ -78,15 +78,15 @@ typedef struct _firestore_client_MaybeDocument {
     bool has_committed_mutations;
 
     std::string ToString() const {
-      std::string result{"firestore_client_MaybeDocument("};
+        std::string result{"firestore_client_MaybeDocument("};
 
-      /*skipping no_document*/
-      /*skipping document*/
-      /*skipping unknown_document*/
-      result += std::string{"has_committed_mutations0: "} + ToStringImpl(has_committed_mutations) + '\n';
+        /*skipping no_document*/
+        /*skipping document*/
+        /*skipping unknown_document*/
+        result += std::string{"has_committed_mutations: "} + ToStringImpl(has_committed_mutations) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */
 } firestore_client_MaybeDocument;

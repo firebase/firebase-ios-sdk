@@ -36,11 +36,11 @@ typedef struct _google_protobuf_Empty {
     char dummy_field;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Empty("};
+        std::string result{"google_protobuf_Empty("};
 
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */
 } google_protobuf_Empty;

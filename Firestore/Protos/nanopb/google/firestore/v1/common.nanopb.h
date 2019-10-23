@@ -41,12 +41,12 @@ typedef struct _google_firestore_v1_DocumentMask {
     pb_bytes_array_t **field_paths;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_DocumentMask("};
+        std::string result{"google_firestore_v1_DocumentMask("};
 
-      result += std::string{"field_paths: "} + ToStringImpl(field_paths, field_paths_count) + '\n';
+        result += std::string{"field_paths: "} + ToStringImpl(field_paths, field_paths_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
 } google_firestore_v1_DocumentMask;
@@ -55,12 +55,12 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_TransactionOptions_ReadWrite("};
+        std::string result{"google_firestore_v1_TransactionOptions_ReadWrite("};
 
-      result += std::string{"retry_transaction0: "} + ToStringImpl(retry_transaction) + '\n';
+        result += std::string{"retry_transaction: "} + ToStringImpl(retry_transaction) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
 } google_firestore_v1_TransactionOptions_ReadWrite;
@@ -73,13 +73,13 @@ typedef struct _google_firestore_v1_Precondition {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Precondition("};
+        std::string result{"google_firestore_v1_Precondition("};
 
-      /*skipping exists*/
-      /*skipping update_time*/
+        /*skipping exists*/
+        /*skipping update_time*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Precondition) */
 } google_firestore_v1_Precondition;
@@ -91,12 +91,12 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_TransactionOptions_ReadOnly("};
+        std::string result{"google_firestore_v1_TransactionOptions_ReadOnly("};
 
-      /*skipping read_time*/
+        /*skipping read_time*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
 } google_firestore_v1_TransactionOptions_ReadOnly;
@@ -109,13 +109,13 @@ typedef struct _google_firestore_v1_TransactionOptions {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_TransactionOptions("};
+        std::string result{"google_firestore_v1_TransactionOptions("};
 
-      /*skipping read_only*/
-      /*skipping read_write*/
+        /*skipping read_only*/
+        /*skipping read_write*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions) */
 } google_firestore_v1_TransactionOptions;

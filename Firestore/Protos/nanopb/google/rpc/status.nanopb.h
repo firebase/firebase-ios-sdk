@@ -41,14 +41,14 @@ typedef struct _google_rpc_Status {
     struct _google_protobuf_Any *details;
 
     std::string ToString() const {
-      std::string result{"google_rpc_Status("};
+        std::string result{"google_rpc_Status("};
 
-      result += std::string{"code0: "} + ToStringImpl(code) + '\n';
-      result += std::string{"message0: "} + ToStringImpl(message) + '\n';
-      result += std::string{"details: "} + ToStringImpl(details, details_count) + '\n';
+        result += std::string{"code: "} + ToStringImpl(code) + '\n';
+        result += std::string{"message: "} + ToStringImpl(message) + '\n';
+        result += std::string{"details: "} + ToStringImpl(details, details_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;

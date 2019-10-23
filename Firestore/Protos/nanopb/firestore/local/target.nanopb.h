@@ -48,17 +48,17 @@ typedef struct _firestore_client_Target {
     };
 
     std::string ToString() const {
-      std::string result{"firestore_client_Target("};
+        std::string result{"firestore_client_Target("};
 
-      result += std::string{"target_id0: "} + ToStringImpl(target_id) + '\n';
-      result += std::string{"snapshot_version0: "} + ToStringImpl(snapshot_version) + '\n';
-      result += std::string{"resume_token0: "} + ToStringImpl(resume_token) + '\n';
-      result += std::string{"last_listen_sequence_number0: "} + ToStringImpl(last_listen_sequence_number) + '\n';
-      /*skipping query*/
-      /*skipping documents*/
+        result += std::string{"target_id: "} + ToStringImpl(target_id) + '\n';
+        result += std::string{"snapshot_version: "} + ToStringImpl(snapshot_version) + '\n';
+        result += std::string{"resume_token: "} + ToStringImpl(resume_token) + '\n';
+        result += std::string{"last_listen_sequence_number: "} + ToStringImpl(last_listen_sequence_number) + '\n';
+        /*skipping query*/
+        /*skipping documents*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
@@ -70,15 +70,15 @@ typedef struct _firestore_client_TargetGlobal {
     int32_t target_count;
 
     std::string ToString() const {
-      std::string result{"firestore_client_TargetGlobal("};
+        std::string result{"firestore_client_TargetGlobal("};
 
-      result += std::string{"highest_target_id0: "} + ToStringImpl(highest_target_id) + '\n';
-      result += std::string{"highest_listen_sequence_number0: "} + ToStringImpl(highest_listen_sequence_number) + '\n';
-      result += std::string{"last_remote_snapshot_version0: "} + ToStringImpl(last_remote_snapshot_version) + '\n';
-      result += std::string{"target_count0: "} + ToStringImpl(target_count) + '\n';
+        result += std::string{"highest_target_id: "} + ToStringImpl(highest_target_id) + '\n';
+        result += std::string{"highest_listen_sequence_number: "} + ToStringImpl(highest_listen_sequence_number) + '\n';
+        result += std::string{"last_remote_snapshot_version: "} + ToStringImpl(last_remote_snapshot_version) + '\n';
+        result += std::string{"target_count: "} + ToStringImpl(target_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;

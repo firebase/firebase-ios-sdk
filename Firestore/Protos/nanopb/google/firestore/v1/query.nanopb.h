@@ -84,12 +84,12 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     pb_bytes_array_t *field_path;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_FieldReference("};
+        std::string result{"google_firestore_v1_StructuredQuery_FieldReference("};
 
-      result += std::string{"field_path0: "} + ToStringImpl(field_path) + '\n';
+        result += std::string{"field_path: "} + ToStringImpl(field_path) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldReference) */
 } google_firestore_v1_StructuredQuery_FieldReference;
@@ -99,12 +99,12 @@ typedef struct _google_firestore_v1_StructuredQuery_Projection {
     struct _google_firestore_v1_StructuredQuery_FieldReference *fields;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_Projection("};
+        std::string result{"google_firestore_v1_StructuredQuery_Projection("};
 
-      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Projection) */
 } google_firestore_v1_StructuredQuery_Projection;
@@ -115,13 +115,13 @@ typedef struct _google_firestore_v1_Cursor {
     bool before;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_Cursor("};
+        std::string result{"google_firestore_v1_Cursor("};
 
-      result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
-      result += std::string{"before0: "} + ToStringImpl(before) + '\n';
+        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+        result += std::string{"before: "} + ToStringImpl(before) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
@@ -131,13 +131,13 @@ typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     bool all_descendants;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_CollectionSelector("};
+        std::string result{"google_firestore_v1_StructuredQuery_CollectionSelector("};
 
-      result += std::string{"collection_id0: "} + ToStringImpl(collection_id) + '\n';
-      result += std::string{"all_descendants0: "} + ToStringImpl(all_descendants) + '\n';
+        result += std::string{"collection_id: "} + ToStringImpl(collection_id) + '\n';
+        result += std::string{"all_descendants: "} + ToStringImpl(all_descendants) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CollectionSelector) */
 } google_firestore_v1_StructuredQuery_CollectionSelector;
@@ -148,13 +148,13 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     struct _google_firestore_v1_StructuredQuery_Filter *filters;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_CompositeFilter("};
+        std::string result{"google_firestore_v1_StructuredQuery_CompositeFilter("};
 
-      result += std::string{"op0: "} + ToStringImpl(op) + '\n';
-      result += std::string{"filters: "} + ToStringImpl(filters, filters_count) + '\n';
+        result += std::string{"op: "} + ToStringImpl(op) + '\n';
+        result += std::string{"filters: "} + ToStringImpl(filters, filters_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_CompositeFilter) */
 } google_firestore_v1_StructuredQuery_CompositeFilter;
@@ -165,14 +165,14 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_FieldFilter("};
+        std::string result{"google_firestore_v1_StructuredQuery_FieldFilter("};
 
-      result += std::string{"field0: "} + ToStringImpl(field) + '\n';
-      result += std::string{"op0: "} + ToStringImpl(op) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"field: "} + ToStringImpl(field) + '\n';
+        result += std::string{"op: "} + ToStringImpl(op) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_FieldFilter) */
 } google_firestore_v1_StructuredQuery_FieldFilter;
@@ -182,13 +182,13 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
     google_firestore_v1_StructuredQuery_Direction direction;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_Order("};
+        std::string result{"google_firestore_v1_StructuredQuery_Order("};
 
-      result += std::string{"field0: "} + ToStringImpl(field) + '\n';
-      result += std::string{"direction0: "} + ToStringImpl(direction) + '\n';
+        result += std::string{"field: "} + ToStringImpl(field) + '\n';
+        result += std::string{"direction: "} + ToStringImpl(direction) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Order) */
 } google_firestore_v1_StructuredQuery_Order;
@@ -201,13 +201,13 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_UnaryFilter("};
+        std::string result{"google_firestore_v1_StructuredQuery_UnaryFilter("};
 
-      result += std::string{"op0: "} + ToStringImpl(op) + '\n';
-      /*skipping field*/
+        result += std::string{"op: "} + ToStringImpl(op) + '\n';
+        /*skipping field*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_UnaryFilter) */
 } google_firestore_v1_StructuredQuery_UnaryFilter;
@@ -221,14 +221,14 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
     };
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery_Filter("};
+        std::string result{"google_firestore_v1_StructuredQuery_Filter("};
 
-      /*skipping composite_filter*/
-      /*skipping field_filter*/
-      /*skipping unary_filter*/
+        /*skipping composite_filter*/
+        /*skipping field_filter*/
+        /*skipping unary_filter*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_Filter) */
 } google_firestore_v1_StructuredQuery_Filter;
@@ -247,19 +247,19 @@ typedef struct _google_firestore_v1_StructuredQuery {
     google_firestore_v1_Cursor end_at;
 
     std::string ToString() const {
-      std::string result{"google_firestore_v1_StructuredQuery("};
+        std::string result{"google_firestore_v1_StructuredQuery("};
 
-      result += std::string{"select0: "} + ToStringImpl(select) + '\n';
-      result += std::string{"from: "} + ToStringImpl(from, from_count) + '\n';
-      result += std::string{"where0: "} + ToStringImpl(where) + '\n';
-      result += std::string{"order_by: "} + ToStringImpl(order_by, order_by_count) + '\n';
-      result += std::string{"start_at0: "} + ToStringImpl(start_at) + '\n';
-      result += std::string{"end_at0: "} + ToStringImpl(end_at) + '\n';
-      result += std::string{"offset0: "} + ToStringImpl(offset) + '\n';
-      result += std::string{"limit0: "} + ToStringImpl(limit) + '\n';
+        result += std::string{"select: "} + ToStringImpl(select) + '\n';
+        result += std::string{"from: "} + ToStringImpl(from, from_count) + '\n';
+        result += std::string{"where: "} + ToStringImpl(where) + '\n';
+        result += std::string{"order_by: "} + ToStringImpl(order_by, order_by_count) + '\n';
+        result += std::string{"start_at: "} + ToStringImpl(start_at) + '\n';
+        result += std::string{"end_at: "} + ToStringImpl(end_at) + '\n';
+        result += std::string{"offset: "} + ToStringImpl(offset) + '\n';
+        result += std::string{"limit: "} + ToStringImpl(limit) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */
 } google_firestore_v1_StructuredQuery;

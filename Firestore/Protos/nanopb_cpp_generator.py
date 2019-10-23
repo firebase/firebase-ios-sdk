@@ -315,28 +315,14 @@ namespace firestore {'''
       f.insertion_point = 'struct:' + classname
       f.content = '''
     std::string ToString() const {
-      std::string result{"%s("};
-''' % (classname)
+        std::string result{"%s("};\n\n''' % (classname)
       for field in fields:
-        name = field.name
-        # if field.oneof_index != 0:
-        #   continue # FIXME
-        if field.HasField('oneof_index'):
-          f.content += '''
-      /*skipping %s*/''' % (name)
-          continue # FIXME
-        if field.label == FieldDescriptorProto.LABEL_REPEATED:
-          f.content += '''
-      result += std::string{"%s: "} + ToStringImpl(%s, %s_count) + '\\n';''' % (name, name, name)
-        else:
-          f.content += '''
-      result += std::string{"%s%s: "} + ToStringImpl(%s) + '\\n';''' % (name, field.oneof_index, name)
-
+        f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
       f.content += '''
-
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }'''
+
     f = response.file.add()
     f.name = result['sourcename']
     f.content = result['sourcedata']
@@ -356,6 +342,29 @@ namespace firestore {'''
 
 
   return response
+
+
+def add_printing_for_field(field):
+  if field.HasField('oneof_index'):
+    return add_printing_for_oneof(field)
+  elif field.label == FieldDescriptorProto.LABEL_REPEATED:
+    return add_printing_for_repeated(field)
+  else:
+    return add_printing_for_singular(field)
+
+
+def add_printing_for_oneof(field):
+  return '''/*skipping %s*/''' % (field.name)
+
+
+def add_printing_for_repeated(field):
+  name = field.name
+  return '''result += std::string{"%s: "} + ToStringImpl(%s, %s_count) + '\\n';''' % (name, name, name)
+
+
+def add_printing_for_singular(field):
+  name = field.name
+  return '''result += std::string{"%s: "} + ToStringImpl(%s) + '\\n';''' % (name, name)
 
 
 if __name__ == '__main__':

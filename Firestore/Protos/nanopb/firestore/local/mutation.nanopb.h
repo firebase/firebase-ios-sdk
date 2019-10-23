@@ -41,13 +41,13 @@ typedef struct _firestore_client_MutationQueue {
     pb_bytes_array_t *last_stream_token;
 
     std::string ToString() const {
-      std::string result{"firestore_client_MutationQueue("};
+        std::string result{"firestore_client_MutationQueue("};
 
-      result += std::string{"last_acknowledged_batch_id0: "} + ToStringImpl(last_acknowledged_batch_id) + '\n';
-      result += std::string{"last_stream_token0: "} + ToStringImpl(last_stream_token) + '\n';
+        result += std::string{"last_acknowledged_batch_id: "} + ToStringImpl(last_acknowledged_batch_id) + '\n';
+        result += std::string{"last_stream_token: "} + ToStringImpl(last_stream_token) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MutationQueue) */
 } firestore_client_MutationQueue;
@@ -61,15 +61,15 @@ typedef struct _firestore_client_WriteBatch {
     struct _google_firestore_v1_Write *base_writes;
 
     std::string ToString() const {
-      std::string result{"firestore_client_WriteBatch("};
+        std::string result{"firestore_client_WriteBatch("};
 
-      result += std::string{"batch_id0: "} + ToStringImpl(batch_id) + '\n';
-      result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
-      result += std::string{"local_write_time0: "} + ToStringImpl(local_write_time) + '\n';
-      result += std::string{"base_writes: "} + ToStringImpl(base_writes, base_writes_count) + '\n';
+        result += std::string{"batch_id: "} + ToStringImpl(batch_id) + '\n';
+        result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
+        result += std::string{"local_write_time: "} + ToStringImpl(local_write_time) + '\n';
+        result += std::string{"base_writes: "} + ToStringImpl(base_writes, base_writes_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
 } firestore_client_WriteBatch;

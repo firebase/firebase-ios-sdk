@@ -37,13 +37,13 @@ typedef struct _google_protobuf_Timestamp {
     int32_t nanos;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Timestamp("};
+        std::string result{"google_protobuf_Timestamp("};
 
-      result += std::string{"seconds0: "} + ToStringImpl(seconds) + '\n';
-      result += std::string{"nanos0: "} + ToStringImpl(nanos) + '\n';
+        result += std::string{"seconds: "} + ToStringImpl(seconds) + '\n';
+        result += std::string{"nanos: "} + ToStringImpl(nanos) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Timestamp) */
 } google_protobuf_Timestamp;

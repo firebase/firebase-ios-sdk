@@ -37,13 +37,13 @@ typedef struct _google_protobuf_Any {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Any("};
+        std::string result{"google_protobuf_Any("};
 
-      result += std::string{"type_url0: "} + ToStringImpl(type_url) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"type_url: "} + ToStringImpl(type_url) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */
 } google_protobuf_Any;

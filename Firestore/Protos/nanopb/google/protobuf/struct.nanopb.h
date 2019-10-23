@@ -45,12 +45,12 @@ typedef struct _google_protobuf_ListValue {
     struct _google_protobuf_Value *values;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_ListValue("};
+        std::string result{"google_protobuf_ListValue("};
 
-      result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
@@ -60,12 +60,12 @@ typedef struct _google_protobuf_Struct {
     struct _google_protobuf_Struct_FieldsEntry *fields;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Struct("};
+        std::string result{"google_protobuf_Struct("};
 
-      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
@@ -82,17 +82,17 @@ typedef struct _google_protobuf_Value {
     };
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Value("};
+        std::string result{"google_protobuf_Value("};
 
-      /*skipping null_value*/
-      /*skipping number_value*/
-      /*skipping string_value*/
-      /*skipping bool_value*/
-      /*skipping struct_value*/
-      /*skipping list_value*/
+        /*skipping null_value*/
+        /*skipping number_value*/
+        /*skipping string_value*/
+        /*skipping bool_value*/
+        /*skipping struct_value*/
+        /*skipping list_value*/
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
@@ -102,13 +102,13 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     google_protobuf_Value value;
 
     std::string ToString() const {
-      std::string result{"google_protobuf_Struct_FieldsEntry("};
+        std::string result{"google_protobuf_Struct_FieldsEntry("};
 
-      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
-      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+        result += std::string{"key: "} + ToStringImpl(key) + '\n';
+        result += std::string{"value: "} + ToStringImpl(value) + '\n';
 
-      result += ')';
-      return result;
+        result += ')';
+        return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;
