@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_DIRECTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_DIRECTION_H_
 
+#include <iosfwd>
+#include <string>
+
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "absl/base/attributes.h"
 
 namespace firebase {
@@ -37,9 +41,19 @@ class Direction {
     return descending ? Descending : Ascending;
   }
 
+  Direction() = default;
+
+  /**
+   * Changes the direction of the given ComparisonResult if the direction is
+   * Descending.
+   */
+  util::ComparisonResult ApplyTo(util::ComparisonResult) const;
+
   int comparison_modifier() const {
     return comparison_modifier_;
   }
+
+  std::string CanonicalId() const;
 
  private:
   enum {
@@ -50,8 +64,10 @@ class Direction {
   constexpr explicit Direction(int comparison_modifier)
       : comparison_modifier_(comparison_modifier) {
   }
-  int comparison_modifier_;
+  int comparison_modifier_ = AscendingModifier;
 };
+
+std::ostream& operator<<(std::ostream& os, const Direction& direction);
 
 inline bool operator==(const Direction& lhs, const Direction& rhs) {
   return lhs.comparison_modifier() == rhs.comparison_modifier();

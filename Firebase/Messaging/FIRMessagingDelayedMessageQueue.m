@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingDelayedMessageQueue.h"
+#import "Firebase/Messaging/FIRMessagingDelayedMessageQueue.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
 static const int kMaxQueuedMessageCount = 10;
 
@@ -49,7 +49,6 @@ static const int kMaxQueuedMessageCount = 10;
 
 - (instancetype)initWithRmqScanner:(id<FIRMessagingRmqScanner>)rmqScanner
         sendDelayedMessagesHandler:(FIRMessagingSendDelayedMessagesHandler)sendDelayedMessagesHandler {
-  _FIRMessagingDevAssert(sendDelayedMessagesHandler, @"Invalid nil callback for delayed messages");
   self = [super init];
   if (self) {
     _rmqScanner = rmqScanner;

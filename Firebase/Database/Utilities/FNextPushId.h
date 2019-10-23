@@ -18,6 +18,6 @@
 
 @interface FNextPushId : NSObject
 
-+ (NSString *) get:(NSTimeInterval)now;
++ (NSString *)get:(NSTimeInterval)now;
 
 @end

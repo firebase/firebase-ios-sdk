@@ -17,12 +17,13 @@
 #import "FTransformedEnumerator.h"
 
 @interface FTransformedEnumerator ()
-@property (nonatomic, strong) NSEnumerator *enumerator;
-@property (nonatomic, copy) id (^transform)(id);
+@property(nonatomic, strong) NSEnumerator *enumerator;
+@property(nonatomic, copy) id (^transform)(id);
 @end
 
 @implementation FTransformedEnumerator
-- (id)initWithEnumerator:(NSEnumerator *)enumerator andTransform:(id (^)(id))transform {
+- (id)initWithEnumerator:(NSEnumerator *)enumerator
+            andTransform:(id (^)(id))transform {
     self = [super init];
     if (self) {
         self.enumerator = enumerator;

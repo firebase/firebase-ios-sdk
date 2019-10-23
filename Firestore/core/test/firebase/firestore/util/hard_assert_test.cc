@@ -47,6 +47,29 @@ TEST(HardAssertTest, WithMessage) {
   EXPECT_ANY_THROW(AssertWithMessage(false));
 }
 
+TEST(HardAssertTest, NonDefaultThrowHandler) {
+  // Used to ensure the original failure handler is restored.
+  class ThrowHandlerRestorer {
+   public:
+    explicit ThrowHandlerRestorer(ThrowHandler orig) : orig_(orig) {
+    }
+    ~ThrowHandlerRestorer() {
+      SetThrowHandler(orig_);
+    }
+
+   private:
+    ThrowHandler orig_;
+  };
+
+  struct FakeException : public std::exception {};
+  ThrowHandler prev =
+      SetThrowHandler([](ExceptionType, const char*, const char*, const int,
+                         const std::string&) { throw FakeException(); });
+  ThrowHandlerRestorer _(prev);
+
+  EXPECT_THROW(Assert(false), FakeException);
+}
+
 }  //  namespace util
 }  //  namespace firestore
 }  //  namespace firebase

@@ -25,20 +25,23 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
-using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Transaction;
+using firebase::firestore::model::Document;
+using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -118,34 +121,35 @@ NS_ASSUME_NONNULL_BEGIN
                               NSError *_Nullable error))completion {
   [self validateReference:document];
   _internalTransaction->Lookup(
-      {document.key}, [self, document, completion](const std::vector<FSTMaybeDocument *> &documents,
-                                                   const Status &status) {
-        if (!status.ok()) {
-          completion(nil, MakeNSError(status));
+      {document.key},
+      [self, document, completion](const StatusOr<std::vector<MaybeDocument>> &maybe_documents) {
+        if (!maybe_documents.ok()) {
+          completion(nil, MakeNSError(maybe_documents.status()));
           return;
         }
 
+        const auto &documents = maybe_documents.ValueOrDie();
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
-        FSTMaybeDocument *internalDoc = documents.front();
-        if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
+        const MaybeDocument &internalDoc = documents.front();
+        if (internalDoc.is_no_document()) {
           FIRDocumentSnapshot *doc =
               [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
                                                  documentKey:document.key
-                                                    document:nil
+                                                    document:absl::nullopt
                                                    fromCache:false
                                             hasPendingWrites:false];
           completion(doc, nil);
-        } else if ([internalDoc isKindOfClass:[FSTDocument class]]) {
+        } else if (internalDoc.is_document()) {
           FIRDocumentSnapshot *doc =
               [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
-                                                 documentKey:internalDoc.key
-                                                    document:(FSTDocument *)internalDoc
+                                                 documentKey:internalDoc.key()
+                                                    document:Document(internalDoc)
                                                    fromCache:false
                                             hasPendingWrites:false];
           completion(doc, nil);
         } else {
           HARD_FAIL("BatchGetDocumentsRequest returned unexpected document type: %s",
-                    NSStringFromClass([internalDoc class]));
+                    internalDoc.type());
         }
       });
 }

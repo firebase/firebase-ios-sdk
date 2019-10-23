@@ -17,16 +17,17 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
 
+#include <string>
 #include <utility>
 
 #if defined(__OBJC__)
-#import "Firestore/Source/Model/FSTDocument.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,18 +56,24 @@ class Precondition {
   static Precondition None();
 
   /**
+   * Default constructor which is equivalent to Precondition::None(). Prefer
+   * calling Precondition::None for readability.
+   */
+  Precondition() = default;
+
+  /**
    * Returns true if the precondition is valid for the given document (and the
    * document is available).
    */
-  bool IsValidFor(const MaybeDocument* maybe_doc) const;
-
-  /** Returns whether this Precondition represents no precondition. */
-  bool IsNone() const {
-    return type_ == Type::None;
-  }
+  bool IsValidFor(const absl::optional<MaybeDocument>& maybe_doc) const;
 
   Type type() const {
     return type_;
+  }
+
+  /** Returns whether this Precondition represents no precondition. */
+  bool is_none() const {
+    return type_ == Type::None;
   }
 
   const SnapshotVersion& update_time() const {
@@ -82,61 +89,9 @@ class Precondition {
            exists_ == other.exists_;
   }
 
-#if defined(__OBJC__)
-  // Objective-C requires a default constructor.
-  Precondition()
-      : type_(Type::None),
-        update_time_(SnapshotVersion::None()),
-        exists_(false) {
-  }
+  size_t Hash() const;
 
-  // MaybeDocument is not fully ported yet. So we suppose this addition helper.
-  bool IsValidFor(FSTMaybeDocument* maybe_doc) const {
-    switch (type_) {
-      case Type::UpdateTime:
-        return [maybe_doc isKindOfClass:[FSTDocument class]] &&
-               firebase::firestore::model::SnapshotVersion(maybe_doc.version) ==
-                   update_time_;
-      case Type::Exists:
-        if (exists_) {
-          return [maybe_doc isKindOfClass:[FSTDocument class]];
-        } else {
-          return maybe_doc == nil ||
-                 [maybe_doc isKindOfClass:[FSTDeletedDocument class]];
-        }
-      case Type::None:
-        return true;
-    }
-    UNREACHABLE();
-  }
-
-  // For Objective-C++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
-  NSUInteger Hash() const {
-    NSUInteger hash = std::hash<Timestamp>()(update_time_.timestamp());
-    hash = hash * 31 + exists_;
-    hash = hash * 31 + static_cast<NSUInteger>(type_);
-    return hash;
-  }
-
-  NSString* description() const {
-    switch (type_) {
-      case Type::None:
-        return @"<Precondition <none>>";
-      case Type::Exists:
-        if (exists_) {
-          return @"<Precondition exists=yes>";
-        } else {
-          return @"<Precondition exists=no>";
-        }
-      case Type::UpdateTime:
-        return [NSString
-            stringWithFormat:@"<Precondition update_time=%s>",
-                             update_time_.timestamp().ToString().c_str()];
-    }
-    UNREACHABLE();
-  }
-#endif  // defined(__OBJC__)
+  std::string ToString() const;
 
  private:
   Precondition(Type type, SnapshotVersion update_time, bool exists);
@@ -149,7 +104,7 @@ class Precondition {
 
   // For Exists type, preconditions a mutation based on whether the document
   // exists.
-  bool exists_;
+  bool exists_ = false;
 };
 
 }  // namespace model

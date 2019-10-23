@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
+using firebase::firestore::local::MemoryPersistence;
+using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
 using firebase::firestore::local::ReferenceSet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,15 +37,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @a queryCache.
  */
 @implementation FSTMemoryQueryCacheTests {
+  std::unique_ptr<MemoryPersistence> _db;
   ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  self.queryCache = self.persistence.queryCache;
-  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
+  _db = MemoryPersistenceWithEagerGcForTesting();
+  self.persistence = _db.get();
+  self.queryCache = self.persistence->query_cache();
+  self.persistence->reference_delegate()->AddInMemoryPins(&_additionalReferences);
 }
 
 - (void)tearDown {

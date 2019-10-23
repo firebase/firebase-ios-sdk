@@ -161,12 +161,14 @@ enum StructuredQuery_FieldFilter_Operator {
   StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL = 4,
   StructuredQuery_FieldFilter_Operator_EQUAL = 5,
   StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS = 7,
+  StructuredQuery_FieldFilter_Operator_IN = 8,
+  StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY = 9,
   StructuredQuery_FieldFilter_Operator_StructuredQuery_FieldFilter_Operator_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   StructuredQuery_FieldFilter_Operator_StructuredQuery_FieldFilter_Operator_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool StructuredQuery_FieldFilter_Operator_IsValid(int value);
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MIN = StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED;
-const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MAX = StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
+const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MAX = StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
 const int StructuredQuery_FieldFilter_Operator_Operator_ARRAYSIZE = StructuredQuery_FieldFilter_Operator_Operator_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* StructuredQuery_FieldFilter_Operator_descriptor();
@@ -714,6 +716,10 @@ class StructuredQuery_FieldFilter : public ::google::protobuf::Message /* @@prot
     StructuredQuery_FieldFilter_Operator_EQUAL;
   static const Operator ARRAY_CONTAINS =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
+  static const Operator IN =
+    StructuredQuery_FieldFilter_Operator_IN;
+  static const Operator ARRAY_CONTAINS_ANY =
+    StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
   static inline bool Operator_IsValid(int value) {
     return StructuredQuery_FieldFilter_Operator_IsValid(value);
   }

@@ -1,3 +1,6 @@
+# 3.4.1
+- [fixed] Fix crash in FIRStorageUploadTask (#3750).
+
 # 3.4.0
 - [fixed] Ensure that users don't accidently invoke `Storage()` instead of `Storage.storage()`.
   If your code calls the constructor of Storage directly, we will throw an assertion failure,

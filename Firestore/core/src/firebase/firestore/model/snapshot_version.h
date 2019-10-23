@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 
+#include <iosfwd>
+#include <string>
+
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -30,10 +33,11 @@ namespace model {
  */
 class SnapshotVersion : public util::Comparable<SnapshotVersion> {
  public:
-#if __OBJC__
-  SnapshotVersion() {
-  }
-#endif  // __OBJC__
+  /**
+   * Creates a default SnapshotVersion equivalent to SnapshotVersion::None().
+   * Prefer SnapshotVersion::None() for readability.
+   */
+  SnapshotVersion() = default;
 
   explicit SnapshotVersion(const Timestamp& timestamp);
 
@@ -47,6 +51,11 @@ class SnapshotVersion : public util::Comparable<SnapshotVersion> {
   util::ComparisonResult CompareTo(const SnapshotVersion& rhs) const;
 
   size_t Hash() const;
+
+  std::string ToString() const;
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const SnapshotVersion& version);
 
  private:
   Timestamp timestamp_;

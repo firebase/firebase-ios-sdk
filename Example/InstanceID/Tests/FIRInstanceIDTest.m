@@ -35,7 +35,7 @@ static NSString *const kFakeIID = @"12345678";
 static NSString *const kFakeAPNSToken = @"this is a fake apns token";
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";
-static NSString *const kToken = @"test-token";
+static NSString *const kToken = @"12345678:test-token";
 static FIRInstanceIDTokenInfo *sTokenInfo;
 // Faking checkin calls
 static NSString *const kDeviceAuthId = @"device-id";
@@ -63,6 +63,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 + (int64_t)maxRetryCountForDefaultToken;
 + (int64_t)minIntervalForDefaultTokenRetry;
 + (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
+- (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                    scope:(NSString *)scope
+                                  keyPair:(FIRInstanceIDKeyPair *)keyPair
+                                  options:(NSDictionary *)options
+                                  handler:(FIRInstanceIDTokenHandler)handler;
 
 @end
 
@@ -161,7 +166,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)testTokenShouldBeRefreshedIfCacheTokenNeedsToBeRefreshed {
   [[[self.mockInstanceID stub] andReturn:kToken] cachedTokenIfAvailable];
-  [[[self.mockTokenManager stub] andReturnValue:@(YES)] checkForTokenRefreshPolicy];
+  [[[self.mockTokenManager stub] andReturnValue:@(YES)]
+      checkTokenRefreshPolicyWithIID:[OCMArg any]];
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
   }] tokenWithAuthorizedEntity:[OCMArg any]
                          scope:[OCMArg any]
@@ -185,6 +191,45 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self.mockInstanceID didCompleteConfigure];
 
   OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
+}
+
+- (void)testTokenShouldBeRefreshedIfIIDAndTokenAreNotConsistent {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"token request is complete"];
+  NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
+  NSString *serverKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
+
+  [self stubKeyPairStoreToReturnValidKeypair];
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  NSData *fakeAPNSDeviceToken = [kFakeAPNSToken dataUsingEncoding:NSUTF8StringEncoding];
+  BOOL isSandbox = YES;
+  NSDictionary *tokenOptions = @{
+    APNSKey : fakeAPNSDeviceToken,
+    serverKey : @(isSandbox),
+  };
+  FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+      [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+  sTokenInfo.APNSInfo = optionsAPNSInfo;
+  [[[self.mockTokenManager stub] andReturn:sTokenInfo]
+      cachedTokenInfoWithAuthorizedEntity:[OCMArg any]
+                                    scope:[OCMArg any]];
+  [[self.mockTokenManager stub]
+      fetchNewTokenWithAuthorizedEntity:kGCMSenderID
+                                  scope:@"*"
+                                keyPair:[OCMArg any]
+                                options:tokenOptions
+                                handler:[OCMArg
+                                            invokeBlockWithArgs:@"newToken", [NSNull null], nil]];
+
+  [self.mockInstanceID
+      tokenWithAuthorizedEntity:kGCMSenderID
+                          scope:@"*"
+                        options:tokenOptions
+                        handler:^(NSString *_Nullable token, NSError *_Nullable error) {
+                          XCTAssertEqualObjects(token, @"newToken");
+                          [expectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:1.0 handler:NULL];
 }
 
 - (void)testTokenIsDeletedAlongWithIdentity {

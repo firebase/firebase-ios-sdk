@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

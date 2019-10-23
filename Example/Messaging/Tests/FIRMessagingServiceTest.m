@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingClient.h"
-#import "FIRMessagingPubSub.h"
-#import "FIRMessagingTestUtilities.h"
-#import "FIRMessagingTopicsCommon.h"
-#import "InternalHeaders/FIRMessagingInternalUtilities.h"
-#import "NSError+FIRMessaging.h"
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
+
+#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingPubSub.h"
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
     @"yUTTzK6dhIvLqzqqCSabaa4TQVM0pGTmF6r7tmMHPe6VYiGMHuCwJFgj5v97xl78sUNMLwuPPhoci8z_"
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
-
-NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
+static NSString *const kFakeID = @"fE1e1PZJFSQ";
+static NSString *const kFIRMessagingSDKClassString = @"FIRMessaging";
+static NSString *const kFIRMessagingSDKVersionSelectorString = @"FIRMessagingSDKVersion";
+static NSString *const kFIRMessagingSDKLocaleSelectorString = @"FIRMessagingSDKCurrentLocale";
+static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
 
 @interface FIRMessaging () <FIRMessagingClientDelegate>
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
+@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
 @end
 
@@ -45,8 +50,15 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 
 @end
 
+@interface FIRInstanceIDResult (ExposedForTest)
+@property(nonatomic, readwrite, copy) NSString *instanceID;
+@property(nonatomic, readwrite, copy) NSString *token;
+@end
+
 @interface FIRMessagingServiceTest : XCTestCase {
   FIRMessaging *_messaging;
+  FIRInstanceIDResult *_result;
+  id _mockInstanceID;
   id _mockPubSub;
 }
 
@@ -55,18 +67,24 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
+  [super setUp];
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
   _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];
-  [super setUp];
+
+  _mockInstanceID = OCMPartialMock(_messaging.instanceID);
+  _result = [[FIRInstanceIDResult alloc] init];
+  _result.token = kFakeToken;
+  _result.instanceID = kFakeID;
 }
 
 - (void)tearDown {
+  [_mockInstanceID stopMocking];
+  [_mockPubSub stopMocking];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
   _messaging = nil;
-  [_mockPubSub stopMocking];
   [super tearDown];
 }
 
@@ -159,59 +177,9 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
                  }];
 }
 
-// TODO(chliangGoogle) Investigate why invalid token can't throw assertion but the rest can under
-// release build.
-- (void)testSubscribeWithInvalidTopic {
-
-  XCTestExpectation *exceptionExpectation =
-  [self expectationWithDescription:@"Should throw exception for invalid token"];
-  @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-    [_mockPubSub subscribeWithToken:kFakeToken
-                              topic:nil
-                            options:nil
-                            handler:^(NSError *error) {
-                              XCTFail(@"Should not invoke the handler");
-                            }];
-#pragma clang diagnostic pop
-  }
-  @catch (NSException *exception) {
-    [exceptionExpectation fulfill];
-  }
-  @finally {
-    [self waitForExpectationsWithTimeout:0.1 handler:^(NSError *error) {
-      XCTAssertNil(error);
-    }];
-  }
-}
-
-- (void)testUnsubscribeWithInvalidTopic {
-  XCTestExpectation *exceptionExpectation =
-      [self expectationWithDescription:@"Should throw exception for invalid token"];
-  @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-    [_mockPubSub unsubscribeWithToken:kFakeToken
-                                topic:nil
-                              options:nil
-                              handler:^(NSError *error) {
-                                XCTFail(@"Should not invoke the handler");
-                              }];
-#pragma clang diagnostic pop
-  }
-  @catch (NSException *exception) {
-    [exceptionExpectation fulfill];
-  }
-  @finally {
-    [self waitForExpectationsWithTimeout:0.1 handler:^(NSError *error) {
-      XCTAssertNil(error);
-    }];
-  }
-}
-
 - (void)testSubscribeWithNoTopicPrefix {
-
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   NSString *topicName = @"topicWithoutPrefix";
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
   OCMExpect(
@@ -221,6 +189,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testSubscribeWithTopicPrefix {
+   OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   NSString *topicName = @"/topics/topicWithoutPrefix";
   OCMExpect([_mockPubSub subscribeToTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
   [_messaging subscribeToTopic:topicName];
@@ -228,6 +198,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testUnsubscribeWithNoTopicPrefix {
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   NSString *topicName = @"topicWithoutPrefix";
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
   OCMExpect(
@@ -237,6 +209,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testUnsubscribeWithTopicPrefix {
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   NSString *topicName = @"/topics/topicWithPrefix";
   OCMExpect([_mockPubSub unsubscribeFromTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
   [_messaging unsubscribeFromTopic:topicName];
@@ -244,6 +218,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testSubscriptionCompletionHandlerWithSuccess {
+   OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   OCMStub([_mockPubSub subscribeToTopic:[OCMArg any]
                                 handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
   XCTestExpectation *subscriptionCompletionExpectation =
@@ -259,6 +235,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testUnsubscribeCompletionHandlerWithSuccess {
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   OCMStub([_mockPubSub unsubscribeFromTopic:[OCMArg any]
                                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
   XCTestExpectation *unsubscriptionCompletionExpectation =
@@ -274,6 +252,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testSubscriptionCompletionHandlerWithInvalidTopicName {
+   OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   XCTestExpectation *subscriptionCompletionExpectation =
       [self expectationWithDescription:@"Subscription is complete"];
   [_messaging subscribeToTopic:@"!@#$%^&*()"
@@ -288,6 +268,8 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
 }
 
 - (void)testUnsubscribeCompletionHandlerWithInvalidTopicName {
+   OCMStub([_mockInstanceID
+      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:_result, [NSNull null], nil])]);
   XCTestExpectation *unsubscriptionCompletionExpectation =
       [self expectationWithDescription:@"Unsubscription is complete"];
   [_messaging unsubscribeFromTopic:@"!@#$%^&*()"
@@ -336,4 +318,42 @@ NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_servic
   }
 }
 
+
+- (void)testSubscribeFailedWithInvalidToken {
+  // Mock get token is failed with FIRMessagingErrorUnknown error.
+  XCTestExpectation *subscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Subscription is complete"];
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:
+          ([OCMArg
+              invokeBlockWithArgs:[NSNull null],
+                                  [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown],
+                                  nil])]);
+  [_messaging subscribeToTopic:@"Apple"
+                    completion:^(NSError *_Nullable error) {
+                      XCTAssertNotNil(error);
+                      XCTAssertEqual(error.code, kFIRMessagingErrorCodeUnknown);
+                      [subscriptionCompletionExpectation fulfill];
+                    }];
+  [self waitForExpectationsWithTimeout:0.2 handler:nil];
+}
+
+- (void)testUnsubscribeFailedWithInvalidToken {
+  OCMStub([_mockInstanceID
+      instanceIDWithHandler:
+          ([OCMArg
+              invokeBlockWithArgs:[NSNull null],
+                                  [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown],
+                                  nil])]);
+  XCTestExpectation *unsubscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Unsubscription is complete"];
+
+  [_messaging unsubscribeFromTopic:@"news"
+                        completion:^(NSError *_Nullable error) {
+                          XCTAssertNotNil(error);
+                          XCTAssertEqual(error.code, kFIRMessagingErrorCodeUnknown);
+                          [unsubscriptionCompletionExpectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:0.2 handler:nil];
+}
 @end

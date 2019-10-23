@@ -27,27 +27,30 @@
 
 @interface FViewOperationResult : NSObject
 
-@property (nonatomic, strong, readonly) NSArray* changes;
-@property (nonatomic, strong, readonly) NSArray* events;
+@property(nonatomic, strong, readonly) NSArray *changes;
+@property(nonatomic, strong, readonly) NSArray *events;
 
 @end
 
-
 @interface FView : NSObject
 
-@property (nonatomic, strong, readonly) FQuerySpec *query;
+@property(nonatomic, strong, readonly) FQuerySpec *query;
 
-- (id) initWithQuery:(FQuerySpec *)query initialViewCache:(FViewCache *)initialViewCache;
+- (id)initWithQuery:(FQuerySpec *)query
+    initialViewCache:(FViewCache *)initialViewCache;
 
-- (id<FNode>) eventCache;
-- (id<FNode>) serverCache;
-- (id<FNode>) completeServerCacheFor:(FPath*)path;
-- (BOOL) isEmpty;
+- (id<FNode>)eventCache;
+- (id<FNode>)serverCache;
+- (id<FNode>)completeServerCacheFor:(FPath *)path;
+- (BOOL)isEmpty;
 
-- (void) addEventRegistration:(id<FEventRegistration>)eventRegistration;
-- (NSArray *) removeEventRegistration:(id<FEventRegistration>)eventRegistration cancelError:(NSError *)cancelError;
+- (void)addEventRegistration:(id<FEventRegistration>)eventRegistration;
+- (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
+                         cancelError:(NSError *)cancelError;
 
-- (FViewOperationResult *) applyOperation:(id <FOperation>)operation writesCache:(FWriteTreeRef *)writesCache serverCache:(id <FNode>)optCompleteServerCache;
-- (NSArray *) initialEvents:(id<FEventRegistration>)registration;
+- (FViewOperationResult *)applyOperation:(id<FOperation>)operation
+                             writesCache:(FWriteTreeRef *)writesCache
+                             serverCache:(id<FNode>)optCompleteServerCache;
+- (NSArray *)initialEvents:(id<FEventRegistration>)registration;
 
 @end

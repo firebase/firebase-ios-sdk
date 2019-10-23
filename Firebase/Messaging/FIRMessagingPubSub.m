@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingPubSub.h"
+#import "Firebase/Messaging/FIRMessagingPubSub.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 
-#import "FIRMessaging.h"
-#import "FIRMessagingClient.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingPendingTopicsList.h"
-#import "FIRMessagingUtilities.h"
-#import "FIRMessaging_Private.h"
-#import "NSDictionary+FIRMessaging.h"
-#import "NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "Firebase/Messaging/NSDictionary+FIRMessaging.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 static NSString *const kPendingSubscriptionsListKey =
     @"com.firebase.messaging.pending-subscriptions";
@@ -59,8 +59,6 @@ static NSString *const kPendingSubscriptionsListKey =
                      topic:(NSString *)topic
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
-  _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
-  _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
   if (!self.client) {
     handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
@@ -102,14 +100,10 @@ static NSString *const kPendingSubscriptionsListKey =
                        topic:(NSString *)topic
                      options:(NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
-  _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
-  _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
-
   if (!self.client) {
     handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
-
   token = [token copy];
   topic = [topic copy];
   if (![options count]) {

@@ -15,13 +15,13 @@
  */
 
 #import "FCancelEvent.h"
-#import "FPath.h"
 #import "FEventRegistration.h"
+#import "FPath.h"
 
 @interface FCancelEvent ()
-@property (nonatomic, strong) id<FEventRegistration> eventRegistration;
-@property (nonatomic, strong, readwrite) NSError *error;
-@property (nonatomic, strong, readwrite) FPath *path;
+@property(nonatomic, strong) id<FEventRegistration> eventRegistration;
+@property(nonatomic, strong, readwrite) NSError *error;
+@property(nonatomic, strong, readwrite) FPath *path;
 @end
 
 @implementation FCancelEvent
@@ -30,7 +30,9 @@
 @synthesize error;
 @synthesize path;
 
-- (id)initWithEventRegistration:(id <FEventRegistration>)registration error:(NSError *)anError path:(FPath *)aPath {
+- (id)initWithEventRegistration:(id<FEventRegistration>)registration
+                          error:(NSError *)anError
+                           path:(FPath *)aPath {
     self = [super init];
     if (self) {
         self.eventRegistration = registration;
@@ -40,15 +42,15 @@
     return self;
 }
 
-- (void) fireEventOnQueue:(dispatch_queue_t)queue {
+- (void)fireEventOnQueue:(dispatch_queue_t)queue {
     [self.eventRegistration fireEvent:self queue:queue];
 }
 
-- (BOOL) isCancelEvent {
+- (BOOL)isCancelEvent {
     return YES;
 }
 
-- (NSString *) description {
+- (NSString *)description {
     return [NSString stringWithFormat:@"%@: cancel", self.path];
 }
 

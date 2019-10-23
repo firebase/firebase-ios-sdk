@@ -42,7 +42,7 @@ Status IsDirectory(const Path& path) {
     return Status::OK();
   }
 
-  return Status{FirestoreErrorCode::FailedPrecondition, path.ToUtf8String()};
+  return Status{Error::FailedPrecondition, path.ToUtf8String()};
 }
 
 Path TempDir() {
@@ -89,7 +89,7 @@ Status CreateDir(const Path& path) {
 
     } else {
       return Status{
-          FirestoreErrorCode::FailedPrecondition,
+          Error::FailedPrecondition,
           StringFormat(
               "Could not create directory %s: non-directory already exists",
               path.ToUtf8String())};

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

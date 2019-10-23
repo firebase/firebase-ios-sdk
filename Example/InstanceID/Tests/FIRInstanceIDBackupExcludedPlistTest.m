@@ -79,48 +79,6 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   XCTAssertTrue([self doesPlistFileExist]);
 }
 
-- (void)testMovePlistToApplicationSupportDirectorySuccess {
-  NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
-  [self.plist writeDictionary:plistContents error:nil];
-  [self.plist moveToApplicationSupportSubDirectory:kSubDirectoryName];
-  XCTAssertTrue([self doesPlistFileExist]);
-  XCTAssertFalse([self isPlistInDocumentsDirectory]);
-
-  NSDictionary *newPlistContents = @{@"world" : @"hello"};
-  [self.plist writeDictionary:newPlistContents error:nil];
-  XCTAssertEqualObjects(newPlistContents, [self.plist contentAsDictionary]);
-}
-
-- (void)testMovePlistToApplicationSupportDirectoryFailure {
-  // This is to test moving data from deprecated document folder to application folder
-  // which should only apply to iOS.
-#if TARGET_OS_IOS
-  // Delete the subdirectory
-  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
-
-  // Create a new plistl This would try to move or write to the ApplicationSupport directory
-  // but since the subdirectory is not there anymore it will fail and rather write to the
-  // Documents folder.
-  self.plist = [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kTestPlistFileName
-                                                             subDirectory:kSubDirectoryName];
-
-  NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
-  [self.plist writeDictionary:plistContents error:nil];
-
-  XCTAssertFalse([self doesPlistFileExist]);
-  XCTAssertTrue([self isPlistInDocumentsDirectory]);
-
-  NSDictionary *newPlistContents = @{@"world" : @"hello"};
-  [self.plist writeDictionary:newPlistContents error:nil];
-
-  XCTAssertEqualObjects(newPlistContents, [self.plist contentAsDictionary]);
-
-  // The new file should still be written to the Documents folder.
-  XCTAssertFalse([self doesPlistFileExist]);
-  XCTAssertTrue([self isPlistInDocumentsDirectory]);
-#endif
-}
-
 #pragma mark - Private Helpers
 
 - (BOOL)doesPlistFileExist {

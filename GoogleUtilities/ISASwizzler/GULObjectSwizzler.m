@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/GULObjectSwizzler.h"
+#import <GoogleUtilities/GULObjectSwizzler.h>
 
 #import <objc/runtime.h>
 
@@ -81,8 +81,8 @@
     if (swizzledObject) {
       _swizzledObject = swizzledObject;
       _originalClass = object_getClass(object);
-      NSString *newClassName = [NSString
-          stringWithFormat:@"fir_%p_%@", swizzledObject, NSStringFromClass(_originalClass)];
+      NSString *newClassName = [NSString stringWithFormat:@"fir_%@_%@", [[NSUUID UUID] UUIDString],
+                                                          NSStringFromClass(_originalClass)];
       _generatedClass = objc_allocateClassPair(_originalClass, newClassName.UTF8String, 0);
       NSAssert(_generatedClass, @"Wasn't able to allocate the class pair.");
     } else {
@@ -99,12 +99,9 @@
   Class targetClass = isClassSelector ? object_getClass(_generatedClass) : _generatedClass;
   IMP implementation = method_getImplementation(method);
   const char *typeEncoding = method_getTypeEncoding(method);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
-  BOOL success = class_addMethod(targetClass, selector, implementation, typeEncoding);
+  BOOL success __unused = class_addMethod(targetClass, selector, implementation, typeEncoding);
   NSAssert(success, @"Unable to add selector %@ to class %@", NSStringFromSelector(selector),
            NSStringFromClass(targetClass));
-#pragma clang diagnostic pop
 }
 
 - (void)setAssociatedObjectWithKey:(NSString *)key
@@ -139,19 +136,25 @@
     NSAssert(class_getInstanceSize(_originalClass) == class_getInstanceSize(_generatedClass),
              @"The instance size of the generated class must be equal to the original class.");
     objc_registerClassPair(_generatedClass);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
-    Class doubleCheckOriginalClass = object_setClass(_swizzledObject, _generatedClass);
+    Class doubleCheckOriginalClass __unused = object_setClass(_swizzledObject, _generatedClass);
     NSAssert(_originalClass == doubleCheckOriginalClass,
              @"The original class must be the same as the class returned by object_setClass");
-#pragma clang diagnostic pop
   } else {
     NSAssert(NO, @"You can't swizzle a nil object");
   }
 }
 
-- (void)dealloc {
-  objc_disposeClassPair(_generatedClass);
+- (void)swizzledObjectHasBeenDeallocatedWithGeneratedSubclass:(BOOL)isInstanceOfGeneratedSubclass {
+  // If the swizzled object had a different class, it most likely indicates that the object was
+  // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
+  // will have to keep it to prevent a crash.
+
+  // TODO: Consider adding a flag that can be set by the host application to dispose the class pair
+  // unconditionally. It may be used by apps that use ISA Swizzling themself and are confident in
+  // disposing their subclasses.
+  if (isInstanceOfGeneratedSubclass) {
+    objc_disposeClassPair(_generatedClass);
+  }
 }
 
 - (BOOL)isSwizzlingProxyObject {

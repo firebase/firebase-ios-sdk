@@ -17,9 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingAnalytics.h"
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+
+#import "Firebase/Messaging/FIRMessagingAnalytics.h"
 
 // Analytics tracking is iOS only feature.
 #if TARGET_OS_IOS
@@ -86,17 +87,8 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
                 clearEventParameters:(nonnull NSDictionary *)clearEventParameters {
 }
 
-- (nonnull NSArray<FIRAConditionalUserProperty *> *)
-conditionalUserProperties:(nonnull NSString *)origin
-propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
-  return @[];
-}
-
 - (NSInteger)maxUserProperties:(nonnull NSString *)origin {
   return -1;
-}
-
-- (void)setConditionalUserProperty:(nonnull FIRAConditionalUserProperty *)conditionalUserProperty {
 }
 
 - (void)checkLastNotificationForOrigin:(nonnull NSString *)origin
@@ -112,7 +104,19 @@ propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
 - (void)unregisterAnalyticsListenerWithOrigin:(nonnull NSString *)origin {
 }
 
+- (void)clearConditionalUserProperty:(nonnull NSString *)userPropertyName forOrigin:(nonnull NSString *)origin clearEventName:(nonnull NSString *)clearEventName clearEventParameters:(nonnull NSDictionary<NSString *,NSString *> *)clearEventParameters {
+}
 
+- (nonnull NSArray<NSDictionary<NSString *,NSString *> *> *)conditionalUserProperties:(nonnull NSString *)origin propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
+  return nil;
+}
+
+
+- (void)setConditionalUserProperty:(nonnull NSDictionary<NSString *,id> *)conditionalUserProperty {
+}
+
+- (void)getUserPropertiesWithCallback:(nonnull FIRAInteropUserPropertiesCallback)callback {
+}
 @end
 
 @interface FIRMessagingAnalytics (ExposedForTest)

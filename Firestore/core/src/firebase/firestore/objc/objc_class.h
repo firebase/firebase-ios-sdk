@@ -17,7 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 
+#if __OBJC__
 #include <objc/objc.h>
+#else
+struct objc_object;
+using id = struct objc_object*;
+#endif
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
@@ -148,19 +153,6 @@ bool Equals(const Handle<T>& lhs, const Handle<T>& rhs) {
   return lhs == rhs;
 }
 #endif
-
-// Define NS_ASSUME_NONNULL_BEGIN for straight C++ so that everything gets the
-// correct nullability specifier.
-#if !defined(NS_ASSUME_NONNULL_BEGIN)
-#if __clang__
-#define NS_ASSUME_NONNULL_BEGIN _Pragma("clang assume_nonnull begin")
-#define NS_ASSUME_NONNULL_END _Pragma("clang assume_nonnull end")
-
-#else  // !__clang__
-#define NS_ASSUME_NONNULL_BEGIN
-#define NS_ASSUME_NONNULL_END
-#endif  // __clang__
-#endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
 
 }  // namespace objc
 }  // namespace firestore

@@ -32,35 +32,38 @@
 
 - (id)initWithPersistenceManager:(FPersistenceManager *)persistence;
 
-- (BOOL) isEmpty;
+- (BOOL)isEmpty;
 
 /**
-* Returns array of FEvent
-*/
-- (NSArray *) applyOperation:(id<FOperation>)operation writesCache:(FWriteTreeRef *)writesCache serverCache:(id<FNode>)optCompleteServerCache;
+ * Returns array of FEvent
+ */
+- (NSArray *)applyOperation:(id<FOperation>)operation
+                writesCache:(FWriteTreeRef *)writesCache
+                serverCache:(id<FNode>)optCompleteServerCache;
 
 /**
-* Returns array of FEvent
-*/
-- (NSArray *) addEventRegistration:(id <FEventRegistration>)eventRegistration
-        forNonExistingViewForQuery:(FQuerySpec *)query
-                       writesCache:(FWriteTreeRef *)writesCache
-                       serverCache:(FCacheNode *)serverCache;
+ * Returns array of FEvent
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+       forNonExistingViewForQuery:(FQuerySpec *)query
+                      writesCache:(FWriteTreeRef *)writesCache
+                      serverCache:(FCacheNode *)serverCache;
 
-- (NSArray *) addEventRegistration:(id <FEventRegistration>)eventRegistration
-           forExistingViewForQuery:(FQuerySpec *)query;
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+          forExistingViewForQuery:(FQuerySpec *)query;
 
-- (FTupleRemovedQueriesEvents *) removeEventRegistration:(id <FEventRegistration>)eventRegistration
-                                                forQuery:(FQuerySpec *)query
-                                             cancelError:(NSError *)cancelError;
+- (FTupleRemovedQueriesEvents *)removeEventRegistration:
+                                    (id<FEventRegistration>)eventRegistration
+                                               forQuery:(FQuerySpec *)query
+                                            cancelError:(NSError *)cancelError;
 /**
-* Returns array of FViews
-*/
-- (NSArray *) queryViews;
-- (id<FNode>) completeServerCacheAtPath:(FPath *)path;
-- (FView *) viewForQuery:(FQuerySpec *)query;
-- (BOOL) viewExistsForQuery:(FQuerySpec *)query;
-- (BOOL) hasCompleteView;
-- (FView *) completeView;
+ * Returns array of FViews
+ */
+- (NSArray *)queryViews;
+- (id<FNode>)completeServerCacheAtPath:(FPath *)path;
+- (FView *)viewForQuery:(FQuerySpec *)query;
+- (BOOL)viewExistsForQuery:(FQuerySpec *)query;
+- (BOOL)hasCompleteView;
+- (FView *)completeView;
 
 @end

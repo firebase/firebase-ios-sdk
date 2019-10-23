@@ -19,43 +19,45 @@
 
 @interface FIRTestAuthTokenProvider ()
 
-@property (nonatomic, strong) NSMutableArray *listeners;
+@property(nonatomic, strong) NSMutableArray *listeners;
 
 @end
 
 @implementation FIRTestAuthTokenProvider
 
-- (instancetype) initWithToken:(NSString *)token {
-    self = [super init];
-    if (self != nil) {
-        self.listeners = [NSMutableArray array];
-        self.token = token;
-    }
-    return self;
+- (instancetype)initWithToken:(NSString *)token {
+  self = [super init];
+  if (self != nil) {
+    self.listeners = [NSMutableArray array];
+    self.token = token;
+  }
+  return self;
 }
 
-- (void) setToken:(NSString *)token {
-    self->_token = token;
-    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-        [self.listeners enumerateObjectsUsingBlock:^(fbt_void_nsstring _Nonnull listener, NSUInteger idx, BOOL * _Nonnull stop) {
-            listener(token);
-        }];
-    });
-
+- (void)setToken:(NSString *)token {
+  self->_token = token;
+  dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+    [self.listeners enumerateObjectsUsingBlock:^(fbt_void_nsstring _Nonnull listener,
+                                                 NSUInteger idx, BOOL *_Nonnull stop) {
+      listener(token);
+    }];
+  });
 }
 
-- (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback {
-    if (forceRefresh) {
-        self.token = self.nextToken;
-    }
-    // Simulate delay
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_MSEC)), [FIRDatabaseQuery sharedQueue], ^{
-        callback(self.token, nil);
-    });
+- (void)fetchTokenForcingRefresh:(BOOL)forceRefresh
+                    withCallback:(fbt_void_nsstring_nserror)callback {
+  if (forceRefresh) {
+    self.token = self.nextToken;
+  }
+  // Simulate delay
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_MSEC)),
+                 [FIRDatabaseQuery sharedQueue], ^{
+                   callback(self.token, nil);
+                 });
 }
 
-- (void) listenForTokenChanges:(fbt_void_nsstring)listener {
-    [self.listeners addObject:[listener copy]];
+- (void)listenForTokenChanges:(fbt_void_nsstring)listener {
+  [self.listeners addObject:[listener copy]];
 }
 
 @end

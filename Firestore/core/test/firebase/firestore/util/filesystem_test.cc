@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "absl/strings/match.h"
@@ -57,19 +58,19 @@ static void WriteBytesToFile(const Path& path, int byte_count) {
   WriteStringToFile(path, std::string(byte_count, 'a'));
 }
 
-#define ASSERT_NOT_FOUND(expression)                              \
-  do {                                                            \
-    ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
+#define ASSERT_NOT_FOUND(expression)                 \
+  do {                                               \
+    ASSERT_EQ(Error::NotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_NOT_FOUND(expression)                              \
-  do {                                                            \
-    ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
+#define EXPECT_NOT_FOUND(expression)                 \
+  do {                                               \
+    ASSERT_EQ(Error::NotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_FAILED_PRECONDITION(expression)                              \
-  do {                                                                      \
-    ASSERT_EQ(FirestoreErrorCode::FailedPrecondition, (expression).code()); \
+#define EXPECT_FAILED_PRECONDITION(expression)                 \
+  do {                                                         \
+    ASSERT_EQ(Error::FailedPrecondition, (expression).code()); \
   } while (0)
 
 TEST(FilesystemTest, Exists) {
@@ -174,7 +175,7 @@ TEST(FilesystemTest, RecursivelyCreateDirFailure) {
   Touch(dir);
 
   Status status = RecursivelyCreateDir(subdir);
-  EXPECT_EQ(FirestoreErrorCode::FailedPrecondition, status.code());
+  EXPECT_EQ(Error::FailedPrecondition, status.code());
 
   EXPECT_OK(RecursivelyDelete(dir));
 }

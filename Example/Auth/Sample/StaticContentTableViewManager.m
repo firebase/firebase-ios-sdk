@@ -54,6 +54,18 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
   return _contents.sections[section].title;
 }
 
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+  return index;
+}
+
+- (NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+  NSMutableArray<NSString *> *sectionTitles = [NSMutableArray array];
+  for (StaticContentTableViewSection *section in _contents.sections) {
+    [sectionTitles addObject:[section.title substringToIndex:3]];
+  }
+  return sectionTitles;
+}
+
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

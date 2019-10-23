@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/empty.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/base/attributes.h"
@@ -31,20 +32,9 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
-namespace impl {
-
-// An empty value to associate with keys in the underlying map.
-struct Empty {
-  friend bool operator==(Empty /* left */, Empty /* right */) {
-    return true;
-  }
-};
-
-}  // namespace impl
-
 template <typename K,
           typename C = util::Comparator<K>,
-          typename V = impl::Empty,
+          typename V = util::Empty,
           typename M = SortedMap<K, V, C>>
 class SortedSet : public SortedContainer {
  public:
@@ -75,6 +65,10 @@ class SortedSet : public SortedContainer {
 
   size_type size() const {
     return map_.size();
+  }
+
+  const C& comparator() const {
+    return map_.comparator();
   }
 
   ABSL_MUST_USE_RESULT SortedSet insert(const K& key) const {

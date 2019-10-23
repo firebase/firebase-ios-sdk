@@ -22,6 +22,9 @@ public extension FileManager {
 
   /// Describes a type of file to be searched for.
   enum SearchFileType {
+    /// All files, not including folders.
+    case allFiles
+
     /// All folders with a `.bundle` extension.
     case bundles
 
@@ -107,9 +110,12 @@ public extension FileManager {
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
   func temporaryDirectory(withName name: String) -> URL {
-    // Get access to the temporary directory.
+    // Get access to the temporary directory. This could be passed in via `LaunchArgs`, or use the
+    // default temporary directory.
     let tempDir: URL
-    if #available(OSX 10.12, *) {
+    if let root = LaunchArgs.shared.buildRoot {
+      tempDir = root
+    } else if #available(OSX 10.12, *) {
       tempDir = temporaryDirectory
     } else {
       tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -141,6 +147,11 @@ public extension FileManager {
     var matches: [URL] = []
     while let fileURL = dirEnumerator.nextObject() as? URL {
       switch type {
+      case .allFiles:
+        // Skip directories, include everything else.
+        guard !isDirectory(at: fileURL) else { continue }
+
+        matches.append(fileURL)
       case let .directories(name):
         // Skip any non-directories.
         guard directoryExists(at: fileURL) else { continue }

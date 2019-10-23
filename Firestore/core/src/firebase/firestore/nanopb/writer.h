@@ -25,29 +25,28 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
 
 /**
- * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_ostream_t. All errors are considered fatal.
+ * Docs TODO(rsgowman). But currently, this just wraps the underlying Nanopb
+ * `pb_ostream_t`. All errors are considered fatal.
  */
 class Writer {
  public:
   /**
-   * Writes a nanopb message to the output stream.
+   * Writes a Nanopb proto to the output stream.
    *
-   * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
-   * use `oneof`s in our protos, this would be the primary way of encoding
-   * messages.
+   * This essentially wraps calls to Nanopb's `pb_encode()` method.
    */
-  void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
+  void Write(const pb_field_t* fields, const void* src_struct);
 
  protected:
   /**
-   * Creates a new Writer, with a default-initialized pb_ostream_t.
+   * Creates a `Writer` with a value-initialized `pb_ostream_t`.
    */
   Writer() = default;
 
@@ -55,10 +54,10 @@ class Writer {
 };
 
 /**
- * Creates a Writer that writes into a vector of bytes.
+ * A `Writer` that writes into a vector of bytes.
  *
- * This is roughly equivalent to the nanopb function pb_ostream_from_buffer(),
- * except that ByteStringWriter manages the buffer.
+ * This is roughly equivalent to the Nanopb function `pb_ostream_from_buffer()`,
+ * except that `ByteStringWriter` manages the buffer.
  */
 class ByteStringWriter : public Writer {
  public:
@@ -66,10 +65,7 @@ class ByteStringWriter : public Writer {
   ~ByteStringWriter();
 
   ByteStringWriter(const ByteStringWriter&) = delete;
-  ByteStringWriter(ByteStringWriter&&) = delete;
-
   ByteStringWriter& operator=(const ByteStringWriter&) = delete;
-  ByteStringWriter& operator=(ByteStringWriter&&) = delete;
 
   /**
    * Appends the given data to the internal buffer, growing the capacity of the
@@ -90,7 +86,7 @@ class ByteStringWriter : public Writer {
   void SetSize(size_t size);
 
   /**
-   * Returns a ByteString that takes ownership of the bytes backing this
+   * Returns a `ByteString` that takes ownership of the bytes backing this
    * writer.
    */
   ByteString Release();
@@ -125,17 +121,17 @@ class ByteStringWriter : public Writer {
 };
 
 /**
- * Creates an Writer that writes into a std::string.
+ * A `Writer` that writes into a `std::string`.
  *
- * This is roughly equivalent to the nanopb function pb_ostream_from_buffer(),
- * except that StringWriter manages the string.
+ * This is roughly equivalent to the Nanopb function `pb_ostream_from_buffer()`,
+ * except that `StringWriter` manages the string.
  */
 class StringWriter : public Writer {
  public:
   StringWriter();
 
   /**
-   * Returns the string backing this StringWriter, taking ownership of its
+   * Returns the string backing this `StringWriter`, taking ownership of its
    * contents.
    */
   std::string Release();

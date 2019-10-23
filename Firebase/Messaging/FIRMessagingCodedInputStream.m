@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingCodedInputStream.h"
-#import "FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
+
+#import "Firebase/Messaging/FIRMMessageCode.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
 
 typedef struct {
   const void *bytes;
@@ -32,9 +34,10 @@ static BOOL CheckSize(BufferState *state, size_t size) {
 }
 
 static BOOL ReadRawByte(BufferState *state, int8_t *output) {
-  _FIRMessagingDevAssert(output != NULL && state != NULL, @"Invalid parameters");
-
-  if (CheckSize(state, sizeof(int8_t))) {
+  if (state == NULL || output == NULL) {
+    FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
+  }
+  if (output != nil && CheckSize(state, sizeof(int8_t))) {
     *output = ((int8_t *)state->bytes)[state->bufferPos++];
     return YES;
   }
@@ -42,8 +45,10 @@ static BOOL ReadRawByte(BufferState *state, int8_t *output) {
 }
 
 static BOOL ReadRawVarInt32(BufferState *state, int32_t *output) {
-  _FIRMessagingDevAssert(output != NULL && state != NULL, @"Invalid parameters");
-
+  if (state == NULL || output == NULL) {
+    FIRMessagingLoggerDebug(kFIRMessagingCodeInputStreamInvalidParameters, @"Invalid parameters.");
+    return NO;
+  }
   int8_t tmp = 0;
   if (!ReadRawByte(state, &tmp)) {
     return NO;

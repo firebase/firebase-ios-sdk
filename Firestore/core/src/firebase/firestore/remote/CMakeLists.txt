@@ -68,6 +68,8 @@ cc_library(
     grpc_completion.h
     grpc_connection.cc
     grpc_connection.h
+    grpc_nanopb.cc
+    grpc_nanopb.h
     grpc_root_certificate_finder.h
     grpc_root_certificate_finder_generated.cc
     grpc_root_certificates_generated.cc
@@ -82,8 +84,12 @@ cc_library(
     grpc_util.cc
     grpc_util.cc
     grpc_util.h
-    serializer.h
+    remote_event.cc
+    remote_event.h
     serializer.cc
+    serializer.h
+    watch_change.cc
+    watch_change.h
 
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.
@@ -102,6 +108,7 @@ cc_library(
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb-static
 
+    firebase_firestore_core
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb

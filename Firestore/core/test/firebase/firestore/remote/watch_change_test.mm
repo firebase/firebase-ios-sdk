@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
-
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::remote::DocumentWatchChange;
-using firebase::firestore::remote::ExistenceFilter;
-using firebase::firestore::remote::ExistenceFilterWatchChange;
-using firebase::firestore::remote::WatchTargetChange;
-using firebase::firestore::remote::WatchTargetChangeState;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+using model::DocumentState;
+using model::MaybeDocument;
+
+using testutil::Doc;
+using testutil::Map;
+
 TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
-  FSTMaybeDocument* doc = FSTTestDoc("a/b", 1, @{}, DocumentState::kSynced);
-  DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key, doc};
+  MaybeDocument doc = Doc("a/b", 1, Map());
+  DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key(), doc};
 
   EXPECT_EQ(change.updated_target_ids().size(), 3);
   EXPECT_EQ(change.removed_target_ids().size(), 2);
@@ -66,5 +61,3 @@ TEST(WatchChangeTest, CanCreateWatchTargetChange) {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

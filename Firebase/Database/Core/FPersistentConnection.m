@@ -15,35 +15,35 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRLogger.h>
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <netinet/in.h>
-#import <dlfcn.h>
-#import "FIRDatabaseReference.h"
-#import "FPersistentConnection.h"
-#import "FConstants.h"
 #import "FAtomicNumber.h"
-#import "FQueryParams.h"
-#import "FTupleOnDisconnect.h"
-#import "FTupleCallbackStatus.h"
-#import "FQuerySpec.h"
-#import "FIndex.h"
+#import "FAuthTokenProvider.h"
+#import "FCompoundHash.h"
+#import "FConstants.h"
 #import "FIRDatabaseConfig.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FSnapshotUtilities.h"
-#import "FRangeMerge.h"
-#import "FCompoundHash.h"
-#import "FSyncTree.h"
+#import "FIRDatabaseReference.h"
 #import "FIRRetryHelper.h"
-#import "FAuthTokenProvider.h"
+#import "FIndex.h"
+#import "FPersistentConnection.h"
+#import "FQueryParams.h"
+#import "FQuerySpec.h"
+#import "FRangeMerge.h"
+#import "FSnapshotUtilities.h"
+#import "FSyncTree.h"
+#import "FTupleCallbackStatus.h"
+#import "FTupleOnDisconnect.h"
 #import "FUtilities.h"
+#import <FirebaseCore/FIRLogger.h>
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <dlfcn.h>
+#import <netinet/in.h>
 
 @interface FOutstandingQuery : NSObject
 
-@property (nonatomic, strong) FQuerySpec* query;
-@property (nonatomic, strong) NSNumber *tagId;
-@property (nonatomic, strong) id<FSyncTreeHash> syncTreeHash;
-@property (nonatomic, copy) fbt_void_nsstring onComplete;
+@property(nonatomic, strong) FQuerySpec *query;
+@property(nonatomic, strong) NSNumber *tagId;
+@property(nonatomic, strong) id<FSyncTreeHash> syncTreeHash;
+@property(nonatomic, copy) fbt_void_nsstring onComplete;
 
 @end
 
@@ -51,20 +51,18 @@
 
 @end
 
-
 @interface FOutstandingPut : NSObject
 
-@property (nonatomic, strong) NSString *action;
-@property (nonatomic, strong) NSDictionary *request;
-@property (nonatomic, copy) fbt_void_nsstring_nsstring onCompleteBlock;
-@property (nonatomic) BOOL sent;
+@property(nonatomic, strong) NSString *action;
+@property(nonatomic, strong) NSDictionary *request;
+@property(nonatomic, copy) fbt_void_nsstring_nsstring onCompleteBlock;
+@property(nonatomic) BOOL sent;
 
 @end
 
 @implementation FOutstandingPut
 
 @end
-
 
 typedef enum {
     ConnectionStateDisconnected,
@@ -83,44 +81,49 @@ typedef enum {
     SCNetworkReachabilityRef reachability;
 }
 
-- (int) getNextRequestNumber;
-- (void) onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body;
-- (void) handleTimestamp:(NSNumber *)timestamp;
-- (void) sendOnDisconnectAction:(NSString *)action forPath:(NSString *)pathString withData:(id)data andCallback:(fbt_void_nsstring_nsstring)callback;
+- (int)getNextRequestNumber;
+- (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body;
+- (void)handleTimestamp:(NSNumber *)timestamp;
+- (void)sendOnDisconnectAction:(NSString *)action
+                       forPath:(NSString *)pathString
+                      withData:(id)data
+                   andCallback:(fbt_void_nsstring_nsstring)callback;
 
-@property (nonatomic, strong) FConnection* realtime;
-@property (nonatomic, strong) NSMutableDictionary* listens;
-@property (nonatomic, strong) NSMutableDictionary* outstandingPuts;
-@property (nonatomic, strong) NSMutableArray* onDisconnectQueue;
-@property (nonatomic, strong) FRepoInfo* repoInfo;
-@property (nonatomic, strong) FAtomicNumber* putCounter;
-@property (nonatomic, strong) FAtomicNumber* requestNumber;
-@property (nonatomic, strong) NSMutableDictionary* requestCBHash;
-@property (nonatomic, strong) FIRDatabaseConfig *config;
-@property (nonatomic) NSUInteger unackedListensCount;
-@property (nonatomic, strong) NSMutableArray *putsToAck;
-@property (nonatomic, strong) dispatch_queue_t dispatchQueue;
-@property (nonatomic, strong) NSString* lastSessionID;
-@property (nonatomic, strong) NSMutableSet *interruptReasons;
-@property (nonatomic, strong) FIRRetryHelper *retryHelper;
-@property (nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
-@property (nonatomic, strong) NSString *authToken;
-@property (nonatomic) BOOL forceAuthTokenRefresh;
-@property (nonatomic) NSUInteger currentFetchTokenAttempt;
+@property(nonatomic, strong) FConnection *realtime;
+@property(nonatomic, strong) NSMutableDictionary *listens;
+@property(nonatomic, strong) NSMutableDictionary *outstandingPuts;
+@property(nonatomic, strong) NSMutableArray *onDisconnectQueue;
+@property(nonatomic, strong) FRepoInfo *repoInfo;
+@property(nonatomic, strong) FAtomicNumber *putCounter;
+@property(nonatomic, strong) FAtomicNumber *requestNumber;
+@property(nonatomic, strong) NSMutableDictionary *requestCBHash;
+@property(nonatomic, strong) FIRDatabaseConfig *config;
+@property(nonatomic) NSUInteger unackedListensCount;
+@property(nonatomic, strong) NSMutableArray *putsToAck;
+@property(nonatomic, strong) dispatch_queue_t dispatchQueue;
+@property(nonatomic, strong) NSString *lastSessionID;
+@property(nonatomic, strong) NSMutableSet *interruptReasons;
+@property(nonatomic, strong) FIRRetryHelper *retryHelper;
+@property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
+@property(nonatomic, strong) NSString *authToken;
+@property(nonatomic) BOOL forceAuthTokenRefresh;
+@property(nonatomic) NSUInteger currentFetchTokenAttempt;
 
 @end
 
-
 @implementation FPersistentConnection
 
-- (id)initWithRepoInfo:(FRepoInfo *)repoInfo dispatchQueue:(dispatch_queue_t)dispatchQueue config:(FIRDatabaseConfig *)config {
+- (id)initWithRepoInfo:(FRepoInfo *)repoInfo
+         dispatchQueue:(dispatch_queue_t)dispatchQueue
+                config:(FIRDatabaseConfig *)config {
     self = [super init];
     if (self) {
         self->_config = config;
         self->_repoInfo = repoInfo;
         self->_dispatchQueue = dispatchQueue;
         self->_authTokenProvider = config.authTokenProvider;
-        NSAssert(self->_authTokenProvider != nil, @"Expected auth token provider");
+        NSAssert(self->_authTokenProvider != nil,
+                 @"Expected auth token provider");
         self.interruptReasons = [NSMutableSet set];
 
         self.listens = [[NSMutableDictionary alloc] init];
@@ -135,24 +138,26 @@ typedef enum {
         firstConnection = YES;
         reconnectDelay = kPersistentConnReconnectMinDelay;
 
-        self->_retryHelper = [[FIRRetryHelper alloc] initWithDispatchQueue:dispatchQueue
-                                                 minRetryDelayAfterFailure:kPersistentConnReconnectMinDelay
-                                                             maxRetryDelay:kPersistentConnReconnectMaxDelay
-                                                             retryExponent:kPersistentConnReconnectMultiplier
-                                                              jitterFactor:0.7];
+        self->_retryHelper = [[FIRRetryHelper alloc]
+                initWithDispatchQueue:dispatchQueue
+            minRetryDelayAfterFailure:kPersistentConnReconnectMinDelay
+                        maxRetryDelay:kPersistentConnReconnectMaxDelay
+                        retryExponent:kPersistentConnReconnectMultiplier
+                         jitterFactor:0.7];
 
         [self setupNotifications];
         // Make sure we don't actually connect until open is called
         [self interruptForReason:kFInterruptReasonWaitingForOpen];
     }
-    // nb: The reason establishConnection isn't called here like the JS version is because
-    // callers need to set the delegate first. The ctor can be modified to accept the delegate
-    // but that deviates from normal ios conventions. After the delegate has been set, the caller
-    // is responsible for calling establishConnection:
+    // nb: The reason establishConnection isn't called here like the JS version
+    // is because callers need to set the delegate first. The ctor can be
+    // modified to accept the delegate but that deviates from normal ios
+    // conventions. After the delegate has been set, the caller is responsible
+    // for calling establishConnection:
     return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
@@ -163,26 +168,30 @@ typedef enum {
 #pragma mark -
 #pragma mark Public methods
 
-- (void) open {
+- (void)open {
     [self resumeForReason:kFInterruptReasonWaitingForOpen];
 }
 
 /**
-* Note that the listens dictionary has a type of Map[String (pathString), Map[FQueryParams, FOutstandingQuery]]
-*
-* This means, for each path we care about, there are sets of queryParams that correspond to an FOutstandingQuery object.
-* There can be multiple sets at a path since we overlap listens for a short time while adding or removing a query from a
-* location in the tree.
-*/
-- (void) listen:(FQuerySpec *)query
-          tagId:(NSNumber *)tagId
-           hash:(id<FSyncTreeHash>)hash
-     onComplete:(fbt_void_nsstring)onComplete {
+ * Note that the listens dictionary has a type of Map[String (pathString),
+ * Map[FQueryParams, FOutstandingQuery]]
+ *
+ * This means, for each path we care about, there are sets of queryParams that
+ * correspond to an FOutstandingQuery object. There can be multiple sets at a
+ * path since we overlap listens for a short time while adding or removing a
+ * query from a location in the tree.
+ */
+- (void)listen:(FQuerySpec *)query
+         tagId:(NSNumber *)tagId
+          hash:(id<FSyncTreeHash>)hash
+    onComplete:(fbt_void_nsstring)onComplete {
     FFLog(@"I-RDB034001", @"Listen called for %@", query);
 
-    NSAssert(self.listens[query] == nil, @"listen() called twice for the same query");
-    NSAssert(query.isDefault || !query.loadsAllData, @"listen called for non-default but complete query");
-    FOutstandingQuery* outstanding = [[FOutstandingQuery alloc] init];
+    NSAssert(self.listens[query] == nil,
+             @"listen() called twice for the same query");
+    NSAssert(query.isDefault || !query.loadsAllData,
+             @"listen called for non-default but complete query");
+    FOutstandingQuery *outstanding = [[FOutstandingQuery alloc] init];
     outstanding.query = query;
     outstanding.tagId = tagId;
     outstanding.syncTreeHash = hash;
@@ -193,19 +202,37 @@ typedef enum {
     }
 }
 
-- (void) putData:(id)data forPath:(NSString *)pathString withHash:(NSString *)hash withCallback:(fbt_void_nsstring_nsstring)onComplete {
-    [self putInternal:data forAction:kFWPRequestActionPut forPath:pathString withHash:hash withCallback:onComplete];
+- (void)putData:(id)data
+         forPath:(NSString *)pathString
+        withHash:(NSString *)hash
+    withCallback:(fbt_void_nsstring_nsstring)onComplete {
+    [self putInternal:data
+            forAction:kFWPRequestActionPut
+              forPath:pathString
+             withHash:hash
+         withCallback:onComplete];
 }
 
-- (void) mergeData:(id)data forPath:(NSString *)pathString withCallback:(fbt_void_nsstring_nsstring)onComplete {
-    [self putInternal:data forAction:kFWPRequestActionMerge forPath:pathString withHash:nil withCallback:onComplete];
+- (void)mergeData:(id)data
+          forPath:(NSString *)pathString
+     withCallback:(fbt_void_nsstring_nsstring)onComplete {
+    [self putInternal:data
+            forAction:kFWPRequestActionMerge
+              forPath:pathString
+             withHash:nil
+         withCallback:onComplete];
 }
 
-- (void) onDisconnectPutData:(id)data forPath:(FPath *)path withCallback:(fbt_void_nsstring_nsstring)callback {
+- (void)onDisconnectPutData:(id)data
+                    forPath:(FPath *)path
+               withCallback:(fbt_void_nsstring_nsstring)callback {
     if ([self canSendWrites]) {
-        [self sendOnDisconnectAction:kFWPRequestActionDisconnectPut forPath:[path description] withData:data andCallback:callback];
+        [self sendOnDisconnectAction:kFWPRequestActionDisconnectPut
+                             forPath:[path description]
+                            withData:data
+                         andCallback:callback];
     } else {
-        FTupleOnDisconnect* tuple = [[FTupleOnDisconnect alloc] init];
+        FTupleOnDisconnect *tuple = [[FTupleOnDisconnect alloc] init];
         tuple.pathString = [path description];
         tuple.action = kFWPRequestActionDisconnectPut;
         tuple.data = data;
@@ -214,11 +241,16 @@ typedef enum {
     }
 }
 
-- (void) onDisconnectMergeData:(id)data forPath:(FPath *)path withCallback:(fbt_void_nsstring_nsstring)callback {
+- (void)onDisconnectMergeData:(id)data
+                      forPath:(FPath *)path
+                 withCallback:(fbt_void_nsstring_nsstring)callback {
     if ([self canSendWrites]) {
-        [self sendOnDisconnectAction:kFWPRequestActionDisconnectMerge forPath:[path description] withData:data andCallback:callback];
+        [self sendOnDisconnectAction:kFWPRequestActionDisconnectMerge
+                             forPath:[path description]
+                            withData:data
+                         andCallback:callback];
     } else {
-        FTupleOnDisconnect* tuple = [[FTupleOnDisconnect alloc] init];
+        FTupleOnDisconnect *tuple = [[FTupleOnDisconnect alloc] init];
         tuple.pathString = [path description];
         tuple.action = kFWPRequestActionDisconnectMerge;
         tuple.data = data;
@@ -227,11 +259,15 @@ typedef enum {
     }
 }
 
-- (void) onDisconnectCancelPath:(FPath *)path withCallback:(fbt_void_nsstring_nsstring)callback {
+- (void)onDisconnectCancelPath:(FPath *)path
+                  withCallback:(fbt_void_nsstring_nsstring)callback {
     if ([self canSendWrites]) {
-        [self sendOnDisconnectAction:kFWPRequestActionDisconnectCancel forPath:[path description] withData:[NSNull null] andCallback:callback];
+        [self sendOnDisconnectAction:kFWPRequestActionDisconnectCancel
+                             forPath:[path description]
+                            withData:[NSNull null]
+                         andCallback:callback];
     } else {
-        FTupleOnDisconnect* tuple = [[FTupleOnDisconnect alloc] init];
+        FTupleOnDisconnect *tuple = [[FTupleOnDisconnect alloc] init];
         tuple.pathString = [path description];
         tuple.action = kFWPRequestActionDisconnectCancel;
         tuple.data = [NSNull null];
@@ -240,7 +276,7 @@ typedef enum {
     }
 }
 
-- (void) unlisten:(FQuerySpec *)query tagId:(NSNumber *)tagId {
+- (void)unlisten:(FQuerySpec *)query tagId:(NSNumber *)tagId {
     FPath *path = query.path;
     FFLog(@"I-RDB034002", @"Unlistening for %@", query);
 
@@ -250,7 +286,7 @@ typedef enum {
     }
 }
 
-- (void) refreshAuthToken:(NSString *)token {
+- (void)refreshAuthToken:(NSString *)token {
     self.authToken = token;
     if ([self connected]) {
         if (token != nil) {
@@ -265,7 +301,8 @@ typedef enum {
 #pragma mark Connection status
 
 - (BOOL)connected {
-    return self->connectionState == ConnectionStateAuthenticating || self->connectionState == ConnectionStateConnected;
+    return self->connectionState == ConnectionStateAuthenticating ||
+           self->connectionState == ConnectionStateConnected;
 }
 
 - (BOOL)canSendWrites {
@@ -275,7 +312,9 @@ typedef enum {
 #pragma mark -
 #pragma mark FConnection delegate methods
 
-- (void)onReady:(FConnection *)fconnection atTime:(NSNumber *)timestamp sessionID:(NSString *)sessionID {
+- (void)onReady:(FConnection *)fconnection
+         atTime:(NSNumber *)timestamp
+      sessionID:(NSString *)sessionID {
     FFLog(@"I-RDB034003", @"On ready");
     lastConnectionEstablishedTime = [[NSDate date] timeIntervalSince1970];
     [self handleTimestamp:timestamp];
@@ -288,37 +327,45 @@ typedef enum {
     firstConnection = NO;
     self.lastSessionID = sessionID;
     dispatch_async(self.dispatchQueue, ^{
-        [self.delegate onConnect:self];
+      [self.delegate onConnect:self];
     });
 }
 
-- (void)onDataMessage:(FConnection *)fconnection withMessage:(NSDictionary *)message {
+- (void)onDataMessage:(FConnection *)fconnection
+          withMessage:(NSDictionary *)message {
     if (message[kFWPRequestNumber] != nil) {
         // this is a response to a request we sent
-        NSNumber* rn = [NSNumber numberWithInt:[[message objectForKey:kFWPRequestNumber] intValue]];
+        NSNumber *rn = [NSNumber
+            numberWithInt:[[message objectForKey:kFWPRequestNumber] intValue]];
         if ([self.requestCBHash objectForKey:rn]) {
-            void (^callback)(NSDictionary*) = [self.requestCBHash objectForKey:rn];
+            void (^callback)(NSDictionary *) =
+                [self.requestCBHash objectForKey:rn];
             [self.requestCBHash removeObjectForKey:rn];
 
             if (callback) {
-                //dispatch_async(self.dispatchQueue, ^{
-                    callback([message objectForKey:kFWPResponseForRNData]);
+                // dispatch_async(self.dispatchQueue, ^{
+                callback([message objectForKey:kFWPResponseForRNData]);
                 //});
             }
         }
     } else if (message[kFWPRequestError] != nil) {
-        NSString* error = [message objectForKey:kFWPRequestError];
-        @throw [[NSException alloc] initWithName:@"FirebaseDatabaseServerError" reason:error userInfo:nil];
+        NSString *error = [message objectForKey:kFWPRequestError];
+        @throw [[NSException alloc] initWithName:@"FirebaseDatabaseServerError"
+                                          reason:error
+                                        userInfo:nil];
     } else if (message[kFWPAsyncServerAction] != nil) {
         // this is a server push of some sort
-        NSString* action = [message objectForKey:kFWPAsyncServerAction];
-        NSDictionary* body = [message objectForKey:kFWPAsyncServerPayloadBody];
+        NSString *action = [message objectForKey:kFWPAsyncServerAction];
+        NSDictionary *body = [message objectForKey:kFWPAsyncServerPayloadBody];
         [self onDataPushWithAction:action andBody:body];
     }
 }
 
-- (void)onDisconnect:(FConnection *)fconnection withReason:(FDisconnectReason)reason {
-    FFLog(@"I-RDB034004", @"Got on disconnect due to %s", (reason == DISCONNECT_REASON_SERVER_RESET) ? "server_reset" : "other");
+- (void)onDisconnect:(FConnection *)fconnection
+          withReason:(FDisconnectReason)reason {
+    FFLog(@"I-RDB034004", @"Got on disconnect due to %s",
+          (reason == DISCONNECT_REASON_SERVER_RESET) ? "server_reset"
+                                                     : "other");
     connectionState = ConnectionStateDisconnected;
     // Drop the realtime connection
     self.realtime = nil;
@@ -326,15 +373,20 @@ typedef enum {
     [self.requestCBHash removeAllObjects];
     self.unackedListensCount = 0;
     if ([self shouldReconnect]) {
-        NSTimeInterval timeSinceLastConnectSucceeded = [[NSDate date] timeIntervalSince1970] - lastConnectionEstablishedTime;
+        NSTimeInterval timeSinceLastConnectSucceeded =
+            [[NSDate date] timeIntervalSince1970] -
+            lastConnectionEstablishedTime;
         BOOL lastConnectionWasSuccessful;
         if (lastConnectionEstablishedTime > 0) {
-            lastConnectionWasSuccessful = timeSinceLastConnectSucceeded > kPersistentConnSuccessfulConnectionEstablishedDelay;
+            lastConnectionWasSuccessful =
+                timeSinceLastConnectSucceeded >
+                kPersistentConnSuccessfulConnectionEstablishedDelay;
         } else {
             lastConnectionWasSuccessful = NO;
         }
 
-        if (reason == DISCONNECT_REASON_SERVER_RESET || lastConnectionWasSuccessful) {
+        if (reason == DISCONNECT_REASON_SERVER_RESET ||
+            lastConnectionWasSuccessful) {
             [self.retryHelper signalSuccess];
         }
         [self tryScheduleReconnect];
@@ -344,14 +396,17 @@ typedef enum {
 }
 
 - (void)onKill:(FConnection *)fconnection withReason:(NSString *)reason {
-    FFWarn(@"I-RDB034005", @"Firebase Database connection was forcefully killed by the server.  Will not attempt reconnect. Reason: %@", reason);
+    FFWarn(@"I-RDB034005",
+           @"Firebase Database connection was forcefully killed by the server. "
+           @" Will not attempt reconnect. Reason: %@",
+           reason);
     [self interruptForReason:kFInterruptReasonServerKill];
 }
 
 #pragma mark -
 #pragma mark Connection handling methods
 
-- (void) interruptForReason:(NSString *)reason {
+- (void)interruptForReason:(NSString *)reason {
     FFLog(@"I-RDB034006", @"Connection interrupted for: %@", reason);
 
     [self.interruptReasons addObject:reason];
@@ -367,27 +422,28 @@ typedef enum {
     [self.retryHelper signalSuccess];
 }
 
-- (void) resumeForReason:(NSString *)reason {
+- (void)resumeForReason:(NSString *)reason {
     FFLog(@"I-RDB034007", @"Connection no longer interrupted for: %@", reason);
     [self.interruptReasons removeObject:reason];
 
-    if ([self shouldReconnect] && connectionState == ConnectionStateDisconnected) {
+    if ([self shouldReconnect] &&
+        connectionState == ConnectionStateDisconnected) {
         [self tryScheduleReconnect];
     }
 }
 
-- (BOOL) shouldReconnect {
+- (BOOL)shouldReconnect {
     return self.interruptReasons.count == 0;
 }
 
-- (BOOL) isInterruptedForReason:(NSString *)reason {
+- (BOOL)isInterruptedForReason:(NSString *)reason {
     return [self.interruptReasons containsObject:reason];
 }
 
 #pragma mark -
 #pragma mark Private methods
 
-- (void) tryScheduleReconnect {
+- (void)tryScheduleReconnect {
     if ([self shouldReconnect]) {
         NSAssert(self->connectionState == ConnectionStateDisconnected,
                  @"Not in disconnected state: %d", self->connectionState);
@@ -395,42 +451,62 @@ typedef enum {
         self.forceAuthTokenRefresh = NO;
         FFLog(@"I-RDB034008", @"Scheduling connection attempt");
         [self.retryHelper retry:^{
-            FFLog(@"I-RDB034009", @"Trying to fetch auth token");
-            NSAssert(self->connectionState == ConnectionStateDisconnected,
-                     @"Not in disconnected state: %d", self->connectionState);
-            self->connectionState = ConnectionStateGettingToken;
-            self.currentFetchTokenAttempt++;
-            NSUInteger thisFetchTokenAttempt = self.currentFetchTokenAttempt;
-            [self.authTokenProvider fetchTokenForcingRefresh:forceRefresh withCallback:^(NSString *token, NSError *error) {
-                if (thisFetchTokenAttempt == self.currentFetchTokenAttempt) {
-                    if (error != nil) {
-                        self->connectionState = ConnectionStateDisconnected;
-                        FFLog(@"I-RDB034010", @"Error fetching token: %@", error);
-                        [self tryScheduleReconnect];
-                    } else {
-                        // Someone could have interrupted us while fetching the token,
-                        // marking the connection as Disconnected
-                        if (self->connectionState == ConnectionStateGettingToken) {
-                            FFLog(@"I-RDB034011", @"Successfully fetched token, opening connection");
-                            [self openNetworkConnectionWithToken:token];
-                        } else {
-                            NSAssert(self->connectionState == ConnectionStateDisconnected,
-                                     @"Expected connection state disconnected, but got %d", self->connectionState);
-                            FFLog(@"I-RDB034012", @"Not opening connection after token refresh, because connection was set to disconnected.");
-                        }
-                    }
-                } else {
-                    FFLog(@"I-RDB034013", @"Ignoring fetch token result, because this was not the latest attempt.");
-                }
-            }];
+          FFLog(@"I-RDB034009", @"Trying to fetch auth token");
+          NSAssert(self->connectionState == ConnectionStateDisconnected,
+                   @"Not in disconnected state: %d", self->connectionState);
+          self->connectionState = ConnectionStateGettingToken;
+          self.currentFetchTokenAttempt++;
+          NSUInteger thisFetchTokenAttempt = self.currentFetchTokenAttempt;
+          [self.authTokenProvider
+              fetchTokenForcingRefresh:forceRefresh
+                          withCallback:^(NSString *token, NSError *error) {
+                            if (thisFetchTokenAttempt ==
+                                self.currentFetchTokenAttempt) {
+                                if (error != nil) {
+                                    self->connectionState =
+                                        ConnectionStateDisconnected;
+                                    FFLog(@"I-RDB034010",
+                                          @"Error fetching token: %@", error);
+                                    [self tryScheduleReconnect];
+                                } else {
+                                    // Someone could have interrupted us while
+                                    // fetching the token, marking the
+                                    // connection as Disconnected
+                                    if (self->connectionState ==
+                                        ConnectionStateGettingToken) {
+                                        FFLog(@"I-RDB034011",
+                                              @"Successfully fetched token, "
+                                              @"opening connection");
+                                        [self openNetworkConnectionWithToken:
+                                                  token];
+                                    } else {
+                                        NSAssert(
+                                            self->connectionState ==
+                                                ConnectionStateDisconnected,
+                                            @"Expected connection state "
+                                            @"disconnected, but got %d",
+                                            self->connectionState);
+                                        FFLog(@"I-RDB034012",
+                                              @"Not opening connection after "
+                                              @"token refresh, because "
+                                              @"connection was set to "
+                                              @"disconnected.");
+                                    }
+                                }
+                            } else {
+                                FFLog(@"I-RDB034013",
+                                      @"Ignoring fetch token result, because "
+                                      @"this was not the latest attempt.");
+                            }
+                          }];
         }];
-
     }
 }
 
-- (void) openNetworkConnectionWithToken:(NSString *)token {
+- (void)openNetworkConnectionWithToken:(NSString *)token {
     NSAssert(self->connectionState == ConnectionStateGettingToken,
-             @"Trying to open network connection while in wrong state: %d", self->connectionState);
+             @"Trying to open network connection while in wrong state: %d",
+             self->connectionState);
     self.authToken = token;
     self->connectionState = ConnectionStateConnecting;
     self.realtime = [[FConnection alloc] initWith:self.repoInfo
@@ -440,10 +516,12 @@ typedef enum {
     [self.realtime open];
 }
 
-static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabilityFlags flags, void* info) {
+static void reachabilityCallback(SCNetworkReachabilityRef ref,
+                                 SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
-        FFLog(@"I-RDB034014", @"Network became reachable. Trigger a connection attempt");
-        FPersistentConnection* self = (__bridge FPersistentConnection *)info;
+        FFLog(@"I-RDB034014",
+              @"Network became reachable. Trigger a connection attempt");
+        FPersistentConnection *self = (__bridge FPersistentConnection *)info;
         // Reset reconnect delay
         [self.retryHelper signalSuccess];
         if (self->connectionState == ConnectionStateDisconnected) {
@@ -454,79 +532,98 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     }
 }
 
-- (void) enteringForeground {
+- (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
-        // Reset reconnect delay
-        [self.retryHelper signalSuccess];
-        if (self->connectionState == ConnectionStateDisconnected) {
-            [self tryScheduleReconnect];
-        }
+      // Reset reconnect delay
+      [self.retryHelper signalSuccess];
+      if (self->connectionState == ConnectionStateDisconnected) {
+          [self tryScheduleReconnect];
+      }
     });
 }
 
-- (void) setupNotifications {
+- (void)setupNotifications {
 
-    NSString * const* foregroundConstant = (NSString * const *) dlsym(RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
+    NSString *const *foregroundConstant = (NSString *const *)dlsym(
+        RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
     if (foregroundConstant) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(enteringForeground)
-                                                     name:*foregroundConstant
-                                                   object:nil];
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(enteringForeground)
+                   name:*foregroundConstant
+                 object:nil];
     }
     // An empty address is interpreted a generic internet access
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
-    reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
-    SCNetworkReachabilityContext ctx = {0, (__bridge void *)(self), NULL, NULL, NULL};
-    if (SCNetworkReachabilitySetCallback(reachability, reachabilityCallback, &ctx)) {
+    reachability = SCNetworkReachabilityCreateWithAddress(
+        kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
+    SCNetworkReachabilityContext ctx = {0, (__bridge void *)(self), NULL, NULL,
+                                        NULL};
+    if (SCNetworkReachabilitySetCallback(reachability, reachabilityCallback,
+                                         &ctx)) {
         SCNetworkReachabilitySetDispatchQueue(reachability, self.dispatchQueue);
     } else {
-        FFLog(@"I-RDB034016", @"Failed to set up network reachability monitoring");
+        FFLog(@"I-RDB034016",
+              @"Failed to set up network reachability monitoring");
         CFRelease(reachability);
         reachability = NULL;
     }
 }
 
-- (void) sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
+- (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
     NSAssert([self connected], @"Must be connected to send auth");
-    NSAssert(self.authToken != nil, @"Can't send auth if there is no credential");
+    NSAssert(self.authToken != nil,
+             @"Can't send auth if there is no credential");
 
-    NSDictionary* requestData = @{kFWPRequestCredential: self.authToken};
-    [self sendAction:kFWPRequestActionAuth body:requestData sensitive:YES callback:^(NSDictionary *data) {
-        self->connectionState = ConnectionStateConnected;
-        NSString* status = [data objectForKey:kFWPResponseForActionStatus];
-        id responseData = [data objectForKey:kFWPResponseForActionData];
-        if (responseData == nil) {
-            responseData = @"error";
-        }
+    NSDictionary *requestData = @{kFWPRequestCredential : self.authToken};
+    [self sendAction:kFWPRequestActionAuth
+                body:requestData
+           sensitive:YES
+            callback:^(NSDictionary *data) {
+              self->connectionState = ConnectionStateConnected;
+              NSString *status =
+                  [data objectForKey:kFWPResponseForActionStatus];
+              id responseData = [data objectForKey:kFWPResponseForActionData];
+              if (responseData == nil) {
+                  responseData = @"error";
+              }
 
-        BOOL statusOk = [status isEqualToString:kFWPResponseForActionStatusOk];
-        if (statusOk) {
-            if (restoreStateAfterComplete) {
-                [self restoreState];
-            }
-        } else {
-            self.authToken = nil;
-            self.forceAuthTokenRefresh = YES;
-            if ([status isEqualToString:@"expired_token"]) {
-                FFLog(@"I-RDB034017", @"Authentication failed: %@ (%@)", status, responseData);
-            } else {
-                FFWarn(@"I-RDB034018", @"Authentication failed: %@ (%@)", status, responseData);
-            }
-            [self.realtime close];
-        }
-    }];
+              BOOL statusOk =
+                  [status isEqualToString:kFWPResponseForActionStatusOk];
+              if (statusOk) {
+                  if (restoreStateAfterComplete) {
+                      [self restoreState];
+                  }
+              } else {
+                  self.authToken = nil;
+                  self.forceAuthTokenRefresh = YES;
+                  if ([status isEqualToString:@"expired_token"]) {
+                      FFLog(@"I-RDB034017", @"Authentication failed: %@ (%@)",
+                            status, responseData);
+                  } else {
+                      FFWarn(@"I-RDB034018", @"Authentication failed: %@ (%@)",
+                             status, responseData);
+                  }
+                  [self.realtime close];
+              }
+            }];
 }
 
-- (void) sendUnauth {
-    [self sendAction:kFWPRequestActionUnauth body:@{} sensitive:NO callback:nil];
+- (void)sendUnauth {
+    [self sendAction:kFWPRequestActionUnauth
+                body:@{}
+           sensitive:NO
+            callback:nil];
 }
 
-- (void) onAuthRevokedWithStatus:(NSString *)status andReason:(NSString *)reason {
-    // This might be for an earlier token than we just recently sent. But since we need to close the connection anyways,
-    // we can set it to null here and we will refresh the token later on reconnect
+- (void)onAuthRevokedWithStatus:(NSString *)status
+                      andReason:(NSString *)reason {
+    // This might be for an earlier token than we just recently sent. But since
+    // we need to close the connection anyways, we can set it to null here and
+    // we will refresh the token later on reconnect
     if ([status isEqualToString:@"expired_token"]) {
         FFLog(@"I-RDB034019", @"Auth token revoked: %@ (%@)", status, reason);
     } else {
@@ -538,70 +635,87 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     [self.realtime close];
 }
 
-- (void) onListenRevoked:(FPath *)path {
+- (void)onListenRevoked:(FPath *)path {
     NSArray *queries = [self removeAllListensAtPath:path];
-    for (FOutstandingQuery* query in queries) {
+    for (FOutstandingQuery *query in queries) {
         query.onComplete(@"permission_denied");
     }
 }
 
-- (void) sendOnDisconnectAction:(NSString *)action forPath:(NSString *)pathString withData:(id)data andCallback:(fbt_void_nsstring_nsstring)callback {
+- (void)sendOnDisconnectAction:(NSString *)action
+                       forPath:(NSString *)pathString
+                      withData:(id)data
+                   andCallback:(fbt_void_nsstring_nsstring)callback {
 
-    NSDictionary* request = @{kFWPRequestPath: pathString, kFWPRequestData: data};
+    NSDictionary *request =
+        @{kFWPRequestPath : pathString, kFWPRequestData : data};
     FFLog(@"I-RDB034021", @"onDisconnect %@: %@", action, request);
 
     [self sendAction:action
                 body:request
            sensitive:NO
             callback:^(NSDictionary *data) {
-            NSString* status = [data objectForKey:kFWPResponseForActionStatus];
-            NSString* errorReason = [data objectForKey:kFWPResponseForActionData];
-            callback(status, errorReason);
-        }];
+              NSString *status =
+                  [data objectForKey:kFWPResponseForActionStatus];
+              NSString *errorReason =
+                  [data objectForKey:kFWPResponseForActionData];
+              callback(status, errorReason);
+            }];
 }
 
-- (void) sendPut:(NSNumber *) index {
-    NSAssert([self canSendWrites], @"sendPut called when not able to send writes");
-    FOutstandingPut* put = self.outstandingPuts[index];
+- (void)sendPut:(NSNumber *)index {
+    NSAssert([self canSendWrites],
+             @"sendPut called when not able to send writes");
+    FOutstandingPut *put = self.outstandingPuts[index];
     assert(put != nil);
     fbt_void_nsstring_nsstring onComplete = put.onCompleteBlock;
 
-    // Do not async this block; copying the block insinde sendAction: doesn't happen in time (or something) so coredumps
+    // Do not async this block; copying the block insinde sendAction: doesn't
+    // happen in time (or something) so coredumps
     put.sent = YES;
     [self sendAction:put.action
                 body:put.request
            sensitive:NO
-            callback:^(NSDictionary* data) {
+            callback:^(NSDictionary *data) {
+              FOutstandingPut *currentPut = self.outstandingPuts[index];
+              if (currentPut == put) {
+                  [self.outstandingPuts removeObjectForKey:index];
 
-            FOutstandingPut *currentPut = self.outstandingPuts[index];
-            if (currentPut == put) {
-                [self.outstandingPuts removeObjectForKey:index];
-
-                if (onComplete != nil) {
-                    NSString *status = [data objectForKey:kFWPResponseForActionStatus];
-                    NSString *errorReason = [data objectForKey:kFWPResponseForActionData];
-                    if (self.unackedListensCount == 0) {
-                        onComplete(status, errorReason);
-                    } else {
-                        FTupleCallbackStatus *putToAck = [[FTupleCallbackStatus alloc] init];
-                        putToAck.block = onComplete;
-                        putToAck.status = status;
-                        putToAck.errorReason = errorReason;
-                        [self.putsToAck addObject:putToAck];
-                    }
-                }
-            } else {
-                FFLog(@"I-RDB034022", @"Ignoring on complete for put %@ because it was already removed", index);
-            }
-        }];
+                  if (onComplete != nil) {
+                      NSString *status =
+                          [data objectForKey:kFWPResponseForActionStatus];
+                      NSString *errorReason =
+                          [data objectForKey:kFWPResponseForActionData];
+                      if (self.unackedListensCount == 0) {
+                          onComplete(status, errorReason);
+                      } else {
+                          FTupleCallbackStatus *putToAck =
+                              [[FTupleCallbackStatus alloc] init];
+                          putToAck.block = onComplete;
+                          putToAck.status = status;
+                          putToAck.errorReason = errorReason;
+                          [self.putsToAck addObject:putToAck];
+                      }
+                  }
+              } else {
+                  FFLog(@"I-RDB034022",
+                        @"Ignoring on complete for put %@ because it was "
+                        @"already removed",
+                        index);
+              }
+            }];
 }
 
-- (void) sendUnlisten:(FPath *)path queryParams:(FQueryParams *)queryParams tagId:(NSNumber *)tagId {
+- (void)sendUnlisten:(FPath *)path
+         queryParams:(FQueryParams *)queryParams
+               tagId:(NSNumber *)tagId {
     FFLog(@"I-RDB034023", @"Unlisten on %@ for %@", path, queryParams);
 
-    NSMutableDictionary* request = [NSMutableDictionary dictionaryWithObjectsAndKeys:[path toString], kFWPRequestPath, nil];
+    NSMutableDictionary *request = [NSMutableDictionary
+        dictionaryWithObjectsAndKeys:[path toString], kFWPRequestPath, nil];
     if (tagId != nil) {
-        [request setObject:queryParams.wireProtocolParams forKey:kFWPRequestQueries];
+        [request setObject:queryParams.wireProtocolParams
+                    forKey:kFWPRequestQueries];
         [request setObject:tagId forKey:kFWPRequestTag];
     }
 
@@ -611,12 +725,16 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
             callback:nil];
 }
 
-- (void) putInternal:(id)data forAction:(NSString *)action forPath:(NSString *)pathString withHash:(NSString *)hash withCallback:(fbt_void_nsstring_nsstring)onComplete {
+- (void)putInternal:(id)data
+          forAction:(NSString *)action
+            forPath:(NSString *)pathString
+           withHash:(NSString *)hash
+       withCallback:(fbt_void_nsstring_nsstring)onComplete {
 
-    NSMutableDictionary *request = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                    pathString, kFWPRequestPath,
-                                    data, kFWPRequestData, nil];
-    if(hash) {
+    NSMutableDictionary *request = [NSMutableDictionary
+        dictionaryWithObjectsAndKeys:pathString, kFWPRequestPath, data,
+                                     kFWPRequestData, nil];
+    if (hash) {
         [request setObject:hash forKey:kFWPRequestHash];
     }
 
@@ -626,64 +744,75 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     put.onCompleteBlock = onComplete;
     put.sent = NO;
 
-    NSNumber* index = [self.putCounter getAndIncrement];
+    NSNumber *index = [self.putCounter getAndIncrement];
     self.outstandingPuts[index] = put;
 
     if ([self canSendWrites]) {
         FFLog(@"I-RDB034024", @"Was connected, and added as index: %@", index);
         [self sendPut:index];
-    }
-    else {
-        FFLog(@"I-RDB034025", @"Wasn't connected or writes paused, so added to outstanding puts only. Path: %@", pathString);
+    } else {
+        FFLog(@"I-RDB034025",
+              @"Wasn't connected or writes paused, so added to outstanding "
+              @"puts only. Path: %@",
+              pathString);
     }
 }
 
-- (void) sendListen:(FOutstandingQuery *)listenSpec {
+- (void)sendListen:(FOutstandingQuery *)listenSpec {
     FQuerySpec *query = listenSpec.query;
     FFLog(@"I-RDB034026", @"Listen for %@", query);
-    NSMutableDictionary *request = [NSMutableDictionary dictionaryWithObject:[query.path toString] forKey:kFWPRequestPath];
+    NSMutableDictionary *request =
+        [NSMutableDictionary dictionaryWithObject:[query.path toString]
+                                           forKey:kFWPRequestPath];
 
     // Only bother to send query if it's non-default
     if (listenSpec.tagId != nil) {
-        [request setObject:[query.params wireProtocolParams] forKey:kFWPRequestQueries];
+        [request setObject:[query.params wireProtocolParams]
+                    forKey:kFWPRequestQueries];
         [request setObject:listenSpec.tagId forKey:kFWPRequestTag];
     }
 
-    [request setObject:[listenSpec.syncTreeHash simpleHash] forKey:kFWPRequestHash];
+    [request setObject:[listenSpec.syncTreeHash simpleHash]
+                forKey:kFWPRequestHash];
     if ([listenSpec.syncTreeHash includeCompoundHash]) {
         FCompoundHash *compoundHash = [listenSpec.syncTreeHash compoundHash];
         NSMutableArray *posts = [NSMutableArray array];
         for (FPath *path in compoundHash.posts) {
             [posts addObject:path.wireFormat];
         }
-        request[kFWPRequestCompoundHash] = @{ kFWPRequestCompoundHashHashes: compoundHash.hashes,
-                                              kFWPRequestCompoundHashPaths: posts };
+        request[kFWPRequestCompoundHash] = @{
+            kFWPRequestCompoundHashHashes : compoundHash.hashes,
+            kFWPRequestCompoundHashPaths : posts
+        };
     }
 
     fbt_void_nsdictionary onResponse = ^(NSDictionary *response) {
-        FFLog(@"I-RDB034027", @"Listen response %@", response);
-        // warn in any case, even if the listener was removed
-        [self warnOnListenWarningsForQuery:query payload:response[kFWPResponseForActionData]];
+      FFLog(@"I-RDB034027", @"Listen response %@", response);
+      // warn in any case, even if the listener was removed
+      [self warnOnListenWarningsForQuery:query
+                                 payload:response[kFWPResponseForActionData]];
 
-        FOutstandingQuery *currentListenSpec = self.listens[query];
+      FOutstandingQuery *currentListenSpec = self.listens[query];
 
-        // only trigger actions if the listen hasn't been removed (and maybe readded)
-        if (currentListenSpec == listenSpec) {
-            NSString *status = [response objectForKey:kFWPRequestStatus];
-            if (![status isEqualToString:@"ok"]) {
-                [self removeListen:query];
-            }
+      // only trigger actions if the listen hasn't been removed (and maybe
+      // readded)
+      if (currentListenSpec == listenSpec) {
+          NSString *status = [response objectForKey:kFWPRequestStatus];
+          if (![status isEqualToString:@"ok"]) {
+              [self removeListen:query];
+          }
 
-            if (listenSpec.onComplete) {
-                listenSpec.onComplete(status);
-            }
-        }
+          if (listenSpec.onComplete) {
+              listenSpec.onComplete(status);
+          }
+      }
 
-        self.unackedListensCount--;
-        NSAssert(self.unackedListensCount >= 0, @"unackedListensCount decremented to be negative.");
-        if (self.unackedListensCount == 0) {
-            [self ackPuts];
-        }
+      self.unackedListensCount--;
+      NSAssert(self.unackedListensCount >= 0,
+               @"unackedListensCount decremented to be negative.");
+      if (self.unackedListensCount == 0) {
+          [self ackPuts];
+      }
     };
 
     [self sendAction:kFWPRequestActionTaggedListen
@@ -694,82 +823,107 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     self.unackedListensCount++;
 }
 
-- (void) warnOnListenWarningsForQuery:(FQuerySpec *)query payload:(id)payload {
+- (void)warnOnListenWarningsForQuery:(FQuerySpec *)query payload:(id)payload {
     if (payload != nil && [payload isKindOfClass:[NSDictionary class]]) {
         NSDictionary *payloadDict = payload;
         id warnings = payloadDict[kFWPResponseDataWarnings];
         if (warnings != nil && [warnings isKindOfClass:[NSArray class]]) {
             NSArray *warningsArr = warnings;
             if ([warningsArr containsObject:@"no_index"]) {
-                NSString *indexSpec = [NSString stringWithFormat:@"\".indexOn\": \"%@\"", [query.params.index queryDefinition]];
+                NSString *indexSpec = [NSString
+                    stringWithFormat:@"\".indexOn\": \"%@\"",
+                                     [query.params.index queryDefinition]];
                 NSString *indexPath = [query.path description];
-                FFWarn(@"I-RDB034028", @"Using an unspecified index. Your data will be downloaded and filtered on the client. "
-                       "Consider adding %@ at %@ to your security rules for better performance", indexSpec, indexPath);
+                FFWarn(@"I-RDB034028",
+                       @"Using an unspecified index. Your data will be "
+                       @"downloaded and filtered on the client. "
+                        "Consider adding %@ at %@ to your security rules for "
+                        "better performance",
+                       indexSpec, indexPath);
             }
         }
     }
 }
 
-- (int) getNextRequestNumber {
+- (int)getNextRequestNumber {
     return [[self.requestNumber getAndIncrement] intValue];
 }
 
 - (void)sendAction:(NSString *)action
               body:(NSDictionary *)message
          sensitive:(BOOL)sensitive
-          callback:(void (^)(NSDictionary* data))onMessage {
+          callback:(void (^)(NSDictionary *data))onMessage {
     // Hold onto the onMessage callback for this request before firing it off
-    NSNumber* rn = [NSNumber numberWithInt:[self getNextRequestNumber]];
-    NSDictionary* msg = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    rn, kFWPRequestNumber,
-                                    action, kFWPRequestAction,
-                                    message, kFWPRequestPayloadBody,
-                         nil];
+    NSNumber *rn = [NSNumber numberWithInt:[self getNextRequestNumber]];
+    NSDictionary *msg = [NSDictionary
+        dictionaryWithObjectsAndKeys:rn, kFWPRequestNumber, action,
+                                     kFWPRequestAction, message,
+                                     kFWPRequestPayloadBody, nil];
 
     [self.realtime sendRequest:msg sensitive:sensitive];
 
     if (onMessage) {
-        // Debug message without a callback; bump the rn, but don't hold onto the cb
+        // Debug message without a callback; bump the rn, but don't hold onto
+        // the cb
         [self.requestCBHash setObject:[onMessage copy] forKey:rn];
     }
 }
 
-- (void) cancelSentTransactions {
-    NSMutableDictionary<NSNumber*, FOutstandingPut*>* cancelledOutstandingPuts =  [[NSMutableDictionary alloc] init];
+- (void)cancelSentTransactions {
+    NSMutableDictionary<NSNumber *, FOutstandingPut *>
+        *cancelledOutstandingPuts = [[NSMutableDictionary alloc] init];
 
-    for (NSNumber* index in self.outstandingPuts) {
-        FOutstandingPut* put = self.outstandingPuts[index];
+    for (NSNumber *index in self.outstandingPuts) {
+        FOutstandingPut *put = self.outstandingPuts[index];
         if (put.request[kFWPRequestHash] && put.sent) {
             // This is a sent transaction put.
             cancelledOutstandingPuts[index] = put;
         }
     }
 
-    [cancelledOutstandingPuts enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, FOutstandingPut *outstandingPut, BOOL *stop) {
-        // `onCompleteBlock:` may invoke `rerunTransactionsForPath:` and enqueue new writes. We defer calling
-        // it until we have finished enumerating all existing writes.
-        outstandingPut.onCompleteBlock(kFTransactionDisconnect, @"Client was disconnected while running a transaction");
-        [self.outstandingPuts removeObjectForKey:index];
-    }];
+    [cancelledOutstandingPuts
+        enumerateKeysAndObjectsUsingBlock:^(
+            NSNumber *index, FOutstandingPut *outstandingPut, BOOL *stop) {
+          // `onCompleteBlock:` may invoke `rerunTransactionsForPath:` and
+          // enqueue new writes. We defer calling it until we have finished
+          // enumerating all existing writes.
+          outstandingPut.onCompleteBlock(
+              kFTransactionDisconnect,
+              @"Client was disconnected while running a transaction");
+          [self.outstandingPuts removeObjectForKey:index];
+        }];
 }
 
-- (void) onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body {
+- (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body {
     FFLog(@"I-RDB034029", @"handleServerMessage: %@, %@", action, body);
     id<FPersistentConnectionDelegate> delegate = self.delegate;
-    if ([action isEqualToString:kFWPAsyncServerDataUpdate] || [action isEqualToString:kFWPAsyncServerDataMerge]) {
+    if ([action isEqualToString:kFWPAsyncServerDataUpdate] ||
+        [action isEqualToString:kFWPAsyncServerDataMerge]) {
         BOOL isMerge = [action isEqualToString:kFWPAsyncServerDataMerge];
 
-        if ([body objectForKey:kFWPAsyncServerDataUpdateBodyPath] && [body objectForKey:kFWPAsyncServerDataUpdateBodyData]) {
-            NSString* path = [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
-            id payloadData = [body objectForKey:kFWPAsyncServerDataUpdateBodyData];
-            if (isMerge && [payloadData isKindOfClass:[NSDictionary class]] && [payloadData count] == 0) {
+        if ([body objectForKey:kFWPAsyncServerDataUpdateBodyPath] &&
+            [body objectForKey:kFWPAsyncServerDataUpdateBodyData]) {
+            NSString *path =
+                [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+            id payloadData =
+                [body objectForKey:kFWPAsyncServerDataUpdateBodyData];
+            if (isMerge && [payloadData isKindOfClass:[NSDictionary class]] &&
+                [payloadData count] == 0) {
                 // ignore empty merge
             } else {
-                [delegate onDataUpdate:self forPath:path message:payloadData isMerge:isMerge tagId:[body objectForKey:kFWPAsyncServerDataUpdateBodyTag]];
+                [delegate
+                    onDataUpdate:self
+                         forPath:path
+                         message:payloadData
+                         isMerge:isMerge
+                           tagId:[body objectForKey:
+                                           kFWPAsyncServerDataUpdateBodyTag]];
             }
-        }
-        else {
-            FFLog(@"I-RDB034030", @"Malformed data response from server missing path or data: %@", body);
+        } else {
+            FFLog(
+                @"I-RDB034030",
+                @"Malformed data response from server missing path or data: %@",
+                body);
         }
     } else if ([action isEqualToString:kFWPAsyncServerDataRangeMerge]) {
         NSString *path = body[kFWPAsyncServerDataUpdateBodyPath];
@@ -781,24 +935,30 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
             NSString *endString = range[kFWPAsyncServerDataUpdateEndPath];
             id updateData = range[kFWPAsyncServerDataUpdateRangeMerge];
             id<FNode> updates = [FSnapshotUtilities nodeFrom:updateData];
-            FPath *start = (startString != nil) ? [[FPath alloc] initWith:startString] : nil;
-            FPath *end = (endString != nil) ? [[FPath alloc] initWith:endString] : nil;
-            FRangeMerge *merge = [[FRangeMerge alloc] initWithStart:start end:end updates:updates];
+            FPath *start = (startString != nil)
+                               ? [[FPath alloc] initWith:startString]
+                               : nil;
+            FPath *end =
+                (endString != nil) ? [[FPath alloc] initWith:endString] : nil;
+            FRangeMerge *merge = [[FRangeMerge alloc] initWithStart:start
+                                                                end:end
+                                                            updates:updates];
             [rangeMerges addObject:merge];
         }
         [delegate onRangeMerge:rangeMerges forPath:path tagId:tag];
     } else if ([action isEqualToString:kFWPAsyncServerAuthRevoked]) {
-        NSString* status = [body objectForKey:kFWPResponseForActionStatus];
-        NSString* reason = [body objectForKey:kFWPResponseForActionData];
+        NSString *status = [body objectForKey:kFWPResponseForActionStatus];
+        NSString *reason = [body objectForKey:kFWPResponseForActionData];
         [self onAuthRevokedWithStatus:status andReason:reason];
     } else if ([action isEqualToString:kFWPASyncServerListenCancelled]) {
-        NSString* pathString = [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+        NSString *pathString =
+            [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
         [self onListenRevoked:[[FPath alloc] initWith:pathString]];
     } else if ([action isEqualToString:kFWPAsyncServerSecurityDebug]) {
-        NSString* msg = [body objectForKey:@"msg"];
+        NSString *msg = [body objectForKey:@"msg"];
         if (msg != nil) {
             NSArray *msgs = [msg componentsSeparatedByString:@"\n"];
-            for (NSString* m in msgs) {
+            for (NSString *m in msgs) {
                 FFWarn(@"I-RDB034031", @"%@", m);
             }
         }
@@ -808,11 +968,12 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     }
 }
 
-- (void) restoreAuth {
+- (void)restoreAuth {
     FFLog(@"I-RDB034033", @"Calling restore state");
 
     NSAssert(self->connectionState == ConnectionStateConnecting,
-             @"Wanted to restore auth, but was in wrong state: %d", self->connectionState);
+             @"Wanted to restore auth, but was in wrong state: %d",
+             self->connectionState);
     if (self.authToken == nil) {
         FFLog(@"I-RDB034034", @"Not restoring auth because token is nil");
         self->connectionState = ConnectionStateConnected;
@@ -824,64 +985,77 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     }
 }
 
-- (void) restoreState {
+- (void)restoreState {
     NSAssert(self->connectionState == ConnectionStateConnected,
-             @"Should be connected if we're restoring state, but we are: %d", self->connectionState);
+             @"Should be connected if we're restoring state, but we are: %d",
+             self->connectionState);
 
-    [self.listens enumerateKeysAndObjectsUsingBlock:^(FQuerySpec *query, FOutstandingQuery *outstandingListen, BOOL *stop) {
-        FFLog(@"I-RDB034036", @"Restoring listen for %@", query);
-        [self sendListen:outstandingListen];
+    [self.listens enumerateKeysAndObjectsUsingBlock:^(
+                      FQuerySpec *query, FOutstandingQuery *outstandingListen,
+                      BOOL *stop) {
+      FFLog(@"I-RDB034036", @"Restoring listen for %@", query);
+      [self sendListen:outstandingListen];
     }];
 
-    NSArray* keys = [[self.outstandingPuts allKeys] sortedArrayUsingSelector:@selector(compare:)];
-    for(int i = 0; i < [keys count]; i++) {
-        if([self.outstandingPuts objectForKey:[keys objectAtIndex:i]] != nil) {
+    NSArray *keys = [[self.outstandingPuts allKeys]
+        sortedArrayUsingSelector:@selector(compare:)];
+    for (int i = 0; i < [keys count]; i++) {
+        if ([self.outstandingPuts objectForKey:[keys objectAtIndex:i]] != nil) {
             FFLog(@"I-RDB034037", @"Restoring put: %d", i);
             [self sendPut:[keys objectAtIndex:i]];
-        }
-        else {
+        } else {
             FFLog(@"I-RDB034038", @"Restoring put: skipped nil: %d", i);
         }
     }
 
-    for (FTupleOnDisconnect* tuple in self.onDisconnectQueue) {
-        [self sendOnDisconnectAction:tuple.action forPath:tuple.pathString withData:tuple.data andCallback:tuple.onComplete];
+    for (FTupleOnDisconnect *tuple in self.onDisconnectQueue) {
+        [self sendOnDisconnectAction:tuple.action
+                             forPath:tuple.pathString
+                            withData:tuple.data
+                         andCallback:tuple.onComplete];
     }
     [self.onDisconnectQueue removeAllObjects];
 }
 
-- (NSArray *) removeListen:(FQuerySpec *)query {
-    NSAssert(query.isDefault || !query.loadsAllData, @"removeListen called for non-default but complete query");
+- (NSArray *)removeListen:(FQuerySpec *)query {
+    NSAssert(query.isDefault || !query.loadsAllData,
+             @"removeListen called for non-default but complete query");
 
-    FOutstandingQuery* outstanding = self.listens[query];
+    FOutstandingQuery *outstanding = self.listens[query];
     if (!outstanding) {
-        FFLog(@"I-RDB034039", @"Trying to remove listener for query %@ but no listener exists", query);
+        FFLog(@"I-RDB034039",
+              @"Trying to remove listener for query %@ but no listener exists",
+              query);
         return @[];
     } else {
         [self.listens removeObjectForKey:query];
-        return @[outstanding];
+        return @[ outstanding ];
     }
 }
 
-- (NSArray *) removeAllListensAtPath:(FPath *)path {
+- (NSArray *)removeAllListensAtPath:(FPath *)path {
     FFLog(@"I-RDB034040", @"Removing all listens at path %@", path);
     NSMutableArray *removed = [NSMutableArray array];
     NSMutableArray *toRemove = [NSMutableArray array];
-    [self.listens enumerateKeysAndObjectsUsingBlock:^(FQuerySpec *spec, FOutstandingQuery *outstanding, BOOL *stop) {
-        if ([spec.path isEqual:path]) {
-            [removed addObject:outstanding];
-            [toRemove addObject:spec];
-        }
-    }];
+    [self.listens
+        enumerateKeysAndObjectsUsingBlock:^(
+            FQuerySpec *spec, FOutstandingQuery *outstanding, BOOL *stop) {
+          if ([spec.path isEqual:path]) {
+              [removed addObject:outstanding];
+              [toRemove addObject:spec];
+          }
+        }];
     [self.listens removeObjectsForKeys:toRemove];
     return removed;
 }
 
-- (void) purgeOutstandingWrites {
-    // We might have unacked puts in our queue that we need to ack now before we send out any cancels...
+- (void)purgeOutstandingWrites {
+    // We might have unacked puts in our queue that we need to ack now before we
+    // send out any cancels...
     [self ackPuts];
     // Cancel in order
-    NSArray* keys = [[self.outstandingPuts allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    NSArray *keys = [[self.outstandingPuts allKeys]
+        sortedArrayUsingSelector:@selector(compare:)];
     for (NSNumber *key in keys) {
         FOutstandingPut *put = self.outstandingPuts[key];
         if (put.onCompleteBlock != nil) {
@@ -897,55 +1071,70 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     [self.onDisconnectQueue removeAllObjects];
 }
 
-- (void) ackPuts {
+- (void)ackPuts {
     for (FTupleCallbackStatus *put in self.putsToAck) {
         put.block(put.status, put.errorReason);
     }
     [self.putsToAck removeAllObjects];
 }
 
-- (void) handleTimestamp:(NSNumber *)timestamp {
+- (void)handleTimestamp:(NSNumber *)timestamp {
     FFLog(@"I-RDB034041", @"Handling timestamp: %@", timestamp);
-    double timestampDeltaMs = [timestamp doubleValue] - ([[NSDate date] timeIntervalSince1970] * 1000);
-    [self.delegate onServerInfoUpdate:self updates:@{kDotInfoServerTimeOffset: [NSNumber numberWithDouble:timestampDeltaMs]}];
+    double timestampDeltaMs = [timestamp doubleValue] -
+                              ([[NSDate date] timeIntervalSince1970] * 1000);
+    [self.delegate onServerInfoUpdate:self
+                              updates:@{
+                                  kDotInfoServerTimeOffset : [NSNumber
+                                      numberWithDouble:timestampDeltaMs]
+                              }];
 }
 
-- (void) sendStats:(NSDictionary *)stats {
+- (void)sendStats:(NSDictionary *)stats {
     if ([stats count] > 0) {
-        NSDictionary *request = @{ kFWPRequestCounters: stats };
-        [self sendAction:kFWPRequestActionStats body:request sensitive:NO callback:^(NSDictionary *data) {
-            NSString* status = [data objectForKey:kFWPResponseForActionStatus];
-            NSString* errorReason = [data objectForKey:kFWPResponseForActionData];
-            BOOL statusOk = [status isEqualToString:kFWPResponseForActionStatusOk];
-            if (!statusOk) {
-                FFLog(@"I-RDB034042", @"Failed to send stats: %@", errorReason);
-            }
-        }];
+        NSDictionary *request = @{kFWPRequestCounters : stats};
+        [self sendAction:kFWPRequestActionStats
+                    body:request
+               sensitive:NO
+                callback:^(NSDictionary *data) {
+                  NSString *status =
+                      [data objectForKey:kFWPResponseForActionStatus];
+                  NSString *errorReason =
+                      [data objectForKey:kFWPResponseForActionData];
+                  BOOL statusOk =
+                      [status isEqualToString:kFWPResponseForActionStatusOk];
+                  if (!statusOk) {
+                      FFLog(@"I-RDB034042", @"Failed to send stats: %@",
+                            errorReason);
+                  }
+                }];
     } else {
         FFLog(@"I-RDB034043", @"Not sending stats because stats are empty");
     }
 }
 
-- (void) sendConnectStats {
+- (void)sendConnectStats {
     NSMutableDictionary *stats = [NSMutableDictionary dictionary];
 
-    #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
     if (self.config.persistenceEnabled) {
         stats[@"persistence.ios.enabled"] = @1;
     }
-    #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
     }
-    #endif
-    NSString *sdkVersion = [[FIRDatabase sdkVersion] stringByReplacingOccurrencesOfString:@"." withString:@"-"];
-    NSString *sdkStatName = [NSString stringWithFormat:@"sdk.objc.%@", sdkVersion];
+#endif
+    NSString *sdkVersion =
+        [[FIRDatabase sdkVersion] stringByReplacingOccurrencesOfString:@"."
+                                                            withString:@"-"];
+    NSString *sdkStatName =
+        [NSString stringWithFormat:@"sdk.objc.%@", sdkVersion];
     stats[sdkStatName] = @1;
     FFLog(@"I-RDB034044", @"Sending first connection stats");
     [self sendStats:stats];
 }
 
-- (NSDictionary *) dumpListens {
+- (NSDictionary *)dumpListens {
     return self.listens;
 }
 

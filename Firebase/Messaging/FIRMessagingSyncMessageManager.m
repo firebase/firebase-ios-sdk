@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingSyncMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
 
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingPersistentSyncMessage.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingUtilities.h"
+#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
 
 static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
 // 4 MB of free space is required to persist Sync messages
@@ -40,7 +40,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
 }
 
 - (instancetype)initWithRmqManager:(FIRMessagingRmqManager *)rmqManager {
-  _FIRMessagingDevAssert(rmqManager, @"Invalid nil rmq manager while initalizing sync message manager");
   self = [super init];
   if (self) {
     _rmqManager = rmqManager;
@@ -72,7 +71,6 @@ static const uint64_t kMinFreeDiskSpaceInMB = 1;
                       viaAPNS:(BOOL)viaAPNS
                        viaMCS:(BOOL)viaMCS {
   NSString *rmqID = message[kFIRMessagingMessageIDKey];
-  _FIRMessagingDevAssert([rmqID length], @"Invalid nil rmqID for message");
   if (![rmqID length]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager002,
                             @"Invalid nil rmqID for sync message.");

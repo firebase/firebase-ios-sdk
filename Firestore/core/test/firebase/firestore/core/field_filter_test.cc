@@ -33,20 +33,20 @@ using Operator = Filter::Operator;
 
 TEST(FilterTest, Equality) {
   auto filter = Filter("f", "==", 1);
-  EXPECT_EQ(*filter, *Filter("f", "==", 1));
-  EXPECT_NE(*filter, *Filter("g", "==", 1));
-  EXPECT_NE(*filter, *Filter("f", ">", 1));
-  EXPECT_NE(*filter, *Filter("f", "==", 2));
-  EXPECT_NE(*filter, *Filter("f", "==", NAN));
-  EXPECT_NE(*filter, *Filter("f", "==", nullptr));
+  EXPECT_EQ(filter, Filter("f", "==", 1));
+  EXPECT_NE(filter, Filter("g", "==", 1));
+  EXPECT_NE(filter, Filter("f", ">", 1));
+  EXPECT_NE(filter, Filter("f", "==", 2));
+  EXPECT_NE(filter, Filter("f", "==", NAN));
+  EXPECT_NE(filter, Filter("f", "==", nullptr));
 
   auto null_filter = Filter("g", "==", nullptr);
-  EXPECT_EQ(*null_filter, *Filter("g", "==", nullptr));
-  EXPECT_NE(*null_filter, *Filter("h", "==", nullptr));
+  EXPECT_EQ(null_filter, Filter("g", "==", nullptr));
+  EXPECT_NE(null_filter, Filter("h", "==", nullptr));
 
   auto nan_filter = Filter("g", "==", NAN);
-  EXPECT_EQ(*nan_filter, *Filter("g", "==", NAN));
-  EXPECT_NE(*nan_filter, *Filter("h", "==", NAN));
+  EXPECT_EQ(nan_filter, Filter("g", "==", NAN));
+  EXPECT_NE(nan_filter, Filter("h", "==", NAN));
 }
 
 }  // namespace core

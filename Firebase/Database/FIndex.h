@@ -20,26 +20,27 @@
 @class FNamedNode;
 @protocol FNode;
 
-@protocol FIndex<NSObject, NSCopying>
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2;
+@protocol FIndex <NSObject, NSCopying>
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2;
 
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2
-                          reverse:(BOOL)reverse;
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2
+                         reverse:(BOOL)reverse;
 
-- (NSComparisonResult) compareNamedNode:(FNamedNode *)namedNode1 toNamedNode:(FNamedNode *)namedNode2;
+- (NSComparisonResult)compareNamedNode:(FNamedNode *)namedNode1
+                           toNamedNode:(FNamedNode *)namedNode2;
 
-- (BOOL) isDefinedOn:(id<FNode>)node;
-- (BOOL) indexedValueChangedBetween:(id<FNode>)oldNode and:(id<FNode>)newNode;
-- (FNamedNode*) minPost;
-- (FNamedNode*) maxPost;
-- (FNamedNode*) makePost:(id<FNode>)indexValue name:(NSString*)name;
-- (NSString*) queryDefinition;
+- (BOOL)isDefinedOn:(id<FNode>)node;
+- (BOOL)indexedValueChangedBetween:(id<FNode>)oldNode and:(id<FNode>)newNode;
+- (FNamedNode *)minPost;
+- (FNamedNode *)maxPost;
+- (FNamedNode *)makePost:(id<FNode>)indexValue name:(NSString *)name;
+- (NSString *)queryDefinition;
 
 @end
 

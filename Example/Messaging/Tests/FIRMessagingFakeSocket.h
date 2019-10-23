@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 
 @interface FIRMessagingFakeSocket : FIRMessagingSecureSocket
 

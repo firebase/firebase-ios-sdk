@@ -16,14 +16,21 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 #import <XCTest/XCTest.h>
 
 #include <limits>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+
+namespace testutil = firebase::firestore::testutil;
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -67,6 +74,14 @@
       [FIRFirestore firestoreForApp:nil],
       @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like to use the "
        "default FirebaseApp instance.");
+}
+
+- (void)testNilProjectIDFails {
+  FIROptions *options = testutil::OptionsForUnitTesting("ignored");
+  options.projectID = nil;
+  FIRApp *app = testutil::AppForUnitTesting(options);
+  FSTAssertThrows([FIRFirestore firestoreForApp:app],
+                  @"FIROptions.projectID must be set to a valid project ID.");
 }
 
 // TODO(b/62410906): Test for firestoreForApp:database: with nil DatabaseID.
@@ -399,6 +414,10 @@
                   @"Invalid Query. Null supports only equality comparisons.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
                   @"Invalid Query. Null supports only equality comparisons.");
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
+                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContainsAny:[NSNull null]],
+                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
 
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
                   @"Invalid Query. NaN supports only equality comparisons.");
@@ -511,7 +530,7 @@
   FSTAssertThrows([[query queryEndingBeforeValues:@[ @1 ]] queryOrderedByField:@"bar"], reason);
 }
 
-- (void)testQueriesFilteredByDocumentIDMustUseStringsOrDocumentReferences {
+- (void)testQueriesFilteredByDocumentIdMustUseStringsOrDocumentReferences {
   FIRCollectionReference *collection = [self collectionRef];
   NSString *reason = @"Invalid query. When querying by document ID you must provide a valid "
                       "document ID, but it was an empty string.";
@@ -539,6 +558,37 @@
        "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
                   reason);
+
+  reason = @"Invalid query. You can't perform arrayContainsAny queries on document ID since "
+           @"document IDs "
+            "are not arrays.";
+  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContainsAny:@1],
+                  reason);
+}
+
+- (void)testQueriesUsingInAndDocumentIdMustHaveProperDocumentReferencesInArray {
+  FIRCollectionReference *collection = [self collectionRef];
+  NSString *reason = @"Invalid query. When querying by document ID you must provide a valid "
+                      "document ID, but it was an empty string.";
+  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] in:@[ @"" ]], reason);
+
+  reason = @"Invalid query. When querying a collection by document ID you must provide a "
+            "plain document ID, but 'foo/bar/baz' contains a '/' character.";
+  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] in:@[ @"foo/bar/baz" ]],
+                  reason);
+
+  reason = @"Invalid query. When querying by document ID you must provide a valid string or "
+            "DocumentReference, but it was of type: __NSArrayI";
+  NSArray *value = @[ @1, @2 ];
+  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] in:value], reason);
+
+  reason = @"Invalid query. When querying a collection group by document ID, the value "
+            "provided must result in a valid document path, but 'foo' is not because it "
+            "has an odd number of segments.";
+  FSTAssertThrows(
+      [[self.db collectionGroupWithID:@"collection"] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                                      in:@[ @"foo" ]],
+      reason);
 }
 
 - (void)testQueryInequalityFieldMustMatchFirstOrderByField {
@@ -569,6 +619,9 @@
                    @"Inequality and equality on different fields works");
   XCTAssertNoThrow([base queryWhereField:@"y" arrayContains:@"cat"],
                    @"Inequality and array_contains on different fields works");
+  XCTAssertNoThrow([base queryWhereField:@"y" arrayContainsAny:@[ @"cat" ]],
+                   @"array-contains-any on different fields works");
+  XCTAssertNoThrow([base queryWhereField:@"y" in:@[ @"cat" ]], @"IN on different fields works");
 
   XCTAssertNoThrow([base queryOrderedByField:@"x"], @"inequality same as order by works");
   XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"x" isGreaterThan:@32],
@@ -585,11 +638,108 @@
                    @"array_contains different than orderBy works.");
 }
 
-- (void)testQueryMustNotHaveMultipleArrayContainsFilters {
+- (void)testQueriesWithMultipleArrayFiltersFail {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FSTAssertThrows([[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
                                                                     arrayContains:@2],
-                  @"Invalid Query. Queries only support a single arrayContains filter.");
+                  @"Invalid Query. You cannot use more than one 'arrayContains' filter.");
+
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
+                                                     arrayContainsAny:@[ @2 ]],
+      @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'arrayContains' filters.");
+
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
+                                                                arrayContains:@2],
+      @"Invalid Query. You cannot use 'arrayContains' filters with 'arrayContainsAny' filters.");
+}
+
+- (void)testQueriesWithMultipleDisjunctiveFiltersFail {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+  FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo" in:@[ @2 ]],
+                  @"Invalid Query. You cannot use more than one 'in' filter.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
+                                                                         arrayContainsAny:@[ @2 ]],
+                  @"Invalid Query. You cannot use more than one 'arrayContainsAny' filter.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
+                                                                                       in:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'in' filters with 'arrayContainsAny' filters.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo"
+                                                           arrayContainsAny:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
+
+  // This is redundant with the above tests, but makes sure our validation doesn't get confused.
+  FSTAssertThrows([[[coll queryWhereField:@"foo"
+                                       in:@[ @1 ]] queryWhereField:@"foo"
+                                                     arrayContains:@2] queryWhereField:@"foo"
+                                                                      arrayContainsAny:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
+
+  FSTAssertThrows([[[coll queryWhereField:@"foo"
+                            arrayContains:@1] queryWhereField:@"foo"
+                                                           in:@[ @2 ]] queryWhereField:@"foo"
+                                                                      arrayContainsAny:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
+}
+
+- (void)testQueriesCanUseInWithArrayContain {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+  XCTAssertNoThrow([[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
+                                                                                in:@[ @2 ]],
+                   @"arrayContains with IN works.");
+
+  XCTAssertNoThrow([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo"
+                                                               arrayContains:@2],
+                   @"IN with arrayContains works.");
+
+  FSTAssertThrows([[[coll queryWhereField:@"foo"
+                                       in:@[ @1 ]] queryWhereField:@"foo"
+                                                     arrayContains:@2] queryWhereField:@"foo"
+                                                                         arrayContains:@3],
+                  @"Invalid Query. You cannot use more than one 'arrayContains' filter.");
+
+  FSTAssertThrows([[[coll queryWhereField:@"foo"
+                            arrayContains:@1] queryWhereField:@"foo"
+                                                           in:@[ @2 ]] queryWhereField:@"foo"
+                                                                                    in:@[ @3 ]],
+                  @"Invalid Query. You cannot use more than one 'in' filter.");
+}
+
+- (void)testQueriesInAndArrayContainsAnyArrayRules {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+
+  FSTAssertThrows([coll queryWhereField:@"foo" in:@[]],
+                  @"Invalid Query. A non-empty array is required for 'in' filters.");
+
+  FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:@[]],
+                  @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
+
+  // The 10 element max includes duplicates.
+  NSArray *values = @[ @1, @2, @3, @4, @5, @6, @7, @8, @9, @9, @9 ];
+  FSTAssertThrows(
+      [coll queryWhereField:@"foo" in:values],
+      @"Invalid Query. 'in' filters support a maximum of 10 elements in the value array.");
+  FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:values],
+                  @"Invalid Query. 'arrayContainsAny' filters support a maximum of 10 elements"
+                   " in the value array.");
+
+  NSArray *withNullValues = @[ @1, [NSNull null] ];
+  FSTAssertThrows([coll queryWhereField:@"foo" in:withNullValues],
+                  @"Invalid Query. 'in' filters cannot contain 'null' in the value array.");
+  FSTAssertThrows(
+      [coll queryWhereField:@"foo" arrayContainsAny:withNullValues],
+      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'null' in the value array.");
+
+  NSArray *withNaNValues = @[ @2, @(NAN) ];
+  FSTAssertThrows([coll queryWhereField:@"foo" in:withNaNValues],
+                  @"Invalid Query. 'in' filters cannot contain 'NaN' in the value array.");
+  FSTAssertThrows(
+      [coll queryWhereField:@"foo" arrayContainsAny:withNaNValues],
+      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'NaN' in the value array.");
 }
 
 #pragma mark - GeoPoint Validation

@@ -26,7 +26,7 @@
 
  /** @property URL
      @brief This URL represents the state/Continue URL in the form of a universal link.
-     @remarks This URL can should be contructed as a universal link that would either directly open
+     @remarks This URL can should be constructed as a universal link that would either directly open
          the app where the action code would be handled or continue to the app after the action code
          is handled by Firebase.
   */

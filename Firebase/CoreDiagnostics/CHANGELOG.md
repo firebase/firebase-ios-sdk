@@ -1,5 +1,8 @@
-# v0.1.0
-- Initial Release--for Google-use only. This library collects diagnostics and
+# v1.1.0
+- Updates GDT dependency to GDTCOR prefixed version.
+
+# v1.0.0
+Initial Release--for Google use only. This library collects diagnostics and
 usage data for internal use by Firebase. Data gathered by this library will
 only be uploaded at most once every 24 hours whilst on mobile data, and more
 frequently on wifi if it's available. This library has been integrated as a

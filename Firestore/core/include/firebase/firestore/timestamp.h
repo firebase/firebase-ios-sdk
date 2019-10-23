@@ -63,6 +63,18 @@ class Timestamp {
    */
   Timestamp(int64_t seconds, int32_t nanoseconds);
 
+  /** Copy constructor, `Timestamp` is trivially copyable. */
+  Timestamp(const Timestamp& other) = default;
+
+  /** Move constructor, equivalent to copying. */
+  Timestamp(Timestamp&& other) = default;
+
+  /** Copy assignment operator, `Timestamp` is trivially copyable. */
+  Timestamp& operator=(const Timestamp& other) = default;
+
+  /** Move assignment operator, equivalent to copying. */
+  Timestamp& operator=(Timestamp&& other) = default;
+
   /**
    * Creates a new timestamp with the current date.
    *
@@ -145,10 +157,16 @@ class Timestamp {
    * Returns a string representation of this `Timestamp` for logging/debugging
    * purposes.
    *
-   * Note: the exact string representation is unspecified and subject to change;
-   * don't rely on the format of the string.
+   * @note: the exact string representation is unspecified and subject to
+   * change; don't rely on the format of the string.
    */
   std::string ToString() const;
+
+  /**
+   * Outputs the string representation of this `Timestamp` to the given stream.
+   *
+   * @see `ToString()` for comments on the representation format.
+   */
   friend std::ostream& operator<<(std::ostream& out,
                                   const Timestamp& timestamp);
 
@@ -161,28 +179,34 @@ class Timestamp {
   int32_t nanoseconds_ = 0;
 };
 
+/** Checks whether `lhs` and `rhs` are in ascending order. */
 inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs.seconds() < rhs.seconds() ||
          (lhs.seconds() == rhs.seconds() &&
           lhs.nanoseconds() < rhs.nanoseconds());
 }
 
+/** Checks whether `lhs` and `rhs` are in descending order. */
 inline bool operator>(const Timestamp& lhs, const Timestamp& rhs) {
   return rhs < lhs;
 }
 
+/** Checks whether `lhs` and `rhs` are in non-ascending order. */
 inline bool operator>=(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs < rhs);
 }
 
+/** Checks whether `lhs` and `rhs` are in non-descending order. */
 inline bool operator<=(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs > rhs);
 }
 
+/** Checks `lhs` and `rhs` for inequality. */
 inline bool operator!=(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs < rhs || lhs > rhs;
 }
 
+/** Checks `lhs` and `rhs` for equality. */
 inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs != rhs);
 }
@@ -211,14 +235,5 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
 #endif  // !defined(_STLPORT_VERSION)
 
 }  // namespace firebase
-
-namespace std {
-template <>
-struct hash<firebase::Timestamp> {
-  // Note: specialization of `std::hash` is provided for convenience only. The
-  // implementation is subject to change.
-  size_t operator()(const firebase::Timestamp& timestamp) const;
-};
-}  // namespace std
 
 #endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_

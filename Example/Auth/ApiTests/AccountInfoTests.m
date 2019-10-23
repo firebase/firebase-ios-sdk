@@ -43,14 +43,26 @@ static NSString *const kNewUserEmail = @"iosgcip+user_new_email@gmail.com";
   [auth createUserWithEmail:kOldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {
-                   apiError = error;
-                   [expectation fulfill];
-                 }];
+    if (error.code != FIRAuthErrorCodeEmailAlreadyInUse) {
+      apiError = error;
+    }
+    [expectation fulfill];
+  }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
-  expectation = [self expectationWithDescription:@"Created account with email and password."];
+
+  expectation = [self expectationWithDescription:@"Sign in with email and password."];
+  [auth signInWithEmail:kOldUserEmail
+               password:@"password"
+             completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+    apiError = error;
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+
   XCTAssertEqualObjects(auth.currentUser.email, kOldUserEmail);
   XCTAssertNil(apiError);
 
+  expectation = [self expectationWithDescription:@"Update email address."];
   [auth.currentUser updateEmail:kNewUserEmail
                      completion:^(NSError *_Nullable error) {
                        apiError = error;

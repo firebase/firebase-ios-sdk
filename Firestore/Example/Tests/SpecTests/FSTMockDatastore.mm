@@ -21,18 +21,16 @@
 #include <queue>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -46,7 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::QueryData;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Mutation;
+using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
@@ -66,17 +67,18 @@ namespace remote {
 class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
-                  FSTSerializerBeta* serializer,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WatchStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+                    callback},
         datastore_{datastore},
         callback_{callback} {
   }
 
-  const std::unordered_map<TargetId, FSTQueryData*>& ActiveTargets() const {
+  const std::unordered_map<TargetId, QueryData>& ActiveTargets() const {
     return active_targets_;
   }
 
@@ -99,15 +101,14 @@ class MockWatchStream : public WatchStream {
     return open_;
   }
 
-  void WatchQuery(FSTQueryData* query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query, query.resumeToken);
+  void WatchQuery(const QueryData& query) override {
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.query().ToString(),
+              query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire
-    FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
-                                                                 resumeToken:query.resumeToken
-                                                              sequenceNumber:query.sequenceNumber];
+    QueryData sentQueryData = query.WithResumeToken(query.resume_token(), SnapshotVersion::None());
     datastore_->IncrementWatchStreamRequests();
-    active_targets_[query.targetID] = sentQueryData;
+    active_targets_[query.target_id()] = sentQueryData;
   }
 
   void UnwatchTargetId(model::TargetId target_id) override {
@@ -139,7 +140,7 @@ class MockWatchStream : public WatchStream {
 
       if (!targetChange.target_ids().empty()) {
         // If the list of target IDs is not empty, we reset the snapshot version to NONE as
-        // done in `FSTSerializerBeta.versionFromListenResponse:`.
+        // done in `Serializer::DecodeVersion:`.
         snap = SnapshotVersion::None();
       }
     }
@@ -149,7 +150,7 @@ class MockWatchStream : public WatchStream {
 
  private:
   bool open_ = false;
-  std::unordered_map<TargetId, FSTQueryData*> active_targets_;
+  std::unordered_map<TargetId, QueryData> active_targets_;
   MockDatastore* datastore_ = nullptr;
   WatchStreamCallback* callback_ = nullptr;
 };
@@ -157,12 +158,13 @@ class MockWatchStream : public WatchStream {
 class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  CredentialsProvider* credentials_provider,
-                  FSTSerializerBeta* serializer,
+                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
+      : WriteStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+                    callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -196,13 +198,13 @@ class MockWriteStream : public WriteStream {
     callback_->OnWriteStreamHandshakeComplete();
   }
 
-  void WriteMutations(const std::vector<FSTMutation*>& mutations) override {
+  void WriteMutations(const std::vector<Mutation>& mutations) override {
     datastore_->IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion& commitVersion, std::vector<FSTMutationResult*> results) {
+  void AckWrite(const SnapshotVersion& commitVersion, std::vector<MutationResult> results) {
     callback_->OnWriteStreamMutationResult(commitVersion, std::move(results));
   }
 
@@ -215,10 +217,10 @@ class MockWriteStream : public WriteStream {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  std::vector<FSTMutation*> NextSentWrite() {
+  std::vector<Mutation> NextSentWrite() {
     HARD_ASSERT(!sent_mutations_.empty(),
                 "Writes need to happen before you can call NextSentWrite.");
-    std::vector<FSTMutation*> result = std::move(sent_mutations_.front());
+    std::vector<Mutation> result = std::move(sent_mutations_.front());
     sent_mutations_.pop();
     return result;
   }
@@ -233,14 +235,14 @@ class MockWriteStream : public WriteStream {
 
  private:
   bool open_ = false;
-  std::queue<std::vector<FSTMutation*>> sent_mutations_;
+  std::queue<std::vector<Mutation>> sent_mutations_;
   MockDatastore* datastore_ = nullptr;
   WriteStreamCallback* callback_ = nullptr;
 };
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             auth::CredentialsProvider* credentials)
+                             std::shared_ptr<auth::CredentialsProvider> credentials)
     : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},
       worker_queue_{worker_queue},
@@ -248,19 +250,17 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
 }
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallback* callback) {
-  watch_stream_ = std::make_shared<MockWatchStream>(
-      worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
-      grpc_connection(), callback, this);
+  watch_stream_ = std::make_shared<MockWatchStream>(worker_queue_, credentials_,
+                                                    Serializer{database_info_->database_id()},
+                                                    grpc_connection(), callback, this);
 
   return watch_stream_;
 }
 
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
-  write_stream_ = std::make_shared<MockWriteStream>(
-      worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
-      grpc_connection(), callback, this);
+  write_stream_ = std::make_shared<MockWriteStream>(worker_queue_, credentials_,
+                                                    Serializer{database_info_->database_id()},
+                                                    grpc_connection(), callback, this);
 
   return write_stream_;
 }
@@ -273,7 +273,7 @@ void MockDatastore::FailWatchStream(const Status& error) {
   watch_stream_->FailStream(error);
 }
 
-const std::unordered_map<TargetId, FSTQueryData*>& MockDatastore::ActiveTargets() const {
+const std::unordered_map<TargetId, QueryData>& MockDatastore::ActiveTargets() const {
   return watch_stream_->ActiveTargets();
 }
 
@@ -281,7 +281,7 @@ bool MockDatastore::IsWatchStreamOpen() const {
   return watch_stream_->IsOpen();
 }
 
-std::vector<FSTMutation*> MockDatastore::NextSentWrite() {
+std::vector<Mutation> MockDatastore::NextSentWrite() {
   return write_stream_->NextSentWrite();
 }
 
@@ -289,8 +289,7 @@ int MockDatastore::WritesSent() const {
   return write_stream_->sent_mutations_count();
 }
 
-void MockDatastore::AckWrite(const SnapshotVersion& version,
-                             std::vector<FSTMutationResult*> results) {
+void MockDatastore::AckWrite(const SnapshotVersion& version, std::vector<MutationResult> results) {
   write_stream_->AckWrite(version, std::move(results));
 }
 

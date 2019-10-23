@@ -18,18 +18,20 @@
 
 @interface FRepoInfo : NSObject <NSCopying>
 
-@property (nonatomic, readonly, strong) NSString* host;
-@property (nonatomic, readonly, strong) NSString* namespace;
-@property (nonatomic, strong) NSString* internalHost;
-@property (nonatomic, readonly) bool secure;
+@property(nonatomic, readonly, strong) NSString *host;
+@property(nonatomic, readonly, strong) NSString *namespace;
+@property(nonatomic, strong) NSString *internalHost;
+@property(nonatomic, readonly) bool secure;
 
-- (id) initWithHost:(NSString*)host isSecure:(bool)secure withNamespace:(NSString*)namespace;
+- (id)initWithHost:(NSString *)host
+          isSecure:(bool)secure
+     withNamespace:(NSString *)namespace;
 
-- (NSString *) connectionURLWithLastSessionID:(NSString*)lastSessionID;
-- (NSString *) connectionURL;
-- (void) clearInternalHostCache;
-- (BOOL) isDemoHost;
-- (BOOL) isCustomHost;
+- (NSString *)connectionURLWithLastSessionID:(NSString *)lastSessionID;
+- (NSString *)connectionURL;
+- (void)clearInternalHostCache;
+- (BOOL)isDemoHost;
+- (BOOL)isCustomHost;
 
 - (id)copyWithZone:(NSZone *)zone;
 - (NSUInteger)hash;

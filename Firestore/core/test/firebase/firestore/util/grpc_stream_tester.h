@@ -32,7 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -45,7 +45,7 @@ namespace firestore {
 namespace util {
 
 std::string GetGrpcErrorCodeName(grpc::StatusCode error);
-std::string GetFirestoreErrorCodeName(FirestoreErrorCode error);
+std::string GetFirestoreErrorName(Error error);
 std::string ByteBufferToString(const grpc::ByteBuffer& buffer);
 grpc::ByteBuffer MakeByteBuffer(const std::string& str);
 
@@ -118,7 +118,7 @@ class FakeGrpcQueue {
  private:
   remote::GrpcCompletion* ExtractCompletion();
 
-  std::unique_ptr<ExecutorStd> dedicated_executor_;
+  std::unique_ptr<Executor> dedicated_executor_;
   grpc::CompletionQueue* grpc_queue_;
   bool is_shut_down_ = false;
 

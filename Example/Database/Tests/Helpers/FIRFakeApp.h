@@ -21,7 +21,7 @@
 
 @interface FIRFakeApp : NSObject
 
-- (instancetype) initWithName:(NSString *)name URL:(NSString *)url;
+- (instancetype)initWithName:(NSString *)name URL:(NSString *)url;
 
 @property(nonatomic, readonly) FIRFakeOptions *options;
 @property(nonatomic, copy, readonly) NSString *name;

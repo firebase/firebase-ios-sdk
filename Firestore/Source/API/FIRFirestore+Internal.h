@@ -34,6 +34,14 @@ namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Provides a registry management interface for FIRFirestore instances. */
+@protocol FSTFirestoreInstanceRegistry
+
+/** Removes the FIRFirestore instance with given database name from registry. */
+- (void)removeInstanceWithDatabase:(NSString *)database;
+
+@end
+
 @interface FIRFirestore (/* Init */)
 
 /**
@@ -42,9 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
-                       firebaseApp:(FIRApp *)app;
+                       firebaseApp:(FIRApp *)app
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
@@ -55,14 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
-/**
- * Shutdown this `FIRFirestore`, releasing all resources (abandoning any outstanding writes,
- * removing all listens, closing all network connections, etc.).
- *
- * @param completion A block to execute once everything has shut down.
- */
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(shutdown(completion:));
+- (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 

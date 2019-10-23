@@ -16,30 +16,26 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 
-#import <Protobuf/GPBMessage.h>
-
 #include <vector>
 
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Local/FSTQueryData.h"
-
+#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
+#include "Firestore/core/src/firebase/firestore/local/sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
-NS_ASSUME_NONNULL_BEGIN
+using core::Query;
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::ListenSequenceNumber;
+using model::SnapshotVersion;
+using model::TargetId;
 
-MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
+MemoryQueryCache::MemoryQueryCache(MemoryPersistence* persistence)
     : persistence_(persistence),
       highest_listen_sequence_number_(ListenSequenceNumber(0)),
       highest_target_id_(TargetId(0)),
@@ -47,29 +43,29 @@ MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
       queries_() {
 }
 
-void MemoryQueryCache::AddTarget(FSTQueryData* query_data) {
-  queries_[query_data.query] = query_data;
-  if (query_data.targetID > highest_target_id_) {
-    highest_target_id_ = query_data.targetID;
+void MemoryQueryCache::AddTarget(const QueryData& query_data) {
+  queries_[query_data.query()] = query_data;
+  if (query_data.target_id() > highest_target_id_) {
+    highest_target_id_ = query_data.target_id();
   }
-  if (query_data.sequenceNumber > highest_listen_sequence_number_) {
-    highest_listen_sequence_number_ = query_data.sequenceNumber;
+  if (query_data.sequence_number() > highest_listen_sequence_number_) {
+    highest_listen_sequence_number_ = query_data.sequence_number();
   }
 }
 
-void MemoryQueryCache::UpdateTarget(FSTQueryData* query_data) {
+void MemoryQueryCache::UpdateTarget(const QueryData& query_data) {
   // For the memory query cache, adds and updates are treated the same.
   AddTarget(query_data);
 }
 
-void MemoryQueryCache::RemoveTarget(FSTQueryData* query_data) {
-  queries_.erase(query_data.query);
-  references_.RemoveReferences(query_data.targetID);
+void MemoryQueryCache::RemoveTarget(const QueryData& query_data) {
+  queries_.erase(query_data.query());
+  references_.RemoveReferences(query_data.target_id());
 }
 
-FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
+absl::optional<QueryData> MemoryQueryCache::GetTarget(const Query& query) {
   auto iter = queries_.find(query);
-  return iter == queries_.end() ? nil : iter->second;
+  return iter == queries_.end() ? absl::optional<QueryData>{} : iter->second;
 }
 
 void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
@@ -80,22 +76,22 @@ void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
 
 int MemoryQueryCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
-    const std::unordered_map<TargetId, FSTQueryData*>& live_targets) {
-  std::vector<FSTQuery*> to_remove;
+    const std::unordered_map<TargetId, QueryData>& live_targets) {
+  std::vector<const Query*> to_remove;
   for (const auto& kv : queries_) {
-    FSTQuery* query = kv.first;
-    FSTQueryData* query_data = kv.second;
+    const Query& query = kv.first;
+    const QueryData& query_data = kv.second;
 
-    if (query_data.sequenceNumber <= upper_bound) {
-      if (live_targets.find(query_data.targetID) == live_targets.end()) {
-        to_remove.push_back(query);
-        references_.RemoveReferences(query_data.targetID);
+    if (query_data.sequence_number() <= upper_bound) {
+      if (live_targets.find(query_data.target_id()) == live_targets.end()) {
+        to_remove.push_back(&query);
+        references_.RemoveReferences(query_data.target_id());
       }
     }
   }
 
-  for (FSTQuery* element : to_remove) {
-    queries_.erase(element);
+  for (const Query* element : to_remove) {
+    queries_.erase(*element);
   }
   return static_cast<int>(to_remove.size());
 }
@@ -104,7 +100,7 @@ void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
                                        TargetId target_id) {
   references_.AddReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
-    [persistence_.referenceDelegate addReference:key];
+    persistence_->reference_delegate()->AddReference(key);
   }
 }
 
@@ -112,7 +108,7 @@ void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
                                           TargetId target_id) {
   references_.RemoveReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
-    [persistence_.referenceDelegate removeReference:key];
+    persistence_->reference_delegate()->RemoveReference(key);
   }
 }
 
@@ -124,11 +120,10 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
   return references_.ContainsKey(key);
 }
 
-size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {
-  size_t count = 0;
+int64_t MemoryQueryCache::CalculateByteSize(const Sizer& sizer) {
+  int64_t count = 0;
   for (const auto& kv : queries_) {
-    FSTQueryData* query_data = kv.second;
-    count += [[serializer encodedQueryData:query_data] serializedSize];
+    count += sizer.CalculateByteSize(kv.second);
   }
   return count;
 }
@@ -140,8 +135,6 @@ const SnapshotVersion& MemoryQueryCache::GetLastRemoteSnapshotVersion() const {
 void MemoryQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
 }
-
-NS_ASSUME_NONNULL_END
 
 }  // namespace local
 }  // namespace firestore

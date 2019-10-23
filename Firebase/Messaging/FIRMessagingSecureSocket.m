@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
 
 #import <Protobuf/GPBMessage.h>
 #import <Protobuf/GPBCodedOutputStream.h>
 #import <Protobuf/GPBUtilities.h>
 
-#import "FIRMessagingCodedInputStream.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingPacketQueue.h"
+#import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingPacketQueue.h"
 
 static const NSUInteger kMaxBufferLength = 1024 * 1024;  // 1M
 static const NSUInteger kBufferLengthIncrement = 16 * 1024;  // 16k
@@ -97,10 +97,6 @@ static NSUInteger SerializedSize(int32_t value) {
 - (void)connectToHost:(NSString *)host
                  port:(NSUInteger)port
             onRunLoop:(NSRunLoop *)runLoop {
-  _FIRMessagingDevAssert(host != nil, @"Invalid host");
-  _FIRMessagingDevAssert(runLoop != nil, @"Invalid runloop");
-  _FIRMessagingDevAssert(self.state == kFIRMessagingSecureSocketNotOpen, @"Socket is already connected");
-
   if (!host || self.state != kFIRMessagingSecureSocketNotOpen) {
     return;
   }
@@ -140,8 +136,6 @@ static NSUInteger SerializedSize(int32_t value) {
   if (!self.inStream && !self.outStream) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket002,
                             @"The socket is not open or already closed.");
-    _FIRMessagingDevAssert(self.state == kFIRMessagingSecureSocketClosed || self.state == kFIRMessagingSecureSocketNotOpen,
-                  @"Socket is already disconnected.");
     return;
   }
 
@@ -175,7 +169,6 @@ static NSUInteger SerializedSize(int32_t value) {
                                 @"Try to read from socket that is not opened");
         return;
       }
-      _FIRMessagingDevAssert(stream == self.inStream, @"Incorrect stream");
       if (![self performRead]) {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket004,
                                 @"Error occurred when reading incoming stream");
@@ -218,7 +211,6 @@ static NSUInteger SerializedSize(int32_t value) {
                                 @"Try to write to socket that is not opened");
         return;
       }
-      _FIRMessagingDevAssert(stream == self.outStream, @"Incorrect stream");
       [self performWrite];
       break;
     default:
@@ -229,11 +221,7 @@ static NSUInteger SerializedSize(int32_t value) {
 #pragma mark - Private
 
 - (void)openStream:(NSStream *)stream isVOIPStream:(BOOL)isVOIPStream {
-  _FIRMessagingDevAssert(stream != nil, @"Invalid stream");
-  _FIRMessagingDevAssert(self.runLoop != nil, @"Invalid runloop");
-
   if (stream) {
-    _FIRMessagingDevAssert([stream streamStatus] == NSStreamStatusNotOpen, @"Stream already open");
     if ([stream streamStatus] != NSStreamStatusNotOpen) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket009,
                               @"stream should not be open.");
@@ -252,9 +240,6 @@ static NSUInteger SerializedSize(int32_t value) {
 }
 
 - (void)closeStream:(NSStream *)stream {
-  _FIRMessagingDevAssert(stream != nil, @"Invalid stream");
-  _FIRMessagingDevAssert(self.runLoop != nil, @"Invalid runloop");
-
   if (stream) {
     [stream close];
     [stream removeFromRunLoop:self.runLoop forMode:NSDefaultRunLoopMode];
@@ -263,8 +248,6 @@ static NSUInteger SerializedSize(int32_t value) {
 }
 
 - (BOOL)performRead {
-  _FIRMessagingDevAssert(self.state == kFIRMessagingSecureSocketOpen, @"Socket should be open");
-
   if (!self.isVersionReceived) {
     self.isVersionReceived = YES;
     uint8_t versionByte = 0;
@@ -279,11 +262,6 @@ static NSUInteger SerializedSize(int32_t value) {
 
   while (YES) {
     BOOL isInputBufferValid = [self.inputBuffer length] > 0;
-    _FIRMessagingDevAssert(isInputBufferValid,
-                  @"Invalid input buffer size %lu. Used bytes length %lu, buffer content: %@",
-                  _FIRMessaging_UL([self.inputBuffer length]),
-                  _FIRMessaging_UL(self.inputBufferLength),
-                  self.inputBuffer);
     if (!isInputBufferValid) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket011,
                               @"Input buffer is not valid.");
@@ -323,12 +301,9 @@ static NSUInteger SerializedSize(int32_t value) {
                               _FIRMessaging_UL(self.inputBufferLength),
                               _FIRMessaging_UL([self.inputBuffer length]));
       [self.inputBuffer increaseLengthBy:kBufferLengthIncrement];
-      _FIRMessagingDevAssert([self.inputBuffer length] > self.inputBufferLength, @"Invalid buffer size");
     }
 
     while (self.inputBufferLength > 0 && [self.inputBuffer length] > 0) {
-      _FIRMessagingDevAssert([self.inputBuffer length] >= self.inputBufferLength,
-                             @"Buffer longer than length");
       NSRange inputRange = NSMakeRange(0, self.inputBufferLength);
       size_t protoBytes = 0;
       // read the actual proto data coming in
@@ -342,7 +317,6 @@ static NSUInteger SerializedSize(int32_t value) {
       } else if (readResult == kFIRMessagingSecureSocketReadResultIncomplete) {
         break;
       }
-      _FIRMessagingDevAssert(self.inputBufferLength >= protoBytes, @"More bytes than buffer can handle");
       // we have read (0, protoBytes) of data in the inputBuffer
       if (protoBytes == self.inputBufferLength) {
         // did completely read the buffer data can be reset for further processing
@@ -354,12 +328,6 @@ static NSUInteger SerializedSize(int32_t value) {
         [self.inputBuffer replaceBytesInRange:NSMakeRange(0, protoBytes) withBytes:NULL length:0];
         // reallocate more data
         [self.inputBuffer increaseLengthBy:protoBytes];
-        _FIRMessagingDevAssert([self.inputBuffer length] == prevLength,
-                               @"Invalid input buffer size %lu. Used bytes length %lu, "
-                               @"buffer content: %@",
-                               _FIRMessaging_UL([self.inputBuffer length]),
-                               _FIRMessaging_UL(self.inputBufferLength),
-                               self.inputBuffer);
         self.inputBufferLength -= protoBytes;
       }
     }
@@ -381,7 +349,6 @@ static NSUInteger SerializedSize(int32_t value) {
     return kFIRMessagingSecureSocketReadResultIncomplete;
   }
   // NOTE tag can be zero for |HeartbeatPing|, and length can be zero for |Close| proto
-  _FIRMessagingDevAssert(rawTag >= 0 && length >= 0, @"Invalid tag or length");
   if (rawTag < 0 || length < 0) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket015, @"Buffer data corrupted.");
     return kFIRMessagingSecureSocketReadResultCorrupt;
@@ -399,8 +366,6 @@ static NSUInteger SerializedSize(int32_t value) {
 }
 
 - (void)performWrite {
-  _FIRMessagingDevAssert(self.state == kFIRMessagingSecureSocketOpen, @"Invalid socket state");
-
   if (!self.isVersionSent) {
     self.isVersionSent = YES;
     uint8_t versionByte = kVersion;

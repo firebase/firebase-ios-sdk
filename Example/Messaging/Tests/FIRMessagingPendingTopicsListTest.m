@@ -17,9 +17,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingPendingTopicsList.h"
-#import "FIRMessagingTopicsCommon.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
 
 typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
                                                 FIRMessagingTopicAction action,

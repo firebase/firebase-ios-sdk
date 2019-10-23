@@ -17,28 +17,21 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_
 
-#include <memory>
-#include <utility>
-
-#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
-#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
-#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
-
-OBJC_CLASS(FSTFirestoreClient);
-
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
+namespace core {
+class FirestoreClient;
+}
+
 namespace api {
 
 /**
  * An internal handle that encapsulates a user's ability to request that we
- * stop listening to a query. When a user calls Remove(), ListenerRegistration
- * will synchronously mute the listener and then send a request to the
- * FirestoreClient to actually unlisten.
+ * stop listening to a listener. When a user calls Remove(),
+ * ListenerRegistration will synchronously mute the listener and then send a
+ * request to the FirestoreClient to actually unlisten.
  *
- * ListenerRegistration will not automaticlaly stop listening if it is
+ * ListenerRegistration will not automatically stop listening if it is
  * destroyed. We allow users to fire and forget listens if they never want to
  * stop them.
  *
@@ -52,33 +45,17 @@ namespace api {
  */
 class ListenerRegistration {
  public:
-  ListenerRegistration(
-      FSTFirestoreClient* client,
-      std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
-          async_listener,
-      std::shared_ptr<core::QueryListener> query_listener);
+  virtual ~ListenerRegistration() = default;
 
   /**
-   * Removes the listener being tracked by this FIRListenerRegistration. After
+   * Removes the listener being tracked in this ListenerRegistration. After
    * the initial call, subsequent calls have no effect.
    */
-  void Remove();
-
- private:
-  /** The client that was used to register this listen. */
-  objc::Handle<FSTFirestoreClient> client_;
-
-  /** The async listener that is used to mute events synchronously. */
-  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
-
-  /** The internal QueryListener that can be used to unlisten the query. */
-  std::weak_ptr<core::QueryListener> query_listener_;
+  virtual void Remove() = 0;
 };
 
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_LISTENER_REGISTRATION_H_

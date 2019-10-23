@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 #include "gtest/gtest.h"
 
@@ -25,9 +26,9 @@ namespace local {
 TEST(LevelDbUtilTest, ConvertsStatus) {
   EXPECT_EQ(util::Status::OK(), ConvertStatus(leveldb::Status::OK()));
 
-  EXPECT_EQ(FirestoreErrorCode::NotFound,
+  EXPECT_EQ(Error::NotFound,
             ConvertStatus(leveldb::Status::NotFound("")).code());
-  EXPECT_EQ(FirestoreErrorCode::Unavailable,
+  EXPECT_EQ(Error::Unavailable,
             ConvertStatus(leveldb::Status::IOError("")).code());
 }
 

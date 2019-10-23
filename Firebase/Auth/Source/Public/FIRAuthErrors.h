@@ -299,11 +299,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidClientID = 17060,
 
-    /** Indicates that a network request within a SFSafariViewController or UIWebview failed.
+    /** Indicates that a network request within a SFSafariViewController or WKWebView failed.
      */
     FIRAuthErrorCodeWebNetworkRequestFailed = 17061,
 
-    /** Indicates that an internal error occurred within a SFSafariViewController or UIWebview.
+    /** Indicates that an internal error occurred within a SFSafariViewController or WKWebView.
      */
     FIRAuthErrorCodeWebInternalError = 17062,
 
@@ -321,6 +321,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeNullUser = 17067,
 
+    /** Indicates that a Firebase Dynamic Link is not activated.
+     */
+    FIRAuthErrorCodeDynamicLinkNotActivated = 17068,
+
     /**
      * Represents the error code for when the given provider id for a web operation is invalid.
      */
@@ -330,6 +334,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
         unauthorized for the current project.
      */
     FIRAuthErrorCodeInvalidDynamicLinkDomain = 17074,
+
+    /** Indicates that the credential is rejected because it's misformed or mismatching.
+     */
+    FIRAuthErrorCodeRejectedCredential = 17075,
 
     /** Indicates that the GameKit framework is not linked prior to attempting Game Center signin.
      */

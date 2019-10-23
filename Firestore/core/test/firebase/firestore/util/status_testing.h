@@ -17,8 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -74,7 +73,7 @@ testing::AssertionResult StatusOk(const StatusOr<T>& status) {
 // provide much value (when they fail, they would just print the OK status
 // which conveys no more information than EXPECT_FALSE(status.ok());
 // If you want to check for particular errors, a better alternative is:
-// EXPECT_EQ(..expected FirestoreErrorCode..., status.code());
+// EXPECT_EQ(..expected Error..., status.code());
 #define ASSERT_NOT_OK(status) \
   ASSERT_FALSE(firebase::firestore::util::StatusOk(status))
 #define EXPECT_NOT_OK(status) \

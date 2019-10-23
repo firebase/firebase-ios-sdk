@@ -15,18 +15,17 @@
  */
 
 #import "FValueIndex.h"
+#import "FMaxNode.h"
 #import "FNamedNode.h"
 #import "FSnapshotUtilities.h"
 #import "FUtilities.h"
-#import "FMaxNode.h"
 
 @implementation FValueIndex
 
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2
-{
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2 {
     NSComparisonResult indexCmp = [node1 compare:node2];
     if (indexCmp == NSOrderedSame) {
         return [FUtilities compareKey:key1 toKey:key2];
@@ -35,22 +34,30 @@
     }
 }
 
-- (NSComparisonResult) compareKey:(NSString *)key1
-                          andNode:(id<FNode>)node1
-                       toOtherKey:(NSString *)key2
-                          andNode:(id<FNode>)node2
-                          reverse:(BOOL)reverse
-{
+- (NSComparisonResult)compareKey:(NSString *)key1
+                         andNode:(id<FNode>)node1
+                      toOtherKey:(NSString *)key2
+                         andNode:(id<FNode>)node2
+                         reverse:(BOOL)reverse {
     if (reverse) {
-        return [self compareKey:key2 andNode:node2 toOtherKey:key1 andNode:node1];
+        return [self compareKey:key2
+                        andNode:node2
+                     toOtherKey:key1
+                        andNode:node1];
     } else {
-        return [self compareKey:key1 andNode:node1 toOtherKey:key2 andNode:node2];
+        return [self compareKey:key1
+                        andNode:node1
+                     toOtherKey:key2
+                        andNode:node2];
     }
 }
 
-- (NSComparisonResult) compareNamedNode:(FNamedNode *)namedNode1 toNamedNode:(FNamedNode *)namedNode2
-{
-    return [self compareKey:namedNode1.name andNode:namedNode1.node toOtherKey:namedNode2.name andNode:namedNode2.node];
+- (NSComparisonResult)compareNamedNode:(FNamedNode *)namedNode1
+                           toNamedNode:(FNamedNode *)namedNode2 {
+    return [self compareKey:namedNode1.name
+                    andNode:namedNode1.node
+                 toOtherKey:namedNode2.name
+                    andNode:namedNode2.node];
 }
 
 - (BOOL)isDefinedOn:(id<FNode>)node {
@@ -69,7 +76,7 @@
     return FNamedNode.max;
 }
 
-- (FNamedNode *)makePost:(id<FNode>)indexValue name:(NSString*)name {
+- (FNamedNode *)makePost:(id<FNode>)indexValue name:(NSString *)name {
     return [[FNamedNode alloc] initWithName:name andNode:indexValue];
 }
 
@@ -77,7 +84,7 @@
     return @".value";
 }
 
-- (NSString *) description {
+- (NSString *)description {
     return @"FValueIndex";
 }
 
@@ -85,21 +92,20 @@
     return self;
 }
 
-- (BOOL) isEqual:(id)other {
+- (BOOL)isEqual:(id)other {
     // since we're a singleton.
     return (other == self);
 }
 
-- (NSUInteger) hash {
+- (NSUInteger)hash {
     return [@".value" hash];
 }
 
-
-+ (id<FIndex>) valueIndex {
++ (id<FIndex>)valueIndex {
     static id<FIndex> valueIndex;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        valueIndex = [[FValueIndex alloc] init];
+      valueIndex = [[FValueIndex alloc] init];
     });
     return valueIndex;
 }

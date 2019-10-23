@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingCodedInputStream.h"
+#import "Firebase/Messaging/FIRMessagingCodedInputStream.h"
 
 @interface FIRMessagingCodedInputStreamTest : XCTestCase
 @end

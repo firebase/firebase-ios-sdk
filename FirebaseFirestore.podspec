@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.4.2'
+  s.version          = '1.6.1'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -25,21 +25,29 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
-    'Firestore/Source/**/*.{h,m,mm}',
-    'Firestore/Protos/nanopb/**/*.{h,cc}',
-    'Firestore/Protos/objc/**/*.[hm]',
-    'Firestore/core/include/**/*.{h,cc,mm}',
-    'Firestore/core/src/**/*.{h,cc,mm}',
-    'Firestore/third_party/Immutable/*.[mh]',
+    'Firestore/Source/Public/*.h',
+    'Firestore/Source/**/*.{m,mm}',
+    'Firestore/Protos/nanopb/**/*.cc',
+    'Firestore/Protos/objc/**/*.m',
+    'Firestore/core/include/**/*.{cc,mm}',
+    'Firestore/core/src/**/*.{cc,mm}',
+  ]
+  s.preserve_paths = [
+    'Firestore/Source/API/*.h',
+    'Firestore/Source/Core/*.h',
+    'Firestore/Source/Local/*.h',
+    'Firestore/Source/Remote/*.h',
+    'Firestore/Source/Util/*.h',
+    'Firestore/Protos/nanopb/**/*.h',
+    'Firestore/Protos/objc/**/*.h',
+    'Firestore/core/include/**/*.h',
+    'Firestore/core/src/**/*.h',
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
     'Firestore/core/src/**/*.mm',
-    'Firestore/third_party/Immutable/*.[mh]'
   ]
   s.exclude_files = [
-    'Firestore/third_party/Immutable/Tests/**',
-
     # Exclude alternate implementations for other platforms
     'Firestore/core/src/firebase/firestore/api/input_validation_std.cc',
     'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
@@ -52,10 +60,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.2'
   s.dependency 'gRPC-C++', '0.0.9'
-  s.dependency 'leveldb-library', '~> 1.20'
-  s.dependency 'Protobuf', '~> 3.1'
+  s.dependency 'leveldb-library', '~> 1.22'
+  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
   s.dependency 'nanopb', '~> 0.3.901'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
@@ -78,7 +86,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
       '"${PODS_ROOT}/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/api" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/firestore/v1" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/rpc" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/type"',
   }
 
   # Generate a version of the config.h header suitable for building with

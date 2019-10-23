@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -28,15 +24,13 @@
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "gtest/gtest.h"
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
-using FactoryFunc = id<FSTPersistence> _Nonnull (*)();
+class Persistence;
+
+using FactoryFunc = std::unique_ptr<Persistence> (*)();
 
 class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
  public:
@@ -44,7 +38,7 @@ class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
   IndexManagerTest() : persistence{GetParam()()} {
   }
 
-  id<FSTPersistence> persistence;
+  std::unique_ptr<Persistence> persistence;
 
   virtual ~IndexManagerTest();
 
@@ -56,7 +50,5 @@ class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_LOCAL_INDEX_MANAGER_TEST_H_

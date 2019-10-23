@@ -439,7 +439,7 @@ void AddDescriptorsImpl() {
       "\n\037google/firestore/v1/query.proto\022\023googl"
       "e.firestore.v1\032\034google/api/annotations.p"
       "roto\032\"google/firestore/v1/document.proto"
-      "\032\036google/protobuf/wrappers.proto\"\332\016\n\017Str"
+      "\032\036google/protobuf/wrappers.proto\"\372\016\n\017Str"
       "ucturedQuery\022\?\n\006select\030\001 \001(\0132/.google.fi"
       "restore.v1.StructuredQuery.Projection\022E\n"
       "\004from\030\002 \003(\01327.google.firestore.v1.Struct"
@@ -463,40 +463,41 @@ void AddDescriptorsImpl() {
       "v1.StructuredQuery.CompositeFilter.Opera"
       "tor\022<\n\007filters\030\002 \003(\0132+.google.firestore."
       "v1.StructuredQuery.Filter\"-\n\010Operator\022\030\n"
-      "\024OPERATOR_UNSPECIFIED\020\000\022\007\n\003AND\020\001\032\335\002\n\013Fie"
+      "\024OPERATOR_UNSPECIFIED\020\000\022\007\n\003AND\020\001\032\375\002\n\013Fie"
       "ldFilter\022B\n\005field\030\001 \001(\01323.google.firesto"
       "re.v1.StructuredQuery.FieldReference\022E\n\002"
       "op\030\002 \001(\01629.google.firestore.v1.Structure"
       "dQuery.FieldFilter.Operator\022)\n\005value\030\003 \001"
-      "(\0132\032.google.firestore.v1.Value\"\227\001\n\010Opera"
+      "(\0132\032.google.firestore.v1.Value\"\267\001\n\010Opera"
       "tor\022\030\n\024OPERATOR_UNSPECIFIED\020\000\022\r\n\tLESS_TH"
       "AN\020\001\022\026\n\022LESS_THAN_OR_EQUAL\020\002\022\020\n\014GREATER_"
       "THAN\020\003\022\031\n\025GREATER_THAN_OR_EQUAL\020\004\022\t\n\005EQU"
-      "AL\020\005\022\022\n\016ARRAY_CONTAINS\020\007\032\351\001\n\013UnaryFilter"
-      "\022E\n\002op\030\001 \001(\01629.google.firestore.v1.Struc"
-      "turedQuery.UnaryFilter.Operator\022D\n\005field"
-      "\030\002 \001(\01323.google.firestore.v1.StructuredQ"
-      "uery.FieldReferenceH\000\"=\n\010Operator\022\030\n\024OPE"
-      "RATOR_UNSPECIFIED\020\000\022\n\n\006IS_NAN\020\002\022\013\n\007IS_NU"
-      "LL\020\003B\016\n\014operand_type\032\216\001\n\005Order\022B\n\005field\030"
-      "\001 \001(\01323.google.firestore.v1.StructuredQu"
-      "ery.FieldReference\022A\n\tdirection\030\002 \001(\0162.."
-      "google.firestore.v1.StructuredQuery.Dire"
-      "ction\032$\n\016FieldReference\022\022\n\nfield_path\030\002 "
-      "\001(\t\032Q\n\nProjection\022C\n\006fields\030\002 \003(\01323.goog"
-      "le.firestore.v1.StructuredQuery.FieldRef"
-      "erence\"E\n\tDirection\022\031\n\025DIRECTION_UNSPECI"
-      "FIED\020\000\022\r\n\tASCENDING\020\001\022\016\n\nDESCENDING\020\002\"D\n"
-      "\006Cursor\022*\n\006values\030\001 \003(\0132\032.google.firesto"
-      "re.v1.Value\022\016\n\006before\030\002 \001(\010B\256\001\n\027com.goog"
-      "le.firestore.v1B\nQueryProtoP\001Z<google.go"
-      "lang.org/genproto/googleapis/firestore/v"
-      "1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Firest"
-      "ore.V1Beta1\312\002\036Google\\Cloud\\Firestore\\V1b"
-      "eta1b\006proto3"
+      "AL\020\005\022\022\n\016ARRAY_CONTAINS\020\007\022\006\n\002IN\020\010\022\026\n\022ARRA"
+      "Y_CONTAINS_ANY\020\t\032\351\001\n\013UnaryFilter\022E\n\002op\030\001"
+      " \001(\01629.google.firestore.v1.StructuredQue"
+      "ry.UnaryFilter.Operator\022D\n\005field\030\002 \001(\01323"
+      ".google.firestore.v1.StructuredQuery.Fie"
+      "ldReferenceH\000\"=\n\010Operator\022\030\n\024OPERATOR_UN"
+      "SPECIFIED\020\000\022\n\n\006IS_NAN\020\002\022\013\n\007IS_NULL\020\003B\016\n\014"
+      "operand_type\032\216\001\n\005Order\022B\n\005field\030\001 \001(\01323."
+      "google.firestore.v1.StructuredQuery.Fiel"
+      "dReference\022A\n\tdirection\030\002 \001(\0162..google.f"
+      "irestore.v1.StructuredQuery.Direction\032$\n"
+      "\016FieldReference\022\022\n\nfield_path\030\002 \001(\t\032Q\n\nP"
+      "rojection\022C\n\006fields\030\002 \003(\01323.google.fires"
+      "tore.v1.StructuredQuery.FieldReference\"E"
+      "\n\tDirection\022\031\n\025DIRECTION_UNSPECIFIED\020\000\022\r"
+      "\n\tASCENDING\020\001\022\016\n\nDESCENDING\020\002\"D\n\006Cursor\022"
+      "*\n\006values\030\001 \003(\0132\032.google.firestore.v1.Va"
+      "lue\022\016\n\006before\030\002 \001(\010B\256\001\n\027com.google.fires"
+      "tore.v1B\nQueryProtoP\001Z<google.golang.org"
+      "/genproto/googleapis/firestore/v1;firest"
+      "ore\242\002\004GCFS\252\002\036Google.Cloud.Firestore.V1Be"
+      "ta1\312\002\036Google\\Cloud\\Firestore\\V1beta1b\006pr"
+      "oto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 2292);
+      descriptor, 2324);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "google/firestore/v1/query.proto", &protobuf_RegisterTypes);
   ::protobuf_google_2fapi_2fannotations_2eproto::AddDescriptors();
@@ -552,6 +553,8 @@ bool StructuredQuery_FieldFilter_Operator_IsValid(int value) {
     case 4:
     case 5:
     case 7:
+    case 8:
+    case 9:
       return true;
     default:
       return false;
@@ -566,6 +569,8 @@ const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::GREATER_
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::GREATER_THAN_OR_EQUAL;
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::EQUAL;
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::ARRAY_CONTAINS;
+const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::IN;
+const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::ARRAY_CONTAINS_ANY;
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::Operator_MIN;
 const StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::Operator_MAX;
 const int StructuredQuery_FieldFilter::Operator_ARRAYSIZE;

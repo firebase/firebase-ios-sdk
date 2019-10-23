@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-
-#import "Protos/GtalkCore.pbobjc.h"
-
-#import "FIRMessagingClient.h"
-#import "FIRMessagingConnection.h"
-#import "FIRMessagingDataMessageManager.h"
-#import "FIRMessagingFakeConnection.h"
-#import "FIRMessagingRmqManager.h"
-#import "FIRMessagingSecureSocket.h"
-#import "FIRMessagingUtilities.h"
+#import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
+#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";

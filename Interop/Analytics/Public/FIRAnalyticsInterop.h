@@ -16,29 +16,35 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAConditionalUserProperty;
 @protocol FIRAnalyticsInteropListener;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/// Block typedef callback parameter to getUserPropertiesWithCallback:.
+typedef void (^FIRAInteropUserPropertiesCallback)(NSDictionary<NSString *, id> *userProperties);
 
 /// Connector for bridging communication between Firebase SDKs and FirebaseAnalytics API.
 @protocol FIRAnalyticsInterop
 
 /// Sets user property when trigger event is logged. This API is only available in the SDK.
-- (void)setConditionalUserProperty:(FIRAConditionalUserProperty *)conditionalUserProperty;
+- (void)setConditionalUserProperty:(NSDictionary<NSString *, id> *)conditionalUserProperty;
 
 /// Clears user property if set.
 - (void)clearConditionalUserProperty:(NSString *)userPropertyName
+                           forOrigin:(NSString *)origin
                       clearEventName:(NSString *)clearEventName
-                clearEventParameters:(NSDictionary *)clearEventParameters;
+                clearEventParameters:(NSDictionary<NSString *, NSString *> *)clearEventParameters;
 
 /// Returns currently set user properties.
-- (NSArray<FIRAConditionalUserProperty *> *)conditionalUserProperties:(NSString *)origin
-                                                   propertyNamePrefix:
-                                                       (NSString *)propertyNamePrefix;
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)conditionalUserProperties:(NSString *)origin
+                                                            propertyNamePrefix:
+                                                                (NSString *)propertyNamePrefix;
 
 /// Returns the maximum number of user properties.
 - (NSInteger)maxUserProperties:(NSString *)origin;
+
+/// Returns the user properties to a callback function.
+- (void)getUserPropertiesWithCallback:(FIRAInteropUserPropertiesCallback)callback;
 
 /// Logs events.
 - (void)logEventWithOrigin:(NSString *)origin

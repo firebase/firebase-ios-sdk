@@ -19,27 +19,25 @@
 #include <memory>
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTMutationBatch.h"
-
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
 using auth::User;
+using core::Query;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::Status;
@@ -47,7 +45,12 @@ using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
+using model::Mutation;
+using model::MutationBatch;
 using model::ResourcePath;
+using nanopb::ByteString;
+using nanopb::Message;
+using nanopb::StringReader;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
   // TODO(gsoltis): implement Prev() and SeekToLast() on
@@ -58,7 +61,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
   std::string table_key = LevelDbMutationKey::KeyPrefix();
 
   LevelDbMutationKey row_key;
-  BatchId max_batch_id = kBatchIdUnknown;
+  BatchId max_batch_id = 0;
 
   bool more_user_ids = false;
   std::string next_user_id;
@@ -69,7 +72,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     next_user_id = row_key.user_id();
   }
 
-  // This loop assumes that nextUserId contains the next username at the start
+  // This loop assumes that next_user_id contains the next username at the start
   // of the iteration.
   while (more_user_ids) {
     // Compute the first key after the last mutation for next_user_id.
@@ -86,8 +89,8 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     // the current user's mutation sequence.
     if (!it->Valid()) {
       // The iterator is past the last row altogether (there are no additional
-      // userIDs and now rows in any table after mutations). The last row will
-      // have the highest batchID.
+      // user_ids and now rows in any table after mutations). The last row will
+      // have the highest batch_id.
       more_user_ids = false;
       it->SeekToLast();
 
@@ -119,28 +122,22 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
 }
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
-                                           FSTLevelDB* db,
-                                           FSTLocalSerializer* serializer)
-    : db_(db),
-      serializer_(serializer),
+                                           LevelDbPersistence* db,
+                                           LocalSerializer* serializer)
+    : db_(NOT_NULL(db)),
+      serializer_(NOT_NULL(serializer)),
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
 
 void LevelDbMutationQueue::Start() {
-  next_batch_id_ = LoadNextBatchIdFromDb(db_.ptr);
-
-  std::string key = mutation_queue_key();
-  FSTPBMutationQueue* metadata = MetadataForKey(key);
-  if (!metadata) {
-    metadata = [FSTPBMutationQueue message];
-  }
-  metadata_ = metadata;
+  next_batch_id_ = LoadNextBatchIdFromDb(db_->ptr());
+  metadata_ = MetadataForKey(mutation_queue_key());
 }
 
 bool LevelDbMutationQueue::IsEmpty() {
   std::string user_key = LevelDbMutationKey::KeyPrefix(user_id_);
 
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(user_key);
 
   bool empty = true;
@@ -150,25 +147,22 @@ bool LevelDbMutationQueue::IsEmpty() {
   return empty;
 }
 
-void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
-                                            NSData* _Nullable stream_token) {
+void LevelDbMutationQueue::AcknowledgeBatch(const MutationBatch&,
+                                            const ByteString& stream_token) {
   SetLastStreamToken(stream_token);
 }
 
-FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
+MutationBatch LevelDbMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
-    std::vector<FSTMutation*>&& base_mutations,
-    std::vector<FSTMutation*>&& mutations) {
+    std::vector<Mutation>&& base_mutations,
+    std::vector<Mutation>&& mutations) {
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 
-  FSTMutationBatch* batch =
-      [[FSTMutationBatch alloc] initWithBatchID:batch_id
-                                 localWriteTime:local_write_time
-                                  baseMutations:std::move(base_mutations)
-                                      mutations:std::move(mutations)];
+  MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
+                      std::move(mutations));
   std::string key = mutation_batch_key(batch_id);
-  db_.currentTransaction->Put(key, [serializer_ encodedMutationBatch:batch]);
+  db_->current_transaction()->Put(key, serializer_->EncodeMutationBatch(batch));
 
   // Store an empty value in the index which is equivalent to serializing a
   // GPBEmpty message. In the future if we wanted to store some other kind of
@@ -176,20 +170,21 @@ FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
   // buffer (and the parser will see all default values).
   std::string empty_buffer;
 
-  for (FSTMutation* mutation : [batch mutations]) {
-    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
-    db_.currentTransaction->Put(key, empty_buffer);
+  for (const Mutation& mutation : batch.mutations()) {
+    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key(), batch_id);
+    db_->current_transaction()->Put(key, empty_buffer);
 
-    db_.indexManager->AddToCollectionParentIndex(mutation.key.path().PopLast());
+    db_->index_manager()->AddToCollectionParentIndex(
+        mutation.key().path().PopLast());
   }
 
   return batch;
 }
 
-void LevelDbMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
-  auto check_iterator = db_.currentTransaction->NewIterator();
+void LevelDbMutationQueue::RemoveMutationBatch(const MutationBatch& batch) {
+  auto check_iterator = db_->current_transaction()->NewIterator();
 
-  BatchId batch_id = batch.batchID;
+  BatchId batch_id = batch.batch_id();
   std::string key = mutation_batch_key(batch_id);
 
   // As a sanity check, verify that the mutation batch exists before deleting
@@ -202,28 +197,28 @@ void LevelDbMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
               "Mutation batch %s not found; found %s", DescribeKey(key),
               DescribeKey(check_iterator->key()));
 
-  db_.currentTransaction->Delete(key);
+  db_->current_transaction()->Delete(key);
 
-  for (FSTMutation* mutation : [batch mutations]) {
-    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
-    db_.currentTransaction->Delete(key);
-    [db_.referenceDelegate removeMutationReference:mutation.key];
+  for (const Mutation& mutation : batch.mutations()) {
+    key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key(), batch_id);
+    db_->current_transaction()->Delete(key);
+    db_->reference_delegate()->RemoveMutationReference(mutation.key());
   }
 }
 
-std::vector<FSTMutationBatch*> LevelDbMutationQueue::AllMutationBatches() {
+std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatches() {
   std::string user_key = LevelDbMutationKey::KeyPrefix(user_id_);
 
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(user_key);
-  std::vector<FSTMutationBatch*> result;
+  std::vector<MutationBatch> result;
   for (; it->Valid() && absl::StartsWith(it->key(), user_key); it->Next()) {
     result.push_back(ParseMutationBatch(it->value()));
   }
   return result;
 }
 
-std::vector<FSTMutationBatch*>
+std::vector<MutationBatch>
 LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKeys(
     const DocumentKeySet& document_keys) {
   // Take a pass through the document keys and collect the set of unique
@@ -231,7 +226,7 @@ LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKeys(
   // one key.
   std::set<BatchId> batch_ids;
 
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   LevelDbDocumentMutationKey row_key;
   for (const DocumentKey& document_key : document_keys) {
     std::string index_prefix =
@@ -262,21 +257,21 @@ LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKeys(
   return AllMutationBatchesWithIds(batch_ids);
 }
 
-std::vector<FSTMutationBatch*>
+std::vector<MutationBatch>
 LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKey(
     const DocumentKey& key) {
   return AllMutationBatchesAffectingDocumentKeys(DocumentKeySet{key});
 }
 
-std::vector<FSTMutationBatch*>
-LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
-  HARD_ASSERT(![query isDocumentQuery],
+std::vector<MutationBatch>
+LevelDbMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
+  HARD_ASSERT(!query.IsDocumentQuery(),
               "Document queries shouldn't go down this path");
   HARD_ASSERT(
-      ![query isCollectionGroupQuery],
+      !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
-  const ResourcePath& query_path = query.path;
+  const ResourcePath& query_path = query.path();
   size_t immediate_children_path_length = query_path.size() + 1;
 
   // TODO(mcg): Actually implement a single-collection query
@@ -291,23 +286,23 @@ LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
   // current approach is to just return all mutation batches that affect
   // documents in the collection being queried.
   //
-  // Unlike allMutationBatchesAffectingDocumentKey, this iteration will scan the
+  // Unlike AllMutationBatchesAffectingDocumentKey, this iteration will scan the
   // document-mutation index for more than a single document so the associated
-  // batchIDs will be neither necessarily unique nor in order. This means an
+  // batch_ids will be neither necessarily unique nor in order. This means an
   // efficient simultaneous scan isn't possible.
   std::string index_prefix =
       LevelDbDocumentMutationKey::KeyPrefix(user_id_, query_path);
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
 
   LevelDbDocumentMutationKey row_key;
 
-  // Collect up unique batchIDs encountered during a scan of the index. Use a
-  // set<BatchId> to accumulate batch IDs so they can be traversed in order in a
+  // Collect up unique batch_ids encountered during a scan of the index. Use a
+  // set<BatchId> to accumulate the IDs so they can be traversed in order in a
   // scan of the main table.
   //
   // This method is faster than performing lookups of the keys with _db->Get and
-  // keeping a hash of batchIDs that have already been looked up. The
+  // keeping a hash of batch_ids that have already been looked up. The
   // performance difference is minor for small numbers of keys but > 30% faster
   // for larger numbers of keys.
   std::set<BatchId> unique_batch_ids;
@@ -333,15 +328,15 @@ LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
 
-FSTMutationBatch* _Nullable LevelDbMutationQueue::LookupMutationBatch(
+absl::optional<MutationBatch> LevelDbMutationQueue::LookupMutationBatch(
     model::BatchId batch_id) {
   std::string key = mutation_batch_key(batch_id);
 
   std::string value;
-  Status status = db_.currentTransaction->Get(key, &value);
+  Status status = db_->current_transaction()->Get(key, &value);
   if (!status.ok()) {
     if (status.IsNotFound()) {
-      return nil;
+      return absl::nullopt;
     }
     HARD_FAIL("Lookup mutation batch (%s, %s) failed with status: %s", user_id_,
               batch_id, status.ToString());
@@ -350,28 +345,47 @@ FSTMutationBatch* _Nullable LevelDbMutationQueue::LookupMutationBatch(
   return ParseMutationBatch(value);
 }
 
-FSTMutationBatch* _Nullable LevelDbMutationQueue::NextMutationBatchAfterBatchId(
-    model::BatchId batch_id) {
+absl::optional<MutationBatch>
+LevelDbMutationQueue::NextMutationBatchAfterBatchId(model::BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
   std::string key = mutation_batch_key(next_batch_id);
-  auto it = db_.currentTransaction->NewIterator();
+  auto it = db_->current_transaction()->NewIterator();
   it->Seek(key);
 
   LevelDbMutationKey row_key;
   if (!it->Valid() || !row_key.Decode(it->key())) {
     // Past the last row in the DB or out of the mutations table
-    return nil;
+    return absl::nullopt;
   }
 
   if (row_key.user_id() != user_id_) {
     // Jumped past the last mutation for this user
-    return nil;
+    return absl::nullopt;
   }
 
   HARD_ASSERT(row_key.batch_id() >= next_batch_id,
               "Should have found mutation after %s", next_batch_id);
   return ParseMutationBatch(it->value());
+}
+
+BatchId LevelDbMutationQueue::GetHighestUnacknowledgedBatchId() {
+  std::unique_ptr<Iterator> it(
+      db_->ptr()->NewIterator(LevelDbTransaction::DefaultReadOptions()));
+
+  std::string next_user_key =
+      util::PrefixSuccessor(LevelDbMutationKey::KeyPrefix(user_id_));
+
+  LevelDbMutationKey row_key;
+
+  it->Seek(next_user_key);
+  it->Prev();
+  if (it->Valid() && row_key.Decode(MakeStringView(it->key())) &&
+      row_key.user_id() == user_id_) {
+    return row_key.batch_id();
+  }
+
+  return kBatchIdUnknown;
 }
 
 void LevelDbMutationQueue::PerformConsistencyCheck() {
@@ -382,7 +396,7 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
   // Verify that there are no entries in the document-mutation index if the
   // queue is empty.
   std::string index_prefix = LevelDbDocumentMutationKey::KeyPrefix(user_id_);
-  auto index_iterator = db_.currentTransaction->NewIterator();
+  auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
 
   std::vector<std::string> dangling_mutation_references;
@@ -403,23 +417,22 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
       util::ToString(dangling_mutation_references));
 }
 
-NSData* _Nullable LevelDbMutationQueue::GetLastStreamToken() {
-  return metadata_.lastStreamToken;
+ByteString LevelDbMutationQueue::GetLastStreamToken() {
+  return ByteString{metadata_->last_stream_token};
 }
 
-void LevelDbMutationQueue::SetLastStreamToken(NSData* _Nullable stream_token) {
-  metadata_.lastStreamToken = stream_token;
-
-  db_.currentTransaction->Put(mutation_queue_key(), metadata_);
+void LevelDbMutationQueue::SetLastStreamToken(ByteString stream_token) {
+  metadata_->last_stream_token = stream_token.release();
+  db_->current_transaction()->Put(mutation_queue_key(), metadata_);
 }
 
-std::vector<FSTMutationBatch*> LevelDbMutationQueue::AllMutationBatchesWithIds(
+std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
     const std::set<BatchId>& batch_ids) {
-  std::vector<FSTMutationBatch*> result;
+  std::vector<MutationBatch> result;
 
-  // Given an ordered set of unique batchIDs perform a skipping scan over the
+  // Given an ordered set of unique batch_ids perform a skipping scan over the
   // main table to find the mutation batches.
-  auto mutation_iterator = db_.currentTransaction->NewIterator();
+  auto mutation_iterator = db_->current_transaction()->NewIterator();
   for (BatchId batch_id : batch_ids) {
     std::string mutation_key = mutation_batch_key(batch_id);
     mutation_iterator->Seek(mutation_key);
@@ -432,50 +445,44 @@ std::vector<FSTMutationBatch*> LevelDbMutationQueue::AllMutationBatchesWithIds(
 
     result.push_back(ParseMutationBatch(mutation_iterator->value()));
   }
+
   return result;
 }
 
-FSTPBMutationQueue* _Nullable LevelDbMutationQueue::MetadataForKey(
+Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
     const std::string& key) {
   std::string value;
-  Status status = db_.currentTransaction->Get(key, &value);
-  if (status.ok()) {
-    NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)value.data()
-                                                length:value.size()
-                                          freeWhenDone:NO];
+  Status status = db_->current_transaction()->Get(key, &value);
 
-    NSError* error;
-    FSTPBMutationQueue* proto = [FSTPBMutationQueue parseFromData:data
-                                                            error:&error];
-    if (!proto) {
-      HARD_FAIL("FSTPBMutationQueue failed to parse: %s", error);
-    }
-    return proto;
-  } else if (status.IsNotFound()) {
-    return nil;
+  StringReader reader{value};
+  reader.set_status(ConvertStatus(status));
+  auto result = Message<firestore_client_MutationQueue>::TryParse(&reader);
+
+  if (reader.ok()) {
+    return result;
+  } else if (reader.status().code() == Error::NotFound) {
+    // Return a default-constructed message (`TryParse` is guaranteed to return
+    // a default-constructed message on failure).
+    return result;
   } else {
     HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
-              status.ToString());
+              reader.status().ToString());
   }
 }
 
-FSTMutationBatch* LevelDbMutationQueue::ParseMutationBatch(
+MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:NO];
-
-  NSError* error;
-  FSTPBWriteBatch* proto = [FSTPBWriteBatch parseFromData:data error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBMutationBatch failed to parse: %s", error);
+  StringReader reader{encoded};
+  auto maybe_message = Message<firestore_client_WriteBatch>::TryParse(&reader);
+  auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
+  if (!reader.ok()) {
+    HARD_FAIL("MutationBatch proto failed to parse: %s",
+              reader.status().ToString());
   }
 
-  return [serializer_ decodedMutationBatch:proto];
+  return result;
 }
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

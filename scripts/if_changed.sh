@@ -66,12 +66,25 @@ else
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
+    FirebasePod-*)
+      check_changes '^(CoreOnly|Firebase.podspec)'
+      ;;
+
     Core-*)
       check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
       ;;
 
+    ABTesting-*)
+      check_changes '^(Firebase/Core|FirebaseABTesting)'
+      ;;
+
     Auth-*)
       check_changes '^(Firebase/Core|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
+      ;;
+
+    CoreDiagnostics-*)
+      check_changes '^(Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
+'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     Database-*)
@@ -91,6 +104,10 @@ else
       ;;
 
     InAppMessaging-*)
+      check_changes '^(InAppMessaging|Firebase/InAppMessaging)'
+      ;;
+
+    InAppMessagingDisplay-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
       ;;
@@ -109,11 +126,6 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
       ;;
 
-    FirebaseCoreDiagnostics-*)
-      check_changes '^(Firebase/CoreDiagnostics|FirebaseCoreDiagnosticsInterop|'\
-'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec)'
-      ;;
-
     GoogleDataTransport-*)
       check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
@@ -128,6 +140,10 @@ else
 
     Messaging-*)
       check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
+      ;;
+
+    RemoteConfig-*)
+      check_changes '^(Firebase/Core|FirebaseRemoteConfig)'
       ;;
 
     Storage-*)

@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-#import "FRepo.h"
+#import "FIRDatabaseQuery.h"
 #import "FPath.h"
+#import "FQueryParams.h"
+#import "FRepo.h"
 #import "FRepoManager.h"
 #import "FTypedefs_Private.h"
-#import "FQueryParams.h"
-#import "FIRDatabaseQuery.h"
 
 @interface FIRDatabaseQuery ()
 
 + (dispatch_queue_t)sharedQueue;
 
-- (id) initWithRepo:(FRepo *)repo path:(FPath *)path;
-- (id) initWithRepo:(FRepo *)repo
-               path:(FPath *)path
-             params:(FQueryParams *)params
-      orderByCalled:(BOOL)orderByCalled
-priorityMethodCalled:(BOOL)priorityMethodCalled;
+- (id)initWithRepo:(FRepo *)repo path:(FPath *)path;
+- (id)initWithRepo:(FRepo *)repo
+                    path:(FPath *)path
+                  params:(FQueryParams *)params
+           orderByCalled:(BOOL)orderByCalled
+    priorityMethodCalled:(BOOL)priorityMethodCalled;
 
-@property (nonatomic, strong) FRepo* repo;
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, strong) FQueryParams *queryParams;
-@property (nonatomic) BOOL orderByCalled;
-@property (nonatomic) BOOL priorityMethodCalled;
+@property(nonatomic, strong) FRepo *repo;
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, strong) FQueryParams *queryParams;
+@property(nonatomic) BOOL orderByCalled;
+@property(nonatomic) BOOL priorityMethodCalled;
 
 - (FQuerySpec *)querySpec;
 

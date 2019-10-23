@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 // These are the two methods we use to respond to app state change for the purpose of
 // actual display time tracking. Subclass can override this one to have more logic for responding
 // to the two events, but remember to trigger super's implementation.
-- (void)appDidBecomeInactive:(UIApplication *)application;
-- (void)appDidBecomeActive:(UIApplication *)application;
+- (void)appWillBecomeInactive:(NSNotification *)notification;
+- (void)appDidBecomeActive:(NSNotification *)notification;
 
 // Tracking the aggregate impression time for the rendered message. Used to determine when
 // we are eaching the minimal iimpression time requirements. Exposed so that sub banner vc

@@ -19,6 +19,7 @@
 #import "FIRKeyedArchivingUtils.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredIIDCheckin.h"
 #import "FIRInstallationsStoredItem.h"
 
 @interface FIRInstallationsStoredItemTests : XCTestCase
@@ -38,6 +39,7 @@
   item.refreshToken = @"refresh-token";
   item.authToken = authToken;
   item.registrationStatus = FIRInstallationStatusRegistered;
+  item.IIDCheckin = [self createIIDCheckin];
 
   NSError *error;
   NSData *archivedItem = [FIRKeyedArchivingUtils archivedDataWithRootObject:item error:&error];
@@ -54,6 +56,13 @@
   XCTAssertEqualObjects(unarchivedItem.authToken.token, item.authToken.token);
   XCTAssertEqualObjects(unarchivedItem.authToken.expirationDate, item.authToken.expirationDate);
   XCTAssertEqual(unarchivedItem.registrationStatus, item.registrationStatus);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.deviceID, item.IIDCheckin.deviceID);
+  XCTAssertEqualObjects(unarchivedItem.IIDCheckin.secretToken, item.IIDCheckin.secretToken);
+}
+
+- (FIRInstallationsStoredIIDCheckin *)createIIDCheckin {
+  return [[FIRInstallationsStoredIIDCheckin alloc] initWithDeviceID:@"IIDDeviceID"
+                                                        secretToken:@"IIDSecretToken"];
 }
 
 @end

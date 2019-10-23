@@ -33,38 +33,42 @@
 #include <string>
 #include <utility>
 
+#import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/status_testing.h"
-
 #include "absl/memory/memory.h"
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
-
-#import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
-#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
-
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
-
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+
+using firebase::firestore::auth::CredentialChangeListener;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::auth::User;
+using firebase::firestore::local::LevelDbPersistence;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
-using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -79,14 +83,38 @@ static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
 
+// Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
+// change.
+class FakeCredentialsProvider : public EmptyCredentialsProvider {
+ public:
+  void SetCredentialChangeListener(CredentialChangeListener changeListener) override {
+    if (changeListener) {
+      listener_ = std::move(changeListener);
+      listener_(User::Unauthenticated());
+    }
+  }
+
+  void ChangeUser(NSString *new_id) {
+    if (listener_) {
+      listener_(firebase::firestore::auth::User::FromUid(new_id));
+    }
+  }
+
+ private:
+  CredentialChangeListener listener_;
+};
+
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
+  std::shared_ptr<FakeCredentialsProvider> _fakeCredentialsProvider;
 }
 
 - (void)setUp {
   [super setUp];
 
-  [self clearPersistence];
+  _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
+
+  [self clearPersistenceOnce];
   [self primeBackend];
 
   _firestores = [NSMutableArray array];
@@ -97,7 +125,7 @@ static bool runningAgainstEmulator = false;
 - (void)tearDown {
   @try {
     for (FIRFirestore *firestore in _firestores) {
-      [self shutdownFirestore:firestore];
+      [self terminateFirestore:firestore];
     }
   } @finally {
     _firestores = nil;
@@ -105,10 +133,23 @@ static bool runningAgainstEmulator = false;
   }
 }
 
-- (void)clearPersistence {
-  Path levelDBDir = [FSTLevelDB documentsDirectory];
-  Status status = util::RecursivelyDelete(levelDBDir);
-  ASSERT_OK(status);
+/**
+ * Clears persistence, but only the first time. This ensures that each test
+ * run is isolated from the last test run, but doesn't allow tests to interfere
+ * with each other.
+ */
+- (void)clearPersistenceOnce {
+  static bool clearedPersistence = false;
+
+  @synchronized([FSTIntegrationTestCase class]) {
+    if (clearedPersistence) return;
+
+    Path levelDBDir = LevelDbPersistence::AppDataDirectory();
+    Status status = util::RecursivelyDelete(levelDBDir);
+    ASSERT_OK(status);
+
+    clearedPersistence = true;
+  }
 }
 
 - (FIRFirestore *)firestore {
@@ -129,6 +170,8 @@ static bool runningAgainstEmulator = false;
  * values trigger which configurations.
  */
 + (void)setUpDefaults {
+  if (defaultSettings) return;
+
   defaultSettings = [[FIRFirestoreSettings alloc] init];
   defaultSettings.persistenceEnabled = YES;
 
@@ -204,10 +247,7 @@ static bool runningAgainstEmulator = false;
 }
 
 + (FIRFirestoreSettings *)settings {
-  if (!defaultSettings) {
-    [self setUpDefaults];
-  }
-
+  [self setUpDefaults];
   return defaultSettings;
 }
 
@@ -219,31 +259,35 @@ static bool runningAgainstEmulator = false;
 - (FIRFirestore *)firestoreWithApp:(FIRApp *)app {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  dispatch_queue_t queue =
-      dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL);
-  std::unique_ptr<AsyncQueue> workerQueue =
-      absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
-  std::unique_ptr<CredentialsProvider> credentials_provider =
-      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
   std::string projectID = util::MakeString(app.options.projectID);
   FIRFirestore *firestore =
       [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
                                 persistenceKey:util::MakeString(persistenceKey)
-                           credentialsProvider:std::move(credentials_provider)
-                                   workerQueue:std::move(workerQueue)
-                                   firebaseApp:app];
+                           credentialsProvider:_fakeCredentialsProvider
+                                   workerQueue:AsyncQueueForTesting()
+                                   firebaseApp:app
+                              instanceRegistry:nil];
 
   firestore.settings = [FSTIntegrationTestCase settings];
   [_firestores addObject:firestore];
   return firestore;
 }
 
+- (void)triggerUserChangeWithUid:(NSString *)uid {
+  _fakeCredentialsProvider->ChangeUser(uid);
+}
+
 - (void)primeBackend {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    [FSTIntegrationTestCase setUpDefaults];
+    if (runningAgainstEmulator) {
+      // Priming not required against the emulator.
+      return;
+    }
+
     FIRFirestore *db = [self firestore];
     XCTestExpectation *watchInitialized =
         [self expectationWithDescription:@"Prime backend: Watch initialized"];
@@ -283,12 +327,12 @@ static bool runningAgainstEmulator = false;
 
     [listenerRegistration remove];
 
-    [self shutdownFirestore:db];
+    [self terminateFirestore:db];
   });
 }
 
-- (void)shutdownFirestore:(FIRFirestore *)firestore {
-  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+- (void)terminateFirestore:(FIRFirestore *)firestore {
+  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
 }
 

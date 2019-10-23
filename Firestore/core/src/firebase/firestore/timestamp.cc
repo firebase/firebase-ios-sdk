@@ -60,7 +60,7 @@ Timestamp MakeNormalizedTimestamp(int64_t seconds, int64_t nanos) {
 
 }  // namespace
 
-Timestamp::Timestamp(const int64_t seconds, const int32_t nanoseconds)
+Timestamp::Timestamp(int64_t seconds, int32_t nanoseconds)
     : seconds_(seconds), nanoseconds_(nanoseconds) {
   ValidateBounds();
 }
@@ -138,13 +138,3 @@ void Timestamp::ValidateBounds() const {
 }
 
 }  // namespace firebase
-
-namespace std {
-size_t hash<firebase::Timestamp>::operator()(
-    const firebase::Timestamp& timestamp) const {
-  // Note: if sizeof(size_t) == 4, this discards high-order bits of seconds.
-  return 37 * static_cast<size_t>(timestamp.seconds()) +
-         static_cast<size_t>(timestamp.nanoseconds());
-}
-
-}  // namespace std

@@ -22,12 +22,14 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-pb_bytes_array_t* CopyBytesArray(const pb_bytes_array_t* buffer) {
+pb_bytes_array_t* _Nullable CopyBytesArray(
+    const pb_bytes_array_t* _Nullable buffer) {
   if (buffer == nullptr) return nullptr;
   return MakeBytesArray(buffer->bytes, buffer->size);
 }
 
-pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
+pb_bytes_array_t* _Nullable MakeBytesArray(const void* _Nullable data,
+                                           size_t size) {
   if (size == 0) return nullptr;
 
   pb_size_t pb_size = CheckedSize(size);
@@ -47,12 +49,20 @@ pb_bytes_array_t* MakeBytesArray(const void* data, size_t size) {
   return result;
 }
 
-std::string MakeString(const pb_bytes_array_t* str) {
+std::string MakeString(const pb_bytes_array_t* _Nullable str) {
   if (str == nullptr) return "";
 
   auto bytes = reinterpret_cast<const char*>(str->bytes);
   auto size = static_cast<size_t>(str->size);
   return std::string{bytes, size};
+}
+
+absl::string_view MakeStringView(const pb_bytes_array_t* _Nullable str) {
+  if (str == nullptr) return absl::string_view(nullptr, 0);
+
+  auto bytes = reinterpret_cast<const char*>(str->bytes);
+  auto size = static_cast<size_t>(str->size);
+  return absl::string_view{bytes, size};
 }
 
 absl::string_view MakeStringView(const ByteString& bytes) {

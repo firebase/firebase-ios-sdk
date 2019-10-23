@@ -14,42 +14,40 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FPath.h"
+#import <Foundation/Foundation.h>
 
-// These are all legacy classes and are used to migrate older persistence data base to newer ones
-// These classes should not be used in newer code
+// These are all legacy classes and are used to migrate older persistence data
+// base to newer ones These classes should not be used in newer code
 
-@interface FPendingPut : NSObject<NSCoding>
+@interface FPendingPut : NSObject <NSCoding>
 
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, strong) id data;
-@property (nonatomic, strong) id priority;
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, strong) id data;
+@property(nonatomic, strong) id priority;
 
-- (id) initWithPath:(FPath*)aPath andData:(id)aData andPriority:aPriority;
+- (id)initWithPath:(FPath *)aPath andData:(id)aData andPriority:aPriority;
 - (void)encodeWithCoder:(NSCoder *)aCoder;
 - (id)initWithCoder:(NSCoder *)aDecoder;
 @end
 
+@interface FPendingPutPriority : NSObject <NSCoding>
 
-@interface FPendingPutPriority : NSObject<NSCoding>
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, strong) id priority;
 
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, strong) id priority;
-
-- (id) initWithPath:(FPath*)aPath andPriority:(id)aPriority;
+- (id)initWithPath:(FPath *)aPath andPriority:(id)aPriority;
 - (void)encodeWithCoder:(NSCoder *)aCoder;
 - (id)initWithCoder:(NSCoder *)aDecoder;
 
 @end
 
+@interface FPendingUpdate : NSObject <NSCoding>
 
-@interface FPendingUpdate : NSObject<NSCoding>
+@property(nonatomic, strong) FPath *path;
+@property(nonatomic, strong) NSDictionary *data;
 
-@property (nonatomic, strong) FPath* path;
-@property (nonatomic, strong) NSDictionary* data;
-
-- (id) initWithPath:(FPath*)aPath andData:(NSDictionary*)aData;
+- (id)initWithPath:(FPath *)aPath andData:(NSDictionary *)aData;
 - (void)encodeWithCoder:(NSCoder *)aCoder;
 - (id)initWithCoder:(NSCoder *)aDecoder;
 @end

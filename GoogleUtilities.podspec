@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.2.3'
+  s.version          = '6.3.1'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -78,7 +78,11 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'ISASwizzler' do |iss|
     iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    iss.public_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
     iss.private_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
+
+    # Disable ARC for GULSwizzledObject.
+    iss.requires_arc = ['GoogleUtilities/Common/*.h', 'GoogleUtilities/ISASwizzler/GULObjectSwizzler*.[mh]']
   end
 
   s.subspec 'MethodSwizzler' do |mss|
@@ -98,6 +102,11 @@ other Google CocoaPods. They're not intended for direct public usage.
     ud.public_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
     ud.dependency 'GoogleUtilities/Logger'
+  end
+
+  s.subspec 'SecureCoding' do |sc|
+    sc.source_files = 'GoogleUtilities/SecureCoding/**/*.[hm]'
+    sc.public_header_files = 'GoogleUtilities/SecureCoding/Public/*.h'
   end
 
   s.test_spec 'unit' do |unit_tests|

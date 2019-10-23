@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTopicOperation.h"
+#import "Firebase/Messaging/FIRMessagingTopicOperation.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
+#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "Firebase/Messaging/NSError+FIRMessaging.h"
 
 #define DEBUG_LOG_SUBSCRIPTION_OPERATION_DURATIONS 0
 
@@ -217,7 +217,7 @@ NSString *FIRMessagingSubscriptionsServer() {
       }
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption001,
                               @"Device registration HTTP fetch error. Error Code: %ld",
-                              _FIRMessaging_L(error.code));
+                              (long)error.code);
       [self finishWithError:error];
       return;
     }
@@ -229,7 +229,6 @@ NSString *FIRMessagingSubscriptionsServer() {
       return;
     }
     NSArray *parts = [response componentsSeparatedByString:@"="];
-    _FIRMessagingDevAssert(parts.count, @"Invalid registration response");
     if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
                               @"Invalid registration response %@", response);

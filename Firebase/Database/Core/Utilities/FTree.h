@@ -14,35 +14,39 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FTreeNode.h"
 #import "FPath.h"
+#import "FTreeNode.h"
+#import <Foundation/Foundation.h>
 
 @interface FTree : NSObject
 
 - (id)init;
-- (id)initWithName:(NSString*)aName withParent:(FTree *)aParent withNode:(FTreeNode *)aNode;
+- (id)initWithName:(NSString *)aName
+        withParent:(FTree *)aParent
+          withNode:(FTreeNode *)aNode;
 
-- (FTree *) subTree:(FPath*)path;
+- (FTree *)subTree:(FPath *)path;
 - (id)getValue;
 - (void)setValue:(id)value;
-- (void) clear;
-- (BOOL) hasChildren;
-- (BOOL) isEmpty;
-- (void) forEachChildMutationSafe:(void (^)(FTree *))action;
-- (void) forEachChild:(void (^)(FTree *))action;
-- (void) forEachDescendant:(void (^)(FTree *))action;
-- (void) forEachDescendant:(void (^)(FTree *))action includeSelf:(BOOL)incSelf childrenFirst:(BOOL)childFirst;
-- (BOOL) forEachAncestor:(BOOL (^)(FTree *))action;
-- (BOOL) forEachAncestor:(BOOL (^)(FTree *))action includeSelf:(BOOL)incSelf;
-- (void) forEachImmediateDescendantWithValue:(void (^)(FTree *))action;
-- (BOOL) valueExistsAtOrAbove:(FPath *)path;
+- (void)clear;
+- (BOOL)hasChildren;
+- (BOOL)isEmpty;
+- (void)forEachChildMutationSafe:(void (^)(FTree *))action;
+- (void)forEachChild:(void (^)(FTree *))action;
+- (void)forEachDescendant:(void (^)(FTree *))action;
+- (void)forEachDescendant:(void (^)(FTree *))action
+              includeSelf:(BOOL)incSelf
+            childrenFirst:(BOOL)childFirst;
+- (BOOL)forEachAncestor:(BOOL (^)(FTree *))action;
+- (BOOL)forEachAncestor:(BOOL (^)(FTree *))action includeSelf:(BOOL)incSelf;
+- (void)forEachImmediateDescendantWithValue:(void (^)(FTree *))action;
+- (BOOL)valueExistsAtOrAbove:(FPath *)path;
 - (FPath *)path;
-- (void) updateParents;
-- (void) updateChild:(NSString*)childName withNode:(FTree *)child;
+- (void)updateParents;
+- (void)updateChild:(NSString *)childName withNode:(FTree *)child;
 
-@property (nonatomic, strong) NSString* name;
-@property (nonatomic, strong) FTree* parent;
-@property (nonatomic, strong) FTreeNode* node;
+@property(nonatomic, strong) NSString *name;
+@property(nonatomic, strong) FTree *parent;
+@property(nonatomic, strong) FTreeNode *node;
 
 @end
