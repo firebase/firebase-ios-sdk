@@ -21,7 +21,6 @@
 
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -79,7 +78,7 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DE
 #endif
 
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */

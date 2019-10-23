@@ -25,9 +25,10 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -38,6 +39,16 @@ namespace firestore {
 typedef struct _firestore_client_MutationQueue {
     int32_t last_acknowledged_batch_id;
     pb_bytes_array_t *last_stream_token;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_MutationQueue("};
+
+      result += std::string{"last_acknowledged_batch_id0: "} + ToStringImpl(last_acknowledged_batch_id) + '\n';
+      result += std::string{"last_stream_token0: "} + ToStringImpl(last_stream_token) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_MutationQueue) */
 } firestore_client_MutationQueue;
 
@@ -48,6 +59,18 @@ typedef struct _firestore_client_WriteBatch {
     google_protobuf_Timestamp local_write_time;
     pb_size_t base_writes_count;
     struct _google_firestore_v1_Write *base_writes;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_WriteBatch("};
+
+      result += std::string{"batch_id0: "} + ToStringImpl(batch_id) + '\n';
+      result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
+      result += std::string{"local_write_time0: "} + ToStringImpl(local_write_time) + '\n';
+      result += std::string{"base_writes: "} + ToStringImpl(base_writes, base_writes_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
 } firestore_client_WriteBatch;
 
@@ -83,9 +106,9 @@ extern const pb_field_t firestore_client_WriteBatch_fields[5];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

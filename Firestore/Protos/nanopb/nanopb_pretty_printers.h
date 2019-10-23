@@ -22,6 +22,7 @@
 #include <string>
 #include <type_traits>
 
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "absl/meta/type_traits.h"
 #include "google/protobuf/empty.nanopb.h"
 
@@ -61,8 +62,8 @@ std::string ToStringImpl(const T* value, pb_size_t size) {
   return result;
 }
 
-std::string ToStringImpl(pb_bytes_array_t* value) {
-  return reinterpret_cast<const char*>(value);
+inline std::string ToStringImpl(pb_bytes_array_t* value) {
+  return nanopb::MakeString(value);
 }
 
 // std::string ToStringImpl(int32_t value) {

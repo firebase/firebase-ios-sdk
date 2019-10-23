@@ -21,9 +21,10 @@
 #define PB_GOOGLE_PROTOBUF_TIMESTAMP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -34,6 +35,16 @@ namespace firestore {
 typedef struct _google_protobuf_Timestamp {
     int64_t seconds;
     int32_t nanos;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Timestamp("};
+
+      result += std::string{"seconds0: "} + ToStringImpl(seconds) + '\n';
+      result += std::string{"nanos0: "} + ToStringImpl(nanos) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Timestamp) */
 } google_protobuf_Timestamp;
 
@@ -61,9 +72,9 @@ extern const pb_field_t google_protobuf_Timestamp_fields[3];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

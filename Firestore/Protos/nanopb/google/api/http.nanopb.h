@@ -21,9 +21,10 @@
 #define PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -34,6 +35,16 @@ namespace firestore {
 typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *kind;
     pb_bytes_array_t *path;
+
+    std::string ToString() const {
+      std::string result{"google_api_CustomHttpPattern("};
+
+      result += std::string{"kind0: "} + ToStringImpl(kind) + '\n';
+      result += std::string{"path0: "} + ToStringImpl(path) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
 
@@ -41,6 +52,16 @@ typedef struct _google_api_Http {
     pb_size_t rules_count;
     struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
+
+    std::string ToString() const {
+      std::string result{"google_api_Http("};
+
+      result += std::string{"rules: "} + ToStringImpl(rules, rules_count) + '\n';
+      result += std::string{"fully_decode_reserved_expansion0: "} + ToStringImpl(fully_decode_reserved_expansion) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
 
@@ -58,6 +79,23 @@ typedef struct _google_api_HttpRule {
     pb_bytes_array_t *body;
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
+
+    std::string ToString() const {
+      std::string result{"google_api_HttpRule("};
+
+      result += std::string{"selector0: "} + ToStringImpl(selector) + '\n';
+      /*skipping get*/
+      /*skipping put*/
+      /*skipping post*/
+      /*skipping delete_*/
+      /*skipping patch*/
+      /*skipping custom*/
+      result += std::string{"body0: "} + ToStringImpl(body) + '\n';
+      result += std::string{"additional_bindings: "} + ToStringImpl(additional_bindings, additional_bindings_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;
 
@@ -104,9 +142,9 @@ extern const pb_field_t google_api_CustomHttpPattern_fields[3];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

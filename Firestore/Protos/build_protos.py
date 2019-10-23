@@ -122,7 +122,7 @@ class NanopbGenerator(object):
     post_process_files(
         sources,
         add_copyright,
-        nanopb_add_namespaces,
+        #nanopb_add_namespaces,
         nanopb_remove_extern_c,
         nanopb_rename_delete
     )

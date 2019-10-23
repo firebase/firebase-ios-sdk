@@ -23,9 +23,10 @@
 
 #include "google/protobuf/any.nanopb.h"
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -38,6 +39,17 @@ typedef struct _google_rpc_Status {
     pb_bytes_array_t *message;
     pb_size_t details_count;
     struct _google_protobuf_Any *details;
+
+    std::string ToString() const {
+      std::string result{"google_rpc_Status("};
+
+      result += std::string{"code0: "} + ToStringImpl(code) + '\n';
+      result += std::string{"message0: "} + ToStringImpl(message) + '\n';
+      result += std::string{"details: "} + ToStringImpl(details, details_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;
 
@@ -66,9 +78,9 @@ extern const pb_field_t google_rpc_Status_fields[4];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

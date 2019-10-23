@@ -21,9 +21,10 @@
 #define PB_GOOGLE_PROTOBUF_EMPTY_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -33,6 +34,14 @@ namespace firestore {
 /* Struct definitions */
 typedef struct _google_protobuf_Empty {
     char dummy_field;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Empty("};
+
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */
 } google_protobuf_Empty;
 
@@ -58,9 +67,9 @@ extern const pb_field_t google_protobuf_Empty_fields[1];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

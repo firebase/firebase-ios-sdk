@@ -54,7 +54,6 @@ using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::MakeByteString;
-using nanopb::MakeNSData;
 using nanopb::Message;
 using nanopb::Reader;
 using remote::ByteBufferReader;
@@ -142,7 +141,9 @@ SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
 
 std::string WatchStreamSerializer::Describe(
     const Message<google_firestore_v1_ListenRequest>& request) {
-  return DescribeMessage<GCFSListenRequest>(request);
+  // return DescribeMessage<GCFSListenRequest>(request);
+  auto result = request.ToString();
+    return result;
 }
 
 std::string WatchStreamSerializer::Describe(

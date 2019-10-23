@@ -162,6 +162,10 @@ class Message {
     return FieldsArray<T>();
   }
 
+  std::string ToString() const {
+    return proto_.ToString();
+  }
+
  private:
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {

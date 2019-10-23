@@ -25,9 +25,10 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -38,12 +39,32 @@ namespace firestore {
 typedef struct _firestore_client_NoDocument {
     pb_bytes_array_t *name;
     google_protobuf_Timestamp read_time;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_NoDocument("};
+
+      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
+      result += std::string{"read_time0: "} + ToStringImpl(read_time) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
 } firestore_client_NoDocument;
 
 typedef struct _firestore_client_UnknownDocument {
     pb_bytes_array_t *name;
     google_protobuf_Timestamp version;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_UnknownDocument("};
+
+      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
+      result += std::string{"version0: "} + ToStringImpl(version) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
 } firestore_client_UnknownDocument;
 
@@ -55,6 +76,18 @@ typedef struct _firestore_client_MaybeDocument {
         firestore_client_UnknownDocument unknown_document;
     };
     bool has_committed_mutations;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_MaybeDocument("};
+
+      /*skipping no_document*/
+      /*skipping document*/
+      /*skipping unknown_document*/
+      result += std::string{"has_committed_mutations0: "} + ToStringImpl(has_committed_mutations) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */
 } firestore_client_MaybeDocument;
 
@@ -96,9 +129,9 @@ extern const pb_field_t firestore_client_MaybeDocument_fields[5];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

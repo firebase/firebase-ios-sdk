@@ -25,9 +25,10 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -45,6 +46,20 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
     };
+
+    std::string ToString() const {
+      std::string result{"firestore_client_Target("};
+
+      result += std::string{"target_id0: "} + ToStringImpl(target_id) + '\n';
+      result += std::string{"snapshot_version0: "} + ToStringImpl(snapshot_version) + '\n';
+      result += std::string{"resume_token0: "} + ToStringImpl(resume_token) + '\n';
+      result += std::string{"last_listen_sequence_number0: "} + ToStringImpl(last_listen_sequence_number) + '\n';
+      /*skipping query*/
+      /*skipping documents*/
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
 
@@ -53,6 +68,18 @@ typedef struct _firestore_client_TargetGlobal {
     int64_t highest_listen_sequence_number;
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
+
+    std::string ToString() const {
+      std::string result{"firestore_client_TargetGlobal("};
+
+      result += std::string{"highest_target_id0: "} + ToStringImpl(highest_target_id) + '\n';
+      result += std::string{"highest_listen_sequence_number0: "} + ToStringImpl(highest_listen_sequence_number) + '\n';
+      result += std::string{"last_remote_snapshot_version0: "} + ToStringImpl(last_remote_snapshot_version) + '\n';
+      result += std::string{"target_count0: "} + ToStringImpl(target_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */
 } firestore_client_TargetGlobal;
 
@@ -92,9 +119,9 @@ extern const pb_field_t firestore_client_TargetGlobal_fields[5];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

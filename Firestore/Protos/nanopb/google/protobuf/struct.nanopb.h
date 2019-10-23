@@ -21,9 +21,10 @@
 #define PB_GOOGLE_PROTOBUF_STRUCT_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -42,12 +43,30 @@ typedef enum _google_protobuf_NullValue {
 typedef struct _google_protobuf_ListValue {
     pb_size_t values_count;
     struct _google_protobuf_Value *values;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_ListValue("};
+
+      result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_ListValue) */
 } google_protobuf_ListValue;
 
 typedef struct _google_protobuf_Struct {
     pb_size_t fields_count;
     struct _google_protobuf_Struct_FieldsEntry *fields;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Struct("};
+
+      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct) */
 } google_protobuf_Struct;
 
@@ -61,12 +80,36 @@ typedef struct _google_protobuf_Value {
         google_protobuf_Struct struct_value;
         google_protobuf_ListValue list_value;
     };
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Value("};
+
+      /*skipping null_value*/
+      /*skipping number_value*/
+      /*skipping string_value*/
+      /*skipping bool_value*/
+      /*skipping struct_value*/
+      /*skipping list_value*/
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
 
 typedef struct _google_protobuf_Struct_FieldsEntry {
     pb_bytes_array_t *key;
     google_protobuf_Value value;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Struct_FieldsEntry("};
+
+      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
+      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;
 
@@ -114,9 +157,9 @@ extern const pb_field_t google_protobuf_ListValue_fields[2];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

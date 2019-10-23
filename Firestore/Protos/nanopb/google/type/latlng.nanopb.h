@@ -21,9 +21,10 @@
 #define PB_GOOGLE_TYPE_LATLNG_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -34,6 +35,16 @@ namespace firestore {
 typedef struct _google_type_LatLng {
     double latitude;
     double longitude;
+
+    std::string ToString() const {
+      std::string result{"google_type_LatLng("};
+
+      result += std::string{"latitude0: "} + ToStringImpl(latitude) + '\n';
+      result += std::string{"longitude0: "} + ToStringImpl(longitude) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_type_LatLng) */
 } google_type_LatLng;
 
@@ -61,9 +72,9 @@ extern const pb_field_t google_type_LatLng_fields[3];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

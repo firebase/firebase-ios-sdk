@@ -29,9 +29,10 @@
 
 #include "google/type/latlng.nanopb.h"
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -42,12 +43,30 @@ namespace firestore {
 typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_ArrayValue("};
+
+      result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
 
 typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_MapValue("};
+
+      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
 
@@ -58,6 +77,18 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp create_time;
     bool has_update_time;
     google_protobuf_Timestamp update_time;
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_Document("};
+
+      result += std::string{"name0: "} + ToStringImpl(name) + '\n';
+      result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+      result += std::string{"create_time0: "} + ToStringImpl(create_time) + '\n';
+      result += std::string{"update_time0: "} + ToStringImpl(update_time) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
 } google_firestore_v1_Document;
 
@@ -76,18 +107,57 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
     };
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_Value("};
+
+      /*skipping null_value*/
+      /*skipping boolean_value*/
+      /*skipping integer_value*/
+      /*skipping double_value*/
+      /*skipping timestamp_value*/
+      /*skipping string_value*/
+      /*skipping bytes_value*/
+      /*skipping reference_value*/
+      /*skipping geo_point_value*/
+      /*skipping array_value*/
+      /*skipping map_value*/
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
 } google_firestore_v1_Value;
 
 typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_Document_FieldsEntry("};
+
+      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
+      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
 
 typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
+
+    std::string ToString() const {
+      std::string result{"google_firestore_v1_MapValue_FieldsEntry("};
+
+      result += std::string{"key0: "} + ToStringImpl(key) + '\n';
+      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;
 
@@ -154,9 +224,9 @@ extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif

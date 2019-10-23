@@ -21,9 +21,10 @@
 #define PB_GOOGLE_PROTOBUF_ANY_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "nanopb_pretty_printers.h"
+
 namespace firebase {
 namespace firestore {
-
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -34,6 +35,16 @@ namespace firestore {
 typedef struct _google_protobuf_Any {
     pb_bytes_array_t *type_url;
     pb_bytes_array_t *value;
+
+    std::string ToString() const {
+      std::string result{"google_protobuf_Any("};
+
+      result += std::string{"type_url0: "} + ToStringImpl(type_url) + '\n';
+      result += std::string{"value0: "} + ToStringImpl(value) + '\n';
+
+      result += ')';
+      return result;
+    }
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */
 } google_protobuf_Any;
 
@@ -61,9 +72,9 @@ extern const pb_field_t google_protobuf_Any_fields[3];
 
 #endif
 
+
 }  // namespace firestore
 }  // namespace firebase
-
 /* @@protoc_insertion_point(eof) */
 
 #endif
