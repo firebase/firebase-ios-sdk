@@ -105,8 +105,8 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     std::string ToString() const {
         std::string result{"Struct_FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("False/", "key: ", ToStringImpl(key), "\n");
+        result += absl::StrCat("False/", "value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;

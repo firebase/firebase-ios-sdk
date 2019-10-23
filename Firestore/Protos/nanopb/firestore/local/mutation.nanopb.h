@@ -44,8 +44,8 @@ typedef struct _firestore_client_MutationQueue {
     std::string ToString() const {
         std::string result{"MutationQueue("};
 
-        result += absl::StrCat("last_acknowledged_batch_id: ", ToStringImpl(last_acknowledged_batch_id), "\n");
-        result += absl::StrCat("last_stream_token: ", ToStringImpl(last_stream_token), "\n");
+        result += absl::StrCat("False/", "last_acknowledged_batch_id: ", ToStringImpl(last_acknowledged_batch_id), "\n");
+        result += absl::StrCat("False/", "last_stream_token: ", ToStringImpl(last_stream_token), "\n");
 
         result += ')';
         return result;
@@ -64,9 +64,9 @@ typedef struct _firestore_client_WriteBatch {
     std::string ToString() const {
         std::string result{"WriteBatch("};
 
-        result += absl::StrCat("batch_id: ", ToStringImpl(batch_id), "\n");
+        result += absl::StrCat("False/", "batch_id: ", ToStringImpl(batch_id), "\n");
         result += absl::StrCat("writes: ", ToStringImpl(writes, writes_count), "\n");
-        result += absl::StrCat("local_write_time: ", ToStringImpl(local_write_time), "\n");
+        result += absl::StrCat("False/", "local_write_time: ", ToStringImpl(local_write_time), "\n");
         result += absl::StrCat("base_writes: ", ToStringImpl(base_writes, base_writes_count), "\n");
 
         result += ')';

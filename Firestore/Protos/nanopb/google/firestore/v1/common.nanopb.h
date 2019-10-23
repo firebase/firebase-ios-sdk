@@ -58,7 +58,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     std::string ToString() const {
         std::string result{"TransactionOptions_ReadWrite("};
 
-        result += absl::StrCat("retry_transaction: ", ToStringImpl(retry_transaction), "\n");
+        result += absl::StrCat("False/", "retry_transaction: ", ToStringImpl(retry_transaction), "\n");
 
         result += ')';
         return result;

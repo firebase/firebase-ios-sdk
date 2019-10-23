@@ -40,7 +40,6 @@ nanopb_pb2 = nanopb.nanopb_pb2
 
 
 def main():
-  #raise Exception(sys.argv)
   # Parse request
   if sys.platform == 'win32':
     # Set stdin and stdout to binary mode
@@ -48,7 +47,6 @@ def main():
     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
   data = io.open(sys.stdin.fileno(), 'rb').read()
-  #raise Exception(data)
   request = plugin_pb2.CodeGeneratorRequest.FromString(data)
 
   # Preprocess inputs, changing types and nanopb defaults
@@ -112,6 +110,8 @@ def prepare_pretty_printing_support(request):
       fields_by_class_and_file[short_filename][full_classname]['short_classname'] = classname
       fields_by_class_and_file[short_filename][full_classname]['fields'] = []
       for field in message_type.field:
+        # if field.name == 'cause':
+        #   raise Exception(field.options)
         fields_by_class_and_file[short_filename][full_classname]['fields'].append(field)
 
   return fields_by_class_and_file
@@ -290,6 +290,8 @@ namespace firestore {'''
 }  // namespace firebase'''
 
     base_filename = f.name.replace('.nanopb.h', '')
+    # if base_filename.endswith('firestore'):
+    #   raise Exception(result)
 
     for full_classname, class_fields in pretty_printers[base_filename].items():
       f = response.file.add()
@@ -299,7 +301,7 @@ namespace firestore {'''
     std::string ToString() const {
         std::string result{"%s("};\n\n''' % (class_fields['short_classname'])
       for field in class_fields['fields']:
-        f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
+        f.content += ' ' * 8 + add_printing_for_field(field, class_fields['fields']) + '\n'
       f.content += '''
         result += ')';
         return result;
@@ -326,13 +328,13 @@ namespace firestore {'''
   return response
 
 
-def add_printing_for_field(field):
+def add_printing_for_field(field, parent):
   if field.HasField('oneof_index'):
     return add_printing_for_oneof(field)
   elif field.label == FieldDescriptorProto.LABEL_REPEATED:
     return add_printing_for_repeated(field)
   else:
-    return add_printing_for_singular(field)
+    return add_printing_for_singular(field, parent)
 
 
 def add_printing_for_oneof(field):
@@ -344,9 +346,11 @@ def add_printing_for_repeated(field):
   return 'result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count), "\\n");' % (name, name, name)
 
 
-def add_printing_for_singular(field):
+def add_printing_for_singular(field, parent):
   name = field.name
-  return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
+  # return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
+  has = False
+  return 'result += absl::StrCat("%s/", "%s: ", ToStringImpl(%s), "\\n");' % (has, name, name)
 
 
 if __name__ == '__main__':

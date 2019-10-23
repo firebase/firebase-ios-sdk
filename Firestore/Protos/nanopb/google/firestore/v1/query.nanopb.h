@@ -87,7 +87,7 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     std::string ToString() const {
         std::string result{"StructuredQuery_FieldReference("};
 
-        result += absl::StrCat("field_path: ", ToStringImpl(field_path), "\n");
+        result += absl::StrCat("False/", "field_path: ", ToStringImpl(field_path), "\n");
 
         result += ')';
         return result;
@@ -119,7 +119,7 @@ typedef struct _google_firestore_v1_Cursor {
         std::string result{"Cursor("};
 
         result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
-        result += absl::StrCat("before: ", ToStringImpl(before), "\n");
+        result += absl::StrCat("False/", "before: ", ToStringImpl(before), "\n");
 
         result += ')';
         return result;
@@ -134,8 +134,8 @@ typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     std::string ToString() const {
         std::string result{"StructuredQuery_CollectionSelector("};
 
-        result += absl::StrCat("collection_id: ", ToStringImpl(collection_id), "\n");
-        result += absl::StrCat("all_descendants: ", ToStringImpl(all_descendants), "\n");
+        result += absl::StrCat("False/", "collection_id: ", ToStringImpl(collection_id), "\n");
+        result += absl::StrCat("False/", "all_descendants: ", ToStringImpl(all_descendants), "\n");
 
         result += ')';
         return result;
@@ -151,7 +151,7 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     std::string ToString() const {
         std::string result{"StructuredQuery_CompositeFilter("};
 
-        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
+        result += absl::StrCat("False/", "op: ", ToStringImpl(op), "\n");
         result += absl::StrCat("filters: ", ToStringImpl(filters, filters_count), "\n");
 
         result += ')';
@@ -168,9 +168,9 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     std::string ToString() const {
         std::string result{"StructuredQuery_FieldFilter("};
 
-        result += absl::StrCat("field: ", ToStringImpl(field), "\n");
-        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("False/", "field: ", ToStringImpl(field), "\n");
+        result += absl::StrCat("False/", "op: ", ToStringImpl(op), "\n");
+        result += absl::StrCat("False/", "value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -185,8 +185,8 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
     std::string ToString() const {
         std::string result{"StructuredQuery_Order("};
 
-        result += absl::StrCat("field: ", ToStringImpl(field), "\n");
-        result += absl::StrCat("direction: ", ToStringImpl(direction), "\n");
+        result += absl::StrCat("False/", "field: ", ToStringImpl(field), "\n");
+        result += absl::StrCat("False/", "direction: ", ToStringImpl(direction), "\n");
 
         result += ')';
         return result;
@@ -204,7 +204,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     std::string ToString() const {
         std::string result{"StructuredQuery_UnaryFilter("};
 
-        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
+        result += absl::StrCat("False/", "op: ", ToStringImpl(op), "\n");
         /*skipping field*/
 
         result += ')';
@@ -250,14 +250,14 @@ typedef struct _google_firestore_v1_StructuredQuery {
     std::string ToString() const {
         std::string result{"StructuredQuery("};
 
-        result += absl::StrCat("select: ", ToStringImpl(select), "\n");
+        result += absl::StrCat("False/", "select: ", ToStringImpl(select), "\n");
         result += absl::StrCat("from: ", ToStringImpl(from, from_count), "\n");
-        result += absl::StrCat("where: ", ToStringImpl(where), "\n");
+        result += absl::StrCat("False/", "where: ", ToStringImpl(where), "\n");
         result += absl::StrCat("order_by: ", ToStringImpl(order_by, order_by_count), "\n");
-        result += absl::StrCat("start_at: ", ToStringImpl(start_at), "\n");
-        result += absl::StrCat("end_at: ", ToStringImpl(end_at), "\n");
-        result += absl::StrCat("offset: ", ToStringImpl(offset), "\n");
-        result += absl::StrCat("limit: ", ToStringImpl(limit), "\n");
+        result += absl::StrCat("False/", "start_at: ", ToStringImpl(start_at), "\n");
+        result += absl::StrCat("False/", "end_at: ", ToStringImpl(end_at), "\n");
+        result += absl::StrCat("False/", "offset: ", ToStringImpl(offset), "\n");
+        result += absl::StrCat("False/", "limit: ", ToStringImpl(limit), "\n");
 
         result += ')';
         return result;

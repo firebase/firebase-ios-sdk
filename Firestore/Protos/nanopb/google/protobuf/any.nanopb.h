@@ -40,8 +40,8 @@ typedef struct _google_protobuf_Any {
     std::string ToString() const {
         std::string result{"Any("};
 
-        result += absl::StrCat("type_url: ", ToStringImpl(type_url), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("False/", "type_url: ", ToStringImpl(type_url), "\n");
+        result += absl::StrCat("False/", "value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
