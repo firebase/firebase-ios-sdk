@@ -17,19 +17,19 @@
 #import <XCTest/XCTest.h>
 #import <GoogleUtilities/GULStorageHeartbeat.h>
 
-@interface FIRCoreDiagnosticsDateFileStorageTests : XCTestCase
+@interface GULStorageHeartbeatTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;
-@property(nonatomic) FIRCoreDiagnosticsHeartbeatStorage *storage;
+@property(nonatomic) GULStorageHeartbeat *storage;
 @end
 
-@implementation FIRCoreDiagnosticsDateFileStorageTests
+@implementation GULStorageHeartbeatTest
 
 - (void)setUp {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+                                                                 NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
-  self.fileURL = [documentsURL URLByAppendingPathComponent:@"FIRDiagnosticsDateFileStorageTests"
+  self.fileURL = [documentsURL URLByAppendingPathComponent:@"GULStorageHeartbeatTest"
                                                isDirectory:NO];
 
   NSError *error;
@@ -41,13 +41,25 @@
               @"Error: %@", error);
   }
 
-  self.storage = [[FIRCoreDiagnosticsHeartbeatStorage alloc] initWithFileURL:self.fileURL];
+  self.storage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
 }
 
 - (void)tearDown {
   [[NSFileManager defaultManager] removeItemAtURL:self.fileURL error:nil];
   self.fileURL = nil;
   self.storage = nil;
+}
+
+- (void) testDictionaryStorage {
+  NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+  dict[@"fire-iid"] = @"123455";
+  dict[@"global"] = @"123";
+  NSError *error;
+  [self.storage writeDictionary:dict error:&error];
+  XCTAssertNil(error);
+  NSMutableDictionary *storedDict = [self.storage getDictionary];
+  XCTAssertEqualObjects(storedDict[@"fire-iid"], dict[@"fire-iid"]);
+  XCTAssertEqualObjects(storedDict[@"global"], dict[@"global"]);
 }
 
 - (void)testDateStorage {
@@ -70,8 +82,8 @@
   NSError *error;
   XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
 
-  FIRCoreDiagnosticsHeartbeatStorage *anotherStorage =
-      [[FIRCoreDiagnosticsHeartbeatStorage alloc] initWithFileURL:self.fileURL];
+  GULStorageHeartbeat *anotherStorage =
+  [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
 
   XCTAssertEqualObjects([anotherStorage date], date);
 }

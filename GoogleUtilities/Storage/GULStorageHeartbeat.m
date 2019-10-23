@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+#import "GULStorageHeartbeat.h"
 
-@interface FIRCoreDiagnosticsDateFileStorage ()
+@interface GULStorageHeartbeat ()
 @property(nonatomic, readonly) NSURL *fileURL;
 @end
 
-@implementation FIRCoreDiagnosticsDateFileStorage
+@implementation GULStorageHeartbeat
 
 - (instancetype)initWithFileURL:(NSURL *)fileURL {
   if (fileURL == nil) {
@@ -35,6 +35,39 @@
   return self;
 }
 
+- (nullable NSMutableDictionary *) getDictionary {
+  NSString *jsonString = [NSString stringWithContentsOfURL:self.fileURL
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:nil];
+  NSError *jsonError;
+  NSData *objectData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+  NSMutableDictionary *json = [NSJSONSerialization JSONObjectWithData:objectData
+                                                       options:NSJSONReadingMutableContainers
+                                                         error:&jsonError];
+  if(!json) {
+    NSLog(@"Got an error: %@", jsonError);
+  }
+  return json;
+
+}
+
+- (BOOL) writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
+  NSError *error;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
+                                                     options:0
+                                                       error:&error];
+  if (! jsonData) {
+    NSLog(@"Got an error: %@", error);
+  } else {
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return [jsonString writeToURL:self.fileURL
+                         atomically:YES
+                           encoding:NSUTF8StringEncoding
+                              error:outError];
+  }
+  return false;
+}
+
 - (BOOL)setDate:(nullable NSDate *)date error:(NSError **)outError {
   NSString *stringToSave = @"";
 
@@ -42,7 +75,6 @@
     NSTimeInterval timestamp = [date timeIntervalSinceReferenceDate];
     stringToSave = [NSString stringWithFormat:@"%f", timestamp];
   }
-
   return [stringToSave writeToURL:self.fileURL
                        atomically:YES
                          encoding:NSUTF8StringEncoding

@@ -24,6 +24,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
+#import <GoogleUtilities/GULStorageHeartbeat.h>
 
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
@@ -34,7 +35,6 @@
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GDTTransport *transport;
 
 /** The storage to store the date of the last sent heartbeat. */
-@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) GULStorageHeartbeat *heartbeatDateStorage;
 
 @end
 
@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_END
                                                        transformers:nil
                                                              target:kGDTTargetCCT];
 
-  FIRCoreDiagnosticsDateFileStorage *dateStorage = [[FIRCoreDiagnosticsDateFileStorage alloc]
+  GULStorageHeartbeat *dateStorage = [[GULStorageHeartbeat alloc]
       initWithFileURL:[[self class] filePathURLWithName:kFIRCoreDiagnosticsHeartbeatDateFileName]];
 
   return [self initWithTransport:transport heartbeatDateStorage:dateStorage];
@@ -187,7 +187,7 @@ NS_ASSUME_NONNULL_END
  * @return Returns the initialized `FIRCoreDiagnostics` instance.
  */
 - (instancetype)initWithTransport:(GDTTransport *)transport
-             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage {
+             heartbeatDateStorage:(GULStorageHeartbeat *)heartbeatDateStorage {
   self = [super init];
   if (self) {
     _diagnosticsQueue =

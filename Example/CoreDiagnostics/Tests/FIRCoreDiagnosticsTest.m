@@ -27,13 +27,13 @@
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import <GoogleUtilities/GULStorageHeartbeat.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
 #import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
@@ -48,12 +48,12 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 // Initialization.
 + (instancetype)sharedInstance;
 - (instancetype)initWithTransport:(GDTTransport *)transport
-             heartbeatDateStorage:(FIRCoreDiagnosticsDateFileStorage *)heartbeatDateStorage;
+             heartbeatDateStorage:(GULStorageHeartbeat *)heartbeatDateStorage;
 
 // Properties.
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;
 @property(nonatomic, readonly) GDTTransport *transport;
-@property(nonatomic, readonly) FIRCoreDiagnosticsDateFileStorage *heartbeatDateStorage;
+@property(nonatomic, readonly) GULStorageHeartbeat *heartbeatDateStorage;
 
 // Install string helpers.
 + (NSString *)installString;
@@ -140,7 +140,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   OCMStub([self.mockTransport eventForTransport])
       .andReturn([[GDTEvent alloc] initWithMappingID:@"111" target:2]);
 
-  self.mockDateStorage = OCMClassMock([FIRCoreDiagnosticsDateFileStorage class]);
+  self.mockDateStorage = OCMClassMock([GULStorageHeartbeat class]);
   self.diagnostics = [[FIRCoreDiagnostics alloc] initWithTransport:self.mockTransport
                                               heartbeatDateStorage:self.mockDateStorage];
 }
@@ -298,7 +298,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   FIRCoreDiagnostics *sharedInstance = [FIRCoreDiagnostics sharedInstance];
   XCTAssertNotNil(sharedInstance.heartbeatDateStorage);
   XCTAssert([sharedInstance.heartbeatDateStorage
-      isKindOfClass:[FIRCoreDiagnosticsDateFileStorage class]]);
+      isKindOfClass:[GULStorageHeartbeat class]]);
 
   NSDate *date = [NSDate date];
 

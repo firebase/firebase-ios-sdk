@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// Stores a date to a specified file.
-@interface FIRCoreDiagnosticsDateFileStorage : NSObject
+@interface GULStorageHeartbeat : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
  * exist, it will be created if needed.
  */
 - (instancetype)initWithFileURL:(NSURL *)fileURL;
+
+- (nullable NSMutableDictionary *) getDictionary;
+
+- (BOOL) writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError;
 
 /**
  * Saves the date to the specified file.
