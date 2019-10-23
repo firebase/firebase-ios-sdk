@@ -25,6 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -48,12 +49,12 @@ typedef struct _firestore_client_Target {
     };
 
     std::string ToString() const {
-        std::string result{"firestore_client_Target("};
+        std::string result{"Target("};
 
-        result += std::string{"target_id: "} + ToStringImpl(target_id) + '\n';
-        result += std::string{"snapshot_version: "} + ToStringImpl(snapshot_version) + '\n';
-        result += std::string{"resume_token: "} + ToStringImpl(resume_token) + '\n';
-        result += std::string{"last_listen_sequence_number: "} + ToStringImpl(last_listen_sequence_number) + '\n';
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
+        result += absl::StrCat("snapshot_version: ", ToStringImpl(snapshot_version), "\n");
+        result += absl::StrCat("resume_token: ", ToStringImpl(resume_token), "\n");
+        result += absl::StrCat("last_listen_sequence_number: ", ToStringImpl(last_listen_sequence_number), "\n");
         /*skipping query*/
         /*skipping documents*/
 
@@ -70,12 +71,12 @@ typedef struct _firestore_client_TargetGlobal {
     int32_t target_count;
 
     std::string ToString() const {
-        std::string result{"firestore_client_TargetGlobal("};
+        std::string result{"TargetGlobal("};
 
-        result += std::string{"highest_target_id: "} + ToStringImpl(highest_target_id) + '\n';
-        result += std::string{"highest_listen_sequence_number: "} + ToStringImpl(highest_listen_sequence_number) + '\n';
-        result += std::string{"last_remote_snapshot_version: "} + ToStringImpl(last_remote_snapshot_version) + '\n';
-        result += std::string{"target_count: "} + ToStringImpl(target_count) + '\n';
+        result += absl::StrCat("highest_target_id: ", ToStringImpl(highest_target_id), "\n");
+        result += absl::StrCat("highest_listen_sequence_number: ", ToStringImpl(highest_listen_sequence_number), "\n");
+        result += absl::StrCat("last_remote_snapshot_version: ", ToStringImpl(last_remote_snapshot_version), "\n");
+        result += absl::StrCat("target_count: ", ToStringImpl(target_count), "\n");
 
         result += ')';
         return result;

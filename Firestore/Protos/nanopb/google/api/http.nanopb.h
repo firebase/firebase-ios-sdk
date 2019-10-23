@@ -21,6 +21,7 @@
 #define PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -37,10 +38,10 @@ typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *path;
 
     std::string ToString() const {
-        std::string result{"google_api_CustomHttpPattern("};
+        std::string result{"CustomHttpPattern("};
 
-        result += std::string{"kind: "} + ToStringImpl(kind) + '\n';
-        result += std::string{"path: "} + ToStringImpl(path) + '\n';
+        result += absl::StrCat("kind: ", ToStringImpl(kind), "\n");
+        result += absl::StrCat("path: ", ToStringImpl(path), "\n");
 
         result += ')';
         return result;
@@ -54,10 +55,10 @@ typedef struct _google_api_Http {
     bool fully_decode_reserved_expansion;
 
     std::string ToString() const {
-        std::string result{"google_api_Http("};
+        std::string result{"Http("};
 
-        result += std::string{"rules: "} + ToStringImpl(rules, rules_count) + '\n';
-        result += std::string{"fully_decode_reserved_expansion: "} + ToStringImpl(fully_decode_reserved_expansion) + '\n';
+        result += absl::StrCat("rules: ", ToStringImpl(rules, rules_count), "\n");
+        result += absl::StrCat("fully_decode_reserved_expansion: ", ToStringImpl(fully_decode_reserved_expansion), "\n");
 
         result += ')';
         return result;
@@ -81,17 +82,17 @@ typedef struct _google_api_HttpRule {
     struct _google_api_HttpRule *additional_bindings;
 
     std::string ToString() const {
-        std::string result{"google_api_HttpRule("};
+        std::string result{"HttpRule("};
 
-        result += std::string{"selector: "} + ToStringImpl(selector) + '\n';
+        result += absl::StrCat("selector: ", ToStringImpl(selector), "\n");
         /*skipping get*/
         /*skipping put*/
         /*skipping post*/
         /*skipping delete_*/
         /*skipping patch*/
         /*skipping custom*/
-        result += std::string{"body: "} + ToStringImpl(body) + '\n';
-        result += std::string{"additional_bindings: "} + ToStringImpl(additional_bindings, additional_bindings_count) + '\n';
+        result += absl::StrCat("body: ", ToStringImpl(body), "\n");
+        result += absl::StrCat("additional_bindings: ", ToStringImpl(additional_bindings, additional_bindings_count), "\n");
 
         result += ')';
         return result;

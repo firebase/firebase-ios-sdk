@@ -21,6 +21,7 @@
 #define PB_GOOGLE_TYPE_LATLNG_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -37,10 +38,10 @@ typedef struct _google_type_LatLng {
     double longitude;
 
     std::string ToString() const {
-        std::string result{"google_type_LatLng("};
+        std::string result{"LatLng("};
 
-        result += std::string{"latitude: "} + ToStringImpl(latitude) + '\n';
-        result += std::string{"longitude: "} + ToStringImpl(longitude) + '\n';
+        result += absl::StrCat("latitude: ", ToStringImpl(latitude), "\n");
+        result += absl::StrCat("longitude: ", ToStringImpl(longitude), "\n");
 
         result += ')';
         return result;

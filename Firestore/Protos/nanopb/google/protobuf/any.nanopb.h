@@ -21,6 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_ANY_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -37,10 +38,10 @@ typedef struct _google_protobuf_Any {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Any("};
+        std::string result{"Any("};
 
-        result += std::string{"type_url: "} + ToStringImpl(type_url) + '\n';
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("type_url: ", ToStringImpl(type_url), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;

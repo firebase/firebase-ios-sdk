@@ -21,6 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_WRAPPERS_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -36,9 +37,9 @@ typedef struct _google_protobuf_BytesValue {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_BytesValue("};
+        std::string result{"BytesValue("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -50,9 +51,9 @@ typedef struct _google_protobuf_StringValue {
     pb_bytes_array_t *value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_StringValue("};
+        std::string result{"StringValue("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -64,9 +65,9 @@ typedef struct _google_protobuf_BoolValue {
     bool value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_BoolValue("};
+        std::string result{"BoolValue("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -78,9 +79,9 @@ typedef struct _google_protobuf_DoubleValue {
     double value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_DoubleValue("};
+        std::string result{"DoubleValue("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -92,9 +93,9 @@ typedef struct _google_protobuf_FloatValue {
     float value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_FloatValue("};
+        std::string result{"FloatValue("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -106,9 +107,9 @@ typedef struct _google_protobuf_Int32Value {
     int32_t value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Int32Value("};
+        std::string result{"Int32Value("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -120,9 +121,9 @@ typedef struct _google_protobuf_Int64Value {
     int64_t value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Int64Value("};
+        std::string result{"Int64Value("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -134,9 +135,9 @@ typedef struct _google_protobuf_UInt32Value {
     uint32_t value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_UInt32Value("};
+        std::string result{"UInt32Value("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -148,9 +149,9 @@ typedef struct _google_protobuf_UInt64Value {
     uint64_t value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_UInt64Value("};
+        std::string result{"UInt64Value("};
 
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;

@@ -27,6 +27,7 @@
 
 #include "google/protobuf/wrappers.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -84,9 +85,9 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldReference {
     pb_bytes_array_t *field_path;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_FieldReference("};
+        std::string result{"StructuredQuery_FieldReference("};
 
-        result += std::string{"field_path: "} + ToStringImpl(field_path) + '\n';
+        result += absl::StrCat("field_path: ", ToStringImpl(field_path), "\n");
 
         result += ')';
         return result;
@@ -99,9 +100,9 @@ typedef struct _google_firestore_v1_StructuredQuery_Projection {
     struct _google_firestore_v1_StructuredQuery_FieldReference *fields;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_Projection("};
+        std::string result{"StructuredQuery_Projection("};
 
-        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
 
         result += ')';
         return result;
@@ -115,10 +116,10 @@ typedef struct _google_firestore_v1_Cursor {
     bool before;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_Cursor("};
+        std::string result{"Cursor("};
 
-        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
-        result += std::string{"before: "} + ToStringImpl(before) + '\n';
+        result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
+        result += absl::StrCat("before: ", ToStringImpl(before), "\n");
 
         result += ')';
         return result;
@@ -131,10 +132,10 @@ typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     bool all_descendants;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_CollectionSelector("};
+        std::string result{"StructuredQuery_CollectionSelector("};
 
-        result += std::string{"collection_id: "} + ToStringImpl(collection_id) + '\n';
-        result += std::string{"all_descendants: "} + ToStringImpl(all_descendants) + '\n';
+        result += absl::StrCat("collection_id: ", ToStringImpl(collection_id), "\n");
+        result += absl::StrCat("all_descendants: ", ToStringImpl(all_descendants), "\n");
 
         result += ')';
         return result;
@@ -148,10 +149,10 @@ typedef struct _google_firestore_v1_StructuredQuery_CompositeFilter {
     struct _google_firestore_v1_StructuredQuery_Filter *filters;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_CompositeFilter("};
+        std::string result{"StructuredQuery_CompositeFilter("};
 
-        result += std::string{"op: "} + ToStringImpl(op) + '\n';
-        result += std::string{"filters: "} + ToStringImpl(filters, filters_count) + '\n';
+        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
+        result += absl::StrCat("filters: ", ToStringImpl(filters, filters_count), "\n");
 
         result += ')';
         return result;
@@ -165,11 +166,11 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_FieldFilter("};
+        std::string result{"StructuredQuery_FieldFilter("};
 
-        result += std::string{"field: "} + ToStringImpl(field) + '\n';
-        result += std::string{"op: "} + ToStringImpl(op) + '\n';
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("field: ", ToStringImpl(field), "\n");
+        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -182,10 +183,10 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
     google_firestore_v1_StructuredQuery_Direction direction;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_Order("};
+        std::string result{"StructuredQuery_Order("};
 
-        result += std::string{"field: "} + ToStringImpl(field) + '\n';
-        result += std::string{"direction: "} + ToStringImpl(direction) + '\n';
+        result += absl::StrCat("field: ", ToStringImpl(field), "\n");
+        result += absl::StrCat("direction: ", ToStringImpl(direction), "\n");
 
         result += ')';
         return result;
@@ -201,9 +202,9 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
     };
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_UnaryFilter("};
+        std::string result{"StructuredQuery_UnaryFilter("};
 
-        result += std::string{"op: "} + ToStringImpl(op) + '\n';
+        result += absl::StrCat("op: ", ToStringImpl(op), "\n");
         /*skipping field*/
 
         result += ')';
@@ -221,7 +222,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
     };
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery_Filter("};
+        std::string result{"StructuredQuery_Filter("};
 
         /*skipping composite_filter*/
         /*skipping field_filter*/
@@ -247,16 +248,16 @@ typedef struct _google_firestore_v1_StructuredQuery {
     google_firestore_v1_Cursor end_at;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_StructuredQuery("};
+        std::string result{"StructuredQuery("};
 
-        result += std::string{"select: "} + ToStringImpl(select) + '\n';
-        result += std::string{"from: "} + ToStringImpl(from, from_count) + '\n';
-        result += std::string{"where: "} + ToStringImpl(where) + '\n';
-        result += std::string{"order_by: "} + ToStringImpl(order_by, order_by_count) + '\n';
-        result += std::string{"start_at: "} + ToStringImpl(start_at) + '\n';
-        result += std::string{"end_at: "} + ToStringImpl(end_at) + '\n';
-        result += std::string{"offset: "} + ToStringImpl(offset) + '\n';
-        result += std::string{"limit: "} + ToStringImpl(limit) + '\n';
+        result += absl::StrCat("select: ", ToStringImpl(select), "\n");
+        result += absl::StrCat("from: ", ToStringImpl(from, from_count), "\n");
+        result += absl::StrCat("where: ", ToStringImpl(where), "\n");
+        result += absl::StrCat("order_by: ", ToStringImpl(order_by, order_by_count), "\n");
+        result += absl::StrCat("start_at: ", ToStringImpl(start_at), "\n");
+        result += absl::StrCat("end_at: ", ToStringImpl(end_at), "\n");
+        result += absl::StrCat("offset: ", ToStringImpl(offset), "\n");
+        result += absl::StrCat("limit: ", ToStringImpl(limit), "\n");
 
         result += ')';
         return result;

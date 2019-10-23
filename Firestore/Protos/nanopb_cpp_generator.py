@@ -101,21 +101,20 @@ def use_malloc(request):
 
 def prepare_pretty_printing_support(request):
   """FIXME"""
-  file_and_class_and_fieldmap = {}
+  fields_by_class_and_file = {}
   for fdesc in request.proto_file:
-    filename = fdesc.name.replace('.proto', '')
-    file_and_class_and_fieldmap[filename] = {}
+    short_filename = fdesc.name.replace('.proto', '')
+    fields_by_class_and_file[short_filename] = {}
 
-    for class_name, message_type in nanopb.iterate_messages(fdesc):
-      full_classname = fdesc.package.replace('.', '_') + '_' + str(class_name)
-      file_and_class_and_fieldmap[filename][full_classname] = []
+    for classname, message_type in nanopb.iterate_messages(fdesc):
+      full_classname = fdesc.package.replace('.', '_') + '_' + str(classname)
+      fields_by_class_and_file[short_filename][full_classname] = {}
+      fields_by_class_and_file[short_filename][full_classname]['short_classname'] = classname
+      fields_by_class_and_file[short_filename][full_classname]['fields'] = []
       for field in message_type.field:
-        #file_and_class_and_fieldmap[(name, field.number)] = field.name
-        #(classname, field.number)] = field.name
-        file_and_class_and_fieldmap[filename][full_classname].append(field)
-        #raise Exception(fdesc.name)
+        fields_by_class_and_file[short_filename][full_classname]['fields'].append(field)
 
-  return file_and_class_and_fieldmap
+  return fields_by_class_and_file
 
 def use_anonymous_oneof(request):
   """Use anonymous unions for oneofs if they're the only one in a message.
@@ -277,7 +276,8 @@ def nanopb_write(results, pretty_printers):
     f = response.file.add()
     f.name = result['headername']
     f.insertion_point = 'includes'
-    f.content = '''#include "nanopb_pretty_printers.h"
+    f.content = '''#include "absl/strings/str_cat.h"
+#include "nanopb_pretty_printers.h"
 
 namespace firebase {
 namespace firestore {'''
@@ -291,32 +291,14 @@ namespace firestore {'''
 
     base_filename = f.name.replace('.nanopb.h', '')
 
-    # for classname, fieldmap in pretty_printers[base_filename].items():
-    #   f = response.file.add()
-    #   f.name = result['headername']
-    #   f.insertion_point = 'struct:' + classname
-    #   f.content = '''
-    # static const char* print(int field_index) {
-    #   switch (field_index) {'''
-    #   for index, name in fieldmap:
-    #     f.content += '''
-    #   case %s:
-    #     return "%s";''' % (index, name)
-
-    #   f.content += '''
-    #   }
-
-    #   return "<unknown>";
-    # }'''
-
-    for classname, fields in pretty_printers[base_filename].items():
+    for full_classname, class_fields in pretty_printers[base_filename].items():
       f = response.file.add()
       f.name = result['headername']
-      f.insertion_point = 'struct:' + classname
+      f.insertion_point = 'struct:' + full_classname
       f.content = '''
     std::string ToString() const {
-        std::string result{"%s("};\n\n''' % (classname)
-      for field in fields:
+        std::string result{"%s("};\n\n''' % (class_fields['short_classname'])
+      for field in class_fields['fields']:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
       f.content += '''
         result += ')';
@@ -354,17 +336,17 @@ def add_printing_for_field(field):
 
 
 def add_printing_for_oneof(field):
-  return '''/*skipping %s*/''' % (field.name)
+  return '/*skipping %s*/' % (field.name)
 
 
 def add_printing_for_repeated(field):
   name = field.name
-  return '''result += std::string{"%s: "} + ToStringImpl(%s, %s_count) + '\\n';''' % (name, name, name)
+  return 'result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count), "\\n");' % (name, name, name)
 
 
 def add_printing_for_singular(field):
   name = field.name
-  return '''result += std::string{"%s: "} + ToStringImpl(%s) + '\\n';''' % (name, name)
+  return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
 
 
 if __name__ == '__main__':

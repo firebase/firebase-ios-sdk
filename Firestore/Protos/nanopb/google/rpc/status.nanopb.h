@@ -23,6 +23,7 @@
 
 #include "google/protobuf/any.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -41,11 +42,11 @@ typedef struct _google_rpc_Status {
     struct _google_protobuf_Any *details;
 
     std::string ToString() const {
-        std::string result{"google_rpc_Status("};
+        std::string result{"Status("};
 
-        result += std::string{"code: "} + ToStringImpl(code) + '\n';
-        result += std::string{"message: "} + ToStringImpl(message) + '\n';
-        result += std::string{"details: "} + ToStringImpl(details, details_count) + '\n';
+        result += absl::StrCat("code: ", ToStringImpl(code), "\n");
+        result += absl::StrCat("message: ", ToStringImpl(message), "\n");
+        result += absl::StrCat("details: ", ToStringImpl(details, details_count), "\n");
 
         result += ')';
         return result;

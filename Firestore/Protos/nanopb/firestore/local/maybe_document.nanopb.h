@@ -25,6 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -41,10 +42,10 @@ typedef struct _firestore_client_NoDocument {
     google_protobuf_Timestamp read_time;
 
     std::string ToString() const {
-        std::string result{"firestore_client_NoDocument("};
+        std::string result{"NoDocument("};
 
-        result += std::string{"name: "} + ToStringImpl(name) + '\n';
-        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
+        result += absl::StrCat("name: ", ToStringImpl(name), "\n");
+        result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
 
         result += ')';
         return result;
@@ -57,10 +58,10 @@ typedef struct _firestore_client_UnknownDocument {
     google_protobuf_Timestamp version;
 
     std::string ToString() const {
-        std::string result{"firestore_client_UnknownDocument("};
+        std::string result{"UnknownDocument("};
 
-        result += std::string{"name: "} + ToStringImpl(name) + '\n';
-        result += std::string{"version: "} + ToStringImpl(version) + '\n';
+        result += absl::StrCat("name: ", ToStringImpl(name), "\n");
+        result += absl::StrCat("version: ", ToStringImpl(version), "\n");
 
         result += ')';
         return result;
@@ -78,12 +79,12 @@ typedef struct _firestore_client_MaybeDocument {
     bool has_committed_mutations;
 
     std::string ToString() const {
-        std::string result{"firestore_client_MaybeDocument("};
+        std::string result{"MaybeDocument("};
 
         /*skipping no_document*/
         /*skipping document*/
         /*skipping unknown_document*/
-        result += std::string{"has_committed_mutations: "} + ToStringImpl(has_committed_mutations) + '\n';
+        result += absl::StrCat("has_committed_mutations: ", ToStringImpl(has_committed_mutations), "\n");
 
         result += ')';
         return result;

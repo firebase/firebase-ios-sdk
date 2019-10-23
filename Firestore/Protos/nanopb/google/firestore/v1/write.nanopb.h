@@ -29,6 +29,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -55,10 +56,10 @@ typedef struct _google_firestore_v1_DocumentTransform {
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_DocumentTransform("};
+        std::string result{"DocumentTransform("};
 
-        result += std::string{"document: "} + ToStringImpl(document) + '\n';
-        result += std::string{"field_transforms: "} + ToStringImpl(field_transforms, field_transforms_count) + '\n';
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        result += absl::StrCat("field_transforms: ", ToStringImpl(field_transforms, field_transforms_count), "\n");
 
         result += ')';
         return result;
@@ -74,11 +75,11 @@ typedef struct _google_firestore_v1_DocumentChange {
     int32_t *removed_target_ids;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_DocumentChange("};
+        std::string result{"DocumentChange("};
 
-        result += std::string{"document: "} + ToStringImpl(document) + '\n';
-        result += std::string{"target_ids: "} + ToStringImpl(target_ids, target_ids_count) + '\n';
-        result += std::string{"removed_target_ids: "} + ToStringImpl(removed_target_ids, removed_target_ids_count) + '\n';
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count), "\n");
+        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
 
         result += ')';
         return result;
@@ -94,11 +95,11 @@ typedef struct _google_firestore_v1_DocumentDelete {
     int32_t *removed_target_ids;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_DocumentDelete("};
+        std::string result{"DocumentDelete("};
 
-        result += std::string{"document: "} + ToStringImpl(document) + '\n';
-        result += std::string{"removed_target_ids: "} + ToStringImpl(removed_target_ids, removed_target_ids_count) + '\n';
-        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
 
         result += ')';
         return result;
@@ -113,11 +114,11 @@ typedef struct _google_firestore_v1_DocumentRemove {
     google_protobuf_Timestamp read_time;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_DocumentRemove("};
+        std::string result{"DocumentRemove("};
 
-        result += std::string{"document: "} + ToStringImpl(document) + '\n';
-        result += std::string{"removed_target_ids: "} + ToStringImpl(removed_target_ids, removed_target_ids_count) + '\n';
-        result += std::string{"read_time: "} + ToStringImpl(read_time) + '\n';
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
 
         result += ')';
         return result;
@@ -138,9 +139,9 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
     };
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_DocumentTransform_FieldTransform("};
+        std::string result{"DocumentTransform_FieldTransform("};
 
-        result += std::string{"field_path: "} + ToStringImpl(field_path) + '\n';
+        result += absl::StrCat("field_path: ", ToStringImpl(field_path), "\n");
         /*skipping set_to_server_value*/
         /*skipping increment*/
         /*skipping maximum*/
@@ -159,10 +160,10 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t count;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_ExistenceFilter("};
+        std::string result{"ExistenceFilter("};
 
-        result += std::string{"target_id: "} + ToStringImpl(target_id) + '\n';
-        result += std::string{"count: "} + ToStringImpl(count) + '\n';
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
+        result += absl::StrCat("count: ", ToStringImpl(count), "\n");
 
         result += ')';
         return result;
@@ -183,13 +184,13 @@ typedef struct _google_firestore_v1_Write {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_Write("};
+        std::string result{"Write("};
 
         /*skipping update*/
         /*skipping delete_*/
         /*skipping transform*/
-        result += std::string{"update_mask: "} + ToStringImpl(update_mask) + '\n';
-        result += std::string{"current_document: "} + ToStringImpl(current_document) + '\n';
+        result += absl::StrCat("update_mask: ", ToStringImpl(update_mask), "\n");
+        result += absl::StrCat("current_document: ", ToStringImpl(current_document), "\n");
 
         result += ')';
         return result;
@@ -204,10 +205,10 @@ typedef struct _google_firestore_v1_WriteResult {
     struct _google_firestore_v1_Value *transform_results;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_WriteResult("};
+        std::string result{"WriteResult("};
 
-        result += std::string{"update_time: "} + ToStringImpl(update_time) + '\n';
-        result += std::string{"transform_results: "} + ToStringImpl(transform_results, transform_results_count) + '\n';
+        result += absl::StrCat("update_time: ", ToStringImpl(update_time), "\n");
+        result += absl::StrCat("transform_results: ", ToStringImpl(transform_results, transform_results_count), "\n");
 
         result += ')';
         return result;

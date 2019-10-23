@@ -29,6 +29,7 @@
 
 #include "google/type/latlng.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -45,9 +46,9 @@ typedef struct _google_firestore_v1_ArrayValue {
     struct _google_firestore_v1_Value *values;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_ArrayValue("};
+        std::string result{"ArrayValue("};
 
-        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+        result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
 
         result += ')';
         return result;
@@ -60,9 +61,9 @@ typedef struct _google_firestore_v1_MapValue {
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_MapValue("};
+        std::string result{"MapValue("};
 
-        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
 
         result += ')';
         return result;
@@ -79,12 +80,12 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp update_time;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_Document("};
+        std::string result{"Document("};
 
-        result += std::string{"name: "} + ToStringImpl(name) + '\n';
-        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
-        result += std::string{"create_time: "} + ToStringImpl(create_time) + '\n';
-        result += std::string{"update_time: "} + ToStringImpl(update_time) + '\n';
+        result += absl::StrCat("name: ", ToStringImpl(name), "\n");
+        result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
+        result += absl::StrCat("create_time: ", ToStringImpl(create_time), "\n");
+        result += absl::StrCat("update_time: ", ToStringImpl(update_time), "\n");
 
         result += ')';
         return result;
@@ -109,7 +110,7 @@ typedef struct _google_firestore_v1_Value {
     };
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_Value("};
+        std::string result{"Value("};
 
         /*skipping null_value*/
         /*skipping boolean_value*/
@@ -134,10 +135,10 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_Document_FieldsEntry("};
+        std::string result{"Document_FieldsEntry("};
 
-        result += std::string{"key: "} + ToStringImpl(key) + '\n';
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
@@ -150,10 +151,10 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString() const {
-        std::string result{"google_firestore_v1_MapValue_FieldsEntry("};
+        std::string result{"MapValue_FieldsEntry("};
 
-        result += std::string{"key: "} + ToStringImpl(key) + '\n';
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;

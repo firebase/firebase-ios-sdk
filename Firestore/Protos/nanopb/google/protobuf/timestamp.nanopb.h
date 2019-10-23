@@ -21,6 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_TIMESTAMP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -37,10 +38,10 @@ typedef struct _google_protobuf_Timestamp {
     int32_t nanos;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Timestamp("};
+        std::string result{"Timestamp("};
 
-        result += std::string{"seconds: "} + ToStringImpl(seconds) + '\n';
-        result += std::string{"nanos: "} + ToStringImpl(nanos) + '\n';
+        result += absl::StrCat("seconds: ", ToStringImpl(seconds), "\n");
+        result += absl::StrCat("nanos: ", ToStringImpl(nanos), "\n");
 
         result += ')';
         return result;

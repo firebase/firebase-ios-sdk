@@ -25,6 +25,7 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -41,10 +42,10 @@ typedef struct _firestore_client_MutationQueue {
     pb_bytes_array_t *last_stream_token;
 
     std::string ToString() const {
-        std::string result{"firestore_client_MutationQueue("};
+        std::string result{"MutationQueue("};
 
-        result += std::string{"last_acknowledged_batch_id: "} + ToStringImpl(last_acknowledged_batch_id) + '\n';
-        result += std::string{"last_stream_token: "} + ToStringImpl(last_stream_token) + '\n';
+        result += absl::StrCat("last_acknowledged_batch_id: ", ToStringImpl(last_acknowledged_batch_id), "\n");
+        result += absl::StrCat("last_stream_token: ", ToStringImpl(last_stream_token), "\n");
 
         result += ')';
         return result;
@@ -61,12 +62,12 @@ typedef struct _firestore_client_WriteBatch {
     struct _google_firestore_v1_Write *base_writes;
 
     std::string ToString() const {
-        std::string result{"firestore_client_WriteBatch("};
+        std::string result{"WriteBatch("};
 
-        result += std::string{"batch_id: "} + ToStringImpl(batch_id) + '\n';
-        result += std::string{"writes: "} + ToStringImpl(writes, writes_count) + '\n';
-        result += std::string{"local_write_time: "} + ToStringImpl(local_write_time) + '\n';
-        result += std::string{"base_writes: "} + ToStringImpl(base_writes, base_writes_count) + '\n';
+        result += absl::StrCat("batch_id: ", ToStringImpl(batch_id), "\n");
+        result += absl::StrCat("writes: ", ToStringImpl(writes, writes_count), "\n");
+        result += absl::StrCat("local_write_time: ", ToStringImpl(local_write_time), "\n");
+        result += absl::StrCat("base_writes: ", ToStringImpl(base_writes, base_writes_count), "\n");
 
         result += ')';
         return result;

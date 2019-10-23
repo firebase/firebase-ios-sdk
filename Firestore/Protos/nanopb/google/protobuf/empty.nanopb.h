@@ -21,6 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_EMPTY_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -36,7 +37,7 @@ typedef struct _google_protobuf_Empty {
     char dummy_field;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Empty("};
+        std::string result{"Empty("};
 
 
         result += ')';

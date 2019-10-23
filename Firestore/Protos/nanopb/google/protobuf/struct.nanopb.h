@@ -21,6 +21,7 @@
 #define PB_GOOGLE_PROTOBUF_STRUCT_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "absl/strings/str_cat.h"
 #include "nanopb_pretty_printers.h"
 
 namespace firebase {
@@ -45,9 +46,9 @@ typedef struct _google_protobuf_ListValue {
     struct _google_protobuf_Value *values;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_ListValue("};
+        std::string result{"ListValue("};
 
-        result += std::string{"values: "} + ToStringImpl(values, values_count) + '\n';
+        result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
 
         result += ')';
         return result;
@@ -60,9 +61,9 @@ typedef struct _google_protobuf_Struct {
     struct _google_protobuf_Struct_FieldsEntry *fields;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Struct("};
+        std::string result{"Struct("};
 
-        result += std::string{"fields: "} + ToStringImpl(fields, fields_count) + '\n';
+        result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
 
         result += ')';
         return result;
@@ -82,7 +83,7 @@ typedef struct _google_protobuf_Value {
     };
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Value("};
+        std::string result{"Value("};
 
         /*skipping null_value*/
         /*skipping number_value*/
@@ -102,10 +103,10 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     google_protobuf_Value value;
 
     std::string ToString() const {
-        std::string result{"google_protobuf_Struct_FieldsEntry("};
+        std::string result{"Struct_FieldsEntry("};
 
-        result += std::string{"key: "} + ToStringImpl(key) + '\n';
-        result += std::string{"value: "} + ToStringImpl(value) + '\n';
+        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;
