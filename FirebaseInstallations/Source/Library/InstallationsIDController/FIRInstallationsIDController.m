@@ -318,7 +318,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
             [registeredInstallation.authToken.expirationDate timeIntervalSinceDate:[NSDate date]] <
             kFIRInstallationsTokenExpirationThreshold;
         if (forceRefresh || isTokenExpiredOrExpiresSoon) {
-          return [self.APIService refreshAuthTokenForInstallation:registeredInstallation];
+          return [self refreshAuthTokenForInstallation:registeredInstallation];
         } else {
           return registeredInstallation;
         }
@@ -326,6 +326,14 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
       .recover(^id(NSError *error) {
         return [self regenerateFIDOnRefreshTokenErrorIfNeeded:error];
       });
+}
+
+- (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
+    (FIRInstallationsItem *)installation {
+  return [[self.APIService refreshAuthTokenForInstallation:installation]
+      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        return [self saveInstallation:refreshedInstallation];
+      }];
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
