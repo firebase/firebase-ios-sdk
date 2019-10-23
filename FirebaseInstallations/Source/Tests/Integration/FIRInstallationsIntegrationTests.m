@@ -338,8 +338,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   }];
 }
 
-// 1. Creates an array with `totalTestsCount` consisting of repeating `tests`
-// 2. Shuffles the array
+// Creates an array with `totalTestsCount` consisting of shuffled repeating `tests`.
 - (NSArray *)shuffledThreadSafetyTestsWithTests:(NSArray<dispatch_block_t> *)tests
                                 totalTestsCount:(NSInteger)count {
   NSMutableArray *allTests = [NSMutableArray arrayWithCapacity:count];
