@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBLPromises.h"
 #import "FBLPromise+Testing.h"
+#import "FBLPromises.h"
 
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 
@@ -43,7 +43,8 @@
             return [[FBLPromise resolvedWith:[[NSObject alloc] init]] delay:0.001];
           }];
 
-  XCTestExpectation *operationsExpectation = [self expectationWithDescription:@"operationsExpectation"];
+  XCTestExpectation *operationsExpectation =
+      [self expectationWithDescription:@"operationsExpectation"];
   operationsExpectation.expectedFulfillmentCount = count;
 
   for (NSInteger i = 0; i < count; i++) {
@@ -59,19 +60,19 @@
   }
 
   XCTAssert(FBLWaitForPromisesWithTimeout(10));
-  [self waitForExpectations:@[operationsExpectation] timeout:10];
+  [self waitForExpectations:@[ operationsExpectation ] timeout:10];
 
   // The resolved promise cleanup may not happen instantly. Wait until it happens.
   FBLPromise *existingPromise = [promiseCache getExistingPendingPromise];
   if (existingPromise) {
     XCTestExpectation *cleanupExpectation = [self expectationWithDescription:@""];
 
-    [existingPromise then:^id _Nullable(id  _Nullable value) {
+    [existingPromise then:^id _Nullable(id _Nullable value) {
       [cleanupExpectation fulfill];
       return nil;
     }];
 
-    [self waitForExpectations:@[cleanupExpectation] timeout:0.5];
+    [self waitForExpectations:@[ cleanupExpectation ] timeout:0.5];
   }
 
   // Check if resolved promise cleaned up.

@@ -44,19 +44,19 @@
 }
 
 - (FBLPromise *)getExistingPendingOrCreateNewPromise {
-  @synchronized (self) {
+  @synchronized(self) {
     if (!self.pendingPromise) {
       self.pendingPromise = self.newOperationHandler();
 
       self.pendingPromise
           .then(^id(id result) {
-            @synchronized (self) {
+            @synchronized(self) {
               self.pendingPromise = nil;
               return nil;
             }
           })
           .catch(^void(NSError *error) {
-            @synchronized (self) {
+            @synchronized(self) {
               self.pendingPromise = nil;
             }
           });
@@ -67,7 +67,7 @@
 }
 
 - (nullable FBLPromise *)getExistingPendingPromise {
-  @synchronized (self) {
+  @synchronized(self) {
     return self.pendingPromise;
   }
 }
