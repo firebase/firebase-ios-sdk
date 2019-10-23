@@ -257,13 +257,9 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
         }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
-        // Expected successful result: @[FIRInstallationsItem *registeredInstallation, NSNull]
-        return [FBLPromise all:@[
-          registeredInstallation, [self.installationsStore saveInstallation:registeredInstallation]
-        ]];
+        return [self saveInstallation:registeredInstallation];
       })
-      .then(^FIRInstallationsItem *(NSArray *result) {
-        FIRInstallationsItem *registeredInstallation = result.firstObject;
+      .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
         // Server may respond with a different FID if the sent one cannot be accepted.
         if (![registeredInstallation.firebaseInstallationID
                 isEqualToString:installation.firebaseInstallationID]) {
