@@ -16,6 +16,8 @@
 
 #import "FIRInstanceIDTokenOperation.h"
 
+#import <FirebaseInstallations/FirebaseInstallations.h>
+
 #import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDURLQueryItem.h"
@@ -41,6 +43,8 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
 @property(atomic, strong) NSURLSessionDataTask *dataTask;
 @property(readonly, strong)
     NSMutableArray<FIRInstanceIDTokenOperationCompletion> *completionHandlers;
+
+@property(atomic, strong, nullable) NSString *FISAuthToken;
 
 // For testing only
 @property(nonatomic, readwrite, copy) FIRInstanceIDURLRequestTestBlock testBlock;
@@ -140,7 +144,16 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
 
   [self setExecuting:YES];
 
-  [self performTokenOperation];
+  [[FIRInstallations installations]
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        if (tokenResult.authToken.length > 0) {
+          self.FISAuthToken = tokenResult.authToken;
+          [self performTokenOperation];
+        } else {
+          [self finishWithResult:FIRInstanceIDTokenOperationError token:nil error:error];
+        }
+      }];
 }
 
 - (void)finishWithResult:(FIRInstanceIDTokenOperationResult)result
@@ -170,14 +183,24 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
 - (void)performTokenOperation {
 }
 
+- (NSMutableURLRequest *)tokenRequest {
+  NSString *authHeader =
+      [FIRInstanceIDTokenOperation HTTPAuthHeaderFromCheckin:self.checkinPreferences];
+  return [[self class] requestWithAuthHeader:authHeader FISAuthToken:self.FISAuthToken];
+}
+
 #pragma mark - Request Construction
-+ (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString {
++ (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString
+                                  FISAuthToken:(NSString *)FISAuthToken {
   NSURL *url = [NSURL URLWithString:FIRInstanceIDRegisterServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 
   // Add HTTP headers
   [request setValue:authHeaderString forHTTPHeaderField:@"Authorization"];
   [request setValue:FIRInstanceIDAppIdentifier() forHTTPHeaderField:@"app"];
+  if (FISAuthToken) {
+    [request setValue:FISAuthToken forHTTPHeaderField:@"x-goog-firebase-installations-auth"];
+  }
   request.HTTPMethod = @"POST";
   return request;
 }

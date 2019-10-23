@@ -53,9 +53,7 @@ NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
 }
 
 - (void)performTokenOperation {
-  NSString *authHeader =
-      [FIRInstanceIDTokenOperation HTTPAuthHeaderFromCheckin:self.checkinPreferences];
-  NSMutableURLRequest *request = [[self class] requestWithAuthHeader:authHeader];
+  NSMutableURLRequest *request = [self tokenRequest];
   NSString *checkinVersionInfo = self.checkinPreferences.versionInfo;
   [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
   [request setValue:[FIRApp firebaseUserAgent]

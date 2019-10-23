@@ -43,9 +43,7 @@
 }
 
 - (void)performTokenOperation {
-  NSString *authHeader =
-      [FIRInstanceIDTokenOperation HTTPAuthHeaderFromCheckin:self.checkinPreferences];
-  NSMutableURLRequest *request = [FIRInstanceIDTokenOperation requestWithAuthHeader:authHeader];
+  NSMutableURLRequest *request = [self tokenRequest];
 
   // Build form-encoded body
   NSString *deviceAuthID = self.checkinPreferences.deviceID;

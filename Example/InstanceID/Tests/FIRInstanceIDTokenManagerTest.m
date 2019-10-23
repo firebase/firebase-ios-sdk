@@ -17,6 +17,10 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
+
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRInstallationsAuthTokenResultInternal.h"
+
 #import "FIRInstanceIDFakeKeychain.h"
 #import "FIRInstanceIDTokenManager+Test.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
@@ -87,6 +91,9 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDCheckinPreferences *fakeCheckin;
 
+@property(nonatomic, readwrite, strong) id mockInstallations;
+@property(nonatomic, readwrite, strong) FIRInstallationsAuthTokenResult *FISAuthTokenResult;
+
 @end
 
 @implementation FIRInstanceIDTokenManagerTest
@@ -116,6 +123,15 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
   self.fakeCheckin = [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:@"fakeDeviceID"
                                                                    secretToken:@"fakeSecretToken"];
+
+  // Installations
+  self.FISAuthTokenResult =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"FISAuthToken"
+                                              expirationDate:[NSDate distantFuture]];
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+  id authTokenBlockArg = [OCMArg invokeBlockWithArgs:self.FISAuthTokenResult, [NSNull null], nil];
+  OCMStub([self.mockInstallations authTokenWithCompletion:authTokenBlockArg]);
 }
 
 - (void)tearDown {
