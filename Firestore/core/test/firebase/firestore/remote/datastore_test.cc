@@ -66,9 +66,12 @@ grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
   Serializer serializer{DatabaseId{"p", "d"}};
   Message<google_firestore_v1_BatchGetDocumentsResponse> response;
 
+  response->which_result =
+      google_firestore_v1_BatchGetDocumentsResponse_found_tag;
   google_firestore_v1_Document& doc = response->found;
   doc.name = serializer.EncodeString(
       absl::StrCat("projects/p/databases/d/documents/", doc_name));
+  doc.has_update_time = true;
   doc.update_time.seconds = 0;
   doc.update_time.nanos = 42000;
 
