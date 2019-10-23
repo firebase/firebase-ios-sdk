@@ -40,6 +40,7 @@ nanopb_pb2 = nanopb.nanopb_pb2
 
 
 def main():
+  #raise Exception(sys.argv)
   # Parse request
   if sys.platform == 'win32':
     # Set stdin and stdout to binary mode
@@ -47,18 +48,21 @@ def main():
     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
   data = io.open(sys.stdin.fileno(), 'rb').read()
+  #raise Exception(data)
   request = plugin_pb2.CodeGeneratorRequest.FromString(data)
 
   # Preprocess inputs, changing types and nanopb defaults
   use_anonymous_oneof(request)
   use_bytes_for_strings(request)
   use_malloc(request)
+  pretty_printers = prepare_pretty_printing_support(request)
 
   # Generate code
   options = nanopb_parse_options(request)
   parsed_files = nanopb_parse_files(request, options)
+  # results = nanopb_generate(request, options, parsed_files, pretty_printers)
   results = nanopb_generate(request, options, parsed_files)
-  response = nanopb_write(results)
+  response = nanopb_write(results, pretty_printers)
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
@@ -94,6 +98,24 @@ def use_malloc(request):
         ext = field.options.Extensions[nanopb_pb2.nanopb]
         ext.type = nanopb_pb2.FT_POINTER
 
+
+def prepare_pretty_printing_support(request):
+  """FIXME"""
+  file_and_class_and_fieldmap = {}
+  for fdesc in request.proto_file:
+    filename = fdesc.name.replace('.proto', '')
+    file_and_class_and_fieldmap[filename] = {}
+
+    for class_name, message_type in nanopb.iterate_messages(fdesc):
+      full_classname = fdesc.package.replace('.', '_') + '_' + str(class_name)
+      file_and_class_and_fieldmap[filename][full_classname] = []
+      for field in message_type.field:
+        #file_and_class_and_fieldmap[(name, field.number)] = field.name
+        #(classname, field.number)] = field.name
+        file_and_class_and_fieldmap[filename][full_classname].append(field)
+        #raise Exception(fdesc.name)
+
+  return file_and_class_and_fieldmap
 
 def use_anonymous_oneof(request):
   """Use anonymous unions for oneofs if they're the only one in a message.
@@ -200,6 +222,7 @@ def nanopb_parse_files(request, options):
   return parsed_files
 
 
+# def nanopb_generate(request, options, parsed_files, pretty_printers):
 def nanopb_generate(request, options, parsed_files):
   """Generates C sources from the given parsed files.
 
@@ -232,7 +255,8 @@ def nanopb_generate(request, options, parsed_files):
   return output
 
 
-def nanopb_write(results):
+# def nanopb_write(results):
+def nanopb_write(results, pretty_printers):
   """Translates nanopb output dictionaries to a CodeGeneratorResponse.
 
   Args:
@@ -251,8 +275,85 @@ def nanopb_write(results):
     f.content = result['headerdata']
 
     f = response.file.add()
+    f.name = result['headername']
+    f.insertion_point = 'includes'
+    f.content = '''#include "nanopb_pretty_printers.h"
+
+namespace firebase {
+namespace firestore {'''
+
+    f = response.file.add()
+    f.name = result['headername']
+    f.insertion_point = 'eof'
+    f.content = '''
+}  // namespace firestore
+}  // namespace firebase'''
+
+    base_filename = f.name.replace('.nanopb.h', '')
+
+    # for classname, fieldmap in pretty_printers[base_filename].items():
+    #   f = response.file.add()
+    #   f.name = result['headername']
+    #   f.insertion_point = 'struct:' + classname
+    #   f.content = '''
+    # static const char* print(int field_index) {
+    #   switch (field_index) {'''
+    #   for index, name in fieldmap:
+    #     f.content += '''
+    #   case %s:
+    #     return "%s";''' % (index, name)
+
+    #   f.content += '''
+    #   }
+
+    #   return "<unknown>";
+    # }'''
+
+    for classname, fields in pretty_printers[base_filename].items():
+      f = response.file.add()
+      f.name = result['headername']
+      f.insertion_point = 'struct:' + classname
+      f.content = '''
+    std::string ToString() const {
+      std::string result{"%s("};
+''' % (classname)
+      for field in fields:
+        name = field.name
+        # if field.oneof_index != 0:
+        #   continue # FIXME
+        if field.HasField('oneof_index'):
+          f.content += '''
+      /*skipping %s*/''' % (name)
+          continue # FIXME
+        if field.label == FieldDescriptorProto.LABEL_REPEATED:
+          f.content += '''
+      result += std::string{"%s: "} + ToStringImpl(%s, %s_count) + '\\n';''' % (name, name, name)
+        else:
+          f.content += '''
+      result += std::string{"%s%s: "} + ToStringImpl(%s) + '\\n';''' % (name, field.oneof_index, name)
+
+      f.content += '''
+
+      result += ')';
+      return result;
+    }'''
+    f = response.file.add()
     f.name = result['sourcename']
     f.content = result['sourcedata']
+
+    f = response.file.add()
+    f.name = result['sourcename']
+    f.insertion_point = 'includes'
+    f.content = '''namespace firebase {
+namespace firestore {'''
+
+    f = response.file.add()
+    f.name = result['sourcename']
+    f.insertion_point = 'eof'
+    f.content = '''
+}  // namespace firestore
+}  // namespace firebase'''
+
 
   return response
 
