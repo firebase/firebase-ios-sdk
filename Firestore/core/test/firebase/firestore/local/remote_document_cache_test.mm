@@ -61,10 +61,13 @@ const int kVersion = 42;
 FieldValue::Map kDocData;
 
 /**
- * Extracts all the actual MaybeDocument instances from the given document map
+ * Extracts all the actual MaybeDocument instances from the given document map.
+ *
+ * @tparam MapType Some map type like OptionalMaybeDocumentMap or
+ *     MaybeDocumentMap.
  */
-std::vector<MaybeDocument> ExtractDocuments(
-    const OptionalMaybeDocumentMap& docs) {
+template <typename MapType>
+std::vector<MaybeDocument> ExtractDocuments(const MapType& docs) {
   std::vector<MaybeDocument> result;
   for (const auto& kv : docs) {
     const absl::optional<MaybeDocument>& doc = kv.second;
