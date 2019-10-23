@@ -68,6 +68,8 @@ cc_library(
     grpc_completion.h
     grpc_connection.cc
     grpc_connection.h
+    grpc_nanopb.cc
+    grpc_nanopb.h
     grpc_root_certificate_finder.h
     grpc_root_certificate_finder_generated.cc
     grpc_root_certificates_generated.cc

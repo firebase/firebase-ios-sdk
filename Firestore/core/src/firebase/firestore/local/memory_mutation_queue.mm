@@ -267,8 +267,8 @@ ByteString MemoryMutationQueue::GetLastStreamToken() {
   return last_stream_token_;
 }
 
-void MemoryMutationQueue::SetLastStreamToken(const ByteString& token) {
-  last_stream_token_ = token;
+void MemoryMutationQueue::SetLastStreamToken(ByteString token) {
+  last_stream_token_ = std::move(token);
 }
 
 std::vector<MutationBatch> MemoryMutationQueue::AllMutationBatchesWithIds(
