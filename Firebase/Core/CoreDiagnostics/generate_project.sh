@@ -1,4 +1,6 @@
-# Copyright 2019 Google
+#!/bin/bash
+
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,17 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-if(APPLE)
-  file(GLOB headers Public/*.h)
+readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
-  podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec)
+"$REPO_DIR/Firebase/Core/CoreDiagnostics/ProtoSupport/generate_nanopb_protos.sh" || {
+  echo "Something went wrong generating protos."
+  exit 1
+}
 
-  objc_framework(
-    FirebaseCoreDiagnosticsInterop
-    HEADERS ${headers}
-    VERSION ${version}
-    INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
-    EXCLUDE_FROM_ALL
-  )
-endif()
+pod gen "${REPO_DIR}/FirebaseCoreDiagnostics.podspec" --auto-open --gen-directory="${REPO_DIR}/gen" --local-sources="${REPO_DIR}/" --clean

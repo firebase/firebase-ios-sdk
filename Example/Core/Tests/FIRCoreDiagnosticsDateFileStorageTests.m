@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+#import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 @interface FIRCoreDiagnosticsDateFileStorageTests : XCTestCase
 @property(nonatomic) NSURL *fileURL;

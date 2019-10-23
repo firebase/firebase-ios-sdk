@@ -16,18 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCoreDiagnosticsData.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-/** Allows the interoperation of FirebaseCore and FirebaseCoreDiagnostics. */
-@protocol FIRCoreDiagnosticsInterop <NSObject>
+@interface FIRCoreDiagnostics : NSObject
 
 /** Sends the given diagnostics data.
  *
  * @param diagnosticsData The diagnostics data object to send.
  */
-+ (void)sendDiagnosticsData:(id<FIRCoreDiagnosticsData>)diagnosticsData;
++ (void)sendDiagnosticsData:(nonnull id<FIRCoreDiagnosticsData>)diagnosticsData;
 
 @end
 

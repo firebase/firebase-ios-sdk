@@ -14,12 +14,45 @@
  * limitations under the License.
  */
 
-#import "Private/FIRDiagnosticsData.h"
+#import "Firebase/Core/FIRDiagnosticsData.h"
 
 #import <FirebaseCore/FIRApp.h>
 
 #import "Private/FIRAppInternal.h"
 #import "Private/FIROptionsInternal.h"
+
+/** If present, is a BOOL wrapped in an NSNumber. */
+NSString *const kFIRCDIsDataCollectionDefaultEnabledKey =
+    @"FIRCDIsDataCollectionDefaultEnabledKey";
+
+/** If present, is an int32_t wrapped in an NSNumber. */
+NSString *const kFIRCDConfigurationTypeKey = @"FIRCDConfigurationTypeKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDSdkNameKey = @"FIRCDSdkNameKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDSdkVersionKey = @"FIRCDSdkVersionKey";
+
+/** If present, is an int32_t wrapped in an NSNumber. */
+NSString *const kFIRCDllAppsCountKey = @"FIRCDllAppsCountKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDGoogleAppIDKey = @"FIRCDGoogleAppIDKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDBundleIDKey = @"FIRCDBundleID";
+
+/** If present, is a BOOL wrapped in an NSNumber. */
+NSString *const kFIRCDUsingOptionsFromDefaultPlistKey =
+    @"FIRCDUsingOptionsFromDefaultPlistKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDLibraryVersionIDKey = @"FIRCDLibraryVersionIDKey";
+
+/** If present, is an NSString. */
+NSString *const kFIRCDFirebaseUserAgentKey = @"FIRCDFirebaseUserAgentKey";
+
 
 @implementation FIRDiagnosticsData {
   /** Backing ivar for the diagnosticObjects property. */

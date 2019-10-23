@@ -25,16 +25,14 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Protogen/nanopb/firebasecore.nanopb.h"
+#import "FIRCoreDiagnosticsDateFileStorage.h"
+#import "Firebase/Core/FIRDiagnosticsData.h"
 
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -144,7 +142,7 @@ NSString *const kFIRCoreDiagnosticsHeartbeatDateFileName = @"FIREBASE_DIAGNOSTIC
 NS_ASSUME_NONNULL_BEGIN
 
 /** This class produces a protobuf containing diagnostics and usage data to be logged. */
-@interface FIRCoreDiagnostics : NSObject <FIRCoreDiagnosticsInterop>
+@interface FIRCoreDiagnostics : NSObject
 
 /** The queue on which all diagnostics collection will occur. */
 @property(nonatomic, readonly) dispatch_queue_t diagnosticsQueue;

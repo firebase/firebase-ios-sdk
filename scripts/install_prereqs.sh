@@ -98,18 +98,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $XCODE_VERSION == "8."* ]]; then
-      # Firestore still compiles with Xcode 8 to help verify general
-      # conformance with C++11 by using an older compiler that doesn't have as
-      # many extensions from later versions of the language. However, Firebase
-      # as a whole does not support this environment and @available checks in
-      # GoogleDataTransport would otherwise break this build.
-      #
-      # This drops the dependency that adds GoogleDataTransport into
-      # Firestore's dependencies.
-      sed -i.bak "/s.dependency 'FirebaseCoreDiagnostics'/d" FirebaseCore.podspec
-    fi
-
     gem install xcpretty
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;

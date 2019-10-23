@@ -16,35 +16,19 @@
 
 #import "Private/FIRCoreDiagnosticsConnector.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-
 #import <FirebaseCore/FIROptions.h>
 
 #import "Private/FIRAppInternal.h"
-#import "Private/FIRDiagnosticsData.h"
 #import "Private/FIROptionsInternal.h"
 
-// Define the interop class symbol declared as an extern in FIRCoreDiagnosticsInterop.
-Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
+#import "Firebase/Core/FIRDiagnosticsData.h"
+#import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnostics.h"
+
 
 @implementation FIRCoreDiagnosticsConnector
 
-+ (void)initialize {
-  if (!FIRCoreDiagnosticsImplementation) {
-    FIRCoreDiagnosticsImplementation = NSClassFromString(@"FIRCoreDiagnostics");
-    if (FIRCoreDiagnosticsImplementation) {
-      NSAssert([FIRCoreDiagnosticsImplementation
-                   conformsToProtocol:@protocol(FIRCoreDiagnosticsInterop)],
-               @"If FIRCoreDiagnostics is implemented, it must conform to the interop protocol.");
-      NSAssert(
-          [FIRCoreDiagnosticsImplementation respondsToSelector:@selector(sendDiagnosticsData:)],
-          @"If FIRCoreDiagnostics is implemented, it must implement +sendDiagnosticsData.");
-    }
-  }
-}
-
 + (void)logCoreTelemetryWithOptions:(FIROptions *)options {
-  if (FIRCoreDiagnosticsImplementation) {
+  if (YES) {  // Check plist here
     FIRDiagnosticsData *diagnosticsData = [[FIRDiagnosticsData alloc] init];
     [diagnosticsData insertValue:@(YES) forKey:kFIRCDIsDataCollectionDefaultEnabledKey];
     [diagnosticsData insertValue:[FIRApp firebaseUserAgent] forKey:kFIRCDFirebaseUserAgentKey];
@@ -54,7 +38,7 @@ Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;
     [diagnosticsData insertValue:@(options.usingOptionsFromDefaultPlist)
                           forKey:kFIRCDUsingOptionsFromDefaultPlistKey];
     [diagnosticsData insertValue:options.libraryVersionID forKey:kFIRCDLibraryVersionIDKey];
-    [FIRCoreDiagnosticsImplementation sendDiagnosticsData:diagnosticsData];
+    [FIRCoreDiagnostics sendDiagnosticsData:diagnosticsData];
   }
 }
 

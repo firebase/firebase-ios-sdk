@@ -83,8 +83,6 @@ def configure_local_pods()
     #
     # This list should include the transitive closure of all dependencies of
     # FirebaseCoreDiagnostics, except GoogleUtilities which we otherwise need.
-    maybe_local_pod 'FirebaseCoreDiagnostics'
-    maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
     maybe_local_pod 'GoogleDataTransport'
     maybe_local_pod 'GoogleDataTransportCCTSupport'
   end

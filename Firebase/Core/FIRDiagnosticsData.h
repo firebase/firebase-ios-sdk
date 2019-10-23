@@ -19,36 +19,34 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** If present, is a BOOL wrapped in an NSNumber. */
-static NSString *const kFIRCDIsDataCollectionDefaultEnabledKey =
-    @"FIRCDIsDataCollectionDefaultEnabledKey";
+extern NSString *const kFIRCDIsDataCollectionDefaultEnabledKey;
 
 /** If present, is an int32_t wrapped in an NSNumber. */
-static NSString *const kFIRCDConfigurationTypeKey = @"FIRCDConfigurationTypeKey";
+extern NSString *const kFIRCDConfigurationTypeKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDSdkNameKey = @"FIRCDSdkNameKey";
+extern NSString *const kFIRCDSdkNameKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDSdkVersionKey = @"FIRCDSdkVersionKey";
+extern NSString *const kFIRCDSdkVersionKey;
 
 /** If present, is an int32_t wrapped in an NSNumber. */
-static NSString *const kFIRCDllAppsCountKey = @"FIRCDllAppsCountKey";
+extern NSString *const kFIRCDllAppsCountKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDGoogleAppIDKey = @"FIRCDGoogleAppIDKey";
+extern NSString *const kFIRCDGoogleAppIDKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDBundleIDKey = @"FIRCDBundleID";
+extern NSString *const kFIRCDBundleIDKey;
 
 /** If present, is a BOOL wrapped in an NSNumber. */
-static NSString *const kFIRCDUsingOptionsFromDefaultPlistKey =
-    @"FIRCDUsingOptionsFromDefaultPlistKey";
+extern NSString *const kFIRCDUsingOptionsFromDefaultPlistKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDLibraryVersionIDKey = @"FIRCDLibraryVersionIDKey";
+extern NSString *const kFIRCDLibraryVersionIDKey;
 
 /** If present, is an NSString. */
-static NSString *const kFIRCDFirebaseUserAgentKey = @"FIRCDFirebaseUserAgentKey";
+extern NSString *const kFIRCDFirebaseUserAgentKey;
 
 /** Defines the interface of a data object needed to log diagnostics data. */
 @protocol FIRCoreDiagnosticsData <NSObject>
@@ -57,6 +55,18 @@ static NSString *const kFIRCDFirebaseUserAgentKey = @"FIRCDFirebaseUserAgentKey"
 
 /** A dictionary containing data (non-exhaustive) to be logged in diagnostics. */
 @property(nonatomic) NSDictionary<NSString *, id> *diagnosticObjects;
+
+@end
+
+/** Implements the FIRCoreDiagnosticsData protocol to log diagnostics data. */
+@interface FIRDiagnosticsData : NSObject <FIRCoreDiagnosticsData>
+
+/** Inserts values into the diagnosticObjects dictionary if the value isn't nil.
+ *
+ * @param value The value to insert if it's not nil.
+ * @param key The key to associate it with.
+ */
+- (void)insertValue:(nullable id)value forKey:(NSString *)key;
 
 @end
 

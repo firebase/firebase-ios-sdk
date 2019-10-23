@@ -5,8 +5,6 @@ target 'CocoapodsIntegrationTest' do
   use_frameworks!
 
   pod 'FirebaseCore', :path => '../'
-  pod 'FirebaseCoreDiagnostics', :path => '../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FirebaseAuth', :path => '../'
   pod 'FirebaseDatabase', :path => '../'
   pod 'FirebaseDynamicLinks', :path => '../'

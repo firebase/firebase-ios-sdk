@@ -19,8 +19,6 @@
 #import <UIKit/UIKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
@@ -31,9 +29,10 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
-
-#import "FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+#import "Firebase/Core/FIRDiagnosticsData.h"
+#import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnostics.h"
+#import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnosticsDateFileStorage.h"
+#import "Firebase/Core/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
@@ -44,7 +43,7 @@ static NSString *const kLibraryVersionID = @"1.2.3";
 
 #pragma mark - Testing interfaces
 
-@interface FIRCoreDiagnostics : NSObject
+@interface FIRCoreDiagnostics (Test)
 // Initialization.
 + (instancetype)sharedInstance;
 - (instancetype)initWithTransport:(GDTCORTransport *)transport
