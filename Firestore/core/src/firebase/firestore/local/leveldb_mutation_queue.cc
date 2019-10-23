@@ -410,11 +410,10 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
     dangling_mutation_references.push_back(DescribeKey(index_iterator));
   }
 
-  HARD_ASSERT(
-      dangling_mutation_references.empty(),
-      "Document leak -- detected dangling mutation references when queue "
-      "is empty. Dangling keys: %s",
-      util::ToString(dangling_mutation_references));
+  HARD_ASSERT(dangling_mutation_references.empty(),
+              "Document leak -- detected dangling mutation references when "
+              "queue is empty. Dangling keys: %s",
+              util::ToString(dangling_mutation_references));
 }
 
 ByteString LevelDbMutationQueue::GetLastStreamToken() {
@@ -439,8 +438,8 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
     if (!mutation_iterator->Valid() ||
         mutation_iterator->key() != mutation_key) {
       HARD_FAIL(
-          "Dangling document-mutation reference found: "
-          "Missing batch %s; seeking there found %s",
+          "Dangling document-mutation reference found: Missing batch %s; "
+          "seeking there found %s",
           DescribeKey(mutation_key), DescribeKey(mutation_iterator));
     }
 
