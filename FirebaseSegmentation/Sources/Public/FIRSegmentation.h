@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRApp;
 /**
  *  The Firebase Segmentation SDK is used to associate a custom, non-Firebase custom installation
