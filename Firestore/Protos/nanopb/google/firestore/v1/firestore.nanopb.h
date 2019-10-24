@@ -67,7 +67,8 @@ typedef struct _google_firestore_v1_BeginTransactionResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"BeginTransactionResponse("};
 
-        result += absl::StrCat("transaction: ", ToStringImpl(transaction, indent), "\n");
+        result += absl::StrCat("transaction: ",
+            ToStringImpl(transaction, indent), "\n");
 
         result += ')';
         return result;
@@ -84,9 +85,12 @@ typedef struct _google_firestore_v1_CommitRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"CommitRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        if (writes_count) result += absl::StrCat("writes: ", ToStringImpl(writes, writes_count, indent + 1), "\n");
-        result += absl::StrCat("transaction: ", ToStringImpl(transaction, indent), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        if (writes_count) result += absl::StrCat("writes: ",
+            ToStringImpl(writes, writes_count, indent + 1), "\n");
+        result += absl::StrCat("transaction: ",
+            ToStringImpl(transaction, indent), "\n");
 
         result += ')';
         return result;
@@ -102,8 +106,10 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"ListCollectionIdsResponse("};
 
-        if (collection_ids_count) result += absl::StrCat("collection_ids: ", ToStringImpl(collection_ids, collection_ids_count, indent + 1), "\n");
-        result += absl::StrCat("next_page_token: ", ToStringImpl(next_page_token, indent), "\n");
+        if (collection_ids_count) result += absl::StrCat("collection_ids: ",
+            ToStringImpl(collection_ids, collection_ids_count, indent + 1), "\n");
+        result += absl::StrCat("next_page_token: ",
+            ToStringImpl(next_page_token, indent), "\n");
 
         result += ')';
         return result;
@@ -119,8 +125,10 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"ListDocumentsResponse("};
 
-        if (documents_count) result += absl::StrCat("documents: ", ToStringImpl(documents, documents_count, indent + 1), "\n");
-        result += absl::StrCat("next_page_token: ", ToStringImpl(next_page_token, indent), "\n");
+        if (documents_count) result += absl::StrCat("documents: ",
+            ToStringImpl(documents, documents_count, indent + 1), "\n");
+        result += absl::StrCat("next_page_token: ",
+            ToStringImpl(next_page_token, indent), "\n");
 
         result += ')';
         return result;
@@ -133,10 +141,12 @@ typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListenRequest_LabelsEntry("};
+        std::string result{"LabelsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("key: ",
+            ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -151,8 +161,10 @@ typedef struct _google_firestore_v1_RollbackRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"RollbackRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        result += absl::StrCat("transaction: ", ToStringImpl(transaction, indent), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        result += absl::StrCat("transaction: ",
+            ToStringImpl(transaction, indent), "\n");
 
         result += ')';
         return result;
@@ -165,9 +177,10 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_bytes_array_t **documents;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target_DocumentsTarget("};
+        std::string result{"DocumentsTarget("};
 
-        if (documents_count) result += absl::StrCat("documents: ", ToStringImpl(documents, documents_count, indent + 1), "\n");
+        if (documents_count) result += absl::StrCat("documents: ",
+            ToStringImpl(documents, documents_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -187,11 +200,16 @@ typedef struct _google_firestore_v1_WriteRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"WriteRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        result += absl::StrCat("stream_id: ", ToStringImpl(stream_id, indent), "\n");
-        if (writes_count) result += absl::StrCat("writes: ", ToStringImpl(writes, writes_count, indent + 1), "\n");
-        result += absl::StrCat("stream_token: ", ToStringImpl(stream_token, indent), "\n");
-        if (labels_count) result += absl::StrCat("labels: ", ToStringImpl(labels, labels_count, indent + 1), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        result += absl::StrCat("stream_id: ",
+            ToStringImpl(stream_id, indent), "\n");
+        if (writes_count) result += absl::StrCat("writes: ",
+            ToStringImpl(writes, writes_count, indent + 1), "\n");
+        result += absl::StrCat("stream_token: ",
+            ToStringImpl(stream_token, indent), "\n");
+        if (labels_count) result += absl::StrCat("labels: ",
+            ToStringImpl(labels, labels_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -204,10 +222,12 @@ typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"WriteRequest_LabelsEntry("};
+        std::string result{"LabelsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("key: ",
+            ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -230,12 +250,14 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"BatchGetDocumentsRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        if (documents_count) result += absl::StrCat("documents: ", ToStringImpl(documents, documents_count, indent + 1), "\n");
-        result += absl::StrCat("mask: ", ToStringImpl(mask, indent), "\n");
-        /*skipping transaction*/
-        /*skipping new_transaction*/
-        /*skipping read_time*/
+        result += absl::StrCat("consistency_selector: ",
+            ToStringImpl(consistency_selector, indent), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        if (documents_count) result += absl::StrCat("documents: ",
+            ToStringImpl(documents, documents_count, indent + 1), "\n");
+        result += absl::StrCat("mask: ",
+            ToStringImpl(mask, indent), "\n");
 
         result += ')';
         return result;
@@ -255,10 +277,12 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"BatchGetDocumentsResponse("};
 
-        /*skipping found*/
-        /*skipping missing*/
-        result += absl::StrCat("transaction: ", ToStringImpl(transaction, indent), "\n");
-        result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
+        result += absl::StrCat("result: ",
+            ToStringImpl(result, indent), "\n");
+        result += absl::StrCat("transaction: ",
+            ToStringImpl(transaction, indent), "\n");
+        result += absl::StrCat("read_time: ",
+            ToStringImpl(read_time, indent), "\n");
 
         result += ')';
         return result;
@@ -273,8 +297,10 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"BeginTransactionRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        result += absl::StrCat("options: ", ToStringImpl(options, indent), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        result += absl::StrCat("options: ",
+            ToStringImpl(options, indent), "\n");
 
         result += ')';
         return result;
@@ -290,8 +316,10 @@ typedef struct _google_firestore_v1_CommitResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"CommitResponse("};
 
-        if (write_results_count) result += absl::StrCat("write_results: ", ToStringImpl(write_results, write_results_count, indent + 1), "\n");
-        result += absl::StrCat("commit_time: ", ToStringImpl(commit_time, indent), "\n");
+        if (write_results_count) result += absl::StrCat("write_results: ",
+            ToStringImpl(write_results, write_results_count, indent + 1), "\n");
+        result += absl::StrCat("commit_time: ",
+            ToStringImpl(commit_time, indent), "\n");
 
         result += ')';
         return result;
@@ -309,11 +337,16 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"CreateDocumentRequest("};
 
-        result += absl::StrCat("parent: ", ToStringImpl(parent, indent), "\n");
-        result += absl::StrCat("collection_id: ", ToStringImpl(collection_id, indent), "\n");
-        result += absl::StrCat("document_id: ", ToStringImpl(document_id, indent), "\n");
-        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
-        result += absl::StrCat("mask: ", ToStringImpl(mask, indent), "\n");
+        result += absl::StrCat("parent: ",
+            ToStringImpl(parent, indent), "\n");
+        result += absl::StrCat("collection_id: ",
+            ToStringImpl(collection_id, indent), "\n");
+        result += absl::StrCat("document_id: ",
+            ToStringImpl(document_id, indent), "\n");
+        result += absl::StrCat("document: ",
+            ToStringImpl(document, indent), "\n");
+        result += absl::StrCat("mask: ",
+            ToStringImpl(mask, indent), "\n");
 
         result += ')';
         return result;
@@ -328,8 +361,10 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"DeleteDocumentRequest("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("current_document: ", ToStringImpl(current_document, indent), "\n");
+        result += absl::StrCat("name: ",
+            ToStringImpl(name, indent), "\n");
+        result += absl::StrCat("current_document: ",
+            ToStringImpl(current_document, indent), "\n");
 
         result += ')';
         return result;
@@ -349,10 +384,12 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"GetDocumentRequest("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("mask: ", ToStringImpl(mask, indent), "\n");
-        /*skipping transaction*/
-        /*skipping read_time*/
+        result += absl::StrCat("consistency_selector: ",
+            ToStringImpl(consistency_selector, indent), "\n");
+        result += absl::StrCat("name: ",
+            ToStringImpl(name, indent), "\n");
+        result += absl::StrCat("mask: ",
+            ToStringImpl(mask, indent), "\n");
 
         result += ')';
         return result;
@@ -368,9 +405,12 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"ListCollectionIdsRequest("};
 
-        result += absl::StrCat("parent: ", ToStringImpl(parent, indent), "\n");
-        result += absl::StrCat("page_size: ", ToStringImpl(page_size, indent), "\n");
-        result += absl::StrCat("page_token: ", ToStringImpl(page_token, indent), "\n");
+        result += absl::StrCat("parent: ",
+            ToStringImpl(parent, indent), "\n");
+        result += absl::StrCat("page_size: ",
+            ToStringImpl(page_size, indent), "\n");
+        result += absl::StrCat("page_token: ",
+            ToStringImpl(page_token, indent), "\n");
 
         result += ')';
         return result;
@@ -395,15 +435,22 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"ListDocumentsRequest("};
 
-        result += absl::StrCat("parent: ", ToStringImpl(parent, indent), "\n");
-        result += absl::StrCat("collection_id: ", ToStringImpl(collection_id, indent), "\n");
-        result += absl::StrCat("page_size: ", ToStringImpl(page_size, indent), "\n");
-        result += absl::StrCat("page_token: ", ToStringImpl(page_token, indent), "\n");
-        result += absl::StrCat("order_by: ", ToStringImpl(order_by, indent), "\n");
-        result += absl::StrCat("mask: ", ToStringImpl(mask, indent), "\n");
-        /*skipping transaction*/
-        /*skipping read_time*/
-        result += absl::StrCat("show_missing: ", ToStringImpl(show_missing, indent), "\n");
+        result += absl::StrCat("consistency_selector: ",
+            ToStringImpl(consistency_selector, indent), "\n");
+        result += absl::StrCat("parent: ",
+            ToStringImpl(parent, indent), "\n");
+        result += absl::StrCat("collection_id: ",
+            ToStringImpl(collection_id, indent), "\n");
+        result += absl::StrCat("page_size: ",
+            ToStringImpl(page_size, indent), "\n");
+        result += absl::StrCat("page_token: ",
+            ToStringImpl(page_token, indent), "\n");
+        result += absl::StrCat("order_by: ",
+            ToStringImpl(order_by, indent), "\n");
+        result += absl::StrCat("mask: ",
+            ToStringImpl(mask, indent), "\n");
+        result += absl::StrCat("show_missing: ",
+            ToStringImpl(show_missing, indent), "\n");
 
         result += ')';
         return result;
@@ -427,11 +474,12 @@ typedef struct _google_firestore_v1_RunQueryRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"RunQueryRequest("};
 
-        result += absl::StrCat("parent: ", ToStringImpl(parent, indent), "\n");
-        /*skipping structured_query*/
-        /*skipping transaction*/
-        /*skipping new_transaction*/
-        /*skipping read_time*/
+        result += absl::StrCat("query_type: ",
+            ToStringImpl(query_type, indent), "\n");
+        result += absl::StrCat("consistency_selector: ",
+            ToStringImpl(consistency_selector, indent), "\n");
+        result += absl::StrCat("parent: ",
+            ToStringImpl(parent, indent), "\n");
 
         result += ')';
         return result;
@@ -448,10 +496,14 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"RunQueryResponse("};
 
-        result += absl::StrCat("transaction: ", ToStringImpl(transaction, indent), "\n");
-        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
-        result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
-        result += absl::StrCat("skipped_results: ", ToStringImpl(skipped_results, indent), "\n");
+        result += absl::StrCat("transaction: ",
+            ToStringImpl(transaction, indent), "\n");
+        result += absl::StrCat("document: ",
+            ToStringImpl(document, indent), "\n");
+        result += absl::StrCat("read_time: ",
+            ToStringImpl(read_time, indent), "\n");
+        result += absl::StrCat("skipped_results: ",
+            ToStringImpl(skipped_results, indent), "\n");
 
         result += ')';
         return result;
@@ -471,11 +523,16 @@ typedef struct _google_firestore_v1_TargetChange {
     std::string ToString(int indent = 0) const {
         std::string result{"TargetChange("};
 
-        result += absl::StrCat("target_change_type: ", ToStringImpl(target_change_type, indent), "\n");
-        if (target_ids_count) result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count, indent + 1), "\n");
-        if (has_cause) result += absl::StrCat("cause: ", ToStringImpl(cause, indent), "\n");
-        result += absl::StrCat("resume_token: ", ToStringImpl(resume_token, indent), "\n");
-        result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
+        result += absl::StrCat("target_change_type: ",
+            ToStringImpl(target_change_type, indent), "\n");
+        if (target_ids_count) result += absl::StrCat("target_ids: ",
+            ToStringImpl(target_ids, target_ids_count, indent + 1), "\n");
+        if (has_cause) result += absl::StrCat("cause: ",
+            ToStringImpl(cause, indent), "\n");
+        result += absl::StrCat("resume_token: ",
+            ToStringImpl(resume_token, indent), "\n");
+        result += absl::StrCat("read_time: ",
+            ToStringImpl(read_time, indent), "\n");
 
         result += ')';
         return result;
@@ -491,10 +548,12 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target_QueryTarget("};
+        std::string result{"QueryTarget("};
 
-        result += absl::StrCat("parent: ", ToStringImpl(parent, indent), "\n");
-        /*skipping structured_query*/
+        result += absl::StrCat("query_type: ",
+            ToStringImpl(query_type, indent), "\n");
+        result += absl::StrCat("parent: ",
+            ToStringImpl(parent, indent), "\n");
 
         result += ')';
         return result;
@@ -511,10 +570,14 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"UpdateDocumentRequest("};
 
-        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
-        result += absl::StrCat("update_mask: ", ToStringImpl(update_mask, indent), "\n");
-        result += absl::StrCat("mask: ", ToStringImpl(mask, indent), "\n");
-        result += absl::StrCat("current_document: ", ToStringImpl(current_document, indent), "\n");
+        result += absl::StrCat("document: ",
+            ToStringImpl(document, indent), "\n");
+        result += absl::StrCat("update_mask: ",
+            ToStringImpl(update_mask, indent), "\n");
+        result += absl::StrCat("mask: ",
+            ToStringImpl(mask, indent), "\n");
+        result += absl::StrCat("current_document: ",
+            ToStringImpl(current_document, indent), "\n");
 
         result += ')';
         return result;
@@ -532,10 +595,14 @@ typedef struct _google_firestore_v1_WriteResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"WriteResponse("};
 
-        result += absl::StrCat("stream_id: ", ToStringImpl(stream_id, indent), "\n");
-        result += absl::StrCat("stream_token: ", ToStringImpl(stream_token, indent), "\n");
-        if (write_results_count) result += absl::StrCat("write_results: ", ToStringImpl(write_results, write_results_count, indent + 1), "\n");
-        result += absl::StrCat("commit_time: ", ToStringImpl(commit_time, indent), "\n");
+        result += absl::StrCat("stream_id: ",
+            ToStringImpl(stream_id, indent), "\n");
+        result += absl::StrCat("stream_token: ",
+            ToStringImpl(stream_token, indent), "\n");
+        if (write_results_count) result += absl::StrCat("write_results: ",
+            ToStringImpl(write_results, write_results_count, indent + 1), "\n");
+        result += absl::StrCat("commit_time: ",
+            ToStringImpl(commit_time, indent), "\n");
 
         result += ')';
         return result;
@@ -556,11 +623,8 @@ typedef struct _google_firestore_v1_ListenResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"ListenResponse("};
 
-        /*skipping target_change*/
-        /*skipping document_change*/
-        /*skipping document_delete*/
-        /*skipping document_remove*/
-        /*skipping filter*/
+        result += absl::StrCat("response_type: ",
+            ToStringImpl(response_type, indent), "\n");
 
         result += ')';
         return result;
@@ -585,12 +649,14 @@ typedef struct _google_firestore_v1_Target {
     std::string ToString(int indent = 0) const {
         std::string result{"Target("};
 
-        /*skipping query*/
-        /*skipping documents*/
-        /*skipping resume_token*/
-        /*skipping read_time*/
-        result += absl::StrCat("target_id: ", ToStringImpl(target_id, indent), "\n");
-        result += absl::StrCat("once: ", ToStringImpl(once, indent), "\n");
+        result += absl::StrCat("target_type: ",
+            ToStringImpl(target_type, indent), "\n");
+        result += absl::StrCat("resume_type: ",
+            ToStringImpl(resume_type, indent), "\n");
+        result += absl::StrCat("target_id: ",
+            ToStringImpl(target_id, indent), "\n");
+        result += absl::StrCat("once: ",
+            ToStringImpl(once, indent), "\n");
 
         result += ')';
         return result;
@@ -611,10 +677,12 @@ typedef struct _google_firestore_v1_ListenRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"ListenRequest("};
 
-        result += absl::StrCat("database: ", ToStringImpl(database, indent), "\n");
-        /*skipping add_target*/
-        /*skipping remove_target*/
-        if (labels_count) result += absl::StrCat("labels: ", ToStringImpl(labels, labels_count, indent + 1), "\n");
+        result += absl::StrCat("target_change: ",
+            ToStringImpl(target_change, indent), "\n");
+        result += absl::StrCat("database: ",
+            ToStringImpl(database, indent), "\n");
+        if (labels_count) result += absl::StrCat("labels: ",
+            ToStringImpl(labels, labels_count, indent + 1), "\n");
 
         result += ')';
         return result;

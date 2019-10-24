@@ -48,7 +48,8 @@ typedef struct _google_firestore_v1_ArrayValue {
     std::string ToString(int indent = 0) const {
         std::string result{"ArrayValue("};
 
-        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count, indent + 1), "\n");
+        if (values_count) result += absl::StrCat("values: ",
+            ToStringImpl(values, values_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -63,7 +64,8 @@ typedef struct _google_firestore_v1_MapValue {
     std::string ToString(int indent = 0) const {
         std::string result{"MapValue("};
 
-        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count, indent + 1), "\n");
+        if (fields_count) result += absl::StrCat("fields: ",
+            ToStringImpl(fields, fields_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -82,10 +84,14 @@ typedef struct _google_firestore_v1_Document {
     std::string ToString(int indent = 0) const {
         std::string result{"Document("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
-        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count, indent + 1), "\n");
-        result += absl::StrCat("create_time: ", ToStringImpl(create_time, indent), "\n");
-        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time, indent), "\n");
+        result += absl::StrCat("name: ",
+            ToStringImpl(name, indent), "\n");
+        if (fields_count) result += absl::StrCat("fields: ",
+            ToStringImpl(fields, fields_count, indent + 1), "\n");
+        result += absl::StrCat("create_time: ",
+            ToStringImpl(create_time, indent), "\n");
+        if (has_update_time) result += absl::StrCat("update_time: ",
+            ToStringImpl(update_time, indent), "\n");
 
         result += ')';
         return result;
@@ -112,17 +118,8 @@ typedef struct _google_firestore_v1_Value {
     std::string ToString(int indent = 0) const {
         std::string result{"Value("};
 
-        /*skipping null_value*/
-        /*skipping boolean_value*/
-        /*skipping integer_value*/
-        /*skipping double_value*/
-        /*skipping timestamp_value*/
-        /*skipping string_value*/
-        /*skipping bytes_value*/
-        /*skipping reference_value*/
-        /*skipping geo_point_value*/
-        /*skipping array_value*/
-        /*skipping map_value*/
+        result += absl::StrCat("value_type: ",
+            ToStringImpl(value_type, indent), "\n");
 
         result += ')';
         return result;
@@ -135,10 +132,12 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Document_FieldsEntry("};
+        std::string result{"FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("key: ",
+            ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -151,10 +150,12 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"MapValue_FieldsEntry("};
+        std::string result{"FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("key: ",
+            ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;

@@ -58,7 +58,7 @@ def main():
   options = nanopb_parse_options(request)
   pretty_printing_info = {};
   parsed_files = nanopb_parse_files(request, options, pretty_printing_info)
-  raise Exception(pretty_printing_info)
+  #raise Exception(pretty_printing_info)
   results = nanopb_generate(request, options, parsed_files)
   response = nanopb_write(results, pretty_printing_info)
 
@@ -401,7 +401,8 @@ def add_printing_for_oneof(field, oneof):
 def add_printing_for_repeated(field):
   name = field.name
   count = name + '_count'
-  return 'if (%s) result += absl::StrCat("%s: ", ToStringImpl(%s, %s, indent + 1), "\\n");' % (count, name, name, count)
+  return '''if (%s) result += absl::StrCat("%s: ",
+            ToStringImpl(%s, %s, indent + 1), "\\n");''' % (count, name, name, count)
 
 
 def add_printing_for_optional(field):
@@ -410,7 +411,8 @@ def add_printing_for_optional(field):
 
 def add_printing_for_singular(field):
   name = field.name
-  return 'result += absl::StrCat("%s: ", ToStringImpl(%s, indent), "\\n");' % (name, name)
+  return '''result += absl::StrCat("%s: ",
+            ToStringImpl(%s, indent), "\\n");''' % (name, name)
 
 
 if __name__ == '__main__':

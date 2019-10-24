@@ -40,8 +40,10 @@ typedef struct _google_protobuf_Timestamp {
     std::string ToString(int indent = 0) const {
         std::string result{"Timestamp("};
 
-        result += absl::StrCat("seconds: ", ToStringImpl(seconds, indent), "\n");
-        result += absl::StrCat("nanos: ", ToStringImpl(nanos, indent), "\n");
+        result += absl::StrCat("seconds: ",
+            ToStringImpl(seconds, indent), "\n");
+        result += absl::StrCat("nanos: ",
+            ToStringImpl(nanos, indent), "\n");
 
         result += ')';
         return result;

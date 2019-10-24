@@ -44,7 +44,8 @@ typedef struct _google_firestore_v1_DocumentMask {
     std::string ToString(int indent = 0) const {
         std::string result{"DocumentMask("};
 
-        if (field_paths_count) result += absl::StrCat("field_paths: ", ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
+        if (field_paths_count) result += absl::StrCat("field_paths: ",
+            ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -56,9 +57,10 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TransactionOptions_ReadWrite("};
+        std::string result{"ReadWrite("};
 
-        result += absl::StrCat("retry_transaction: ", ToStringImpl(retry_transaction, indent), "\n");
+        result += absl::StrCat("retry_transaction: ",
+            ToStringImpl(retry_transaction, indent), "\n");
 
         result += ')';
         return result;
@@ -76,8 +78,8 @@ typedef struct _google_firestore_v1_Precondition {
     std::string ToString(int indent = 0) const {
         std::string result{"Precondition("};
 
-        /*skipping exists*/
-        /*skipping update_time*/
+        result += absl::StrCat("condition_type: ",
+            ToStringImpl(condition_type, indent), "\n");
 
         result += ')';
         return result;
@@ -92,9 +94,10 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TransactionOptions_ReadOnly("};
+        std::string result{"ReadOnly("};
 
-        /*skipping read_time*/
+        result += absl::StrCat("consistency_selector: ",
+            ToStringImpl(consistency_selector, indent), "\n");
 
         result += ')';
         return result;
@@ -112,8 +115,8 @@ typedef struct _google_firestore_v1_TransactionOptions {
     std::string ToString(int indent = 0) const {
         std::string result{"TransactionOptions("};
 
-        /*skipping read_only*/
-        /*skipping read_write*/
+        result += absl::StrCat("mode: ",
+            ToStringImpl(mode, indent), "\n");
 
         result += ')';
         return result;

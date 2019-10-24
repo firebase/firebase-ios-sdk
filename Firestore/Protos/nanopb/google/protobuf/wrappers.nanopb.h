@@ -39,7 +39,8 @@ typedef struct _google_protobuf_BytesValue {
     std::string ToString(int indent = 0) const {
         std::string result{"BytesValue("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -53,7 +54,8 @@ typedef struct _google_protobuf_StringValue {
     std::string ToString(int indent = 0) const {
         std::string result{"StringValue("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -67,7 +69,8 @@ typedef struct _google_protobuf_BoolValue {
     std::string ToString(int indent = 0) const {
         std::string result{"BoolValue("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -81,7 +84,8 @@ typedef struct _google_protobuf_DoubleValue {
     std::string ToString(int indent = 0) const {
         std::string result{"DoubleValue("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -95,7 +99,8 @@ typedef struct _google_protobuf_FloatValue {
     std::string ToString(int indent = 0) const {
         std::string result{"FloatValue("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -109,7 +114,8 @@ typedef struct _google_protobuf_Int32Value {
     std::string ToString(int indent = 0) const {
         std::string result{"Int32Value("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -123,7 +129,8 @@ typedef struct _google_protobuf_Int64Value {
     std::string ToString(int indent = 0) const {
         std::string result{"Int64Value("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -137,7 +144,8 @@ typedef struct _google_protobuf_UInt32Value {
     std::string ToString(int indent = 0) const {
         std::string result{"UInt32Value("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -151,7 +159,8 @@ typedef struct _google_protobuf_UInt64Value {
     std::string ToString(int indent = 0) const {
         std::string result{"UInt64Value("};
 
-        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
+        result += absl::StrCat("value: ",
+            ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;

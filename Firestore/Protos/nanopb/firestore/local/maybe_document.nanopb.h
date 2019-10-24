@@ -44,8 +44,10 @@ typedef struct _firestore_client_NoDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"NoDocument("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
+        result += absl::StrCat("name: ",
+            ToStringImpl(name, indent), "\n");
+        result += absl::StrCat("read_time: ",
+            ToStringImpl(read_time, indent), "\n");
 
         result += ')';
         return result;
@@ -60,8 +62,10 @@ typedef struct _firestore_client_UnknownDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"UnknownDocument("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
-        result += absl::StrCat("version: ", ToStringImpl(version, indent), "\n");
+        result += absl::StrCat("name: ",
+            ToStringImpl(name, indent), "\n");
+        result += absl::StrCat("version: ",
+            ToStringImpl(version, indent), "\n");
 
         result += ')';
         return result;
@@ -81,10 +85,10 @@ typedef struct _firestore_client_MaybeDocument {
     std::string ToString(int indent = 0) const {
         std::string result{"MaybeDocument("};
 
-        /*skipping no_document*/
-        /*skipping document*/
-        /*skipping unknown_document*/
-        result += absl::StrCat("has_committed_mutations: ", ToStringImpl(has_committed_mutations, indent), "\n");
+        result += absl::StrCat("document_type: ",
+            ToStringImpl(document_type, indent), "\n");
+        result += absl::StrCat("has_committed_mutations: ",
+            ToStringImpl(has_committed_mutations, indent), "\n");
 
         result += ')';
         return result;
