@@ -48,8 +48,8 @@ cc_select(
 # into the binary by converting it to a char array.
 add_custom_command(
   OUTPUT
-    grpc_root_certificates_generated.h  # GENERATED
-    grpc_root_certificates_generated.cc # GENERATED
+    grpc_root_certificates_generated.h  # NOLINT(generated)
+    grpc_root_certificates_generated.cc # NOLINT(generated)
   COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
       --output_header=grpc_root_certificates_generated.h
       --output_source=grpc_root_certificates_generated.cc
@@ -61,8 +61,7 @@ add_custom_command(
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
-# Note: grpc_root_certificate_finder_apple.mm is not currently built
-
+# TODO(wilhuff): Build grpc_root_certificate_finder_apple.mm NOLINT(not built)
 
 cc_library(
   firebase_firestore_remote

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2018 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Checks that source files are mentioned in CMakeLists.txt."""
+"""Checks that source files are mentioned in CMakeLists.txt.
+
+Also checks that files mentioned in CMakeLists.txt exist on the filesystem.
+
+Note that this check needs to be able to run before anything has been built, so
+generated files must be excluded from the check. Add a "# NOLINT(generated)"
+comment to any line mentioning such a file to ensure they don't falsely trigger
+errors. This only needs to be done once within a file.
+"""
 
 import argparse
 import collections
@@ -23,12 +31,24 @@ import re
 import subprocess
 import sys
 
+from pprint import pprint as pp
 
-DEFAULT_DIRS = [
+
+# Directories relative to the repo root that will be scanned by default if no
+# arguments are passed
+_DEFAULT_DIRS = [
     'Firestore/core',
     'Firestore/Source'
 ]
 
+# When scanning the filesystem look for specific files or files with these
+# extensions.
+_INCLUDE_FILES = {'CMakeLists.txt'}
+_INCLUDE_EXTENSIONS = {'.cc', '.h', '.mm'}
+
+# When scanning the filesystem, exclude any files or directories with these
+# names.
+_EXCLUDE_DIRS = {'third_party', 'Pods', 'Protos'}
 
 _verbose = False
 
@@ -36,17 +56,18 @@ _verbose = False
 def main(args):
   global _verbose
 
-  parser = argparse.ArgumentParser(description='Lint source files.')
+  parser = argparse.ArgumentParser(
+      description='Check CMakeLists.txt file membership.')
   parser.add_argument('--verbose', '-v', action='store_true',
                       help='Run verbosely')
-  parser.add_argument('filenames', nargs='*', metavar='filename',
-                      help='Filenames to scan')
+  parser.add_argument('filenames', nargs='*', metavar='file_or_dir',
+                      help='Files and directories to scan')
   args = parser.parse_args(args)
   if args.verbose:
     _verbose = True
 
   scan_filenames = args.filenames
-  if len(scan_filenames) == 0:
+  if not scan_filenames:
     scan_filenames = default_args()
 
   filenames = find_source_files(scan_filenames)
@@ -62,7 +83,7 @@ def default_args():
   command = ['git', 'rev-parse', '--show-toplevel']
   toplevel = subprocess.check_output(command).rstrip()
 
-  return [os.path.join(toplevel, dirname) for dirname in DEFAULT_DIRS]
+  return [os.path.join(toplevel, dirname) for dirname in _DEFAULT_DIRS]
 
 
 def find_source_files(roots):
@@ -77,24 +98,23 @@ def find_source_files(roots):
 
   """
   result = []
-  exclude_dirs = {'third_party', 'Pods', 'Protos'}
-  include_files = {'CMakeLists.txt'}
 
   for root in roots:
     for parent, dirs, files in os.walk(root, topdown=True):
       # Prune directories known to be uninteresting
-      dirs[:] = [d for d in dirs if d not in exclude_dirs]
+      dirs[:] = [d for d in dirs if d not in _EXCLUDE_DIRS]
 
       for filename in files:
-        if filename in include_files or is_source_file(filename):
+        if filename in _INCLUDE_FILES or is_source_file(filename):
           result.append(os.path.join(parent, filename))
 
   return result
 
 
 _filename_pattern = re.compile(r'\b([A-Za-z0-9_/+]+\.)+(?:c|cc|h|m|mm)\b')
+_comment_pattern = re.compile(r'^(\s*)#')
 _check_pattern = re.compile(r'^\s*check_[A-Za-z0-9_]+\(.*\)$')
-_ignore_pattern = re.compile(r'GENERATED')
+_nolint_pattern = re.compile(r'NOLINT')
 
 
 def read_listed_source_files(filename):
@@ -105,9 +125,9 @@ def read_listed_source_files(filename):
     filename: A filename to read, typically some path to a CMakeLists.txt file.
 
   Returns:
-    A pair of lists. The first list is the list of filenames mentioned in the
-    file. The second is a list of files that have been marked GENERATED in the
-    file.
+    A pair of lists. The first list contains filenames mentioned in the file.
+    The second contains files that have been ignored (by marking them NOLINT)
+    in the file.
   """
   found = []
   ignored = []
@@ -119,7 +139,14 @@ def read_listed_source_files(filename):
       if _check_pattern.match(line):
         continue
 
-      ignore = bool(_ignore_pattern.search(line))
+      ignore = bool(_nolint_pattern.search(line))
+
+      if not ignore:
+        # Exclude comments, but only on regular lines. This allows files to
+        # include files in comments that mark them NOLINT.
+        m = _comment_pattern.match(line)
+        if m:
+          line = m.group(1)
 
       for m in _filename_pattern.finditer(line):
         listed_filename = os.path.join(parent, m.group(0))
@@ -248,12 +275,9 @@ def find_errors(group):
   return len(just_fs) + len(just_list)
 
 
-_include_extensions = {'.cc', '.h', '.mm'}
-
-
 def is_source_file(filename):
   ext = os.path.splitext(filename)[1]
-  return ext in _include_extensions
+  return ext in _INCLUDE_EXTENSIONS
 
 
 def possible_cmake_lists_files(filename):
