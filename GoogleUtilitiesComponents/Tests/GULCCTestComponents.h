@@ -14,65 +14,63 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilitiesComponentContainer/GULComponent.h>
-#import <GoogleUtilitiesComponentContainer/GULComponentContainer.h>
-#import <GoogleUtilitiesComponentContainer/GULLibrary.h>
-
-@protocol GULComponentRegistrant;
+#import <GoogleUtilitiesComponents/GULCCComponent.h>
+#import <GoogleUtilitiesComponents/GULCCComponentContainer.h>
+#import <GoogleUtilitiesComponents/GULCCLibrary.h>
 
 #pragma mark - Standard Component
 
 /// A test protocol to be used for container testing.
-@protocol GULTestProtocol
+@protocol GULCCTestProtocol
 - (void)doSomething;
 @end
 
 /// A test class that is a component registrant.
-@interface GULTestClass : NSObject <GULTestProtocol, GULComponentLifecycleMaintainer, GULLibrary>
+@interface GULCCTestClass : NSObject <GULCCTestProtocol, GULCCComponentLifecycleMaintainer, GULCCLibrary>
 @end
 
-/// A test class that is a component registrant, a duplicate of GULTestClass.
-@interface GULTestClassDuplicate
-    : NSObject <GULTestProtocol, GULComponentLifecycleMaintainer, GULLibrary>
+/// A test class that is a component registrant, a duplicate of GULCCTestClass.
+@interface GULCCTestClassDuplicate
+    : NSObject <GULCCTestProtocol, GULCCComponentLifecycleMaintainer, GULCCLibrary>
 @end
 
 #pragma mark - Eager Component
 
 /// A test protocol to be used for container testing.
-@protocol GULTestProtocolEagerCached
+@protocol GULCCTestProtocolEagerCached
 - (void)doSomethingFaster;
 @end
 
 /// A test class that is a component registrant that provides a component requiring eager
 /// instantiation, and is cached for easier validation that it was instantiated.
-@interface GULTestClassEagerCached
-    : NSObject <GULTestProtocolEagerCached, GULComponentLifecycleMaintainer, GULLibrary>
+@interface GULCCTestClassEagerCached
+    : NSObject <GULCCTestProtocolEagerCached, GULCCComponentLifecycleMaintainer, GULCCLibrary>
 @end
 
 #pragma mark - Cached Component
 
 /// A test protocol to be used for container testing.
-@protocol GULTestProtocolCached
+@protocol GULCCTestProtocolCached
 - (void)cacheCow;
 @end
 
 /// A test class that is a component registrant that provides a component that requests to be
 /// cached.
-@interface GULTestClassCached
-    : NSObject <GULTestProtocolCached, GULComponentLifecycleMaintainer, GULLibrary>
+@interface GULCCTestClassCached
+    : NSObject <GULCCTestProtocolCached, GULCCComponentLifecycleMaintainer, GULCCLibrary>
 @end
 
 #pragma mark - Dependency on Standard
 
 /// A test protocol to be used for container testing.
-@protocol GULTestProtocolCachedWithDep
-@property(nonatomic, strong) id<GULTestProtocolCached> testProperty;
+@protocol GULCCTestProtocolCachedWithDep
+@property(nonatomic, strong) id<GULCCTestProtocolCached> testProperty;
 @end
 
 /// A test class that is a component registrant that provides a component with a dependency on
-// `GULTestProtocolCached`.
-@interface GULTestClassCachedWithDep
-    : NSObject <GULTestProtocolCachedWithDep, GULComponentLifecycleMaintainer, GULLibrary>
-@property(nonatomic, strong) id<GULTestProtocolCached> testProperty;
-- (instancetype)initWithTest:(id<GULTestProtocolCached>)testInstance;
+// `GULCCTestProtocolCached`.
+@interface GULCCTestClassCachedWithDep
+    : NSObject <GULCCTestProtocolCachedWithDep, GULCCComponentLifecycleMaintainer, GULCCLibrary>
+@property(nonatomic, strong) id<GULCCTestProtocolCached> testProperty;
+- (instancetype)initWithTest:(id<GULCCTestProtocolCached>)testInstance;
 @end

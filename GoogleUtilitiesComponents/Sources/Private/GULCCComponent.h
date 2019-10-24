@@ -16,45 +16,45 @@
 
 #import <Foundation/Foundation.h>
 
-@class GULComponentContainer;
+@class GULCCComponentContainer;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// Provides a system to clean up cached instances returned from the component system.
 NS_SWIFT_NAME(ComponentLifecycleMaintainer)
-@protocol GULComponentLifecycleMaintainer
+@protocol GULCCComponentLifecycleMaintainer
 /// Clean up any resources as they are about to be deallocated.
-- (void)containerWillBeEmptied:(GULComponentContainer *)container;
+- (void)containerWillBeEmptied:(GULCCComponentContainer *)container;
 @end
 
-typedef _Nullable id (^GULComponentCreationBlock)(GULComponentContainer *container,
+typedef _Nullable id (^GULCCComponentCreationBlock)(GULCCComponentContainer *container,
                                                   BOOL *isCacheable)
     NS_SWIFT_NAME(ComponentCreationBlock);
 
-@class GULDependency;
+@class GULCCDependency;
 
 /// Describes the timing of instantiation. Note: new components should default to lazy unless there
 /// is a strong reason to be eager.
-typedef NS_ENUM(NSInteger, GULInstantiationTiming) {
-  GULInstantiationTimingLazy,
-  GULInstantiationTimingAlwaysEager
+typedef NS_ENUM(NSInteger, GULCCInstantiationTiming) {
+  GULCCInstantiationTimingLazy,
+  GULCCInstantiationTimingAlwaysEager
 } NS_SWIFT_NAME(InstantiationTiming);
 
 /// A component that can be used from other components.
 NS_SWIFT_NAME(Component)
-@interface GULComponent : NSObject
+@interface GULCCComponent : NSObject
 
 /// The protocol describing functionality provided from the Component.
 @property(nonatomic, strong, readonly) Protocol *protocol;
 
 /// The timing of instantiation.
-@property(nonatomic, readonly) GULInstantiationTiming instantiationTiming;
+@property(nonatomic, readonly) GULCCInstantiationTiming instantiationTiming;
 
 /// An array of dependencies for the component.
-@property(nonatomic, copy, readonly) NSArray<GULDependency *> *dependencies;
+@property(nonatomic, copy, readonly) NSArray<GULCCDependency *> *dependencies;
 
 /// A block to instantiate an instance of the component with the appropriate dependencies.
-@property(nonatomic, copy, readonly) GULComponentCreationBlock creationBlock;
+@property(nonatomic, copy, readonly) GULCCComponentCreationBlock creationBlock;
 
 // There's an issue with long NS_SWIFT_NAMES that causes compilation to fail, disable clang-format
 // for the next two methods.
@@ -62,7 +62,7 @@ NS_SWIFT_NAME(Component)
 
 /// Creates a component with no dependencies that will be lazily initialized.
 + (instancetype)componentWithProtocol:(Protocol *)protocol
-                        creationBlock:(GULComponentCreationBlock)creationBlock
+                        creationBlock:(GULCCComponentCreationBlock)creationBlock
 NS_SWIFT_NAME(init(_:creationBlock:));
 
 /// Creates a component to be registered with the component container.
@@ -71,12 +71,13 @@ NS_SWIFT_NAME(init(_:creationBlock:));
 /// @param instantiationTiming - When the component should be initialized. Use .lazy unless there's
 ///                              a good reason to be instantiated earlier.
 /// @param dependencies - Any dependencies the `implementingClass` has, optional or required.
-/// @param creationBlock - A block to instantiate the component with a container, and if
+/// @param creationBlock - A block to instantiate the component with a container and a flag to cache
+///                        the instance created or not.
 /// @return A component that can be registered with the component container.
 + (instancetype)componentWithProtocol:(Protocol *)protocol
-                  instantiationTiming:(GULInstantiationTiming)instantiationTiming
-                         dependencies:(NSArray<GULDependency *> *)dependencies
-                        creationBlock:(GULComponentCreationBlock)creationBlock
+                  instantiationTiming:(GULCCInstantiationTiming)instantiationTiming
+                         dependencies:(NSArray<GULCCDependency *> *)dependencies
+                        creationBlock:(GULCCComponentCreationBlock)creationBlock
 NS_SWIFT_NAME(init(_:instantiationTiming:dependencies:creationBlock:));
 
 // clang-format on

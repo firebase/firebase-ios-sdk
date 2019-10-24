@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// A dependency on a specific protocol's functionality.
 NS_SWIFT_NAME(Dependency)
-@interface GULDependency : NSObject
+@interface GULCCDependency : NSObject
 
 /// The protocol describing functionality being depended on.
 @property(nonatomic, strong, readonly) Protocol *protocol;

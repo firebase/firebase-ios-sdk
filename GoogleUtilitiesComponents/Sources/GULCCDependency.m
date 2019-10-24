@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "Private/GULDependency.h"
+#import "Private/GULCCDependency.h"
 
-@interface GULDependency ()
+@interface GULCCDependency ()
 
 - (instancetype)initWithProtocol:(Protocol *)protocol isRequired:(BOOL)required;
 
 @end
 
-@implementation GULDependency
+@implementation GULCCDependency
 
 + (instancetype)dependencyWithProtocol:(Protocol *)protocol {
   return [[self alloc] initWithProtocol:protocol isRequired:YES];

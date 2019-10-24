@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTestCase.h>
 
-#import <GoogleUtilitiesComponentContainer/GULComponentContainerInternal.h>
-#import <GoogleUtilitiesComponentContainer/GULComponentType.h>
+#import <GoogleUtilitiesComponents/GULCCComponentContainerInternal.h>
+#import <GoogleUtilitiesComponents/GULCCComponentType.h>
 #import <OCMock/OCMock.h>
 
-#import "GULTestComponents.h"
+#import "GULCCTestComponents.h"
 
 @interface GULComponentTypeTest : XCTestCase
 
@@ -29,7 +29,7 @@
 
 - (void)setUp {
   [super setUp];
-  _componentContainerMock = OCMClassMock([GULComponentContainer class]);
+  _componentContainerMock = OCMClassMock([GULCCComponentContainer class]);
 }
 
 - (void)tearDown {
@@ -38,23 +38,23 @@
 }
 
 - (void)testForwardsCallToContainer {
-  Protocol *testProtocol = @protocol(GULTestProtocol);
+  Protocol *testProtocol = @protocol(GULCCTestProtocol);
   OCMExpect([self.componentContainerMock instanceForProtocol:testProtocol]);
 
   // Grab an instance from the container, through ComponentType.
-  __unused id<GULTestProtocol> instance =
-      [GULComponentType<id<GULTestProtocol>> instanceForProtocol:@protocol(GULTestProtocol)
+  __unused id<GULCCTestProtocol> instance =
+      [GULCCComponentType<id<GULCCTestProtocol>> instanceForProtocol:@protocol(GULCCTestProtocol)
                                                      inContainer:self.componentContainerMock];
   OCMVerifyAll(self.componentContainerMock);
 }
 
 - (void)testMacroForwardsCallToContainer {
-  Protocol *testProtocol = @protocol(GULTestProtocol);
+  Protocol *testProtocol = @protocol(GULCCTestProtocol);
   OCMExpect([self.componentContainerMock instanceForProtocol:testProtocol]);
 
-  // Grab an instance from the container, through the macro that uses GULComponentType.
-  __unused id<GULTestProtocol> instance =
-      GUL_COMPONENT(GULTestProtocol, self.componentContainerMock);
+  // Grab an instance from the container, through the macro that uses GULCCComponentType.
+  __unused id<GULCCTestProtocol> instance =
+      GUL_COMPONENT(GULCCTestProtocol, self.componentContainerMock);
 
   OCMVerifyAll(self.componentContainerMock);
 }

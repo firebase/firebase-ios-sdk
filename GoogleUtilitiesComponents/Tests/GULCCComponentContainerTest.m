@@ -14,32 +14,32 @@
 
 #import <XCTest/XCTestCase.h>
 
-#import <GoogleUtilitiesComponentContainer/GULComponent.h>
-#import <GoogleUtilitiesComponentContainer/GULComponentContainerInternal.h>
+#import <GoogleUtilitiesComponents/GULCCComponent.h>
+#import <GoogleUtilitiesComponents/GULCCComponentContainerInternal.h>
 #import <OCMock/OCMock.h>
 
-#import "GULTestComponents.h"
+#import "GULCCTestComponents.h"
 
 /// Internally exposed methods and properties for testing.
-@interface GULComponentContainer (TestInternal)
+@interface GULCCComponentContainer (TestInternal)
 
-@property(nonatomic, strong) NSMutableDictionary<NSString *, GULComponentCreationBlock> *components;
+@property(nonatomic, strong) NSMutableDictionary<NSString *, GULCCComponentCreationBlock> *components;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;
 
-+ (void)registerAsComponentRegistrant:(Class<GULLibrary>)klass
++ (void)registerAsComponentRegistrant:(Class<GULCCLibrary>)klass
                                 inSet:(NSMutableSet<Class> *)allRegistrants;
 
 @end
 
-@interface GULComponentContainer (TestInternalImplementations)
+@interface GULCCComponentContainer (TestInternalImplementations)
 - (instancetype)initWithContext:(id)context
-                     components:(NSDictionary<NSString *, GULComponentCreationBlock> *)components;
+                     components:(NSDictionary<NSString *, GULCCComponentCreationBlock> *)components;
 @end
 
-@implementation GULComponentContainer (TestInternalImplementations)
+@implementation GULCCComponentContainer (TestInternalImplementations)
 
 - (instancetype)initWithContext:(id)context
-                     components:(NSDictionary<NSString *, GULComponentCreationBlock> *)components {
+                     components:(NSDictionary<NSString *, GULCCComponentCreationBlock> *)components {
   self = [self initWithContext:context registrants:[[NSMutableSet alloc] init]];
   if (self) {
     self.components = [components mutableCopy];
@@ -49,14 +49,14 @@
 
 @end
 
-@interface GULComponentContainerTest : XCTestCase {
+@interface GULCCComponentContainerTest : XCTestCase {
   /// Stored context, since the container has a `weak` reference to it.
   id _context;
 }
 
 @end
 
-@implementation GULComponentContainerTest
+@implementation GULCCComponentContainerTest
 
 - (void)tearDown {
   _context = nil;
@@ -67,57 +67,57 @@
 
 - (void)testRegisteringConformingClass {
   NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
-  Class testClass = [GULTestClass class];
-  [GULComponentContainer registerAsComponentRegistrant:testClass inSet:allRegistrants];
+  Class testClass = [GULCCTestClass class];
+  [GULCCComponentContainer registerAsComponentRegistrant:testClass inSet:allRegistrants];
   XCTAssertTrue([allRegistrants containsObject:testClass]);
 }
 
 - (void)testComponentsPopulatedOnInit {
-  GULComponentContainer *container = [self containerWithRegistrants:@ [[GULTestClass class]]];
+  GULCCComponentContainer *container = [self containerWithRegistrants:@ [[GULCCTestClass class]]];
 
   // Verify that the block is stored.
-  NSString *protocolName = NSStringFromProtocol(@protocol(GULTestProtocol));
-  GULComponentCreationBlock creationBlock = container.components[protocolName];
+  NSString *protocolName = NSStringFromProtocol(@protocol(GULCCTestProtocol));
+  GULCCComponentCreationBlock creationBlock = container.components[protocolName];
   OCMExpect(creationBlock);
 }
 
 #pragma mark - Caching Tests
 
 - (void)testInstanceCached {
-  GULComponentContainer *container = [self containerWithRegistrants:@ [[GULTestClassCached class]]];
+  GULCCComponentContainer *container = [self containerWithRegistrants:@ [[GULCCTestClassCached class]]];
 
-  // Fetch an instance for `GULTestProtocolCached`, then fetch it again to assert it's cached.
-  id<GULTestProtocolCached> instance1 = GUL_COMPONENT(GULTestProtocolCached, container);
+  // Fetch an instance for `GULCCTestProtocolCached`, then fetch it again to assert it's cached.
+  id<GULCCTestProtocolCached> instance1 = GUL_COMPONENT(GULCCTestProtocolCached, container);
   XCTAssertNotNil(instance1);
-  id<GULTestProtocolCached> instance2 = GUL_COMPONENT(GULTestProtocolCached, container);
+  id<GULCCTestProtocolCached> instance2 = GUL_COMPONENT(GULCCTestProtocolCached, container);
   XCTAssertNotNil(instance2);
   XCTAssertEqual(instance1, instance2);
 }
 
 - (void)testInstanceNotCached {
-  GULComponentContainer *container = [self containerWithRegistrants:@ [[GULTestClass class]]];
+  GULCCComponentContainer *container = [self containerWithRegistrants:@ [[GULCCTestClass class]]];
 
   // Retrieve an instance from the container, then fetch it again and ensure it's not the same
   // instance.
-  id<GULTestProtocol> instance1 = GUL_COMPONENT(GULTestProtocol, container);
+  id<GULCCTestProtocol> instance1 = GUL_COMPONENT(GULCCTestProtocol, container);
   XCTAssertNotNil(instance1);
-  id<GULTestProtocol> instance2 = GUL_COMPONENT(GULTestProtocol, container);
+  id<GULCCTestProtocol> instance2 = GUL_COMPONENT(GULCCTestProtocol, container);
   XCTAssertNotNil(instance2);
   XCTAssertNotEqual(instance1, instance2);
 }
 
 - (void)testRemoveAllCachedInstances {
-  GULComponentContainer *container =
-      [self containerWithRegistrants:@ [[GULTestClass class], [GULTestClassCached class],
-                                        [GULTestClassEagerCached class],
-                                        [GULTestClassCachedWithDep class]]];
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClass class], [GULCCTestClassCached class],
+                                        [GULCCTestClassEagerCached class],
+                                        [GULCCTestClassCachedWithDep class]]];
 
-  // Retrieve an instance of GULTestClassCached to ensure it's cached.
-  id<GULTestProtocolCached> cachedInstance1 = GUL_COMPONENT(GULTestProtocolCached, container);
-  id<GULTestProtocolEagerCached> eagerInstance1 =
-      GUL_COMPONENT(GULTestProtocolEagerCached, container);
+  // Retrieve an instance of GULCCTestClassCached to ensure it's cached.
+  id<GULCCTestProtocolCached> cachedInstance1 = GUL_COMPONENT(GULCCTestProtocolCached, container);
+  id<GULCCTestProtocolEagerCached> eagerInstance1 =
+      GUL_COMPONENT(GULCCTestProtocolEagerCached, container);
 
-  // GULTestClassEagerCached and GULTestClassCached instances should be cached at this point.
+  // GULCCTestClassEagerCached and GULCCTestClassCached instances should be cached at this point.
   XCTAssertTrue(container.cachedInstances.count == 2);
 
   // Remove the instances and verify cachedInstances is empty, and that new instances returned from
@@ -125,22 +125,22 @@
   [container removeAllCachedInstances];
   XCTAssertTrue(container.cachedInstances.count == 0);
 
-  id<GULTestProtocolCached> cachedInstance2 = GUL_COMPONENT(GULTestProtocolCached, container);
+  id<GULCCTestProtocolCached> cachedInstance2 = GUL_COMPONENT(GULCCTestProtocolCached, container);
   XCTAssertNotEqual(cachedInstance1, cachedInstance2);
-  id<GULTestProtocolEagerCached> eagerInstance2 =
-      GUL_COMPONENT(GULTestProtocolEagerCached, container);
+  id<GULCCTestProtocolEagerCached> eagerInstance2 =
+      GUL_COMPONENT(GULCCTestProtocolEagerCached, container);
   XCTAssertNotEqual(eagerInstance1, eagerInstance2);
 }
 
 #pragma mark - Instantiation Tests
 
 - (void)testEagerInstantiation {
-  // Create a container with `GULTestClassEagerCached` as a registrant, which provides the
-  // implementation for `GULTestProtocolEagerCached` and requires eager instantiation as well as
+  // Create a container with `GULCCTestClassEagerCached` as a registrant, which provides the
+  // implementation for `GULCCTestProtocolEagerCached` and requires eager instantiation as well as
   // caching so the test can verify it was eagerly instantiated.
-  GULComponentContainer *container =
-      [self containerWithRegistrants:@ [[GULTestClassEagerCached class]]];
-  NSString *protocolName = NSStringFromProtocol(@protocol(GULTestProtocolEagerCached));
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClassEagerCached class]]];
+  NSString *protocolName = NSStringFromProtocol(@protocol(GULCCTestProtocolEagerCached));
   XCTAssertNotNil(container.cachedInstances[protocolName]);
 }
 
@@ -152,8 +152,8 @@
   // guarantee which one will be registered first since it's an NSSet under the hood, but that could
   // change in the future.
   // TODO(wilsonryan): Assert that the log gets called warning that it's already been registered.
-  GULComponentContainer *container =
-      [self containerWithRegistrants:@ [[GULTestClass class], [GULTestClassDuplicate class]]];
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClass class], [GULCCTestClassDuplicate class]]];
   XCTAssert(container.components.count == 1);
 }
 
@@ -161,23 +161,23 @@
 
 - (void)testDependencyDoesntBlock {
   /// Test a class that has a dependency, and fetching doesn't block the internal queue.
-  GULComponentContainer *container = [self
-      containerWithRegistrants:@ [[GULTestClassCached class], [GULTestClassCachedWithDep class]]];
+  GULCCComponentContainer *container = [self
+      containerWithRegistrants:@ [[GULCCTestClassCached class], [GULCCTestClassCachedWithDep class]]];
   XCTAssert(container.components.count == 2);
 
-  id<GULTestProtocolCachedWithDep> instanceWithDep =
-      GUL_COMPONENT(GULTestProtocolCachedWithDep, container);
+  id<GULCCTestProtocolCachedWithDep> instanceWithDep =
+      GUL_COMPONENT(GULCCTestProtocolCachedWithDep, container);
   XCTAssertNotNil(instanceWithDep);
 }
 
 - (void)testDependencyRemoveAllCachedInstancesDoesntBlock {
   /// Test a class that has a dependency, and fetching doesn't block the internal queue.
-  GULComponentContainer *container = [self
-      containerWithRegistrants:@ [[GULTestClassCached class], [GULTestClassCachedWithDep class]]];
+  GULCCComponentContainer *container = [self
+      containerWithRegistrants:@ [[GULCCTestClassCached class], [GULCCTestClassCachedWithDep class]]];
   XCTAssert(container.components.count == 2);
 
-  id<GULTestProtocolCachedWithDep> instanceWithDep =
-      GUL_COMPONENT(GULTestProtocolCachedWithDep, container);
+  id<GULCCTestProtocolCachedWithDep> instanceWithDep =
+      GUL_COMPONENT(GULCCTestProtocolCachedWithDep, container);
   XCTAssertNotNil(instanceWithDep);
   XCTAssertNotNil(instanceWithDep.testProperty);
 
@@ -192,15 +192,15 @@
 #pragma mark - Convenience Methods
 
 /// Create a container that has registered the test class.
-- (GULComponentContainer *)containerWithRegistrants:(NSArray<Class> *)registrants {
+- (GULCCComponentContainer *)containerWithRegistrants:(NSArray<Class> *)registrants {
   NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
 
   // Initialize the container with the test classes.
   for (Class c in registrants) {
-    [GULComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
+    [GULCCComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
   }
 
-  GULComponentContainer *container = [[GULComponentContainer alloc] initWithContext:nil
+  GULCCComponentContainer *container = [[GULCCComponentContainer alloc] initWithContext:nil
                                                                         registrants:allRegistrants];
 
   // Instantiate all the components that were eagerly registered now that all other properties are

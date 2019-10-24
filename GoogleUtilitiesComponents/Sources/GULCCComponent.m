@@ -14,44 +14,44 @@
  * limitations under the License.
  */
 
-#import "Private/GULComponent.h"
+#import "Private/GULCCComponent.h"
 
-#import "Private/GULComponentContainer.h"
-#import "Private/GULDependency.h"
+#import "Private/GULCCComponentContainer.h"
+#import "Private/GULCCDependency.h"
 
-@interface GULComponent ()
+@interface GULCCComponent ()
 
 - (instancetype)initWithProtocol:(Protocol *)protocol
-             instantiationTiming:(GULInstantiationTiming)instantiationTiming
-                    dependencies:(NSArray<GULDependency *> *)dependencies
-                   creationBlock:(GULComponentCreationBlock)creationBlock;
+             instantiationTiming:(GULCCInstantiationTiming)instantiationTiming
+                    dependencies:(NSArray<GULCCDependency *> *)dependencies
+                   creationBlock:(GULCCComponentCreationBlock)creationBlock;
 
 @end
 
-@implementation GULComponent
+@implementation GULCCComponent
 
 + (instancetype)componentWithProtocol:(Protocol *)protocol
-                        creationBlock:(GULComponentCreationBlock)creationBlock {
-  return [[GULComponent alloc] initWithProtocol:protocol
-                            instantiationTiming:GULInstantiationTimingLazy
+                        creationBlock:(GULCCComponentCreationBlock)creationBlock {
+  return [[GULCCComponent alloc] initWithProtocol:protocol
+                            instantiationTiming:GULCCInstantiationTimingLazy
                                    dependencies:@[]
                                   creationBlock:creationBlock];
 }
 
 + (instancetype)componentWithProtocol:(Protocol *)protocol
-                  instantiationTiming:(GULInstantiationTiming)instantiationTiming
-                         dependencies:(NSArray<GULDependency *> *)dependencies
-                        creationBlock:(GULComponentCreationBlock)creationBlock {
-  return [[GULComponent alloc] initWithProtocol:protocol
+                  instantiationTiming:(GULCCInstantiationTiming)instantiationTiming
+                         dependencies:(NSArray<GULCCDependency *> *)dependencies
+                        creationBlock:(GULCCComponentCreationBlock)creationBlock {
+  return [[GULCCComponent alloc] initWithProtocol:protocol
                             instantiationTiming:instantiationTiming
                                    dependencies:dependencies
                                   creationBlock:creationBlock];
 }
 
 - (instancetype)initWithProtocol:(Protocol *)protocol
-             instantiationTiming:(GULInstantiationTiming)instantiationTiming
-                    dependencies:(NSArray<GULDependency *> *)dependencies
-                   creationBlock:(GULComponentCreationBlock)creationBlock {
+             instantiationTiming:(GULCCInstantiationTiming)instantiationTiming
+                    dependencies:(NSArray<GULCCDependency *> *)dependencies
+                   creationBlock:(GULCCComponentCreationBlock)creationBlock {
   self = [super init];
   if (self) {
     _protocol = protocol;

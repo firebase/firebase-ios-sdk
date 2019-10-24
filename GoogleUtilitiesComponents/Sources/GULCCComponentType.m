@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef GULLibrary_h
-#define GULLibrary_h
+#import "Private/GULCCComponentType.h"
 
-#import <Foundation/Foundation.h>
-#import "GULComponent.h"
+#import "Private/GULCCComponentContainerInternal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation GULCCComponentType
 
-/// Provide an interface to register a library for userAgent logging and availability to others.
-NS_SWIFT_NAME(Library)
-@protocol GULLibrary
-
-/// Returns one or more GULComponents that will be registered in the container and participate in
-/// dependency resolution and injection.
-+ (NSArray<GULComponent *> *)componentsToRegister;
++ (id)instanceForProtocol:(Protocol *)protocol inContainer:(GULCCComponentContainer *)container {
+  // Forward the call to the container.
+  return [container instanceForProtocol:protocol];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
-
-#endif /* GULLibrary_h */

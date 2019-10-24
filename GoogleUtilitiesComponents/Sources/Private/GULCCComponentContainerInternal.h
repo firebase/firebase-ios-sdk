@@ -15,12 +15,12 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "GULComponent.h"
-#import "GULComponentContainer.h"
+#import "GULCCComponent.h"
+#import "GULCCComponentContainer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULComponentContainer (Private)
+@interface GULCCComponentContainer (Private)
 
 /// Initializes a contain with a context.
 - (instancetype)initWithContext:(nullable id)context;
@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAllCachedInstances;
 
 /// Register a class to provide components for the interoperability system. The class should conform
-/// to `GULComponentRegistrant` and provide an array of `GULComponent` objects.
-+ (void)registerAsComponentRegistrant:(Class<GULLibrary>)klass;
+/// to `GULCCComponentRegistrant` and provide an array of `GULCCComponent` objects.
++ (void)registerAsComponentRegistrant:(Class<GULCCLibrary>)klass;
 
 @end
 

@@ -15,21 +15,21 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "GULComponentType.h"
-#import "GULLibrary.h"
+#import "GULCCComponentType.h"
+#import "GULCCLibrary.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// A type-safe macro to retrieve a component from a container. This should be used to retrieve
 /// components instead of using the container directly.
 #define GUL_COMPONENT(type, container) \
-  [GULComponentType<id<type>> instanceForProtocol:@protocol(type) inContainer:container]
+  [GULCCComponentType<id<type>> instanceForProtocol:@protocol(type) inContainer:container]
 
 /// A container that holds different components that are registered via the
-/// `registerAsComponentRegistrant:` call. These classes should conform to `GULComponentRegistrant`
+/// `registerAsComponentRegistrant:` call. These classes should conform to `GULCCComponentRegistrant`
 /// in order to properly register components for the container.
 NS_SWIFT_NAME(GoogleComponentContainer)
-@interface GULComponentContainer : NSObject
+@interface GULCCComponentContainer : NSObject
 
 /// A weak reference to an object that may provide context for the container.
 @property(nonatomic, nullable, weak, readonly) id context;

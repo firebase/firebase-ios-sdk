@@ -16,18 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-@class GULComponentContainer;
+@class GULCCComponentContainer;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// Do not use directly. A placeholder type in order to provide a macro that will warn users of
 /// mis-matched protocols.
 NS_SWIFT_NAME(ComponentType)
-@interface GULComponentType<__covariant T> : NSObject
+@interface GULCCComponentType<__covariant T> : NSObject
 
 /// Do not use directly. A factory method to retrieve an instance that provides a specific
 /// functionality.
-+ (T)instanceForProtocol:(Protocol *)protocol inContainer:(GULComponentContainer *)container;
++ (T)instanceForProtocol:(Protocol *)protocol inContainer:(GULCCComponentContainer *)container;
 
 @end
 
