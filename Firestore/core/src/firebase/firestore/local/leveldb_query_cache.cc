@@ -37,6 +37,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using leveldb::Status;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ListenSequenceNumber;
@@ -46,7 +47,6 @@ using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
 using util::MakeString;
-using leveldb::Status;
 
 absl::optional<Message<firestore_client_TargetGlobal>>
 LevelDbQueryCache::TryReadMetadata(leveldb::DB* db) {
@@ -74,8 +74,9 @@ Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
     leveldb::DB* db) {
   auto maybe_metadata = TryReadMetadata(db);
   if (!maybe_metadata) {
-    HARD_FAIL("Found no metadata, expected schema to be at version 0 which "
-              "ensures metadata existence");
+    HARD_FAIL(
+        "Found no metadata, expected schema to be at version 0 which "
+        "ensures metadata existence");
   }
   return std::move(maybe_metadata).value();
 }
@@ -168,10 +169,11 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
     if (!target_iterator->Valid() || target_iterator->key() != target_key) {
-      HARD_FAIL("Dangling query-target reference found: "
-                "%s points to %s; seeking there found %s",
-                DescribeKey(index_iterator), DescribeKey(target_key),
-                DescribeKey(target_iterator));
+      HARD_FAIL(
+          "Dangling query-target reference found: "
+          "%s points to %s; seeking there found %s",
+          DescribeKey(index_iterator), DescribeKey(target_key),
+          DescribeKey(target_iterator));
     }
 
     // Finally after finding a potential match, check that the query is actually
@@ -230,7 +232,7 @@ void LevelDbQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
     db_->current_transaction()->Put(
         LevelDbDocumentTargetKey::Key(key, target_id), empty_buffer);
     db_->reference_delegate()->AddReference(key);
-  };
+  }
 }
 
 void LevelDbQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,

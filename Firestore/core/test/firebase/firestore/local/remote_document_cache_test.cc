@@ -47,8 +47,8 @@ using model::MaybeDocumentMap;
 using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 
-using testing::Matches;
 using testing::IsSupersetOf;
+using testing::Matches;
 using testing::UnorderedElementsAreArray;
 using testutil::DeletedDoc;
 using testutil::Doc;
