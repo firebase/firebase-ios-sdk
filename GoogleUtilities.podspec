@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
-Internal Google Utilities including Network, Reachability Environment, Logger, Storage and Swizzling for
+Internal Google Utilities including Network, Reachability Environment, Logger, FileDataStorage and Swizzling for
 other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
