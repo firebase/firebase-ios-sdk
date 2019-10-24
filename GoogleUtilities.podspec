@@ -37,11 +37,10 @@ other Google CocoaPods. They're not intended for direct public usage.
     ls.dependency 'GoogleUtilities/Environment'
   end
 
-  s.subspec 'Storage' do |ls|
-    ls.source_files = 'GoogleUtilities/Storage/**/*.[mh]'
-    ls.public_header_files = 'GoogleUtilities/Storage/*.h'
-    ls.private_header_files = 'GoogleUtilities/Storage/*.h'
-    ls.dependency 'GoogleUtilities/Environment'
+  s.subspec 'FileDataStorage' do |ls|
+    ls.source_files = 'GoogleUtilities/FileDataStorage/**/*.[mh]'
+    ls.public_header_files = 'GoogleUtilities/FileDataStorage/*.h'
+    ls.private_header_files = 'GoogleUtilities/FileDataStorage/*.h'
   end
 
   s.subspec 'Network' do |ns|
