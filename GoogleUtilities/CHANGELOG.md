@@ -1,6 +1,3 @@
-# 6.4.0
-- ComponentContainer introduced. (#4113)
-
 # 6.3.1
 - Fix GULMutableDictionary keyed subscript methods. (#3882)
 - Update Networking to receive data for POST requests. (#3940)

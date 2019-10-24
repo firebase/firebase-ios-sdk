@@ -4,8 +4,8 @@ Pod::Spec.new do |s|
   s.summary          = 'Google Utilities Component Container for Apple platforms.'
 
   s.description      = <<-DESC
-An internal Google utility that is a dependency injection system for SDKs to depend on other SDKs in
-a type safe and potentially weak manner.
+An internal Google utility that is a dependency injection system for libraries to depend on other
+libraries in a type safe and potentially weak manner.
 Not intended for direct public usage.
                        DESC
 

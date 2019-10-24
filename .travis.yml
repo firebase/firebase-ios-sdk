@@ -432,7 +432,6 @@ jobs:
       env:
         - PROJECT=GoogleUtilitiesComponentsCron METHOD=pod-lib-lint
       script:
-
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec --use-modular-headers
 
