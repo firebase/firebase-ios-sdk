@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO(wilhuff): Figure out if there's any use for FSTGoogleTestTests.mm in a
-# CMake-based build.
+# TODO(wilhuff): Resolve FSTGoogleTestTests.mm NOLINT(not built)
+#
+# FSTGoogleTestTests.mm is a bridge for running GoogleTest-based tests within
+# Xcode, but that's not necessary in CMake which directly supports running
+# GoogleTest-based tests.
 
 cc_test(
   firebase_firestore_types_test
