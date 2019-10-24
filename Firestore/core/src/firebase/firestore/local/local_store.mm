@@ -470,7 +470,8 @@ void LocalStore::ReleaseQuery(const Query& query) {
 
 DocumentMap LocalStore::ExecuteQuery(const Query& query) {
   return persistence_->Run("ExecuteQuery", [&] {
-    return local_documents_->GetDocumentsMatchingQuery(query);
+    return local_documents_->GetDocumentsMatchingQuery(query,
+                                                       SnapshotVersion::None());
   });
 }
 

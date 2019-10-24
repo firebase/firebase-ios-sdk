@@ -63,8 +63,8 @@ FieldValue::Map kDocData;
 /**
  * Extracts all the actual MaybeDocument instances from the given document map
  */
-std::vector<MaybeDocument> ExtractDocuments(
-    const OptionalMaybeDocumentMap& docs) {
+template <typename MapType>
+std::vector<MaybeDocument> ExtractDocuments(const MapType& docs) {
   std::vector<MaybeDocument> result;
   for (const auto& kv : docs) {
     const absl::optional<MaybeDocument>& doc = kv.second;
@@ -147,7 +147,7 @@ TEST_P(RemoteDocumentCacheTest, SetAndReadADocumentAtDeepPath) {
 TEST_P(RemoteDocumentCacheTest, SetAndReadDeletedDocument) {
   persistence_->Run("test_set_and_read_deleted_document", [&] {
     absl::optional<MaybeDocument> deleted_doc = DeletedDoc(kDocPath, kVersion);
-    cache_->Add(*deleted_doc);
+    cache_->Add(*deleted_doc, deleted_doc->version());
 
     ASSERT_EQ(cache_->Get(testutil::Key(kDocPath)), deleted_doc);
   });
@@ -158,7 +158,7 @@ TEST_P(RemoteDocumentCacheTest, SetDocumentToNewValue) {
     SetTestDocument(kDocPath);
     absl::optional<MaybeDocument> new_doc =
         Doc(kDocPath, kVersion, Map("data", 2));
-    cache_->Add(*new_doc);
+    cache_->Add(*new_doc, new_doc->version());
     ASSERT_EQ(cache_->Get(testutil::Key(kDocPath)), new_doc);
   });
 }
@@ -206,7 +206,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
 Document RemoteDocumentCacheTest::SetTestDocument(
     const absl::string_view path) {
   Document doc = Doc(path, kVersion, kDocData);
-  cache_->Add(doc);
+  cache_->Add(doc, doc.version());
   return doc;
 }
 
