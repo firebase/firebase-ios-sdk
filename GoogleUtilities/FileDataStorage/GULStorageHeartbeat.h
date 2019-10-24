@@ -30,9 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithFileURL:(NSURL *)fileURL;
 
-- (nullable NSMutableDictionary *) getDictionary;
+- (nullable NSMutableDictionary *)getDictionary;
 
-- (BOOL) writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError;
+- (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError;
 
 /**
  * Saves the date to the specified file.

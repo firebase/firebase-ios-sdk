@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <XCTest/XCTest.h>
 
 @interface GULStorageHeartbeatTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;
@@ -26,7 +26,7 @@
 
 - (void)setUp {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-                                                                 NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
   self.fileURL = [documentsURL URLByAppendingPathComponent:@"GULStorageHeartbeatTest"
@@ -50,7 +50,7 @@
   self.storage = nil;
 }
 
-- (void) testDictionaryStorage {
+- (void)testDictionaryStorage {
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
   dict[@"fire-iid"] = @"123455";
   dict[@"global"] = @"123";
@@ -82,8 +82,7 @@
   NSError *error;
   XCTAssert([self.storage setDate:date error:&error], @"Error: %@", error);
 
-  GULStorageHeartbeat *anotherStorage =
-  [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
+  GULStorageHeartbeat *anotherStorage = [[GULStorageHeartbeat alloc] initWithFileURL:self.fileURL];
 
   XCTAssertEqualObjects([anotherStorage date], date);
 }

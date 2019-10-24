@@ -365,7 +365,6 @@ static NSMutableDictionary *sLibraryVersions;
 #pragma clang diagnostic pop
 }
 
-
 - (BOOL)isDataCollectionDefaultEnabled {
   // Check if it's been manually set before in code, and use that as the higher priority value.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];

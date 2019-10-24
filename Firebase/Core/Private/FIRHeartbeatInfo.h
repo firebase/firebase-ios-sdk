@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSURL *)filePathURLWithName:(NSString *)fileName;
 
-+ (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag;
++ (NSInteger)getHeartbeatCode:(NSString *)heartbeatTag;
 
 @end
 

@@ -35,38 +35,35 @@
   return self;
 }
 
-- (nullable NSMutableDictionary *) getDictionary {
+- (nullable NSMutableDictionary *)getDictionary {
   NSString *jsonString = [NSString stringWithContentsOfURL:self.fileURL
-                                                       encoding:NSUTF8StringEncoding
-                                                          error:nil];
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:nil];
   NSError *jsonError;
   if (jsonString == nil) {
     return [NSMutableDictionary dictionary];
   }
   NSData *objectData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
   NSMutableDictionary *json = [NSJSONSerialization JSONObjectWithData:objectData
-                                                       options:NSJSONReadingMutableContainers
-                                                         error:&jsonError];
-  if(!json) {
+                                                              options:NSJSONReadingMutableContainers
+                                                                error:&jsonError];
+  if (!json) {
     NSLog(@"Got an error: %@", jsonError);
   }
   return json;
-
 }
 
-- (BOOL) writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
+- (BOOL)writeDictionary:(NSMutableDictionary *)dictionary error:(NSError **)outError {
   NSError *error;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
-                                                     options:0
-                                                       error:&error];
-  if (! jsonData) {
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+  if (!jsonData) {
     NSLog(@"Got an error: %@", error);
   } else {
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return [jsonString writeToURL:self.fileURL
-                         atomically:YES
-                           encoding:NSUTF8StringEncoding
-                              error:outError];
+                       atomically:YES
+                         encoding:NSUTF8StringEncoding
+                            error:outError];
   }
   return false;
 }

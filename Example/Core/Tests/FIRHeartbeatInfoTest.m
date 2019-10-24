@@ -5,15 +5,15 @@
 //  Created by Vinay Guthal on 10/23/19.
 //
 
-#import <XCTest/XCTest.h>
 #import <FirebaseCore/FIRHeartbeatInfo.h>
 #import <GoogleUtilities/GULStorageHeartbeat.h>
+#import <XCTest/XCTest.h>
 
 @interface FIRHeartbeatInfoTest : XCTestCase
 
-@property(nonatomic, strong) GULStorageHeartbeat* dataStorage;
+@property(nonatomic, strong) GULStorageHeartbeat *dataStorage;
 
-@property(nonatomic, strong) NSMutableDictionary* dictionary;
+@property(nonatomic, strong) NSMutableDictionary *dictionary;
 
 @end
 
@@ -22,18 +22,18 @@
 - (void)setUp {
   NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
   self.dataStorage = [[GULStorageHeartbeat alloc]
-                                      initWithFileURL:[FIRHeartbeatInfo filePathURLWithName:kHeartbeatStorageFile]];
+      initWithFileURL:[FIRHeartbeatInfo filePathURLWithName:kHeartbeatStorageFile]];
   self.dictionary = [NSMutableDictionary dictionary];
   NSError *error;
   [self.dataStorage writeDictionary:self.dictionary error:&error];
 }
 
-- (void) testCombinedHeartbeat {
+- (void)testCombinedHeartbeat {
   NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
   XCTAssertEqual(heartbeatCode, 3);
 }
 
-- (void) testSdkOnlyHeartbeat {
+- (void)testSdkOnlyHeartbeat {
   NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
   NSError *error;
   self.dictionary[@"GLOBAL"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
@@ -42,7 +42,7 @@
   XCTAssertEqual(heartbeatCode, 1);
 }
 
-- (void) testGlobalOnlyHeartbeat {
+- (void)testGlobalOnlyHeartbeat {
   NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
   NSError *error;
   self.dictionary[@"fire-iid"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
@@ -51,7 +51,7 @@
   XCTAssertEqual(heartbeatCode, 2);
 }
 
-- (void) testNoHeartbeat {
+- (void)testNoHeartbeat {
   NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
   NSError *error;
   self.dictionary[@"fire-iid"] = [NSString stringWithFormat:@"%ld", timeInSeconds];
@@ -60,6 +60,5 @@
   NSInteger heartbeatCode = [FIRHeartbeatInfo getHeartbeatCode:@"fire-iid"];
   XCTAssertEqual(heartbeatCode, 0);
 }
-
 
 @end

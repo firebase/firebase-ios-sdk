@@ -138,7 +138,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
  */
 + (NSString *)firebaseUserAgent;
 
-
 /**
  * Used by each SDK to send logs about SDK configuration status to Clearcut.
  *
