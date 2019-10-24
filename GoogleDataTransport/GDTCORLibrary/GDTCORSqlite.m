@@ -36,15 +36,15 @@ static BOOL BindCheck(SQLITE_API int (^bindBlock)(void)) {
 
 #pragma mark - Public functions
 
-BOOL GDTCORSQLOpenDB(sqlite3 **db, NSURL *fileURL) {
-  if (fileURL == nil || fileURL.path.length == 0) {
+BOOL GDTCORSQLOpenDB(sqlite3 **db, NSString *path) {
+  if (path == nil || path.length == 0) {
     GDTCORLogError(GDTCORMCEDatabaseError, @"%@", @"A filename for the sqlite db must not be nil");
     return NO;
   }
 
   int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
               SQLITE_OPEN_FULLMUTEX;
-  return sqlite3_open_v2([fileURL path].UTF8String, db, flags, NULL) == SQLITE_OK;
+  return sqlite3_open_v2(path.UTF8String, db, flags, NULL) == SQLITE_OK;
 }
 
 BOOL GDTCORSQLCloseDB(sqlite3 *db) {
@@ -57,7 +57,7 @@ BOOL GDTCORSQLCompileSQL(sqlite3_stmt **stmt, sqlite3 *db, NSString *statement) 
     return NO;
   }
 
-  if (sqlite3_prepare(db, statement.UTF8String, -1, stmt, NULL) != SQLITE_OK) {
+  if (sqlite3_prepare_v2(db, statement.UTF8String, -1, stmt, NULL) != SQLITE_OK) {
     const char *errMsg = sqlite3_errmsg(db);
     if (errMsg) {
       GDTCORLogError(GDTCORMCEDatabaseError, @"Failed to compile statement: %s\nError: %s",
@@ -103,7 +103,7 @@ BOOL GDTCORSQLRunQuery(sqlite3 *db, sqlite3_stmt *stmt, GDTCORSqliteRowResultBlo
   }
 
   while (sqlite3_step(stmt) == SQLITE_ROW) {
-    eachRow();
+    eachRow(stmt);
   }
   return YES;
 }
@@ -115,8 +115,7 @@ BOOL GDTCORSQLBindObjectToParam(sqlite3_stmt *stmt, int column, id object) {
     });
   } else if ([object isKindOfClass:[NSString class]]) {
     return BindCheck(^int {
-      return sqlite3_bind_text(stmt, column, [[object description] UTF8String], -1,
-                               SQLITE_TRANSIENT);
+      return sqlite3_bind_text(stmt, column, ((NSString *)object).UTF8String, -1, SQLITE_TRANSIENT);
     });
   } else if ([object isKindOfClass:[NSData class]]) {
     const void *bytes = [object bytes];

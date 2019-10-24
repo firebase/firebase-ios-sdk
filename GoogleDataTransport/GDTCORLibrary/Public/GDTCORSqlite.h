@@ -20,15 +20,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Convenience typedef to define a block ran on each row of a query result. */
-typedef void (^GDTCORSqliteRowResultBlock)(void);
+typedef void (^GDTCORSqliteRowResultBlock)(sqlite3_stmt *stmt);
 
 /** Instantiates a sqlite3 object given the filename.
  *
  * @param db The db reference to instantiate.
- * @param fileURL The file URL to make a db at.
+ * @param path The path to make a db at. Sqlite special paths like :memory: can be used.
  * @return YES if the db was successfully opened, NO otherwise.
  */
-BOOL GDTCORSQLOpenDB(sqlite3 *_Nullable *_Nullable db, NSURL *fileURL);
+BOOL GDTCORSQLOpenDB(sqlite3 *_Nullable *_Nullable db, NSString *path);
 
 /** Closes the given db.
  *
