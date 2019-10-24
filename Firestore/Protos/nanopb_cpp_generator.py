@@ -56,12 +56,11 @@ def main():
 
   # Generate code
   options = nanopb_parse_options(request)
-  pretty_printers = prepare_pretty_printing_support(request)
-  optionals = prepare_optionals(request, options)
-  oneofs = prepare_oneofs(request, options)
-  parsed_files = nanopb_parse_files(request, options)
+  pretty_printing_info = {};
+  parsed_files = nanopb_parse_files(request, options, pretty_printing_info)
+  raise Exception(pretty_printing_info)
   results = nanopb_generate(request, options, parsed_files)
-  response = nanopb_write(results, pretty_printers, optionals)
+  response = nanopb_write(results, pretty_printing_info)
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
@@ -220,7 +219,7 @@ def nanopb_parse_options(request):
   return options
 
 
-def nanopb_parse_files(request, options):
+def nanopb_parse_files(request, options, pretty_printing_info):
   """Parses the files in the given request into nanopb ProtoFile objects.
 
   Args:
@@ -231,52 +230,53 @@ def nanopb_parse_files(request, options):
     A dictionary of filename to nanopb.ProtoFile objects, each one representing
     the parsed form of a FileDescriptor in the request.
   """
-  # Process any include files first, in order to have them
-  # available as dependencies
+  # Process any include files first, in order to have them available as
+  # dependencies
   parsed_files = {}
   for fdesc in request.proto_file:
-    parsed_files[fdesc.name] = nanopb.parse_file(fdesc.name, fdesc, options)
-    # if fdesc.name != 'google/firestore/v1/firestore.proto':
-    #   continue
-    # for m in parsed_files[fdesc.name].messages:
-    #   for f in m.fields:
-    #     if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
-    #       raise Exception(f.name)
+    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
+    parsed_files[fdesc.name] = parsed_file
+
+    base_filename = fdesc.name.replace('.proto', '')
+    pretty_printing_info[base_filename] = []
+    for m in parsed_file.messages:
+      pretty_printing_info[base_filename].append(MessagePrettyPrintingInfo(m))
 
   return parsed_files
 
 
-def prepare_optionals(request, options):
-  optionals = {}
-  for fdesc in request.proto_file:
-    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
-    for m in parsed_file.messages:
-      for f in m.fields:
-        if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
-          if str(m.name) not in optionals:
-            optionals[str(m.name)] = {}
-          optionals[str(m.name)][str(f.name)] = True
-
-  # raise Exception(optionals)
-  return optionals
+class OneOfPrettyPrintingInfo:
+  def __init__(self, field, message):
+    raise Exception('Not a oneof')
 
 
-def prepare_oneofs(request, options):
-  optionals = {}
-  for fdesc in request.proto_file:
-    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
-    for m in parsed_file.messages:
-      for f in m.fields:
-        if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
-          if str(m.name) not in optionals:
-            optionals[str(m.name)] = {}
-          optionals[str(m.name)][str(f.name)] = True
+class FieldPrettyPrintingInfo:
+  def __init__(self, field, message):
+    self.name = field.name
 
-  # raise Exception(optionals)
-  return optionals
+    self.is_optional = field.rules == 'OPTIONAL' and field.allocation == 'STATIC'
+    self.is_repeated = field.rules == 'REPEATED'
+
+    try:
+      self.oneof = OneOfPrettyPrintingInfo(field, message)
+    except:
+      self.oneof = None
+
+  def __repr__(self):
+    return 'FieldPrettyPrintingInfo{name: %s, is_optional: %s, is_repeated: %s, oneof: %s}' % (self.name, self.is_optional, self.is_repeated, self.oneof)
 
 
-# def nanopb_generate(request, options, parsed_files, pretty_printers):
+class MessagePrettyPrintingInfo:
+  def __init__(self, message):
+    self.short_classname = message.name.parts[-1]
+    self.full_classname = str(message.name)
+    self.fields = [FieldPrettyPrintingInfo(f, message) for f in message.fields]
+
+
+  def __repr__(self):
+    return 'MessagePrettyPrintingInfo{short_classname: %s, full_classname: %s, fields: %s}' % (self.short_classname, self.full_classname, self.fields)
+
+
 def nanopb_generate(request, options, parsed_files):
   """Generates C sources from the given parsed files.
 
@@ -309,8 +309,7 @@ def nanopb_generate(request, options, parsed_files):
   return output
 
 
-# def nanopb_write(results):
-def nanopb_write(results, pretty_printers, optionals):
+def nanopb_write(results, pretty_printing_info):
   """Translates nanopb output dictionaries to a CodeGeneratorResponse.
 
   Args:
@@ -345,20 +344,19 @@ namespace firestore {'''
 }  // namespace firebase'''
 
     base_filename = f.name.replace('.nanopb.h', '')
-    # if base_filename.endswith('firestore'):
-    #   raise Exception(result)
 
-    for full_classname, class_fields in pretty_printers[base_filename].items():
-      short_classname = class_fields['short_classname']
-
+    for p in pretty_printing_info[base_filename]:
       f = response.file.add()
       f.name = result['headername']
-      f.insertion_point = 'struct:' + full_classname
+      f.insertion_point = 'struct:' + p.full_classname
+
       f.content = '''
     std::string ToString(int indent = 0) const {
-        std::string result{"%s("};\n\n''' % (short_classname)
-      for field in class_fields['fields']:
-        f.content += ' ' * 8 + add_printing_for_field(field, class_fields['fields'], optionals, full_classname) + '\n'
+        std::string result{"%s("};\n\n''' % (p.short_classname)
+
+      for field in p.fields:
+        f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
+
       f.content += '''
         result += ')';
         return result;
@@ -385,14 +383,13 @@ namespace firestore {'''
   return response
 
 
-def add_printing_for_field(field, parent, optionals, classname):
-  if field.HasField('oneof_index'):
-    oneof_descr = parent.oneof_decl[field.oneof_index]
-    return add_printing_for_oneof(field, oneof_descr)
-  elif field.label == FieldDescriptorProto.LABEL_REPEATED:
-    return add_printing_for_repeated(field)
-  elif classname in optionals and field.name in optionals[classname]:
+def add_printing_for_field(field):
+  if field.is_optional:
     return add_printing_for_optional(field)
+  elif field.is_repeated:
+    return add_printing_for_repeated(field)
+  elif field.oneof:
+    return add_printing_for_oneof(field)
   else:
     return add_printing_for_singular(field)
 
@@ -403,12 +400,12 @@ def add_printing_for_oneof(field, oneof):
 
 def add_printing_for_repeated(field):
   name = field.name
-  return 'if (%s_count) result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count, indent + 1), "\\n");' % (name, name, name, name)
+  count = name + '_count'
+  return 'if (%s) result += absl::StrCat("%s: ", ToStringImpl(%s, %s, indent + 1), "\\n");' % (count, name, name, count)
 
 
 def add_printing_for_optional(field):
-  name = field.name
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(field)
+  return 'if (has_%s) ' % (field.name) + add_printing_for_singular(field)
 
 
 def add_printing_for_singular(field):
