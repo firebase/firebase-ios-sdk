@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+#import "google/protobuf/descriptor.proto";
+
 # In proto3 mode, Nanopb doesn't allow distinguishing between unset fields and
 # fields having default values, even for non-primitive types. Using the
 # workaround suggested in
@@ -21,3 +23,14 @@
 # cause is not set if everything is OK, serializer needs to be able to tell
 # that is the case.
 google.firestore.v1.TargetChange.cause proto3:false
+google.firestore.v1.TargetChange.cause max_count:100
+
+#google.firestore.v1.TargetChange.cause obc:true
+
+# extend google.firestore.v1.TargetChange {
+#   repeated string hasers = 500;
+# }
+
+# message google.firestore.v1.TargetChange {
+#   option (hasers) = "cause";
+# }

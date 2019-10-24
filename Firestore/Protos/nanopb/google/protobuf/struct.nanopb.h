@@ -48,7 +48,7 @@ typedef struct _google_protobuf_ListValue {
     std::string ToString() const {
         std::string result{"ListValue("};
 
-        result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
+        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
 
         result += ')';
         return result;
@@ -63,7 +63,7 @@ typedef struct _google_protobuf_Struct {
     std::string ToString() const {
         std::string result{"Struct("};
 
-        result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
+        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
 
         result += ')';
         return result;
@@ -105,8 +105,8 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     std::string ToString() const {
         std::string result{"Struct_FieldsEntry("};
 
-        result += absl::StrCat("False/", "key: ", ToStringImpl(key), "\n");
-        result += absl::StrCat("False/", "value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
 
         result += ')';
         return result;

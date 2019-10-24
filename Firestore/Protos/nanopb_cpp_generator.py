@@ -53,14 +53,14 @@ def main():
   use_anonymous_oneof(request)
   use_bytes_for_strings(request)
   use_malloc(request)
-  pretty_printers = prepare_pretty_printing_support(request)
 
   # Generate code
   options = nanopb_parse_options(request)
+  pretty_printers = prepare_pretty_printing_support(request)
+  optionals = prepare_optionals(request, options)
   parsed_files = nanopb_parse_files(request, options)
-  # results = nanopb_generate(request, options, parsed_files, pretty_printers)
   results = nanopb_generate(request, options, parsed_files)
-  response = nanopb_write(results, pretty_printers)
+  response = nanopb_write(results, pretty_printers, optionals)
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
@@ -104,12 +104,30 @@ def prepare_pretty_printing_support(request):
     short_filename = fdesc.name.replace('.proto', '')
     fields_by_class_and_file[short_filename] = {}
 
+    # all_extensions = []
+    # ctr = 0
+    # for classname, extension in nanopb.iterate_extensions(fdesc):
+    #   all_extensions.append(extension)
+    #   ctr += 1
+    #   if ctr == 1:
+    #     raise Exception(extension)
+
+    #raise Exception(all_extensions)
+
     for classname, message_type in nanopb.iterate_messages(fdesc):
+      # if str(classname) == 'ListDocumentsRequest':
+      #   raise Exception(message_type)
+      # if str(classname) == 'TargetChange':
+      #   raise Exception(message_type)
       full_classname = fdesc.package.replace('.', '_') + '_' + str(classname)
       fields_by_class_and_file[short_filename][full_classname] = {}
       fields_by_class_and_file[short_filename][full_classname]['short_classname'] = classname
       fields_by_class_and_file[short_filename][full_classname]['fields'] = []
       for field in message_type.field:
+        # if field.name == 'cause':
+          #nanopb_opt = nanopb.get_nanopb_suboptions(fdesc, message_type, field.name)
+          # raise Exception(nanopb_opt)
+
         # if field.name == 'cause':
         #   raise Exception(field.options)
         fields_by_class_and_file[short_filename][full_classname]['fields'].append(field)
@@ -217,8 +235,29 @@ def nanopb_parse_files(request, options):
   parsed_files = {}
   for fdesc in request.proto_file:
     parsed_files[fdesc.name] = nanopb.parse_file(fdesc.name, fdesc, options)
+    # if fdesc.name != 'google/firestore/v1/firestore.proto':
+    #   continue
+    # for m in parsed_files[fdesc.name].messages:
+    #   for f in m.fields:
+    #     if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
+    #       raise Exception(f.name)
 
   return parsed_files
+
+
+def prepare_optionals(request, options):
+  optionals = {}
+  for fdesc in request.proto_file:
+    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
+    for m in parsed_file.messages:
+      for f in m.fields:
+        if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
+          if str(m.name) not in optionals:
+            optionals[str(m.name)] = {}
+          optionals[str(m.name)][str(f.name)] = True
+
+  # raise Exception(optionals)
+  return optionals
 
 
 # def nanopb_generate(request, options, parsed_files, pretty_printers):
@@ -255,7 +294,7 @@ def nanopb_generate(request, options, parsed_files):
 
 
 # def nanopb_write(results):
-def nanopb_write(results, pretty_printers):
+def nanopb_write(results, pretty_printers, optionals):
   """Translates nanopb output dictionaries to a CodeGeneratorResponse.
 
   Args:
@@ -294,14 +333,16 @@ namespace firestore {'''
     #   raise Exception(result)
 
     for full_classname, class_fields in pretty_printers[base_filename].items():
+      short_classname = class_fields['short_classname']
+
       f = response.file.add()
       f.name = result['headername']
       f.insertion_point = 'struct:' + full_classname
       f.content = '''
     std::string ToString() const {
-        std::string result{"%s("};\n\n''' % (class_fields['short_classname'])
+        std::string result{"%s("};\n\n''' % (short_classname)
       for field in class_fields['fields']:
-        f.content += ' ' * 8 + add_printing_for_field(field, class_fields['fields']) + '\n'
+        f.content += ' ' * 8 + add_printing_for_field(field, class_fields['fields'], optionals, full_classname) + '\n'
       f.content += '''
         result += ')';
         return result;
@@ -328,11 +369,13 @@ namespace firestore {'''
   return response
 
 
-def add_printing_for_field(field, parent):
+def add_printing_for_field(field, parent, optionals, classname):
   if field.HasField('oneof_index'):
     return add_printing_for_oneof(field)
   elif field.label == FieldDescriptorProto.LABEL_REPEATED:
     return add_printing_for_repeated(field)
+  elif classname in optionals and field.name in optionals[classname]:
+    return add_printing_for_optional(field)
   else:
     return add_printing_for_singular(field, parent)
 
@@ -343,14 +386,17 @@ def add_printing_for_oneof(field):
 
 def add_printing_for_repeated(field):
   name = field.name
-  return 'result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count), "\\n");' % (name, name, name)
+  return 'if (%s_count) result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count), "\\n");' % (name, name, name, name)
+
+
+def add_printing_for_optional(field):
+  name = field.name
+  return '''if (has_%s) result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");''' % (name, name, name)
 
 
 def add_printing_for_singular(field, parent):
   name = field.name
-  # return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
-  has = False
-  return 'result += absl::StrCat("%s/", "%s: ", ToStringImpl(%s), "\\n");' % (has, name, name)
+  return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
 
 
 if __name__ == '__main__':

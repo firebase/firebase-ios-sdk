@@ -44,9 +44,9 @@ typedef struct _google_rpc_Status {
     std::string ToString() const {
         std::string result{"Status("};
 
-        result += absl::StrCat("False/", "code: ", ToStringImpl(code), "\n");
-        result += absl::StrCat("False/", "message: ", ToStringImpl(message), "\n");
-        result += absl::StrCat("details: ", ToStringImpl(details, details_count), "\n");
+        result += absl::StrCat("code: ", ToStringImpl(code), "\n");
+        result += absl::StrCat("message: ", ToStringImpl(message), "\n");
+        if (details_count) result += absl::StrCat("details: ", ToStringImpl(details, details_count), "\n");
 
         result += ')';
         return result;

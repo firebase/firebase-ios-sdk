@@ -51,10 +51,10 @@ typedef struct _firestore_client_Target {
     std::string ToString() const {
         std::string result{"Target("};
 
-        result += absl::StrCat("False/", "target_id: ", ToStringImpl(target_id), "\n");
-        result += absl::StrCat("False/", "snapshot_version: ", ToStringImpl(snapshot_version), "\n");
-        result += absl::StrCat("False/", "resume_token: ", ToStringImpl(resume_token), "\n");
-        result += absl::StrCat("False/", "last_listen_sequence_number: ", ToStringImpl(last_listen_sequence_number), "\n");
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
+        result += absl::StrCat("snapshot_version: ", ToStringImpl(snapshot_version), "\n");
+        result += absl::StrCat("resume_token: ", ToStringImpl(resume_token), "\n");
+        result += absl::StrCat("last_listen_sequence_number: ", ToStringImpl(last_listen_sequence_number), "\n");
         /*skipping query*/
         /*skipping documents*/
 
@@ -73,10 +73,10 @@ typedef struct _firestore_client_TargetGlobal {
     std::string ToString() const {
         std::string result{"TargetGlobal("};
 
-        result += absl::StrCat("False/", "highest_target_id: ", ToStringImpl(highest_target_id), "\n");
-        result += absl::StrCat("False/", "highest_listen_sequence_number: ", ToStringImpl(highest_listen_sequence_number), "\n");
-        result += absl::StrCat("False/", "last_remote_snapshot_version: ", ToStringImpl(last_remote_snapshot_version), "\n");
-        result += absl::StrCat("False/", "target_count: ", ToStringImpl(target_count), "\n");
+        result += absl::StrCat("highest_target_id: ", ToStringImpl(highest_target_id), "\n");
+        result += absl::StrCat("highest_listen_sequence_number: ", ToStringImpl(highest_listen_sequence_number), "\n");
+        result += absl::StrCat("last_remote_snapshot_version: ", ToStringImpl(last_remote_snapshot_version), "\n");
+        result += absl::StrCat("target_count: ", ToStringImpl(target_count), "\n");
 
         result += ')';
         return result;

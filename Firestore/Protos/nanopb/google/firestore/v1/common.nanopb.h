@@ -44,7 +44,7 @@ typedef struct _google_firestore_v1_DocumentMask {
     std::string ToString() const {
         std::string result{"DocumentMask("};
 
-        result += absl::StrCat("field_paths: ", ToStringImpl(field_paths, field_paths_count), "\n");
+        if (field_paths_count) result += absl::StrCat("field_paths: ", ToStringImpl(field_paths, field_paths_count), "\n");
 
         result += ')';
         return result;
@@ -58,7 +58,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     std::string ToString() const {
         std::string result{"TransactionOptions_ReadWrite("};
 
-        result += absl::StrCat("False/", "retry_transaction: ", ToStringImpl(retry_transaction), "\n");
+        result += absl::StrCat("retry_transaction: ", ToStringImpl(retry_transaction), "\n");
 
         result += ')';
         return result;

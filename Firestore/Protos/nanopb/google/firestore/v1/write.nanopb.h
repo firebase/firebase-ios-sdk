@@ -58,8 +58,8 @@ typedef struct _google_firestore_v1_DocumentTransform {
     std::string ToString() const {
         std::string result{"DocumentTransform("};
 
-        result += absl::StrCat("False/", "document: ", ToStringImpl(document), "\n");
-        result += absl::StrCat("field_transforms: ", ToStringImpl(field_transforms, field_transforms_count), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        if (field_transforms_count) result += absl::StrCat("field_transforms: ", ToStringImpl(field_transforms, field_transforms_count), "\n");
 
         result += ')';
         return result;
@@ -77,9 +77,9 @@ typedef struct _google_firestore_v1_DocumentChange {
     std::string ToString() const {
         std::string result{"DocumentChange("};
 
-        result += absl::StrCat("False/", "document: ", ToStringImpl(document), "\n");
-        result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count), "\n");
-        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        if (target_ids_count) result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
 
         result += ')';
         return result;
@@ -97,9 +97,9 @@ typedef struct _google_firestore_v1_DocumentDelete {
     std::string ToString() const {
         std::string result{"DocumentDelete("};
 
-        result += absl::StrCat("False/", "document: ", ToStringImpl(document), "\n");
-        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
-        result += absl::StrCat("False/", "read_time: ", ToStringImpl(read_time), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        if (has_read_time) result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
 
         result += ')';
         return result;
@@ -116,9 +116,9 @@ typedef struct _google_firestore_v1_DocumentRemove {
     std::string ToString() const {
         std::string result{"DocumentRemove("};
 
-        result += absl::StrCat("False/", "document: ", ToStringImpl(document), "\n");
-        result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
-        result += absl::StrCat("False/", "read_time: ", ToStringImpl(read_time), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
 
         result += ')';
         return result;
@@ -141,7 +141,7 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
     std::string ToString() const {
         std::string result{"DocumentTransform_FieldTransform("};
 
-        result += absl::StrCat("False/", "field_path: ", ToStringImpl(field_path), "\n");
+        result += absl::StrCat("field_path: ", ToStringImpl(field_path), "\n");
         /*skipping set_to_server_value*/
         /*skipping increment*/
         /*skipping maximum*/
@@ -162,8 +162,8 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     std::string ToString() const {
         std::string result{"ExistenceFilter("};
 
-        result += absl::StrCat("False/", "target_id: ", ToStringImpl(target_id), "\n");
-        result += absl::StrCat("False/", "count: ", ToStringImpl(count), "\n");
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
+        result += absl::StrCat("count: ", ToStringImpl(count), "\n");
 
         result += ')';
         return result;
@@ -189,8 +189,8 @@ typedef struct _google_firestore_v1_Write {
         /*skipping update*/
         /*skipping delete_*/
         /*skipping transform*/
-        result += absl::StrCat("False/", "update_mask: ", ToStringImpl(update_mask), "\n");
-        result += absl::StrCat("False/", "current_document: ", ToStringImpl(current_document), "\n");
+        if (has_update_mask) result += absl::StrCat("update_mask: ", ToStringImpl(update_mask), "\n");
+        if (has_current_document) result += absl::StrCat("current_document: ", ToStringImpl(current_document), "\n");
 
         result += ')';
         return result;
@@ -207,8 +207,8 @@ typedef struct _google_firestore_v1_WriteResult {
     std::string ToString() const {
         std::string result{"WriteResult("};
 
-        result += absl::StrCat("False/", "update_time: ", ToStringImpl(update_time), "\n");
-        result += absl::StrCat("transform_results: ", ToStringImpl(transform_results, transform_results_count), "\n");
+        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time), "\n");
+        if (transform_results_count) result += absl::StrCat("transform_results: ", ToStringImpl(transform_results, transform_results_count), "\n");
 
         result += ')';
         return result;
