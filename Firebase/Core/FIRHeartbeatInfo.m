@@ -53,7 +53,6 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
                                                     initWithFileURL:[[self class] filePathURLWithName:kHeartbeatStorageFile]];
   NSInteger timeInSeconds = [[NSDate date] timeIntervalSince1970];
   NSMutableDictionary* heartbeatInfo = [dataStorage getDictionary];
-  if(heartbeatInfo == nil) return false;
   if ([heartbeatInfo objectForKey:prefKey] == nil)
   {
     [heartbeatInfo setValue: [NSString stringWithFormat:@"%ld", timeInSeconds] forKey:prefKey];
@@ -73,9 +72,7 @@ static GULLoggerService kFIRHeartbeatInfo = @"FIRHeartbeatInfo";
     GULLogError(kFIRHeartbeatInfo, NO, @"I-COR100004", @"Unable to persist internal state: %@",
                 error);
   }
-
-
-  return false;
+  return true;
 }
 
 + (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag {

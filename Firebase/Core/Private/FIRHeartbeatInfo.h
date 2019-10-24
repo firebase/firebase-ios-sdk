@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRHeartbeatInfo : NSObject
 
++ (NSURL *)filePathURLWithName:(NSString *)fileName;
+
 + (NSInteger) getHeartbeatCode:(NSString *) heartbeatTag;
 
 @end

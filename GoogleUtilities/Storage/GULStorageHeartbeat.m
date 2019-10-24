@@ -40,6 +40,9 @@
                                                        encoding:NSUTF8StringEncoding
                                                           error:nil];
   NSError *jsonError;
+  if (jsonString == nil) {
+    return [NSMutableDictionary dictionary];
+  }
   NSData *objectData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
   NSMutableDictionary *json = [NSJSONSerialization JSONObjectWithData:objectData
                                                        options:NSJSONReadingMutableContainers
