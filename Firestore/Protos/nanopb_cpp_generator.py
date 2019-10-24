@@ -58,6 +58,7 @@ def main():
   options = nanopb_parse_options(request)
   pretty_printers = prepare_pretty_printing_support(request)
   optionals = prepare_optionals(request, options)
+  oneofs = prepare_oneofs(request, options)
   parsed_files = nanopb_parse_files(request, options)
   results = nanopb_generate(request, options, parsed_files)
   response = nanopb_write(results, pretty_printers, optionals)
@@ -260,6 +261,21 @@ def prepare_optionals(request, options):
   return optionals
 
 
+def prepare_oneofs(request, options):
+  optionals = {}
+  for fdesc in request.proto_file:
+    parsed_file = nanopb.parse_file(fdesc.name, fdesc, options)
+    for m in parsed_file.messages:
+      for f in m.fields:
+        if f.rules == 'OPTIONAL' and f.allocation == 'STATIC':
+          if str(m.name) not in optionals:
+            optionals[str(m.name)] = {}
+          optionals[str(m.name)][str(f.name)] = True
+
+  # raise Exception(optionals)
+  return optionals
+
+
 # def nanopb_generate(request, options, parsed_files, pretty_printers):
 def nanopb_generate(request, options, parsed_files):
   """Generates C sources from the given parsed files.
@@ -371,17 +387,18 @@ namespace firestore {'''
 
 def add_printing_for_field(field, parent, optionals, classname):
   if field.HasField('oneof_index'):
-    return add_printing_for_oneof(field)
+    oneof_descr = parent.oneof_decl[field.oneof_index]
+    return add_printing_for_oneof(field, oneof_descr)
   elif field.label == FieldDescriptorProto.LABEL_REPEATED:
     return add_printing_for_repeated(field)
   elif classname in optionals and field.name in optionals[classname]:
     return add_printing_for_optional(field)
   else:
-    return add_printing_for_singular(field, parent)
+    return add_printing_for_singular(field)
 
 
-def add_printing_for_oneof(field):
-  return '/*skipping %s*/' % (field.name)
+def add_printing_for_oneof(field, oneof):
+  return 'if (which_%s == ???) ' % (oneof.name) + add_printing_for_singular(field)
 
 
 def add_printing_for_repeated(field):
@@ -391,10 +408,10 @@ def add_printing_for_repeated(field):
 
 def add_printing_for_optional(field):
   name = field.name
-  return '''if (has_%s) result += absl::StrCat("%s: ", ToStringImpl(%s, indent), "\\n");''' % (name, name, name)
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(field)
 
 
-def add_printing_for_singular(field, parent):
+def add_printing_for_singular(field):
   name = field.name
   return 'result += absl::StrCat("%s: ", ToStringImpl(%s, indent), "\\n");' % (name, name)
 
