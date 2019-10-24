@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-#import "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
 
 #include <utility>
 
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/lru_garbage_collector.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/exception.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -38,13 +37,13 @@ namespace local {
 namespace {
 
 using model::DatabaseId;
+using remote::Serializer;
 using util::Path;
 using util::Status;
 
-FSTLocalSerializer* MakeLocalSerializer() {
-  auto remoteSerializer =
-      [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
-  return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+LocalSerializer MakeLocalSerializer() {
+  Serializer remote_serializer{DatabaseId("p", "d")};
+  return LocalSerializer(std::move(remote_serializer));
 }
 
 }  // namespace
@@ -64,10 +63,8 @@ Path LevelDbDir() {
 
 std::unique_ptr<LevelDbPersistence> LevelDbPersistenceForTesting(
     Path dir, LruParams lru_params) {
-  FSTLocalSerializer* serializer = MakeLocalSerializer();
-
-  auto created =
-      LevelDbPersistence::Create(std::move(dir), serializer, lru_params);
+  auto created = LevelDbPersistence::Create(std::move(dir),
+                                            MakeLocalSerializer(), lru_params);
   if (!created.ok()) {
     util::ThrowIllegalState("Failed to open leveldb in dir %s: %s",
                             dir.ToUtf8String(), created.status().ToString());
@@ -98,8 +95,7 @@ std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting() {
 
 std::unique_ptr<MemoryPersistence> MemoryPersistenceWithLruGcForTesting(
     LruParams lru_params) {
-  FSTLocalSerializer* serializer = MakeLocalSerializer();
-  auto sizer = absl::make_unique<ProtoSizer>(serializer);
+  auto sizer = absl::make_unique<ProtoSizer>(MakeLocalSerializer());
   return MemoryPersistence::WithLruGarbageCollector(lru_params,
                                                     std::move(sizer));
 }

@@ -198,7 +198,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
     }
 
     unique_batch_ids.insert(reference.ref_id());
-  };
+  }
 
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
@@ -259,7 +259,7 @@ int64_t MemoryMutationQueue::CalculateByteSize(const Sizer& sizer) {
   int64_t count = 0;
   for (const auto& batch : queue_) {
     count += sizer.CalculateByteSize(batch);
-  };
+  }
   return count;
 }
 
@@ -267,8 +267,8 @@ ByteString MemoryMutationQueue::GetLastStreamToken() {
   return last_stream_token_;
 }
 
-void MemoryMutationQueue::SetLastStreamToken(const ByteString& token) {
-  last_stream_token_ = token;
+void MemoryMutationQueue::SetLastStreamToken(ByteString token) {
+  last_stream_token_ = std::move(token);
 }
 
 std::vector<MutationBatch> MemoryMutationQueue::AllMutationBatchesWithIds(

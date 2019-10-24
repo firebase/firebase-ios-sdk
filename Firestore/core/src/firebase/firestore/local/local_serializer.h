@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_SERIALIZER_H_
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -58,15 +60,15 @@ namespace local {
  */
 class LocalSerializer {
  public:
-  explicit LocalSerializer(const remote::Serializer& rpc_serializer)
-      : rpc_serializer_(rpc_serializer) {
+  explicit LocalSerializer(remote::Serializer rpc_serializer)
+      : rpc_serializer_(std::move(rpc_serializer)) {
   }
 
   /**
    * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
    * local storage.
    */
-  firestore_client_MaybeDocument EncodeMaybeDocument(
+  nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
       const model::MaybeDocument& maybe_doc) const;
 
   /**
@@ -81,7 +83,8 @@ class LocalSerializer {
    * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    */
-  firestore_client_Target EncodeQueryData(const QueryData& query_data) const;
+  nanopb::Message<firestore_client_Target> EncodeQueryData(
+      const QueryData& query_data) const;
 
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
@@ -94,7 +97,7 @@ class LocalSerializer {
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
    * a ::firestore::client::WriteBatch, for local storage in the mutation queue.
    */
-  firestore_client_WriteBatch EncodeMutationBatch(
+  nanopb::Message<firestore_client_WriteBatch> EncodeMutationBatch(
       const model::MutationBatch& mutation_batch) const;
 
   /**
@@ -135,7 +138,7 @@ class LocalSerializer {
       nanopb::Reader* reader,
       const firestore_client_UnknownDocument& proto) const;
 
-  const remote::Serializer& rpc_serializer_;
+  remote::Serializer rpc_serializer_;
 };
 
 }  // namespace local

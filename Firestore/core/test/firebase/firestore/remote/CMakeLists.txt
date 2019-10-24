@@ -31,7 +31,7 @@ cc_test(
     grpc_unary_call_test.cc
     remote_event_test.cc
     serializer_test.cc
-    watch_change_test.mm
+    watch_change_test.cc
   DEPENDS
     absl_base
     firebase_firestore_protos_libprotobuf
