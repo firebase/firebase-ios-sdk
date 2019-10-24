@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "FIRInstallationsAuthTokenResultInternal.h"
 
 #import "FIRInstanceIDFakeKeychain.h"
 #import "FIRInstanceIDTokenManager+Test.h"
@@ -125,9 +124,10 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                                    secretToken:@"fakeSecretToken"];
 
   // Installations
-  self.FISAuthTokenResult =
-      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"FISAuthToken"
-                                              expirationDate:[NSDate distantFuture]];
+  self.FISAuthTokenResult = OCMClassMock([FIRInstallationsAuthTokenResult class]);
+  OCMStub([self.FISAuthTokenResult authToken]).andReturn(@"FISAuthToken");
+  OCMStub([self.FISAuthTokenResult expirationDate]).andReturn([NSDate distantFuture]);
+
   self.mockInstallations = OCMClassMock([FIRInstallations class]);
   OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
   id authTokenBlockArg = [OCMArg invokeBlockWithArgs:self.FISAuthTokenResult, [NSNull null], nil];
