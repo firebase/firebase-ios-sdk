@@ -55,11 +55,11 @@ typedef struct _google_firestore_v1_DocumentTransform {
     pb_size_t field_transforms_count;
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentTransform("};
 
-        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
-        if (field_transforms_count) result += absl::StrCat("field_transforms: ", ToStringImpl(field_transforms, field_transforms_count), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
+        if (field_transforms_count) result += absl::StrCat("field_transforms: ", ToStringImpl(field_transforms, field_transforms_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -74,12 +74,12 @@ typedef struct _google_firestore_v1_DocumentChange {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentChange("};
 
-        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
-        if (target_ids_count) result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count), "\n");
-        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
+        if (target_ids_count) result += absl::StrCat("target_ids: ", ToStringImpl(target_ids, target_ids_count, indent + 1), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -94,12 +94,12 @@ typedef struct _google_firestore_v1_DocumentDelete {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentDelete("};
 
-        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
-        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
-        if (has_read_time) result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
+        if (has_read_time) result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
 
         result += ')';
         return result;
@@ -113,12 +113,12 @@ typedef struct _google_firestore_v1_DocumentRemove {
     int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentRemove("};
 
-        result += absl::StrCat("document: ", ToStringImpl(document), "\n");
-        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count), "\n");
-        result += absl::StrCat("read_time: ", ToStringImpl(read_time), "\n");
+        result += absl::StrCat("document: ", ToStringImpl(document, indent), "\n");
+        if (removed_target_ids_count) result += absl::StrCat("removed_target_ids: ", ToStringImpl(removed_target_ids, removed_target_ids_count, indent + 1), "\n");
+        result += absl::StrCat("read_time: ", ToStringImpl(read_time, indent), "\n");
 
         result += ')';
         return result;
@@ -138,10 +138,10 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         google_firestore_v1_ArrayValue remove_all_from_array;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentTransform_FieldTransform("};
 
-        result += absl::StrCat("field_path: ", ToStringImpl(field_path), "\n");
+        result += absl::StrCat("field_path: ", ToStringImpl(field_path, indent), "\n");
         /*skipping set_to_server_value*/
         /*skipping increment*/
         /*skipping maximum*/
@@ -159,11 +159,11 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"ExistenceFilter("};
 
-        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
-        result += absl::StrCat("count: ", ToStringImpl(count), "\n");
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id, indent), "\n");
+        result += absl::StrCat("count: ", ToStringImpl(count, indent), "\n");
 
         result += ')';
         return result;
@@ -183,14 +183,14 @@ typedef struct _google_firestore_v1_Write {
     bool has_current_document;
     google_firestore_v1_Precondition current_document;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Write("};
 
         /*skipping update*/
         /*skipping delete_*/
         /*skipping transform*/
-        if (has_update_mask) result += absl::StrCat("update_mask: ", ToStringImpl(update_mask), "\n");
-        if (has_current_document) result += absl::StrCat("current_document: ", ToStringImpl(current_document), "\n");
+        if (has_update_mask) result += absl::StrCat("update_mask: ", ToStringImpl(update_mask, indent), "\n");
+        if (has_current_document) result += absl::StrCat("current_document: ", ToStringImpl(current_document, indent), "\n");
 
         result += ')';
         return result;
@@ -204,11 +204,11 @@ typedef struct _google_firestore_v1_WriteResult {
     pb_size_t transform_results_count;
     struct _google_firestore_v1_Value *transform_results;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"WriteResult("};
 
-        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time), "\n");
-        if (transform_results_count) result += absl::StrCat("transform_results: ", ToStringImpl(transform_results, transform_results_count), "\n");
+        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time, indent), "\n");
+        if (transform_results_count) result += absl::StrCat("transform_results: ", ToStringImpl(transform_results, transform_results_count, indent + 1), "\n");
 
         result += ')';
         return result;

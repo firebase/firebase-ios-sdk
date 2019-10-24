@@ -45,10 +45,10 @@ typedef struct _google_protobuf_ListValue {
     pb_size_t values_count;
     struct _google_protobuf_Value *values;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"ListValue("};
 
-        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
+        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -60,10 +60,10 @@ typedef struct _google_protobuf_Struct {
     pb_size_t fields_count;
     struct _google_protobuf_Struct_FieldsEntry *fields;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Struct("};
 
-        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
+        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -82,7 +82,7 @@ typedef struct _google_protobuf_Value {
         google_protobuf_ListValue list_value;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Value("};
 
         /*skipping null_value*/
@@ -102,11 +102,11 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
     pb_bytes_array_t *key;
     google_protobuf_Value value;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Struct_FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;

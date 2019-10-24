@@ -45,10 +45,10 @@ typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"ArrayValue("};
 
-        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count), "\n");
+        if (values_count) result += absl::StrCat("values: ", ToStringImpl(values, values_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -60,10 +60,10 @@ typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"MapValue("};
 
-        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
+        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -79,13 +79,13 @@ typedef struct _google_firestore_v1_Document {
     bool has_update_time;
     google_protobuf_Timestamp update_time;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Document("};
 
-        result += absl::StrCat("name: ", ToStringImpl(name), "\n");
-        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count), "\n");
-        result += absl::StrCat("create_time: ", ToStringImpl(create_time), "\n");
-        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time), "\n");
+        result += absl::StrCat("name: ", ToStringImpl(name, indent), "\n");
+        if (fields_count) result += absl::StrCat("fields: ", ToStringImpl(fields, fields_count, indent + 1), "\n");
+        result += absl::StrCat("create_time: ", ToStringImpl(create_time, indent), "\n");
+        if (has_update_time) result += absl::StrCat("update_time: ", ToStringImpl(update_time, indent), "\n");
 
         result += ')';
         return result;
@@ -109,7 +109,7 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *bytes_value;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Value("};
 
         /*skipping null_value*/
@@ -134,11 +134,11 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Document_FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;
@@ -150,11 +150,11 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"MapValue_FieldsEntry("};
 
-        result += absl::StrCat("key: ", ToStringImpl(key), "\n");
-        result += absl::StrCat("value: ", ToStringImpl(value), "\n");
+        result += absl::StrCat("key: ", ToStringImpl(key, indent), "\n");
+        result += absl::StrCat("value: ", ToStringImpl(value, indent), "\n");
 
         result += ')';
         return result;

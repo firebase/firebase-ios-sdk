@@ -48,13 +48,13 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_DocumentsTarget documents;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Target("};
 
-        result += absl::StrCat("target_id: ", ToStringImpl(target_id), "\n");
-        result += absl::StrCat("snapshot_version: ", ToStringImpl(snapshot_version), "\n");
-        result += absl::StrCat("resume_token: ", ToStringImpl(resume_token), "\n");
-        result += absl::StrCat("last_listen_sequence_number: ", ToStringImpl(last_listen_sequence_number), "\n");
+        result += absl::StrCat("target_id: ", ToStringImpl(target_id, indent), "\n");
+        result += absl::StrCat("snapshot_version: ", ToStringImpl(snapshot_version, indent), "\n");
+        result += absl::StrCat("resume_token: ", ToStringImpl(resume_token, indent), "\n");
+        result += absl::StrCat("last_listen_sequence_number: ", ToStringImpl(last_listen_sequence_number, indent), "\n");
         /*skipping query*/
         /*skipping documents*/
 
@@ -70,13 +70,13 @@ typedef struct _firestore_client_TargetGlobal {
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"TargetGlobal("};
 
-        result += absl::StrCat("highest_target_id: ", ToStringImpl(highest_target_id), "\n");
-        result += absl::StrCat("highest_listen_sequence_number: ", ToStringImpl(highest_listen_sequence_number), "\n");
-        result += absl::StrCat("last_remote_snapshot_version: ", ToStringImpl(last_remote_snapshot_version), "\n");
-        result += absl::StrCat("target_count: ", ToStringImpl(target_count), "\n");
+        result += absl::StrCat("highest_target_id: ", ToStringImpl(highest_target_id, indent), "\n");
+        result += absl::StrCat("highest_listen_sequence_number: ", ToStringImpl(highest_listen_sequence_number, indent), "\n");
+        result += absl::StrCat("last_remote_snapshot_version: ", ToStringImpl(last_remote_snapshot_version, indent), "\n");
+        result += absl::StrCat("target_count: ", ToStringImpl(target_count, indent), "\n");
 
         result += ')';
         return result;

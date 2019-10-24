@@ -37,11 +37,11 @@ typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *kind;
     pb_bytes_array_t *path;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"CustomHttpPattern("};
 
-        result += absl::StrCat("kind: ", ToStringImpl(kind), "\n");
-        result += absl::StrCat("path: ", ToStringImpl(path), "\n");
+        result += absl::StrCat("kind: ", ToStringImpl(kind, indent), "\n");
+        result += absl::StrCat("path: ", ToStringImpl(path, indent), "\n");
 
         result += ')';
         return result;
@@ -54,11 +54,11 @@ typedef struct _google_api_Http {
     struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Http("};
 
-        if (rules_count) result += absl::StrCat("rules: ", ToStringImpl(rules, rules_count), "\n");
-        result += absl::StrCat("fully_decode_reserved_expansion: ", ToStringImpl(fully_decode_reserved_expansion), "\n");
+        if (rules_count) result += absl::StrCat("rules: ", ToStringImpl(rules, rules_count, indent + 1), "\n");
+        result += absl::StrCat("fully_decode_reserved_expansion: ", ToStringImpl(fully_decode_reserved_expansion, indent), "\n");
 
         result += ')';
         return result;
@@ -81,18 +81,18 @@ typedef struct _google_api_HttpRule {
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"HttpRule("};
 
-        result += absl::StrCat("selector: ", ToStringImpl(selector), "\n");
+        result += absl::StrCat("selector: ", ToStringImpl(selector, indent), "\n");
         /*skipping get*/
         /*skipping put*/
         /*skipping post*/
         /*skipping delete_*/
         /*skipping patch*/
         /*skipping custom*/
-        result += absl::StrCat("body: ", ToStringImpl(body), "\n");
-        if (additional_bindings_count) result += absl::StrCat("additional_bindings: ", ToStringImpl(additional_bindings, additional_bindings_count), "\n");
+        result += absl::StrCat("body: ", ToStringImpl(body, indent), "\n");
+        if (additional_bindings_count) result += absl::StrCat("additional_bindings: ", ToStringImpl(additional_bindings, additional_bindings_count, indent + 1), "\n");
 
         result += ')';
         return result;

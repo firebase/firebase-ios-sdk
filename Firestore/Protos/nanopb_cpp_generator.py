@@ -339,7 +339,7 @@ namespace firestore {'''
       f.name = result['headername']
       f.insertion_point = 'struct:' + full_classname
       f.content = '''
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"%s("};\n\n''' % (short_classname)
       for field in class_fields['fields']:
         f.content += ' ' * 8 + add_printing_for_field(field, class_fields['fields'], optionals, full_classname) + '\n'
@@ -386,17 +386,17 @@ def add_printing_for_oneof(field):
 
 def add_printing_for_repeated(field):
   name = field.name
-  return 'if (%s_count) result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count), "\\n");' % (name, name, name, name)
+  return 'if (%s_count) result += absl::StrCat("%s: ", ToStringImpl(%s, %s_count, indent + 1), "\\n");' % (name, name, name, name)
 
 
 def add_printing_for_optional(field):
   name = field.name
-  return '''if (has_%s) result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");''' % (name, name, name)
+  return '''if (has_%s) result += absl::StrCat("%s: ", ToStringImpl(%s, indent), "\\n");''' % (name, name, name)
 
 
 def add_printing_for_singular(field, parent):
   name = field.name
-  return 'result += absl::StrCat("%s: ", ToStringImpl(%s), "\\n");' % (name, name)
+  return 'result += absl::StrCat("%s: ", ToStringImpl(%s, indent), "\\n");' % (name, name)
 
 
 if __name__ == '__main__':

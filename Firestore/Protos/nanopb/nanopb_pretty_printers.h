@@ -29,7 +29,7 @@
 namespace firebase {
 namespace firestore {
 
-std::string ToStringImpl(pb_bytes_array_t* value);
+std::string ToStringImpl(pb_bytes_array_t* value, int indent);
 // std::string ToStringImpl(int32_t value);
 // std::string ToStringImpl(uint32_t value);
 // std::string ToStringImpl(int64_t value);
@@ -37,33 +37,38 @@ std::string ToStringImpl(pb_bytes_array_t* value);
 // std::string ToStringImpl(float value);
 // std::string ToStringImpl(double value);
 
+inline std::string Indent(int level) {
+  constexpr int kIndentWidth = 2;
+  return std::string(' ', level * kIndentWidth);
+}
+
 template <typename T>
 using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
 
 template <typename T, absl::enable_if_t<std::is_fundamental<T>::value || std::is_enum<T>::value, int> = 0>
-std::string ToStringImpl(const T& value) {
-  return std::to_string(value);
+std::string ToStringImpl(const T& value, int indent) {
+  return Indent(indent) + std::to_string(value);
 }
 
 template <typename T, absl::enable_if_t<HasToString<T>::value, int> = 0>
-std::string ToStringImpl(const T& value) {
-  return value.ToString();
+std::string ToStringImpl(const T& value, int indent) {
+  return Indent(indent) + value.ToString(indent + 1);
 }
 
 template <typename T>
-std::string ToStringImpl(const T* value, pb_size_t size) {
+std::string ToStringImpl(const T* value, pb_size_t size, int indent) {
   std::string result;
   for (pb_size_t i = 0; i != size; ++i) {
     if (i != 0) {
       result += ", ";
     }
-    result += ToStringImpl(value[i]);
+    result += Indent(indent) + ToStringImpl(value[i], indent);
   }
   return result;
 }
 
-inline std::string ToStringImpl(pb_bytes_array_t* value) {
-  return nanopb::MakeString(value);
+inline std::string ToStringImpl(pb_bytes_array_t* value, int indent) {
+  return Indent(indent) + nanopb::MakeString(value);
 }
 
 // std::string ToStringImpl(int32_t value) {

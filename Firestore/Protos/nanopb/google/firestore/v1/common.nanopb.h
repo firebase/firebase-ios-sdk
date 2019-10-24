@@ -41,10 +41,10 @@ typedef struct _google_firestore_v1_DocumentMask {
     pb_size_t field_paths_count;
     pb_bytes_array_t **field_paths;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"DocumentMask("};
 
-        if (field_paths_count) result += absl::StrCat("field_paths: ", ToStringImpl(field_paths, field_paths_count), "\n");
+        if (field_paths_count) result += absl::StrCat("field_paths: ", ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
 
         result += ')';
         return result;
@@ -55,10 +55,10 @@ typedef struct _google_firestore_v1_DocumentMask {
 typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"TransactionOptions_ReadWrite("};
 
-        result += absl::StrCat("retry_transaction: ", ToStringImpl(retry_transaction), "\n");
+        result += absl::StrCat("retry_transaction: ", ToStringImpl(retry_transaction, indent), "\n");
 
         result += ')';
         return result;
@@ -73,7 +73,7 @@ typedef struct _google_firestore_v1_Precondition {
         google_protobuf_Timestamp update_time;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"Precondition("};
 
         /*skipping exists*/
@@ -91,7 +91,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
         google_protobuf_Timestamp read_time;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"TransactionOptions_ReadOnly("};
 
         /*skipping read_time*/
@@ -109,7 +109,7 @@ typedef struct _google_firestore_v1_TransactionOptions {
         google_firestore_v1_TransactionOptions_ReadWrite read_write;
     };
 
-    std::string ToString() const {
+    std::string ToString(int indent = 0) const {
         std::string result{"TransactionOptions("};
 
         /*skipping read_only*/
