@@ -17,6 +17,7 @@
 # issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
 add_custom_target(firebase_firestore_types_ide SOURCES
     firestore_errors.h
+    firestore_version.h
     geo_point.h
     timestamp.h
 )

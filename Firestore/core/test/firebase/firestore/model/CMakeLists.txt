@@ -17,6 +17,7 @@ cc_test(
   SOURCES
     database_id_test.cc
     document_key_test.cc
+    document_set_test.cc
     document_test.cc
     field_mask_test.cc
     field_path_test.cc

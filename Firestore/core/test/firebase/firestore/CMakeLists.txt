@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO(wilhuff): Figure out if there's any use for FSTGoogleTestTests.mm in a
+# CMake-based build.
+
 cc_test(
   firebase_firestore_types_test
   SOURCES

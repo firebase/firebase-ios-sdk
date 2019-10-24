@@ -25,10 +25,15 @@ cc_library(
     database_info.h
     direction.cc
     direction.h
+    event_listener.h
+    event_manager.h
+    event_manager.mm
     field_filter.cc
     field_filter.h
     filter.cc
     filter.h
+    firestore_client.h
+    firestore_client.mm
     in_filter.cc
     in_filter.h
     key_field_in_filter.cc
@@ -43,8 +48,15 @@ cc_library(
     query.h
     query_listener.cc
     query_listener.h
+    sync_engine.h
+    sync_engine.mm
+    sync_engine_callback.h
     target_id_generator.cc
     target_id_generator.h
+    transaction.h
+    transaction.mm
+    transaction_runner.h
+    transaction_runner.mm
     user_data.cc
     user_data.h
     view.cc
@@ -53,6 +65,7 @@ cc_library(
     view_snapshot.h
   DEPENDS
     absl_strings
+    firebase_firestore_local
     firebase_firestore_model
     firebase_firestore_objc
     firebase_firestore_remote
