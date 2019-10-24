@@ -297,7 +297,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
     });
   }
 
-  [self waitForExpectations:@[ expectation ] timeout:totalTestsCount * 1];
+  [self waitForExpectations:@[ expectation ] timeout:totalTestsCount * 10];
 }
 
 - (void)threadSafetyTestGetFIDWithExpectation:(XCTestExpectation *)expectation {
