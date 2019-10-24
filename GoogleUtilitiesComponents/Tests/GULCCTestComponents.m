@@ -27,12 +27,12 @@
 
 /// GULCCLibrary conformance.
 + (nonnull NSArray<GULCCComponent *> *)componentsToRegister {
-  GULCCComponent *testComponent =
-      [GULCCComponent componentWithProtocol:@protocol(GULCCTestProtocol)
-                            creationBlock:^id _Nullable(GULCCComponentContainer *_Nonnull container,
-                                                        BOOL *_Nonnull isCacheable) {
-                              return [[GULCCTestClass alloc] init];
-                            }];
+  GULCCComponent *testComponent = [GULCCComponent
+      componentWithProtocol:@protocol(GULCCTestProtocol)
+              creationBlock:^id _Nullable(GULCCComponentContainer *_Nonnull container,
+                                          BOOL *_Nonnull isCacheable) {
+                return [[GULCCTestClass alloc] init];
+              }];
   return @[ testComponent ];
 }
 
@@ -50,12 +50,12 @@
 
 /// GULCCLibrary conformance.
 + (nonnull NSArray<GULCCComponent *> *)componentsToRegister {
-  GULCCComponent *testComponent =
-      [GULCCComponent componentWithProtocol:@protocol(GULCCTestProtocol)
-                            creationBlock:^id _Nullable(GULCCComponentContainer *_Nonnull container,
-                                                        BOOL *_Nonnull isCacheable) {
-                              return [[GULCCTestClassDuplicate alloc] init];
-                            }];
+  GULCCComponent *testComponent = [GULCCComponent
+      componentWithProtocol:@protocol(GULCCTestProtocol)
+              creationBlock:^id _Nullable(GULCCComponentContainer *_Nonnull container,
+                                          BOOL *_Nonnull isCacheable) {
+                return [[GULCCTestClassDuplicate alloc] init];
+              }];
   return @[ testComponent ];
 }
 
@@ -144,7 +144,8 @@
 }
 
 + (nonnull NSArray<GULCCComponent *> *)componentsToRegister {
-  GULCCDependency *dep = [GULCCDependency dependencyWithProtocol:@protocol(GULCCTestProtocolCached)];
+  GULCCDependency *dep =
+      [GULCCDependency dependencyWithProtocol:@protocol(GULCCTestProtocolCached)];
   GULCCComponent *testComponent = [GULCCComponent
       componentWithProtocol:@protocol(GULCCTestProtocolCachedWithDep)
         instantiationTiming:GULCCInstantiationTimingLazy
@@ -154,7 +155,8 @@
                 // Fetch from the container in the instantiation block.
                 *isCacheable = YES;
 
-                id<GULCCTestProtocolCached> test = GUL_COMPONENT(GULCCTestProtocolCached, container);
+                id<GULCCTestProtocolCached> test =
+                    GUL_COMPONENT(GULCCTestProtocolCached, container);
                 GULCCTestClassCachedWithDep *instance =
                     [[GULCCTestClassCachedWithDep alloc] initWithTest:test];
                 return instance;

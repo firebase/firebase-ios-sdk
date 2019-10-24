@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Private/GULCCComponentContainer.h"
+#import "Public/GULCCComponentContainer.h"
 
-#import "Private/GULCCComponent.h"
-#import "Private/GULCCLibrary.h"
+#import "Public/GULCCComponent.h"
+#import "Public/GULCCLibrary.h"
 
 #import <GoogleUtilities/GULLogger.h>
 
@@ -29,7 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// The dictionary of components that are registered for a particular app. The key is an NSString
 /// of the protocol.
-@property(nonatomic, strong) NSMutableDictionary<NSString *, GULCCComponentCreationBlock> *components;
+@property(nonatomic, strong)
+    NSMutableDictionary<NSString *, GULCCComponentCreationBlock> *components;
 
 /// Cached instances of components that requested to be cached.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/GULCCDependency.h"
+#import "Public/GULCCDependency.h"
 
 @interface GULCCDependency ()
 

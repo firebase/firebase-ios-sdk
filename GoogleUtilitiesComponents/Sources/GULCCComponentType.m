@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/GULCCComponentType.h"
+#import "Public/GULCCComponentType.h"
 
 #import "Private/GULCCComponentContainerInternal.h"
 

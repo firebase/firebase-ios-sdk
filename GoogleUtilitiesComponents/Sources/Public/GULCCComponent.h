@@ -28,7 +28,7 @@ NS_SWIFT_NAME(ComponentLifecycleMaintainer)
 @end
 
 typedef _Nullable id (^GULCCComponentCreationBlock)(GULCCComponentContainer *container,
-                                                  BOOL *isCacheable)
+                                                    BOOL *isCacheable)
     NS_SWIFT_NAME(ComponentCreationBlock);
 
 @class GULCCDependency;

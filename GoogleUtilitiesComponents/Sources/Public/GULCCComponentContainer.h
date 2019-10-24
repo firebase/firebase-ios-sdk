@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
   [GULCCComponentType<id<type>> instanceForProtocol:@protocol(type) inContainer:container]
 
 /// A container that holds different components that are registered via the
-/// `registerAsComponentRegistrant:` call. These classes should conform to `GULCCComponentRegistrant`
-/// in order to properly register components for the container.
+/// `registerAsComponentRegistrant:` call. These classes should conform to
+/// `GULCCComponentRegistrant` in order to properly register components for the container.
 NS_SWIFT_NAME(GoogleComponentContainer)
 @interface GULCCComponentContainer : NSObject
 

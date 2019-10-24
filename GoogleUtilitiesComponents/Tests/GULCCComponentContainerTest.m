@@ -23,7 +23,8 @@
 /// Internally exposed methods and properties for testing.
 @interface GULCCComponentContainer (TestInternal)
 
-@property(nonatomic, strong) NSMutableDictionary<NSString *, GULCCComponentCreationBlock> *components;
+@property(nonatomic, strong)
+    NSMutableDictionary<NSString *, GULCCComponentCreationBlock> *components;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;
 
 + (void)registerAsComponentRegistrant:(Class<GULCCLibrary>)klass
@@ -39,7 +40,8 @@
 @implementation GULCCComponentContainer (TestInternalImplementations)
 
 - (instancetype)initWithContext:(id)context
-                     components:(NSDictionary<NSString *, GULCCComponentCreationBlock> *)components {
+                     components:
+                         (NSDictionary<NSString *, GULCCComponentCreationBlock> *)components {
   self = [self initWithContext:context registrants:[[NSMutableSet alloc] init]];
   if (self) {
     self.components = [components mutableCopy];
@@ -84,7 +86,8 @@
 #pragma mark - Caching Tests
 
 - (void)testInstanceCached {
-  GULCCComponentContainer *container = [self containerWithRegistrants:@ [[GULCCTestClassCached class]]];
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClassCached class]]];
 
   // Fetch an instance for `GULCCTestProtocolCached`, then fetch it again to assert it's cached.
   id<GULCCTestProtocolCached> instance1 = GUL_COMPONENT(GULCCTestProtocolCached, container);
@@ -161,8 +164,9 @@
 
 - (void)testDependencyDoesntBlock {
   /// Test a class that has a dependency, and fetching doesn't block the internal queue.
-  GULCCComponentContainer *container = [self
-      containerWithRegistrants:@ [[GULCCTestClassCached class], [GULCCTestClassCachedWithDep class]]];
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClassCached class],
+                                        [GULCCTestClassCachedWithDep class]]];
   XCTAssert(container.components.count == 2);
 
   id<GULCCTestProtocolCachedWithDep> instanceWithDep =
@@ -172,8 +176,9 @@
 
 - (void)testDependencyRemoveAllCachedInstancesDoesntBlock {
   /// Test a class that has a dependency, and fetching doesn't block the internal queue.
-  GULCCComponentContainer *container = [self
-      containerWithRegistrants:@ [[GULCCTestClassCached class], [GULCCTestClassCachedWithDep class]]];
+  GULCCComponentContainer *container =
+      [self containerWithRegistrants:@ [[GULCCTestClassCached class],
+                                        [GULCCTestClassCachedWithDep class]]];
   XCTAssert(container.components.count == 2);
 
   id<GULCCTestProtocolCachedWithDep> instanceWithDep =
@@ -200,8 +205,8 @@
     [GULCCComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
   }
 
-  GULCCComponentContainer *container = [[GULCCComponentContainer alloc] initWithContext:nil
-                                                                        registrants:allRegistrants];
+  GULCCComponentContainer *container =
+      [[GULCCComponentContainer alloc] initWithContext:nil registrants:allRegistrants];
 
   // Instantiate all the components that were eagerly registered now that all other properties are
   // configured.

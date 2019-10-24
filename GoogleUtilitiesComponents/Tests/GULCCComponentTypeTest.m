@@ -44,7 +44,7 @@
   // Grab an instance from the container, through ComponentType.
   __unused id<GULCCTestProtocol> instance =
       [GULCCComponentType<id<GULCCTestProtocol>> instanceForProtocol:@protocol(GULCCTestProtocol)
-                                                     inContainer:self.componentContainerMock];
+                                                         inContainer:self.componentContainerMock];
   OCMVerifyAll(self.componentContainerMock);
 }
 

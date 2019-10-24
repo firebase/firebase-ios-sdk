@@ -26,7 +26,7 @@ Not intended for direct public usage.
   s.prefix_header_file = false
 
   s.source_files = 'GoogleUtilitiesComponents/Sources/**/*.[mh]'
-  s.public_header_files = 'GoogleUtilitiesComponents/Sources/Private/*.h'
+  s.public_header_files = 'GoogleUtilitiesComponents/Sources/Public/*.h', 'GoogleUtilitiesComponents/Sources/Private/*.h'
   s.private_header_files = 'GoogleUtilitiesComponents/Sources/Private/*.h'
   s.dependency 'GoogleUtilities/Logger'
 

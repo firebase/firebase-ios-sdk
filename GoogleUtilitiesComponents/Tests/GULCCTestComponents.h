@@ -26,7 +26,8 @@
 @end
 
 /// A test class that is a component registrant.
-@interface GULCCTestClass : NSObject <GULCCTestProtocol, GULCCComponentLifecycleMaintainer, GULCCLibrary>
+@interface GULCCTestClass
+    : NSObject <GULCCTestProtocol, GULCCComponentLifecycleMaintainer, GULCCLibrary>
 @end
 
 /// A test class that is a component registrant, a duplicate of GULCCTestClass.

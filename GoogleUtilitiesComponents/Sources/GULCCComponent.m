@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Private/GULCCComponent.h"
+#import "Public/GULCCComponent.h"
 
-#import "Private/GULCCComponentContainer.h"
-#import "Private/GULCCDependency.h"
+#import "Public/GULCCComponentContainer.h"
+#import "Public/GULCCDependency.h"
 
 @interface GULCCComponent ()
 
@@ -33,9 +33,9 @@
 + (instancetype)componentWithProtocol:(Protocol *)protocol
                         creationBlock:(GULCCComponentCreationBlock)creationBlock {
   return [[GULCCComponent alloc] initWithProtocol:protocol
-                            instantiationTiming:GULCCInstantiationTimingLazy
-                                   dependencies:@[]
-                                  creationBlock:creationBlock];
+                              instantiationTiming:GULCCInstantiationTimingLazy
+                                     dependencies:@[]
+                                    creationBlock:creationBlock];
 }
 
 + (instancetype)componentWithProtocol:(Protocol *)protocol
@@ -43,9 +43,9 @@
                          dependencies:(NSArray<GULCCDependency *> *)dependencies
                         creationBlock:(GULCCComponentCreationBlock)creationBlock {
   return [[GULCCComponent alloc] initWithProtocol:protocol
-                            instantiationTiming:instantiationTiming
-                                   dependencies:dependencies
-                                  creationBlock:creationBlock];
+                              instantiationTiming:instantiationTiming
+                                     dependencies:dependencies
+                                    creationBlock:creationBlock];
 }
 
 - (instancetype)initWithProtocol:(Protocol *)protocol
