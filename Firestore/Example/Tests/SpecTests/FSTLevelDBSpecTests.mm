@@ -16,12 +16,15 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/test/firebase/firestore/local/persistence_testing.h"
+
+using firebase::firestore::local::LevelDbDir;
+using firebase::firestore::local::LevelDbPersistenceForTesting;
+using firebase::firestore::local::Persistence;
 using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,13 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Getting a new directory will ensure that it is empty.
-  _levelDbDir = [FSTPersistenceTestHelpers levelDBDir];
+  _levelDbDir = LevelDbDir();
   [super setUpForSpecWithConfig:config];
 }
 
 /** Overrides -[FSTSpecTests persistence] */
-- (id<FSTPersistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
-  return [FSTPersistenceTestHelpers levelDBPersistenceWithDir:_levelDbDir];
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
+  return LevelDbPersistenceForTesting(_levelDbDir);
 }
 
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {

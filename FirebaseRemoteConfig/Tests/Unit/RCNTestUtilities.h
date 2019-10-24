@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,19 +25,6 @@ extern NSString *const RCNTestsDefaultFIRAppName;
 extern NSString *const RCNTestsSecondFIRAppName;
 
 @interface RCNTestUtilities : NSObject
-
-/// Fake a fetch response with a given dictionary of namespace to config and their fetch status
-/// accordingly.
-/// @param namespaceToConfig  Dictionary of namespace to a dictionary of config key value pairs.
-/// @param statusArray        Response update status for each namespace in namespaceToConfig.
-+ (NSMutableDictionary<NSString *, NSString *> *)
-    responseWithNamespaceToConfig:(NSDictionary<NSString *, NSDictionary *> *)namespaceToConfig
-                      statusArray:(NSArray *)statusArray;
-
-/// Fake an internal metadata array with a given dictionary for a fake response.
-///
-/// @param aDictionary  Dictionary with content to mock an internal metadata array.
-+ (NSMutableArray *)entryArrayWithKeyValuePair:(NSDictionary *)aDictionary;
 
 /// Returns the name of the test that's compatible with configuring a FIRApp name to ensure
 /// uniqueness. `testName` is the `name` property of the `XCTest` running.

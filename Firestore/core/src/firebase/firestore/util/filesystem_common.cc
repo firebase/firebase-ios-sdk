@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 using firebase::firestore::util::Path;

@@ -28,6 +28,7 @@ options=(
 git grep "${options[@]}" -- \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
+    ':(exclude)CoreOnly/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \
     ':(exclude)Firebase/InAppMessaging/Analytics/Protogen/nanopb' \
     ':(exclude)Firestore/Protos/nanopb' \

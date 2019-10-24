@@ -23,7 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
@@ -36,10 +38,10 @@ using auth::Token;
 using auth::User;
 using core::DatabaseInfo;
 using util::AsyncQueue;
-using util::ExecutorStd;
 using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
+
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 
 namespace {
@@ -84,8 +86,7 @@ class ConnectivityObserver : public GrpcStreamObserver {
 class GrpcConnectionTest : public testing::Test {
  public:
   GrpcConnectionTest()
-      : worker_queue{std::make_shared<AsyncQueue>(
-            absl::make_unique<ExecutorStd>())},
+      : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{
             absl::make_unique<FakeConnectivityMonitor>(worker_queue)},
         tester{worker_queue, connectivity_monitor.get()} {

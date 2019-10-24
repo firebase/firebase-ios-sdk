@@ -86,6 +86,20 @@ NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token typ
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
+const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
+  if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
+    if (aps && [aps isKindOfClass:[NSDictionary class]]) {
+      return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
+    }
+  }
+  return NO;
+}
+
+ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
+  return [FIRMessagingContextManagerService isContextManagerMessage:message];
+}
+
 @interface FIRMessagingMessageInfo ()
 
 @property(nonatomic, readwrite, assign) FIRMessagingMessageStatus status;
@@ -384,21 +398,25 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // the message to the device.
   BOOL isOldMessage = NO;
   NSString *messageID = message[kFIRMessagingMessageIDKey];
-  if ([messageID length]) {
+  if (messageID.length) {
     [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
 
-    BOOL isSyncMessage = [[self class] isAPNSSyncMessage:message];
+    BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
     }
-  }
-  // Prevent duplicates by keeping a cache of all the logged messages during each session.
-  // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
-  // us swizzling their implementation to call the same method implicitly.
-  if (!isOldMessage && messageID.length) {
-    isOldMessage = [self.loggedMessageIDs containsObject:messageID];
-    if (!isOldMessage) {
-      [self.loggedMessageIDs addObject:messageID];
+
+    // Prevent duplicates by keeping a cache of all the logged messages during each session.
+    // The duplicates only happen when the 3P app calls `appDidReceiveMessage:` along with
+    // us swizzling their implementation to call the same method implicitly.
+    // We need to rule out the contextual message because it shares the same message ID
+    // as the local notification it will schedule. And because it is also a APNSSync message
+    // its duplication is already checked previously.
+   if (!isOldMessage && !FIRMessagingIsContextManagerMessage(message)) {
+      isOldMessage = [self.loggedMessageIDs containsObject:messageID];
+      if (!isOldMessage) {
+        [self.loggedMessageIDs addObject:messageID];
+      }
     }
   }
 
@@ -411,16 +429,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message {
-  if ([FIRMessagingContextManagerService isContextManagerMessage:message]) {
+  if (FIRMessagingIsContextManagerMessage(message)) {
     return [FIRMessagingContextManagerService handleContextManagerMessage:message];
-  }
-  return NO;
-}
-
-+ (BOOL)isAPNSSyncMessage:(NSDictionary *)message {
-  if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
-    return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
   }
   return NO;
 }
@@ -531,9 +541,21 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma mark - FCM
 
 - (BOOL)isAutoInitEnabled {
+  // Defer to the class method since we're just reading from regular userDefaults and we need to
+  // read this from IID without instantiating the Messaging singleton.
+  return [[self class] isAutoInitEnabledWithUserDefaults:_messagingUserDefaults];
+}
+
+/// Checks if Messaging auto-init is enabled in the user defaults instance passed in. This is
+/// exposed as a class property for IID to fetch the property without instantiating an instance of
+/// Messaging. Since Messaging can only be used with the default FIRApp, we can have one point of
+/// entry without context of which FIRApp instance is being used.
+/// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID USING REFLECTION. PLEASE DO NOT CHANGE THE
+///  SIGNATURE, AS IT WOULD BREAK AUTOINIT FUNCTIONALITY WITHIN IID. **
++ (BOOL)isAutoInitEnabledWithUserDefaults:(GULUserDefaults *)userDefaults {
   // Check storage
   id isAutoInitEnabledObject =
-      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+      [userDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (isAutoInitEnabledObject) {
     return [isAutoInitEnabledObject boolValue];
   }
@@ -864,7 +886,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
-#pragma pop
+#pragma clang diagnostic pop
   } else {
     // Delegate methods weren't implemented, so messages are being dropped, log a warning
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented,

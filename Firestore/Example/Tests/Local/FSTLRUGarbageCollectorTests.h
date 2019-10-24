@@ -16,17 +16,28 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+#include <memory>
 
-@protocol FSTPersistence;
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class LruParams;
+class Persistence;
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
+
+namespace local = firebase::firestore::local;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLRUGarbageCollectorTests : XCTestCase
 
-- (id<FSTPersistence>)newPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
+- (std::unique_ptr<local::Persistence>)newPersistenceWithLruParams:(local::LruParams)lruParams;
 
-@property(nonatomic, strong) id<FSTPersistence> persistence;
+- (local::Persistence *)persistence;
 
 @end
 

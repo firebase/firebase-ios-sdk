@@ -91,15 +91,6 @@ typedef void(^FIRMessagingDataMessageHandler)(int64_t rmqId, GtalkDataMessageSta
 - (NSArray *)unackedS2dRmqIds;
 
 /**
- *  Removes the outgoing message from RMQ store.
- *
- *  @param rmqId The rmqID to remove from the store.
- *
- *  @return The number of messages deleted successfully.
- */
-- (int)removeRmqMessagesWithRmqId:(NSString *)rmqId;
-
-/**
  *  Removes the messages with the given rmqIDs from RMQ store.
  *
  *  @param rmqIds The lsit of rmqID's to remove from the store.
@@ -182,9 +173,5 @@ typedef void(^FIRMessagingDataMessageHandler)(int64_t rmqId, GtalkDataMessageSta
  *  @return YES if the persistent sync message was successfully updated else NO.
  */
 - (BOOL)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID error:(NSError **)error;
-
-#pragma mark - Testing
-
-+ (void)removeDatabaseWithName:(NSString *)dbName;
 
 @end

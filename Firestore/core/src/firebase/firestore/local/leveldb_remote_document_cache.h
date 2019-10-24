@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
 
-#if !defined(__OBJC__)
-#error "For now, this file must only be included by ObjC source files."
-#endif  // !defined(__OBJC__)
-
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -31,19 +27,18 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "absl/strings/string_view.h"
 
-@class FSTLevelDB;
-@class FSTLocalSerializer;
-
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace local {
 
+class LevelDbPersistence;
+class LocalSerializer;
+
 /** Cached Remote Documents backed by leveldb. */
 class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
+  LevelDbRemoteDocumentCache(LevelDbPersistence* db,
+                             LocalSerializer* serializer);
 
   void Add(const model::MaybeDocument& document) override;
   void Remove(const model::DocumentKey& key) override;
@@ -58,15 +53,14 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   model::MaybeDocument DecodeMaybeDocument(absl::string_view encoded,
                                            const model::DocumentKey& key);
 
-  // This instance is owned by FSTLevelDB; avoid a retain cycle.
-  __weak FSTLevelDB* db_;
-  FSTLocalSerializer* serializer_;
+  // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
 };
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_

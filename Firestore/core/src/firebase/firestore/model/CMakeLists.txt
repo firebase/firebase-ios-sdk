@@ -44,6 +44,8 @@ cc_library(
     mutation.h
     mutation_batch.cc
     mutation_batch.h
+    mutation_batch_result.cc
+    mutation_batch_result.h
     no_document.cc
     no_document.h
     patch_mutation.cc
@@ -69,7 +71,6 @@ cc_library(
 
     absl_optional
     absl_strings
-    firebase_firestore_api_input_validation
     firebase_firestore_immutable
     firebase_firestore_objc
     firebase_firestore_util

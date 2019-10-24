@@ -39,10 +39,9 @@ extension FileManager: FileChecker {}
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
-    case cacheEnabled
+    case buildRoot
     case carthageDir
     case customSpecRepos
-    case deleteCache
     case existingVersions
     case outputDir
     case releasingSDKs
@@ -53,16 +52,14 @@ struct LaunchArgs {
     /// Usage description for the key.
     var usage: String {
       switch self {
-      case .cacheEnabled:
-        return "A flag to control using the cache for frameworks."
+      case .buildRoot:
+        return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
+          "used."
       case .carthageDir:
         return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
           "the Carthage build."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
-      case .deleteCache:
-        return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
-          "set, it will fail since that's probably unintended."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
           "of type `ZipBuilder_FirebaseSDKs`."
@@ -86,6 +83,9 @@ struct LaunchArgs {
   /// verify expected version numbers.
   let allSDKsPath: URL?
 
+  /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
+  let buildRoot: URL?
+
   /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
   /// build.
   let carthageDir: URL?
@@ -106,17 +106,14 @@ struct LaunchArgs {
   /// based frameworks.
   let templateDir: URL
 
-  /// A flag to control using the cache for frameworks.
-  let cacheEnabled: Bool
-
-  /// A flag to delete the cache from the cache directory.
-  let deleteCache: Bool
-
   /// The release candidate number, zero indexed.
   let rcNumber: Int?
 
   /// A flag to update the Pod Repo or not.
   let updatePodRepo: Bool
+
+  /// The shared instance for processing launch args using default arguments.
+  static let shared: LaunchArgs = LaunchArgs()
 
   /// Initializes with values pulled from the instance of UserDefaults passed in.
   ///
@@ -180,23 +177,15 @@ struct LaunchArgs {
       outputDir = nil
     }
 
-    // Parse the release candidate number. This should only be used in conjunction with the other
-    // release related flags.
-    if let rcFlag = defaults.string(forKey: Key.rc.rawValue) {
-      guard let parsedFlag = Int(rcFlag) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.rc) key: value passed in is not " +
-          "an integer. Value: \(rcFlag)")
-      }
-
+    // Parse the release candidate number. Note: if the String passed in isn't an integer, ignore
+    // it and don't fail since we can append something else to the filenames.
+    if let rcFlag = defaults.string(forKey: Key.rc.rawValue),
+      !rcFlag.isEmpty,
+      let parsedFlag = Int(rcFlag) {
+      print("Parsed release candidate version number \(parsedFlag).")
       rcNumber = parsedFlag
     } else {
-      // TEMPORARY REMOVAL: We don't currently pass in the RC to Kokoro, so ignore the missing flag.
-      // Check if we have other release related flags. If so, fail since we need an RC number.
-//      guard currentReleasePath == nil else {
-//        LaunchArgs.exitWithUsageAndLog("Invalid combination of keys: \(Key.rc) must be passed " +
-//          "in when specifiying \(Key.releasingSDKs).")
-//      }
-
+      print("Did not parse a release candidate version number.")
       rcNumber = nil
     }
 
@@ -232,17 +221,21 @@ struct LaunchArgs {
       carthageDir = nil
     }
 
-    updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
+    // Parse the Build Root key.
+    if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
+      let url = URL(fileURLWithPath: buildRoot)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.buildRoot) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(buildRoot)")
+      }
 
-    // Parse the cache keys. If no value is provided for each, it defaults to `false`.
-    cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
-    deleteCache = defaults.bool(forKey: Key.deleteCache.rawValue)
-
-    if deleteCache, cacheEnabled {
-      LaunchArgs.exitWithUsageAndLog("Invalid pair - attempted to delete the cache and enable " +
-        "it at the same time. Please remove on of the keys and try " +
-        "again.")
+      self.buildRoot = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      buildRoot = nil
     }
+
+    updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
   }
 
   /// Prints an error that occurred, the proper usage String, and quits the application.

@@ -48,7 +48,7 @@ else
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
       check_changes '^(Firebase/Auth|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
-'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
+'FirebaseAnalyticsInterop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|'\
@@ -66,8 +66,13 @@ else
 'FirebaseStorage.podspec|FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
+    FirebasePod-*)
+      check_changes '^(CoreOnly|Firebase.podspec)'
+      ;;
+
     Core-*)
-      check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
+      check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec'\
+'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     ABTesting-*)
@@ -76,6 +81,11 @@ else
 
     Auth-*)
       check_changes '^(Firebase/Core|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
+      ;;
+
+    CoreDiagnostics-*)
+      check_changes '^(Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
+'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 
     Database-*)
@@ -95,6 +105,10 @@ else
       ;;
 
     InAppMessaging-*)
+      check_changes '^(InAppMessaging|Firebase/InAppMessaging)'
+      ;;
+
+    InAppMessagingDisplay-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
       ;;
@@ -113,11 +127,6 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
       ;;
 
-    FirebaseCoreDiagnostics-*)
-      check_changes '^(Firebase/CoreDiagnostics|FirebaseCoreDiagnosticsInterop|'\
-'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec)'
-      ;;
-
     GoogleDataTransport-*)
       check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
@@ -132,6 +141,10 @@ else
 
     Messaging-*)
       check_changes '^(Firebase/Core|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID)'
+      ;;
+
+    RemoteConfig-*)
+      check_changes '^(Firebase/Core|FirebaseRemoteConfig)'
       ;;
 
     Storage-*)
@@ -154,7 +167,7 @@ fi
 # Always rebuild if Travis configuration and/or build scripts changed.
 check_changes '^.travis.yml'
 check_changes '^Gemfile.lock'
-check_changes '^scripts/(build|if_changed|install_prereqs|pod_lib_lint).(rb|sh)'
+check_changes '^scripts/(build|install_prereqs|pod_lib_lint).(rb|sh)'
 
 if [[ "$run" == true ]]; then
   "$@"

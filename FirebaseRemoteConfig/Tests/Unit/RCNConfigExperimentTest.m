@@ -19,17 +19,17 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
+#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
 #import "FirebaseRemoteConfig/Sources/Protos/wireless/android/config/proto/Config.pbobjc.h"
 
 // Surface the internal FIRExperimentController initializer.
@@ -52,7 +52,7 @@
   id _DBManagerMock;
   NSArray<NSDictionary<NSString *, id> *> *_payloads;
   NSArray<NSData *> *_payloadsData;
-  NSDictionary<NSString *, NSString *> *_metadata;
+  NSDictionary<NSString *, NSNumber *> *_metadata;
   NSString *_DBPath;
 }
 @end
@@ -74,7 +74,7 @@
   NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload2 options:0 error:&error];
   _payloadsData = @[ payloadData1, payloadData2 ];
   _metadata = @{@"last_know_start_time" : @12348765};
-  NSDictionary<NSString *, NSString *> *mockResults = @{
+  NSDictionary<NSString *, id> *mockResults = @{
     @RCNExperimentTableKeyPayload : _payloadsData,
     @RCNExperimentTableKeyMetadata : _metadata,
   };
