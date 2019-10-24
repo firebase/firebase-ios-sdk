@@ -94,15 +94,15 @@ cc_library(
     # TODO(varconst): add these files once they no longer depend on Objective-C
     # serializer.
     # datastore.h
-    # datastore.mm
+    # datastore.cc
     # remote_objc_bridge.h
     # remote_objc_bridge.mm
     # stream.h
-    # stream.mm
+    # stream.cc
     # watch_stream.h
-    # watch_stream.mm
+    # watch_stream.cc
     # write_stream.h
-    # write_stream.mm
+    # write_stream.cc
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
