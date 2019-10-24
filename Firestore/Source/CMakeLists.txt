@@ -13,4 +13,3 @@
 # limitations under the License.
 
 add_subdirectory(Public)
-add_subdirectory(Remote)

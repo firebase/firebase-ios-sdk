@@ -16,15 +16,16 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 
-#import <Foundation/Foundation.h>
-
 #include <string>
+#include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "leveldb/db.h"
 
@@ -33,6 +34,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using leveldb::Status;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -42,11 +44,13 @@ using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
-using leveldb::Status;
+using nanopb::ByteString;
+using nanopb::Message;
+using nanopb::StringReader;
 
 LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
-    LevelDbPersistence* db, FSTLocalSerializer* serializer)
-    : db_(db), serializer_(serializer) {
+    LevelDbPersistence* db, LocalSerializer* serializer)
+    : db_(db), serializer_(NOT_NULL(serializer)) {
 }
 
 void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document,
@@ -56,7 +60,7 @@ void LevelDbRemoteDocumentCache::Add(const MaybeDocument& document,
 
   std::string ldb_document_key = LevelDbRemoteDocumentKey::Key(key);
   db_->current_transaction()->Put(ldb_document_key,
-                                  [serializer_ encodedMaybeDocument:document]);
+                                  serializer_->EncodeMaybeDocument(document));
 
   std::string ldb_read_time_key = LevelDbRemoteDocumentReadTimeKey::Key(
       path.PopLast(), read_time, path.last_segment());
@@ -193,21 +197,20 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(
 
 MaybeDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     absl::string_view encoded, const DocumentKey& key) {
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:false];
+  StringReader reader{encoded};
 
-  NSError* error;
-  FSTPBMaybeDocument* proto = [FSTPBMaybeDocument parseFromData:data
-                                                          error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
+  auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
+  MaybeDocument maybe_document =
+      serializer_->DecodeMaybeDocument(&reader, *message);
+
+  if (!reader.ok()) {
+    HARD_FAIL("MaybeDocument proto failed to parse: %s",
+              reader.status().ToString());
   }
-
-  MaybeDocument maybe_document = [serializer_ decodedMaybeDocument:proto];
   HARD_ASSERT(maybe_document.key() == key,
               "Read document has key (%s) instead of expected key (%s).",
               maybe_document.key().ToString(), key.ToString());
+
   return maybe_document;
 }
 

@@ -37,6 +37,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::Error;
+using firebase::firestore::firestore_client_TargetGlobal;
 using firebase::firestore::local::LevelDbCollectionParentKey;
 using firebase::firestore::local::LevelDbDir;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
@@ -55,6 +56,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::util::Path;
@@ -88,12 +90,12 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
+  auto metadata = LevelDbQueryCache::TryReadMetadata(_db.get());
+  XCTAssert(!metadata, @"Not expecting metadata yet, we should have an empty db");
   LevelDbMigrations::RunMigrations(_db.get());
 
-  metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-  XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
+  metadata = LevelDbQueryCache::TryReadMetadata(_db.get());
+  XCTAssert(metadata, @"Migrations should have added the metadata");
 }
 
 - (void)testSetsVersionNumber {
@@ -168,9 +170,9 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
       ASSERT_FOUND(transaction, key);
     }
 
-    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
-    XCTAssertNotNil(metadata, @"Metadata should have been added");
-    XCTAssertEqual(metadata.targetCount, 0);
+    auto metadata = LevelDbQueryCache::TryReadMetadata(_db.get());
+    XCTAssert(metadata, @"Metadata should have been added");
+    XCTAssertEqual(metadata.value()->target_count, 0);
   }
 }
 
@@ -211,9 +213,9 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     LevelDbTransaction transaction(_db.get(), "Setup");
 
     // Set up target global
-    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
+    auto metadata = LevelDbQueryCache::ReadMetadata(_db.get());
     // Expect that documents missing a row will get the new number
-    metadata.highestListenSequenceNumber = new_sequence_number;
+    metadata->highest_listen_sequence_number = new_sequence_number;
     transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);
 
     // Set up some documents (we only need the keys)

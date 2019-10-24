@@ -19,15 +19,16 @@
 #include <string>
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/match.h"
 
@@ -36,52 +37,66 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using leveldb::Status;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
+using nanopb::ByteString;
+using nanopb::Message;
+using nanopb::StringReader;
 using util::MakeString;
-using leveldb::Status;
 
-FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
+absl::optional<Message<firestore_client_TargetGlobal>>
+LevelDbQueryCache::TryReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
-  if (status.IsNotFound()) {
-    return nil;
-  } else if (!status.ok()) {
-    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key,
-              status.ToString());
+
+  StringReader reader{value};
+  reader.set_status(ConvertStatus(status));
+
+  auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
+  if (!reader.ok()) {
+    if (reader.status().code() == Error::NotFound) {
+      return absl::nullopt;
+    } else {
+      HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
+                reader.status().ToString());
+    }
   }
 
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)value.data()
-                                              length:value.size()
-                                        freeWhenDone:NO];
+  return result;
+}
 
-  NSError* error;
-  FSTPBTargetGlobal* proto = [FSTPBTargetGlobal parseFromData:data
-                                                        error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
+Message<firestore_client_TargetGlobal> LevelDbQueryCache::ReadMetadata(
+    leveldb::DB* db) {
+  auto maybe_metadata = TryReadMetadata(db);
+  if (!maybe_metadata) {
+    HARD_FAIL(
+        "Found no metadata, expected schema to be at version 0 which "
+        "ensures metadata existence");
   }
-
-  return proto;
+  return std::move(maybe_metadata).value();
 }
 
 LevelDbQueryCache::LevelDbQueryCache(LevelDbPersistence* db,
-                                     FSTLocalSerializer* serializer)
-    : db_(db), serializer_(serializer) {
+                                     LocalSerializer* serializer)
+    : db_(NOT_NULL(db)), serializer_(NOT_NULL(serializer)) {
 }
 
 void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to current_transaction()
   metadata_ = ReadMetadata(db_->ptr());
-  HARD_ASSERT(metadata_ != nil,
-              "Found nil metadata, expected schema to be at version 0 which "
-              "ensures metadata existence");
-  last_remote_snapshot_version_ =
-      [serializer_ decodedVersion:metadata_.lastRemoteSnapshotVersion];
+
+  StringReader reader;
+  last_remote_snapshot_version_ = serializer_->DecodeVersion(
+      &reader, metadata_->last_remote_snapshot_version);
+  if (!reader.ok()) {
+    HARD_FAIL("Failed to decode last remote snapshot version, reason: '%s'",
+              reader.status().ToString());
+  }
 }
 
 void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
@@ -93,7 +108,7 @@ void LevelDbQueryCache::AddTarget(const QueryData& query_data) {
   std::string empty_buffer;
   db_->current_transaction()->Put(index_key, empty_buffer);
 
-  metadata_.targetCount++;
+  metadata_->target_count++;
   UpdateMetadata(query_data);
   SaveMetadata();
 }
@@ -118,7 +133,7 @@ void LevelDbQueryCache::RemoveTarget(const QueryData& query_data) {
       LevelDbQueryTargetKey::Key(query_data.query().CanonicalId(), target_id);
   db_->current_transaction()->Delete(index_key);
 
-  metadata_.targetCount--;
+  metadata_->target_count--;
   SaveMetadata();
 }
 
@@ -154,10 +169,11 @@ absl::optional<QueryData> LevelDbQueryCache::GetTarget(const Query& query) {
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
     if (!target_iterator->Valid() || target_iterator->key() != target_key) {
-      HARD_FAIL("Dangling query-target reference found: "
-                "%s points to %s; seeking there found %s",
-                DescribeKey(index_iterator), DescribeKey(target_key),
-                DescribeKey(target_iterator));
+      HARD_FAIL(
+          "Dangling query-target reference found: "
+          "%s points to %s; seeking there found %s",
+          DescribeKey(index_iterator), DescribeKey(target_key),
+          DescribeKey(target_iterator));
     }
 
     // Finally after finding a potential match, check that the query is actually
@@ -216,7 +232,7 @@ void LevelDbQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
     db_->current_transaction()->Put(
         LevelDbDocumentTargetKey::Key(key, target_id), empty_buffer);
     db_->reference_delegate()->AddReference(key);
-  };
+  }
 }
 
 void LevelDbQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
@@ -300,8 +316,8 @@ const SnapshotVersion& LevelDbQueryCache::GetLastRemoteSnapshotVersion() const {
 
 void LevelDbQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
-  metadata_.lastRemoteSnapshotVersion =
-      [serializer_ encodedVersion:last_remote_snapshot_version_];
+  metadata_->last_remote_snapshot_version =
+      serializer_->EncodeVersion(last_remote_snapshot_version_);
   SaveMetadata();
 }
 
@@ -345,18 +361,19 @@ void LevelDbQueryCache::Save(const QueryData& query_data) {
   TargetId target_id = query_data.target_id();
   std::string key = LevelDbTargetKey::Key(target_id);
   db_->current_transaction()->Put(key,
-                                  [serializer_ encodedQueryData:query_data]);
+                                  serializer_->EncodeQueryData(query_data));
 }
 
 bool LevelDbQueryCache::UpdateMetadata(const QueryData& query_data) {
   bool updated = false;
-  if (query_data.target_id() > metadata_.highestTargetId) {
-    metadata_.highestTargetId = query_data.target_id();
+  if (query_data.target_id() > metadata_->highest_target_id) {
+    metadata_->highest_target_id = query_data.target_id();
     updated = true;
   }
 
-  if (query_data.sequence_number() > metadata_.highestListenSequenceNumber) {
-    metadata_.highestListenSequenceNumber = query_data.sequence_number();
+  if (query_data.sequence_number() >
+      metadata_->highest_listen_sequence_number) {
+    metadata_->highest_listen_sequence_number = query_data.sequence_number();
     updated = true;
   }
 
@@ -368,17 +385,14 @@ void LevelDbQueryCache::SaveMetadata() {
 }
 
 QueryData LevelDbQueryCache::DecodeTarget(absl::string_view encoded) {
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:NO];
-
-  NSError* error;
-  FSTPBTarget* proto = [FSTPBTarget parseFromData:data error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBTarget failed to parse: %s", error);
+  StringReader reader{encoded};
+  auto message = Message<firestore_client_Target>::TryParse(&reader);
+  auto result = serializer_->DecodeQueryData(&reader, *message);
+  if (!reader.ok()) {
+    HARD_FAIL("Target proto failed to parse: %s", reader.status().ToString());
   }
 
-  return [serializer_ decodedQueryData:proto];
+  return result;
 }
 
 }  // namespace local

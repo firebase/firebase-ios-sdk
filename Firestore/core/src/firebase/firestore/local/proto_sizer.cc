@@ -16,13 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/local/proto_sizer.h"
 
-#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
+#include <utility>
 
+#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,21 +30,27 @@ namespace local {
 
 using model::DocumentKey;
 using model::MaybeDocument;
+using nanopb::ByteString;
+using nanopb::Message;
 
-ProtoSizer::ProtoSizer(FSTLocalSerializer* serializer)
-    : serializer_(serializer) {
+ProtoSizer::ProtoSizer(LocalSerializer serializer)
+    : serializer_(std::move(serializer)) {
 }
 
 int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
-  return [[serializer_ encodedMaybeDocument:maybe_doc] serializedSize];
+  // TODO(varconst): implement a version of `nanopb::Writer` that only
+  // calculates sizes without actually doing the encoding (to the extent
+  // possible). This isn't high priority as long as `ProtoSizer` is only used in
+  // tests.
+  return MakeByteString(serializer_.EncodeMaybeDocument(maybe_doc)).size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const model::MutationBatch& batch) const {
-  return [[serializer_ encodedMutationBatch:batch] serializedSize];
+  return MakeByteString(serializer_.EncodeMutationBatch(batch)).size();
 }
 
 int64_t ProtoSizer::CalculateByteSize(const QueryData& query_data) const {
-  return [[serializer_ encodedQueryData:query_data] serializedSize];
+  return MakeByteString(serializer_.EncodeQueryData(query_data)).size();
 }
 
 }  // namespace local

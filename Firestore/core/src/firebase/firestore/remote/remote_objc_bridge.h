@@ -71,8 +71,8 @@ class WatchStreamSerializer {
   nanopb::Message<google_firestore_v1_ListenRequest> EncodeUnwatchRequest(
       model::TargetId target_id) const;
 
-  nanopb::MaybeMessage<google_firestore_v1_ListenResponse> ParseResponse(
-      const grpc::ByteBuffer& buffer) const;
+  nanopb::Message<google_firestore_v1_ListenResponse> ParseResponse(
+      nanopb::Reader* reader) const;
   std::unique_ptr<WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& response) const;
@@ -103,8 +103,8 @@ class WriteStreamSerializer {
     return EncodeWriteMutationsRequest({}, last_stream_token);
   }
 
-  nanopb::MaybeMessage<google_firestore_v1_WriteResponse> ParseResponse(
-      const grpc::ByteBuffer& buffer) const;
+  nanopb::Message<google_firestore_v1_WriteResponse> ParseResponse(
+      nanopb::Reader* reader) const;
   model::SnapshotVersion DecodeCommitVersion(
       nanopb::Reader* reader,
       const google_firestore_v1_WriteResponse& proto) const;

@@ -19,21 +19,18 @@
 #include <memory>
 #include <utility>
 
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
-
 #include "Firestore/core/src/firebase/firestore/local/leveldb_persistence.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_delegate.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -52,8 +49,8 @@ using model::Mutation;
 using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
-using nanopb::MakeByteString;
-using nanopb::MakeNSData;
+using nanopb::Message;
+using nanopb::StringReader;
 
 BatchId LoadNextBatchIdFromDb(DB* db) {
   // TODO(gsoltis): implement Prev() and SeekToLast() on
@@ -126,21 +123,15 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
-                                           FSTLocalSerializer* serializer)
-    : db_(db),
-      serializer_(serializer),
+                                           LocalSerializer* serializer)
+    : db_(NOT_NULL(db)),
+      serializer_(NOT_NULL(serializer)),
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
 
 void LevelDbMutationQueue::Start() {
   next_batch_id_ = LoadNextBatchIdFromDb(db_->ptr());
-
-  std::string key = mutation_queue_key();
-  FSTPBMutationQueue* metadata = MetadataForKey(key);
-  if (!metadata) {
-    metadata = [FSTPBMutationQueue message];
-  }
-  metadata_ = metadata;
+  metadata_ = MetadataForKey(mutation_queue_key());
 }
 
 bool LevelDbMutationQueue::IsEmpty() {
@@ -171,8 +162,7 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
   MutationBatch batch(batch_id, local_write_time, std::move(base_mutations),
                       std::move(mutations));
   std::string key = mutation_batch_key(batch_id);
-  db_->current_transaction()->Put(key,
-                                  [serializer_ encodedMutationBatch:batch]);
+  db_->current_transaction()->Put(key, serializer_->EncodeMutationBatch(batch));
 
   // Store an empty value in the index which is equivalent to serializing a
   // GPBEmpty message. In the future if we wanted to store some other kind of
@@ -420,20 +410,18 @@ void LevelDbMutationQueue::PerformConsistencyCheck() {
     dangling_mutation_references.push_back(DescribeKey(index_iterator));
   }
 
-  HARD_ASSERT(
-      dangling_mutation_references.empty(),
-      "Document leak -- detected dangling mutation references when queue "
-      "is empty. Dangling keys: %s",
-      util::ToString(dangling_mutation_references));
+  HARD_ASSERT(dangling_mutation_references.empty(),
+              "Document leak -- detected dangling mutation references when "
+              "queue is empty. Dangling keys: %s",
+              util::ToString(dangling_mutation_references));
 }
 
 ByteString LevelDbMutationQueue::GetLastStreamToken() {
-  return MakeByteString(metadata_.lastStreamToken);
+  return ByteString{metadata_->last_stream_token};
 }
 
-void LevelDbMutationQueue::SetLastStreamToken(const ByteString& stream_token) {
-  metadata_.lastStreamToken = MakeNullableNSData(stream_token);
-
+void LevelDbMutationQueue::SetLastStreamToken(ByteString stream_token) {
+  metadata_->last_stream_token = stream_token.release();
   db_->current_transaction()->Put(mutation_queue_key(), metadata_);
 }
 
@@ -449,57 +437,52 @@ std::vector<MutationBatch> LevelDbMutationQueue::AllMutationBatchesWithIds(
     mutation_iterator->Seek(mutation_key);
     if (!mutation_iterator->Valid() ||
         mutation_iterator->key() != mutation_key) {
-      HARD_FAIL("Dangling document-mutation reference found: "
-                "Missing batch %s; seeking there found %s",
-                DescribeKey(mutation_key), DescribeKey(mutation_iterator));
+      HARD_FAIL(
+          "Dangling document-mutation reference found: Missing batch %s; "
+          "seeking there found %s",
+          DescribeKey(mutation_key), DescribeKey(mutation_iterator));
     }
 
     result.push_back(ParseMutationBatch(mutation_iterator->value()));
   }
+
   return result;
 }
 
-FSTPBMutationQueue* _Nullable LevelDbMutationQueue::MetadataForKey(
+Message<firestore_client_MutationQueue> LevelDbMutationQueue::MetadataForKey(
     const std::string& key) {
   std::string value;
   Status status = db_->current_transaction()->Get(key, &value);
-  if (status.ok()) {
-    NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)value.data()
-                                                length:value.size()
-                                          freeWhenDone:NO];
 
-    NSError* error;
-    FSTPBMutationQueue* proto = [FSTPBMutationQueue parseFromData:data
-                                                            error:&error];
-    if (!proto) {
-      HARD_FAIL("FSTPBMutationQueue failed to parse: %s", error);
-    }
-    return proto;
-  } else if (status.IsNotFound()) {
-    return nil;
+  StringReader reader{value};
+  reader.set_status(ConvertStatus(status));
+  auto result = Message<firestore_client_MutationQueue>::TryParse(&reader);
+
+  if (reader.ok()) {
+    return result;
+  } else if (reader.status().code() == Error::NotFound) {
+    // Return a default-constructed message (`TryParse` is guaranteed to return
+    // a default-constructed message on failure).
+    return result;
   } else {
     HARD_FAIL("MetadataForKey: failed loading key %s with status: %s", key,
-              status.ToString());
+              reader.status().ToString());
   }
 }
 
 MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
-  NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:NO];
-
-  NSError* error;
-  FSTPBWriteBatch* proto = [FSTPBWriteBatch parseFromData:data error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBMutationBatch failed to parse: %s", error);
+  StringReader reader{encoded};
+  auto maybe_message = Message<firestore_client_WriteBatch>::TryParse(&reader);
+  auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
+  if (!reader.ok()) {
+    HARD_FAIL("MutationBatch proto failed to parse: %s",
+              reader.status().ToString());
   }
 
-  return [serializer_ decodedMutationBatch:proto];
+  return result;
 }
 
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

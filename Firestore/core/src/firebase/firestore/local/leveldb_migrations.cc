@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "absl/strings/match.h"
@@ -39,7 +40,8 @@ using leveldb::Status;
 using leveldb::WriteOptions;
 using model::DocumentKey;
 using model::ResourcePath;
-using nanopb::Reader;
+using nanopb::Message;
+using nanopb::StringReader;
 using nanopb::Writer;
 
 namespace {
@@ -113,8 +115,7 @@ void ClearQueryCache(leveldb::DB* db) {
   firestore_client_TargetGlobal target_global{};
 
   nanopb::StringWriter writer;
-  writer.WriteNanopbMessage(firestore_client_TargetGlobal_fields,
-                            &target_global);
+  writer.Write(firestore_client_TargetGlobal_fields, &target_global);
   transaction.Put(LevelDbTargetGlobalKey::Key(), writer.Release());
 
   SaveVersion(3, &transaction);
@@ -172,15 +173,14 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
   for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
        it->Next()) {
     HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
-    firestore_client_MutationQueue mutation_queue{};
-    Reader reader(it->value());
-    reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
-                             &mutation_queue);
+    StringReader reader(it->value());
+    auto mutation_queue =
+        Message<firestore_client_MutationQueue>::TryParse(&reader);
     HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
     RemoveMutationBatches(&transaction, key.user_id(),
-                          mutation_queue.last_acknowledged_batch_id);
+                          mutation_queue->last_acknowledged_batch_id);
     RemoveMutationDocuments(&transaction, key.user_id(),
-                            mutation_queue.last_acknowledged_batch_id);
+                            mutation_queue->last_acknowledged_batch_id);
   }
 
   SaveVersion(5, &transaction);
@@ -195,11 +195,10 @@ model::ListenSequenceNumber GetHighestSequenceNumber(
   std::string bytes;
   transaction->Get(LevelDbTargetGlobalKey::Key(), &bytes);
 
-  firestore_client_TargetGlobal target_global{};
-  Reader reader(bytes);
-  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields,
-                           &target_global);
-  return target_global.highest_listen_sequence_number;
+  StringReader reader(bytes);
+  auto target_global =
+      Message<firestore_client_TargetGlobal>::TryParse(&reader);
+  return target_global->highest_listen_sequence_number;
 }
 
 /**
