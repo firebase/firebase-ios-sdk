@@ -113,10 +113,10 @@ typedef struct _google_protobuf_Value {
             result += PrintField("bool_value: ", bool_value, indent + 1);
             break;
           case 5: // google_protobuf_Value_struct_value_tag
-            result += PrintField("struct_value: ", struct_value, indent + 1);
+            result += PrintField("struct_value ", struct_value, indent + 1);
             break;
           case 6: // google_protobuf_Value_list_value_tag
-            result += PrintField("list_value: ", list_value, indent + 1);
+            result += PrintField("list_value ", list_value, indent + 1);
             break;
         }
 
@@ -139,7 +139,7 @@ typedef struct _google_protobuf_Struct_FieldsEntry {
         std::string result{"{\n"};
 
         result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value ", value, indent + 1);
 
         result += Indent(indent) + '}';
         return result;

@@ -44,7 +44,7 @@ typedef struct _google_protobuf_Empty {
         std::string result{"{\n"};
 
 
-        //result += Indent(indent) + '}';
+        result += Indent(indent) + '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */

@@ -279,16 +279,16 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         result += PrintField("database: ", database, indent + 1);
         result += PrintRepeatedField("documents: ",
             documents, documents_count, indent + 1);
-        result += PrintField("mask: ", mask, indent + 1);
+        result += PrintField("mask ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 4: // google_firestore_v1_BatchGetDocumentsRequest_transaction_tag
             result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 5: // google_firestore_v1_BatchGetDocumentsRequest_new_transaction_tag
-            result += PrintField("new_transaction: ", new_transaction, indent + 1);
+            result += PrintField("new_transaction ", new_transaction, indent + 1);
             break;
           case 7: // google_firestore_v1_BatchGetDocumentsRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent + 1);
+            result += PrintField("read_time ", read_time, indent + 1);
             break;
         }
 
@@ -317,7 +317,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
 
         switch (which_result) {
           case 1: // google_firestore_v1_BatchGetDocumentsResponse_found_tag
-            result += PrintField("found: ", found, indent + 1);
+            result += PrintField("found ", found, indent + 1);
             break;
           case 2: // google_firestore_v1_BatchGetDocumentsResponse_missing_tag
             result += PrintField("missing: ", missing, indent + 1);
@@ -325,7 +325,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
         }
 
         result += PrintField("transaction: ", transaction, indent + 1);
-        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -345,7 +345,7 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
         std::string result{"{\n"};
 
         result += PrintField("database: ", database, indent + 1);
-        result += PrintField("options: ", options, indent + 1);
+        result += PrintField("options ", options, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -367,7 +367,7 @@ typedef struct _google_firestore_v1_CommitResponse {
 
         result += PrintRepeatedField("write_results: ",
             write_results, write_results_count, indent + 1);
-        result += PrintField("commit_time: ", commit_time, indent + 1);
+        result += PrintField("commit_time ", commit_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -392,8 +392,8 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
         result += PrintField("parent: ", parent, indent + 1);
         result += PrintField("collection_id: ", collection_id, indent + 1);
         result += PrintField("document_id: ", document_id, indent + 1);
-        result += PrintField("document: ", document, indent + 1);
-        result += PrintField("mask: ", mask, indent + 1);
+        result += PrintField("document ", document, indent + 1);
+        result += PrintField("mask ", mask, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -413,7 +413,7 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
         std::string result{"{\n"};
 
         result += PrintField("name: ", name, indent + 1);
-        result += PrintField("current_document: ", current_document, indent + 1);
+        result += PrintField("current_document ", current_document, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -438,13 +438,13 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
         std::string result{"{\n"};
 
         result += PrintField("name: ", name, indent + 1);
-        result += PrintField("mask: ", mask, indent + 1);
+        result += PrintField("mask ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 3: // google_firestore_v1_GetDocumentRequest_transaction_tag
             result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 5: // google_firestore_v1_GetDocumentRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent + 1);
+            result += PrintField("read_time ", read_time, indent + 1);
             break;
         }
 
@@ -503,13 +503,13 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
         result += PrintField("page_size: ", page_size, indent + 1);
         result += PrintField("page_token: ", page_token, indent + 1);
         result += PrintField("order_by: ", order_by, indent + 1);
-        result += PrintField("mask: ", mask, indent + 1);
+        result += PrintField("mask ", mask, indent + 1);
         switch (which_consistency_selector) {
           case 8: // google_firestore_v1_ListDocumentsRequest_transaction_tag
             result += PrintField("transaction: ", transaction, indent + 1);
             break;
           case 10: // google_firestore_v1_ListDocumentsRequest_read_time_tag
-            result += PrintField("read_time: ", read_time, indent + 1);
+            result += PrintField("read_time ", read_time, indent + 1);
             break;
         }
 
@@ -544,7 +544,7 @@ typedef struct _google_firestore_v1_RunQueryRequest {
         result += PrintField("parent: ", parent, indent + 1);
         switch (which_query_type) {
           case 2: // google_firestore_v1_RunQueryRequest_structured_query_tag
-            result += PrintField("structured_query: ", query_type.structured_query, indent + 1);
+            result += PrintField("structured_query ", query_type.structured_query, indent + 1);
             break;
         }
 
@@ -553,10 +553,10 @@ typedef struct _google_firestore_v1_RunQueryRequest {
             result += PrintField("transaction: ", consistency_selector.transaction, indent + 1);
             break;
           case 6: // google_firestore_v1_RunQueryRequest_new_transaction_tag
-            result += PrintField("new_transaction: ", consistency_selector.new_transaction, indent + 1);
+            result += PrintField("new_transaction ", consistency_selector.new_transaction, indent + 1);
             break;
           case 7: // google_firestore_v1_RunQueryRequest_read_time_tag
-            result += PrintField("read_time: ", consistency_selector.read_time, indent + 1);
+            result += PrintField("read_time ", consistency_selector.read_time, indent + 1);
             break;
         }
 
@@ -580,9 +580,9 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("document ", document, indent + 1);
         result += PrintField("transaction: ", transaction, indent + 1);
-        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1);
         result += PrintField("skipped_results: ", skipped_results, indent + 1);
 
         result += Indent(indent) + '}';
@@ -610,9 +610,9 @@ typedef struct _google_firestore_v1_TargetChange {
         result += PrintField("target_change_type: ", target_change_type, indent + 1);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
-        if (has_cause) result += PrintField("cause: ", cause, indent + 1);
+        if (has_cause) result += PrintField("cause ", cause, indent + 1);
         result += PrintField("resume_token: ", resume_token, indent + 1);
-        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -637,7 +637,7 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
         result += PrintField("parent: ", parent, indent + 1);
         switch (which_query_type) {
           case 2: // google_firestore_v1_Target_QueryTarget_structured_query_tag
-            result += PrintField("structured_query: ", structured_query, indent + 1);
+            result += PrintField("structured_query ", structured_query, indent + 1);
             break;
         }
 
@@ -661,10 +661,10 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("document: ", document, indent + 1);
-        result += PrintField("update_mask: ", update_mask, indent + 1);
-        result += PrintField("mask: ", mask, indent + 1);
-        result += PrintField("current_document: ", current_document, indent + 1);
+        result += PrintField("document ", document, indent + 1);
+        result += PrintField("update_mask ", update_mask, indent + 1);
+        result += PrintField("mask ", mask, indent + 1);
+        result += PrintField("current_document ", current_document, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -690,7 +690,7 @@ typedef struct _google_firestore_v1_WriteResponse {
         result += PrintField("stream_token: ", stream_token, indent + 1);
         result += PrintRepeatedField("write_results: ",
             write_results, write_results_count, indent + 1);
-        result += PrintField("commit_time: ", commit_time, indent + 1);
+        result += PrintField("commit_time ", commit_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -717,19 +717,19 @@ typedef struct _google_firestore_v1_ListenResponse {
 
         switch (which_response_type) {
           case 2: // google_firestore_v1_ListenResponse_target_change_tag
-            result += PrintField("target_change: ", target_change, indent + 1);
+            result += PrintField("target_change ", target_change, indent + 1);
             break;
           case 3: // google_firestore_v1_ListenResponse_document_change_tag
-            result += PrintField("document_change: ", document_change, indent + 1);
+            result += PrintField("document_change ", document_change, indent + 1);
             break;
           case 4: // google_firestore_v1_ListenResponse_document_delete_tag
-            result += PrintField("document_delete: ", document_delete, indent + 1);
+            result += PrintField("document_delete ", document_delete, indent + 1);
             break;
           case 5: // google_firestore_v1_ListenResponse_filter_tag
-            result += PrintField("filter: ", filter, indent + 1);
+            result += PrintField("filter ", filter, indent + 1);
             break;
           case 6: // google_firestore_v1_ListenResponse_document_remove_tag
-            result += PrintField("document_remove: ", document_remove, indent + 1);
+            result += PrintField("document_remove ", document_remove, indent + 1);
             break;
         }
 
@@ -763,10 +763,10 @@ typedef struct _google_firestore_v1_Target {
 
         switch (which_target_type) {
           case 2: // google_firestore_v1_Target_query_tag
-            result += PrintField("query: ", target_type.query, indent + 1);
+            result += PrintField("query ", target_type.query, indent + 1);
             break;
           case 3: // google_firestore_v1_Target_documents_tag
-            result += PrintField("documents: ", target_type.documents, indent + 1);
+            result += PrintField("documents ", target_type.documents, indent + 1);
             break;
         }
 
@@ -775,7 +775,7 @@ typedef struct _google_firestore_v1_Target {
             result += PrintField("resume_token: ", resume_type.resume_token, indent + 1);
             break;
           case 11: // google_firestore_v1_Target_read_time_tag
-            result += PrintField("read_time: ", resume_type.read_time, indent + 1);
+            result += PrintField("read_time ", resume_type.read_time, indent + 1);
             break;
         }
 
@@ -808,7 +808,7 @@ typedef struct _google_firestore_v1_ListenRequest {
         result += PrintField("database: ", database, indent + 1);
         switch (which_target_change) {
           case 2: // google_firestore_v1_ListenRequest_add_target_tag
-            result += PrintField("add_target: ", add_target, indent + 1);
+            result += PrintField("add_target ", add_target, indent + 1);
             break;
           case 3: // google_firestore_v1_ListenRequest_remove_target_tag
             result += PrintField("remove_target: ", remove_target, indent + 1);

@@ -24,7 +24,6 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "absl/meta/type_traits.h"
-#include "google/protobuf/empty.nanopb.h"
 
 namespace firebase {
 namespace firestore {

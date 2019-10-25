@@ -99,8 +99,8 @@ typedef struct _google_firestore_v1_Document {
         result += PrintField("name: ", name, indent + 1);
         result += PrintRepeatedField("fields: ",
             fields, fields_count, indent + 1);
-        result += PrintField("create_time: ", create_time, indent + 1);
-        if (has_update_time) result += PrintField("update_time: ", update_time, indent + 1);
+        result += PrintField("create_time ", create_time, indent + 1);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -145,16 +145,16 @@ typedef struct _google_firestore_v1_Value {
             result += PrintField("reference_value: ", reference_value, indent + 1);
             break;
           case 6: // google_firestore_v1_Value_map_value_tag
-            result += PrintField("map_value: ", map_value, indent + 1);
+            result += PrintField("map_value ", map_value, indent + 1);
             break;
           case 8: // google_firestore_v1_Value_geo_point_value_tag
-            result += PrintField("geo_point_value: ", geo_point_value, indent + 1);
+            result += PrintField("geo_point_value ", geo_point_value, indent + 1);
             break;
           case 9: // google_firestore_v1_Value_array_value_tag
-            result += PrintField("array_value: ", array_value, indent + 1);
+            result += PrintField("array_value ", array_value, indent + 1);
             break;
           case 10: // google_firestore_v1_Value_timestamp_value_tag
-            result += PrintField("timestamp_value: ", timestamp_value, indent + 1);
+            result += PrintField("timestamp_value ", timestamp_value, indent + 1);
             break;
           case 11: // google_firestore_v1_Value_null_value_tag
             result += PrintField("null_value: ", null_value, indent + 1);
@@ -186,7 +186,7 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
         std::string result{"{\n"};
 
         result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value ", value, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -206,7 +206,7 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
         std::string result{"{\n"};
 
         result += PrintField("key: ", key, indent + 1);
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value ", value, indent + 1);
 
         result += Indent(indent) + '}';
         return result;

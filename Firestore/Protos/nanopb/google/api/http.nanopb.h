@@ -115,7 +115,7 @@ typedef struct _google_api_HttpRule {
             result += PrintField("patch: ", patch, indent + 1);
             break;
           case 8: // google_api_HttpRule_custom_tag
-            result += PrintField("custom: ", custom, indent + 1);
+            result += PrintField("custom ", custom, indent + 1);
             break;
         }
 

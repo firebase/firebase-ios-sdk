@@ -86,7 +86,7 @@ typedef struct _google_firestore_v1_DocumentChange {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("document: ", document, indent + 1);
+        result += PrintField("document ", document, indent + 1);
         result += PrintRepeatedField("target_ids: ",
             target_ids, target_ids_count, indent + 1);
         result += PrintRepeatedField("removed_target_ids: ",
@@ -113,7 +113,7 @@ typedef struct _google_firestore_v1_DocumentDelete {
         std::string result{"{\n"};
 
         result += PrintField("document: ", document, indent + 1);
-        if (has_read_time) result += PrintField("read_time: ", read_time, indent + 1);
+        if (has_read_time) result += PrintField("read_time ", read_time, indent + 1);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
 
@@ -139,7 +139,7 @@ typedef struct _google_firestore_v1_DocumentRemove {
         result += PrintField("document: ", document, indent + 1);
         result += PrintRepeatedField("removed_target_ids: ",
             removed_target_ids, removed_target_ids_count, indent + 1);
-        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -172,19 +172,19 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
             result += PrintField("set_to_server_value: ", set_to_server_value, indent + 1);
             break;
           case 3: // google_firestore_v1_DocumentTransform_FieldTransform_increment_tag
-            result += PrintField("increment: ", increment, indent + 1);
+            result += PrintField("increment ", increment, indent + 1);
             break;
           case 4: // google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag
-            result += PrintField("maximum: ", maximum, indent + 1);
+            result += PrintField("maximum ", maximum, indent + 1);
             break;
           case 5: // google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag
-            result += PrintField("minimum: ", minimum, indent + 1);
+            result += PrintField("minimum ", minimum, indent + 1);
             break;
           case 6: // google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag
-            result += PrintField("append_missing_elements: ", append_missing_elements, indent + 1);
+            result += PrintField("append_missing_elements ", append_missing_elements, indent + 1);
             break;
           case 7: // google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag
-            result += PrintField("remove_all_from_array: ", remove_all_from_array, indent + 1);
+            result += PrintField("remove_all_from_array ", remove_all_from_array, indent + 1);
             break;
         }
 
@@ -236,18 +236,18 @@ typedef struct _google_firestore_v1_Write {
 
         switch (which_operation) {
           case 1: // google_firestore_v1_Write_update_tag
-            result += PrintField("update: ", update, indent + 1);
+            result += PrintField("update ", update, indent + 1);
             break;
           case 2: // google_firestore_v1_Write_delete_tag
             result += PrintField("delete_: ", delete_, indent + 1);
             break;
           case 6: // google_firestore_v1_Write_transform_tag
-            result += PrintField("transform: ", transform, indent + 1);
+            result += PrintField("transform ", transform, indent + 1);
             break;
         }
 
-        if (has_update_mask) result += PrintField("update_mask: ", update_mask, indent + 1);
-        if (has_current_document) result += PrintField("current_document: ", current_document, indent + 1);
+        if (has_update_mask) result += PrintField("update_mask ", update_mask, indent + 1);
+        if (has_current_document) result += PrintField("current_document ", current_document, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -268,7 +268,7 @@ typedef struct _google_firestore_v1_WriteResult {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        if (has_update_time) result += PrintField("update_time: ", update_time, indent + 1);
+        if (has_update_time) result += PrintField("update_time ", update_time, indent + 1);
         result += PrintRepeatedField("transform_results: ",
             transform_results, transform_results_count, indent + 1);
 

@@ -195,9 +195,9 @@ typedef struct _google_firestore_v1_StructuredQuery_FieldFilter {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("field: ", field, indent + 1);
+        result += PrintField("field ", field, indent + 1);
         result += PrintField("op: ", op, indent + 1);
-        result += PrintField("value: ", value, indent + 1);
+        result += PrintField("value ", value, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -216,7 +216,7 @@ typedef struct _google_firestore_v1_StructuredQuery_Order {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("field: ", field, indent + 1);
+        result += PrintField("field ", field, indent + 1);
         result += PrintField("direction: ", direction, indent + 1);
 
         result += Indent(indent) + '}';
@@ -242,7 +242,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
         result += PrintField("op: ", op, indent + 1);
         switch (which_operand_type) {
           case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
-            result += PrintField("field: ", field, indent + 1);
+            result += PrintField("field ", field, indent + 1);
             break;
         }
 
@@ -270,13 +270,13 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
 
         switch (which_filter_type) {
           case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
-            result += PrintField("composite_filter: ", composite_filter, indent + 1);
+            result += PrintField("composite_filter ", composite_filter, indent + 1);
             break;
           case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
-            result += PrintField("field_filter: ", field_filter, indent + 1);
+            result += PrintField("field_filter ", field_filter, indent + 1);
             break;
           case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
-            result += PrintField("unary_filter: ", unary_filter, indent + 1);
+            result += PrintField("unary_filter ", unary_filter, indent + 1);
             break;
         }
 
@@ -307,16 +307,16 @@ typedef struct _google_firestore_v1_StructuredQuery {
     std::string ToString(int indent = 0) const {
         std::string result{"{\n"};
 
-        result += PrintField("select: ", select, indent + 1);
+        result += PrintField("select ", select, indent + 1);
         result += PrintRepeatedField("from: ",
             from, from_count, indent + 1);
-        result += PrintField("where: ", where, indent + 1);
+        result += PrintField("where ", where, indent + 1);
         result += PrintRepeatedField("order_by: ",
             order_by, order_by_count, indent + 1);
-        if (has_limit) result += PrintField("limit: ", limit, indent + 1);
+        if (has_limit) result += PrintField("limit ", limit, indent + 1);
         result += PrintField("offset: ", offset, indent + 1);
-        result += PrintField("start_at: ", start_at, indent + 1);
-        result += PrintField("end_at: ", end_at, indent + 1);
+        result += PrintField("start_at ", start_at, indent + 1);
+        result += PrintField("end_at ", end_at, indent + 1);
 
         result += Indent(indent) + '}';
         return result;

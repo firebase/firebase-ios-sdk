@@ -49,7 +49,7 @@ typedef struct _firestore_client_NoDocument {
         std::string result{"{\n"};
 
         result += PrintField("name: ", name, indent + 1);
-        result += PrintField("read_time: ", read_time, indent + 1);
+        result += PrintField("read_time ", read_time, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -69,7 +69,7 @@ typedef struct _firestore_client_UnknownDocument {
         std::string result{"{\n"};
 
         result += PrintField("name: ", name, indent + 1);
-        result += PrintField("version: ", version, indent + 1);
+        result += PrintField("version ", version, indent + 1);
 
         result += Indent(indent) + '}';
         return result;
@@ -95,13 +95,13 @@ typedef struct _firestore_client_MaybeDocument {
 
         switch (which_document_type) {
           case 1: // firestore_client_MaybeDocument_no_document_tag
-            result += PrintField("no_document: ", no_document, indent + 1);
+            result += PrintField("no_document ", no_document, indent + 1);
             break;
           case 2: // firestore_client_MaybeDocument_document_tag
-            result += PrintField("document: ", document, indent + 1);
+            result += PrintField("document ", document, indent + 1);
             break;
           case 3: // firestore_client_MaybeDocument_unknown_document_tag
-            result += PrintField("unknown_document: ", unknown_document, indent + 1);
+            result += PrintField("unknown_document ", unknown_document, indent + 1);
             break;
         }
 

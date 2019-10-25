@@ -409,8 +409,8 @@ def add_printing_for_repeated(name):
             %s, %s, indent + 1);''' % (name, count)
 
 
-def add_printing_for_optional(name, field):
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, field.is_primitive)
+def add_printing_for_optional(name):
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name, False)
 
 
 def add_printing_for_singular(print_name, actual_name, is_primitive):
@@ -418,16 +418,15 @@ def add_printing_for_singular(print_name, actual_name, is_primitive):
     actual_name = print_name
   if is_primitive:
     print_name += ': '
+  else:
+    print_name += ' '
   return '''result += PrintField("%s", %s, indent + 1);''' % (print_name, actual_name)
 
 
 # TODO:
-# 1. Fix indentation
-# 2. Extra colon
-#
-# 3. Oneof isn't properly recursive
-# 4. Formatting arrays?
-# 5. Line breaks in generated code
+# 1. Oneof isn't properly recursive
+# 2. Formatting arrays?
+# 3. Line breaks in generated code
 
 if __name__ == '__main__':
   main()
