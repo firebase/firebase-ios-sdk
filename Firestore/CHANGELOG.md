@@ -1,4 +1,9 @@
 # Unreleased
+- [feature] Added `whereField(In:)` and `whereField(arrayContainsAny:)` query
+  operators. `whereField(In:)` finds documents where a specified field’s value
+  is IN a specified array. `whereField(arrayContainsAny:)` finds documents
+  where a specified field is an array and contains ANY element of a specified
+  array.
 
 # v1.6.1
 - [fixed] Fix a race condition that could cause a segmentation fault during

@@ -274,6 +274,70 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
 // clang-format on
 
 /**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, the value must be an array, and that array must contain at least one value
+ * from the provided array.
+ *
+ * A query can have only one arrayContains filter and it cannot be combined with arrayContains or
+ * in.
+ *
+ * @param field The name of the field containing an array to search.
+ * @param value The value that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContainsAny:(id)value;
+// clang-format on
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, the value must be an array, and that array must contain at least one value
+ * from the provided array.
+ *
+ * A query can have only one arrayContains filter and it cannot be combined with arrayContains or
+ * in.
+ *
+ * @param path The path of the field containing an array to search.
+ * @param value The value that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContainsAny:(id)value;
+// clang-format on
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field and the value must equal one of the values from the provided array.
+ *
+ * A query can have only one in filter, and it cannot be combined with arrayContainsAny.
+ *
+ * @param field The name of the field to search.
+ * @param value The value that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereField:(NSString *)field in:(id)value;
+// clang-format on
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field and the value must equal one of the values from the provided array.
+ *
+ * A query can have only one in filter, and it cannot be combined with arrayContainsAny.
+ *
+ * @param path The path of the field to search.
+ * @param value The value that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path in:(id)value;
+// clang-format on
+
+/**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
  * satisfy the specified predicate.
  *
