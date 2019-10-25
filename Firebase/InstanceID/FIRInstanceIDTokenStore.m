@@ -123,7 +123,6 @@ static NSString *const kFIRInstanceIDTokenKeychainId = @"com.google.iid-tokens";
                                                             scope:tokenInfo.scope];
   [self.keychain setData:tokenInfoData
               forService:service
-           accessibility:NULL
                  account:account
                  handler:handler];
 }

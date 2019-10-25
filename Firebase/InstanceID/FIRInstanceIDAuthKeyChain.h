@@ -74,14 +74,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  Set the data for a given service and account with a specific accessibility. If
- *  accessibility is NULL we use `kSecAttrAccessibleAlwaysThisDeviceOnly` which
+ *  accessibility is NULL we use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` which
  *  prevents backup and restore to iCloud, and works for app extension that can
  *  execute right after a device is restarted (and not unlocked).
  *
  *  @param data          The data to save.
  *  @param service       The `kSecAttrService` used to save the password.
- *  @param accessibility The `kSecAttrAccessibility` used to save the password. If NULL
- *                       set this to `kSecAttrAccessibleAlwaysThisDeviceOnly`.
  *  @param account       The `kSecAttrAccount` used to save the password.
  *  @param handler       The callback handler which is invoked when the add operation is complete,
  *                       with an error if there is any.
@@ -89,7 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setData:(NSData *)data
        forService:(NSString *)service
-    accessibility:(nullable CFTypeRef)accessibility
           account:(NSString *)account
           handler:(nullable void (^)(NSError *))handler;
 
