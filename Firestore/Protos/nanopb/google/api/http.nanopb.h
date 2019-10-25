@@ -37,8 +37,12 @@ typedef struct _google_api_CustomHttpPattern {
     pb_bytes_array_t *kind;
     pb_bytes_array_t *path;
 
+    static const char* Name() {
+        return "CustomHttpPattern";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<CustomHttpPattern>: {\n"};
+        std::string result{"{\n"};
 
         if (kind != nullptr) result += absl::StrCat("kind: ",
             ToStringImpl(kind, indent), "\n");
@@ -56,8 +60,12 @@ typedef struct _google_api_Http {
     struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
 
+    static const char* Name() {
+        return "Http";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Http>: {\n"};
+        std::string result{"{\n"};
 
         if (rules_count) result += absl::StrCat("rules: ",
             ToStringImpl(rules, rules_count, indent + 1), "\n");
@@ -85,8 +93,12 @@ typedef struct _google_api_HttpRule {
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
 
+    static const char* Name() {
+        return "HttpRule";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<HttpRule>: {\n"};
+        std::string result{"{\n"};
 
         if (selector != nullptr) result += absl::StrCat("selector: ",
             ToStringImpl(selector, indent), "\n");

@@ -37,8 +37,12 @@ typedef struct _google_protobuf_Any {
     pb_bytes_array_t *type_url;
     pb_bytes_array_t *value;
 
+    static const char* Name() {
+        return "Any";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Any>: {\n"};
+        std::string result{"{\n"};
 
         if (type_url != nullptr) result += absl::StrCat("type_url: ",
             ToStringImpl(type_url, indent), "\n");

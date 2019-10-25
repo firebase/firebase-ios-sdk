@@ -45,8 +45,12 @@ typedef struct _google_firestore_v1_ArrayValue {
     pb_size_t values_count;
     struct _google_firestore_v1_Value *values;
 
+    static const char* Name() {
+        return "ArrayValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ArrayValue>: {\n"};
+        std::string result{"{\n"};
 
         if (values_count) result += absl::StrCat("values: ",
             ToStringImpl(values, values_count, indent + 1), "\n");
@@ -61,8 +65,12 @@ typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
 
+    static const char* Name() {
+        return "MapValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<MapValue>: {\n"};
+        std::string result{"{\n"};
 
         if (fields_count) result += absl::StrCat("fields: ",
             ToStringImpl(fields, fields_count, indent + 1), "\n");
@@ -81,8 +89,12 @@ typedef struct _google_firestore_v1_Document {
     bool has_update_time;
     google_protobuf_Timestamp update_time;
 
+    static const char* Name() {
+        return "Document";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Document>: {\n"};
+        std::string result{"{\n"};
 
         if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
@@ -115,8 +127,12 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *bytes_value;
     };
 
+    static const char* Name() {
+        return "Value";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Value>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_value_type) {
           case 1: // google_firestore_v1_Value_boolean_value_tag
@@ -176,8 +192,12 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
 
+    static const char* Name() {
+        return "FieldsEntry";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<FieldsEntry>: {\n"};
+        std::string result{"{\n"};
 
         if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
@@ -194,8 +214,12 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
 
+    static const char* Name() {
+        return "FieldsEntry";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<FieldsEntry>: {\n"};
+        std::string result{"{\n"};
 
         if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");

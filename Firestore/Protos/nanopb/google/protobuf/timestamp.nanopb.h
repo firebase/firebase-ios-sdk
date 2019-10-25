@@ -37,8 +37,12 @@ typedef struct _google_protobuf_Timestamp {
     int64_t seconds;
     int32_t nanos;
 
+    static const char* Name() {
+        return "Timestamp";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Timestamp>: {\n"};
+        std::string result{"{\n"};
 
         if (seconds != 0) result += absl::StrCat("seconds: ",
             ToStringImpl(seconds, indent), "\n");

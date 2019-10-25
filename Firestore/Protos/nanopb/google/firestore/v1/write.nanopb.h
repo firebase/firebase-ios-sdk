@@ -55,8 +55,12 @@ typedef struct _google_firestore_v1_DocumentTransform {
     pb_size_t field_transforms_count;
     struct _google_firestore_v1_DocumentTransform_FieldTransform *field_transforms;
 
+    static const char* Name() {
+        return "DocumentTransform";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentTransform>: {\n"};
+        std::string result{"{\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -76,8 +80,12 @@ typedef struct _google_firestore_v1_DocumentChange {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
 
+    static const char* Name() {
+        return "DocumentChange";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentChange>: {\n"};
+        std::string result{"{\n"};
 
         result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -99,8 +107,12 @@ typedef struct _google_firestore_v1_DocumentDelete {
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
 
+    static const char* Name() {
+        return "DocumentDelete";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentDelete>: {\n"};
+        std::string result{"{\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -121,8 +133,12 @@ typedef struct _google_firestore_v1_DocumentRemove {
     int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
 
+    static const char* Name() {
+        return "DocumentRemove";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentRemove>: {\n"};
+        std::string result{"{\n"};
 
         if (document != nullptr) result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -149,8 +165,12 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         google_firestore_v1_ArrayValue remove_all_from_array;
     };
 
+    static const char* Name() {
+        return "FieldTransform";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<FieldTransform>: {\n"};
+        std::string result{"{\n"};
 
         if (field_path != nullptr) result += absl::StrCat("field_path: ",
             ToStringImpl(field_path, indent), "\n");
@@ -192,8 +212,12 @@ typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
 
+    static const char* Name() {
+        return "ExistenceFilter";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ExistenceFilter>: {\n"};
+        std::string result{"{\n"};
 
         if (target_id != 0) result += absl::StrCat("target_id: ",
             ToStringImpl(target_id, indent), "\n");
@@ -218,8 +242,12 @@ typedef struct _google_firestore_v1_Write {
     bool has_current_document;
     google_firestore_v1_Precondition current_document;
 
+    static const char* Name() {
+        return "Write";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Write>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_operation) {
           case 1: // google_firestore_v1_Write_update_tag
@@ -253,8 +281,12 @@ typedef struct _google_firestore_v1_WriteResult {
     pb_size_t transform_results_count;
     struct _google_firestore_v1_Value *transform_results;
 
+    static const char* Name() {
+        return "WriteResult";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<WriteResult>: {\n"};
+        std::string result{"{\n"};
 
         if (has_update_time) result += absl::StrCat("update_time: ",
             ToStringImpl(update_time, indent), "\n");

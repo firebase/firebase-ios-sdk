@@ -64,8 +64,12 @@ typedef enum _google_firestore_v1_TargetChange_TargetChangeType {
 typedef struct _google_firestore_v1_BeginTransactionResponse {
     pb_bytes_array_t *transaction;
 
+    static const char* Name() {
+        return "BeginTransactionResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BeginTransactionResponse>: {\n"};
+        std::string result{"{\n"};
 
         if (transaction != nullptr) result += absl::StrCat("transaction: ",
             ToStringImpl(transaction, indent), "\n");
@@ -82,8 +86,12 @@ typedef struct _google_firestore_v1_CommitRequest {
     struct _google_firestore_v1_Write *writes;
     pb_bytes_array_t *transaction;
 
+    static const char* Name() {
+        return "CommitRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<CommitRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -103,8 +111,12 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     pb_bytes_array_t **collection_ids;
     pb_bytes_array_t *next_page_token;
 
+    static const char* Name() {
+        return "ListCollectionIdsResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListCollectionIdsResponse>: {\n"};
+        std::string result{"{\n"};
 
         if (collection_ids_count) result += absl::StrCat("collection_ids: ",
             ToStringImpl(collection_ids, collection_ids_count, indent + 1), "\n");
@@ -122,8 +134,12 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     struct _google_firestore_v1_Document *documents;
     pb_bytes_array_t *next_page_token;
 
+    static const char* Name() {
+        return "ListDocumentsResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListDocumentsResponse>: {\n"};
+        std::string result{"{\n"};
 
         if (documents_count) result += absl::StrCat("documents: ",
             ToStringImpl(documents, documents_count, indent + 1), "\n");
@@ -140,8 +156,12 @@ typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
 
+    static const char* Name() {
+        return "LabelsEntry";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<LabelsEntry>: {\n"};
+        std::string result{"{\n"};
 
         if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
@@ -158,8 +178,12 @@ typedef struct _google_firestore_v1_RollbackRequest {
     pb_bytes_array_t *database;
     pb_bytes_array_t *transaction;
 
+    static const char* Name() {
+        return "RollbackRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<RollbackRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -176,8 +200,12 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_size_t documents_count;
     pb_bytes_array_t **documents;
 
+    static const char* Name() {
+        return "DocumentsTarget";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentsTarget>: {\n"};
+        std::string result{"{\n"};
 
         if (documents_count) result += absl::StrCat("documents: ",
             ToStringImpl(documents, documents_count, indent + 1), "\n");
@@ -197,8 +225,12 @@ typedef struct _google_firestore_v1_WriteRequest {
     pb_size_t labels_count;
     struct _google_firestore_v1_WriteRequest_LabelsEntry *labels;
 
+    static const char* Name() {
+        return "WriteRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<WriteRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -221,8 +253,12 @@ typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *key;
     pb_bytes_array_t *value;
 
+    static const char* Name() {
+        return "LabelsEntry";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<LabelsEntry>: {\n"};
+        std::string result{"{\n"};
 
         if (key != nullptr) result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
@@ -247,8 +283,12 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         google_protobuf_Timestamp read_time;
     };
 
+    static const char* Name() {
+        return "BatchGetDocumentsRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BatchGetDocumentsRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -287,8 +327,12 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
 
+    static const char* Name() {
+        return "BatchGetDocumentsResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BatchGetDocumentsResponse>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_result) {
           case 1: // google_firestore_v1_BatchGetDocumentsResponse_found_tag
@@ -316,8 +360,12 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
     pb_bytes_array_t *database;
     google_firestore_v1_TransactionOptions options;
 
+    static const char* Name() {
+        return "BeginTransactionRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BeginTransactionRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -335,8 +383,12 @@ typedef struct _google_firestore_v1_CommitResponse {
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
 
+    static const char* Name() {
+        return "CommitResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<CommitResponse>: {\n"};
+        std::string result{"{\n"};
 
         if (write_results_count) result += absl::StrCat("write_results: ",
             ToStringImpl(write_results, write_results_count, indent + 1), "\n");
@@ -356,8 +408,12 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     google_firestore_v1_Document document;
     google_firestore_v1_DocumentMask mask;
 
+    static const char* Name() {
+        return "CreateDocumentRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<CreateDocumentRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (parent != nullptr) result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -380,8 +436,12 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     pb_bytes_array_t *name;
     google_firestore_v1_Precondition current_document;
 
+    static const char* Name() {
+        return "DeleteDocumentRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DeleteDocumentRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
@@ -403,8 +463,12 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
         google_protobuf_Timestamp read_time;
     };
 
+    static const char* Name() {
+        return "GetDocumentRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<GetDocumentRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (name != nullptr) result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
@@ -433,8 +497,12 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     int32_t page_size;
     pb_bytes_array_t *page_token;
 
+    static const char* Name() {
+        return "ListCollectionIdsRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListCollectionIdsRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (parent != nullptr) result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -463,8 +531,12 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
     };
     bool show_missing;
 
+    static const char* Name() {
+        return "ListDocumentsRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListDocumentsRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (parent != nullptr) result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -511,8 +583,12 @@ typedef struct _google_firestore_v1_RunQueryRequest {
         google_protobuf_Timestamp read_time;
     } consistency_selector;
 
+    static const char* Name() {
+        return "RunQueryRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<RunQueryRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (parent != nullptr) result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -551,8 +627,12 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     google_protobuf_Timestamp read_time;
     int32_t skipped_results;
 
+    static const char* Name() {
+        return "RunQueryResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<RunQueryResponse>: {\n"};
+        std::string result{"{\n"};
 
         result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -578,8 +658,12 @@ typedef struct _google_firestore_v1_TargetChange {
     pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
 
+    static const char* Name() {
+        return "TargetChange";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<TargetChange>: {\n"};
+        std::string result{"{\n"};
 
         if (target_change_type != 0) result += absl::StrCat("target_change_type: ",
             ToStringImpl(target_change_type, indent), "\n");
@@ -605,8 +689,12 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
         google_firestore_v1_StructuredQuery structured_query;
     };
 
+    static const char* Name() {
+        return "QueryTarget";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<QueryTarget>: {\n"};
+        std::string result{"{\n"};
 
         if (parent != nullptr) result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -630,8 +718,12 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     google_firestore_v1_DocumentMask mask;
     google_firestore_v1_Precondition current_document;
 
+    static const char* Name() {
+        return "UpdateDocumentRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<UpdateDocumentRequest>: {\n"};
+        std::string result{"{\n"};
 
         result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -655,8 +747,12 @@ typedef struct _google_firestore_v1_WriteResponse {
     struct _google_firestore_v1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
 
+    static const char* Name() {
+        return "WriteResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<WriteResponse>: {\n"};
+        std::string result{"{\n"};
 
         if (stream_id != nullptr) result += absl::StrCat("stream_id: ",
             ToStringImpl(stream_id, indent), "\n");
@@ -683,8 +779,12 @@ typedef struct _google_firestore_v1_ListenResponse {
         google_firestore_v1_DocumentRemove document_remove;
     };
 
+    static const char* Name() {
+        return "ListenResponse";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListenResponse>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_response_type) {
           case 2: // google_firestore_v1_ListenResponse_target_change_tag
@@ -730,8 +830,12 @@ typedef struct _google_firestore_v1_Target {
     int32_t target_id;
     bool once;
 
+    static const char* Name() {
+        return "Target";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Target>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_target_type) {
           case 2: // google_firestore_v1_Target_query_tag
@@ -776,8 +880,12 @@ typedef struct _google_firestore_v1_ListenRequest {
     pb_size_t labels_count;
     struct _google_firestore_v1_ListenRequest_LabelsEntry *labels;
 
+    static const char* Name() {
+        return "ListenRequest";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ListenRequest>: {\n"};
+        std::string result{"{\n"};
 
         if (database != nullptr) result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");

@@ -36,8 +36,12 @@ namespace firestore {
 typedef struct _google_protobuf_Empty {
     char dummy_field;
 
+    static const char* Name() {
+        return "Empty";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Empty>: {\n"};
+        std::string result{"{\n"};
 
 
         result += '}';

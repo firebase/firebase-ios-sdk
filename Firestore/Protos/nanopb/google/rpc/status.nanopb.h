@@ -41,8 +41,12 @@ typedef struct _google_rpc_Status {
     pb_size_t details_count;
     struct _google_protobuf_Any *details;
 
+    static const char* Name() {
+        return "Status";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Status>: {\n"};
+        std::string result{"{\n"};
 
         if (code != 0) result += absl::StrCat("code: ",
             ToStringImpl(code, indent), "\n");

@@ -48,8 +48,12 @@ typedef struct _firestore_client_Target {
         google_firestore_v1_Target_DocumentsTarget documents;
     };
 
+    static const char* Name() {
+        return "Target";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Target>: {\n"};
+        std::string result{"{\n"};
 
         if (target_id != 0) result += absl::StrCat("target_id: ",
             ToStringImpl(target_id, indent), "\n");
@@ -83,8 +87,12 @@ typedef struct _firestore_client_TargetGlobal {
     google_protobuf_Timestamp last_remote_snapshot_version;
     int32_t target_count;
 
+    static const char* Name() {
+        return "TargetGlobal";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<TargetGlobal>: {\n"};
+        std::string result{"{\n"};
 
         if (highest_target_id != 0) result += absl::StrCat("highest_target_id: ",
             ToStringImpl(highest_target_id, indent), "\n");

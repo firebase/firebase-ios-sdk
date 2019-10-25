@@ -41,8 +41,12 @@ typedef struct _google_firestore_v1_DocumentMask {
     pb_size_t field_paths_count;
     pb_bytes_array_t **field_paths;
 
+    static const char* Name() {
+        return "DocumentMask";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DocumentMask>: {\n"};
+        std::string result{"{\n"};
 
         if (field_paths_count) result += absl::StrCat("field_paths: ",
             ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
@@ -56,8 +60,12 @@ typedef struct _google_firestore_v1_DocumentMask {
 typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
 
+    static const char* Name() {
+        return "ReadWrite";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ReadWrite>: {\n"};
+        std::string result{"{\n"};
 
         if (retry_transaction != nullptr) result += absl::StrCat("retry_transaction: ",
             ToStringImpl(retry_transaction, indent), "\n");
@@ -75,8 +83,12 @@ typedef struct _google_firestore_v1_Precondition {
         google_protobuf_Timestamp update_time;
     };
 
+    static const char* Name() {
+        return "Precondition";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Precondition>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_condition_type) {
           case 1: // google_firestore_v1_Precondition_exists_tag
@@ -102,8 +114,12 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
         google_protobuf_Timestamp read_time;
     };
 
+    static const char* Name() {
+        return "ReadOnly";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<ReadOnly>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_consistency_selector) {
           case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
@@ -126,8 +142,12 @@ typedef struct _google_firestore_v1_TransactionOptions {
         google_firestore_v1_TransactionOptions_ReadWrite read_write;
     };
 
+    static const char* Name() {
+        return "TransactionOptions";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<TransactionOptions>: {\n"};
+        std::string result{"{\n"};
 
         switch (which_mode) {
           case 2: // google_firestore_v1_TransactionOptions_read_only_tag

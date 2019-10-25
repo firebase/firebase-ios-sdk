@@ -36,8 +36,12 @@ namespace firestore {
 typedef struct _google_protobuf_BytesValue {
     pb_bytes_array_t *value;
 
+    static const char* Name() {
+        return "BytesValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BytesValue>: {\n"};
+        std::string result{"{\n"};
 
         if (value != nullptr) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -51,8 +55,12 @@ typedef struct _google_protobuf_BytesValue {
 typedef struct _google_protobuf_StringValue {
     pb_bytes_array_t *value;
 
+    static const char* Name() {
+        return "StringValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<StringValue>: {\n"};
+        std::string result{"{\n"};
 
         if (value != nullptr) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -66,8 +74,12 @@ typedef struct _google_protobuf_StringValue {
 typedef struct _google_protobuf_BoolValue {
     bool value;
 
+    static const char* Name() {
+        return "BoolValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<BoolValue>: {\n"};
+        std::string result{"{\n"};
 
         if (value != false) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -81,8 +93,12 @@ typedef struct _google_protobuf_BoolValue {
 typedef struct _google_protobuf_DoubleValue {
     double value;
 
+    static const char* Name() {
+        return "DoubleValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<DoubleValue>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -96,8 +112,12 @@ typedef struct _google_protobuf_DoubleValue {
 typedef struct _google_protobuf_FloatValue {
     float value;
 
+    static const char* Name() {
+        return "FloatValue";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<FloatValue>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -111,8 +131,12 @@ typedef struct _google_protobuf_FloatValue {
 typedef struct _google_protobuf_Int32Value {
     int32_t value;
 
+    static const char* Name() {
+        return "Int32Value";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Int32Value>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -126,8 +150,12 @@ typedef struct _google_protobuf_Int32Value {
 typedef struct _google_protobuf_Int64Value {
     int64_t value;
 
+    static const char* Name() {
+        return "Int64Value";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<Int64Value>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -141,8 +169,12 @@ typedef struct _google_protobuf_Int64Value {
 typedef struct _google_protobuf_UInt32Value {
     uint32_t value;
 
+    static const char* Name() {
+        return "UInt32Value";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<UInt32Value>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
@@ -156,8 +188,12 @@ typedef struct _google_protobuf_UInt32Value {
 typedef struct _google_protobuf_UInt64Value {
     uint64_t value;
 
+    static const char* Name() {
+        return "UInt64Value";
+    }
+
     std::string ToString(int indent = 0) const {
-        std::string result{"<UInt64Value>: {\n"};
+        std::string result{"{\n"};
 
         if (value != 0) result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");

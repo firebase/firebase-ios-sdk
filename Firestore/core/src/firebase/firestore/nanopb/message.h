@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/str_cat.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
@@ -163,7 +164,7 @@ class Message {
   }
 
   std::string ToString() const {
-    return proto_.ToString();
+    return absl::StrCat("<", proto_.Name(), ">: ", proto_.ToString());
   }
 
  private:

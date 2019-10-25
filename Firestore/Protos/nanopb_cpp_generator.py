@@ -211,10 +211,8 @@ def nanopb_parse_files(request, options, pretty_printing_info):
 class OneOfMemberPrettyPrintingInfo:
   def __init__(self, field, message):
     if field.rules != 'ONEOF':
-    # if not hasattr(field, 'union_name'):
       raise TypeError('Not a member of oneof')
 
-    # raise Exception(field)
     self.which = 'which_' + field.name
     self.is_anonymous = field.anonymous
     self.fields = field.fields
@@ -338,10 +336,14 @@ namespace firestore {'''
       f.name = result['headername']
       f.insertion_point = 'struct:' + p.full_classname
 
-      # FIXME sort by tag (currently, oneofs are always sorted first for some reason).
       f.content = '''
+    static const char* Name() {
+        return "%s";
+    }\n''' % (p.short_classname)
+
+      f.content += '''
     std::string ToString(int indent = 0) const {
-        std::string result{"<%s>: {\\n"};\n\n''' % (p.short_classname)
+        std::string result{"{\\n"};\n\n'''
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
@@ -427,12 +429,11 @@ def add_printing_for_primitive(print_name, actual_name, zero):
   return 'if (%s != %s) ' % (actual_name, zero) + add_printing_for_singular(print_name, actual_name)
 
 # TODO:
-# 1. Only print the name of the "root" proto.
-# 2. Quotes around strings.
-# 3. Fix indentation
+# 1. Extra colon
+# 2. Fix indentation
 #
-# 4. Oneof isn't properly recursive
-# 5. Formatting arrays?
+# 3. Oneof isn't properly recursive
+# 4. Formatting arrays?
 
 if __name__ == '__main__':
   main()
