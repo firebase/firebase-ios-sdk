@@ -218,7 +218,7 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
         std::string result{"UnaryFilter("};
 
         switch (which_operand_type) {
-          case google_firestore_v1_StructuredQuery_UnaryFilter_field_tag:
+          case 2: // google_firestore_v1_StructuredQuery_UnaryFilter_field_tag
             result += absl::StrCat("field: ",
             ToStringImpl(field, indent), "\n");
             break;
@@ -245,15 +245,15 @@ typedef struct _google_firestore_v1_StructuredQuery_Filter {
         std::string result{"Filter("};
 
         switch (which_filter_type) {
-          case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
+          case 1: // google_firestore_v1_StructuredQuery_Filter_composite_filter_tag
             result += absl::StrCat("composite_filter: ",
             ToStringImpl(composite_filter, indent), "\n");
             break;
-          case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
+          case 2: // google_firestore_v1_StructuredQuery_Filter_field_filter_tag
             result += absl::StrCat("field_filter: ",
             ToStringImpl(field_filter, indent), "\n");
             break;
-          case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
+          case 3: // google_firestore_v1_StructuredQuery_Filter_unary_filter_tag
             result += absl::StrCat("unary_filter: ",
             ToStringImpl(unary_filter, indent), "\n");
             break;

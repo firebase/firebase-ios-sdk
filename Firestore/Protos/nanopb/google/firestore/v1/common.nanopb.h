@@ -79,11 +79,11 @@ typedef struct _google_firestore_v1_Precondition {
         std::string result{"Precondition("};
 
         switch (which_condition_type) {
-          case google_firestore_v1_Precondition_exists_tag:
+          case 1: // google_firestore_v1_Precondition_exists_tag
             result += absl::StrCat("exists: ",
             ToStringImpl(exists, indent), "\n");
             break;
-          case google_firestore_v1_Precondition_update_time_tag:
+          case 2: // google_firestore_v1_Precondition_update_time_tag
             result += absl::StrCat("update_time: ",
             ToStringImpl(update_time, indent), "\n");
             break;
@@ -106,7 +106,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
         std::string result{"ReadOnly("};
 
         switch (which_consistency_selector) {
-          case google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag:
+          case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
             result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
             break;
@@ -130,11 +130,11 @@ typedef struct _google_firestore_v1_TransactionOptions {
         std::string result{"TransactionOptions("};
 
         switch (which_mode) {
-          case google_firestore_v1_TransactionOptions_read_only_tag:
+          case 2: // google_firestore_v1_TransactionOptions_read_only_tag
             result += absl::StrCat("read_only: ",
             ToStringImpl(read_only, indent), "\n");
             break;
-          case google_firestore_v1_TransactionOptions_read_write_tag:
+          case 3: // google_firestore_v1_TransactionOptions_read_write_tag
             result += absl::StrCat("read_write: ",
             ToStringImpl(read_write, indent), "\n");
             break;

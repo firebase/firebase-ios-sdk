@@ -119,47 +119,47 @@ typedef struct _google_firestore_v1_Value {
         std::string result{"Value("};
 
         switch (which_value_type) {
-          case google_firestore_v1_Value_boolean_value_tag:
+          case 1: // google_firestore_v1_Value_boolean_value_tag
             result += absl::StrCat("boolean_value: ",
             ToStringImpl(boolean_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_integer_value_tag:
+          case 2: // google_firestore_v1_Value_integer_value_tag
             result += absl::StrCat("integer_value: ",
             ToStringImpl(integer_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_double_value_tag:
+          case 3: // google_firestore_v1_Value_double_value_tag
             result += absl::StrCat("double_value: ",
             ToStringImpl(double_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_reference_value_tag:
+          case 5: // google_firestore_v1_Value_reference_value_tag
             result += absl::StrCat("reference_value: ",
             ToStringImpl(reference_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_map_value_tag:
+          case 6: // google_firestore_v1_Value_map_value_tag
             result += absl::StrCat("map_value: ",
             ToStringImpl(map_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_geo_point_value_tag:
+          case 8: // google_firestore_v1_Value_geo_point_value_tag
             result += absl::StrCat("geo_point_value: ",
             ToStringImpl(geo_point_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_array_value_tag:
+          case 9: // google_firestore_v1_Value_array_value_tag
             result += absl::StrCat("array_value: ",
             ToStringImpl(array_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_timestamp_value_tag:
+          case 10: // google_firestore_v1_Value_timestamp_value_tag
             result += absl::StrCat("timestamp_value: ",
             ToStringImpl(timestamp_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_null_value_tag:
+          case 11: // google_firestore_v1_Value_null_value_tag
             result += absl::StrCat("null_value: ",
             ToStringImpl(null_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_string_value_tag:
+          case 17: // google_firestore_v1_Value_string_value_tag
             result += absl::StrCat("string_value: ",
             ToStringImpl(string_value, indent), "\n");
             break;
-          case google_firestore_v1_Value_bytes_value_tag:
+          case 18: // google_firestore_v1_Value_bytes_value_tag
             result += absl::StrCat("bytes_value: ",
             ToStringImpl(bytes_value, indent), "\n");
             break;

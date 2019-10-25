@@ -86,15 +86,15 @@ typedef struct _firestore_client_MaybeDocument {
         std::string result{"MaybeDocument("};
 
         switch (which_document_type) {
-          case firestore_client_MaybeDocument_no_document_tag:
+          case 1: // firestore_client_MaybeDocument_no_document_tag
             result += absl::StrCat("no_document: ",
             ToStringImpl(no_document, indent), "\n");
             break;
-          case firestore_client_MaybeDocument_document_tag:
+          case 2: // firestore_client_MaybeDocument_document_tag
             result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
             break;
-          case firestore_client_MaybeDocument_unknown_document_tag:
+          case 3: // firestore_client_MaybeDocument_unknown_document_tag
             result += absl::StrCat("unknown_document: ",
             ToStringImpl(unknown_document, indent), "\n");
             break;

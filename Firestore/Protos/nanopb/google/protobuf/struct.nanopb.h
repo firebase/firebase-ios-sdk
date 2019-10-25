@@ -88,27 +88,27 @@ typedef struct _google_protobuf_Value {
         std::string result{"Value("};
 
         switch (which_kind) {
-          case google_protobuf_Value_null_value_tag:
+          case 1: // google_protobuf_Value_null_value_tag
             result += absl::StrCat("null_value: ",
             ToStringImpl(null_value, indent), "\n");
             break;
-          case google_protobuf_Value_number_value_tag:
+          case 2: // google_protobuf_Value_number_value_tag
             result += absl::StrCat("number_value: ",
             ToStringImpl(number_value, indent), "\n");
             break;
-          case google_protobuf_Value_string_value_tag:
+          case 3: // google_protobuf_Value_string_value_tag
             result += absl::StrCat("string_value: ",
             ToStringImpl(string_value, indent), "\n");
             break;
-          case google_protobuf_Value_bool_value_tag:
+          case 4: // google_protobuf_Value_bool_value_tag
             result += absl::StrCat("bool_value: ",
             ToStringImpl(bool_value, indent), "\n");
             break;
-          case google_protobuf_Value_struct_value_tag:
+          case 5: // google_protobuf_Value_struct_value_tag
             result += absl::StrCat("struct_value: ",
             ToStringImpl(struct_value, indent), "\n");
             break;
-          case google_protobuf_Value_list_value_tag:
+          case 6: // google_protobuf_Value_list_value_tag
             result += absl::StrCat("list_value: ",
             ToStringImpl(list_value, indent), "\n");
             break;

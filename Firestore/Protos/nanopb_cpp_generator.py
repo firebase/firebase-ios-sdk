@@ -216,6 +216,7 @@ class OneOfMemberPrettyPrintingInfo:
 
     # raise Exception(field)
     self.which = 'which_' + field.name
+    self.is_anonymous = field.anonymous
     self.fields = field.fields
     #oneof = message.oneofs[field.union_name]
     #self.tag = oneof.fields.index(field) + 1
@@ -326,6 +327,7 @@ namespace firestore {'''
       f.name = result['headername']
       f.insertion_point = 'struct:' + p.full_classname
 
+      # FIXME sort by tag (currently, oneofs are always sorted first for some reason).
       f.content = '''
     std::string ToString(int indent = 0) const {
         std::string result{"%s("};\n\n''' % (p.short_classname)
@@ -361,13 +363,13 @@ namespace firestore {'''
 
 def add_printing_for_field(field):
   if field.is_optional:
-    return add_printing_for_optional(field)
+    return add_printing_for_optional(field.name)
   elif field.is_repeated:
-    return add_printing_for_repeated(field)
+    return add_printing_for_repeated(field.name)
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   else:
-    return add_printing_for_singular(field)
+    return add_printing_for_singular(field.name)
 
 
 def add_printing_for_oneof(field):
@@ -375,28 +377,31 @@ def add_printing_for_oneof(field):
   result = 'switch (%s) {\n' % (which)
 
   for index, f in enumerate(field.oneof_member.fields):
-    tag = '%s_%s_tag' % (field.full_classname, f.name)
-    result += ' ' * 10 + 'case %s:' % (tag)
+    tag_name = '%s_%s_tag' % (field.full_classname, f.name)
+    # FIXME add comment
+    result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
 
-    result += '\n' + ' ' * 12 + add_printing_for_singular(f)
+    if field.oneof_member.is_anonymous:
+      name = f.name
+    else:
+      name = field.name + '.' + f.name
+    result += '\n' + ' ' * 12 + add_printing_for_singular(name)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
 
 
-def add_printing_for_repeated(field):
-  name = field.name
+def add_printing_for_repeated(name):
   count = name + '_count'
   return '''if (%s) result += absl::StrCat("%s: ",
             ToStringImpl(%s, %s, indent + 1), "\\n");''' % (count, name, name, count)
 
 
-def add_printing_for_optional(field):
-  return 'if (has_%s) ' % (field.name) + add_printing_for_singular(field)
+def add_printing_for_optional(name):
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(name)
 
 
-def add_printing_for_singular(field):
-  name = field.name
+def add_printing_for_singular(name):
   return '''result += absl::StrCat("%s: ",
             ToStringImpl(%s, indent), "\\n");''' % (name, name)
 

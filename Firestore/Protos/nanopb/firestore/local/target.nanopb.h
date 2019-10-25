@@ -52,11 +52,11 @@ typedef struct _firestore_client_Target {
         std::string result{"Target("};
 
         switch (which_target_type) {
-          case firestore_client_Target_query_tag:
+          case 5: // firestore_client_Target_query_tag
             result += absl::StrCat("query: ",
             ToStringImpl(query, indent), "\n");
             break;
-          case firestore_client_Target_documents_tag:
+          case 6: // firestore_client_Target_documents_tag
             result += absl::StrCat("documents: ",
             ToStringImpl(documents, indent), "\n");
             break;

@@ -153,27 +153,27 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
         std::string result{"FieldTransform("};
 
         switch (which_transform_type) {
-          case google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag:
+          case 2: // google_firestore_v1_DocumentTransform_FieldTransform_set_to_server_value_tag
             result += absl::StrCat("set_to_server_value: ",
             ToStringImpl(set_to_server_value, indent), "\n");
             break;
-          case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag:
+          case 3: // google_firestore_v1_DocumentTransform_FieldTransform_increment_tag
             result += absl::StrCat("increment: ",
             ToStringImpl(increment, indent), "\n");
             break;
-          case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag:
+          case 4: // google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag
             result += absl::StrCat("maximum: ",
             ToStringImpl(maximum, indent), "\n");
             break;
-          case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag:
+          case 5: // google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag
             result += absl::StrCat("minimum: ",
             ToStringImpl(minimum, indent), "\n");
             break;
-          case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag:
+          case 6: // google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag
             result += absl::StrCat("append_missing_elements: ",
             ToStringImpl(append_missing_elements, indent), "\n");
             break;
-          case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag:
+          case 7: // google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag
             result += absl::StrCat("remove_all_from_array: ",
             ToStringImpl(remove_all_from_array, indent), "\n");
             break;
@@ -222,15 +222,15 @@ typedef struct _google_firestore_v1_Write {
         std::string result{"Write("};
 
         switch (which_operation) {
-          case google_firestore_v1_Write_update_tag:
+          case 1: // google_firestore_v1_Write_update_tag
             result += absl::StrCat("update: ",
             ToStringImpl(update, indent), "\n");
             break;
-          case google_firestore_v1_Write_delete_tag:
+          case 2: // google_firestore_v1_Write_delete_tag
             result += absl::StrCat("delete_: ",
             ToStringImpl(delete_, indent), "\n");
             break;
-          case google_firestore_v1_Write_transform_tag:
+          case 6: // google_firestore_v1_Write_transform_tag
             result += absl::StrCat("transform: ",
             ToStringImpl(transform, indent), "\n");
             break;
