@@ -9,7 +9,7 @@ libraries in a type safe and potentially weak manner.
 Not intended for direct public usage.
                        DESC
 
-  s.homepage         = 'https://developers.google.com/
+  s.homepage         = 'https://developers.google.com/'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
