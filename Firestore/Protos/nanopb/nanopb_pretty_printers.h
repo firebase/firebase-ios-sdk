@@ -96,6 +96,9 @@ std::string PrintRepeatedField(absl::string_view name,
                                const T& value,
                                pb_size_t count,
                                int indent) {
+  if (count == 0) {
+    return "";
+  }
   return absl::StrCat(name, ToStringImpl(value, count, indent), "\n");
 }
 
