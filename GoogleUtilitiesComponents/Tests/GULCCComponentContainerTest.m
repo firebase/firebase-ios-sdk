@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <XCTest/XCTestCase.h>
+#import <XCTest/XCTest.h>
 
 #import <GoogleUtilitiesComponents/GULCCComponent.h>
 #import <GoogleUtilitiesComponents/GULCCComponentContainerInternal.h>
