@@ -377,9 +377,9 @@ def add_printing_for_field(field):
   elif field.oneof_member:
     return add_printing_for_oneof(field)
   elif field.is_primitive:
-    return add_printing_for_primitive(field.name, field.zero)
+    return add_printing_for_primitive(field.name, field.name, field.zero)
   else:
-    return add_printing_for_singular(field.name)
+    return add_printing_for_singular(field.name, field.name)
 
 
 def add_printing_for_oneof(field):
@@ -392,10 +392,10 @@ def add_printing_for_oneof(field):
     result += ' ' * 10 + 'case %s: // %s' % (f.tag, tag_name)
 
     if field.oneof_member.is_anonymous:
-      name = f.name
+      full_name = f.name
     else:
-      name = field.name + '.' + f.name
-    result += '\n' + ' ' * 12 + add_printing_for_singular(name)
+      full_name = field.name + '.' + f.name
+    result += '\n' + ' ' * 12 + add_printing_for_singular(f.name, full_name)
     result += '\n' + ' ' * 12 + 'break;\n'
 
   return result + ' ' * 8 + '}\n'
@@ -408,16 +408,20 @@ def add_printing_for_repeated(name):
 
 
 def add_printing_for_optional(name):
-  return 'if (has_%s) ' % (name) + add_printing_for_singular(name)
+  return 'if (has_%s) ' % (name) + add_printing_for_singular(name, name)
 
 
-def add_printing_for_singular(name):
+def add_printing_for_singular(print_name, actual_name):
+  if actual_name == None:
+    actual_name = print_name
   return '''result += absl::StrCat("%s: ",
-            ToStringImpl(%s, indent), "\\n");''' % (name, name)
+            ToStringImpl(%s, indent), "\\n");''' % (print_name, actual_name)
 
-def add_printing_for_primitive(name, zero):
-  return '''if (%s != %s) result += absl::StrCat("%s: ",
-            ToStringImpl(%s, indent), "\\n");''' % (name, zero, name, name)
+
+def add_printing_for_primitive(print_name, actual_name, zero):
+  if actual_name == None:
+    actual_name = print_name
+  return 'if (%s != %s) ' % (actual_name, zero) + add_printing_for_singular(print_name, actual_name)
 
 # TODO:
 # 1. Only print the name of the "root" proto.

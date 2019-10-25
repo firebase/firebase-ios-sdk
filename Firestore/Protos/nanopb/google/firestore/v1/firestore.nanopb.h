@@ -516,22 +516,22 @@ typedef struct _google_firestore_v1_RunQueryRequest {
 
         switch (which_query_type) {
           case 2: // google_firestore_v1_RunQueryRequest_structured_query_tag
-            result += absl::StrCat("query_type.structured_query: ",
+            result += absl::StrCat("structured_query: ",
             ToStringImpl(query_type.structured_query, indent), "\n");
             break;
         }
 
         switch (which_consistency_selector) {
           case 5: // google_firestore_v1_RunQueryRequest_transaction_tag
-            result += absl::StrCat("consistency_selector.transaction: ",
+            result += absl::StrCat("transaction: ",
             ToStringImpl(consistency_selector.transaction, indent), "\n");
             break;
           case 6: // google_firestore_v1_RunQueryRequest_new_transaction_tag
-            result += absl::StrCat("consistency_selector.new_transaction: ",
+            result += absl::StrCat("new_transaction: ",
             ToStringImpl(consistency_selector.new_transaction, indent), "\n");
             break;
           case 7: // google_firestore_v1_RunQueryRequest_read_time_tag
-            result += absl::StrCat("consistency_selector.read_time: ",
+            result += absl::StrCat("read_time: ",
             ToStringImpl(consistency_selector.read_time, indent), "\n");
             break;
         }
@@ -735,22 +735,22 @@ typedef struct _google_firestore_v1_Target {
 
         switch (which_target_type) {
           case 2: // google_firestore_v1_Target_query_tag
-            result += absl::StrCat("target_type.query: ",
+            result += absl::StrCat("query: ",
             ToStringImpl(target_type.query, indent), "\n");
             break;
           case 3: // google_firestore_v1_Target_documents_tag
-            result += absl::StrCat("target_type.documents: ",
+            result += absl::StrCat("documents: ",
             ToStringImpl(target_type.documents, indent), "\n");
             break;
         }
 
         switch (which_resume_type) {
           case 4: // google_firestore_v1_Target_resume_token_tag
-            result += absl::StrCat("resume_type.resume_token: ",
+            result += absl::StrCat("resume_token: ",
             ToStringImpl(resume_type.resume_token, indent), "\n");
             break;
           case 11: // google_firestore_v1_Target_read_time_tag
-            result += absl::StrCat("resume_type.read_time: ",
+            result += absl::StrCat("read_time: ",
             ToStringImpl(resume_type.read_time, indent), "\n");
             break;
         }
