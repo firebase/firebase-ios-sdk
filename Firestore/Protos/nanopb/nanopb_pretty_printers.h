@@ -19,6 +19,7 @@
 
 #include <pb.h>
 
+#include <algorithm>
 #include <string>
 #include <type_traits>
 
@@ -40,7 +41,8 @@ template <typename T>
 using HasToString = typename std::is_member_function_pointer<decltype(&T::ToString)>;
 
 template <typename T>
-using IsPrimitive = absl::disjunction<std::is_fundamental<T>, std::is_enum<T>>;
+// using IsPrimitive = absl::disjunction<std::is_fundamental<T>, std::is_enum<T>, std::is_pointer<T>>;
+using IsPrimitive = std::is_scalar<T>;
 
 template <typename T, absl::enable_if_t<IsPrimitive<T>::value, int> = 0>
 std::string ToStringImpl(const T& value, int indent) {
@@ -76,6 +78,11 @@ inline std::string ToStringImpl(bool value, int indent) {
 
 template <typename T, absl::enable_if_t<!IsPrimitive<T>::value, int> = 0>
 std::string PrintField(absl::string_view name, const T& value, int indent) {
+  auto* bytes = reinterpret_cast<const char*>(&value);
+  // FIXME
+  if (std::all_of(bytes, bytes + sizeof(T), [](char c) { return c == 0; })) {
+    return "";
+  }
   return absl::StrCat(Indent(indent), name, ToStringImpl(value, indent), "\n");
 }
 
