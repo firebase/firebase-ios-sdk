@@ -42,7 +42,7 @@ typedef struct _google_rpc_Status {
     struct _google_protobuf_Any *details;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Status(\n"};
+        std::string result{"Status{\n"};
 
         result += absl::StrCat("code: ",
             ToStringImpl(code, indent), "\n");
@@ -51,7 +51,7 @@ typedef struct _google_rpc_Status {
         if (details_count) result += absl::StrCat("details: ",
             ToStringImpl(details, details_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_rpc_Status) */

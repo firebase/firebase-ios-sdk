@@ -42,14 +42,14 @@ typedef struct _firestore_client_NoDocument {
     google_protobuf_Timestamp read_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"NoDocument(\n"};
+        std::string result{"NoDocument{\n"};
 
         result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
@@ -60,14 +60,14 @@ typedef struct _firestore_client_UnknownDocument {
     google_protobuf_Timestamp version;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"UnknownDocument(\n"};
+        std::string result{"UnknownDocument{\n"};
 
         result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         result += absl::StrCat("version: ",
             ToStringImpl(version, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_UnknownDocument) */
@@ -83,7 +83,7 @@ typedef struct _firestore_client_MaybeDocument {
     bool has_committed_mutations;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"MaybeDocument(\n"};
+        std::string result{"MaybeDocument{\n"};
 
         switch (which_document_type) {
           case 1: // firestore_client_MaybeDocument_no_document_tag
@@ -103,7 +103,7 @@ typedef struct _firestore_client_MaybeDocument {
         result += absl::StrCat("has_committed_mutations: ",
             ToStringImpl(has_committed_mutations, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */

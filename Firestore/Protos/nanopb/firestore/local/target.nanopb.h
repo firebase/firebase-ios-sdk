@@ -49,7 +49,7 @@ typedef struct _firestore_client_Target {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target(\n"};
+        std::string result{"Target{\n"};
 
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
@@ -71,7 +71,7 @@ typedef struct _firestore_client_Target {
         result += absl::StrCat("last_listen_sequence_number: ",
             ToStringImpl(last_listen_sequence_number, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
@@ -84,7 +84,7 @@ typedef struct _firestore_client_TargetGlobal {
     int32_t target_count;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TargetGlobal(\n"};
+        std::string result{"TargetGlobal{\n"};
 
         result += absl::StrCat("highest_target_id: ",
             ToStringImpl(highest_target_id, indent), "\n");
@@ -95,7 +95,7 @@ typedef struct _firestore_client_TargetGlobal {
         result += absl::StrCat("target_count: ",
             ToStringImpl(target_count, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:firestore_client_TargetGlobal) */

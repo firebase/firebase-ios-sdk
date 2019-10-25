@@ -46,12 +46,12 @@ typedef struct _google_firestore_v1_ArrayValue {
     struct _google_firestore_v1_Value *values;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ArrayValue(\n"};
+        std::string result{"ArrayValue{\n"};
 
         if (values_count) result += absl::StrCat("values: ",
             ToStringImpl(values, values_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
@@ -62,12 +62,12 @@ typedef struct _google_firestore_v1_MapValue {
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"MapValue(\n"};
+        std::string result{"MapValue{\n"};
 
         if (fields_count) result += absl::StrCat("fields: ",
             ToStringImpl(fields, fields_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
@@ -82,7 +82,7 @@ typedef struct _google_firestore_v1_Document {
     google_protobuf_Timestamp update_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Document(\n"};
+        std::string result{"Document{\n"};
 
         result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
@@ -93,7 +93,7 @@ typedef struct _google_firestore_v1_Document {
         if (has_update_time) result += absl::StrCat("update_time: ",
             ToStringImpl(update_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document) */
@@ -116,7 +116,7 @@ typedef struct _google_firestore_v1_Value {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Value(\n"};
+        std::string result{"Value{\n"};
 
         switch (which_value_type) {
           case 1: // google_firestore_v1_Value_boolean_value_tag
@@ -166,7 +166,7 @@ typedef struct _google_firestore_v1_Value {
         }
 
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Value) */
@@ -177,14 +177,14 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"FieldsEntry(\n"};
+        std::string result{"FieldsEntry{\n"};
 
         result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
@@ -195,14 +195,14 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     google_firestore_v1_Value value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"FieldsEntry(\n"};
+        std::string result{"FieldsEntry{\n"};
 
         result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */

@@ -65,12 +65,12 @@ typedef struct _google_firestore_v1_BeginTransactionResponse {
     pb_bytes_array_t *transaction;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"BeginTransactionResponse(\n"};
+        std::string result{"BeginTransactionResponse{\n"};
 
         result += absl::StrCat("transaction: ",
             ToStringImpl(transaction, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionResponse) */
@@ -83,7 +83,7 @@ typedef struct _google_firestore_v1_CommitRequest {
     pb_bytes_array_t *transaction;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"CommitRequest(\n"};
+        std::string result{"CommitRequest{\n"};
 
         result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -92,7 +92,7 @@ typedef struct _google_firestore_v1_CommitRequest {
         result += absl::StrCat("transaction: ",
             ToStringImpl(transaction, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitRequest) */
@@ -104,14 +104,14 @@ typedef struct _google_firestore_v1_ListCollectionIdsResponse {
     pb_bytes_array_t *next_page_token;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListCollectionIdsResponse(\n"};
+        std::string result{"ListCollectionIdsResponse{\n"};
 
         if (collection_ids_count) result += absl::StrCat("collection_ids: ",
             ToStringImpl(collection_ids, collection_ids_count, indent + 1), "\n");
         result += absl::StrCat("next_page_token: ",
             ToStringImpl(next_page_token, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsResponse) */
@@ -123,14 +123,14 @@ typedef struct _google_firestore_v1_ListDocumentsResponse {
     pb_bytes_array_t *next_page_token;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListDocumentsResponse(\n"};
+        std::string result{"ListDocumentsResponse{\n"};
 
         if (documents_count) result += absl::StrCat("documents: ",
             ToStringImpl(documents, documents_count, indent + 1), "\n");
         result += absl::StrCat("next_page_token: ",
             ToStringImpl(next_page_token, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsResponse) */
@@ -141,14 +141,14 @@ typedef struct _google_firestore_v1_ListenRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"LabelsEntry(\n"};
+        std::string result{"LabelsEntry{\n"};
 
         result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest_LabelsEntry) */
@@ -159,14 +159,14 @@ typedef struct _google_firestore_v1_RollbackRequest {
     pb_bytes_array_t *transaction;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"RollbackRequest(\n"};
+        std::string result{"RollbackRequest{\n"};
 
         result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
         result += absl::StrCat("transaction: ",
             ToStringImpl(transaction, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RollbackRequest) */
@@ -177,12 +177,12 @@ typedef struct _google_firestore_v1_Target_DocumentsTarget {
     pb_bytes_array_t **documents;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentsTarget(\n"};
+        std::string result{"DocumentsTarget{\n"};
 
         if (documents_count) result += absl::StrCat("documents: ",
             ToStringImpl(documents, documents_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_DocumentsTarget) */
@@ -198,7 +198,7 @@ typedef struct _google_firestore_v1_WriteRequest {
     struct _google_firestore_v1_WriteRequest_LabelsEntry *labels;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"WriteRequest(\n"};
+        std::string result{"WriteRequest{\n"};
 
         result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
@@ -211,7 +211,7 @@ typedef struct _google_firestore_v1_WriteRequest {
         if (labels_count) result += absl::StrCat("labels: ",
             ToStringImpl(labels, labels_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest) */
@@ -222,14 +222,14 @@ typedef struct _google_firestore_v1_WriteRequest_LabelsEntry {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"LabelsEntry(\n"};
+        std::string result{"LabelsEntry{\n"};
 
         result += absl::StrCat("key: ",
             ToStringImpl(key, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteRequest_LabelsEntry) */
@@ -248,7 +248,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"BatchGetDocumentsRequest(\n"};
+        std::string result{"BatchGetDocumentsRequest{\n"};
 
         switch (which_consistency_selector) {
           case 4: // google_firestore_v1_BatchGetDocumentsRequest_transaction_tag
@@ -272,7 +272,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsRequest {
         result += absl::StrCat("mask: ",
             ToStringImpl(mask, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsRequest) */
@@ -288,7 +288,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
     google_protobuf_Timestamp read_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"BatchGetDocumentsResponse(\n"};
+        std::string result{"BatchGetDocumentsResponse{\n"};
 
         switch (which_result) {
           case 1: // google_firestore_v1_BatchGetDocumentsResponse_found_tag
@@ -306,7 +306,7 @@ typedef struct _google_firestore_v1_BatchGetDocumentsResponse {
         result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BatchGetDocumentsResponse) */
@@ -317,14 +317,14 @@ typedef struct _google_firestore_v1_BeginTransactionRequest {
     google_firestore_v1_TransactionOptions options;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"BeginTransactionRequest(\n"};
+        std::string result{"BeginTransactionRequest{\n"};
 
         result += absl::StrCat("database: ",
             ToStringImpl(database, indent), "\n");
         result += absl::StrCat("options: ",
             ToStringImpl(options, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_BeginTransactionRequest) */
@@ -336,14 +336,14 @@ typedef struct _google_firestore_v1_CommitResponse {
     google_protobuf_Timestamp commit_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"CommitResponse(\n"};
+        std::string result{"CommitResponse{\n"};
 
         if (write_results_count) result += absl::StrCat("write_results: ",
             ToStringImpl(write_results, write_results_count, indent + 1), "\n");
         result += absl::StrCat("commit_time: ",
             ToStringImpl(commit_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CommitResponse) */
@@ -357,7 +357,7 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
     google_firestore_v1_DocumentMask mask;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"CreateDocumentRequest(\n"};
+        std::string result{"CreateDocumentRequest{\n"};
 
         result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -370,7 +370,7 @@ typedef struct _google_firestore_v1_CreateDocumentRequest {
         result += absl::StrCat("mask: ",
             ToStringImpl(mask, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_CreateDocumentRequest) */
@@ -381,14 +381,14 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DeleteDocumentRequest(\n"};
+        std::string result{"DeleteDocumentRequest{\n"};
 
         result += absl::StrCat("name: ",
             ToStringImpl(name, indent), "\n");
         result += absl::StrCat("current_document: ",
             ToStringImpl(current_document, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
@@ -404,7 +404,7 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"GetDocumentRequest(\n"};
+        std::string result{"GetDocumentRequest{\n"};
 
         switch (which_consistency_selector) {
           case 3: // google_firestore_v1_GetDocumentRequest_transaction_tag
@@ -422,7 +422,7 @@ typedef struct _google_firestore_v1_GetDocumentRequest {
         result += absl::StrCat("mask: ",
             ToStringImpl(mask, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_GetDocumentRequest) */
@@ -434,7 +434,7 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
     pb_bytes_array_t *page_token;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListCollectionIdsRequest(\n"};
+        std::string result{"ListCollectionIdsRequest{\n"};
 
         result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
@@ -443,7 +443,7 @@ typedef struct _google_firestore_v1_ListCollectionIdsRequest {
         result += absl::StrCat("page_token: ",
             ToStringImpl(page_token, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListCollectionIdsRequest) */
@@ -464,7 +464,7 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
     bool show_missing;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListDocumentsRequest(\n"};
+        std::string result{"ListDocumentsRequest{\n"};
 
         switch (which_consistency_selector) {
           case 8: // google_firestore_v1_ListDocumentsRequest_transaction_tag
@@ -492,7 +492,7 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
         result += absl::StrCat("show_missing: ",
             ToStringImpl(show_missing, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
@@ -512,7 +512,7 @@ typedef struct _google_firestore_v1_RunQueryRequest {
     } consistency_selector;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"RunQueryRequest(\n"};
+        std::string result{"RunQueryRequest{\n"};
 
         switch (which_query_type) {
           case 2: // google_firestore_v1_RunQueryRequest_structured_query_tag
@@ -539,7 +539,7 @@ typedef struct _google_firestore_v1_RunQueryRequest {
         result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryRequest) */
@@ -552,7 +552,7 @@ typedef struct _google_firestore_v1_RunQueryResponse {
     int32_t skipped_results;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"RunQueryResponse(\n"};
+        std::string result{"RunQueryResponse{\n"};
 
         result += absl::StrCat("transaction: ",
             ToStringImpl(transaction, indent), "\n");
@@ -563,7 +563,7 @@ typedef struct _google_firestore_v1_RunQueryResponse {
         result += absl::StrCat("skipped_results: ",
             ToStringImpl(skipped_results, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_RunQueryResponse) */
@@ -579,7 +579,7 @@ typedef struct _google_firestore_v1_TargetChange {
     google_protobuf_Timestamp read_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TargetChange(\n"};
+        std::string result{"TargetChange{\n"};
 
         result += absl::StrCat("target_change_type: ",
             ToStringImpl(target_change_type, indent), "\n");
@@ -592,7 +592,7 @@ typedef struct _google_firestore_v1_TargetChange {
         result += absl::StrCat("read_time: ",
             ToStringImpl(read_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
@@ -606,7 +606,7 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"QueryTarget(\n"};
+        std::string result{"QueryTarget{\n"};
 
         switch (which_query_type) {
           case 2: // google_firestore_v1_Target_QueryTarget_structured_query_tag
@@ -618,7 +618,7 @@ typedef struct _google_firestore_v1_Target_QueryTarget {
         result += absl::StrCat("parent: ",
             ToStringImpl(parent, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target_QueryTarget) */
@@ -631,7 +631,7 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
     google_firestore_v1_Precondition current_document;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"UpdateDocumentRequest(\n"};
+        std::string result{"UpdateDocumentRequest{\n"};
 
         result += absl::StrCat("document: ",
             ToStringImpl(document, indent), "\n");
@@ -642,7 +642,7 @@ typedef struct _google_firestore_v1_UpdateDocumentRequest {
         result += absl::StrCat("current_document: ",
             ToStringImpl(current_document, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_UpdateDocumentRequest) */
@@ -656,7 +656,7 @@ typedef struct _google_firestore_v1_WriteResponse {
     google_protobuf_Timestamp commit_time;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"WriteResponse(\n"};
+        std::string result{"WriteResponse{\n"};
 
         result += absl::StrCat("stream_id: ",
             ToStringImpl(stream_id, indent), "\n");
@@ -667,7 +667,7 @@ typedef struct _google_firestore_v1_WriteResponse {
         result += absl::StrCat("commit_time: ",
             ToStringImpl(commit_time, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_WriteResponse) */
@@ -684,7 +684,7 @@ typedef struct _google_firestore_v1_ListenResponse {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListenResponse(\n"};
+        std::string result{"ListenResponse{\n"};
 
         switch (which_response_type) {
           case 2: // google_firestore_v1_ListenResponse_target_change_tag
@@ -710,7 +710,7 @@ typedef struct _google_firestore_v1_ListenResponse {
         }
 
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenResponse) */
@@ -731,7 +731,7 @@ typedef struct _google_firestore_v1_Target {
     bool once;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target(\n"};
+        std::string result{"Target{\n"};
 
         switch (which_target_type) {
           case 2: // google_firestore_v1_Target_query_tag
@@ -760,7 +760,7 @@ typedef struct _google_firestore_v1_Target {
         result += absl::StrCat("once: ",
             ToStringImpl(once, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
@@ -777,7 +777,7 @@ typedef struct _google_firestore_v1_ListenRequest {
     struct _google_firestore_v1_ListenRequest_LabelsEntry *labels;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ListenRequest(\n"};
+        std::string result{"ListenRequest{\n"};
 
         switch (which_target_change) {
           case 2: // google_firestore_v1_ListenRequest_add_target_tag
@@ -795,7 +795,7 @@ typedef struct _google_firestore_v1_ListenRequest {
         if (labels_count) result += absl::StrCat("labels: ",
             ToStringImpl(labels, labels_count, indent + 1), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListenRequest) */

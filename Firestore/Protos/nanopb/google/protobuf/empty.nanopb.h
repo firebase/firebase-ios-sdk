@@ -37,10 +37,10 @@ typedef struct _google_protobuf_Empty {
     char dummy_field;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Empty(\n"};
+        std::string result{"Empty{\n"};
 
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Empty) */

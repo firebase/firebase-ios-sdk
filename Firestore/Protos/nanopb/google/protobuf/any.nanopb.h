@@ -38,14 +38,14 @@ typedef struct _google_protobuf_Any {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Any(\n"};
+        std::string result{"Any{\n"};
 
         result += absl::StrCat("type_url: ",
             ToStringImpl(type_url, indent), "\n");
         result += absl::StrCat("value: ",
             ToStringImpl(value, indent), "\n");
 
-        result += ')';
+        result += '}';
         return result;
     }
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */

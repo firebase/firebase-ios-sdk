@@ -330,13 +330,13 @@ namespace firestore {'''
       # FIXME sort by tag (currently, oneofs are always sorted first for some reason).
       f.content = '''
     std::string ToString(int indent = 0) const {
-        std::string result{"%s(\\n"};\n\n''' % (p.short_classname)
+        std::string result{"%s{\\n"};\n\n''' % (p.short_classname)
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'
 
       f.content += '''
-        result += ')';
+        result += '}';
         return result;
     }'''
 
@@ -402,6 +402,7 @@ def add_printing_for_optional(name):
 
 
 def add_printing_for_singular(name):
+  # FIXME don't print primitives == 0
   return '''result += absl::StrCat("%s: ",
             ToStringImpl(%s, indent), "\\n");''' % (name, name)
 
