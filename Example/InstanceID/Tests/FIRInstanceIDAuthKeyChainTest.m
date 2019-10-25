@@ -80,7 +80,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   __weak FIRInstanceIDAuthKeychain *weakKeychain = keychain;
   [keychain setData:tokenInfoData1
          forService:service
-      accessibility:NULL
             account:account1
             handler:^(NSError *error) {
               XCTAssertNil(error);
@@ -92,7 +91,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
               [weakKeychain
                         setData:tokenInfoData2
                      forService:service
-                  accessibility:NULL
                         account:account2
                         handler:^(NSError *error) {
                           XCTAssertNil(error);
@@ -153,7 +151,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   __weak FIRInstanceIDAuthKeychain *weakKeychain = keychain;
   [keychain setData:tokenData
          forService:service1
-      accessibility:NULL
             account:account
             handler:^(NSError *error) {
               XCTAssertNil(error);
@@ -168,7 +165,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
               [weakKeychain
                         setData:checkinData
                      forService:service2
-                  accessibility:NULL
                         account:account
                         handler:^(NSError *error) {
                           XCTAssertNil(error);
@@ -237,7 +233,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   __weak id weakKeychainMock = keychainMock;
   [keychain setData:tokenData
          forService:service
-      accessibility:NULL
             account:account
             handler:^(NSError *error) {
               XCTAssertNil(error);
@@ -299,7 +294,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   __weak FIRInstanceIDAuthKeychain *weakKeychain = keychain;
   [keychain setData:tokenData
          forService:service
-      accessibility:NULL
             account:account
             handler:^(NSError *error) {
               XCTAssertNil(error);
@@ -344,7 +338,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   __weak FIRInstanceIDAuthKeychain *weakKeychain = keychain;
   [keychain setData:tokenData
          forService:service
-      accessibility:NULL
             account:account
             handler:^(NSError *error) {
               XCTAssertNil(error);
@@ -374,7 +367,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   NSData *data = [[NSData alloc] init];
   [keychain setData:data
          forService:@"*"
-      accessibility:NULL
             account:@"*"
             handler:^(NSError *error) {
               XCTAssertNotNil(error);

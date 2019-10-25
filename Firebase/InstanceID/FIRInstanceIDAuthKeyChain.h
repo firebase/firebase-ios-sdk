@@ -86,9 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  */
 - (void)setData:(NSData *)data
-       forService:(NSString *)service
-          account:(NSString *)account
-          handler:(nullable void (^)(NSError *))handler;
+     forService:(NSString *)service
+        account:(NSString *)account
+        handler:(nullable void (^)(NSError *))handler;
 
 @end
 

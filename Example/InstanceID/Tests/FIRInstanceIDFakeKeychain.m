@@ -91,7 +91,6 @@ static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
 
 - (void)setData:(NSData *)data
        forService:(NSString *)service
-    accessibility:(nullable CFTypeRef)accessibility
           account:(NSString *)account
           handler:(void (^)(NSError *error))handler {
   if (self.cannotWriteToKeychain) {

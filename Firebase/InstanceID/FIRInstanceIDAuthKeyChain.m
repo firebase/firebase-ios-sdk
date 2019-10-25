@@ -167,9 +167,9 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
 }
 
 - (void)setData:(NSData *)data
-       forService:(NSString *)service
-          account:(NSString *)account
-          handler:(void (^)(NSError *))handler {
+     forService:(NSString *)service
+        account:(NSString *)account
+        handler:(void (^)(NSError *))handler {
   if ([service isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier] ||
       [account isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier]) {
     if (handler) {
@@ -194,7 +194,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
                                keychainQuery[(__bridge id)kSecValueData] = data;
 
                                keychainQuery[(__bridge id)kSecAttrAccessible] =
-                                     (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+                                   (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
                                [[FIRInstanceIDKeychain sharedInstance]
                                    addItemWithQuery:keychainQuery
                                             handler:handler];
