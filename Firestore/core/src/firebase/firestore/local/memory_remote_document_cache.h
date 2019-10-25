@@ -46,7 +46,9 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
       const model::DocumentKey& key) override;
   model::OptionalMaybeDocumentMap GetAll(
       const model::DocumentKeySet& keys) override;
-  model::DocumentMap GetMatching(const core::Query& query) override;
+  model::DocumentMap GetMatching(
+      const core::Query& query,
+      const model::SnapshotVersion& since_read_time) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       MemoryLruReferenceDelegate* reference_delegate,
