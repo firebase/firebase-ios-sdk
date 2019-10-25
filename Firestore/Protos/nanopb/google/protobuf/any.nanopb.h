@@ -38,7 +38,7 @@ typedef struct _google_protobuf_Any {
     pb_bytes_array_t *value;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Any("};
+        std::string result{"Any(\n"};
 
         result += absl::StrCat("type_url: ",
             ToStringImpl(type_url, indent), "\n");

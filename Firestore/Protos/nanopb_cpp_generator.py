@@ -330,7 +330,7 @@ namespace firestore {'''
       # FIXME sort by tag (currently, oneofs are always sorted first for some reason).
       f.content = '''
     std::string ToString(int indent = 0) const {
-        std::string result{"%s("};\n\n''' % (p.short_classname)
+        std::string result{"%s(\\n"};\n\n''' % (p.short_classname)
 
       for field in p.fields:
         f.content += ' ' * 8 + add_printing_for_field(field) + '\n'

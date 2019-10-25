@@ -49,7 +49,7 @@ typedef struct _firestore_client_Target {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Target("};
+        std::string result{"Target(\n"};
 
         switch (which_target_type) {
           case 5: // firestore_client_Target_query_tag
@@ -84,7 +84,7 @@ typedef struct _firestore_client_TargetGlobal {
     int32_t target_count;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TargetGlobal("};
+        std::string result{"TargetGlobal(\n"};
 
         result += absl::StrCat("highest_target_id: ",
             ToStringImpl(highest_target_id, indent), "\n");

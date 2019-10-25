@@ -143,6 +143,7 @@ std::string WatchStreamSerializer::Describe(
     const Message<google_firestore_v1_ListenRequest>& request) {
   // return DescribeMessage<GCFSListenRequest>(request);
   auto result = request.ToString();
+  auto result2 = DescribeMessage<GCFSListenRequest>(request);
     return result;
 }
 

@@ -37,7 +37,7 @@ typedef struct _google_protobuf_Empty {
     char dummy_field;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Empty("};
+        std::string result{"Empty(\n"};
 
 
         result += ')';

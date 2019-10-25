@@ -42,7 +42,7 @@ typedef struct _google_firestore_v1_DocumentMask {
     pb_bytes_array_t **field_paths;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"DocumentMask("};
+        std::string result{"DocumentMask(\n"};
 
         if (field_paths_count) result += absl::StrCat("field_paths: ",
             ToStringImpl(field_paths, field_paths_count, indent + 1), "\n");
@@ -57,7 +57,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
     pb_bytes_array_t *retry_transaction;
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ReadWrite("};
+        std::string result{"ReadWrite(\n"};
 
         result += absl::StrCat("retry_transaction: ",
             ToStringImpl(retry_transaction, indent), "\n");
@@ -76,7 +76,7 @@ typedef struct _google_firestore_v1_Precondition {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"Precondition("};
+        std::string result{"Precondition(\n"};
 
         switch (which_condition_type) {
           case 1: // google_firestore_v1_Precondition_exists_tag
@@ -103,7 +103,7 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"ReadOnly("};
+        std::string result{"ReadOnly(\n"};
 
         switch (which_consistency_selector) {
           case 2: // google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag
@@ -127,7 +127,7 @@ typedef struct _google_firestore_v1_TransactionOptions {
     };
 
     std::string ToString(int indent = 0) const {
-        std::string result{"TransactionOptions("};
+        std::string result{"TransactionOptions(\n"};
 
         switch (which_mode) {
           case 2: // google_firestore_v1_TransactionOptions_read_only_tag

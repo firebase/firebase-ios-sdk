@@ -39,7 +39,7 @@ std::string ToStringImpl(pb_bytes_array_t* value, int indent);
 
 inline std::string Indent(int level) {
   constexpr int kIndentWidth = 2;
-  return std::string(' ', level * kIndentWidth);
+  return std::string(level * kIndentWidth, ' ');
 }
 
 template <typename T>
